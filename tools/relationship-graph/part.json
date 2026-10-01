@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/read-connection-graph.ts", "read-data/connection-model.ts"]
+}

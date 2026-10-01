@@ -1,0 +1,254 @@
+{
+ "package": "revenue-ledger",
+ "things": [
+  {
+   "type": "record",
+   "id": "package::revenue-ledger::tool::add-up-revenue",
+   "address": "package::revenue-ledger::tool::add-up-revenue",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:add-up-revenue",
+    "label": "Add up revenue",
+    "status": "active",
+    "job": "Add up revenue, refunds, net revenue and active recurring revenue from a list of payments, by plan or any other group",
+    "description": "Reads any payment provider's events: you say which field holds the amount, which holds the recurring amount, which event kinds add revenue and which subtract it (refunds), and optionally which field groups payments (a plan, an offer, a month). Returns gross, refunds, net and active recurring revenue in cents, totals by group and by role, and the payments that need a look (missing or negative amounts, duplicates, the same payment twice with different amounts).",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "payments",
+      "how_to_read"
+     ],
+     "properties": {
+      "payments": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "event_id",
+         "event_kind",
+         "attributes"
+        ],
+        "properties": {
+         "event_id": {
+          "type": "string"
+         },
+         "event_kind": {
+          "type": "string"
+         },
+         "occurred_at": {
+          "type": "string"
+         },
+         "attributes": {
+          "type": "object",
+          "description": "The payment's fields as the provider sent them"
+         }
+        }
+       },
+       "description": "The payment events"
+      },
+      "how_to_read": {
+       "type": "object",
+       "required": [
+        "amount_field_path",
+        "event_role_map"
+       ],
+       "properties": {
+        "amount_field_path": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "description": "Where the amount in cents is inside attributes, like [\"amount\"]"
+        },
+        "recurring_field_path": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "description": "Where the recurring amount in cents is, when a payment is a subscription"
+        },
+        "event_role_map": {
+         "type": "object",
+         "additionalProperties": {
+          "type": "string"
+         },
+         "description": "Each event kind to \"add\", \"subtract\" or \"ignore\""
+        },
+        "cohort_key_path": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "description": "The field to group by, like [\"plan\"]"
+        },
+        "active_predicate": {
+         "type": "object",
+         "required": [
+          "field_path",
+          "active_values"
+         ],
+         "properties": {
+          "field_path": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "active_values": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          }
+         },
+         "description": "Which subscriptions count as active: the field and the values that mean active"
+        }
+       },
+       "description": "Which fields hold what, and which kinds add or subtract"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "gross_cents",
+      "refunds_cents",
+      "net_cents",
+      "recurring_active_cents",
+      "by_cohort",
+      "by_event_role",
+      "review",
+      "payments_read"
+     ],
+     "properties": {
+      "gross_cents": {
+       "type": "number"
+      },
+      "refunds_cents": {
+       "type": "number"
+      },
+      "net_cents": {
+       "type": "number"
+      },
+      "recurring_active_cents": {
+       "type": "number"
+      },
+      "by_cohort": {
+       "type": "object"
+      },
+      "by_event_role": {
+       "type": "object"
+      },
+      "review": {
+       "type": "object"
+      },
+      "payments_read": {
+       "type": "number"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "revenue-ledger",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/parts/revenue-ledger"
+      }
+     },
+     "workdir": "/opt/parts/revenue-ledger",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/add-up-revenue.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:revenue-ledger",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/revenue-ledger"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "payments": [
+        {
+         "event_id": "p1",
+         "event_kind": "charge.succeeded",
+         "attributes": {
+          "amount": 5000,
+          "plan": "monthly",
+          "monthly": 5000
+         }
+        },
+        {
+         "event_id": "p2",
+         "event_kind": "charge.succeeded",
+         "attributes": {
+          "amount": 12000,
+          "plan": "yearly"
+         }
+        },
+        {
+         "event_id": "r1",
+         "event_kind": "charge.refunded",
+         "attributes": {
+          "amount": 2000,
+          "plan": "monthly"
+         }
+        }
+       ],
+       "how_to_read": {
+        "amount_field_path": [
+         "amount"
+        ],
+        "recurring_field_path": [
+         "monthly"
+        ],
+        "event_role_map": {
+         "charge.succeeded": "add",
+         "charge.refunded": "subtract"
+        },
+        "cohort_key_path": [
+         "plan"
+        ]
+       }
+      },
+      "output_selector": "$.net_cents",
+      "contains": "15000"
+     },
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.net_cents",
+      "at_most": {
+       "output_selector": "$.gross_cents"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

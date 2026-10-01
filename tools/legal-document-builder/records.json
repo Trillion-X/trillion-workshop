@@ -1,0 +1,200 @@
+{
+ "package": "legal-document-builder",
+ "things": [
+  {
+   "type": "record",
+   "id": "package::legal-document-builder::tool::write-legal-documents",
+   "address": "package::legal-document-builder::tool::write-legal-documents",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:write-legal-documents",
+    "label": "Write legal documents",
+    "status": "active",
+    "job": "Write a business's terms of service, privacy policy, refund policy or waiver from its facts",
+    "description": "Assembles each document you ask for from a library of forty clauses, choosing the clauses the business's facts call for (accounts, paid offers, subscriptions, AI, physical activity, minors) and filling in its name, address, contact and policies. Each document comes back with its text, its identity, the clauses used, the facts still missing or to be confirmed, and whether it is ready to publish; nothing is ready to publish until a lawyer has reviewed it. facts_it_reads lists every fact each document uses, so a first call with a few facts shows what to ask for next.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "documents",
+      "facts"
+     ],
+     "properties": {
+      "documents": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "string",
+        "enum": [
+         "terms",
+         "privacy",
+         "refunds",
+         "waiver"
+        ]
+       },
+       "description": "Which documents to write"
+      },
+      "facts": {
+       "type": "object",
+       "description": "The business's facts by name (business_legal_name, service_name, site_url, contact_email, service_description, has_accounts, has_paid_offers, has_subscriptions, uses_ai, has_physical_activity, serves_minors, governing_law_state, ...). A value may be {\"value\": ..., \"needs_founder_verification\": \"what to confirm\"} when it still has to be confirmed."
+      },
+      "titles": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "string"
+       },
+       "description": "A title to use for a document instead of the usual one"
+      },
+      "addresses": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "string"
+       },
+       "description": "Where each document will be published, like {\"terms\": \"/legal/terms\"}"
+      },
+      "reviewed_by_a_lawyer": {
+       "type": "boolean",
+       "description": "True once a lawyer has reviewed these documents (default false)"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "documents",
+      "facts_it_reads"
+     ],
+     "properties": {
+      "documents": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "document_type",
+         "title",
+         "text",
+         "identity",
+         "clauses",
+         "ready_to_publish",
+         "missing_facts",
+         "facts_to_confirm"
+        ],
+        "properties": {
+         "text": {
+          "type": "string",
+          "minLength": 1
+         },
+         "identity": {
+          "type": "string"
+         },
+         "ready_to_publish": {
+          "type": "boolean"
+         },
+         "missing_facts": {
+          "type": "array"
+         },
+         "facts_to_confirm": {
+          "type": "array"
+         },
+         "clauses": {
+          "type": "array",
+          "minItems": 1
+         }
+        }
+       }
+      },
+      "facts_it_reads": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "legal-document-builder",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data"
+        ],
+        "at": "/opt/parts/legal-document-builder"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/parts/legal-document-builder",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/write-legal-documents.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:legal-document-builder",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/legal-document-builder"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "documents": [
+        "terms"
+       ],
+       "facts": {
+        "business_legal_name": "Harbor Coaching LLC",
+        "service_name": "Harbor Coaching",
+        "site_url": "https://harbor.example",
+        "contact_email": "help@harbor.example",
+        "service_description": "One-to-one swim coaching sessions booked online.",
+        "has_accounts": true,
+        "has_paid_offers": true
+       }
+      },
+      "output_selector": "$.documents[0].text",
+      "contains": "Harbor Coaching LLC"
+     },
+     {
+      "kind": "output-contains",
+      "output_selector": "$.documents[0].identity",
+      "text": "1f:"
+     }
+    ]
+   }
+  }
+ ]
+}

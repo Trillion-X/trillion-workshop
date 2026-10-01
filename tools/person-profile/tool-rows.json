@@ -1,0 +1,243 @@
+{
+ "kind": "tool-rows",
+ "record_set": "person-profile-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/person-profile: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::person-profile::tool::lay-out-a-profile",
+   "address": "package::person-profile::tool::lay-out-a-profile",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:lay-out-a-profile",
+    "label": "Lay out a person's profile",
+    "status": "active",
+    "job": "Lay out one person's profile page from their record: name, fields with values, related lists such as their activity or deals, and the actions that apply",
+    "description": "Give layout (what the profile shows: surfaceId; identity {titlePath, subtitlePath, fallbackTitle}; fields [{id, label, sourceId, valuePath, fallbackValue, editable, visibleWhen}]; relationships [{id, label, sourceId, itemPath, fields [{key, path}], emptyLabel}]; actions [{id, label, enabled, intent, visibleWhen}]) and sources (the records it reads by name; record is read when a field names none). Returns the profile's title, subtitle, each visible field with its value, each related list with its items, and each visible action.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "layout",
+      "sources"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "layout": {
+       "type": "object",
+       "required": [
+        "surfaceId"
+       ],
+       "description": "What the profile shows"
+      },
+      "sources": {
+       "type": "object",
+       "description": "The records the layout reads, by name, like {\"record\": {...}, \"activity\": {...}}"
+      },
+      "reader": {
+       "type": "string",
+       "description": "Optional: who the profile is laid out for"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "kind",
+      "surfaceId",
+      "identity",
+      "fields",
+      "relationships",
+      "actions"
+     ],
+     "properties": {
+      "kind": {
+       "type": "string",
+       "enum": [
+        "described-record-surface-materialization"
+       ]
+      },
+      "surfaceId": {
+       "type": "string"
+      },
+      "identity": {
+       "type": "object",
+       "required": [
+        "title"
+       ],
+       "properties": {
+        "title": {
+         "type": "string",
+         "minLength": 1
+        }
+       }
+      },
+      "fields": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "label",
+         "value"
+        ]
+       }
+      },
+      "relationships": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "items"
+        ]
+       }
+      },
+      "actions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "label",
+         "enabled"
+        ]
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "person-profile",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/person-profile",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/person-profile",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/lay-out-a-profile.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:person-profile",
+    "provenance": {
+     "source": "bitfield-packages packages/person-profile"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "layout": {
+        "surfaceId": "person",
+        "identity": {
+         "titlePath": [
+          "name"
+         ],
+         "subtitlePath": [
+          "company"
+         ]
+        },
+        "fields": [
+         {
+          "id": "email",
+          "label": "Email",
+          "valuePath": [
+           "email"
+          ]
+         },
+         {
+          "id": "stage",
+          "label": "Stage",
+          "valuePath": [
+           "stage"
+          ],
+          "fallbackValue": "Lead"
+         }
+        ],
+        "relationships": [
+         {
+          "id": "steps",
+          "label": "Recent steps",
+          "itemPath": [
+           "steps"
+          ],
+          "fields": [
+           {
+            "key": "label"
+           },
+           {
+            "key": "at"
+           }
+          ],
+          "emptyLabel": "Nothing yet"
+         }
+        ],
+        "actions": [
+         {
+          "id": "book",
+          "label": "Book a call"
+         },
+         {
+          "id": "win",
+          "label": "Mark won",
+          "visibleWhen": [
+           {
+            "path": [
+             "stage"
+            ],
+            "equals": "proposal"
+           }
+          ]
+         }
+        ]
+       },
+       "sources": {
+        "record": {
+         "name": "Ana Ruiz",
+         "company": "Northwind",
+         "email": "ana@northwind.example",
+         "steps": [
+          {
+           "id": "step:1",
+           "label": "First message",
+           "at": "2026-09-20"
+          }
+         ]
+        }
+       }
+      },
+      "output_selector": "$.identity.title",
+      "contains": "Ana Ruiz"
+     }
+    ]
+   }
+  }
+ ]
+}

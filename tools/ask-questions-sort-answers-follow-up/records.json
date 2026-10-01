@@ -1,0 +1,530 @@
+{
+ "package": "ask-questions-sort-answers-follow-up",
+ "things": [
+  {
+   "type": "record",
+   "id": "package::ask-questions-sort-answers-follow-up::tool::make-quiz-questions",
+   "address": "package::ask-questions-sort-answers-follow-up::tool::make-quiz-questions",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:make-quiz-questions",
+    "label": "Make quiz questions from text",
+    "status": "active",
+    "job": "Make fill-in-the-blank quiz questions from a piece of text, such as notes, a lesson or an article",
+    "description": "Splits the text into sentences and turns each into a question by blanking its most telling word, with the answer kept beside it; a sentence with no such word becomes a recall prompt. The same text always gives the same questions with the same ids, ready to ask with the form tools.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "text"
+     ],
+     "properties": {
+      "text": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The words to make questions from"
+      },
+      "max": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 100,
+       "description": "At most this many questions (default 8)"
+      },
+      "source_ref": {
+       "type": "string",
+       "description": "Where the text came from, kept on each question"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "questions"
+     ],
+     "properties": {
+      "questions": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "questionId",
+         "label",
+         "answer"
+        ],
+        "properties": {
+         "questionId": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "answer": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "ask-questions-sort-answers-follow-up",
+       "paths": [
+        "do-work",
+        "read-data",
+        "data"
+       ],
+       "at": "/opt/parts/ask-questions-sort-answers-follow-up"
+      }
+     },
+     "workdir": "/opt/parts/ask-questions-sort-answers-follow-up",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/generate-questions.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:ask-questions-sort-answers-follow-up",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "text": "The Pacific Ocean is the largest and deepest ocean on Earth. Photosynthesis converts sunlight into chemical energy in plants."
+      },
+      "output_selector": "$.questions[0].answer",
+      "contains": "Pacific"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::ask-questions-sort-answers-follow-up::tool::check-form-answers",
+   "address": "package::ask-questions-sort-answers-follow-up::tool::check-form-answers",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-form-answers",
+    "label": "Check answers to a form",
+    "status": "active",
+    "job": "Check a person's answers to a form's questions and say which are missing or not valid, and why",
+    "description": "Checks each answer against its question: a required question left empty, a number outside its range, text too short, too long or not in the right format (an email, a phone number), or a rating off its scale. Question types (text, long text, number, rating, choice, a reference to a file) are rows with their own rules, and each question can lay its own rules over them. Returns every question's verdict and message, whether all answers are valid, and the first one to fix.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "questions",
+      "answers"
+     ],
+     "properties": {
+      "questions": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "questionId",
+         "questionTypeId"
+        ],
+        "properties": {
+         "questionId": {
+          "type": "string"
+         },
+         "questionTypeId": {
+          "type": "string",
+          "description": "text, long-text, number, rating, choice or evidence-reference"
+         },
+         "label": {
+          "type": "string"
+         },
+         "required": {
+          "type": "boolean"
+         },
+         "options": {
+          "type": "array",
+          "items": {
+           "type": "object"
+          }
+         },
+         "validation": {
+          "type": "object",
+          "description": "Rules laid over the type's own: required, min, max (length for text, value for numbers), pattern, message"
+         }
+        }
+       }
+      },
+      "answers": {
+       "type": "object",
+       "description": "Each question id to the person's answer"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "all_valid",
+      "questions"
+     ],
+     "properties": {
+      "all_valid": {
+       "type": "boolean"
+      },
+      "first_invalid": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "questions": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "questionId",
+         "valid"
+        ],
+        "properties": {
+         "questionId": {
+          "type": "string"
+         },
+         "valid": {
+          "type": "boolean"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "ask-questions-sort-answers-follow-up",
+       "paths": [
+        "do-work",
+        "read-data",
+        "data"
+       ],
+       "at": "/opt/parts/ask-questions-sort-answers-follow-up"
+      }
+     },
+     "workdir": "/opt/parts/ask-questions-sort-answers-follow-up",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/check-answers.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:ask-questions-sort-answers-follow-up",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "questions": [
+        {
+         "questionId": "email",
+         "questionTypeId": "text",
+         "label": "Email",
+         "required": true,
+         "validation": {
+          "pattern": "^[^@]+@[^@]+$"
+         }
+        },
+        {
+         "questionId": "budget",
+         "questionTypeId": "number",
+         "label": "Monthly budget",
+         "validation": {
+          "min": 100
+         }
+        }
+       ],
+       "answers": {
+        "email": "sam@example.com",
+        "budget": "50"
+       }
+      },
+      "output_selector": "$.first_invalid",
+      "contains": "budget"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::ask-questions-sort-answers-follow-up::tool::score-answers-and-pick-segment",
+   "address": "package::ask-questions-sort-answers-follow-up::tool::score-answers-and-pick-segment",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:score-answers-and-pick-segment",
+    "label": "Score answers and pick a segment",
+    "status": "active",
+    "job": "Score a lead's or respondent's answers with your rules and pick their segment and follow-up, such as hot, warm or not ready",
+    "description": "Adds up points for each answer by your rules (a value worth points, at least or at most a number, equal to a value, long enough, answered at all, one of a list), keeps subtotals under labels you name, picks the segment whose starting score the total reaches, and returns that segment's title, meaning, next step and follow-up steps. Every weight, threshold and follow-up is yours to set; nothing about a good lead is built in.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "answers",
+      "score_rules",
+      "segment_rules"
+     ],
+     "properties": {
+      "answers": {
+       "type": "object",
+       "description": "Each question id to the answer"
+      },
+      "score_rules": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "readKey",
+         "match"
+        ],
+        "properties": {
+         "readKey": {
+          "type": "string",
+          "description": "The question id to read"
+         },
+         "points": {
+          "type": "number"
+         },
+         "scoreLabel": {
+          "type": "string"
+         },
+         "match": {
+          "type": "object",
+          "description": "One of: value_map {answer: points}, equals, gte, lte, min_length, has_value, contains [values]"
+         }
+        }
+       }
+      },
+      "segment_rules": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "min",
+         "segmentId"
+        ],
+        "properties": {
+         "min": {
+          "type": "number"
+         },
+         "segmentId": {
+          "type": "string"
+         },
+         "title": {
+          "type": "string"
+         },
+         "meaning": {
+          "type": "string"
+         },
+         "nextStep": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "follow_ups": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "segmentId",
+         "steps"
+        ],
+        "properties": {
+         "segmentId": {
+          "type": "string"
+         },
+         "steps": {
+          "type": "array",
+          "items": {
+           "type": "object"
+          }
+         }
+        }
+       },
+       "description": "Each segment's follow-up steps: { stepId, label?, delayHours?, bodyTemplate? }"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "score",
+      "breakdown",
+      "segment"
+     ],
+     "properties": {
+      "score": {
+       "type": "number"
+      },
+      "breakdown": {
+       "type": "object"
+      },
+      "by_label": {
+       "type": "object"
+      },
+      "segment": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "follow_up": {
+       "type": [
+        "array",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "ask-questions-sort-answers-follow-up",
+       "paths": [
+        "do-work",
+        "read-data",
+        "data"
+       ],
+       "at": "/opt/parts/ask-questions-sort-answers-follow-up"
+      }
+     },
+     "workdir": "/opt/parts/ask-questions-sort-answers-follow-up",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/score-answers-and-pick-a-segment.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:ask-questions-sort-answers-follow-up",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "answers": {
+        "budget": 2500,
+        "timeline": "this month",
+        "role": "owner"
+       },
+       "score_rules": [
+        {
+         "readKey": "budget",
+         "points": 40,
+         "match": {
+          "gte": 1000
+         }
+        },
+        {
+         "readKey": "timeline",
+         "match": {
+          "value_map": {
+           "this month": 30,
+           "this quarter": 15
+          }
+         }
+        },
+        {
+         "readKey": "role",
+         "points": 20,
+         "match": {
+          "equals": "owner"
+         }
+        }
+       ],
+       "segment_rules": [
+        {
+         "min": 0,
+         "segmentId": "not-ready"
+        },
+        {
+         "min": 60,
+         "segmentId": "ready-to-buy",
+         "nextStep": "Book a call today"
+        }
+       ]
+      },
+      "output_selector": "$.segment.segmentId",
+      "contains": "ready-to-buy"
+     }
+    ]
+   }
+  }
+ ]
+}

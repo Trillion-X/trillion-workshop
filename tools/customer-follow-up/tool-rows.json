@@ -1,0 +1,687 @@
+{
+ "kind": "tool-rows",
+ "record_set": "customer-follow-up-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/customer-follow-up: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::customer-follow-up::tool::see-where-each-customer-is",
+   "address": "package::customer-follow-up::tool::see-where-each-customer-is",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:see-where-each-customer-is",
+    "label": "See where each customer is",
+    "status": "active",
+    "job": "See where each customer is: their latest step, every step so far, and how many customers each product has against its target",
+    "description": "Reads your own customer records (the customers you added, the targets you set and the steps you recorded), or records you send: customer-contact ({contactId, displayName}), customer-product-target ({targetId, productId, productLabel, targetCount}) and customer-step ({stepId, contactId, productId, stepKind, label, createdAt}) rows, in records or as a JSON file from your files. Returns each customer with their steps newest first and latest step (most recently active first), each product's customers, target, how many remain and percent, and the customer you name in contact_id (or the most recent).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The customer records, bare or as {payload}; leave out both this and records_file to use your own customer records",
+       "x-your-records": [
+        "customer-contact",
+        "customer-product-target",
+        "customer-step"
+       ]
+      },
+      "records_file": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "A JSON file in your files (1f: then 64 hex, as find_file or list_files returns it) holding the records as a list, or as {\"records\": [...]}; send this or records"
+      },
+      "contact_id": {
+       "type": "string",
+       "description": "Optional: the customer to single out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "contacts",
+      "products",
+      "customer_count"
+     ],
+     "properties": {
+      "contacts": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "contact",
+         "steps"
+        ]
+       }
+      },
+      "products": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "target",
+         "customerCount",
+         "targetCount",
+         "remainingCount",
+         "percent"
+        ]
+       }
+      },
+      "customer_count": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "selectedContact": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "customer-follow-up",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/customer-follow-up",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/customer-follow-up",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/see-where-each-customer-is.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": true,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:customer-follow-up",
+    "provenance": {
+     "source": "bitfield-packages packages/customer-follow-up"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "records": [
+        {
+         "kind": "customer-contact",
+         "contactId": "contact:ana",
+         "displayName": "Ana Ruiz",
+         "channelLabel": "Email"
+        },
+        {
+         "kind": "customer-contact",
+         "contactId": "contact:ben",
+         "displayName": "Ben Cole",
+         "channelLabel": "Instagram"
+        },
+        {
+         "kind": "customer-product-target",
+         "targetId": "target:coaching",
+         "productId": "product:coaching",
+         "productLabel": "Coaching",
+         "targetCount": 10
+        },
+        {
+         "kind": "customer-step",
+         "stepId": "step:1",
+         "contactId": "contact:ana",
+         "productId": "product:coaching",
+         "stepKind": "outreach",
+         "label": "First message",
+         "evidenceRefs": [],
+         "ownerRefs": [],
+         "createdAt": "2026-09-20T10:00:00Z"
+        },
+        {
+         "kind": "customer-step",
+         "stepId": "step:2",
+         "contactId": "contact:ana",
+         "productId": "product:coaching",
+         "stepKind": "purchase",
+         "label": "Bought coaching",
+         "evidenceRefs": [],
+         "ownerRefs": [],
+         "createdAt": "2026-09-25T10:00:00Z"
+        },
+        {
+         "kind": "customer-step",
+         "stepId": "step:3",
+         "contactId": "contact:ben",
+         "productId": "product:coaching",
+         "stepKind": "reply",
+         "label": "Asked about times",
+         "evidenceRefs": [],
+         "ownerRefs": [],
+         "createdAt": "2026-09-22T10:00:00Z"
+        }
+       ]
+      },
+      "output_selector": "$.contacts[0].lastStep.label",
+      "contains": "Bought coaching"
+     },
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.products[0].customerCount",
+      "at_least": 0,
+      "at_most": {
+       "output_selector": "$.products[0].targetCount"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::customer-follow-up::tool::record-a-customer-step",
+   "address": "package::customer-follow-up::tool::record-a-customer-step",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:record-a-customer-step",
+    "label": "Record a step with a customer",
+    "status": "active",
+    "job": "Write down a step with a customer, such as outreach, a reply, a booked call, a purchase, onboarding, a follow-up or feedback, as a record to keep",
+    "description": "Keeps the step in your own customer records, with a new id, its time, a label (a plain default for the kind when none is given), the outcome and each piece of evidence once, and returns it; see-where-each-customer-is reads it back.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "contact_id",
+      "product_id",
+      "step"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "contact_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The customer's id, as their customer-contact record names it"
+      },
+      "product_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The product the step is about"
+      },
+      "step": {
+       "type": "string",
+       "enum": [
+        "outreach",
+        "reply",
+        "call-booked",
+        "purchase",
+        "onboarding",
+        "follow-up",
+        "feedback"
+       ],
+       "description": "What kind of step it was"
+      },
+      "label": {
+       "type": "string",
+       "description": "Optional: the step in a few words"
+      },
+      "outcome": {
+       "type": "string",
+       "description": "Optional: what came of it"
+      },
+      "evidence": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Optional: references that show it happened (a message id, a file, a payment)"
+      },
+      "owners": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Optional: who owns the follow-up"
+      },
+      "actor_id": {
+       "type": "string",
+       "description": "Optional: who took the step"
+      },
+      "at": {
+       "type": "string",
+       "description": "Optional: when it happened (ISO time; default now)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "step_id",
+      "step_record"
+     ],
+     "properties": {
+      "step_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "step_record": {
+       "type": "object",
+       "required": [
+        "kind",
+        "stepId",
+        "contactId",
+        "productId",
+        "stepKind",
+        "label",
+        "createdAt"
+       ],
+       "properties": {
+        "kind": {
+         "type": "string",
+         "enum": [
+          "customer-step"
+         ]
+        },
+        "label": {
+         "type": "string",
+         "minLength": 1
+        },
+        "createdAt": {
+         "type": "string",
+         "minLength": 1
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "customer-follow-up",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/customer-follow-up",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/customer-follow-up",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/record-a-customer-step.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:customer-follow-up",
+    "keeps_records": [
+     {
+      "output_selector": "$.step_record",
+      "type_field": "kind",
+      "id_field": "stepId"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/customer-follow-up"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "contact_id": "contact:ben",
+       "product_id": "product:coaching",
+       "step": "call-booked",
+       "outcome": "Tuesday 3pm",
+       "at": "2026-09-27T10:00:00Z"
+      },
+      "output_selector": "$.step_record.label",
+      "contains": "Call booked"
+     },
+     {
+      "kind": "output-contains-input",
+      "output_selector": "$.step_record.contactId",
+      "input_field": "contact_id"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::customer-follow-up::tool::add-a-customer",
+   "address": "package::customer-follow-up::tool::add-a-customer",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:add-a-customer",
+    "label": "Add a customer",
+    "status": "active",
+    "job": "Add a customer or contact to my customer list, with their name, how to reach them and where they came from",
+    "description": "Keeps the customer in your own customer records and returns their record with its id, which record-a-customer-step and see-where-each-customer-is use. Give contact_id to change a customer you already added.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "name"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "name": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The customer's name"
+      },
+      "contact_id": {
+       "type": "string",
+       "description": "Optional: the id of a customer you already added, to change them"
+      },
+      "reach_them_by": {
+       "type": "string",
+       "description": "Optional: how you reach them, like Email or Instagram"
+      },
+      "owner": {
+       "type": "string",
+       "description": "Optional: who looks after them"
+      },
+      "came_from": {
+       "type": "string",
+       "description": "Optional: where they came from, like a referral or an ad"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "contact_id",
+      "contact_record"
+     ],
+     "properties": {
+      "contact_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "contact_record": {
+       "type": "object",
+       "required": [
+        "kind",
+        "contactId",
+        "displayName"
+       ],
+       "properties": {
+        "kind": {
+         "type": "string",
+         "enum": [
+          "customer-contact"
+         ]
+        },
+        "displayName": {
+         "type": "string",
+         "minLength": 1
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "customer-follow-up",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/customer-follow-up",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/customer-follow-up",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/add-a-customer.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:customer-follow-up",
+    "keeps_records": [
+     {
+      "output_selector": "$.contact_record",
+      "type_field": "kind",
+      "id_field": "contactId"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/customer-follow-up"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "name": "Dee Lo",
+       "reach_them_by": "Email",
+       "came_from": "A referral from Ana"
+      },
+      "output_selector": "$.contact_record.displayName",
+      "contains": "Dee Lo"
+     },
+     {
+      "kind": "output-contains-input",
+      "output_selector": "$.contact_record.displayName",
+      "input_field": "name"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::customer-follow-up::tool::set-a-customer-target",
+   "address": "package::customer-follow-up::tool::set-a-customer-target",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:set-a-customer-target",
+    "label": "Set a product's customer target",
+    "status": "active",
+    "job": "Set how many customers I want for a product, so progress toward that target can be tracked",
+    "description": "Keeps the target in your own customer records (one per product; setting it again replaces it) and returns it; see-where-each-customer-is counts the product's customers against it.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "product_id",
+      "product_name",
+      "customers"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "product_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The product's id, as your customer steps name it"
+      },
+      "product_name": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The product's name"
+      },
+      "customers": {
+       "type": "integer",
+       "minimum": 1,
+       "description": "How many customers the product aims for"
+      },
+      "active": {
+       "type": "boolean",
+       "description": "Optional: false to stop tracking this target"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "target_id",
+      "target_record"
+     ],
+     "properties": {
+      "target_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "target_record": {
+       "type": "object",
+       "required": [
+        "kind",
+        "targetId",
+        "productId",
+        "productLabel",
+        "targetCount"
+       ],
+       "properties": {
+        "kind": {
+         "type": "string",
+         "enum": [
+          "customer-product-target"
+         ]
+        },
+        "targetCount": {
+         "type": "integer",
+         "minimum": 1
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "customer-follow-up",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/customer-follow-up",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/customer-follow-up",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/set-a-customer-target.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:customer-follow-up",
+    "keeps_records": [
+     {
+      "output_selector": "$.target_record",
+      "type_field": "kind",
+      "id_field": "targetId"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/customer-follow-up"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "product_id": "product:coaching",
+       "product_name": "Coaching",
+       "customers": 10
+      },
+      "output_selector": "$.target_record.productLabel",
+      "contains": "Coaching"
+     },
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.target_record.targetCount",
+      "at_least": {
+       "input_field": "customers"
+      },
+      "at_most": {
+       "input_field": "customers"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

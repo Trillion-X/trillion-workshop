@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/read-people.ts", "read-data/read-leaderboard.ts", "do-work/merge-people.mjs"]
+}

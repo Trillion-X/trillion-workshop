@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/read-customer-follow-up.ts", "read-data/customer-follow-up-types.ts", "do-work/record-customer-step.ts"]
+}

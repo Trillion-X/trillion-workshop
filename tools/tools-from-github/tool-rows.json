@@ -1,0 +1,841 @@
+{
+ "kind": "package-set-records",
+ "package_set": "trillion",
+ "record_set": "workshop-github-index-records",
+ "what_this_is": "Made by tools/tools-from-github/index-github-tools.mjs from sources.json; change the sources and run it again, never this file by hand.",
+ "records": [
+  {
+   "id": "package::ai-tool-catalog::github-index::ggml-org-whisper.cpp",
+   "address": "package::ai-tool-catalog::github-index::ggml-org-whisper.cpp",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:ggml-org-whisper.cpp",
+    "label": "whisper.cpp (open source, runs on your computer)",
+    "job": "Transcribe speech in an audio or video file to text on your own computer, fast and offline",
+    "description": "Port of OpenAI's Whisper model in C/C++ Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/ggml-org/whisper.cpp",
+     "get_it": [
+      "git clone https://github.com/ggml-org/whisper.cpp.git",
+      "git clone https://github.com/ggml-org/whisper.cpp.git",
+      "cd whisper.cpp",
+      "sh ./models/download-ggml-model.sh base.en",
+      "cmake -B build",
+      "cmake --build build -j --config Release"
+     ],
+     "run": "./build/bin/whisper-cli -m models/ggml-base.en.bin -f {input}",
+     "needs": [
+      "git",
+      "cmake",
+      "a C++ compiler"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/ggml-org/whisper.cpp",
+     "licence_spdx": "MIT",
+     "licence_read_from": "GitHub's licence field for ggml-org/whisper.cpp",
+     "read_on": "2026-09-29",
+     "stars": 54017,
+     "last_pushed_at": "2026-09-28T18:35:46Z",
+     "default_branch": "master",
+     "readme_quote": "./build/bin/whisper-cli -m models/ggml-base.en.bin -f samples/jfk.wav"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::m-bain-whisperx",
+   "address": "package::ai-tool-catalog::github-index::m-bain-whisperx",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:m-bain-whisperx",
+    "label": "whisperX (open source, runs on your computer)",
+    "job": "Make captions or subtitles with word-level timings from a video or audio file, and tell speakers apart",
+    "description": "WhisperX:  Automatic Speech Recognition with Word-level Timestamps (& Diarization) Open source on GitHub under BSD-2-Clause. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/m-bain/whisperX",
+     "get_it": [
+      "git clone https://github.com/m-bain/whisperX.git",
+      "pip install whisperx"
+     ],
+     "run": "whisperx {input} --compute_type int8 --device cpu --highlight_words True",
+     "needs": [
+      "python",
+      "ffmpeg"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/m-bain/whisperX",
+     "licence_spdx": "BSD-2-Clause",
+     "licence_read_from": "GitHub's licence field for m-bain/whisperX",
+     "read_on": "2026-09-29",
+     "stars": 24303,
+     "last_pushed_at": "2026-09-26T20:53:59Z",
+     "default_branch": "main",
+     "readme_quote": "whisperx path/to/audio.wav --compute_type int8 --device cpu"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::systran-faster-whisper",
+   "address": "package::ai-tool-catalog::github-index::systran-faster-whisper",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:systran-faster-whisper",
+    "label": "faster-whisper (open source, runs on your computer)",
+    "job": "Transcribe speech to text in Python with Whisper models, several times faster",
+    "description": "Faster Whisper transcription with CTranslate2 Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/SYSTRAN/faster-whisper",
+     "get_it": [
+      "git clone https://github.com/SYSTRAN/faster-whisper.git",
+      "pip install faster-whisper"
+     ],
+     "run": "python -c \"from faster_whisper import WhisperModel; m = WhisperModel('small', device='cpu', compute_type='int8'); print(' '.join(s.text for s in m.transcribe('{input}')[0]))\"",
+     "needs": [
+      "python"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/SYSTRAN/faster-whisper",
+     "licence_spdx": "MIT",
+     "licence_read_from": "GitHub's licence field for SYSTRAN/faster-whisper",
+     "read_on": "2026-09-29",
+     "stars": 25627,
+     "last_pushed_at": "2025-11-19T14:40:46Z",
+     "default_branch": "master",
+     "readme_quote": "model = WhisperModel(model_size, device=\"cpu\", compute_type=\"int8\")"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::danielgatis-rembg",
+   "address": "package::ai-tool-catalog::github-index::danielgatis-rembg",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:danielgatis-rembg",
+    "label": "rembg (open source, runs on your computer)",
+    "job": "Remove the background from an image to make a cutout with a transparent background",
+    "description": "Rembg is a tool to remove images background Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/danielgatis/rembg",
+     "get_it": [
+      "git clone https://github.com/danielgatis/rembg.git",
+      "pip install \"rembg[cpu,cli]\""
+     ],
+     "run": "rembg i {input} {output}",
+     "needs": [
+      "python"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/danielgatis/rembg",
+     "licence_spdx": "MIT",
+     "licence_read_from": "GitHub's licence field for danielgatis/rembg",
+     "read_on": "2026-09-29",
+     "stars": 24922,
+     "last_pushed_at": "2026-09-20T17:16:21Z",
+     "default_branch": "main",
+     "readme_quote": "rembg i path/to/input.png path/to/output.png"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::yt-dlp-yt-dlp",
+   "address": "package::ai-tool-catalog::github-index::yt-dlp-yt-dlp",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:yt-dlp-yt-dlp",
+    "label": "yt-dlp (open source, runs on your computer)",
+    "job": "Download a video or its audio from a web address such as YouTube, Instagram or TikTok",
+    "description": "A feature-rich command-line audio/video downloader Open source on GitHub under Unlicense. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/yt-dlp/yt-dlp",
+     "get_it": [
+      "git clone https://github.com/yt-dlp/yt-dlp.git",
+      "python -m pip install -U --pre \"yt-dlp[default]\""
+     ],
+     "run": "yt-dlp {input}",
+     "needs": [
+      "python",
+      "ffmpeg"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/yt-dlp/yt-dlp",
+     "licence_spdx": "Unlicense",
+     "licence_read_from": "GitHub's licence field for yt-dlp/yt-dlp",
+     "read_on": "2026-09-29",
+     "stars": 194350,
+     "last_pushed_at": "2026-09-27T22:09:13Z",
+     "default_branch": "master",
+     "readme_quote": "yt-dlp [OPTIONS] [--] URL [URL...]"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::ffmpeg-ffmpeg",
+   "address": "package::ai-tool-catalog::github-index::ffmpeg-ffmpeg",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:ffmpeg-ffmpeg",
+    "label": "FFmpeg (open source, runs on your computer)",
+    "job": "Convert, trim, compress or extract the sound from a video or audio file",
+    "description": "Mirror of https://git.ffmpeg.org/ffmpeg.git Open source on GitHub under LGPL-2.1-or-later. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/FFmpeg/FFmpeg",
+     "get_it": [
+      "git clone https://github.com/FFmpeg/FFmpeg.git",
+      "brew install ffmpeg (macOS), or apt install ffmpeg (Linux), or the builds linked from ffmpeg.org"
+     ],
+     "run": "ffmpeg -i {input} {output}",
+     "needs": [],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/FFmpeg/FFmpeg",
+     "licence_spdx": "LGPL-2.1-or-later",
+     "licence_read_from": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/master/LICENSE.md",
+     "read_on": "2026-09-29",
+     "stars": 64645,
+     "last_pushed_at": "2026-09-29T20:20:09Z",
+     "default_branch": "master",
+     "readme_quote": "ffmpeg is a command line toolbox to manipulate, convert and stream multimedia content."
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::facebookresearch-demucs",
+   "address": "package::ai-tool-catalog::github-index::facebookresearch-demucs",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:facebookresearch-demucs",
+    "label": "demucs (open source, runs on your computer)",
+    "job": "Separate vocals from music, or split a song into vocals, drums and bass",
+    "description": "Code for the paper Hybrid Spectrogram and Waveform Source Separation Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/facebookresearch/demucs",
+     "get_it": [
+      "git clone https://github.com/facebookresearch/demucs.git",
+      "python3 -m pip install -U demucs"
+     ],
+     "run": "demucs --two-stems=vocals {input}",
+     "needs": [
+      "python",
+      "ffmpeg"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/facebookresearch/demucs",
+     "licence_spdx": "MIT",
+     "licence_read_from": "GitHub's licence field for facebookresearch/demucs",
+     "read_on": "2026-09-29",
+     "stars": 10361,
+     "last_pushed_at": "2024-04-24T20:25:19Z",
+     "default_branch": "main",
+     "readme_quote": "demucs --two-stems=vocals myfile.mp3",
+     "archived": true
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::ohf-voice-piper1-gpl",
+   "address": "package::ai-tool-catalog::github-index::ohf-voice-piper1-gpl",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:ohf-voice-piper1-gpl",
+    "label": "piper1-gpl (open source, runs on your computer)",
+    "job": "Turn text into natural speech on your own computer, offline",
+    "description": "Fast and local neural text-to-speech engine Open source on GitHub under GPL-3.0. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/OHF-Voice/piper1-gpl",
+     "get_it": [
+      "git clone https://github.com/OHF-Voice/piper1-gpl.git",
+      "pip install piper-tts",
+      "python3 -m piper.download_voices en_US-lessac-medium"
+     ],
+     "run": "python3 -m piper -m en_US-lessac-medium -f {output} -- '{input}'",
+     "needs": [
+      "python"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/OHF-Voice/piper1-gpl",
+     "licence_spdx": "GPL-3.0",
+     "licence_read_from": "GitHub's licence field for OHF-Voice/piper1-gpl",
+     "read_on": "2026-09-29",
+     "stars": 5716,
+     "last_pushed_at": "2026-09-28T20:17:35Z",
+     "default_branch": "main",
+     "readme_quote": "python3 -m piper -m en_US-lessac-medium -f test.wav -- 'This is a test.'"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::microsoft-markitdown",
+   "address": "package::ai-tool-catalog::github-index::microsoft-markitdown",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:microsoft-markitdown",
+    "label": "markitdown (open source, runs on your computer)",
+    "job": "Turn a PDF, Word, PowerPoint or Excel file into Markdown text an AI can read",
+    "description": "Python tool for converting files and office documents to Markdown. Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/microsoft/markitdown",
+     "get_it": [
+      "git clone https://github.com/microsoft/markitdown.git",
+      "pip install 'markitdown[all]'"
+     ],
+     "run": "markitdown {input} -o {output}",
+     "needs": [
+      "python"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/microsoft/markitdown",
+     "licence_spdx": "MIT",
+     "licence_read_from": "GitHub's licence field for microsoft/markitdown",
+     "read_on": "2026-09-29",
+     "stars": 187613,
+     "last_pushed_at": "2026-09-21T21:03:34Z",
+     "default_branch": "main",
+     "readme_quote": "markitdown path-to-file.pdf -o document.md"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::docling-project-docling",
+   "address": "package::ai-tool-catalog::github-index::docling-project-docling",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:docling-project-docling",
+    "label": "docling (open source, runs on your computer)",
+    "job": "Read a document (PDF, Word, slides, scanned pages) into clean structured text, tables included",
+    "description": "Get your documents ready for gen AI Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/docling-project/docling",
+     "get_it": [
+      "git clone https://github.com/docling-project/docling.git",
+      "pip install docling"
+     ],
+     "run": "docling {input}",
+     "needs": [
+      "python"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/docling-project/docling",
+     "licence_spdx": "MIT",
+     "licence_read_from": "GitHub's licence field for docling-project/docling",
+     "read_on": "2026-09-29",
+     "stars": 68185,
+     "last_pushed_at": "2026-09-29T15:59:12Z",
+     "default_branch": "main",
+     "readme_quote": "docling https://arxiv.org/pdf/2206.01062"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::breakthrough-pyscenedetect",
+   "address": "package::ai-tool-catalog::github-index::breakthrough-pyscenedetect",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:breakthrough-pyscenedetect",
+    "label": "PySceneDetect (open source, runs on your computer)",
+    "job": "Find the cuts and scenes in a video and split it into clips",
+    "description": ":movie_camera: Python and OpenCV-based scene cut/transition detection program & library. Open source on GitHub under BSD-3-Clause. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/Breakthrough/PySceneDetect",
+     "get_it": [
+      "git clone https://github.com/Breakthrough/PySceneDetect.git",
+      "pip install scenedetect --upgrade"
+     ],
+     "run": "scenedetect -i {input} split-video",
+     "needs": [
+      "python",
+      "ffmpeg"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/Breakthrough/PySceneDetect",
+     "licence_spdx": "BSD-3-Clause",
+     "licence_read_from": "GitHub's licence field for Breakthrough/PySceneDetect",
+     "read_on": "2026-09-29",
+     "stars": 5209,
+     "last_pushed_at": "2026-09-21T04:44:36Z",
+     "default_branch": "main",
+     "readme_quote": "scenedetect -i video.mp4 split-video"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::xinntao-real-esrgan",
+   "address": "package::ai-tool-catalog::github-index::xinntao-real-esrgan",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:xinntao-real-esrgan",
+    "label": "Real-ESRGAN (open source, runs on your computer)",
+    "job": "Upscale an image or photo to a higher resolution and restore its detail",
+    "description": "Real-ESRGAN aims at developing Practical Algorithms for General Image/Video Restoration. Open source on GitHub under BSD-3-Clause. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/xinntao/Real-ESRGAN",
+     "get_it": [
+      "git clone https://github.com/xinntao/Real-ESRGAN.git",
+      "download realesrgan-ncnn-vulkan for your system from the repository's releases"
+     ],
+     "run": "./realesrgan-ncnn-vulkan -i {input} -o {output} -n realesrgan-x4plus",
+     "needs": [],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/xinntao/Real-ESRGAN",
+     "licence_spdx": "BSD-3-Clause",
+     "licence_read_from": "GitHub's licence field for xinntao/Real-ESRGAN",
+     "read_on": "2026-09-29",
+     "stars": 36943,
+     "last_pushed_at": "2024-08-06T13:15:18Z",
+     "default_branch": "master",
+     "readme_quote": "./realesrgan-ncnn-vulkan.exe -i input.jpg -o output.png -n model_name"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::tesseract-ocr-tesseract",
+   "address": "package::ai-tool-catalog::github-index::tesseract-ocr-tesseract",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:tesseract-ocr-tesseract",
+    "label": "tesseract (open source, runs on your computer)",
+    "job": "Read the text in an image or a scan (OCR)",
+    "description": "Tesseract Open Source OCR Engine (main repository) Open source on GitHub under Apache-2.0. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/tesseract-ocr/tesseract",
+     "get_it": [
+      "git clone https://github.com/tesseract-ocr/tesseract.git",
+      "brew install tesseract (macOS), or apt install tesseract-ocr (Linux)"
+     ],
+     "run": "tesseract {input} {output}",
+     "needs": [],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/tesseract-ocr/tesseract",
+     "licence_spdx": "Apache-2.0",
+     "licence_read_from": "GitHub's licence field for tesseract-ocr/tesseract",
+     "read_on": "2026-09-29",
+     "stars": 76756,
+     "last_pushed_at": "2026-09-28T07:40:38Z",
+     "default_branch": "main",
+     "readme_quote": "tesseract imagename outputbase [-l lang] [--oem ocrenginemode] [--psm pagesegmode] [configfiles...]"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::ocrmypdf-ocrmypdf",
+   "address": "package::ai-tool-catalog::github-index::ocrmypdf-ocrmypdf",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:ocrmypdf-ocrmypdf",
+    "label": "OCRmyPDF (open source, runs on your computer)",
+    "job": "Make a scanned PDF searchable by adding the text it shows",
+    "description": "OCRmyPDF adds an OCR text layer to scanned PDF files, allowing them to be searched Open source on GitHub under MPL-2.0. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/ocrmypdf/OCRmyPDF",
+     "get_it": [
+      "git clone https://github.com/ocrmypdf/OCRmyPDF.git",
+      "brew install ocrmypdf (macOS), or pip install ocrmypdf"
+     ],
+     "run": "ocrmypdf {input} {output}",
+     "needs": [
+      "tesseract",
+      "ghostscript"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/ocrmypdf/OCRmyPDF",
+     "licence_spdx": "MPL-2.0",
+     "licence_read_from": "GitHub's licence field for ocrmypdf/OCRmyPDF",
+     "read_on": "2026-09-29",
+     "stars": 34903,
+     "last_pushed_at": "2026-09-29T07:55:13Z",
+     "default_branch": "main",
+     "readme_quote": "ocrmypdf input.jpg output.pdf"
+    }
+   }
+  }
+ ]
+}
