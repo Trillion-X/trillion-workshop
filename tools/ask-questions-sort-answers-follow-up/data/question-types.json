@@ -1,0 +1,107 @@
+{
+ "kind": "question-type-capability-list",
+ "rows": [
+  {
+   "kind": "question-type-capability",
+   "id": "ask-questions-sort-answers-follow-up.question-type.number",
+   "questionTypeId": "number",
+   "label": "Number",
+   "inputComponentKey": "number",
+   "validate": {
+    "rules": {
+     "required": false,
+     "min": null,
+     "max": null,
+     "pattern": null,
+     "message": null
+    }
+   },
+   "coerce": "number"
+  },
+  {
+   "kind": "question-type-capability",
+   "id": "ask-questions-sort-answers-follow-up.question-type.evidence-reference",
+   "questionTypeId": "evidence-reference",
+   "label": "Source",
+   "inputComponentKey": "evidence-reference",
+   "validate": {
+    "rules": {
+     "required": false,
+     "min": null,
+     "max": null,
+     "pattern": null,
+     "message": null
+    }
+   },
+   "coerce": "evidence-reference"
+  },
+  {
+   "kind": "question-type-capability",
+   "id": "ask-questions-sort-answers-follow-up.question-type.text",
+   "questionTypeId": "text",
+   "label": "Text",
+   "inputComponentKey": "text",
+   "validate": {
+    "rules": {
+     "required": false,
+     "min": null,
+     "max": null,
+     "pattern": null,
+     "message": null
+    }
+   },
+   "coerce": "string"
+  },
+  {
+   "kind": "question-type-capability",
+   "id": "ask-questions-sort-answers-follow-up.question-type.long-text",
+   "questionTypeId": "long-text",
+   "label": "Long text",
+   "inputComponentKey": "long-text",
+   "validate": {
+    "rules": {
+     "required": false,
+     "min": null,
+     "max": null,
+     "pattern": null,
+     "message": null
+    }
+   },
+   "coerce": "string"
+  },
+  {
+   "kind": "question-type-capability",
+   "id": "ask-questions-sort-answers-follow-up.question-type.choice",
+   "questionTypeId": "choice",
+   "label": "Choice",
+   "inputComponentKey": "choice",
+   "validate": {
+    "rules": {
+     "required": false,
+     "min": null,
+     "max": null,
+     "pattern": null,
+     "message": null
+    }
+   },
+   "coerce": "string"
+  },
+  {
+   "kind": "question-type-capability",
+   "id": "ask-questions-sort-answers-follow-up.question-type.rating",
+   "questionTypeId": "rating",
+   "label": "Rating",
+   "inputComponentKey": "rating",
+   "validate": {
+    "rules": {
+     "required": false,
+     "min": 1,
+     "max": 5,
+     "pattern": null,
+     "message": null
+    }
+   },
+   "coerce": "number"
+  }
+ ]
+}

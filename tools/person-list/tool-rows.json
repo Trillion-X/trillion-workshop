@@ -1,0 +1,415 @@
+{
+ "kind": "tool-rows",
+ "record_set": "person-list-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/person-list: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::person-list::tool::find-people",
+   "address": "package::person-list::tool::find-people",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-people",
+    "label": "Find people in a list",
+    "status": "active",
+    "job": "Search a list of people or contacts by name, company or any other field, and show each match with a name and details",
+    "description": "Give the people (any records with an id), in records or as a JSON file from your files, and what to search for. fields optionally says which fields to read and how to show them ({key, label, source_keys, searchable, display_role: title | subtitle | detail}); without it every field is read and searched. Returns the matches with a title, subtitle and detail each, how many there are and how many were searched.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The people, each with an id (bare or as {id, payload}); send this or records_file"
+      },
+      "records_file": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "A JSON file in your files (1f: then 64 hex, as find_file or list_files returns it) holding the records as a list, or as {\"records\": [...]}; send this or records"
+      },
+      "search": {
+       "type": "string",
+       "description": "Words to look for in any searchable field (empty: everyone)"
+      },
+      "fields": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "key"
+        ]
+       },
+       "description": "Optional: which fields to read and show"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "people",
+      "total",
+      "matched"
+     ],
+     "properties": {
+      "people": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "title",
+         "fields"
+        ]
+       }
+      },
+      "total": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "matched": {
+       "type": "integer",
+       "minimum": 0
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "person-list",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/person-list",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/person-list",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/find-people.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": true,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:person-list",
+    "provenance": {
+     "source": "bitfield-packages packages/person-list"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "records": [
+        {
+         "id": "person:ana",
+         "name": "Ana Ruiz",
+         "company": "Northwind",
+         "city": "Lisbon"
+        },
+        {
+         "id": "person:ben",
+         "name": "Ben Cole",
+         "company": "Acme",
+         "city": "Austin"
+        },
+        {
+         "id": "person:cy",
+         "name": "Cy Park",
+         "company": "Northwind",
+         "city": "Seoul"
+        }
+       ],
+       "search": "northwind",
+       "fields": [
+        {
+         "key": "name",
+         "display_role": "title"
+        },
+        {
+         "key": "company",
+         "display_role": "subtitle"
+        },
+        {
+         "key": "city",
+         "display_role": "detail"
+        }
+       ]
+      },
+      "output_selector": "$.people[0].title",
+      "contains": "Ana Ruiz"
+     },
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.matched",
+      "at_least": 0,
+      "at_most": {
+       "output_selector": "$.total"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::person-list::tool::rank-people-by-activity",
+   "address": "package::person-list::tool::rank-people-by-activity",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:rank-people-by-activity",
+    "label": "Rank people by activity",
+    "status": "active",
+    "job": "Rank people by the points their activity earns, all time or over the last days, and give each person their level, like a leaderboard",
+    "description": "Give each thing people did ({person, kind, at}), the points each kind is worth (weights), the counts to keep (metrics: {key, label, lookback_days}, null for all time), the levels ({level, name, min_points}) and which count ranks them (rank_by). Returns each person with their rank, points, every count and level, best first.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "activity",
+      "weights",
+      "metrics",
+      "levels"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "activity": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "person",
+         "kind"
+        ],
+        "properties": {
+         "person": {
+          "type": "string"
+         },
+         "kind": {
+          "type": "string"
+         },
+         "at": {
+          "type": "string"
+         }
+        }
+       },
+       "description": "What each person did and when"
+      },
+      "weights": {
+       "type": "object",
+       "description": "Points per kind of activity, like {\"post\": 5, \"reply\": 1}"
+      },
+      "metrics": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "key",
+         "label"
+        ],
+        "properties": {
+         "key": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "lookback_days": {
+          "type": [
+           "number",
+           "null"
+          ]
+         },
+         "order": {
+          "type": "number"
+         }
+        }
+       },
+       "minItems": 1
+      },
+      "levels": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "level",
+         "name",
+         "min_points"
+        ]
+       },
+       "minItems": 1
+      },
+      "rank_by": {
+       "type": "string",
+       "description": "Optional: the metric key to rank by (default the first metric)"
+      },
+      "now": {
+       "type": "string",
+       "description": "Optional: the time the windows count back from (ISO; default now)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "ranked",
+      "rank_by"
+     ],
+     "properties": {
+      "ranked": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "person",
+         "rank",
+         "points",
+         "level"
+        ]
+       }
+      },
+      "rank_by": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "person-list",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/person-list",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/person-list",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/rank-people.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:person-list",
+    "provenance": {
+     "source": "bitfield-packages packages/person-list"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "activity": [
+        {
+         "person": "ana",
+         "kind": "post",
+         "at": "2026-09-26T10:00:00Z"
+        },
+        {
+         "person": "ana",
+         "kind": "reply",
+         "at": "2026-09-26T11:00:00Z"
+        },
+        {
+         "person": "ben",
+         "kind": "reply",
+         "at": "2026-09-01T10:00:00Z"
+        },
+        {
+         "person": "ben",
+         "kind": "reply",
+         "at": "2026-09-25T10:00:00Z"
+        }
+       ],
+       "weights": {
+        "post": 5,
+        "reply": 1
+       },
+       "metrics": [
+        {
+         "key": "all_time",
+         "label": "All time",
+         "lookback_days": null,
+         "order": 0
+        },
+        {
+         "key": "week",
+         "label": "Last 7 days",
+         "lookback_days": 7,
+         "order": 1
+        }
+       ],
+       "levels": [
+        {
+         "level": 1,
+         "name": "New",
+         "min_points": 0
+        },
+        {
+         "level": 2,
+         "name": "Regular",
+         "min_points": 5
+        }
+       ],
+       "rank_by": "all_time",
+       "now": "2026-09-27T12:00:00Z"
+      },
+      "output_selector": "$.ranked[0].person",
+      "contains": "ana"
+     },
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.ranked[0].rank",
+      "at_least": 1,
+      "at_most": 1
+     }
+    ]
+   }
+  }
+ ]
+}

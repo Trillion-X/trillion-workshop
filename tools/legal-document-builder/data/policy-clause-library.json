@@ -1,0 +1,551 @@
+{
+ "kind": "policy-clause-library",
+ "description": "Universal clause library (Physics-adjacent DATA). Each clause: document_type, predicate (DATA condition, not code), required_business_fields (slots the business MUST supply, honesty invariant), body paragraphs with {{slot}} placeholders. Identity = content hash computed at assembly; a changed clause supersedes by hash, never an ordinal label. Sources: research facets F1 (terms), F2 (privacy), F3 (refunds/trials/PWYW), F5 (coaching/waiver), F6 (architecture).",
+ "not_legal_advice": "This library is drafting support assembled from public research. It is not legal advice; a licensed attorney must review assembled documents before they bind real customers.",
+ "clauses": [
+  {
+   "clause_id": "terms.acceptance",
+   "document_type": "terms",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "business_legal_name",
+    "service_name",
+    "site_url"
+   ],
+   "body": [
+    "These Terms of Service (the \"Terms\") are a binding agreement between you and {{business_legal_name}} (\"we\", \"us\") governing your use of {{service_name}} and the services offered at {{site_url}}.",
+    "You accept these Terms by checking the acceptance box presented at signup or purchase, or by creating an account. If you do not agree, do not use the service. The version of these Terms you accept is identified by its document identity shown at the bottom of this page, and we keep a record of the exact version you agreed to."
+   ]
+  },
+  {
+   "clause_id": "terms.service-description",
+   "document_type": "terms",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "service_description"
+   ],
+   "body": [
+    "{{service_description}}"
+   ]
+  },
+  {
+   "clause_id": "terms.accounts",
+   "document_type": "terms",
+   "predicate": {
+    "when_field": "has_accounts",
+    "equals": true
+   },
+   "required_business_fields": [],
+   "body": [
+    "You are responsible for your account credentials and for activity under your account. You must provide accurate information and keep it current. You must be legally able to enter this agreement; the service is not directed to children under 13, and you may not use it on behalf of a minor except where a document we publish expressly provides for a parent or guardian to do so."
+   ]
+  },
+  {
+   "clause_id": "terms.pricing-as-displayed",
+   "document_type": "terms",
+   "predicate": {
+    "when_field": "has_paid_offers",
+    "equals": true
+   },
+   "required_business_fields": [
+    "pricing_surface_url"
+   ],
+   "body": [
+    "Prices are not stated in this document. The price of every offer is the price displayed on the pricing surface at {{pricing_surface_url}} (or in the checkout you use) at the moment you purchase or renew. Where an offer is billed on usage dimensions (for example, number of apps or active devices), the applicable rates and included quantities are the ones displayed for that offer at the time of purchase or renewal.",
+    "Prices are subject to change at any time. A price change never applies retroactively to an amount you already paid. For a subscription, a price change takes effect at your next renewal, and we will give you advance notice of the change before a renewal at the new price so you can cancel first if you do not accept it."
+   ]
+  },
+  {
+   "clause_id": "terms.billing-autorenewal",
+   "document_type": "terms",
+   "predicate": {
+    "when_field": "has_subscriptions",
+    "equals": true
+   },
+   "required_business_fields": [
+    "cancel_method"
+   ],
+   "body": [
+    "Subscriptions renew automatically at the end of each billing period until you cancel. Before you start a subscription we disclose, and you separately consent to, the recurring charge: the amount (as displayed), the billing frequency, and when charges begin.",
+    "You can cancel at any time using {{cancel_method}}. Cancellation is at least as easy as signing up and does not require contacting support, though support can also cancel for you. When you cancel, your subscription remains active until the end of the period you already paid for, and then does not renew.",
+    "Where your subscription includes a free trial, we tell you the trial length and the date the first charge occurs before you start, and we send you a reminder before the trial converts to a paid subscription."
+   ]
+  },
+  {
+   "clause_id": "terms.refunds-pointer",
+   "document_type": "terms",
+   "predicate": {
+    "when_field": "has_paid_offers",
+    "equals": true
+   },
+   "required_business_fields": [
+    "refund_policy_url"
+   ],
+   "body": [
+    "Refunds and cancellation mechanics are governed by our Refund and Cancellation Policy at {{refund_policy_url}}, which is part of these Terms."
+   ]
+  },
+  {
+   "clause_id": "terms.acceptable-use",
+   "document_type": "terms",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [],
+   "body": [
+    "You may not use the service to break the law, infringe others' rights, distribute malware, attempt to gain unauthorized access to systems or data, resell or misrepresent the service as your own without an agreement that allows it, or interfere with other customers' use. We may suspend or terminate accounts engaged in these activities."
+   ]
+  },
+  {
+   "clause_id": "terms.customer-content-ownership",
+   "document_type": "terms",
+   "predicate": {
+    "when_field": "customers_create_content",
+    "equals": true
+   },
+   "required_business_fields": [],
+   "body": [
+    "What you create with the service is yours. You retain your rights in the applications, data, and content you create or upload. You grant us only the limited license needed to host, process, back up, and display that content in order to operate the service for you. We claim no ownership of your work."
+   ]
+  },
+  {
+   "clause_id": "terms.ai-outputs",
+   "document_type": "terms",
+   "predicate": {
+    "when_field": "uses_ai",
+    "equals": true
+   },
+   "required_business_fields": [],
+   "body": [
+    "Parts of the service use artificial-intelligence systems, including third-party AI model providers, to generate content, take actions you direct, and process your data. AI output can be wrong, incomplete, or unsuitable for your purpose. You are responsible for reviewing AI output before relying on it, and for the actions you authorize AI systems to take on your behalf. Where the service can act on connected external accounts, it acts only within the access you grant, and you can revoke that access at any time."
+   ]
+  },
+  {
+   "clause_id": "terms.warranty-disclaimer",
+   "document_type": "terms",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [],
+   "body": [
+    "The service is provided \"as is\" and \"as available.\" To the maximum extent permitted by law, we disclaim all warranties, express or implied, including merchantability, fitness for a particular purpose, and non-infringement. We do not warrant that the service will be uninterrupted, error-free, or secure, and no advice or information obtained from us creates any warranty not expressly stated here. Some jurisdictions do not allow certain warranty disclaimers, so parts of this section may not apply to you."
+   ]
+  },
+  {
+   "clause_id": "terms.limitation-of-liability",
+   "document_type": "terms",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [],
+   "body": [
+    "To the maximum extent permitted by law, we are not liable for indirect, incidental, special, consequential, or punitive damages, or for lost profits, revenue, data, or goodwill. Our total liability for all claims relating to the service in any 12-month period is limited to the amounts you paid us for the service in that period. Nothing in these Terms limits liability that cannot be limited by law."
+   ]
+  },
+  {
+   "clause_id": "terms.indemnification",
+   "document_type": "terms",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [],
+   "body": [
+    "You will defend and indemnify us against third-party claims arising from your content, your use of the service in violation of these Terms, or your violation of law or of third-party rights."
+   ]
+  },
+  {
+   "clause_id": "terms.termination",
+   "document_type": "terms",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "data_export_statement"
+   ],
+   "body": [
+    "You may stop using the service and close your account at any time. We may suspend or terminate your access for material breach of these Terms, for unlawful use, or where required by law; where practical we will notify you and give you a chance to cure. {{data_export_statement}}"
+   ]
+  },
+  {
+   "clause_id": "terms.modification-of-terms",
+   "document_type": "terms",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "notice_channel"
+   ],
+   "body": [
+    "We may update these Terms. Every version is identified by its document identity and effective date. For material changes we will notify you via {{notice_channel}} before the change takes effect and ask you to affirmatively accept the new version; material changes are prospective only and never apply retroactively. Non-material changes (for example, clarifications that do not expand your obligations or our rights) take effect when posted with an updated effective date. If you do not accept a material change, you may cancel before it takes effect."
+   ]
+  },
+  {
+   "clause_id": "terms.dispute-resolution",
+   "document_type": "terms",
+   "predicate": {
+    "when_field": "arbitration_adopted",
+    "equals": true
+   },
+   "required_business_fields": [
+    "arbitration_body"
+   ],
+   "body": [
+    "Dispute resolution. If you have a dispute with us, contact us first at {{contact_email}}; most issues are resolved informally. Both sides agree to try informal resolution for 30 days before starting any formal proceeding.",
+    "Binding individual arbitration. If we cannot resolve a dispute informally, you and we agree that the dispute will be resolved by binding arbitration before {{arbitration_body}}, on an individual basis, instead of in court. The arbitration will be held in the county where you live or another mutually agreed location, and the arbitrator can award the same remedies a court could award to you individually.",
+    "CLASS ACTION WAIVER: YOU AND WE EACH WAIVE THE RIGHT TO A JURY TRIAL AND THE RIGHT TO PARTICIPATE IN A CLASS ACTION, CLASS ARBITRATION, OR OTHER REPRESENTATIVE PROCEEDING. Disputes may only be brought individually.",
+    "Exceptions. Either side may bring an eligible claim in small claims court instead of arbitration, and either side may seek injunctive relief in court for infringement or misuse of intellectual property.",
+    "Coordinated filings. If 25 or more similar arbitration demands are filed by or with the assistance of the same or coordinated counsel, the parties agree the arbitration provider will resolve them in staged batches under its mass-arbitration procedures, with fees due only as each batch proceeds.",
+    "Your opt-out right. You may reject this arbitration section without losing access to the service by emailing {{contact_email}} within 30 days of first accepting these Terms, stating your name, the email on your account, and that you opt out of arbitration. If you opt out, disputes will be resolved in the courts named in the governing-law section.",
+    "If the class action waiver is found unenforceable as to a particular dispute, that dispute shall proceed in court, not in arbitration, and the rest of this section still applies to all other disputes."
+   ]
+  },
+  {
+   "clause_id": "terms.governing-law",
+   "document_type": "terms",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "governing_law_state",
+    "venue"
+   ],
+   "body": [
+    "These Terms are governed by the laws of {{governing_law_state}}, without regard to conflict-of-law rules. Subject to any dispute-resolution section of these Terms, disputes will be brought in the courts located in {{venue}}. If you are a consumer in a jurisdiction whose law gives you mandatory protections or venue rights, nothing here takes those away."
+   ]
+  },
+  {
+   "clause_id": "terms.contact",
+   "document_type": "terms",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "contact_email"
+   ],
+   "body": [
+    "Questions about these Terms: {{contact_email}}."
+   ]
+  },
+  {
+   "clause_id": "privacy.intro-scope",
+   "document_type": "privacy",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "business_legal_name",
+    "service_name",
+    "site_url",
+    "contact_email"
+   ],
+   "body": [
+    "This Privacy Policy explains what {{business_legal_name}} collects when you use {{service_name}} at {{site_url}}, why, who it is shared with, and the choices you have. This policy describes what we actually do; if our practices change materially, we will notify you and obtain your consent before applying new practices to data we already hold. Contact: {{contact_email}}."
+   ]
+  },
+  {
+   "clause_id": "privacy.data-collected",
+   "document_type": "privacy",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "data_categories_table"
+   ],
+   "body": [
+    "What we collect:",
+    "{{data_categories_table}}"
+   ]
+  },
+  {
+   "clause_id": "privacy.purposes",
+   "document_type": "privacy",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "purposes_list"
+   ],
+   "body": [
+    "Why we collect it:",
+    "{{purposes_list}}",
+    "We do not sell your personal information, and we do not share it for cross-context behavioral advertising."
+   ]
+  },
+  {
+   "clause_id": "privacy.sharing-subprocessors",
+   "document_type": "privacy",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "subprocessors_table"
+   ],
+   "body": [
+    "Who processes data on our behalf (service providers / subprocessors):",
+    "{{subprocessors_table}}",
+    "Each provider receives only what its function requires, under terms restricting use to providing the service. Beyond these providers, we disclose personal information only if required by law or to protect the safety and integrity of the service."
+   ]
+  },
+  {
+   "clause_id": "privacy.ai-processing",
+   "document_type": "privacy",
+   "predicate": {
+    "when_field": "uses_ai",
+    "equals": true
+   },
+   "required_business_fields": [
+    "ai_providers_statement",
+    "ai_training_statement",
+    "connected_accounts_statement"
+   ],
+   "body": [
+    "AI processing. {{ai_providers_statement}}",
+    "{{ai_training_statement}}",
+    "Connected accounts. {{connected_accounts_statement}}"
+   ]
+  },
+  {
+   "clause_id": "privacy.payments",
+   "document_type": "privacy",
+   "predicate": {
+    "when_field": "has_paid_offers",
+    "equals": true
+   },
+   "required_business_fields": [],
+   "body": [
+    "Payments are processed by Stripe. We do not receive or store your full card number; Stripe processes payment data under its own privacy policy, and we receive transaction records (amount, status, billing identifiers) needed to run your account."
+   ]
+  },
+  {
+   "clause_id": "privacy.retention",
+   "document_type": "privacy",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "retention_statement"
+   ],
+   "body": [
+    "Retention. {{retention_statement}}"
+   ]
+  },
+  {
+   "clause_id": "privacy.security",
+   "document_type": "privacy",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [],
+   "body": [
+    "Security. We use reasonable technical and organizational measures appropriate to the data we hold, including encryption in transit and access controls. No system is perfectly secure, and we do not promise absolute security; if a breach affecting your personal information occurs, we will notify you as required by law."
+   ]
+  },
+  {
+   "clause_id": "privacy.your-rights",
+   "document_type": "privacy",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "contact_email"
+   ],
+   "body": [
+    "Your rights. Depending on where you live, you may have the right to access, correct, delete, or receive a copy of your personal information, and to object to or restrict certain processing. We honor these rights regardless of which US state you live in and respond within the time the applicable law requires. To exercise them, email {{contact_email}} from the address associated with your account; we will verify the request and will not discriminate against you for making one. Authorized agents may submit requests where the law provides for it. If we deny a request you may appeal by replying to our decision."
+   ]
+  },
+  {
+   "clause_id": "privacy.eu-uk",
+   "document_type": "privacy",
+   "predicate": {
+    "when_field": "targets_eu_uk",
+    "equals": true
+   },
+   "required_business_fields": [
+    "legal_bases_statement"
+   ],
+   "body": [
+    "If you are in the EEA or UK: our legal bases are {{legal_bases_statement}}. You also have the rights to data portability and to lodge a complaint with your supervisory authority. Where data is transferred out of the EEA/UK, we rely on standard contractual clauses or an adequacy decision."
+   ]
+  },
+  {
+   "clause_id": "privacy.children",
+   "document_type": "privacy",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "children_statement"
+   ],
+   "body": [
+    "Children. {{children_statement}}"
+   ]
+  },
+  {
+   "clause_id": "privacy.changes",
+   "document_type": "privacy",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [
+    "notice_channel"
+   ],
+   "body": [
+    "Changes to this policy. Every version is identified by its document identity and effective date. If we materially expand how we collect, use, or share personal information, we will notify you via {{notice_channel}} and obtain your affirmative consent BEFORE the new practice applies to data collected under the old policy. We will never change this policy quietly or retroactively."
+   ]
+  },
+  {
+   "clause_id": "refunds.disclosure-before-charge",
+   "document_type": "refunds",
+   "predicate": {
+    "when_field": "has_subscriptions",
+    "equals": true
+   },
+   "required_business_fields": [
+    "pricing_surface_url"
+   ],
+   "body": [
+    "Before any charge, the checkout shows you the amount (per the rates displayed at {{pricing_surface_url}}), the billing frequency, when the charge occurs, and, for trials, the exact date the first paid charge happens. You separately consent to the recurring charge before it is created."
+   ]
+  },
+  {
+   "clause_id": "refunds.trial",
+   "document_type": "refunds",
+   "predicate": {
+    "when_field": "trial_length_days",
+    "gt": 0
+   },
+   "required_business_fields": [
+    "trial_length_days"
+   ],
+   "body": [
+    "Free trial. Your trial lasts {{trial_length_days}} days. We remind you before the trial ends, and the first charge occurs only after the trial period. Cancel before the trial ends and you are never charged."
+   ]
+  },
+  {
+   "clause_id": "refunds.cancel",
+   "document_type": "refunds",
+   "predicate": {
+    "when_field": "has_subscriptions",
+    "equals": true
+   },
+   "required_business_fields": [
+    "cancel_method"
+   ],
+   "body": [
+    "Cancellation. Cancel any time using {{cancel_method}}; it is as easy as signing up and takes effect at the end of the current paid period. You receive written confirmation of the cancellation. We send a reminder before renewal charges so you can cancel first."
+   ]
+  },
+  {
+   "clause_id": "refunds.refund-terms",
+   "document_type": "refunds",
+   "predicate": {
+    "when_field": "has_subscriptions",
+    "equals": true
+   },
+   "required_business_fields": [
+    "refund_statement",
+    "dispute_contact",
+    "billing_descriptor"
+   ],
+   "body": [
+    "Refunds. {{refund_statement}}",
+    "Charges appear on your statement as {{billing_descriptor}}. If you believe a charge is wrong, contact {{dispute_contact}} first; we resolve billing mistakes without requiring a card dispute."
+   ]
+  },
+  {
+   "clause_id": "refunds.pwyw",
+   "document_type": "refunds",
+   "predicate": {
+    "when_field": "has_pwyw",
+    "equals": true
+   },
+   "required_business_fields": [
+    "business_legal_name"
+   ],
+   "body": [
+    "Voluntary support payments. Where you choose to make a voluntary \"support\" or pay-what-you-want payment, that payment is a commercial payment to {{business_legal_name}}, a for-profit business. It is NOT a charitable donation and is NOT tax-deductible. Voluntary support payments are non-refundable, and this is disclosed at the point of payment before you pay."
+   ]
+  },
+  {
+   "clause_id": "waiver.assumption-of-risk",
+   "document_type": "waiver",
+   "predicate": {
+    "when_field": "has_physical_activity",
+    "equals": true
+   },
+   "required_business_fields": [
+    "business_legal_name",
+    "activity_description",
+    "activity_risks"
+   ],
+   "body": [
+    "Assumption of risk and release. This agreement is presented and accepted SEPARATELY from the Terms of Service, because it concerns physical activity. Participation in {{activity_description}} involves inherent risks including {{activity_risks}}. By signing/accepting, the participant (or the parent/guardian for a minor) acknowledges these risks, voluntarily assumes them, and, to the extent permitted by the law of the participant's state, releases {{business_legal_name}} from liability for injuries arising from the inherent risks of the activity. This release does not extend to gross negligence, recklessness, or intentional misconduct, and it is void where state law does not permit it."
+   ]
+  },
+  {
+   "clause_id": "waiver.minors",
+   "document_type": "waiver",
+   "predicate": {
+    "when_field": "serves_minors",
+    "equals": true
+   },
+   "required_business_fields": [],
+   "body": [
+    "Minors. A participant under 18 requires a parent or legal guardian to review and sign/accept this agreement on the minor's behalf. The guardian confirms the participant is physically able to take part and will disclose relevant health conditions."
+   ]
+  },
+  {
+   "clause_id": "waiver.health-disclaimer",
+   "document_type": "waiver",
+   "predicate": {
+    "when_field": "has_physical_activity",
+    "equals": true
+   },
+   "required_business_fields": [],
+   "body": [
+    "Not medical advice. Coaching content and training programs are educational and are not medical advice. Consult a physician before beginning any training program, stop if you feel pain or distress, and train within your own limits."
+   ]
+  },
+  {
+   "clause_id": "waiver.media-release",
+   "document_type": "waiver",
+   "predicate": {
+    "when_field": "records_participants",
+    "equals": true
+   },
+   "required_business_fields": [
+    "business_legal_name"
+   ],
+   "body": [
+    "Media release (optional, separate consent). With your separate opt-in consent (guardian consent for minors), {{business_legal_name}} may record photos/video of training sessions and use them in instructional and promotional content. You may decline or withdraw this consent at any time without affecting your participation; withdrawal applies prospectively."
+   ]
+  },
+  {
+   "clause_id": "universal.not-legal-advice-footer",
+   "document_type": "*",
+   "predicate": {
+    "always": true
+   },
+   "required_business_fields": [],
+   "internal_only": true,
+   "body": [
+    "INTERNAL (never rendered to customers): assembled documents originate from a drafting library and research, not from a law firm; a licensed attorney must review before publication binds real customers. This marker exists so the assembler can refuse to mark a document customer-ready without the attorney-review flag."
+   ]
+  },
+  {
+   "clause_id": "waiver.attorney-review-marker",
+   "document_type": "waiver",
+   "predicate": {
+    "always": true
+   },
+   "internal_only": true,
+   "body": [
+    "INTERNAL (never rendered to customers): waiver enforceability, especially parent-signed minor waivers, varies by state and requires licensed-attorney review for each state of operation before this document binds anyone. Tracked as a founder decision; the attorney_review_gate keeps customer_ready false meanwhile."
+   ]
+  }
+ ]
+}

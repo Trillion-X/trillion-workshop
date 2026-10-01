@@ -1,0 +1,166 @@
+{
+ "kind": "tool-rows",
+ "record_set": "browse-public-page-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/browse-public-page: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::ai-tool-catalog::tool::read-public-web-page",
+   "address": "package::ai-tool-catalog::tool::read-public-web-page",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-public-web-page",
+    "label": "Read a public web page",
+    "job": "Open one public web page and return its title, readable text, links, the card it describes itself with, every picture and video it declares and its structured data",
+    "description": "Reads one public HTTP or HTTPS page and returns its title, readable text and links, and the card it describes itself with: its picture, description, site name and icon (each null when the page does not say), every picture (images) and video (videos) it declares in its tags and structured data, and that structured data (data, its schema.org JSON-LD objects). It follows a small number of checked redirects, pins each DNS answer to the connection, refuses private-network addresses, limits the response to 2 MB and returns at most 30,000 text characters and 100 links. It does not sign in or reuse browser cookies.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "url"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "url": {
+       "type": "string",
+       "format": "uri",
+       "description": "One public HTTP or HTTPS page address; only standard ports are supported."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "url",
+      "final_url",
+      "status",
+      "title",
+      "text",
+      "links"
+     ],
+     "properties": {
+      "url": {
+       "type": "string"
+      },
+      "final_url": {
+       "type": "string"
+      },
+      "status": {
+       "type": "integer"
+      },
+      "title": {
+       "type": "string"
+      },
+      "text": {
+       "type": "string"
+      },
+      "links": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "description": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "image": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "site": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "icon": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "images": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "videos": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "data": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/work",
+     "stdout": "json",
+     "argv": [
+      "/usr/local/bin/node",
+      "/opt/browse-public-page/do-work/browse_public_page.mjs"
+     ],
+     "stdin": {
+      "url": {
+       "fill": {
+        "from": "input",
+        "field": "url"
+       }
+      }
+     },
+     "files": {
+      "package_files": {
+       "package": "browse-public-page",
+       "paths": [
+        "do-work/browse_public_page.mjs",
+        "do-work/page-facts.mjs",
+        "do-work/page-conventions.json"
+       ],
+       "at": "/opt/browse-public-page"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 15,
+     "network_egress": true,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:trillion",
+    "provenance": {
+     "source": "standalone Trillion shared browse-public-page part"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "url": "https://example.com"
+      },
+      "output_selector": "$.title",
+      "contains": "Example Domain"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,246 @@
+{
+ "kind": "tool-rows",
+ "record_set": "relationship-graph-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/relationship-graph: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::relationship-graph::tool::map-who-is-connected",
+   "address": "package::relationship-graph::tool::map-who-is-connected",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:map-who-is-connected",
+    "label": "Map who is connected to whom",
+    "status": "active",
+    "job": "Map who is connected to whom from records such as introductions, referrals or deals between people and companies",
+    "description": "Give the records (bare or as {address, payload}), in records or as a JSON file from your files, and how to read connections from them: how.record_selectors, each with match (which records are connections) and connection {identity, endpoints [{role, value}], attributes [{name, value}]}, where a value reads the record: {\"method\": \"json-path\", \"params\": {\"path\": [\"from\"]}}, {\"method\": \"literal\", \"params\": {\"value\": ...}}, {\"method\": \"record-address\"}; a match is {\"method\": \"json-field-equals\", \"params\": {\"path\": [\"type\"], \"value\": \"introduction\"}}, \"equals\", \"exists\", \"and\" or \"include-all\". Returns each person or company once with the connections it is in, each connection with its ends and details, and any record that could not be read.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "how"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The records to read connections from; send this or records_file"
+      },
+      "records_file": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "A JSON file in your files (1f: then 64 hex, as find_file or list_files returns it) holding the records as a list, or as {\"records\": [...]}; send this or records"
+      },
+      "how": {
+       "type": "object",
+       "required": [
+        "record_selectors"
+       ],
+       "description": "How to read connections from the records"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "nodes",
+      "connections",
+      "issues",
+      "node_count",
+      "connection_count"
+     ],
+     "properties": {
+      "nodes": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "connection_ids"
+        ]
+       }
+      },
+      "connections": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "endpoints"
+        ]
+       }
+      },
+      "issues": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "node_count": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "connection_count": {
+       "type": "integer",
+       "minimum": 0
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "relationship-graph",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/relationship-graph",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/relationship-graph",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/map-who-is-connected.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": true,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:relationship-graph",
+    "provenance": {
+     "source": "bitfield-packages packages/relationship-graph"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "records": [
+        {
+         "address": "intro:1",
+         "payload": {
+          "type": "introduction",
+          "id": "intro:1",
+          "from": "person:ana",
+          "to": "person:ben",
+          "at": "2026-09-10"
+         }
+        },
+        {
+         "address": "intro:2",
+         "payload": {
+          "type": "introduction",
+          "id": "intro:2",
+          "from": "person:ben",
+          "to": "person:cy",
+          "at": "2026-09-12"
+         }
+        },
+        {
+         "address": "note:1",
+         "payload": {
+          "type": "note",
+          "id": "note:1",
+          "text": "Not a connection"
+         }
+        }
+       ],
+       "how": {
+        "record_selectors": [
+         {
+          "id": "introductions",
+          "match": {
+           "method": "json-field-equals",
+           "params": {
+            "path": [
+             "type"
+            ],
+            "value": "introduction"
+           }
+          },
+          "connection": {
+           "identity": {
+            "method": "json-path",
+            "params": {
+             "path": [
+              "id"
+             ]
+            }
+           },
+           "endpoints": [
+            {
+             "role": "introduced-by",
+             "value": {
+              "method": "json-path",
+              "params": {
+               "path": [
+                "from"
+               ]
+              }
+             }
+            },
+            {
+             "role": "introduced",
+             "value": {
+              "method": "json-path",
+              "params": {
+               "path": [
+                "to"
+               ]
+              }
+             }
+            }
+           ],
+           "attributes": [
+            {
+             "name": "at",
+             "value": {
+              "method": "json-path",
+              "params": {
+               "path": [
+                "at"
+               ]
+              }
+             }
+            }
+           ]
+          }
+         }
+        ]
+       }
+      },
+      "output_selector": "$.nodes[1].id",
+      "contains": "person:ben"
+     },
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.connection_count",
+      "at_least": 1
+     }
+    ]
+   }
+  }
+ ]
+}

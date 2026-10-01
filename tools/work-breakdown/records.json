@@ -1,0 +1,460 @@
+{
+ "package": "work-breakdown",
+ "things": [
+  {
+   "type": "record",
+   "id": "package::work-breakdown::tool::roll-up-work-completion",
+   "address": "package::work-breakdown::tool::roll-up-work-completion",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:roll-up-work-completion",
+    "label": "Roll up how much work is finished",
+    "status": "active",
+    "job": "See how much of a body of work is really finished, which items were said done with no proof, and what is blocked",
+    "description": "Counts a work tree from its items' states: an item marked done with nothing anyone can check is counted apart as said done, never as finished, and a percentage typed into the tree is refused rather than trusted. Returns finished out of all items, the share finished, what was said done without proof, what is blocked and by what, and the open items nobody has decided how to build; as \"checklist\" it also returns the tree as a checklist.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "tree"
+     ],
+     "properties": {
+      "tree": {
+       "type": "object",
+       "description": "The work as a tree: { id, title, states?, children: [ { id, title, state?, verified_by?, blocked_by?, through?, children? } ] }. Every node has an id. A node with children is a branch; a node without is one item. state is one of the tree's states (default done, open, blocked); verified_by is what someone can check to see it is done; blocked_by is what stops it."
+      },
+      "as": {
+       "type": "string",
+       "enum": [
+        "json",
+        "checklist"
+       ],
+       "description": "\"checklist\" also returns the tree as a checklist (default json)"
+      },
+      "only": {
+       "type": "string",
+       "description": "The id of one branch to count on its own"
+      },
+      "depth": {
+       "type": "integer",
+       "minimum": 0,
+       "description": "How many levels of the checklist to show"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [],
+     "properties": {
+      "leaves": {
+       "type": "number"
+      },
+      "finished": {
+       "type": "number"
+      },
+      "share_finished": {
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "unverified_ids": {
+       "type": "array"
+      },
+      "checklist": {
+       "type": "string"
+      },
+      "summary": {
+       "type": "string"
+      },
+      "totals": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "work-breakdown",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/parts/work-breakdown"
+      }
+     },
+     "workdir": "/opt/parts/work-breakdown",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/roll-up-work-completion.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:work-breakdown",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/work-breakdown"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "tree": {
+        "id": "launch",
+        "title": "Launch",
+        "children": [
+         {
+          "id": "site",
+          "title": "Site",
+          "children": [
+           {
+            "id": "copy",
+            "title": "Write the copy",
+            "state": "done",
+            "verified_by": "published at /; 3 sections render"
+           },
+           {
+            "id": "pay",
+            "title": "Take payments",
+            "state": "done"
+           }
+          ]
+         },
+         {
+          "id": "ads",
+          "title": "Run ads",
+          "state": "blocked",
+          "blocked_by": "ad account not approved"
+         }
+        ]
+       }
+      },
+      "output_selector": "$.unverified_ids[0]",
+      "contains": "pay"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::work-breakdown::tool::add-work-item",
+   "address": "package::work-breakdown::tool::add-work-item",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:add-work-item",
+    "label": "Add a requested item to a work tree",
+    "status": "active",
+    "job": "Add a requested item to a work tree, keeping who asked for it and in which message, without adding it twice",
+    "description": "Adds one item someone asked for to a work tree, under a branch or at the top, with the checks that will show it is done. Each item keeps where it was asked (a conversation and the message's number), so sending the same request again changes nothing, a later message can refine an existing item (attach_to) or correct it (correction: true), and the same message can never become two items. Returns the whole tree with the item in it, whether it changed, and the item as recorded.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "tree",
+      "item"
+     ],
+     "properties": {
+      "tree": {
+       "type": "object",
+       "description": "The work as a tree: { id, title, states?, children: [ { id, title, state?, verified_by?, blocked_by?, through?, children? } ] }. Every node has an id. A node with children is a branch; a node without is one item. state is one of the tree's states (default done, open, blocked); verified_by is what someone can check to see it is done; blocked_by is what stops it."
+      },
+      "item": {
+       "type": "object",
+       "required": [
+        "id",
+        "title",
+        "said"
+       ],
+       "properties": {
+        "id": {
+         "type": "string",
+         "description": "A stable lowercase id, like email-the-list"
+        },
+        "title": {
+         "type": "string"
+        },
+        "said": {
+         "type": "array",
+         "minItems": 1,
+         "items": {
+          "type": "object",
+          "required": [
+           "session",
+           "ordinal"
+          ],
+          "properties": {
+           "session": {
+            "type": "string"
+           },
+           "ordinal": {
+            "type": "integer",
+            "minimum": 1
+           }
+          }
+         },
+         "description": "Where it was asked: the conversation and the message's number in it"
+        },
+        "checks": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "description": "What will show it is done"
+        },
+        "parent_id": {
+         "type": "string",
+         "description": "The branch to add it under (default the top)"
+        },
+        "attach_to": {
+         "type": "string",
+         "description": "An existing item this request refines"
+        },
+        "correction": {
+         "type": "boolean"
+        },
+        "state": {
+         "type": "string"
+        },
+        "through": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "tree",
+      "changed",
+      "item"
+     ],
+     "properties": {
+      "tree": {
+       "type": "object"
+      },
+      "changed": {
+       "type": "boolean"
+      },
+      "item": {
+       "type": "object",
+       "required": [
+        "id",
+        "title"
+       ],
+       "properties": {
+        "id": {
+         "type": "string"
+        },
+        "title": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "work-breakdown",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/parts/work-breakdown"
+      }
+     },
+     "workdir": "/opt/parts/work-breakdown",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/intake-work-item.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:work-breakdown",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/work-breakdown"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "tree": {
+        "id": "launch",
+        "title": "Launch",
+        "children": [
+         {
+          "id": "site",
+          "title": "Site",
+          "children": [
+           {
+            "id": "copy",
+            "title": "Write the copy",
+            "state": "done",
+            "verified_by": "published at /; 3 sections render"
+           },
+           {
+            "id": "pay",
+            "title": "Take payments",
+            "state": "done"
+           }
+          ]
+         },
+         {
+          "id": "ads",
+          "title": "Run ads",
+          "state": "blocked",
+          "blocked_by": "ad account not approved"
+         }
+        ]
+       },
+       "item": {
+        "id": "email-the-list",
+        "title": "Email the list",
+        "said": [
+         {
+          "session": "chat-1",
+          "ordinal": 4
+         }
+        ],
+        "checks": [
+         "one send reaches the list"
+        ]
+       }
+      },
+      "output_selector": "$.tree.children[2].title",
+      "contains": "Email the list"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::work-breakdown::tool::check-proof-of-finished-work",
+   "address": "package::work-breakdown::tool::check-proof-of-finished-work",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-proof-of-finished-work",
+    "label": "Check the proof behind finished work",
+    "status": "active",
+    "job": "Check whether the proof given for a finished task is something someone else could go and check, or just a claim",
+    "description": "Reads the proof recorded for one finished item and answers CHECKABLE when it names something a second person could look at (a command and its result, a count, a file, a measurement, a screen to open, a wall that was hit) or VAGUE when it asserts, restates the task, or describes a feeling or an intention, followed by one sentence saying why. It judges only whether the record can be trusted, not whether the work is good.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "evidence"
+     ],
+     "properties": {
+      "evidence": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The proof recorded for the finished item, in its own words"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "response"
+     ],
+     "properties": {
+      "response": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    },
+    "invoke": {
+     "kind": "model",
+     "model": "@cf/mistralai/mistral-small-3.1-24b-instruct",
+     "input": {
+      "temperature": 0,
+      "max_tokens": 120,
+      "messages": [
+       {
+        "role": "system",
+        "content": "You check the proof recorded for a finished task. Question: does this evidence name something a second person could go and check for themselves? CHECKABLE means it names a specific thing to look at: a command and its result, a count, a file, a measurement, a screen to open, a wall that was hit. VAGUE means it asserts, restates the task, describes a feeling or an intention, or is too vague to point anyone at anything. You judge only whether the record can be checked, never whether the work is good. Examples: '29 tests, 29 pass, 0 fail, in 91ms.' is CHECKABLE. 'feels much faster now' is VAGUE. 'sent one message through the hosted app and the reply painted in the thread.' is CHECKABLE. 'done' is VAGUE. 'implemented as described in the task' is VAGUE. Answer with the one word CHECKABLE or VAGUE first, then one sentence saying why."
+       },
+       {
+        "role": "user",
+        "content": {
+         "fill": {
+          "from": "input",
+          "field": "evidence"
+         }
+        }
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:rented-model-runtime"
+    ],
+    "maker": "maker:work-breakdown",
+    "provenance": {
+     "source": "bitfield-packages packages/work-breakdown/do-work/check-the-evidence-behind-finished-work.mjs (its rubric and calibration)",
+     "model": "mistral-small-3.1-24b-instruct",
+     "licence": "Apache-2.0",
+     "served_by": "Cloudflare Workers AI model catalog"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "evidence": "29 tests, 29 pass, 0 fail, in 91ms."
+      },
+      "output_selector": "$.response",
+      "contains": "CHECKABLE"
+     }
+    ]
+   }
+  }
+ ]
+}

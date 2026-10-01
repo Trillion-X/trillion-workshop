@@ -1,0 +1,133 @@
+{
+ "kind": "tool-rows",
+ "record_set": "words-as-picture-vector-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/words-as-picture-vector: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::ai-tool-catalog::tool::words-as-picture-vector",
+   "address": "package::ai-tool-catalog::tool::words-as-picture-vector",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:words-as-picture-vector",
+    "label": "Turn words into a picture vector",
+    "job": "Turn words into the vector a picture model (CLIP ViT-B-32, OpenAI weights) gives pictures that show them, to compare with picture vectors kept for recordings",
+    "description": "Encodes 1 to 64 short texts with the CLIP ViT-B-32 text model (OpenAI weights, ONNX export pinned by BLAKE3) and returns one unit-length 512-number vector per text, with the model named, so it is compared only with picture vectors made by the same model. Runs sealed, without the network.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "texts"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "texts": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 64,
+       "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "model",
+      "dims",
+      "vectors"
+     ],
+     "properties": {
+      "model": {
+       "type": "object",
+       "required": [
+        "name",
+        "pretrained"
+       ],
+       "properties": {
+        "name": {
+         "type": "string"
+        },
+        "pretrained": {
+         "type": "string"
+        }
+       }
+      },
+      "dims": {
+       "type": "integer"
+      },
+      "vectors": {
+       "type": "array",
+       "items": {
+        "type": "array",
+        "items": {
+         "type": "number"
+        }
+       }
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/work",
+     "stdout": "json",
+     "argv": [
+      "python3",
+      "/opt/words-as-picture-vector/do-work/words-as-picture-vector.py"
+     ],
+     "stdin": {
+      "texts": {
+       "fill": {
+        "from": "input",
+        "field": "texts"
+       }
+      }
+     },
+     "files": {
+      "package_files": {
+       "package": "words-as-picture-vector",
+       "paths": [
+        "do-work/words-as-picture-vector.py"
+       ],
+       "at": "/opt/words-as-picture-vector"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 8,
+     "network_egress": false,
+     "memory_mb": 1024
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:trillion",
+    "provenance": {
+     "source": "standalone Trillion words-as-picture-vector part",
+     "model": "https://huggingface.co/Xenova/clip-vit-base-patch32 at d15189d7028b43f1d3e65039190477f6af591c2a (MIT, OpenAI CLIP weights)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "texts": [
+        "tennis"
+       ]
+      },
+      "output_selector": "$.model.name",
+      "contains": "ViT-B-32"
+     }
+    ]
+   }
+  }
+ ]
+}

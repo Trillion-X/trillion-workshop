@@ -1,0 +1,125 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-licence-class-records",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::licence-class::permissive",
+      "address": "package::ai-tool-catalog::licence-class::permissive",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-licence-class",
+        "id": "licence:permissive",
+        "label": "Open licence that allows running it for anyone",
+        "licences": [
+          "MIT",
+          "Apache-2.0",
+          "BSD-2-Clause",
+          "BSD-3-Clause",
+          "ISC",
+          "MPL-2.0",
+          "LGPL-2.1",
+          "LGPL-3.0",
+          "GPL-2.0",
+          "GPL-3.0",
+          "LGPL-2.1-or-later",
+          "Unlicense",
+          "CC0-1.0"
+        ],
+        "allowed_placements": [
+          "placement:rented-model-runtime",
+          "placement:public-web-address",
+          "placement:caller-sandbox",
+          "placement:deployed-container",
+          "placement:small-container",
+          "placement:hosted-sites",
+          "placement:this-worker"
+        ],
+        "serve_source_link": false,
+        "store_bytes": true
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::licence-class::network-copyleft",
+      "address": "package::ai-tool-catalog::licence-class::network-copyleft",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-licence-class",
+        "id": "licence:network-copyleft",
+        "label": "Open licence that asks for the source to be offered to every user",
+        "licences": [
+          "AGPL-3.0"
+        ],
+        "allowed_placements": [
+          "placement:rented-model-runtime",
+          "placement:public-web-address",
+          "placement:caller-sandbox",
+          "placement:deployed-container",
+          "placement:small-container"
+        ],
+        "serve_source_link": true,
+        "store_bytes": true
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::licence-class::no-hosting-rights",
+      "address": "package::ai-tool-catalog::licence-class::no-hosting-rights",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-licence-class",
+        "id": "licence:no-hosting-rights",
+        "label": "No right to run it for other people",
+        "licences": [
+          "NOASSERTION",
+          "NONE",
+          "CC-BY-NC-4.0",
+          "BUSL-1.1",
+          "SSPL-1.0",
+          "Sustainable-Use-1.0"
+        ],
+        "allowed_placements": [
+          "placement:caller-sandbox"
+        ],
+        "serve_source_link": false,
+        "store_bytes": false
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::licence-class::maker-own",
+      "address": "package::ai-tool-catalog::licence-class::maker-own",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-licence-class",
+        "id": "licence:maker-own",
+        "label": "The maker’s own tool, run where the maker keeps it",
+        "licences": [
+          "maker-own"
+        ],
+        "allowed_placements": [
+          "placement:public-web-address",
+          "placement:deployed-container",
+          "placement:small-container",
+          "placement:held-values",
+          "placement:this-worker",
+          "placement:this-account",
+          "placement:caller-sandbox",
+          "placement:your-mac"
+        ],
+        "serve_source_link": false,
+        "store_bytes": false
+      }
+    }
+  ]
+}

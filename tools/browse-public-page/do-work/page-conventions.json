@@ -1,0 +1,23 @@
+{
+  "schema": "trillion.page-conventions",
+  "about": "How a public page describes itself, as the web agreed it (read by ./page-facts.mjs). Each list names the <meta property|name> keys that carry one fact, in order: the first key a page states wins for a single fact (title, description, site), and every key is read for a list (pictures, videos), deduplicated in the order found. icon_rels are <link rel> words that name the page's icon. structured_data reads the page's <script type=\"application/ld+json\"> blocks (schema.org): at most max_blocks objects (each object of a block's @graph counts as one), at most max_characters of them in all, walked no deeper than max_depth; picture_keys and video_keys are the keys whose values (a web address, an { url } object, or a list of them) add to pictures and videos. direct_files says which list a link that is itself a file adds to, by the start of its media type. max_pictures and max_videos cap each list. A new convention is one more key here, never a change to the reader.",
+  "title": ["og:title", "twitter:title"],
+  "description": ["og:description", "twitter:description", "description"],
+  "site": ["og:site_name", "application-name"],
+  "pictures": ["og:image:secure_url", "og:image", "og:image:url", "twitter:image", "twitter:image:src"],
+  "videos": ["og:video:secure_url", "og:video:url", "og:video", "twitter:player:stream"],
+  "icon_rels": ["icon", "apple-touch-icon"],
+  "structured_data": {
+    "max_blocks": 20,
+    "max_characters": 100000,
+    "max_depth": 12,
+    "picture_keys": ["image", "thumbnailUrl"],
+    "video_keys": ["contentUrl", "embedUrl"]
+  },
+  "direct_files": [
+    { "media_type_starts": "image/", "adds_to": "images" },
+    { "media_type_starts": "video/", "adds_to": "videos" }
+  ],
+  "max_pictures": 40,
+  "max_videos": 20
+}

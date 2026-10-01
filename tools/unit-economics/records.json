@@ -1,0 +1,175 @@
+{
+ "package": "unit-economics",
+ "things": [
+  {
+   "type": "record",
+   "id": "package::unit-economics::tool::work-out-unit-economics",
+   "address": "package::unit-economics::tool::work-out-unit-economics",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:work-out-unit-economics",
+    "label": "Work out unit economics",
+    "status": "active",
+    "job": "Work out a business's unit economics (ARPU, gross margin, CAC, LTV, LTV to CAC, payback) from one period's revenue, costs, ad spend and customer counts",
+    "description": "Takes one period's numbers in whole cents and counts and returns revenue per customer, gross margin, cost to win a customer, lifetime value, lifetime value to acquisition cost and months (periods) to earn back that cost. A figure these numbers cannot give (no cost, no spend, no churn, a zero count) comes back as null, never as a made-up zero.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "net_revenue_cents",
+      "gross_revenue_cents",
+      "active_customers"
+     ],
+     "properties": {
+      "net_revenue_cents": {
+       "type": "number",
+       "description": "Revenue after refunds this period, in cents"
+      },
+      "gross_revenue_cents": {
+       "type": "number",
+       "description": "Revenue before refunds this period, in cents"
+      },
+      "cost_of_delivery_cents": {
+       "type": "number",
+       "description": "What delivering the product cost this period, in cents"
+      },
+      "acquisition_spend_cents": {
+       "type": "number",
+       "description": "Marketing and ad spend this period, in cents"
+      },
+      "active_customers": {
+       "type": "number",
+       "description": "Paying customers this period"
+      },
+      "new_customers": {
+       "type": "number",
+       "description": "Customers won this period"
+      },
+      "avg_lifetime_periods": {
+       "type": "number",
+       "description": "How many periods a customer stays, when known"
+      },
+      "churn_rate": {
+       "type": "number",
+       "description": "Share of customers lost each period, 0 to 1, used when avg_lifetime_periods is not given"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "arpu_cents",
+      "gross_margin",
+      "cac_cents",
+      "ltv_cents",
+      "ltv_to_cac",
+      "payback_periods",
+      "lifetime_periods"
+     ],
+     "properties": {
+      "arpu_cents": {
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "gross_margin": {
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "cac_cents": {
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "ltv_cents": {
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "ltv_to_cac": {
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "payback_periods": {
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "lifetime_periods": {
+       "type": [
+        "number",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "unit-economics",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/parts/unit-economics"
+      }
+     },
+     "workdir": "/opt/parts/unit-economics",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/work-out-unit-economics.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:unit-economics",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/unit-economics"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "net_revenue_cents": 1000000,
+       "gross_revenue_cents": 1100000,
+       "cost_of_delivery_cents": 220000,
+       "acquisition_spend_cents": 300000,
+       "active_customers": 100,
+       "new_customers": 20,
+       "churn_rate": 0.05
+      },
+      "output_selector": "$.ltv_cents",
+      "contains": "160000"
+     }
+    ]
+   }
+  }
+ ]
+}

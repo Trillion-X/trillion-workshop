@@ -1,0 +1,512 @@
+{
+ "kind": "tool-rows",
+ "record_set": "move-records-through-declared-states-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/move-records-through-declared-states: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::move-records-through-declared-states::tool::check-a-stage-move",
+   "address": "package::move-records-through-declared-states::tool::check-a-stage-move",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-a-stage-move",
+    "label": "Check a move to another stage",
+    "status": "active",
+    "job": "See which stage a deal, order or applicant is in, which stages it can move to next, and whether it may move to the stage you want",
+    "description": "Give the stages (a pipeline, deal stages, order states), the moves allowed between them, the start stage and the record's moves so far. Returns where the record is now, every next stage with why it is or is not open, and, when you name a stage in to, whether it may move there and the move to keep with the record. A finished stage never has a way out, and a move naming a stage that is not declared is refused.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "stages",
+      "transitions",
+      "start"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "stages": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "key"
+        ],
+        "properties": {
+         "key": {
+          "type": "string",
+          "description": "The stage's own key"
+         },
+         "label": {
+          "type": "string",
+          "description": "Its name"
+         },
+         "terminal": {
+          "type": "boolean",
+          "description": "True for a finished stage (won, lost) nothing moves out of"
+         }
+        }
+       },
+       "minItems": 1,
+       "description": "Every stage, once each"
+      },
+      "transitions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "from",
+         "to"
+        ],
+        "properties": {
+         "from": {
+          "type": "string"
+         },
+         "to": {
+          "type": "string"
+         },
+         "when": {
+          "type": "object",
+          "description": "Optional: when the move is open, as signals must hold: {\"equals\": {\"signal\", \"value\"}}, {\"at_least\" | \"at_most\": {\"signal\", \"value\"}}, {\"absent\": \"<signal>\"}, {\"all\" | \"any\": [...]}"
+         }
+        }
+       },
+       "description": "The moves allowed between stages"
+      },
+      "start": {
+       "type": "string",
+       "description": "The stage a record with no moves is in"
+      },
+      "moves": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "from",
+         "to"
+        ],
+        "properties": {
+         "from": {
+          "type": "string"
+         },
+         "to": {
+          "type": "string"
+         },
+         "at": {
+          "type": "string"
+         },
+         "because": {}
+        }
+       },
+       "description": "The record's moves so far, oldest first (empty: it is in the start stage)"
+      },
+      "signals": {
+       "type": "object",
+       "description": "Facts the moves' when conditions read, like {\"paid\": true} or {\"days_quiet\": 12}"
+      },
+      "to": {
+       "type": "string",
+       "description": "Optional: the stage you want to move the record to"
+      },
+      "at": {
+       "type": "string",
+       "description": "Optional: when the move happens (ISO time; default now)"
+      },
+      "because": {
+       "type": "string",
+       "description": "Optional: why it moves, kept on the move"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "current_stage",
+      "options"
+     ],
+     "properties": {
+      "current_stage": {
+       "type": "string",
+       "minLength": 1
+      },
+      "options": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "to",
+         "allowed"
+        ],
+        "properties": {
+         "to": {
+          "type": "string"
+         },
+         "allowed": {
+          "type": "boolean"
+         }
+        }
+       }
+      },
+      "requested": {
+       "type": "object",
+       "required": [
+        "to",
+        "allowed"
+       ],
+       "properties": {
+        "to": {
+         "type": "string"
+        },
+        "allowed": {
+         "type": "boolean"
+        },
+        "reason": {},
+        "move": {}
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "move-records-through-declared-states",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/move-records-through-declared-states",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/move-records-through-declared-states",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/check-a-stage-move.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:move-records-through-declared-states",
+    "provenance": {
+     "source": "bitfield-packages packages/move-records-through-declared-states"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "stages": [
+        {
+         "key": "lead",
+         "label": "Lead"
+        },
+        {
+         "key": "call-booked",
+         "label": "Call booked"
+        },
+        {
+         "key": "proposal",
+         "label": "Proposal sent"
+        },
+        {
+         "key": "won",
+         "label": "Won",
+         "terminal": true
+        },
+        {
+         "key": "lost",
+         "label": "Lost",
+         "terminal": true
+        }
+       ],
+       "transitions": [
+        {
+         "from": "lead",
+         "to": "call-booked"
+        },
+        {
+         "from": "lead",
+         "to": "lost"
+        },
+        {
+         "from": "call-booked",
+         "to": "proposal"
+        },
+        {
+         "from": "call-booked",
+         "to": "lost"
+        },
+        {
+         "from": "proposal",
+         "to": "won",
+         "when": {
+          "equals": {
+           "signal": "paid",
+           "value": true
+          }
+         }
+        },
+        {
+         "from": "proposal",
+         "to": "lost"
+        }
+       ],
+       "start": "lead",
+       "moves": [
+        {
+         "from": "lead",
+         "to": "call-booked",
+         "at": "2026-09-20T10:00:00Z"
+        }
+       ],
+       "to": "proposal",
+       "at": "2026-09-27T10:00:00Z",
+       "because": "Call went well"
+      },
+      "output_selector": "$.requested.move.to",
+      "contains": "proposal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::move-records-through-declared-states::tool::check-a-pipeline",
+   "address": "package::move-records-through-declared-states::tool::check-a-pipeline",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-a-pipeline",
+    "label": "Check a pipeline's stages for mistakes",
+    "status": "active",
+    "job": "Check a sales pipeline or any set of stages for mistakes: stages nothing can reach, a way out of a finished stage, or a move to a stage that does not exist",
+    "description": "Give the stages, the moves allowed between them and the start stage. Returns sound (true when there is nothing wrong), each problem in words, and which stages are and are not reachable from the start.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "stages",
+      "transitions",
+      "start"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "stages": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "key"
+        ],
+        "properties": {
+         "key": {
+          "type": "string",
+          "description": "The stage's own key"
+         },
+         "label": {
+          "type": "string",
+          "description": "Its name"
+         },
+         "terminal": {
+          "type": "boolean",
+          "description": "True for a finished stage (won, lost) nothing moves out of"
+         }
+        }
+       },
+       "minItems": 1,
+       "description": "Every stage, once each"
+      },
+      "transitions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "from",
+         "to"
+        ],
+        "properties": {
+         "from": {
+          "type": "string"
+         },
+         "to": {
+          "type": "string"
+         },
+         "when": {
+          "type": "object",
+          "description": "Optional: when the move is open, as signals must hold: {\"equals\": {\"signal\", \"value\"}}, {\"at_least\" | \"at_most\": {\"signal\", \"value\"}}, {\"absent\": \"<signal>\"}, {\"all\" | \"any\": [...]}"
+         }
+        }
+       },
+       "description": "The moves allowed between stages"
+      },
+      "start": {
+       "type": "string",
+       "description": "The stage every record starts in"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "sound",
+      "problems",
+      "reachable",
+      "unreachable"
+     ],
+     "properties": {
+      "sound": {
+       "type": "boolean"
+      },
+      "problems": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "reachable": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "unreachable": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "move-records-through-declared-states",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/move-records-through-declared-states",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/move-records-through-declared-states",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/check-a-pipeline.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:move-records-through-declared-states",
+    "provenance": {
+     "source": "bitfield-packages packages/move-records-through-declared-states"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "stages": [
+        {
+         "key": "lead",
+         "label": "Lead"
+        },
+        {
+         "key": "call-booked",
+         "label": "Call booked"
+        },
+        {
+         "key": "proposal",
+         "label": "Proposal sent"
+        },
+        {
+         "key": "won",
+         "label": "Won",
+         "terminal": true
+        },
+        {
+         "key": "lost",
+         "label": "Lost",
+         "terminal": true
+        },
+        {
+         "key": "archived",
+         "label": "Archived"
+        }
+       ],
+       "transitions": [
+        {
+         "from": "lead",
+         "to": "call-booked"
+        },
+        {
+         "from": "lead",
+         "to": "lost"
+        },
+        {
+         "from": "call-booked",
+         "to": "proposal"
+        },
+        {
+         "from": "call-booked",
+         "to": "lost"
+        },
+        {
+         "from": "proposal",
+         "to": "won",
+         "when": {
+          "equals": {
+           "signal": "paid",
+           "value": true
+          }
+         }
+        },
+        {
+         "from": "proposal",
+         "to": "lost"
+        }
+       ],
+       "start": "lead"
+      },
+      "output_selector": "$.problems",
+      "contains": "archived"
+     }
+    ]
+   }
+  }
+ ]
+}

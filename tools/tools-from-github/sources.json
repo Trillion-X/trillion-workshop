@@ -1,0 +1,182 @@
+{
+ "what_this_is": "Open-source repositories on GitHub that do jobs people ask their AIs for, read by index-github-tools.mjs, which asks GitHub for each one's licence, description and activity and writes records/workshop-github-index-records.json: one Workshop tool row per repository, placed on placement:caller-sandbox, so find_tool_for_job finds it by its job and run_tool hands it back for the AI to clone and run on the person's own computer. Trillion never runs these and keeps no copy of their code; the person pays for the index, the code runs where they are. Per repository: `repo` (owner/name), `job` (what it does, as someone would ask for it), `install` and `run` (commands copied from the repository's own README, `readme_quote` is the line they were taken from, and {input} / {output} mark where the person's files go). A licence is never written here: it is read from GitHub each time the rows are made, and a repository whose licence GitHub does not report is read from its licence file (`licence_file`, with the SPDX id that file states in `licence_file_spdx`). Adding a repository is one row here, then running the script.",
+ "rows": [
+  {
+   "repo": "ggml-org/whisper.cpp",
+   "job": "Transcribe speech in an audio or video file to text on your own computer, fast and offline",
+   "install": [
+    "git clone https://github.com/ggml-org/whisper.cpp.git",
+    "cd whisper.cpp",
+    "sh ./models/download-ggml-model.sh base.en",
+    "cmake -B build",
+    "cmake --build build -j --config Release"
+   ],
+   "run": "./build/bin/whisper-cli -m models/ggml-base.en.bin -f {input}",
+   "needs": [
+    "git",
+    "cmake",
+    "a C++ compiler"
+   ],
+   "readme_quote": "./build/bin/whisper-cli -m models/ggml-base.en.bin -f samples/jfk.wav"
+  },
+  {
+   "repo": "m-bain/whisperX",
+   "job": "Make captions or subtitles with word-level timings from a video or audio file, and tell speakers apart",
+   "install": [
+    "pip install whisperx"
+   ],
+   "run": "whisperx {input} --compute_type int8 --device cpu --highlight_words True",
+   "needs": [
+    "python",
+    "ffmpeg"
+   ],
+   "readme_quote": "whisperx path/to/audio.wav --compute_type int8 --device cpu"
+  },
+  {
+   "repo": "SYSTRAN/faster-whisper",
+   "job": "Transcribe speech to text in Python with Whisper models, several times faster",
+   "install": [
+    "pip install faster-whisper"
+   ],
+   "run": "python -c \"from faster_whisper import WhisperModel; m = WhisperModel('small', device='cpu', compute_type='int8'); print(' '.join(s.text for s in m.transcribe('{input}')[0]))\"",
+   "needs": [
+    "python"
+   ],
+   "readme_quote": "model = WhisperModel(model_size, device=\"cpu\", compute_type=\"int8\")"
+  },
+  {
+   "repo": "danielgatis/rembg",
+   "job": "Remove the background from an image to make a cutout with a transparent background",
+   "install": [
+    "pip install \"rembg[cpu,cli]\""
+   ],
+   "run": "rembg i {input} {output}",
+   "needs": [
+    "python"
+   ],
+   "readme_quote": "rembg i path/to/input.png path/to/output.png"
+  },
+  {
+   "repo": "yt-dlp/yt-dlp",
+   "job": "Download a video or its audio from a web address such as YouTube, Instagram or TikTok",
+   "install": [
+    "python -m pip install -U --pre \"yt-dlp[default]\""
+   ],
+   "run": "yt-dlp {input}",
+   "needs": [
+    "python",
+    "ffmpeg"
+   ],
+   "readme_quote": "yt-dlp [OPTIONS] [--] URL [URL...]"
+  },
+  {
+   "repo": "FFmpeg/FFmpeg",
+   "job": "Convert, trim, compress or extract the sound from a video or audio file",
+   "install": [
+    "brew install ffmpeg (macOS), or apt install ffmpeg (Linux), or the builds linked from ffmpeg.org"
+   ],
+   "run": "ffmpeg -i {input} {output}",
+   "needs": [],
+   "readme_quote": "ffmpeg is a command line toolbox to manipulate, convert and stream multimedia content.",
+   "licence_file": "LICENSE.md",
+   "licence_file_spdx": "LGPL-2.1-or-later",
+   "licence_file_says": "Most files in FFmpeg are under the GNU Lesser General Public License version 2.1\nor later (LGPL v2.1+)."
+  },
+  {
+   "repo": "facebookresearch/demucs",
+   "job": "Separate vocals from music, or split a song into vocals, drums and bass",
+   "install": [
+    "python3 -m pip install -U demucs"
+   ],
+   "run": "demucs --two-stems=vocals {input}",
+   "needs": [
+    "python",
+    "ffmpeg"
+   ],
+   "readme_quote": "demucs --two-stems=vocals myfile.mp3"
+  },
+  {
+   "repo": "OHF-Voice/piper1-gpl",
+   "job": "Turn text into natural speech on your own computer, offline",
+   "install": [
+    "pip install piper-tts",
+    "python3 -m piper.download_voices en_US-lessac-medium"
+   ],
+   "run": "python3 -m piper -m en_US-lessac-medium -f {output} -- '{input}'",
+   "needs": [
+    "python"
+   ],
+   "readme_quote": "python3 -m piper -m en_US-lessac-medium -f test.wav -- 'This is a test.'"
+  },
+  {
+   "repo": "microsoft/markitdown",
+   "job": "Turn a PDF, Word, PowerPoint or Excel file into Markdown text an AI can read",
+   "install": [
+    "pip install 'markitdown[all]'"
+   ],
+   "run": "markitdown {input} -o {output}",
+   "needs": [
+    "python"
+   ],
+   "readme_quote": "markitdown path-to-file.pdf -o document.md"
+  },
+  {
+   "repo": "docling-project/docling",
+   "job": "Read a document (PDF, Word, slides, scanned pages) into clean structured text, tables included",
+   "install": [
+    "pip install docling"
+   ],
+   "run": "docling {input}",
+   "needs": [
+    "python"
+   ],
+   "readme_quote": "docling https://arxiv.org/pdf/2206.01062"
+  },
+  {
+   "repo": "Breakthrough/PySceneDetect",
+   "job": "Find the cuts and scenes in a video and split it into clips",
+   "install": [
+    "pip install scenedetect --upgrade"
+   ],
+   "run": "scenedetect -i {input} split-video",
+   "needs": [
+    "python",
+    "ffmpeg"
+   ],
+   "readme_quote": "scenedetect -i video.mp4 split-video"
+  },
+  {
+   "repo": "xinntao/Real-ESRGAN",
+   "job": "Upscale an image or photo to a higher resolution and restore its detail",
+   "install": [
+    "download realesrgan-ncnn-vulkan for your system from the repository's releases"
+   ],
+   "run": "./realesrgan-ncnn-vulkan -i {input} -o {output} -n realesrgan-x4plus",
+   "needs": [],
+   "readme_quote": "./realesrgan-ncnn-vulkan.exe -i input.jpg -o output.png -n model_name"
+  },
+  {
+   "repo": "tesseract-ocr/tesseract",
+   "job": "Read the text in an image or a scan (OCR)",
+   "install": [
+    "brew install tesseract (macOS), or apt install tesseract-ocr (Linux)"
+   ],
+   "run": "tesseract {input} {output}",
+   "needs": [],
+   "readme_quote": "tesseract imagename outputbase [-l lang] [--oem ocrenginemode] [--psm pagesegmode] [configfiles...]"
+  },
+  {
+   "repo": "ocrmypdf/OCRmyPDF",
+   "job": "Make a scanned PDF searchable by adding the text it shows",
+   "install": [
+    "brew install ocrmypdf (macOS), or pip install ocrmypdf"
+   ],
+   "run": "ocrmypdf {input} {output}",
+   "needs": [
+    "tesseract",
+    "ghostscript"
+   ],
+   "readme_quote": "ocrmypdf input.jpg output.pdf"
+  }
+ ]
+}
