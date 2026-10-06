@@ -115,7 +115,8 @@
           "placement:this-worker",
           "placement:this-account",
           "placement:caller-sandbox",
-          "placement:your-mac"
+          "placement:your-mac",
+          "placement:your-browser"
         ],
         "serve_source_link": false,
         "store_bytes": false
