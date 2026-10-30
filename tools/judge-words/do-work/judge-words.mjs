@@ -40,9 +40,13 @@ const lower = value => value.toLowerCase();
 
 // The grammar checks a rule may name. Each takes the text and its rule and returns the pieces it found wrong.
 const CHECKS = {
-  // A sentence starts with a capital letter after a full stop, question mark or exclamation mark.
+  // A sentence starts with a capital letter after a full stop, question mark or exclamation mark. The full stop of an
+  // abbreviation (e.g., i.e., etc., vs.) or of a list marker at the start of a line (digits or one letter, then "." or ")":
+  // "1. open the box", "b. close it") ends no sentence, and a marker letter that starts a new line ("the lid.\nc. rest") starts none.
   'capital-after-stop': text => [...text.matchAll(/[.!?]\s+([a-z])/g)]
     .filter(match => !/\b(?:e\.g|i\.e|etc|vs)\.$/i.test(text.slice(0, match.index + 1)))
+    .filter(match => !/(?:^|\n)[ \t]*(?:\d+|[A-Za-z])[.)]$/.test(text.slice(0, match.index + 1)))
+    .filter(match => !(match[0].includes('\n') && /^[a-z][.)]\s/.test(text.slice(match.index + match[0].length - 1))))
     .map(match => match[0]),
   // A sentence starts with a capital letter.
   'starts-with-capital': text => (/^[\s"“(]*[a-z]/.test(text) ? [text.trim().slice(0, 24)] : []),
