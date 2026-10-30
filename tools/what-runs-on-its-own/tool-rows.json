@@ -1,0 +1,180 @@
+{
+ "kind": "tool-rows",
+ "record_set": "what-runs-on-its-own-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/what-runs-on-its-own: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::what-runs-on-its-own::tool::see-what-runs-on-its-own",
+   "address": "package::what-runs-on-its-own::tool::see-what-runs-on-its-own",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:see-what-runs-on-its-own",
+    "label": "See what runs on its own",
+    "status": "active",
+    "job": "Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on",
+    "description": "Give now_ms, wakes (the causes tool rows declare: [{tool, id, on, budget}]), book (the engine's wake book record, or null) and, optionally, stamps (each watched resource's newest change stamp) and late_after_ms. Returns one row per cause: what it waits for in plain words, its state (on, running, off, last run failed, outcome unknown, due and waiting for budget, should have run and did not, not picked up yet), red when it needs the person, why, its last run and outcome, its next run, and the switch that turns it off or on; red rows first, with counts of red, on and off.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "now_ms",
+      "wakes"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "now_ms": {
+       "type": "number",
+       "description": "The engine's time now, in milliseconds"
+      },
+      "wakes": {
+       "type": "array",
+       "description": "The causes the tool rows declare: [{tool, id, on, budget}]",
+       "items": {
+        "type": "object",
+        "required": [
+         "tool",
+         "id",
+         "on"
+        ]
+       }
+      },
+      "book": {
+       "type": [
+        "object",
+        "null"
+       ],
+       "description": "The engine's wake book record, as the record read gives it"
+      },
+      "stamps": {
+       "type": "object",
+       "description": "Optional: each watched resource's newest change stamp"
+      },
+      "late_after_ms": {
+       "type": "number",
+       "description": "Optional: how long past due a cause may be before it shows as late"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "causes",
+      "red",
+      "on",
+      "off"
+     ],
+     "properties": {
+      "causes": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "tool",
+         "id",
+         "waits_for",
+         "state",
+         "label",
+         "red",
+         "why",
+         "switch"
+        ]
+       }
+      },
+      "red": {
+       "type": "number"
+      },
+      "on": {
+       "type": "number"
+      },
+      "off": {
+       "type": "number"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "what-runs-on-its-own",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/what-runs-on-its-own"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/what-runs-on-its-own",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/what-runs-on-its-own.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:what-runs-on-its-own",
+    "provenance": {
+     "source": "the engine's wake book (every cause, its mark and its live runs), shown the way onit (MIT) shows a computer's background jobs: what is on, its state, and a switch"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "now_ms": 1800000000000,
+       "wakes": [
+        {
+         "tool": "tool:sample",
+         "id": "every-hour",
+         "on": {
+          "time": {
+           "every_ms": 3600000
+          }
+         },
+         "budget": {
+          "steps": 1
+         }
+        }
+       ],
+       "book": null
+      },
+      "output_selector": "$.causes[0].label",
+      "contains": "Not picked up yet"
+     }
+    ]
+   }
+  }
+ ]
+}

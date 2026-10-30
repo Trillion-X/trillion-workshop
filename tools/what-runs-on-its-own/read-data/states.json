@@ -1,0 +1,34 @@
+{
+  "_what": "The states one cause the engine wakes on its own (a repeat, a once-at time, a record change, an arrival) can be in, as the screen shows them, and the steps between them. Each state's red says it needs the person: something that should have happened did not. Derived from the wake book's marks (src/wake.rs in the engine): off, a live cause, the last outcome, due without budget, past due without firing. order is how states win when more than one holds. late_after_ms is how long past due a cause may be before it shows as late.",
+  "late_after_ms": 300000,
+  "order": ["off", "running", "failed", "unknown", "unfunded", "late", "unplaced", "on"],
+  "states": {
+    "on": { "label": "On", "red": false },
+    "running": { "label": "Running", "red": false },
+    "off": { "label": "Off", "red": false },
+    "failed": { "label": "Last run failed", "red": true },
+    "unknown": { "label": "Last run's outcome is unknown", "red": true },
+    "unfunded": { "label": "Due, waiting for budget", "red": true },
+    "late": { "label": "Should have run and did not", "red": true },
+    "unplaced": { "label": "Not picked up yet", "red": true }
+  },
+  "steps": [
+    { "from": "unplaced", "to": "on", "label": "the engine picks it up" },
+    { "from": "unplaced", "to": "late", "label": "it comes due before the engine picks it up" },
+    { "from": "on", "to": "running", "label": "its cause happens" },
+    { "from": "on", "to": "unfunded", "label": "it comes due [the period's budget is spent]" },
+    { "from": "on", "to": "late", "label": "it comes due and nothing runs it" },
+    { "from": "running", "to": "on", "label": "the run finishes" },
+    { "from": "running", "to": "failed", "label": "the run fails" },
+    { "from": "running", "to": "unknown", "label": "the run's answer is lost" },
+    { "from": "failed", "to": "running", "label": "its cause happens again" },
+    { "from": "unknown", "to": "running", "label": "its cause happens again" },
+    { "from": "unfunded", "to": "running", "label": "a new period starts" },
+    { "from": "late", "to": "running", "label": "the engine runs again" },
+    { "from": "on", "to": "off", "label": "you turn it off" },
+    { "from": "failed", "to": "off", "label": "you turn it off" },
+    { "from": "unfunded", "to": "off", "label": "you turn it off" },
+    { "from": "late", "to": "off", "label": "you turn it off" },
+    { "from": "off", "to": "on", "label": "you turn it on" }
+  ]
+}
