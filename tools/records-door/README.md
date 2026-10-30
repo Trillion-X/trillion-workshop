@@ -26,8 +26,13 @@ A row asks for the door in its invoke, with one rights item per record kind:
   - `records:read { id, type }` gives `{ id, type, value }`. value is null when the record is absent or of another kind.
   - `records:list { type, order?, prefix?, above?, below?, reverse?, limit? (1..999), after? }` gives
     `{ records, next }`. With no order it lists the greatest id first. Keep paging until `next` is null.
-  - `records:write { records: [{ id, type, value | null }] }` (1..64 records, every one with its type) gives
-    `{ changed, write_count }`. The request key makes a write safe to send again.
+  - `records:write { records: [{ id, type, value | null }] }` gives `{ changed, write_count }`. Every record carries
+    its type, and every id must be inside a rights item, or the whole write is refused. One write carries 1 to
+    `invoke.records.most_writes` records. Left out, that is the engine cap of 256; declaring more refuses the run.
+    The request key makes a write safe to send again.
+  - A run that wake starts has every value it writes stamped with the wake's cause (`_wake_cause`), so its own
+    change does not wake it again. Such a run may not remove records. A run an AI starts at the door has no cause.
+- `invoke.records` holds only `fd`, `rights` and `most_writes`; any other key refuses the row.
 - A refusal is `{ isError: true, structuredContent: { code, outcome: "not_started" | "unknown", request_key? } }`,
   with no words. The client gives each code its words:
   - `current_workspace_rights_refused`: outside the rights or the person's grant;

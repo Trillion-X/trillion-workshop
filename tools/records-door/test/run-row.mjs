@@ -13,7 +13,7 @@ const onThisComputer = word => (typeof word === 'string' && word.startsWith('/op
 
 export async function runRow(row, input, { records = [] } = {}) {
   const { argv, records: door = null } = row.invoke;
-  const fake = await startFakeDoor({ rights: door?.rights ?? [], records });
+  const fake = await startFakeDoor({ rights: door?.rights ?? [], mostWrites: door?.most_writes, records });
   try {
     const stdio = ['pipe', 'pipe', 'pipe'];
     if (door) stdio[door.fd] = openSync(fake.descriptor, 'r');

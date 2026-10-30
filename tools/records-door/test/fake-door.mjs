@@ -6,7 +6,10 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-export async function startFakeDoor({ rights = [], records = [], busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null } = {}) {
+// Engine-wide cap on the records one write carries (own-record-writes.json maxItems); a row may declare fewer.
+const WRITE_CAP = 256;
+
+export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null } = {}) {
   const capability = 'run_fake_capability';
   const kept = new Map(records.map(record => [record.id, record]));
   const receipts = new Map();
@@ -38,7 +41,7 @@ export async function startFakeDoor({ rights = [], records = [], busyFirst = 0, 
     },
     'records:write': ({ records: items }, key) => {
       if (receipts.has(key)) return { structuredContent: receipts.get(key) };
-      if (!Array.isArray(items) || items.length < 1 || items.length > 64) return refuse('original_input_refused');
+      if (!Array.isArray(items) || items.length < 1 || items.length > Math.min(mostWrites, WRITE_CAP)) return refuse('original_input_refused');
       for (const item of items) {
         const holds = kept.get(item.id)?.type;
         if (!item.type || item.id.includes('/') || !may(item.type, 'records:write', { id: item.id }) || (holds && !may(holds, 'records:write', { id: item.id }))) {

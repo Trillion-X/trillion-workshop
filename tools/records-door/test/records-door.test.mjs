@@ -77,6 +77,18 @@ test('a right narrowed to one id or a prefix reaches only those records', async 
   } finally { await door.close(); }
 });
 
+test('one write carries at most the row\'s most_writes, and never more than the engine cap', async () => {
+  const many = count => Array.from({ length: count }, (_, at) => ({ id: `note:${at}`, type: 'note', value: { at } }));
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], mostWrites: 3 });
+  const capped = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }] });
+  try {
+    assert.equal((await openRecordsDoor({ descriptor: door.descriptor }).write(many(3))).changed, 3);
+    await assert.rejects(openRecordsDoor({ descriptor: door.descriptor }).write(many(4)), { code: 'original_input_refused' });
+    assert.equal((await openRecordsDoor({ descriptor: capped.descriptor }).write(many(256))).changed, 256);
+    await assert.rejects(openRecordsDoor({ descriptor: capped.descriptor }).write(many(257)), { code: 'original_input_refused' });
+  } finally { await door.close(); await capped.close(); }
+});
+
 test('a write whose outcome is unknown is sent again with the same key and answers the receipt it made', async () => {
   const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], unknownFirst: 1 });
   try {
