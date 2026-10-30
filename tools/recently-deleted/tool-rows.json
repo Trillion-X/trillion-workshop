@@ -1,0 +1,150 @@
+{
+ "kind": "tool-rows",
+ "record_set": "recently-deleted-tool-rows",
+ "what_this_is": "The Workshop rows for Recently Deleted and Archived in tools/recently-deleted, read from the person's own keep-for setting through the run's records door.",
+ "records": [
+  {
+   "id": "package::recently-deleted::tool::read-deleted-files-keep-for",
+   "address": "package::recently-deleted::tool::read-deleted-files-keep-for",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:trillion",
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false
+    },
+    "id": "tool:read-deleted-files-keep-for",
+    "listed_on": "2026-09-30T06:40:06Z",
+    "label": "How long deleted files are kept",
+    "job": "Read how many days this person's Recently Deleted and Archived keep things before they move on",
+    "description": "Takes no input. states: each with its id, label, after_days (null: until put back), default_after_days and what happens when its time ends; choices: the usual numbers of days.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "states",
+      "choices"
+     ],
+     "properties": {
+      "states": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "label",
+         "after_days"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "after_days": {
+          "type": [
+           "integer",
+           "null"
+          ]
+         },
+         "default_after_days": {
+          "type": [
+           "integer",
+           "null"
+          ]
+         },
+         "when_due": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "due_words": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "choices": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "recently-deleted",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/recently-deleted"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/recently-deleted",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/recently-deleted/read-data/keep-for.mjs",
+      "readKeepFor"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "setting",
+        "id": "setting:keep_for",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     }
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "output_selector": "$.states[0].id",
+      "contains": "deleted"
+     }
+    ],
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "trillion src/namespace-set-aside.mjs keepFor (a2fdfe6), ported to the records door"
+    }
+   }
+  }
+ ]
+}
