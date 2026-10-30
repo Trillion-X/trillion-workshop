@@ -29,6 +29,6 @@ Writes a business's terms of service, privacy policy, refund policy and waiver f
 
 ## Dependencies
 
-**Depends on:** `@noble/hashes` (BLAKE3, shipped into the container at `/opt/node_modules/@noble/hashes` by the row's `package_files`), Node 24 in the tool container.
+**Depends on:** `tools/content-identity` (the BLAKE3 identity, packed at `/opt/parts/content-identity` beside this folder, with `@noble/hashes` at `/opt/node_modules/@noble/hashes`), Node 24 in the tool container.
 
 **Depended on by:** Trillion's deploy (it bundles the files a row names); the Workshop's container executor at run time; Trillion's `test/business-tools.test.mjs`.

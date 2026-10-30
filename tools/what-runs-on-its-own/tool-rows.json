@@ -107,6 +107,13 @@
         "at": "/opt/what-runs-on-its-own"
        },
        {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
         "module": "@noble/hashes",
         "paths": [
          "LICENSE",

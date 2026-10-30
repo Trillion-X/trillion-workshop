@@ -17,14 +17,13 @@
 // hex (the engine's own key for a declared wake).
 import { text } from 'node:stream/consumers';
 import { readFileSync } from 'node:fs';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const STATES = JSON.parse(readFileSync(new URL('../read-data/states.json', import.meta.url), 'utf8'));
 
-/** The engine's key for one declared wake. */
+/** The engine's key for one declared wake: the BLAKE3 hex alone, without the identity's `1f:`. */
 export function wakeKey(tool, id) {
-  return bytesToHex(blake3(utf8ToBytes(`${tool}\u0000${id}\u0000`)));
+  return makeHashCodeHexFromBytes(new TextEncoder().encode(`${tool}\u0000${id}\u0000`)).slice('1f:'.length);
 }
 
 /** The milliseconds a change stamp was made at (a stamp is milliseconds shifted 16 bits, plus a counter). */

@@ -91,6 +91,6 @@ A sidecar row carries `from_hash` (BLAKE3 of the source row) and `settled_from` 
 
 ## Dependencies
 
-**Depends on:** Node 22.6+, `@noble/hashes` (only `say-why-for-files.mjs`), an OpenAI-compatible chat model (both tools) and embedding model (say-why only). On Ollama: `qwen2.5:14b-instruct` and `embeddinggemma`.
+**Depends on:** Node 22.6+, `tools/content-identity` (only `say-why-for-files.mjs`), an OpenAI-compatible chat model (both tools) and embedding model (say-why only). On Ollama: `qwen2.5:14b-instruct` and `embeddinggemma`.
 
 **Depended on by:** the intake recipe step that describes new techniques.

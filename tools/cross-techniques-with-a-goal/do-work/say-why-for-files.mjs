@@ -27,8 +27,7 @@
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { embedder, sameMeaning, writer } from './meaning.mjs';
 import { askingJudge, makeProposer, makeSettler, proposalSchema, recordedJudge, rowText, settledFields } from './say-why.mjs';
 import { emptyLexicon, withoutProvisional } from './vocabulary.mjs';
@@ -39,7 +38,8 @@ const save = (path, value) => {
   writeFileSync(`${path}.part`, `${JSON.stringify(value, null, 1)}\n`);
   renameSync(`${path}.part`, path);
 };
-export const hashOf = value => bytesToHex(blake3(utf8ToBytes(JSON.stringify(value)))).slice(0, 32);
+// The first 32 hex digits of the BLAKE3 of the value's JSON (the identity without its `1f:`).
+export const hashOf = value => makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify(value))).slice('1f:'.length, '1f:'.length + 32);
 export const rowsOf = document => {
   const rows = Array.isArray(document) ? document : document.rows;
   if (!Array.isArray(rows)) throw new Error('A source file is a list of rows, or an object whose rows key is one.');
