@@ -312,6 +312,861 @@
     ],
     "result_selector": "$.result"
    }
+  },
+  {
+   "id": "package::social-posts::tool::list-post-destinations",
+   "address": "package::social-posts::tool::list-post-destinations",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:list-post-destinations",
+    "label": "Where a post can go",
+    "job": "List the accounts this person can post to, each ready or not and why, and each place they have no account for yet",
+    "description": "Reads the person's connection records. Returns destinations: each account_id (the connection id), platform, label, name and ready, with said when it is not ready (a field the place needs that the connection lacks); not_connected: each place with no account yet; and said. Use the account_id values as tool:draft-a-post destinations. It changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "destinations",
+      "not_connected",
+      "said"
+     ],
+     "properties": {
+      "destinations": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "not_connected": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/posts.mjs",
+      "listPostDestinations"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "connection",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "output_selector": "$.said",
+      "contains": "connect"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::draft-a-post",
+   "address": "package::social-posts::tool::draft-a-post",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:draft-a-post",
+    "label": "Draft a post",
+    "job": "Keep a post as a draft for the person to look at: its words, its video or picture, where it goes and when",
+    "description": "Give caption (the words), media (the file as the person's files list it: { identity, name?, media_type?, byte_length? }) with media_facts ({ duration_seconds, width, height } the file does not say), destinations (account_id values from tool:list-post-destinations), caption_by_platform ({ platform: words }), settings_by_platform ({ platform: { ... } }, like a video title), link (an https page; it is added after the words, tagged with the post and the place), scheduled_for (a date and time with its zone), time_zone, source ({ kind, id } of the record it came from, kept as given), format_id, reaches (the people it contacts first, each with where they were found) and drafted_by (the AI writing it). Give post_id to change a draft; changing an approved post, or a scheduled one nothing was sent for, makes it a draft again. Returns post, ready (as tool:check-a-post gives it) and said. Nothing is posted.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "caption": {
+       "type": "string"
+      },
+      "media": {
+       "type": [
+        "object",
+        "null"
+       ],
+       "required": [
+        "identity"
+       ],
+       "properties": {
+        "identity": {
+         "type": "string"
+        },
+        "name": {
+         "type": "string"
+        },
+        "media_type": {
+         "type": "string"
+        },
+        "byte_length": {
+         "type": "integer"
+        }
+       }
+      },
+      "media_facts": {
+       "type": "object",
+       "properties": {
+        "duration_seconds": {
+         "type": "number"
+        },
+        "width": {
+         "type": "number"
+        },
+        "height": {
+         "type": "number"
+        }
+       }
+      },
+      "destinations": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "caption_by_platform": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "string"
+       }
+      },
+      "settings_by_platform": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "object"
+       }
+      },
+      "link": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "scheduled_for": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "time_zone": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "source": {
+       "type": [
+        "object",
+        "null"
+       ],
+       "required": [
+        "kind",
+        "id"
+       ],
+       "properties": {
+        "kind": {
+         "type": "string"
+        },
+        "id": {
+         "type": "string"
+        }
+       }
+      },
+      "format_id": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "reaches": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "handle",
+         "profile_url",
+         "provenance"
+        ]
+       }
+      },
+      "drafted_by": {
+       "type": "string"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post",
+      "said"
+     ],
+     "properties": {
+      "post": {
+       "type": "object"
+      },
+      "ready": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/posts.mjs",
+      "draftAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "caption": "A sample draft that goes nowhere yet"
+      },
+      "output_selector": "$.post.status",
+      "contains": "draft"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::check-a-post",
+   "address": "package::social-posts::tool::check-a-post",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:check-a-post",
+    "label": "Check a post",
+    "job": "Say whether a post is ready for each place it is going, and what each place will refuse, before it is approved or set to go",
+    "description": "Give post_id. Returns, for each destination, ready, problems (what that place will refuse, in plain words: words too long, a video or picture it needs, a kind or size of file it does not take, a setting it needs such as a video title) and not_checked (what could not be compared here, such as a video's length nobody gave, or whether the file is still in the person's files); and for the post, ready and said. Fix a problem with tool:draft-a-post. It changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "ready": {
+       "type": "boolean"
+      },
+      "destinations": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/posts.mjs",
+      "checkAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there"
+      },
+      "output_selector": "$.status",
+      "contains": "missing"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::approve-a-post",
+   "address": "package::social-posts::tool::approve-a-post",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:approve-a-post",
+    "label": "Approve a post",
+    "job": "Approve a drafted post exactly as it was reviewed, so it may be set to go",
+    "description": "Give post_id and expected_values (the complete approval_values of the post as it was reviewed); approval is refused when its words, file, destinations or time changed since. A post going nowhere yet is refused. A post that reaches someone (its words name a @handle, or it lists people in reaches) is approved only by the person on their own screen, never by this tool. approved_by names who approved it. Returns post and said.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "expected_values": {
+       "type": "object"
+      },
+      "approved_by": {
+       "type": "string"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post",
+      "said"
+     ],
+     "properties": {
+      "post": {
+       "type": "object"
+      },
+      "ready": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/posts.mjs",
+      "approveAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::set-a-post-to-go-at-its-time",
+   "address": "package::social-posts::tool::set-a-post-to-go-at-its-time",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:set-a-post-to-go-at-its-time",
+    "label": "Set a post to go at its time",
+    "job": "Set an approved post to go out at its scheduled time, once it is ready for every place it is going; nothing is sent now",
+    "description": "Give post_id of an approved post whose scheduled_for is still ahead. It is checked for every destination (as tool:check-a-post does); when ready, its status becomes scheduled and it waits for its time, and when not, it stays approved and said gives what each place is missing. Nothing is sent by this tool. tool:take-back-a-post makes a scheduled post a draft again. Returns post_id, status, post, ready and said.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "ready": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/posts.mjs",
+      "setAPostToGoAtItsTime"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::take-back-a-post",
+   "address": "package::social-posts::tool::take-back-a-post",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:take-back-a-post",
+    "label": "Take back a post",
+    "job": "Take back a post that is waiting for its time and that nothing was sent for, so it is a draft again and goes nowhere",
+    "description": "Give post_id of a scheduled post nothing was sent for. It becomes a draft again, so its time sends nothing. A post already on its way cannot be taken back. Returns post and said.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post",
+      "said"
+     ],
+     "properties": {
+      "post": {
+       "type": "object"
+      },
+      "ready": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/posts.mjs",
+      "takeBackAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
   }
  ]
 }

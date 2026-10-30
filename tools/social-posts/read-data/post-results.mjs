@@ -10,7 +10,7 @@
 // One place a post went to is one published row: its identity is the post (post_id, the token a post's link carries),
 // the place's account (account_id) and the place's own id for it (platform_post_id).
 import { readPostPerformanceAttributionRows } from './post-performance-attribution.ts';
-import { KIND } from './post-calendar.mjs';
+import { KIND } from './post-shape.mjs';
 
 const plainObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const placeAddress = (postId, accountId) => `post:${postId}:${accountId}`;

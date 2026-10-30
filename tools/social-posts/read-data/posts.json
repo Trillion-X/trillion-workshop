@@ -1,0 +1,93 @@
+{
+  "_what": "How a person's posts are drafted, checked, approved and set to go at their time (read-data/posts.mjs). record_type is the kind of record a post is kept as; connection_type the kind of record a connection is kept as, whose id is connection_prefix + the connection id (encoded as a URL component). The link a post carries gets link_tags added, each a query parameter whose value is fixed (value) or taken from the post (from: post_id, platform or account_id); link_joiner goes between the words and the link. ready_limits are the limits a place's format may set on a file (read-data/post-ready.mjs), each the limit name in a media kind, the file fact it is compared with, whether the fact must stay at_most or at_least the limit, its unit and its plain name; ready_words are the plain words for each finding. first_contact: a post that names someone (names, a pattern whose first group is the handle) or lists them in reaches is approved only by the person on their own screen, never by a tool. words are every other plain answer.",
+  "record_type": "post",
+  "connection_type": "connection",
+  "connection_prefix": "connection:",
+  "link_tags": [
+    {
+      "param": "utm_source",
+      "from": "platform"
+    },
+    {
+      "param": "utm_medium",
+      "value": "social"
+    },
+    {
+      "param": "utm_content",
+      "from": "post_id"
+    }
+  ],
+  "link_joiner": "\n\n",
+  "list_limit": 50,
+  "max_destinations": 30,
+  "max_caption_characters": 20000,
+  "ready_limits": [
+    {
+      "limit": "max_bytes",
+      "fact": "byte_length",
+      "keeps": "at_most",
+      "unit": "bytes",
+      "fact_name": "size"
+    },
+    {
+      "limit": "min_seconds",
+      "fact": "duration_seconds",
+      "keeps": "at_least",
+      "unit": "seconds",
+      "fact_name": "length"
+    },
+    {
+      "limit": "max_seconds",
+      "fact": "duration_seconds",
+      "keeps": "at_most",
+      "unit": "seconds",
+      "fact_name": "length"
+    },
+    {
+      "limit": "min_aspect",
+      "fact": "aspect",
+      "keeps": "at_least",
+      "unit": "shape",
+      "fact_name": "shape"
+    },
+    {
+      "limit": "max_aspect",
+      "fact": "aspect",
+      "keeps": "at_most",
+      "unit": "shape",
+      "fact_name": "shape"
+    }
+  ],
+  "ready_words": {
+    "ready": "Ready for {platform}.",
+    "not_connected": "This account is no longer connected. Connect it again from Connections.",
+    "not_ready": "{said}",
+    "needs_media": "{platform} does not post words alone. Add a video or picture.",
+    "media_gone": "This post's video or picture is no longer in your files. Choose one that is.",
+    "kind_not_taken": "{platform} does not take this kind of file ({media_type}). It takes: {kinds}.",
+    "takes_no_files": "{platform} takes words only. Leave the video or picture out of the post for {platform}.",
+    "type_not_taken": "{platform} does not take this kind of {kind} file ({media_type}). It takes: {types}.",
+    "too_many_characters": "The words for {platform} are {count} characters; it takes at most {max}. Shorten the words for {platform}.",
+    "setting_missing": "{platform} needs its {name} filled in.",
+    "setting_too_long": "The {name} for {platform} is {count} characters; it takes at most {max}.",
+    "setting_refused_characters": "The {name} for {platform} cannot contain {characters}.",
+    "at_most": "The {kind}'s {fact_name} is {value}; {platform} takes at most {limit}.",
+    "at_least": "The {kind}'s {fact_name} is {value}; {platform} needs at least {limit}.",
+    "not_known": "Nobody gave the {kind}'s {fact_name}, so {platform}'s limit ({limit}) was not checked. Give media_facts to draft-a-post to have it checked.",
+    "all_ready": "Ready for every place it is going.",
+    "some_not_ready": "Not ready yet for {platforms}.",
+    "pick_places": "Pick where it goes: {places}.",
+    "connect_places": "Pick where it goes: connect {platforms} in Connections, then choose it here.",
+    "no_places": "Pick where it goes: connect a place to post in Connections.",
+    "file_not_checked": "Whether the {kind} is still in the person's files was not checked here; check it is before the post goes."
+  },
+  "first_contact": {
+    "names": "(?:^|[^A-Za-z0-9_@.])@([A-Za-z0-9_]{1,30})",
+    "most": 20,
+    "provenance_most": 5,
+    "words": {
+      "person_only": "This post reaches {names}. A first message to someone is approved only by the person, on their own screen, never by a tool.",
+      "reaches": "reaches lists the people this post contacts first (at most {most}), each { network, handle, profile_url, provenance: [{ source, url, title, posted_at }] } with at least one place they were found."
+    }
+  }
+}
