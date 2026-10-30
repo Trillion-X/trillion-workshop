@@ -1,14 +1,14 @@
 // The validator for workflow recipe rows: what is wrong with a recipe, every problem at once. A recipe that passes can
 // be run by any account. Ported without change in behaviour from the workflow engine's `recipeProblems`.
 
+import { readFileSync } from 'node:fs';
+
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 const PIN = /^1f:[a-f0-9]{64}$/;
 
-const CHECK_KINDS = ['subset-of', 'covers', 'mentioned-in', 'excludes-words', 'distinct-at-least', 'exists'];
-const CATALOGS = ['workflow', 'tool', 'list-row', 'record'];
-const ROOTS = ['this', 'input', 'steps'];
-const PATH_FIELDS = ['path', 'of', 'in'];
+// The check vocabulary (kinds, the fields each takes, roots, catalogs) is DATA, not code: adding a kind is adding a row.
+export const CHECK_VOCABULARY = JSON.parse(readFileSync(new URL('../recipe-check-kinds.json', import.meta.url), 'utf8'));
 const STEP_ID = /^[a-z0-9][a-z0-9_-]*$/;
 
 // Every problem with a pin a caller sent; none for a step with no pin.
@@ -42,40 +42,57 @@ function actorPolicyProblems(policy, { name, step_id, asks, prior }) {
   return problems;
 }
 
-// Every problem with one list of check rules (the engine's `check` step config), for step `stepId` whose earlier
-// steps are `earlier`.
-function checkProblems(checks, name, stepId, earlier) {
+// Whether a value has a shape a check field can take. The shapes are the closed set of JSON value forms.
+const SHAPES = {
+  list: value => Array.isArray(value),
+  words: value => Array.isArray(value) && value.length > 0 && value.every(nonempty),
+  count: value => Number.isInteger(value) && value > 0,
+  catalog: (value, vocabulary) => vocabulary.catalogs.some(row => row.catalog === value),
+};
+
+// Every problem with the keys of a path-shaped field: a list of keys (or a list of such lists) from a root, reading only earlier steps.
+function pathProblems(value, where, field, stepId, earlier, vocabulary) {
+  const roots = vocabulary.roots.map(row => row.root);
   const problems = [];
+  const paths = Array.isArray(value) && Array.isArray(value[0]) ? value : [value];
+  for (const path of paths) {
+    if (!Array.isArray(path) || !roots.includes(path[0]) || path.some(key => typeof key !== 'string')) problems.push(`${where}.${field} must be a list of keys starting with ${roots.map(root => `"${root}"`).join(', ')}.`);
+    else if (path[0] === 'steps' && (path[1] === stepId || !earlier.has(path[1]))) problems.push(`${where}.${field} reads step "${path[1]}", which is not an earlier step.`);
+  }
+  return problems;
+}
+
+// Every problem with one list of check rules (the engine's `check` step config), for step `stepId` whose earlier
+// steps are `earlier`. What a kind takes comes from its row in the vocabulary; there is no branch on a kind's name.
+function checkProblems(checks, name, stepId, earlier, vocabulary) {
+  const problems = [];
+  const kinds = new Map(vocabulary.kinds.map(row => [row.kind, row]));
   for (const [at, check] of (checks ?? []).entries()) {
     const where = `${name}.checks[${at}]`;
-    if (!object(check) || !CHECK_KINDS.includes(check.kind)) { problems.push(`${where}.kind must be one of: ${CHECK_KINDS.join(', ')}.`); continue; }
+    const row = object(check) ? kinds.get(check.kind) : undefined;
+    if (!row) { problems.push(`${where}.kind must be one of: ${[...kinds.keys()].join(', ')}.`); continue; }
     if (!nonempty(check.says)) problems.push(`${where}.says must say, in plain words, what the check asks for.`);
-    for (const field of PATH_FIELDS) {
-      if (check[field] === undefined) continue;
-      const paths = Array.isArray(check[field]) && Array.isArray(check[field][0]) ? check[field] : [check[field]];
-      for (const path of paths) if (!Array.isArray(path) || !ROOTS.includes(path[0]) || path.some(key => typeof key !== 'string')) problems.push(`${where}.${field} must be a list of keys starting with ${ROOTS.map(root => `"${root}"`).join(', ')}.`);
-      else if (path[0] === 'steps' && (path[1] === stepId || !earlier.has(path[1]))) problems.push(`${where}.${field} reads step "${path[1]}", which is not an earlier step.`);
+    const refused = (field, refusal) => `${where}.${field} ${(refusal ?? 'is not the right shape.').replace('{catalogs}', vocabulary.catalogs.map(entry => entry.catalog).join(', '))}`;
+    for (const { field, shape, required, refusal } of row.fields) {
+      const value = check[field];
+      if (value === undefined) { if (required) problems.push(refused(field, refusal)); continue; }
+      if (shape === 'path') problems.push(...pathProblems(value, where, field, stepId, earlier, vocabulary));
+      else if (!SHAPES[shape](value, vocabulary)) problems.push(refused(field, refusal));
     }
-    if (!Array.isArray(check.path)) problems.push(`${where}.path is required.`);
-    if (check.kind === 'subset-of' && !Array.isArray(check.of)) problems.push(`${where}.of is required.`);
-    if (check.kind === 'covers' && !Array.isArray(check.of) && !Array.isArray(check.values)) problems.push(`${where} needs of or values.`);
-    if (check.kind === 'mentioned-in' && !Array.isArray(check.in)) problems.push(`${where}.in is required.`);
-    if (check.kind === 'excludes-words' && !(Array.isArray(check.words) && check.words.length && check.words.every(nonempty))) problems.push(`${where}.words must list the words to keep out.`);
-    if (check.kind === 'distinct-at-least' && !(Number.isInteger(check.count) && check.count > 0)) problems.push(`${where}.count must be a whole number above 0.`);
-    if (check.kind === 'exists' && !CATALOGS.includes(check.catalog)) problems.push(`${where}.catalog must be one of: ${CATALOGS.join(', ')}.`);
+    for (const { fields, refusal } of row.one_of ?? []) if (fields.every(field => !(field in check))) problems.push(`${where} ${refusal}`);
   }
   return problems;
 }
 
 // What is wrong with a recipe row, every problem at once. A recipe that passes can be run by any account.
-export function recipeProblems(recipe) {
+export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY) {
   const problems = [];
   if (!object(recipe)) return ['The workflow must be an object.'];
   if (!/^workflow:[a-z0-9][a-z0-9-]*$/.test(recipe.id ?? '')) problems.push('id must be "workflow:" followed by lowercase letters, numbers and dashes.');
   if (!nonempty(recipe.job)) problems.push('job must say in plain words what the workflow gets done.');
   if (recipe.made_from !== undefined && !(Array.isArray(recipe.made_from) && recipe.made_from.every(id => /^workflow:[a-z0-9][a-z0-9-]*$/.test(id ?? '')) && !recipe.made_from.includes(recipe.id))) problems.push('made_from must list the ids of the workflows this one was made from ("workflow:..."), never its own id.');
   if (recipe.input_schema !== undefined && !(object(recipe.input_schema) && recipe.input_schema.type === 'object')) problems.push('input_schema must be a JSON Schema with "type": "object".');
-  if (recipe.definition !== undefined) return [...problems, ...definitionProblems(recipe.definition)];
+  if (recipe.definition !== undefined) return [...problems, ...definitionProblems(recipe.definition, vocabulary)];
   if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return [...problems, 'steps (or definition) must list at least one step.'];
   const seen = new Set();
   const actorAsks = new Map(recipe.steps.map(step => [step?.id, { name: step?.run_tool?.tool_id ?? 'ai', policy: step?.actor_policy }]));
@@ -89,7 +106,7 @@ export function recipeProblems(recipe) {
     if (!(object(step.submit) && step.submit.type === 'object')) problems.push(`${name}.submit must be a JSON Schema with "type": "object" for what the step hands back.`);
     if (step.run_tool !== undefined && !(object(step.run_tool) && /^tool:/.test(step.run_tool.tool_id ?? '') && (step.run_tool.input === undefined || object(step.run_tool.input)))) problems.push(`${name}.run_tool must be { tool_id: "tool:...", input: { field: value, or { "from": path } } }.`);
     else if (step.run_tool !== undefined) problems.push(...pinProblems(step.run_tool.pinned, `${name}.run_tool.pinned`));
-    problems.push(...checkProblems(step.checks, name, step.id, seen));
+    problems.push(...checkProblems(step.checks, name, step.id, seen, vocabulary));
     problems.push(...actorPolicyProblems(step.actor_policy, { name, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && seen.has(id) }));
   });
   return problems;
@@ -97,7 +114,7 @@ export function recipeProblems(recipe) {
 
 // What is wrong with an engine definition written directly: { steps: [{ id, kind, config }], edges: [{ from, to, kind }] }.
 // The engine decides everything else when it runs; this names what would make every run of it fail.
-function definitionProblems(definition) {
+function definitionProblems(definition, vocabulary) {
   if (!object(definition) || !Array.isArray(definition.steps) || definition.steps.length === 0) return ['definition must be { steps: [...], edges: [...] } with at least one step.'];
   const problems = [];
   const ids = new Set();
@@ -112,7 +129,7 @@ function definitionProblems(definition) {
     if (step.kind === 'check') {
       if (!nonempty(step.config?.subject)) problems.push(`${name}.config.subject must name the step whose output is checked.`);
       if (!Array.isArray(step.config?.rules)) problems.push(`${name}.config.rules must list the checks.`);
-      else problems.push(...checkProblems(step.config.rules, name, step.config.subject, new Set(definition.steps.map(item => item?.id).filter(id => id !== step.config.subject))));
+      else problems.push(...checkProblems(step.config.rules, name, step.config.subject, new Set(definition.steps.map(item => item?.id).filter(id => id !== step.config.subject)), vocabulary));
     }
   });
   if (!Array.isArray(definition.edges ?? [])) problems.push('definition.edges must be a list of { from, to, kind }.');

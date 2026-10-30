@@ -1,0 +1,66 @@
+{
+  "about": "The vocabulary of recipe checks. A check is { kind, says, ...the fields its kind row names }. Adding a check kind is adding a row here: the validator reads every rule from the row. Field shapes: path = a list of keys starting at one of the roots (and reading only earlier steps), words = a non-empty list of non-empty strings, count = a whole number above 0, catalog = one of the catalogs, list = any list.",
+  "roots": [
+    { "root": "this", "meaning": "The output of the step the check belongs to." },
+    { "root": "input", "meaning": "The input the person gave the workflow." },
+    { "root": "steps", "meaning": "The output of an earlier step; the key after it is that step's id." }
+  ],
+  "catalogs": [
+    { "catalog": "workflow", "meaning": "A workflow recipe the account can run." },
+    { "catalog": "tool", "meaning": "A tool the host offers." },
+    { "catalog": "list-row", "meaning": "A row in one of the account's lists." },
+    { "catalog": "record", "meaning": "A record in the account's data." }
+  ],
+  "kinds": [
+    {
+      "kind": "subset-of",
+      "meaning": "Every value at path is also a value at of.",
+      "fields": [
+        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
+        { "field": "of", "shape": "path", "required": true, "refusal": "is required." }
+      ]
+    },
+    {
+      "kind": "covers",
+      "meaning": "The values at path include every value at of, or every value listed in values.",
+      "fields": [
+        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
+        { "field": "of", "shape": "path" },
+        { "field": "values", "shape": "list" }
+      ],
+      "one_of": [{ "fields": ["of", "values"], "refusal": "needs of or values." }]
+    },
+    {
+      "kind": "mentioned-in",
+      "meaning": "Every value at path appears in the text at in.",
+      "fields": [
+        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
+        { "field": "in", "shape": "path", "required": true, "refusal": "is required." }
+      ]
+    },
+    {
+      "kind": "excludes-words",
+      "meaning": "The text at path contains none of the listed words.",
+      "fields": [
+        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
+        { "field": "words", "shape": "words", "required": true, "refusal": "must list the words to keep out." }
+      ]
+    },
+    {
+      "kind": "distinct-at-least",
+      "meaning": "The values at path hold at least count different values.",
+      "fields": [
+        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
+        { "field": "count", "shape": "count", "required": true, "refusal": "must be a whole number above 0." }
+      ]
+    },
+    {
+      "kind": "exists",
+      "meaning": "Every id at path names something that exists in the catalog.",
+      "fields": [
+        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
+        { "field": "catalog", "shape": "catalog", "required": true, "refusal": "must be one of: {catalogs}." }
+      ]
+    }
+  ]
+}

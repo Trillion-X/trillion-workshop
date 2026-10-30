@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { recipeProblems } from '../read-data/recipe-problems.mjs';
+import { recipeProblems, CHECK_VOCABULARY } from '../read-data/recipe-problems.mjs';
 
 const recipesFolder = new URL('../recipes/', import.meta.url);
 const files = readdirSync(recipesFolder).filter(name => name.endsWith('.json')).sort();
@@ -42,4 +42,28 @@ test('a check that reads a later step is refused', () => {
 
 test('a bad id and a missing job are both reported at once', () => {
   assert.equal(recipeProblems({ ...recipe([step('first')]), id: 'Workflow:Bad', job: '' }).length, 2);
+});
+
+test('a check kind added only as a DATA row is accepted, and refused without the row', () => {
+  const row = {
+    kind: 'starts-with',
+    meaning: 'The text at path begins with one of the listed words.',
+    fields: [
+      { field: 'path', shape: 'path', required: true, refusal: 'is required.' },
+      { field: 'words', shape: 'words', required: true, refusal: 'must list the words it may begin with.' },
+    ],
+  };
+  const withRow = { ...CHECK_VOCABULARY, kinds: [...CHECK_VOCABULARY.kinds, row] };
+  const check = { kind: 'starts-with', says: 'It opens with a greeting.', path: ['this', 'text'], words: ['hello'] };
+  const checked = recipe([{ ...step('first'), checks: [check] }]);
+  assert.deepEqual(recipeProblems(checked, withRow), []);
+  assert.match(recipeProblems(checked)[0], /kind must be one of: subset-of, covers/);
+  assert.deepEqual(recipeProblems(recipe([{ ...step('first'), checks: [{ ...check, words: [] }] }]), withRow), ['steps[0].checks[0].words must list the words it may begin with.']);
+});
+
+test('the shipped vocabulary refuses a missing field, a bad count and an unknown catalog from its rows', () => {
+  const bad = checks => recipeProblems(recipe([{ ...step('first'), checks }]));
+  assert.deepEqual(bad([{ kind: 'covers', says: 'x', path: ['input', 'a'] }]), ['steps[0].checks[0] needs of or values.']);
+  assert.deepEqual(bad([{ kind: 'distinct-at-least', says: 'x', path: ['input', 'a'], count: 0 }]), ['steps[0].checks[0].count must be a whole number above 0.']);
+  assert.deepEqual(bad([{ kind: 'exists', says: 'x', path: ['input', 'a'], catalog: 'nope' }]), ['steps[0].checks[0].catalog must be one of: workflow, tool, list-row, record.']);
 });
