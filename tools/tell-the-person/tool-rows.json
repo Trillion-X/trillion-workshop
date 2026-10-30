@@ -1,0 +1,172 @@
+{
+ "kind": "tool-rows",
+ "record_set": "tell-the-person-tool-rows",
+ "what_this_is": "The Workshop rows for what Trillion told the person, in tools/tell-the-person, read from their own told-the-person records through the run's records door.",
+ "records": [
+  {
+   "id": "package::tell-the-person::tool::my-notices",
+   "address": "package::tell-the-person::tool::my-notices",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "read_only": true,
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:trillion",
+    "needs": {
+     "expected_seconds": 1,
+     "network_egress": false
+    },
+    "id": "tool:my-notices",
+    "listed_on": "2026-10-11T07:50:00Z",
+    "label": "What I was told, where it reached me and where I saw it",
+    "job": "List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on",
+    "description": "Optional limit (up to 100, default 20) and kind (only notices of that kind, such as take-me-there). Returns notices, each { id, kind, title, at, open, read, read_on: { channel, device_id, at } when the person saw it, told: { channel: sent | a stage | not-sent }, why: { channel: what its sender said } for each way that did not carry it }, and said, the count and how many were seen, in words. It reads every notice Trillion keeps, whichever ways it went, and kind is applied before the newest are taken, so one kind is found however many of another came after it; an AI reads where the person saw something instead of guessing. It changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 100
+      },
+      "kind": {
+       "type": "string",
+       "description": "Only notices of this kind, such as take-me-there"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "notices",
+      "said"
+     ],
+     "properties": {
+      "notices": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "kind",
+         "read",
+         "told"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "kind": {
+          "type": "string"
+         },
+         "title": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "at": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "open": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "read": {
+          "type": "boolean"
+         },
+         "read_on": {
+          "type": "object"
+         },
+         "why": {
+          "type": "object"
+         },
+         "told": {
+          "type": "object"
+         }
+        }
+       }
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "tell-the-person",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/tell-the-person"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/tell-the-person",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/tell-the-person/read-data/told.mjs",
+      "myNotices"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "told-the-person",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/tell-the-person.mjs recent(), the notices the open Trillion page shows, with read_on and told (a2fdfe6), ported to the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "limit": 1
+      },
+      "output_selector": "$.said",
+      "contains": "notice"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}

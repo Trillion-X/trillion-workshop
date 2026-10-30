@@ -40,6 +40,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `relationship-graph` | Who is connected to whom, from any records | `tool:map-who-is-connected` |
 | `revenue-ledger` | Revenue, refunds, net revenue and recurring revenue from any provider's payment events | `tool:add-up-revenue` |
 | `saved-examples` | Lists the examples a person saved of posts, videos and pages that worked, and removes one, from their own records | `tool:list-saved-examples`, `tool:remove-a-saved-example` |
+| `tell-the-person` | What Trillion told the person: the newest notices, where each was seen and how far each way got | `tool:my-notices` |
 | `traffic-attribution` | Tracked links, visitors and sales by where they came from, what ad spend brings back, and conversions prepared for the ad platforms | `tool:make-tracked-link`, `tool:break-down-visits-and-sales`, `tool:measure-ad-return`, `tool:prepare-ad-conversions` |
 | `unit-economics` | ARPU, gross margin, CAC, LTV, LTV:CAC and payback from one period's numbers | `tool:work-out-unit-economics` |
 | `where-a-person-stands` | Keeps whether a person agrees, disagrees or partly agrees with something made for them, in their own words, and reads it back with every earlier stand; owns the one identity of a judged thing (folded text or bytes, BLAKE3) | `tool:keep-where-you-stand`, `tool:read-where-you-stand`, `tool:plan-a-stance-reload` |
