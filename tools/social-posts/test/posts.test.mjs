@@ -147,3 +147,19 @@ test('a bad time zone and a link that is not https are refused with what to give
   const link = await step('draft-a-post', { caption: 'x', link: 'http://example.com' }, accounts);
   assert.match(link.error, /full https address/);
 });
+
+test('each connection check asks with the value its place signs with, over https, and posts nothing', async () => {
+  const { default: places } = await import('../read-data/post-places.json', { with: { type: 'json' } });
+  const checks = rows.records.map(record => record.payload).filter(payload => payload.invoke.kind === 'http');
+  assert.ok(checks.length >= 2);
+  for (const check of checks) {
+    const vendor = check.invoke.connection_id.replace(/^service_connection:/, '');
+    const place = places.places.find(item => item.connection_vendor === vendor);
+    assert.ok(place, `${check.id} checks a vendor some place posts through`);
+    const signed = JSON.stringify(place.options);
+    for (const item of check.invoke.credential_injections) assert.ok(signed.includes(`{"held":"${item.field_id}"}`), `${check.id} uses ${item.field_id}, which ${place.id} signs with`);
+    assert.equal(check.invoke.method, 'GET');
+    assert.equal(check.read_only, true);
+    assert.ok(place.hosts.includes(new URL(check.invoke.url).hostname), `${check.id} asks one of ${place.id}'s own hosts`);
+  }
+});

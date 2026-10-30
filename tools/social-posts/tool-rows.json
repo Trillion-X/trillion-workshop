@@ -1167,6 +1167,142 @@
     ],
     "result_selector": "$.result"
    }
+  },
+  {
+   "id": "package::social-posts::tool::check-the-instagram-connection",
+   "address": "package::social-posts::tool::check-the-instagram-connection",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "id": "tool:check-the-instagram-connection",
+    "label": "Check the Instagram connection",
+    "job": "Check that the person's Instagram connection still reaches its account, before a post is set to go there",
+    "description": "Asks Instagram which account the person's instagram connection signs in as, with the value the person's vault holds for it (placed only as the request leaves, never shown). Returns the account's user_id and username. A refusal (an expired or revoked sign-in) means the person connects Instagram again. It posts nothing and changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://graph.instagram.com/v21.0/me",
+     "method": "GET",
+     "timeout_seconds": 20,
+     "query": {
+      "fields": {
+       "const": "user_id,username"
+      }
+     },
+     "connection_id": "service_connection:instagram",
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "query",
+        "name": "access_token"
+       }
+      }
+     ]
+    },
+    "provenance": {
+     "provider": "Instagram",
+     "api": "https://graph.instagram.com/v21.0/me"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "output_selector": "$",
+      "contains": "id"
+     }
+    ],
+    "result_selector": "$"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::check-the-facebook-page-connection",
+   "address": "package::social-posts::tool::check-the-facebook-page-connection",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "id": "tool:check-the-facebook-page-connection",
+    "label": "Check the Facebook Page connection",
+    "job": "Check that the person's Facebook connection still reaches its account, before a post is set to go there",
+    "description": "Asks Facebook which account the person's facebook-messenger connection signs in as, with the value the person's vault holds for it (placed only as the request leaves, never shown). Returns the Page's id and name. A refusal (an expired or revoked sign-in) means the person connects Facebook again. It posts nothing and changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://graph.facebook.com/v21.0/me",
+     "method": "GET",
+     "timeout_seconds": 20,
+     "query": {
+      "fields": {
+       "const": "id,name"
+      }
+     },
+     "connection_id": "service_connection:facebook-messenger",
+     "credential_injections": [
+      {
+       "field_id": "page_access_token",
+       "placement": {
+        "kind": "query",
+        "name": "access_token"
+       }
+      }
+     ]
+    },
+    "provenance": {
+     "provider": "Facebook",
+     "api": "https://graph.facebook.com/v21.0/me"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "output_selector": "$",
+      "contains": "id"
+     }
+    ],
+    "result_selector": "$"
+   }
   }
  ]
 }
