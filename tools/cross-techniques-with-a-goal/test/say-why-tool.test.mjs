@@ -46,3 +46,16 @@ test('rows get their crossing fields, the proposal is kept, and a new vocabulary
 test('a request without rows or ids is refused with what to send', async () => {
   await assert.rejects(sayWhyATechniqueWorks({ rows: [{ name: 'no id' }], models: {} }), /each with an id/);
 });
+
+test('the row shape comes with the request: its own fields first, its own fields skipped, unknown reading keys refused', async () => {
+  const shown = [];
+  const write = async ({ user }) => {
+    shown.push(user);
+    return { rows: user.rows.map(row => ({ id: row.id, mechanism: [], operates_on: [], needs: [], produces: [], from_medium: 'fixture medium' })) };
+  };
+  const vocabulary = { kind: 'technique-vocabulary', meaning, vocabularies: { mechanism: { says: 'why', reuse_at: 0.9, new_below: 0.5, terms: [] }, property: { says: 'what', reuse_at: 0.9, new_below: 0.5, terms: [] } } };
+  const row = { id: 'fixture-row', title: 'Fixture title', summary: 'Fixture summary.', private_note: 'not for the writer' };
+  await sayWhyATechniqueWorks({ rows: [row], vocabulary, reading: { first: ['summary'], skip: ['id', 'private_note'] }, models: { write, embed } });
+  assert.equal(shown[0].rows[0].text, 'summary: Fixture summary. | title: Fixture title');
+  await assert.rejects(sayWhyATechniqueWorks({ rows: [row], vocabulary, reading: { firsts: ['summary'] }, models: { write, embed } }), /reading takes only .*not firsts/);
+});

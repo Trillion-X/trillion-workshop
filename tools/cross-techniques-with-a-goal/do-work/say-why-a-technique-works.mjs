@@ -1,11 +1,12 @@
 // tools/cross-techniques-with-a-goal/do-work/say-why-a-technique-works.mjs
 //
 // Purpose
-//   `tool:say-why-a-technique-works`: one JSON request on standard input ({ rows, vocabulary?, models }), `{ result }`
+//   `tool:say-why-a-technique-works`: one JSON request on standard input ({ rows, vocabulary?, reading?, models }), `{ result }`
 //   on the last line: each row's crossing fields (mechanism, operates_on, needs, produces, from_medium) with the
 //   writer's own proposal kept as `proposed`, the vocabulary after admitting the rows' terms, what was merged into
 //   what (`admitted`), and any row not read (`unread`). Uncertain terms are judged by the same writer now. A request
-//   without a vocabulary starts one from the measured lines in technique-conventions.json.
+//   without a vocabulary starts one from the measured lines in technique-conventions.json; `reading` names which of
+//   the rows' own fields the writer reads first or skips (say-why.mjs forRows).
 //
 // Non-negotiable invariants
 //   1. The returned vocabulary is the caller's to keep: the next request hands it back, so terms are shared across
@@ -15,15 +16,16 @@
 
 import { readFileSync } from 'node:fs';
 import { embedder, sameMeaning, writer } from './meaning.mjs';
-import { askingJudge, makeProposer, makeSettler } from './say-why.mjs';
+import { askingJudge, forRows, makeProposer, makeSettler } from './say-why.mjs';
 import { emptyLexicon } from './vocabulary.mjs';
 
-const conventions = JSON.parse(readFileSync(new URL('./technique-conventions.json', import.meta.url), 'utf8'));
+const shipped = JSON.parse(readFileSync(new URL('./technique-conventions.json', import.meta.url), 'utf8'));
 
 export async function sayWhyATechniqueWorks(request) {
   if (!Array.isArray(request.rows) || !request.rows.length || request.rows.some(row => row?.id === undefined)) {
     throw new Error('rows is a list of technique rows, each with an id and its own words (name, description, ...).');
   }
+  const conventions = forRows(shipped, request);
   const embed = request.models.embed ?? embedder(request.models.meaning);
   const write = request.models.write ?? writer(request.models.writing);
   const lines = conventions.vocabulary_lines;

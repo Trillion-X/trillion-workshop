@@ -2,25 +2,52 @@
   "what_this_is": "How this folder reads techniques and crosses them with a goal: which row fields hold which shared vocabulary, which words of a row the writer model reads, the instructions and worked examples it follows, and how many of each thing come back. Changing how techniques are described or crossed is editing this file, not the code.",
   "bound": {
     "comment": "The two row fields whose values are terms of a shared vocabulary: `why` holds the reasons a technique works, `changes` the properties it changes. Each need is tagged with a term of needs_tagged_by, so one row's change can be joined to another row's need.",
-    "why": { "field": "mechanism", "vocabulary": "mechanism" },
-    "changes": { "field": "operates_on", "vocabulary": "property" },
+    "why": {
+      "field": "mechanism",
+      "vocabulary": "mechanism"
+    },
+    "changes": {
+      "field": "operates_on",
+      "vocabulary": "property"
+    },
     "needs_tagged_by": "property"
   },
   "vocabulary_lines": {
     "comment": "The admission lines a new vocabulary starts with, for the meaning they were measured with (measure-reuse-line.mjs over reuse-line-pairs.json, 2026-10-30). The least close 'same' pair was 0.439 and the closest 'different' pair 0.713 ('perceived effort / perceived value': a shared word pulls terms together), so at or above reuse_at a proposal is the same term without asking, below new_below it is new without asking, and in between the writer judges. Another model or form needs its own measurement.",
-    "meaning": { "model": "embeddinggemma", "dims": 768, "forms": { "query": "task: search result | query: {text}", "document": "title: {title} | text: {text}" } },
+    "meaning": {
+      "model": "embeddinggemma",
+      "dims": 768,
+      "forms": {
+        "query": "task: search result | query: {text}",
+        "document": "title: {title} | text: {text}"
+      }
+    },
     "reuse_at": 0.72,
     "new_below": 0.43
   },
-  "carry": ["name", "kind", "description", "source_url"],
+  "carry": [
+    "name",
+    "kind",
+    "description"
+  ],
   "vocabularies": {
-    "mechanism": { "says": "Why a technique works, in words about what it does to a person or a system, never about the medium it was found in." },
-    "property": { "says": "The abstract property of a person or a system that a technique changes or needs, such as attention over time, trust, perceived effort, recognisability or reproducibility." }
+    "mechanism": {
+      "says": "Why a technique works, in words about what it does to a person or a system, never about the medium it was found in."
+    },
+    "property": {
+      "says": "The abstract property of a person or a system that a technique changes or needs, such as attention over time, trust, perceived effort, recognisability or reproducibility."
+    }
   },
   "reading": {
-    "comment": "The words of a source row the writer reads: these fields first, then any other string field, each cut to max_chars, the whole row to row_max_chars. Rows per call and the nearest existing terms shown per row (the model reuses them when they mean the same).",
-    "first": ["name", "kind", "category", "description", "how_to_make", "use"],
-    "skip": ["id", "acts_on", "source_url", "source_path", "site", "price", "open_route", "here_today", "timestamp", "address"],
+    "comment": "The words of a source row the writer reads, by default: these fields first, then any other string field, each cut to max_chars, the whole row to row_max_chars. Rows per call and the nearest existing terms shown per row (the model reuses them when they mean the same). A request lays its own `reading` over these for the shape of its rows.",
+    "first": [
+      "name",
+      "kind",
+      "description"
+    ],
+    "skip": [
+      "id"
+    ],
     "max_chars": 500,
     "row_max_chars": 1100,
     "rows_per_call": 5,
@@ -31,27 +58,235 @@
     "examples": [
       {
         "rows": [
-          { "id": "ex1", "text": "name: Mirror format: two identical people, one small repeated change, a counter, and the viewer sees themselves | kind: format | description: Two figures start identical at week 1. A visible counter advances. One adds a small fixed step each week and the other does not; by week 13 the gap is large. The viewer realises they are the one who did not.", "existing": { "mechanism": [], "property": [] } },
-          { "id": "ex2", "text": "name: Crash zoom in | kind: camera-move | description: Punchy near-instant zoom snap onto the target, used for sudden emphasis.", "existing": { "mechanism": ["contrast"], "property": ["attention focus"] } },
-          { "id": "ex3", "text": "name: Check that users can still succeed, as a third gate beside CI and CD | kind: principle | description: CI proves the code, CD proves the deploy; a third check proves that the intended person can still finish the intended task on the running product.", "existing": { "mechanism": [], "property": ["reliability", "trust"] } }
+          {
+            "id": "ex1",
+            "text": "name: A countdown clock beside every quiz question | kind: format | description: Each question shows a large clock counting down from ten seconds. Contestants who have not answered when it reaches zero lose the point.",
+            "existing": {
+              "mechanism": [],
+              "property": []
+            }
+          },
+          {
+            "id": "ex2",
+            "text": "name: The newest message glows for two seconds | kind: interface | description: A new message in the chat list appears with a brief bright background that fades.",
+            "existing": {
+              "mechanism": [
+                "contrast"
+              ],
+              "property": [
+                "attention focus"
+              ]
+            }
+          },
+          {
+            "id": "ex3",
+            "text": "name: The menu names the farm each dish comes from | kind: copy | description: Under every dish the menu prints the farm and the village it came from.",
+            "existing": {
+              "mechanism": [],
+              "property": [
+                "reliability",
+                "trust"
+              ]
+            }
+          }
         ],
-        "answer": { "rows": [
-          { "id": "ex1", "mechanism": [{ "term": "self-insertion", "says": "The person reads themselves as the subject, so the outcome shown feels like their own future." }, { "term": "contrast", "says": "" }], "operates_on": [{ "term": "self-relevance", "says": "How much a person feels something is about them." }, { "term": "perceived consequence", "says": "How real the future result of a choice feels now." }], "needs": ["two cases identical except for one change", "a result that grows visibly over repeated steps", "an audience that recognises itself in the side that did nothing"], "produces": ["the person sees their own inaction as the cause of a worse outcome", "an urge to adopt the one change"], "from_medium": "short vertical video" },
-          { "id": "ex2", "mechanism": [{ "term": "abrupt emphasis", "says": "A sudden jump in scale or speed forces attention onto one thing." }], "operates_on": [{ "term": "attention focus", "says": "" }], "needs": ["one target worth singling out", "calmer moments around it so the jump stands out"], "produces": ["attention snaps to the target", "a beat of surprise"], "from_medium": "film camera movement" },
-          { "id": "ex3", "mechanism": [{ "term": "outcome verification", "says": "Checking that the intended person can still reach the intended result, not only that the parts are correct." }], "operates_on": [{ "term": "reliability", "says": "" }, { "term": "trust", "says": "" }], "needs": ["a named person and task that define success", "a way to run that task on the real thing"], "produces": ["failures that matter to people are caught before they reach them"], "from_medium": "software delivery" }
-        ] }
+        "answer": {
+          "rows": [
+            {
+              "id": "ex1",
+              "mechanism": [
+                {
+                  "term": "time pressure",
+                  "says": "A visible limit on time makes a person decide faster and feel each second."
+                }
+              ],
+              "operates_on": [
+                {
+                  "term": "felt tension",
+                  "says": "How much suspense or pressure a person feels."
+                },
+                {
+                  "term": "decision speed",
+                  "says": "How quickly a person commits to a choice."
+                }
+              ],
+              "needs": [
+                "a decision that can be made quickly",
+                "a limit everyone can see running out"
+              ],
+              "produces": [
+                "faster answers",
+                "suspense while the limit runs out"
+              ],
+              "from_medium": "television quiz show"
+            },
+            {
+              "id": "ex2",
+              "mechanism": [
+                {
+                  "term": "contrast",
+                  "says": ""
+                }
+              ],
+              "operates_on": [
+                {
+                  "term": "attention focus",
+                  "says": ""
+                }
+              ],
+              "needs": [
+                "one new item among many old ones",
+                "a calm background so the change stands out"
+              ],
+              "produces": [
+                "the eye goes to the new item first"
+              ],
+              "from_medium": "chat app interface"
+            },
+            {
+              "id": "ex3",
+              "mechanism": [
+                {
+                  "term": "stated provenance",
+                  "says": "Naming where something comes from lets a person check it and makes it feel real."
+                }
+              ],
+              "operates_on": [
+                {
+                  "term": "trust",
+                  "says": ""
+                }
+              ],
+              "needs": [
+                "a source that can be named",
+                "a source the audience thinks well of"
+              ],
+              "produces": [
+                "the item is believed to be what it claims"
+              ],
+              "from_medium": "restaurant menu"
+            }
+          ]
+        }
       },
       {
         "rows": [
-          { "id": "ex4", "text": "name: 1-Bit Dithering | kind: historical-effect | category: 1980s | description: A picture built only from black and white pixels, where tone comes from how densely the dots are packed. Look for stippled textures that blend into gray at a distance.", "existing": { "mechanism": ["self-insertion"], "property": ["recognisability"] } },
-          { "id": "ex5", "text": "name: A day of meals as a six-slide carousel | kind: format | description: Slide 1 is a lifestyle cover; slides 2 to 5 are one meal each in day order; slide 6 is the product. Six slides is short enough that most people reach the end, where the offer sits.", "existing": { "mechanism": ["open loop"], "property": ["attention over time"] } },
-          { "id": "ex6", "text": "name: Tie each effect to the words it answers, not to seconds | kind: technique | description: Write the words alone, then attach each reveal, cut or graphic to the phrase it responds to. When the words change, everything tied to them moves with them.", "existing": { "mechanism": ["deterministic replay"], "property": ["editability"] } }
+          {
+            "id": "ex4",
+            "text": "name: Sepia tone on every photo in a family album | kind: effect | description: All photos are printed in brown tones so the album looks like it came from an older time.",
+            "existing": {
+              "mechanism": [
+                "self-insertion"
+              ],
+              "property": [
+                "recognisability"
+              ]
+            }
+          },
+          {
+            "id": "ex5",
+            "text": "name: A five-stop walking tour that ends at the gift shop | kind: format | description: The guide promises five stops, numbers each one aloud, and the last stop is the shop.",
+            "existing": {
+              "mechanism": [
+                "open loop"
+              ],
+              "property": [
+                "attention over time"
+              ]
+            }
+          },
+          {
+            "id": "ex6",
+            "text": "name: Name spreadsheet ranges instead of using cell addresses | kind: technique | description: Formulas refer to named ranges such as 'rent' rather than to addresses such as B4, so inserting rows does not break them.",
+            "existing": {
+              "mechanism": [
+                "deterministic replay"
+              ],
+              "property": [
+                "editability"
+              ]
+            }
+          }
         ],
-        "answer": { "rows": [
-          { "id": "ex4", "mechanism": [{ "term": "era association", "says": "A look tied to a past period makes a person feel that period and what they link with it." }, { "term": "perceptual averaging", "says": "Fine patterns the eye blends are read as smooth tone." }], "operates_on": [{ "term": "association", "says": "Which memories, feelings or periods a thing calls up." }], "needs": ["an audience that knows the era's look"], "produces": ["a retro, early-computer feel", "rich tone from only two values"], "from_medium": "image effect" },
-          { "id": "ex5", "mechanism": [{ "term": "short finite sequence", "says": "A series that is visibly short and ordered pulls the person through to its end." }, { "term": "value before the ask", "says": "Giving something useful first makes the offer that follows feel earned." }], "operates_on": [{ "term": "attention over time", "says": "" }, { "term": "receptiveness to an offer", "says": "How open a person is to being asked to buy or act." }], "needs": ["useful items that fit a familiar order", "an offer that continues the same topic"], "produces": ["most people reach the last item, where the offer sits"], "from_medium": "photo carousel post" },
-          { "id": "ex6", "mechanism": [{ "term": "anchor to meaning", "says": "Tying each effect to the content it answers keeps them aligned when the content changes." }], "operates_on": [{ "term": "editability", "says": "" }], "needs": ["content split into units that effects can point at"], "produces": ["changes to the content carry every dependent effect with them"], "from_medium": "video editing" }
-        ] }
+        "answer": {
+          "rows": [
+            {
+              "id": "ex4",
+              "mechanism": [
+                {
+                  "term": "era association",
+                  "says": "A look tied to a past period makes a person feel that period and what they link with it."
+                }
+              ],
+              "operates_on": [
+                {
+                  "term": "association",
+                  "says": "Which memories, feelings or periods a thing calls up."
+                }
+              ],
+              "needs": [
+                "an audience that knows the era's look"
+              ],
+              "produces": [
+                "a warm, old-time feel"
+              ],
+              "from_medium": "photo printing"
+            },
+            {
+              "id": "ex5",
+              "mechanism": [
+                {
+                  "term": "short finite sequence",
+                  "says": "A series that is visibly short and ordered pulls the person through to its end."
+                },
+                {
+                  "term": "value before the ask",
+                  "says": "Giving something useful first makes the offer that follows feel earned."
+                }
+              ],
+              "operates_on": [
+                {
+                  "term": "attention over time",
+                  "says": ""
+                },
+                {
+                  "term": "receptiveness to an offer",
+                  "says": "How open a person is to being asked to buy or act."
+                }
+              ],
+              "needs": [
+                "useful items that fit a clear order",
+                "an offer that continues the same topic"
+              ],
+              "produces": [
+                "most people reach the last item, where the offer sits"
+              ],
+              "from_medium": "guided walking tour"
+            },
+            {
+              "id": "ex6",
+              "mechanism": [
+                {
+                  "term": "anchor to meaning",
+                  "says": "Pointing at what a thing means rather than where it sits keeps links intact when things move."
+                }
+              ],
+              "operates_on": [
+                {
+                  "term": "editability",
+                  "says": ""
+                }
+              ],
+              "needs": [
+                "content split into named units that others can point at"
+              ],
+              "produces": [
+                "changes to the layout carry every dependent part with them"
+              ],
+              "from_medium": "spreadsheet modelling"
+            }
+          ]
+        }
       }
     ]
   },
@@ -59,8 +294,8 @@
     "system": "You decide whether a proposed term means the same thing as one of a few existing terms of a shared vocabulary. Same means a person would use them interchangeably to explain why something works; related or overlapping is not the same. Answer with the exact existing term, or an empty string when none means the same."
   },
   "needs_tags": {
-    "comment": "A need is tagged with the closest property at least tag_min close in meaning. Measured with embeddinggemma at 768 dims over need-tag-pairs.json (2026-10-30: 11 right tags 0.468-0.543, 11 wrong ones 0.450-0.549); the line misplaces 2 of 22, so a tag is a lead for pairing, never a fact.",
-    "tag_min": 0.467
+    "comment": "A need is tagged with the closest property at least tag_min close in meaning. Measured with embeddinggemma at 768 dims over the made-up pairs in need-tag-pairs.json (2026-10-30: 12 right tags 0.381-0.710, 12 wrong ones 0.226-0.402); the line misplaces 1 of 24, so a tag is a lead for pairing, never a fact. A person re-measures it over pairs from their own needs with measure-reuse-line.mjs.",
+    "tag_min": 0.366
   },
   "cross": {
     "wants_system": "You turn a goal into what must happen for it to succeed. Write 4 to 6 wants. Each want is one plain sentence about what must happen in the mind of the person the goal is for (or in the system it runs on), never about a medium, a format or a feature. Cover the whole path that person takes, choosing the steps that matter for this goal: noticing it and staying with it, seeing that it is about them and their own situation, understanding it, believing it, and doing what the goal needs. For each want, list 1 to 3 properties from the properties you are given (copy each term exactly) whose change makes the want happen. Respect the constraints. Example: for 'the first lesson of a language course' a want is 'the learner feels they can already say something useful', with the properties for how much effort it seems to take and how much progress is felt.",
