@@ -15,7 +15,7 @@
     "id": "tool:read-public-web-page",
     "label": "Read a public web page",
     "job": "Open one public web page and return its title, readable text, links, the card it describes itself with, every picture and video it declares and its structured data",
-    "description": "Reads one public HTTP or HTTPS page and returns its title, readable text and links, and the card it describes itself with: its picture, description, site name and icon (each null when the page does not say), every picture (images) and video (videos) it declares in its tags and structured data, and that structured data (data, its schema.org JSON-LD objects). It follows a small number of checked redirects, pins each DNS answer to the connection, refuses private-network addresses, limits the response to 2 MB and returns at most 30,000 text characters and 100 links. It does not sign in or reuse browser cookies.",
+    "description": "Reads one public HTTP or HTTPS page and returns its title, readable text and links, and the card it describes itself with: its picture, description, site name and icon (each null when the page does not say), every picture (images) and video (videos) it declares in its tags and structured data, and that structured data (data, its schema.org JSON-LD objects). It reaches public sites only (the engine judges every address, every redirect and every address a name resolves to), follows a small number of redirects, limits the response to 2 MB and returns at most 30,000 text characters and 100 links. It does not sign in or reuse browser cookies.",
     "status": "active",
     "input_schema": {
      "type": "object",
@@ -160,6 +160,159 @@
       "contains": "Example Domain"
      }
     ]
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:browse-public-page",
+    "id": "tool:read-a-link",
+    "listed_on": "2026-09-30T06:18:09Z",
+    "label": "Read a link",
+    "job": "Read one public link into a card: its title, picture, description, site and the words on the page",
+    "description": "Reads one public http or https page (at most 2 MB, 6 seconds) and returns its title, picture (image, and every picture in images), videos, description, site name and icon from the page's own tags and structured data (data, its schema.org JSON-LD), and its readable text. A link that is itself a picture or video is that picture or video. A page that does not answer or says nothing about itself returns the bare address with unread saying why. It does not sign in.",
+    "needs": {
+     "expected_seconds": 6,
+     "network_egress": true,
+     "memory_mb": 128
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "url"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "url": {
+       "type": "string",
+       "format": "uri",
+       "title": "Link",
+       "description": "One public http or https address."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "url",
+      "final_url",
+      "host",
+      "text"
+     ],
+     "properties": {
+      "url": {
+       "type": "string"
+      },
+      "final_url": {
+       "type": "string"
+      },
+      "host": {
+       "type": "string"
+      },
+      "site": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "title": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "description": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "image": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "icon": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "text": {
+       "type": "string"
+      },
+      "unread": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "images": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "videos": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "data": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/work",
+     "stdout": "json",
+     "argv": [
+      "/usr/local/bin/node",
+      "/opt/browse-public-page/do-work/read_a_link.mjs"
+     ],
+     "stdin": {
+      "url": {
+       "fill": {
+        "from": "input",
+        "field": "url"
+       }
+      }
+     },
+     "files": {
+      "package_files": {
+       "package": "browse-public-page",
+       "paths": [
+        "do-work/read_a_link.mjs",
+        "do-work/page-facts.mjs",
+        "do-work/page-conventions.json"
+       ],
+       "at": "/opt/browse-public-page"
+      }
+     }
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "url": "https://example.com"
+      },
+      "output_selector": "$.title",
+      "contains": "Example Domain"
+     }
+    ],
+    "result_selector": "$.result"
    }
   }
  ]

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { publicAddress, readPublicPage } from '../do-work/browse_public_page.mjs';
+import { readPublicPage } from '../do-work/browse_public_page.mjs';
 import { checkedUrl, extractPage } from '../do-work/page-facts.mjs';
 
 const script = fileURLToPath(new URL('../do-work/browse_public_page.mjs', import.meta.url));
@@ -20,15 +20,12 @@ test('shared browser tool uses the bundled Node reader in the network-enabled co
   assert.deepEqual(row.placements, ['placement:small-container']);
 });
 
-test('URL and address checks refuse local, private, mapped and reserved targets', () => {
+test('address checks refuse anything but a web page address; which addresses are public is the engine\'s to judge', () => {
   for (const [url, expected] of [
     ['file:///etc/passwd', /Only public HTTP and HTTPS/],
     ['https://user:pass@example.com/', /cannot include a username or password/],
     ['https://example.com:8443/', /standard HTTP and HTTPS ports/],
   ]) assert.match(JSON.parse(run({ url }).stdout).error, expected);
-  for (const address of ['127.0.0.1', '169.254.169.254', '10.0.0.2', '192.168.1.1', '::1', 'fc00::1', '::ffff:127.0.0.1']) assert.equal(publicAddress(address), false, address);
-  assert.equal(publicAddress('8.8.8.8'), true);
-  assert.equal(publicAddress('2606:4700:4700::1111'), true);
   assert.equal(checkedUrl('https://example.com/').hostname, 'example.com');
 });
 
