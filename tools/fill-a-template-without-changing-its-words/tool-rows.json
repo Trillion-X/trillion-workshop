@@ -1,0 +1,150 @@
+{
+  "kind": "package-set-records",
+  "record_set": "fill-a-template-without-changing-its-words-tool-rows",
+  "what_this_is": "The Workshop rows for the fill-a-template-without-changing-its-words folder: four commands the person's AI runs on the person's own computer to keep a piece's own words fixed while its slots are filled, check any rewrite against those words, and move events tied to words when the words move.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-word-template",
+        "label": "Turn something I made or copied into a word-for-word template (runs on your computer)",
+        "job": "Keep the exact words of a script, post, slide set or page as a template where only the specifics (numbers, names, the product) can change",
+        "description": "Reads a spec (sources, lines, slots with their rule, keeps with their reason) or one bare measurement it recognises (a word-timed transcript, a caption file, a post, a table of units, a folder of images) and writes a template: every word and every other measured value of the piece, each marked KEEP, with only the author's own specifics marked SLOT, each slot naming the rule that made it one. Works for any medium the registry lists (spoken scripts, posts, threads, slides, articles, newsletters, pages, audio). Writes TEMPLATE.json and a readable TEMPLATE.md beside it with the slot table, every region, and the dimensions it could not measure with the reason and how they would be measured.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["input", "output"],
+          "properties": {
+            "input": { "type": "string", "description": "The spec JSON (schema word-template-spec@1) or one measurement file, put where {input} is in the command." },
+            "output": { "type": "string", "description": "Where to write the template JSON (for example TEMPLATE.json), put where {output} is in the command. The readable TEMPLATE.md is written beside it." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Exit 0 and one summary line: the template path, how many tokens, how many are SLOT in how many slots, how many dimensions were measured and how many are pending. On a refusal it exits 2 and the standard error says what is wrong and how to fix it."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/make_template.py {input} {output}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the spec (or point at the measurement), run `run`, then open the TEMPLATE.md written beside the output. Tell the person which words are fixed, each slot with its rule and what it stands for, and every dimension listed as pending with why. A slot is only the author's own specific content; filler and function words stay fixed. If the command exits 2, read its standard error: it says what to change. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:fill-a-template-without-changing-its-words",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "A word-level template method: keep the literal words and measured values, slot only the specifics, and make every change visible word by word"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:fill-a-word-template",
+        "label": "Fill a template's slots with sourced values and nothing else (runs on your computer)",
+        "job": "Put my own numbers, names and product into a template without changing any of its other words, and show where each value came from",
+        "description": "Takes a template and a fills file giving each slot a value and its sources (a URL, git:<repo>@<commit>, a file line, a timestamp or a time range). A value counts only when every source is checkable and the value's words and numbers appear in a cited source; otherwise the slot stays visibly empty as [TYPE: no source yet] and is listed with the reason and what would fill it. A source can be one of the person's recorded moments (a time range of a word-timed transcript), and the fill then keeps where the value plays. It refuses any id that is not a slot, so the fixed words cannot be changed. Writes the filled script as markdown with the sources table, and with --piece the filled piece for checking and re-timing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["template", "fills", "output"],
+          "properties": {
+            "template": { "type": "string", "description": "The template JSON made by tool:make-a-word-template, put where {template} is in the command." },
+            "fills": { "type": "string", "description": "The fills JSON: {\"title\", \"root\", \"fills\": {\"<slot id>\": {\"value\", \"sources\": [...], \"needs\"?, \"derived\"?, \"note\"?}}}, put where {fills} is in the command." },
+            "output": { "type": "string", "description": "Where to write the filled markdown, put where {output} is in the command. The filled piece is written to {output}.piece.json." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Exit 0 and a summary line: how many slots are sourced and how many stay empty. The markdown holds the script, a line view with changes marked, the sources table with each check, and the empty slots with what would fill them. On a refusal it exits 2 and the standard error says what is wrong."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/fill.py {template} {fills} {output} --piece {output}.piece.json",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the fills file from what the person actually has: a value with no checkable source is not used, so never invent one. Run `run`, then read the markdown. Tell the person which slots are filled and from what, and list every empty slot with what would fill it. Do not edit the fixed words by hand; if a fixed word is wrong, change the template. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:fill-a-template-without-changing-its-words",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "A word-level template method: only slots change, every value needs a checkable source, and an unsourced slot stays visibly empty"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-words-against-a-word-template",
+        "label": "Check that a rewrite kept the template's words (runs on your computer)",
+        "job": "Tell me which words of the original a rewrite deleted, replaced or added, and whether the slots were filled from real sources",
+        "description": "Judges any script (markdown with fenced dim blocks, a table column, or plain text) or any piece JSON (a fill, a measured render, another template) against a template, dimension by dimension: words by difflib on normalised words, categories by sequence alignment, numbers within a limit, timed events within a tolerance, boxes, colours and vectors by distance. Reports every fixed word deleted, replaced or inserted, every slot run as sourced, empty, unsourced, removed or still holding the original's value, the share of fixed words preserved, the worst lines and an annotated line view. A change listed with a reason in an exceptions file counts as preserved and stays visible. With --check it exits 1 unless every judged dimension meets its threshold, nothing unexcused was inserted and every slot fill has a source.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["template", "target", "report"],
+          "properties": {
+            "template": { "type": "string", "description": "The template JSON, put where {template} is in the command." },
+            "target": { "type": "string", "description": "The script (.md or .txt) or piece JSON to judge, put where {target} is in the command." },
+            "report": { "type": "string", "description": "Where to write the report JSON, put where {report} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Exit 0 when every judged dimension meets its threshold, 1 when one does not. The standard output has the verdict, the preserved share, each change and the annotated lines; the report JSON holds the same per dimension."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/drift.py {template} {target} --check --json {report}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run `run` and read the standard output. Tell the person the verdict first, then each fixed word that was deleted, replaced or added with its line, and each slot that is empty, unsourced or still holds the original's value. Exit 1 means at least one dimension missed its threshold; it is a finding, not a failure to run. A deliberate change can be passed back in an exceptions file with a reason (--exceptions FILE). If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:fill-a-template-without-changing-its-words",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "A word-level template method: every change is visible word by word, so a rewrite cannot hide inside a changed chunk"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:re-time-events-tied-to-words",
+        "label": "Move events to where their words now play (runs on your computer)",
+        "job": "After I rewrite the script, move every transition, graphic, caption or section break that was tied to a phrase to where that phrase now plays",
+        "description": "A token in a piece can carry bound_to: the word or phrase it responds to, an edge (start or end of the phrase), an offset in seconds, optionally a slot (so an event tied to a swapped specific follows the new specific) and which repeat of the phrase. Given the word-timed transcript of the rewritten script, every bound token moves to where its words now play and keeps its length when it has an end time. Words missing from the new transcript leave the time unchanged and are listed as unmatched, never guessed. The binding names no medium, so it works for any timed piece.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["piece", "transcript", "output"],
+          "properties": {
+            "piece": { "type": "string", "description": "The piece JSON whose tokens carry bound_to, put where {piece} is in the command." },
+            "transcript": { "type": "string", "description": "The word-timed transcript JSON of the rewritten script ({\"words\": [{\"text\", \"start\", \"end\"}]}), put where {transcript} is in the command." },
+            "output": { "type": "string", "description": "Where to write the re-timed piece JSON, put where {output} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Exit 0 and a summary line: how many of the bound tokens were re-timed, then one line for each that was not (unmatched words). The re-timed piece lists every token in notes.retime with its old time, its new time and its status."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/retime.py {piece} {transcript} {output} --report",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Get the word-timed transcript of the rewritten script from any speech-to-text tool, run `run`, and tell the person how many events moved and where each went. List every event whose words were not found: its time is unchanged and the person must decide what it should follow. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:fill-a-template-without-changing-its-words",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "Events bound to words rather than seconds, so a rewrite does not strand them"
+        }
+      }
+    }
+  ]
+}
