@@ -1,0 +1,64 @@
+{
+  "_what": "How sign-ups, payments and other outcomes are sent back to the ad platform a visitor came from (do-work/prepare-ad-conversions.mjs). Each shape is one platform's conversion upload: tool_id is the connection tool that sends it (parts/service-connections records.json), account the destination fields copied into that tool's input (account_optional when given), events_field the input field that holds the events, most_per_send how many events one send may carry, oldest_days how old an event the platform still takes, send_per_outcome_target the tool input field that names the outcome's target when each outcome goes in its own send (else the target is the event fact outcome_target), email_steps and phone_steps how the platform says an email address or phone number is made plain before its SHA-256 is taken (the platform's own rule), needs_any the facts of which an event must carry at least one to be matched, and event the event, where { \"from\": \"fact\" } is one fact of the conversion and is left out when the conversion has none (an object or list left empty is left out too). The facts are event_id, at_seconds, at_iso, value, currency, outcome, outcome_target, email_sha256, phone_sha256 and click.<click id> from the visitor's first touch. plain_mail_domains are the domains whose local part the gmail-local step makes plain.",
+  "plain_mail_domains": ["gmail.com", "googlemail.com"],
+  "shapes": {
+    "meta-conversions-api": {
+      "label": "Meta Conversions API",
+      "tool_id": "tool:meta-ads-send-conversion-events",
+      "account": ["pixel_id"],
+      "account_optional": ["test_event_code"],
+      "events_field": "data",
+      "most_per_send": 1000,
+      "oldest_days": 7,
+      "email_steps": ["trim", "lowercase"],
+      "phone_steps": ["digits"],
+      "needs_any": ["email_sha256", "phone_sha256", "click.fbc", "click.fbp"],
+      "event": {
+        "event_name": { "from": "outcome_target" },
+        "event_time": { "from": "at_seconds" },
+        "event_id": { "from": "event_id" },
+        "action_source": "website",
+        "user_data": {
+          "em": [{ "from": "email_sha256" }],
+          "ph": [{ "from": "phone_sha256" }],
+          "fbc": { "from": "click.fbc" },
+          "fbp": { "from": "click.fbp" }
+        },
+        "custom_data": {
+          "value": { "from": "value" },
+          "currency": { "from": "currency" }
+        }
+      }
+    },
+    "google-ads-conversions": {
+      "label": "Google Ads conversions (Data Manager API)",
+      "tool_id": "tool:google-ads-send-conversions",
+      "account": ["operating_account_id"],
+      "account_optional": ["login_account_id", "consent"],
+      "events_field": "events",
+      "most_per_send": 2000,
+      "send_per_outcome_target": "conversion_action_id",
+      "email_steps": ["trim-all", "lowercase", "gmail-local"],
+      "phone_steps": ["e164"],
+      "needs_any": ["click.gclid", "click.gbraid", "click.wbraid", "email_sha256", "phone_sha256"],
+      "event": {
+        "transactionId": { "from": "event_id" },
+        "eventTimestamp": { "from": "at_iso" },
+        "eventSource": "WEB",
+        "conversionValue": { "from": "value" },
+        "currency": { "from": "currency" },
+        "adIdentifiers": {
+          "gclid": { "from": "click.gclid" },
+          "gbraid": { "from": "click.gbraid" },
+          "wbraid": { "from": "click.wbraid" }
+        },
+        "userData": {
+          "userIdentifiers": [
+            { "emailAddress": { "from": "email_sha256" } },
+            { "phoneNumber": { "from": "phone_sha256" } }
+          ]
+        }
+      }
+    }
+  }
+}

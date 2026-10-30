@@ -1,0 +1,38 @@
+{
+  "_what": "What paid traffic is measured against (do-work/measure-ad-return.mjs) and which visit signals are ad click ids (read-data/click-ids.ts). target_ltv_to_cac: the lifetime value one unit of acquisition spend must bring back for a row to meet the target, used when a run gives none. click_ids: the signals an ad platform puts on a click or a browser; each is one click or one browser, so it is kept with the visitor's first touch for sending conversions back, and never offered as a breakdown. cookie_click_ids: click ids an ad platform keeps in a cookie on the page, read by the browser capture. derived_click_ids: a click id made from another one when its cookie is absent, by the platform's own format ({at_ms} is when the click was seen, {value} the source click id). spend_shapes: how the answer of a connection tool that reads ad spend becomes spend rows: rows is the path to the list ('*' takes every item of a list), amount the path to one row's spend, amount_scale what the amount is multiplied by to be in whole currency units (Google Ads gives micros), currency the path to its currency, and facts which answer fields become which visit signals, so spend joins the visits that carry the same value.",
+  "target_ltv_to_cac": 5,
+  "click_ids": ["gclid", "gbraid", "wbraid", "dclid", "fbclid", "fbc", "fbp", "msclkid", "ttclid", "twclid", "li_fat_id", "rdt_cid", "ScCid", "epik"],
+  "cookie_click_ids": [
+    { "signal": "fbc", "cookie": "_fbc" },
+    { "signal": "fbp", "cookie": "_fbp" }
+  ],
+  "derived_click_ids": [
+    { "signal": "fbc", "from": "fbclid", "format": "fb.1.{at_ms}.{value}" }
+  ],
+  "spend_shapes": {
+    "meta-ads-campaign-spend": {
+      "label": "Meta Ads spend per campaign (tool:meta-ads-read-campaign-spend)",
+      "rows": ["data", "*"],
+      "amount": ["spend"],
+      "amount_scale": 1,
+      "currency": ["account_currency"],
+      "facts": { "utm_campaign": ["campaign_name"], "utm_id": ["campaign_id"] }
+    },
+    "google-ads-campaign-spend": {
+      "label": "Google Ads spend per campaign (tool:google-ads-read-campaign-spend)",
+      "rows": ["results", "*"],
+      "amount": ["metrics", "costMicros"],
+      "amount_scale": 0.000001,
+      "currency": ["customer", "currencyCode"],
+      "facts": { "utm_campaign": ["campaign", "name"], "utm_id": ["campaign", "id"] }
+    },
+    "google-ads-keyword-spend": {
+      "label": "Google Ads spend per keyword (tool:google-ads-read-keyword-spend)",
+      "rows": ["results", "*"],
+      "amount": ["metrics", "costMicros"],
+      "amount_scale": 0.000001,
+      "currency": ["customer", "currencyCode"],
+      "facts": { "utm_term": ["adGroupCriterion", "keyword", "text"], "utm_campaign": ["campaign", "name"], "utm_id": ["campaign", "id"] }
+    }
+  }
+}

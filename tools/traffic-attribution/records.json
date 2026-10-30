@@ -1,0 +1,1005 @@
+{
+ "package": "traffic-attribution",
+ "things": [
+  {
+   "type": "record",
+   "id": "package::traffic-attribution::tool::make-tracked-link",
+   "address": "package::traffic-attribution::tool::make-tracked-link",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:make-tracked-link",
+    "label": "Make a tracked link",
+    "status": "active",
+    "job": "Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it",
+    "description": "Adds the project, source and campaign (and optionally the medium and a content tag for one post) to a web address as UTM fields, replacing any already there. Refuses an address that is not a web page or carries a user name or password. Use the same project, source and campaign names when breaking visits down later.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "destination",
+      "project",
+      "source",
+      "campaign"
+     ],
+     "properties": {
+      "destination": {
+       "type": "string",
+       "description": "The web page the link opens"
+      },
+      "project": {
+       "type": "string",
+       "description": "Your name for what is being promoted, letters, numbers, dots, dashes or underscores"
+      },
+      "source": {
+       "type": "string",
+       "description": "Where the link is posted, like instagram or newsletter"
+      },
+      "campaign": {
+       "type": "string"
+      },
+      "medium": {
+       "type": "string"
+      },
+      "content": {
+       "type": "string",
+       "description": "A tag for one post or ad"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "link",
+      "fields"
+     ],
+     "properties": {
+      "link": {
+       "type": "string",
+       "minLength": 1
+      },
+      "fields": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "traffic-attribution",
+       "paths": [
+        "do-work/make-a-tracked-link.mjs",
+        "read-data/tracked-link.mjs"
+       ],
+       "at": "/opt/parts/traffic-attribution"
+      }
+     },
+     "workdir": "/opt/parts/traffic-attribution",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/make-a-tracked-link.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:traffic-attribution",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/traffic-attribution"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "destination": "https://shop.example/offer",
+       "project": "spring-launch",
+       "source": "instagram",
+       "campaign": "reel-12"
+      },
+      "output_selector": "$.link",
+      "contains": "utm_source=instagram"
+     },
+     {
+      "kind": "output-contains-input",
+      "output_selector": "$.link",
+      "input_field": "project"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::traffic-attribution::tool::break-down-visits-and-sales",
+   "address": "package::traffic-attribution::tool::break-down-visits-and-sales",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:break-down-visits-and-sales",
+    "label": "Break down visits and sales by source",
+    "status": "active",
+    "job": "Break down visitors, leads and sales by where they came from (source, campaign or any tracked field), with conversion rates and revenue",
+    "description": "Counts each visitor once by their first visit, then gives one row per source (or campaign, or any field the visits carry): visitors, each outcome you track (leads, purchases, sign-ups) with its rate, and revenue and revenue per visitor when conversions carry a value. can_break_down_by lists every field the visits allow; a conversion with no outcome counts toward the project's first one.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "project",
+      "visits"
+     ],
+     "properties": {
+      "project": {
+       "type": "object",
+       "required": [
+        "id"
+       ],
+       "properties": {
+        "id": {
+         "type": "string",
+         "description": "The project name used in the tracked links"
+        },
+        "label": {
+         "type": "string"
+        },
+        "outcomes": {
+         "type": "array",
+         "items": {
+          "type": [
+           "object",
+           "string"
+          ]
+         },
+         "description": "What counts as a conversion, first is the main one: [{\"id\": \"lead\", \"label\": \"Leads\"}, ...]"
+        },
+        "currency": {
+         "type": "string",
+         "description": "The currency revenue is in (default USD)"
+        },
+        "dimensions": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         }
+        }
+       }
+      },
+      "visits": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "visitor",
+         "signals"
+        ],
+        "properties": {
+         "visitor": {
+          "type": "string",
+          "description": "One id per visitor"
+         },
+         "signals": {
+          "type": "object",
+          "description": "Where the visit came from: source, utm_campaign, utm_medium, referrer or any field"
+         }
+        }
+       }
+      },
+      "conversions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "visitor"
+        ],
+        "properties": {
+         "visitor": {
+          "type": "string"
+         },
+         "outcome": {
+          "type": "string"
+         },
+         "value": {
+          "type": "number"
+         }
+        }
+       }
+      },
+      "break_down_by": {
+       "type": "string",
+       "description": "The field to break down by (default source)"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "columns",
+      "rows",
+      "visitors",
+      "can_break_down_by"
+     ],
+     "properties": {
+      "columns": {
+       "type": "array",
+       "minItems": 1
+      },
+      "rows": {
+       "type": "array"
+      },
+      "visitors": {
+       "type": "number"
+      },
+      "can_break_down_by": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "traffic-attribution",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/parts/traffic-attribution"
+       }
+      ]
+     },
+     "workdir": "/opt/parts/traffic-attribution",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/break-down-visits-and-sales.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:traffic-attribution",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/traffic-attribution"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "project": {
+        "id": "spring-launch",
+        "outcomes": [
+         {
+          "id": "lead",
+          "label": "Leads"
+         },
+         {
+          "id": "purchase",
+          "label": "Purchases"
+         }
+        ]
+       },
+       "visits": [
+        {
+         "visitor": "v1",
+         "signals": {
+          "source": "instagram"
+         }
+        },
+        {
+         "visitor": "v2",
+         "signals": {
+          "source": "instagram"
+         }
+        },
+        {
+         "visitor": "v3",
+         "signals": {
+          "source": "google"
+         }
+        }
+       ],
+       "conversions": [
+        {
+         "visitor": "v1",
+         "outcome": "lead"
+        },
+        {
+         "visitor": "v1",
+         "outcome": "purchase",
+         "value": 49
+        }
+       ]
+      },
+      "output_selector": "$.rows[0].value",
+      "contains": "instagram"
+     },
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.visitors",
+      "at_least": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::traffic-attribution::tool::measure-ad-return",
+   "address": "package::traffic-attribution::tool::measure-ad-return",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:measure-ad-return",
+    "label": "Measure what ad spend brings back (CAC, LTV, payback)",
+    "status": "active",
+    "job": "Measure return on ad spend per source, campaign or keyword: cost per sign-up, CAC, customer lifetime value, LTV to CAC ratio and payback months, flagging what meets 5x",
+    "description": "Joins ad spend with the visitors each source, campaign or keyword brought (first touch, the same counting as the visits breakdown), their sign-ups, paying customers and revenue. Spend is given as rows ({ amount, source or utm_campaign or utm_term: value }) or as the answers of the Meta Ads and Google Ads spend tools (spend_answers with shape meta-ads-campaign-spend, google-ads-campaign-spend or google-ads-keyword-spend), whose campaign names fill utm_campaign and campaign ids utm_id. Each row and the paid and all-visitor totals give spend, visitors, sign-ups, customers, revenue, cost per sign-up, CAC, revenue per customer per month, LTV (needs gross_margin and monthly_churn or customer_lifetime_months), LTV:CAC, payback months and whether LTV:CAC meets the target (5x unless target_ltv_to_cac says). Payment values are the revenue of revenue_months months (1 when left out). A figure the numbers cannot give is null and unknown says what would give it. Spend in another currency than the project is refused.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "project",
+      "visits",
+      "paying_outcome"
+     ],
+     "properties": {
+      "project": {
+       "type": "object",
+       "required": [
+        "id"
+       ],
+       "properties": {
+        "id": {
+         "type": "string",
+         "description": "The project name used in the tracked links"
+        },
+        "label": {
+         "type": "string"
+        },
+        "outcomes": {
+         "type": "array",
+         "items": {
+          "type": [
+           "object",
+           "string"
+          ]
+         },
+         "description": "What counts as a conversion, first is the main one: [{\"id\": \"lead\", \"label\": \"Leads\"}, ...]"
+        },
+        "currency": {
+         "type": "string",
+         "description": "The currency revenue is in (default USD)"
+        },
+        "dimensions": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         }
+        }
+       }
+      },
+      "visits": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "visitor",
+         "signals"
+        ],
+        "properties": {
+         "visitor": {
+          "type": "string",
+          "description": "One id per visitor"
+         },
+         "signals": {
+          "type": "object",
+          "description": "Where the visit came from: source, utm_campaign, utm_medium, referrer or any field"
+         }
+        }
+       },
+       "description": "First-touch visits: one per visitor, with where they came from (source, utm_campaign, utm_term...)"
+      },
+      "conversions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "visitor"
+        ],
+        "properties": {
+         "visitor": {
+          "type": "string"
+         },
+         "outcome": {
+          "type": "string"
+         },
+         "value": {
+          "type": "number"
+         }
+        }
+       }
+      },
+      "paying_outcome": {
+       "type": "string",
+       "description": "The outcome a paying customer records, like payment; its values are revenue"
+      },
+      "signup_outcome": {
+       "type": "string",
+       "description": "The outcome a sign-up records, like signup, for cost per sign-up"
+      },
+      "break_down_by": {
+       "type": "string",
+       "description": "The visit signal spend joins on: source (default), utm_campaign, utm_id or utm_term"
+      },
+      "spend": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "amount"
+        ],
+        "properties": {
+         "amount": {
+          "type": [
+           "number",
+           "string"
+          ],
+          "description": "Spend in currency units"
+         },
+         "currency": {
+          "type": "string"
+         }
+        }
+       },
+       "description": "Spend rows typed in, each with the signal it belongs to, like { \"source\": \"google\", \"amount\": 1000 }"
+      },
+      "spend_answers": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "shape",
+         "answer"
+        ],
+        "properties": {
+         "shape": {
+          "type": "string",
+          "enum": [
+           "meta-ads-campaign-spend",
+           "google-ads-campaign-spend",
+           "google-ads-keyword-spend"
+          ]
+         },
+         "answer": {
+          "type": "object",
+          "description": "The spend tool's whole answer"
+         },
+         "facts": {
+          "type": "object",
+          "description": "Signals every row of this answer carries, like { \"source\": \"facebook\" }"
+         }
+        }
+       }
+      },
+      "revenue_months": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "description": "How many months the payment values cover (1 when left out)"
+      },
+      "gross_margin": {
+       "type": "number",
+       "maximum": 1,
+       "description": "Share of revenue kept after the cost of delivering it, like 0.8"
+      },
+      "monthly_churn": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "maximum": 1,
+       "description": "Share of paying customers who stop each month, like 0.1"
+      },
+      "customer_lifetime_months": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "description": "Average months a customer pays, instead of monthly_churn"
+      },
+      "target_ltv_to_cac": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "description": "The LTV:CAC a row must reach (5 when left out)"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "break_down_by",
+      "currency",
+      "target_ltv_to_cac",
+      "rows",
+      "total",
+      "unknown"
+     ],
+     "properties": {
+      "rows": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "value",
+         "spend",
+         "visitors",
+         "customers",
+         "revenue",
+         "cac",
+         "ltv",
+         "ltv_to_cac",
+         "payback_months",
+         "meets_target",
+         "display"
+        ]
+       }
+      },
+      "total": {
+       "type": "object",
+       "required": [
+        "value",
+        "spend",
+        "visitors",
+        "customers",
+        "revenue",
+        "cac",
+        "ltv",
+        "ltv_to_cac",
+        "payback_months",
+        "meets_target",
+        "display"
+       ]
+      },
+      "paid": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "spend_from": {
+       "type": "array"
+      },
+      "spend_not_matched": {
+       "type": [
+        "number",
+        "null"
+       ]
+      },
+      "unknown": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "traffic-attribution",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/parts/traffic-attribution"
+       },
+       {
+        "package": "unit-economics",
+        "paths": [
+         "read-data/compute-unit-economics.ts",
+         "read-data/unit-economics-types.ts"
+        ],
+        "at": "/opt/parts/unit-economics"
+       }
+      ]
+     },
+     "workdir": "/opt/parts/traffic-attribution",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/measure-ad-return.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:traffic-attribution",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "trillion parts/traffic-attribution"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "project": {
+        "id": "spring-launch",
+        "outcomes": [
+         "signup",
+         "payment"
+        ]
+       },
+       "paying_outcome": "payment",
+       "signup_outcome": "signup",
+       "gross_margin": 0.8,
+       "monthly_churn": 0.1,
+       "visits": [
+        {
+         "visitor": "v1",
+         "signals": {
+          "source": "google"
+         }
+        },
+        {
+         "visitor": "v2",
+         "signals": {
+          "source": "google"
+         }
+        },
+        {
+         "visitor": "v3",
+         "signals": {
+          "source": "facebook"
+         }
+        }
+       ],
+       "conversions": [
+        {
+         "visitor": "v1",
+         "outcome": "signup"
+        },
+        {
+         "visitor": "v1",
+         "outcome": "payment",
+         "value": 100
+        },
+        {
+         "visitor": "v2",
+         "outcome": "signup"
+        }
+       ],
+       "spend": [
+        {
+         "source": "google",
+         "amount": 100
+        },
+        {
+         "source": "facebook",
+         "amount": 50
+        }
+       ]
+      },
+      "output_selector": "$.rows[0].ltv_to_cac",
+      "contains": "8"
+     },
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.total.visitors",
+      "at_least": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::traffic-attribution::tool::prepare-ad-conversions",
+   "address": "package::traffic-attribution::tool::prepare-ad-conversions",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:prepare-ad-conversions",
+    "label": "Prepare sign-ups and payments to send back to Meta Ads and Google Ads",
+    "status": "active",
+    "job": "Send sign-up and payment conversions back to Meta Ads (Conversions API) and Google Ads so their bidding learns which clicks became customers",
+    "description": "Off until a destination is turned on (on: true) with its account (Meta: pixel_id; Google Ads: operating_account_id, the customer id without dashes) and which outcome is which event (Meta: an event name like CompleteRegistration or Purchase; Google Ads: a conversion action id). Each conversion (visitor, outcome, at, value, event_id, email, phone) becomes one event carrying the click ids of the visitor's first touch (gclid, gbraid, wbraid, fbc, fbp; fbc is made from fbclid when absent) and the email and phone hashed with SHA-256 after each platform's own plain-form rule; the plain values never appear in the answer. The answer lists the sends, each a connection tool (tool:meta-ads-send-conversion-events or tool:google-ads-send-conversions) with its exact input, batched to the platform's limit, and the conversions skipped with why. Event ids are the conversion's event_id or project:visitor:outcome, so sending again is counted once; give each repeat payment its own event_id.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "project",
+      "visits",
+      "conversions"
+     ],
+     "properties": {
+      "project": {
+       "type": "object",
+       "required": [
+        "id"
+       ],
+       "properties": {
+        "id": {
+         "type": "string",
+         "description": "The project name used in the tracked links"
+        },
+        "currency": {
+         "type": "string",
+         "description": "The currency values are in (default USD)"
+        }
+       }
+      },
+      "destinations": {
+       "type": "array",
+       "description": "Where conversions go; none, or none on, sends nothing",
+       "items": {
+        "type": "object",
+        "required": [
+         "shape",
+         "on",
+         "account",
+         "events"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "shape": {
+          "type": "string",
+          "enum": [
+           "meta-conversions-api",
+           "google-ads-conversions"
+          ]
+         },
+         "on": {
+          "type": "boolean",
+          "description": "true to send; anything else keeps this destination off"
+         },
+         "account": {
+          "type": "object",
+          "description": "Meta: { pixel_id, test_event_code? }; Google Ads: { operating_account_id, login_account_id?, consent? }"
+         },
+         "events": {
+          "type": "object",
+          "description": "Which outcome is which event: { \"signup\": \"CompleteRegistration\", \"payment\": \"Purchase\" } for Meta, conversion action ids for Google Ads"
+         }
+        }
+       }
+      },
+      "visits": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "visitor",
+         "signals"
+        ],
+        "properties": {
+         "visitor": {
+          "type": "string"
+         },
+         "signals": {
+          "type": "object",
+          "description": "The first touch, with its click ids (gclid, fbclid, fbc, fbp...)"
+         },
+         "at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the first touch happened"
+         }
+        }
+       }
+      },
+      "conversions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "visitor",
+         "outcome",
+         "at"
+        ],
+        "properties": {
+         "visitor": {
+          "type": "string"
+         },
+         "outcome": {
+          "type": "string"
+         },
+         "at": {
+          "type": "string",
+          "format": "date-time"
+         },
+         "value": {
+          "type": "number"
+         },
+         "event_id": {
+          "type": "string",
+          "description": "A unique id for this one conversion, needed when an outcome repeats (each payment)"
+         },
+         "email": {
+          "type": "string",
+          "description": "Hashed before it leaves this tool"
+         },
+         "phone": {
+          "type": "string",
+          "description": "In international form, +<country code><number>; hashed before it leaves this tool"
+         }
+        }
+       }
+      },
+      "now": {
+       "type": "string",
+       "format": "date-time",
+       "description": "The time to judge how old an event is against (now when left out)"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "sends",
+      "skipped",
+      "said"
+     ],
+     "properties": {
+      "sends": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "destination",
+         "tool_id",
+         "input",
+         "events"
+        ],
+        "properties": {
+         "tool_id": {
+          "type": "string",
+          "enum": [
+           "tool:meta-ads-send-conversion-events",
+           "tool:google-ads-send-conversions"
+          ]
+         }
+        }
+       }
+      },
+      "skipped": {
+       "type": "array"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "traffic-attribution",
+       "paths": [
+        "do-work/prepare-ad-conversions.mjs",
+        "read-data"
+       ],
+       "at": "/opt/parts/traffic-attribution"
+      }
+     },
+     "workdir": "/opt/parts/traffic-attribution",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/prepare-ad-conversions.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:traffic-attribution",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "trillion parts/traffic-attribution"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "project": {
+        "id": "spring-launch"
+       },
+       "destinations": [
+        {
+         "id": "meta",
+         "shape": "meta-conversions-api",
+         "on": true,
+         "account": {
+          "pixel_id": "1234567890"
+         },
+         "events": {
+          "payment": "Purchase"
+         }
+        }
+       ],
+       "visits": [
+        {
+         "visitor": "v1",
+         "signals": {
+          "source": "facebook",
+          "fbclid": "IwAR0example"
+         },
+         "at": "2026-10-15T10:00:00Z"
+        }
+       ],
+       "conversions": [
+        {
+         "visitor": "v1",
+         "outcome": "payment",
+         "at": "2026-10-15T10:30:00Z",
+         "value": 100,
+         "email": " Pat@Example.com "
+        }
+       ],
+       "now": "2026-10-16T00:00:00Z"
+      },
+      "output_selector": "$.sends[0].tool_id",
+      "contains": "tool:meta-ads-send-conversion-events"
+     },
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.sends[0].events",
+      "at_least": 1
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,414 @@
+{
+  "package": "wikimedia-commons",
+  "things": [
+    {
+      "type": "record",
+      "id": "package::wikimedia-commons::tool::search-wikimedia-commons-files",
+      "address": "package::wikimedia-commons::tool::search-wikimedia-commons-files",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:search-wikimedia-commons-files",
+        "label": "Search Wikimedia Commons files",
+        "job": "Find real images and other source files on Wikimedia Commons for any objective by searching for the exact place, object, event or subject",
+        "description": "Free, read-only Commons File-page discovery for real media needed by any objective. Returns a bounded page of file titles and canonical file-page URLs, without downloading media or requesting expensive license metadata for every search result. Search Commons first when the task needs a real place, object or event. Read exact file metadata for a candidate, then run the file-level reuse/credit assessor before reuse selection. Only explicit public-domain/CC0/CC-BY metadata under the requested policy is eligible; BY-SA/NC/ND/unknown or conflicting rights are excluded. Source metadata remains a qualified assertion, not blanket permission.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300,
+              "description": "Exact place, object, event or subject to find in Commons. Plain search text is recommended; it is sent only as an encoded query parameter."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "description": "File records in this page, from 1 to 50."
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 500,
+              "default": 0,
+              "description": "Bounded search offset. Use continue.gsroffset for the next search page. Stop when that search continuation is absent. Revision-only imageinfo continuations are not search pages."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "query"
+          ],
+          "properties": {
+            "query": {
+              "type": "object",
+              "properties": {
+                "pages": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "fullurl": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": true
+                  }
+                }
+              },
+              "additionalProperties": true
+            },
+            "continue": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "batchcomplete": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": true
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://commons.wikimedia.org/w/api.php",
+          "method": "GET",
+          "timeout_seconds": 20,
+          "query": {
+            "action": {
+              "const": "query"
+            },
+            "format": {
+              "const": "json"
+            },
+            "formatversion": {
+              "const": "2"
+            },
+            "generator": {
+              "const": "search"
+            },
+            "gsrnamespace": {
+              "const": "6"
+            },
+            "gsrsearch": {
+              "from": "query"
+            },
+            "gsrlimit": {
+              "from": "limit",
+              "optional": true,
+              "otherwise": {
+                "const": 20
+              }
+            },
+            "gsroffset": {
+              "from": "offset",
+              "optional": true,
+              "otherwise": {
+                "const": 0
+              }
+            },
+            "prop": {
+              "const": "info"
+            },
+            "inprop": {
+              "const": "url"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 15,
+          "network_egress": true
+        },
+        "result_selector": "$",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:trillion",
+        "read_only": true,
+        "provenance": {
+          "provider": "Wikimedia Commons",
+          "api": "https://commons.wikimedia.org/w/api.php",
+          "documentation": "https://www.mediawiki.org/wiki/API:Imageinfo",
+          "source_rights": "Each file's original license and rights metadata must be inspected independently; hosting and search visibility do not establish reuse permission."
+        }
+      }
+    },
+    {
+      "type": "record",
+      "id": "package::wikimedia-commons::tool::read-wikimedia-commons-file-metadata",
+      "address": "package::wikimedia-commons::tool::read-wikimedia-commons-file-metadata",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-wikimedia-commons-file-metadata",
+        "label": "Read Wikimedia Commons file metadata",
+        "job": "Read one Commons file's original license, author, title, source URL and rights metadata for any objective before selecting it for use",
+        "description": "Free, read-only lookup of one Commons File page. Supply its exact File: title from search or another trusted source. The request places the title in an encoded query parameter, follows MediaWiki redirects, and asks for the canonical file page, original media URL, dimensions, MIME type and full extmetadata. No media bytes are downloaded. The extmetadata may contain untrusted HTML; retain it as data and do not render it. A Commons page or media URL does not grant permission to reuse. Run the file-level assessor; BY-SA, NC, ND, missing, ambiguous or conflicting rights are ineligible for selection.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "file_title"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "file_title": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 261,
+              "description": "Exact `File:` page title, such as `File:Example.jpg`. Do not provide a URL or a query/hash fragment. The title is sent as a URL-encoded `titles` parameter; it cannot alter the request destination.",
+              "pattern": "^File:[^|#?\\r\\n]*[^\\s|#?\\r\\n]$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "query"
+          ],
+          "properties": {
+            "query": {
+              "type": "object",
+              "properties": {
+                "pages": {
+                  "type": "array",
+                  "maxItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "imageinfo": {
+                        "type": "array",
+                        "maxItems": 1
+                      }
+                    },
+                    "additionalProperties": true
+                  }
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://commons.wikimedia.org/w/api.php",
+          "method": "GET",
+          "timeout_seconds": 20,
+          "query": {
+            "action": {
+              "const": "query"
+            },
+            "format": {
+              "const": "json"
+            },
+            "formatversion": {
+              "const": "2"
+            },
+            "redirects": {
+              "const": "1"
+            },
+            "prop": {
+              "const": "imageinfo"
+            },
+            "titles": {
+              "from": "file_title"
+            },
+            "iiprop": {
+              "const": "url|size|mime|extmetadata"
+            },
+            "iilimit": {
+              "const": 1
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "result_selector": "$",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:trillion",
+        "read_only": true,
+        "provenance": {
+          "provider": "Wikimedia Commons",
+          "api": "https://commons.wikimedia.org/w/api.php",
+          "documentation": "https://www.mediawiki.org/wiki/API:Imageinfo",
+          "source_rights": "The result preserves file-specific source assertions and warnings; it does not establish legal clearance for an intended use."
+        }
+      }
+    },
+    {
+      "type": "record",
+      "id": "package::wikimedia-commons::tool::assess-wikimedia-commons-file-reuse",
+      "address": "package::wikimedia-commons::tool::assess-wikimedia-commons-file-reuse",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:assess-wikimedia-commons-file-reuse",
+        "label": "Assess Commons file reuse and prepare credit",
+        "job": "Check one Commons file's exact original license fields, exclude unsupported rights and prepare required source attribution for any objective",
+        "description": "Offline, file-specific check over the page object returned by Commons metadata lookup. Only an explicit Public Domain declaration with Copyrighted=false, Public Domain Mark 1.0, CC0 1.0, or matching canonical CC BY 1.0/2.0/2.5/3.0/4.0 metadata with title, author and source page can pass as eligible_for_selection. BY-SA, NC, ND, missing, conflicting or ambiguous metadata is refused. Output preserves original license/author/title/source and rights-warning values, identifies license class and version, and prepares a text credit with declared changes. It does not render metadata HTML. eligible_for_selection means the explicit license policy is met from source metadata; it is not exhaustive legal-rights verification or automatic permission. Inspect source warnings and intended-use rights independently.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "file"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "object",
+              "minProperties": 1,
+              "description": "One Commons page object from the `query.pages` array of the file metadata lookup; keep the original extmetadata intact."
+            },
+            "changes": {
+              "type": "string",
+              "maxLength": 1000,
+              "description": "Describe edits or adaptations to include in the prepared credit."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "eligible_for_selection",
+            "status",
+            "original_metadata",
+            "credit",
+            "reasons",
+            "warnings"
+          ],
+          "properties": {
+            "eligible_for_selection": {
+              "type": "boolean"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "eligible_under_license_policy",
+                "not_eligible_or_unknown"
+              ]
+            },
+            "original_metadata": {
+              "type": "object"
+            },
+            "credit": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "reasons": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "warnings": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": {
+              "package": "wikimedia-commons",
+              "paths": [
+                "do-work/assess-commons-reuse.mjs"
+              ],
+              "at": "/opt/parts/wikimedia-commons"
+            }
+          },
+          "workdir": "/opt/parts/wikimedia-commons",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "do-work/assess-commons-reuse.mjs",
+            {
+              "fill": {
+                "from": "input"
+              }
+            }
+          ]
+        },
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 512
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:deployed-container"
+        ],
+        "maker": "maker:trillion",
+        "provenance": {
+          "source": "Parts/wikimedia-commons: file-level Commons reuse and credit policy"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "file": {
+                "title": "File:Example.jpg",
+                "imageinfo": [
+                  {
+                    "descriptionurl": "https://commons.wikimedia.org/wiki/File:Example.jpg",
+                    "extmetadata": {
+                      "Title": {
+                        "value": "Example"
+                      },
+                      "Artist": {
+                        "value": "A. Author"
+                      },
+                      "LicenseShortName": {
+                        "value": "CC BY 4.0"
+                      },
+                      "LicenseUrl": {
+                        "value": "https://creativecommons.org/licenses/by/4.0/"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "output_selector": "$.eligible_for_selection",
+            "contains": "true"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "package": "internet-archive",
+  "things": [
+    {
+      "type": "record",
+      "id": "package::internet-archive::tool::search-internet-archive",
+      "address": "package::internet-archive::tool::search-internet-archive",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:search-internet-archive",
+        "label": "Search Internet Archive",
+        "job": "Search Internet Archive for books, articles, audio, concerts, films, images and other primary sources, with license and collection filters and source provenance for any objective",
+        "description": "Free, read-only Internet Archive Advanced Search. Supply Archive's query syntax; the request always adds NOT access-restricted-item:true and returns a bounded page with identifier, title, creator, date, year, media type, collection, licenseurl, rights, description and access-restriction metadata when indexed. Query examples: (title:tennis AND mediatype:movies); (creator:Example AND collection:georgeblood); (mediatype:audio AND licenseurl:*creativecommons.org*). A license URL or unrestricted access is evidence to inspect, not proof of permission for your intended use. Preserve the item identifier and source metadata; missing or ambiguous rights remain unknown. The Archive's George Blood 78rpm description limits use to research, teaching and private study and says copyright was not transferred; concert recordings also need item-specific rights review. Search results only; this does not download or save media.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["query"],
+          "additionalProperties": false,
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000,
+              "description": "Internet Archive Advanced Search query. Filter with mediatype, collection and licenseurl fields; the tool also excludes records flagged access-restricted-item:true. Use a license filter to narrow discovery, then inspect each item's rights for the exact intended use."
+            },
+            "rows": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 25,
+              "description": "Maximum number of results in this page (default 25, maximum 50)."
+            },
+            "page": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 1,
+              "description": "One-based result page."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["response", "responseHeader"],
+          "properties": {
+            "responseHeader": {"type": "object", "additionalProperties": true},
+            "response": {
+              "type": "object",
+              "required": ["numFound", "start", "docs"],
+              "properties": {
+                "numFound": {"type": "integer"},
+                "start": {"type": "integer"},
+                "docs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["identifier"],
+                    "properties": {"identifier": {"type": "string"}},
+                    "additionalProperties": true
+                  }
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://archive.org/advancedsearch.php",
+          "method": "GET",
+          "timeout_seconds": 20,
+          "query": {
+            "q": "({query}) AND NOT access-restricted-item:true",
+            "fl[]": ["identifier", "title", "creator", "date", "year", "description", "mediatype", "collection", "licenseurl", "rights", "access-restricted-item", "publicdate"],
+            "rows": {"from": "rows", "optional": true, "otherwise": {"const": 25}},
+            "page": {"from": "page", "optional": true, "otherwise": {"const": 1}},
+            "output": {"const": "json"}
+          }
+        },
+        "needs": {"expected_seconds": 10, "network_egress": true},
+        "result_selector": "$",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:public-web-address"],
+        "maker": "maker:trillion",
+        "read_only": true,
+        "provenance": {
+          "provider": "Internet Archive",
+          "api": "https://archive.org/advancedsearch.php",
+          "documentation": "https://archive.org/developers/search.html",
+          "source_rights": "Each result's rights and license fields are item metadata, not blanket permission to reuse."
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.responseHeader.params.q",
+            "input_field": "query"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "id": "package::internet-archive::tool::read-internet-archive-item",
+      "address": "package::internet-archive::tool::read-internet-archive-item",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-internet-archive-item",
+        "label": "Read Internet Archive item metadata",
+        "job": "Inspect one Internet Archive item's original metadata, license, rights, collection and available file listing before deciding whether it fits an objective",
+        "description": "Free, read-only lookup at Internet Archive's metadata endpoint. Accepts only an item identifier and returns the original metadata and available file listing, including creator, dates, collection, license/rights statements and access details when present. No media bytes are downloaded. Record the returned identifier and its canonical item page, https://archive.org/details/<identifier>, as provenance. Archive hosting or an available file does not establish permission to reuse. Missing or ambiguous rights stay unknown; independently check the item and collection against the intended use. The George Blood 78rpm collection states research, teaching and private study only and says copyright was not transferred; concert recordings need item-specific review too.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["identifier"],
+          "additionalProperties": false,
+          "properties": {
+            "identifier": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$",
+              "description": "The identifier returned by Archive Search or present in an archive.org/details/<identifier> item URL. Do not send a URL or path."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["metadata", "files"],
+          "properties": {
+            "metadata": {
+              "type": "object",
+              "required": ["identifier"],
+              "properties": {"identifier": {"type": "string"}},
+              "additionalProperties": true
+            },
+            "files": {"type": "array", "items": {"type": "object", "additionalProperties": true}}
+          },
+          "additionalProperties": true
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://archive.org/metadata/{identifier}",
+          "method": "GET",
+          "timeout_seconds": 20
+        },
+        "needs": {"expected_seconds": 10, "network_egress": true},
+        "result_selector": "$",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:public-web-address"],
+        "maker": "maker:trillion",
+        "read_only": true,
+        "provenance": {
+          "provider": "Internet Archive",
+          "api": "https://archive.org/metadata/{identifier}",
+          "documentation": "https://archive.org/developers/metadata.html",
+          "source_rights": "Metadata preserves source assertions; it does not establish a general reuse right."
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.metadata.identifier",
+            "input_field": "identifier"
+          }
+        ]
+      }
+    }
+  ]
+}
