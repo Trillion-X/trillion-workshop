@@ -17,11 +17,11 @@ Judges words a person will read, and any JSON a person makes (a plan, a take's m
 
 | Name | Signature / Shape | Role |
 |------|-------------------|------|
-| Rule row | `{ id, says?, suggest?, words \| pattern(+flags) \| exact \| check \| path, where?, kinds?, fields?, under?, allow?, required?, count_at_least?, count_at_most?, value_at_least?, value_at_most?, equals?, because?, at_most? }` | One rule. Exactly one selector. Each test says what must hold; a row without a test flags every piece it selects. `count_*` counts what the row selects (word matches in a text, or values at a path after `where`). A value test that selects nothing is a finding (found `null`). |
+| Rule row | `{ id, says?, suggest?, words \| pattern(+flags) \| exact \| check \| path, where?, kinds?, when?, fields?, under?, allow?, required?, count_at_least?, count_at_most?, value_at_least?, value_at_most?, equals?, because?, at_most? }` | One rule. Exactly one selector. Each test says what must hold; a row without a test flags every piece it selects. `count_*` counts what the row selects (word matches in a text, or values at a path after `where`). A value test that selects nothing is a finding (found `null`). `when` (one `{ path, where }` or a list) chooses the artifacts a row is for by a value they hold, such as a plan's format. |
 | Item | `{ text, field?, path?, kind? }` or `{ value, path?, kind? }` | Text for word rows; any JSON for `path` rows. |
 | Finding | `{ rule, says, text?, found, path?, kind?, test?, limit?, suggest?, because?, at_most? }` | `path` is the concrete place (`segments.2.kind`); `test` and `limit` name the test that did not hold; `found` is the count for count and `required` tests. |
 | `makeJudge` | `(rules) -> (items) -> findings` | Compiles rows once; a row it cannot compile throws with why. |
-| `ruleApplies` | `(rule, item) -> boolean` | Kinds, what the item carries (a `path` row needs a `value`; a word row skips an item with a `value` and no `text`), `fields` and `under`. |
+| `ruleApplies` | `(rule, item) -> boolean` | Kinds, `when` over the item's `value`, what the item carries (a `path` row needs a `value`; a word row skips an item with a `value` and no `text`), `fields` and `under`. |
 | `valuesAt` | `(value, path) -> [{ value, path }]` | Every JSON node a dot path selects (`*` one segment, `**` any depth). |
 | `wordsIn` / `stringsIn` | `(value, owner) -> [{ text, field, path }]` | The words of any JSON, chosen by the owner's `fields`, `paths`, `skip_keys`, `skip_paths`. |
 | `judge` | `(input) -> { passed, status, coverage, findings, lines, said }` | The tool's answer. `status`: `no-input`, `no-applicable-rule`, `failed`, `held` (every finding is from a row with `at_most`), `passed`. |
