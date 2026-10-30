@@ -25,12 +25,15 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `browse-public-page` | Reads a public web page: its title, words, links and card, refusing private addresses | `tool:read-public-web-page` |
 | `customer-follow-up` | Each customer's steps and each product's progress toward its customer target | `tool:add-a-customer`, `tool:record-a-customer-step`, `tool:set-a-customer-target`, `tool:see-where-each-customer-is` |
 | `email-sending-domains` | Which domains the person's email-sending account may send from and how each stands, with the key handed on a private pipe | `tool:list-email-sending-domains` |
+| `headless-browser` | A library the browser tools pack: a headless Chromium spoken to over DevTools with the quiet switches, and a page clock that moves only when told | (none: packed by `page-critic` and `record-a-web-page`) |
 | `internet-archive` | Searches the Internet Archive and reads one item's metadata and file list, keeping its rights fields | `tool:search-internet-archive`, `tool:read-internet-archive-item` |
 | `judge-words` | Checks words, a plan or anything else made against a person's rule rows (by kind, by value path, with tests that say what must hold), saying what breaks which rule and why | `tool:judge-against-rules` |
 | `legal-document-builder` | Terms of service, privacy policy, refund policy and waiver from a business's own facts | `tool:write-legal-documents` |
 | `move-records-through-declared-states` | Which stage a deal, order or applicant is in and where it may move next | `tool:check-a-stage-move`, `tool:check-a-pipeline` |
+| `page-critic` | Judges a public page against craft rules at every width and keeps a marked picture of each width | `tool:critique-a-public-page` |
 | `person-list` | Find people by any field; rank people by the points their activity earns | `tool:find-people`, `tool:rank-people-by-activity` |
 | `person-profile` | Lays out one person's profile from a description of what to show | `tool:lay-out-a-profile` |
+| `record-a-web-page` | Records a web page as a demo: plays steps in a headless browser and returns a video, a GIF and one marked picture per step | `tool:record-a-web-demo` |
 | `relationship-graph` | Who is connected to whom, from any records | `tool:map-who-is-connected` |
 | `revenue-ledger` | Revenue, refunds, net revenue and recurring revenue from any provider's payment events | `tool:add-up-revenue` |
 | `traffic-attribution` | Tracked links, visitors and sales by where they came from, what ad spend brings back, and conversions prepared for the ad platforms | `tool:make-tracked-link`, `tool:break-down-visits-and-sales`, `tool:measure-ad-return`, `tool:prepare-ad-conversions` |

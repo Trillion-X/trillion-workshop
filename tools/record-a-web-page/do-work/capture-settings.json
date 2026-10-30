@@ -1,0 +1,4 @@
+{
+  "_what": "How a deterministic recording of a page takes its frames (record-a-web-demo.mjs --deterministic true): `fps` is how many frames of the page's own clock are taken each second unless --capture-fps says otherwise. More frames are smoother and slower to make.",
+  "fps": 30
+}

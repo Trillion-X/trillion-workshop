@@ -1,0 +1,36 @@
+<!doctype html>
+<!-- A small page with a menu that opens on hover and a form, for the web page recorder's test. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Recorder test page</title>
+<style>
+  body { margin: 0; font: 18px/1.5 sans-serif; background: #f7f7f7; color: #222; }
+  nav { display: flex; gap: 32px; padding: 20px 40px; background: #fff; border-bottom: 1px solid #ddd; }
+  .menu { position: relative; }
+  .menu-panel { display: none; position: absolute; top: 36px; left: 0; background: #fff; border: 1px solid #ccc; padding: 12px 18px; width: 240px; }
+  .menu:hover .menu-panel { display: block; }
+  main { padding: 40px; }
+  .spacer { height: 1400px; }
+  #done { display: none; color: #0a0; }
+  #done.shown { display: block; }
+</style>
+</head>
+<body>
+<nav>
+  <span>Home</span>
+  <span class="menu">Features
+    <span class="menu-panel"><a href="#notes" id="notes-link">Notes that stay</a></span>
+  </span>
+  <span>Pricing</span>
+</nav>
+<main>
+  <p>Type your name and press the button.</p>
+  <input id="name" aria-label="Your name">
+  <button id="go" onclick="document.getElementById('done').classList.add('shown')">Say hello</button>
+  <p id="done">Hello there</p>
+  <div class="spacer"></div>
+  <p id="bottom">The end of the page</p>
+</main>
+</body>
+</html>

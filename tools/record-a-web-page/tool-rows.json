@@ -1,0 +1,440 @@
+{
+ "kind": "tool-rows",
+ "record_set": "record-a-web-page-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/record-a-web-page: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::record-a-web-page::tool::record-a-web-demo",
+   "address": "package::record-a-web-page::tool::record-a-web-demo",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:record-a-web-demo",
+    "listed_on": "2026-09-29T20:38:25Z",
+    "label": "Record a demo of a web page",
+    "status": "active",
+    "job": "Record a web page as a demo video with a large clear pointer, click ripples and zoom, plus marked screenshots of each step for an article or post",
+    "description": "Opens the address in a browser in the cloud and plays your steps on it the way a person would: the pointer travels to each target, clicks, types, scrolls. Returns an MP4 and a GIF with a large drawn pointer, a ripple at every click and the view easing in toward each step, a cover picture at the first click, and one picture per step with its target ringed, an arrow pointing at it and the step's caption. Pauses longer than a second are shortened. Works on any public page, and on a signed-in page when cookies are given; nothing needs installing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "url",
+      "steps"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "url": {
+       "type": "string",
+       "format": "uri",
+       "description": "The page to open first, like https://gettrillion.ai/"
+      },
+      "steps": {
+       "type": "array",
+       "maxItems": 40,
+       "description": "What to do on the page, in order. Each step: {\"do\": \"click\" | \"hover\" | \"type\" | \"press\" | \"scroll\" | \"wait\" | \"go\", \"target\": {\"text\": \"visible words\"} or {\"selector\": \"css selector\"}, \"caption\": \"words shown on this step's picture\"}. type needs \"text\" (and a target to click first); press needs \"key\" (Enter, Tab, Escape, arrows or one character); scroll takes \"by\" in pixels (default most of a screen); wait takes \"seconds\"; go takes \"url\". Any step may set \"pause\", the seconds to hold after it (default 0.8), and \"timeout\", the seconds to wait for its target (default 6). A step with \"optional\": true is left out when its target does not show within its timeout (default 2), for a notice or banner that may or may not appear. A step with a target or a caption gets its own picture.",
+       "items": {
+        "type": "object",
+        "required": [
+         "do"
+        ],
+        "properties": {
+         "do": {
+          "type": "string"
+         },
+         "target": {
+          "type": "object",
+          "properties": {
+           "text": {
+            "type": "string"
+           },
+           "selector": {
+            "type": "string"
+           }
+          }
+         },
+         "caption": {
+          "type": "string"
+         },
+         "text": {
+          "type": "string"
+         },
+         "key": {
+          "type": "string"
+         },
+         "by": {
+          "type": "number"
+         },
+         "seconds": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 20
+         },
+         "url": {
+          "type": "string"
+         },
+         "pause": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+         },
+         "timeout": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 60
+         },
+         "optional": {
+          "type": "boolean"
+         }
+        }
+       }
+      },
+      "width": {
+       "type": "integer",
+       "minimum": 320,
+       "maximum": 2560,
+       "description": "Page width in pixels, as a browser window (default 1280; 390 for a phone)"
+      },
+      "height": {
+       "type": "integer",
+       "minimum": 320,
+       "maximum": 1600,
+       "description": "Page height in pixels (default 720; 844 for a phone)"
+      },
+      "output_width": {
+       "type": "integer",
+       "minimum": 320,
+       "maximum": 3840,
+       "description": "Video width in pixels; the height follows the page's shape (default 1920)"
+      },
+      "fps": {
+       "type": "integer",
+       "minimum": 15,
+       "maximum": 60,
+       "description": "Video frames per second (default 60)"
+      },
+      "cursor_size": {
+       "type": "integer",
+       "minimum": 16,
+       "maximum": 200,
+       "description": "Pointer height in video pixels (default 72)"
+      },
+      "zoom": {
+       "type": "number",
+       "minimum": 1,
+       "maximum": 3,
+       "description": "How far the view eases in toward each step's target; 1 keeps the whole page in view (default 1.6)"
+      },
+      "gif_width": {
+       "type": "integer",
+       "minimum": 200,
+       "maximum": 1600,
+       "description": "GIF width in pixels (default 800)"
+      },
+      "cookies": {
+       "type": "array",
+       "maxItems": 50,
+       "description": "Cookies set before the first page opens, so a signed-in page can be recorded: each {\"name\", \"value\", \"url\" (or \"domain\" and \"path\"), \"secure\", \"httpOnly\"}. Use a sign-in that ends after the recording (a disposable account), since the run keeps its input.",
+       "items": {
+        "type": "object",
+        "required": [
+         "name",
+         "value"
+        ],
+        "properties": {
+         "name": {
+          "type": "string"
+         },
+         "value": {
+          "type": "string"
+         },
+         "url": {
+          "type": "string"
+         },
+         "domain": {
+          "type": "string"
+         },
+         "path": {
+          "type": "string"
+         },
+         "secure": {
+          "type": "boolean"
+         },
+         "httpOnly": {
+          "type": "boolean"
+         }
+        }
+       }
+      },
+      "look": {
+       "type": "object",
+       "description": "Colours as #rrggbb: accent (ripples, rings, arrows), ink (pointer and caption words), paper (caption card), pointer_edge; and font_file, a font in the container for captions",
+       "properties": {
+        "accent": {
+         "type": "string"
+        },
+        "ink": {
+         "type": "string"
+        },
+        "paper": {
+         "type": "string"
+        },
+        "pointer_edge": {
+         "type": "string"
+        },
+        "font_file": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "seconds",
+        "frames",
+        "width",
+        "height",
+        "fps",
+        "video_bytes",
+        "steps"
+       ],
+       "properties": {
+        "seconds": {
+         "type": "number",
+         "exclusiveMinimum": 0
+        },
+        "frames": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "width": {
+         "type": "integer"
+        },
+        "height": {
+         "type": "integer"
+        },
+        "fps": {
+         "type": "integer"
+        },
+        "video_bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "gif_bytes": {
+         "type": "integer"
+        },
+        "steps": {
+         "type": "array"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video",
+        "gif",
+        "pictures"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        },
+        "gif": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        },
+        "pictures": {}
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "record-a-web-page",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/record-a-web-page",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "headless-browser",
+        "paths": [
+         "quiet-switches.json",
+         "devtools.mjs",
+         "virtual-clock.mjs",
+         "deterministic-switches.json"
+        ],
+        "at": "/opt/headless-browser"
+       }
+      ]
+     },
+     "workdir": "/opt/record-a-web-page",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/record-a-web-demo.mjs",
+      "--url",
+      {
+       "from": "url"
+      },
+      "--steps",
+      {
+       "from": "steps"
+      },
+      "--out",
+      "/opt/record-a-web-page/out",
+      "--width",
+      {
+       "from": "width",
+       "otherwise": {
+        "const": 1280
+       }
+      },
+      "--height",
+      {
+       "from": "height",
+       "otherwise": {
+        "const": 720
+       }
+      },
+      "--output-width",
+      {
+       "from": "output_width",
+       "otherwise": {
+        "const": 1920
+       }
+      },
+      "--fps",
+      {
+       "from": "fps",
+       "otherwise": {
+        "const": 60
+       }
+      },
+      "--cursor-size",
+      {
+       "from": "cursor_size",
+       "otherwise": {
+        "const": 72
+       }
+      },
+      "--zoom",
+      {
+       "from": "zoom",
+       "otherwise": {
+        "const": 1.6
+       }
+      },
+      "--gif-width",
+      {
+       "from": "gif_width",
+       "otherwise": {
+        "const": 800
+       }
+      },
+      "--cookies",
+      {
+       "from": "cookies",
+       "otherwise": {
+        "const": []
+       }
+      },
+      "--look",
+      {
+       "from": "look",
+       "otherwise": {
+        "const": {
+         "accent": "#ff1d1d",
+         "ink": "#191919",
+         "paper": "#fbf8f2",
+         "pointer_edge": "#ffffff",
+         "font_file": "/usr/share/fonts/opentype/inter/Inter-SemiBold.otf"
+        }
+       }
+      }
+     ],
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/record-a-web-page/out/demo.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 2000000000
+      },
+      {
+       "name": "gif",
+       "path": "/opt/record-a-web-page/out/demo.gif",
+       "keep_in": "files",
+       "media_type": "image/gif",
+       "max_bytes": 500000000
+      },
+      {
+       "name": "pictures",
+       "folder": "/opt/record-a-web-page/out/step-pictures",
+       "keep_in": "files"
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 180,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:record-a-web-page",
+    "provenance": {
+     "source": "trillion parts/record-a-web-page/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.frames",
+      "at_least": 1
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.video_bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  }
+ ]
+}

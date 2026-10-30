@@ -1,0 +1,177 @@
+{
+ "kind": "tool-rows",
+ "record_set": "page-critic-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/page-critic: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::trillion::tool::critique-a-public-page",
+   "address": "package::trillion::tool::critique-a-public-page",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:critique-a-public-page",
+    "label": "Critique a public page",
+    "listed_on": "2026-10-06T06:00:00Z",
+    "status": "active",
+    "job": "Judge public web pages (one page, or every page a sitemap lists) against the saved craft rules at phone and desktop width, with a marked picture of each",
+    "description": "Opens the page (url), or every page a sitemap lists (pages_from, less the paths skip names), at 390 and 1280 pixels (the widths are DATA in parts/page-critic/read-data/page-craft-rules.json) and checks it against the craft rules: headings wider than their measure, body text wider than about half the page, small label lines above headings, text too close to the browser's edge, links to anchors that are not on the page, links that do not open, cards that look openable but are not, a page whose newest date is older than fresh_within_days (one number, or { \"/path\": days } for some pages), a page many screens long, and controls that look the same with a pointer on them. Each finding says what to change, in plain words, and where; each width is kept as a whole-page picture in your files with every finding boxed and numbered. The page is only read.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "url": {
+       "type": "string",
+       "format": "uri",
+       "description": "One page to judge, like https://gettrillion.ai/"
+      },
+      "pages_from": {
+       "type": "string",
+       "format": "uri",
+       "description": "A sitemap whose every page is judged, like https://gettrillion.ai/sitemap.xml"
+      },
+      "skip": {
+       "type": "string",
+       "description": "Paths a sitemap's pages starting with these are left out, separated by commas, like /articles"
+      },
+      "fresh_within_days": {
+       "description": "How old the newest date on a page may be: one number of days for every page, or { \"/changelog\": 3 } for some pages",
+       "oneOf": [
+        {
+         "type": "integer",
+         "minimum": 1
+        },
+        {
+         "type": "object",
+         "additionalProperties": {
+          "type": "integer",
+          "minimum": 1
+         }
+        }
+       ]
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "said",
+        "findings_count",
+        "findings",
+        "pictures"
+       ],
+       "properties": {
+        "said": {
+         "type": "string"
+        },
+        "pages": {
+         "type": "number"
+        },
+        "findings_count": {
+         "type": "number"
+        },
+        "findings": {
+         "type": "array"
+        },
+        "pictures": {
+         "type": "array"
+        }
+       }
+      },
+      "files": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "page-critic",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/page-critic"
+       },
+       {
+        "package": "headless-browser",
+        "paths": [
+         "quiet-switches.json",
+         "devtools.mjs"
+        ],
+        "at": "/opt/headless-browser"
+       }
+      ]
+     },
+     "workdir": "/opt/page-critic",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/critique-a-page.mjs",
+      {
+       "$when": "url",
+       "value": "--url"
+      },
+      {
+       "from": "url",
+       "optional": true
+      },
+      {
+       "$when": "pages_from",
+       "value": "--pages-from"
+      },
+      {
+       "from": "pages_from",
+       "optional": true
+      },
+      {
+       "$when": "skip",
+       "value": "--skip"
+      },
+      {
+       "from": "skip",
+       "optional": true
+      },
+      {
+       "$when": "fresh_within_days",
+       "value": "--fresh-within-days"
+      },
+      {
+       "from": "fresh_within_days",
+       "optional": true
+      },
+      "--out",
+      "/opt/page-critic/out"
+     ],
+     "outputs": [
+      {
+       "name": "pictures",
+       "folder": "/opt/page-critic/out/pictures",
+       "keep_in": "files"
+      }
+     ]
+    },
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.findings_count",
+      "at_least": 0
+     }
+    ]
+   }
+  }
+ ]
+}
