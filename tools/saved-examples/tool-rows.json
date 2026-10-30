@@ -1,0 +1,299 @@
+{
+ "kind": "tool-rows",
+ "record_set": "saved-examples-tool-rows",
+ "what_this_is": "The Workshop rows for saved examples in tools/saved-examples: list them and remove one, read and written as the person's own saved-example records through the run's records door.",
+ "records": [
+  {
+   "id": "package::saved-examples::tool::list-saved-examples",
+   "address": "package::saved-examples::tool::list-saved-examples",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:trillion",
+    "id": "tool:list-saved-examples",
+    "listed_on": "2026-09-30T07:12:34Z",
+    "label": "Saved examples",
+    "job": "List every example this person saved of posts, videos and pages that worked, newest first, each with its link, words, pictures and why it worked",
+    "description": "Returns examples (each { id, url, host, site, title, words, pictures, why_it_worked, collection, added_from, added_at, updated_at }, newest first) and count. Read it before writing something for this person in a shape that already worked for someone.",
+    "needs": {
+     "expected_seconds": 1,
+     "network_egress": false
+    },
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "examples",
+      "count"
+     ],
+     "properties": {
+      "examples": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "url",
+         "host",
+         "pictures",
+         "added_at"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "url": {
+          "type": "string"
+         },
+         "host": {
+          "type": "string"
+         },
+         "site": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "title": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "words": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "pictures": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "why_it_worked": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "collection": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "added_from": {
+          "type": "string"
+         },
+         "added_at": {
+          "type": "string"
+         },
+         "updated_at": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "count": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "saved-examples",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/saved-examples"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/saved-examples",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/saved-examples/read-data/saved-examples.mjs",
+      "listSavedExamples"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "saved-example",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "screen": {
+     "group": "content-plan",
+     "kind": "app-entry",
+     "entry": "saved-examples",
+     "icon": "Bookmark",
+     "label": "Saved examples",
+     "about": "Posts that worked, kept to learn from."
+    },
+    "provenance": {
+     "source": "trillion src/saved-examples.mjs (a2fdfe6), ported to the records door"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.count",
+      "at_least": 0
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::saved-examples::tool::remove-a-saved-example",
+   "address": "package::saved-examples::tool::remove-a-saved-example",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:trillion",
+    "id": "tool:remove-a-saved-example",
+    "listed_on": "2026-09-30T07:12:34Z",
+    "label": "Remove a saved example",
+    "job": "Remove one saved example this person no longer wants",
+    "description": "id is the example's id from tool:list-saved-examples. Returns { id, removed: true }.",
+    "needs": {
+     "expected_seconds": 1,
+     "network_egress": false
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "id"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "id": {
+       "type": "string",
+       "pattern": "^example:[0-9a-f]{32}$",
+       "title": "Example"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id",
+      "removed"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "removed": {
+       "type": "boolean"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "saved-examples",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/saved-examples"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/saved-examples",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/saved-examples/read-data/saved-examples.mjs",
+      "removeASavedExample"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "saved-example",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/saved-examples.mjs (a2fdfe6), ported to the records door"
+    },
+    "verify": [
+     {
+      "kind": "output-contains-input",
+      "output_selector": "$.id",
+      "input_field": "id"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}
