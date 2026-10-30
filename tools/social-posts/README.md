@@ -20,8 +20,9 @@ signs a request with is ever in a record, a row or this code.
 | `tool:check-the-facebook-page-connection` | Asks Facebook which Page the person's `service_connection:facebook-messenger` signs in as, the same way. Posts nothing | none (http) |
 | `tool:read-post-calendar` | The posts between two times, earliest first, each with whether it can still move, and the drafts and approved posts with no time yet | list `post` |
 | `tool:see-how-each-post-did` | How each place a post was published to did: that place's own counts (handed in), the visitors its link brought and what they bought (handed in, in tool:break-down-visits-and-sales' shape), joined by exact identity only | list `post` |
+| `tool:send-a-post-to-<place>` (one per place row: youtube, tiktok, instagram, facebook, instagram-facebook, threads, linkedin, substack, x) | Sends an approved post whose time has come to one destination (`account_id`, an account of that place's connection kind) and keeps where it went. The engine hands the run only that account's held values; each reaches only the place's hosts as the request leaves. Marked not known before sending, never sent twice. A post with a file is refused until a run can be handed the file. It posts publicly: run it only with the person's yes for that post | read and write `post`, read `connection` |
 
-Sending a scheduled post at its time is not one of these tools yet: a post set to go waits in its record.
+What starts a send at a post's time is the person's own wake (switched on by them), not these rows.
 
 ## Files
 
@@ -31,12 +32,15 @@ Sending a scheduled post at its time is not one of these tools yet: a post set t
 | `read-data/posts.mjs` | `listPostDestinations`, `draftAPost`, `checkAPost`, `approveAPost`, `setAPostToGoAtItsTime`, `takeBackAPost`, run by `tools/records-door/do-work/run-an-export.mjs`. |
 | `read-data/posts.json` | The record kinds, link tags, limits, ready-check limits and words, and the first-contact rule. |
 | `read-data/post-places.json` | One row per place: the connection vendor that reaches it, how its publisher is filled (held and readable fields), its hosts, its default settings and what it takes (`format`). |
+| `read-data/send-a-post.mjs` | `sendAPost` (run by the records door's export command), `publisherFor` and `heldFetch`: one post to one destination through its place's publisher, the held values read from descriptors 4, 5, ... in the order the place's options name them, placed only as a request to the place's own hosts leaves. |
+| `read-data/publisher-facebook-page.mjs`, `read-data/publisher-substack.mjs` | Publishers shaped like @opencoredev/social-sdk's for the two places it does not reach (the adapters `facebook-page` and `substack`). |
 | `read-data/post-ready.mjs` | `readyFor` and `readyOverall`: one place's ready check and the post's, from the place's `format`. |
 | `read-data/post-calendar.mjs` | `readPostCalendar`. |
 | `read-data/post-calendar.json` | The longest span one read covers (400 days) and how many unscheduled posts are shown (50). |
 | `read-data/post-results.mjs` | `seeHowEachPostDid`, run by the records door's export command: each delivery a post record says was posted (with the place's own post id) becomes one published row; observations, visits and conversions become the join's rows. |
 | `read-data/post-performance-attribution.ts` | `readPostPerformanceAttributionRows`, ported from bitfield-packages `packages/content-analytics`: the latest place count linked by the place row or the place's own post id, visits whose `utm_content` is exactly the post id, the place's post id or `post_id::account_id` and names one place only, and conversions of those visitors in the same project. Nothing missing becomes a zero. |
 | `tool-rows.json` | The rows. |
+| `test/send-a-post.test.mjs` | The sender against the fake records door and a stand-in place: sent once, the held value only in the place's own request and in no record, nothing before its time, not-known kept until resend, a file refused before anything leaves, the host guard, and each send row's mounts in the order the sender reads them. |
 | `test/posts.test.mjs` | The posting rows against the fake records door: destinations, draft, check, approve as reviewed, set for its time with nothing sent, take back, the refusals; and each connection check asks with the value its place signs with, on one of that place's hosts. |
 | `test/post-calendar.test.mjs` | The calendar row against the fake records door: the span, the order, what can move, the refusals. |
 | `test/post-results.test.mjs` | The results row against the fake records door: per-place counts, visits and sales, the shared-token refusal, post_ids, refusals. |
@@ -54,4 +58,4 @@ Sending a scheduled post at its time is not one of these tools yet: a post set t
 
 ## Dependencies
 
-**Depends on:** `tools/records-door`.
+**Depends on:** `tools/records-door`; `@opencoredev/social-sdk` 0.5.0 (MIT, locked in the Workshop's package-lock.json), packed by the send rows.
