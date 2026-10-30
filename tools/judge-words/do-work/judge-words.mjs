@@ -23,6 +23,9 @@
 //   6. A rule may select values instead of words: `path` (a dot path, `*` for one segment, `**` for any depth) picks
 //      every value at that path in an item's `value` (any JSON). Word rules read an item's `text`; `path` rules read
 //      its `value`. `where` (a value or a list of values) keeps only the selected pieces equal to one of them.
+//      `when` (one { path, where } or a list of them) chooses the items a rule is for by the same selection: the rule
+//      applies only to an item whose `value` holds, at every `when` path, a value equal to one of its `where` (a plan
+//      whose format field is one format). An item with no `value` meets no `when`.
 //   7. A rule may name tests from TESTS below over the pieces it selects; each says what must hold, and its finding
 //      says what was found instead. A rule without a test flags every piece it selects. A value test that selects
 //      nothing is a finding: nothing passes on silence.
@@ -177,6 +180,7 @@ function compile(rule) {
   if (rule.kinds !== undefined && (!Array.isArray(rule.kinds) || !rule.kinds.length || rule.kinds.some(kind => typeof kind !== 'string'))) {
     throw new Error(`Rule ${rule.id} kinds must be a nonempty list of kind words.`);
   }
+  whenOf(rule);
   const wanted = rule.where === undefined ? null : Array.isArray(rule.where) ? rule.where : [rule.where];
   const tests = TEST_NAMES.filter(name => rule[name] !== undefined).map(name => {
     if (!TESTS[name].valid(rule[name])) throw new Error(`Rule ${rule.id} ${name} has the wrong kind of value.`);
@@ -191,11 +195,23 @@ function compile(rule) {
   };
 }
 
-// A rule applies to an item when its `kinds` (if any) list the item's kind, it reads what the item carries (a `path`
-// rule needs a `value`; a word rule is not for an item that carries a `value` and no `text`), its `fields` (if any)
-// name the item's key and its `under` (if any) is in the item's path.
+// A rule's `when` as a list of { parts, wanted }; a `when` that is not one { path, where } or a nonempty list of them throws.
+function whenOf(rule) {
+  if (rule.when === undefined) return [];
+  const list = Array.isArray(rule.when) ? rule.when : [rule.when];
+  if (!list.length || list.some(one => !one || typeof one !== 'object' || Array.isArray(one) || one.where === undefined)) {
+    throw new TypeError(`Rule ${rule.id} when must be one { path, where } or a nonempty list of them.`);
+  }
+  return list.map(one => ({ parts: dotPath(one.path, `Rule ${rule.id} when path`), wanted: Array.isArray(one.where) ? one.where : [one.where] }));
+}
+
+// A rule applies to an item when its `kinds` (if any) list the item's kind, its `when` (if any) holds in the item's
+// `value`, it reads what the item carries (a `path` rule needs a `value`; a word rule is not for an item that carries a
+// `value` and no `text`), its `fields` (if any) name the item's key and its `under` (if any) is in the item's path.
 export function ruleApplies(rule, item) {
   if (Array.isArray(rule.kinds) && !rule.kinds.includes(item.kind)) return false;
+  if (!whenOf(rule).every(({ parts, wanted }) => item.value !== undefined
+    && valuesAt(item.value, parts).some(piece => wanted.some(one => same(one, piece.value))))) return false;
   if (rule.path !== undefined ? item.value === undefined : item.value !== undefined && typeof item.text !== 'string') return false;
   if (Array.isArray(rule.fields) && rule.fields.length && !rule.fields.includes(item.field)) return false;
   if (typeof rule.under === 'string' && !(item.path ?? []).includes(rule.under)) return false;

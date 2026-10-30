@@ -49,6 +49,23 @@ test('a path rule selects values in an item value, where keeps equal pieces, and
     ['segments.0.kind', 'segments.1.kind', 'segments.2.kind', 'segments.3.kind']);
 });
 
+test('when chooses the artifacts a rule is for by a value they hold, with where semantics', () => {
+  const asks = { id: 'fixture-asks', kinds: ['plan'], path: 'segments.*.kind', where: 'question', count_at_most: 1, says: 'Too many questions.',
+    when: { path: 'format', where: 'format-a' } };
+  const segments = [{ kind: 'question' }, { kind: 'question' }];
+  const judgeItems = makeJudge([asks]);
+  assert.deepEqual(judgeItems([{ value: { format: 'format-a', segments }, kind: 'plan' }]).map(finding => finding.found), [2]);
+  assert.deepEqual(judgeItems([{ value: { format: 'format-b', segments }, kind: 'plan' }]), []);
+  assert.deepEqual(judgeItems([{ value: { segments }, kind: 'plan' }]), []);
+  assert.equal(ruleApplies(asks, { text: 'format-a', kind: 'plan' }), false);
+  assert.equal(ruleApplies({ ...asks, when: [{ path: 'format', where: ['format-b', 'format-a'] }, { path: 'meta.lang', where: 'en' }] },
+    { value: { format: 'format-a', meta: { lang: 'en' } }, kind: 'plan' }), true);
+  assert.equal(ruleApplies({ ...asks, when: [{ path: 'format', where: 'format-a' }, { path: 'meta.lang', where: 'en' }] },
+    { value: { format: 'format-a', meta: { lang: 'de' } }, kind: 'plan' }), false);
+  for (const when of [[], [{ path: 'format' }], 'format', { path: '', where: 'x' }]) assert.throws(() => makeJudge([{ ...asks, when }]), /when/);
+  assert.equal(judge({ artifact: { format: 'format-b', segments }, kind: 'plan', rules: [asks] }).status, 'no-applicable-rule');
+});
+
 test('a path rule without a test flags each selected piece at its own path', () => {
   const rule = { id: 'fixture-voice', path: 'voice', where: 'voice-b', says: 'This voice was turned down.' };
   const judge = makeJudge([rule]);

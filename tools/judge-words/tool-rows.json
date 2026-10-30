@@ -39,6 +39,7 @@
          "check": { "type": "string", "description": "A named grammar check" },
          "path": { "type": "string", "description": "A dot path into an artifact; * is one segment, ** any depth" },
          "where": { "description": "Keep only the picked values equal to this value or one of this list" },
+         "when": { "description": "One { path, where } or a list of them: the row applies only to an artifact holding, at every path, a value equal to one of its where (a plan of one format)" },
          "kinds": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "The kinds of item the row applies to" },
          "fields": { "type": "array", "items": { "type": "string" }, "description": "The keys whose words the row reads" },
          "under": { "type": "string", "description": "Only words somewhere under this key" },
