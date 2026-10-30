@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/motion-bar.mjs", "read-data/measure-motion.mjs"]
+}

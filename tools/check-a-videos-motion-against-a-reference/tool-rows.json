@@ -1,0 +1,53 @@
+{
+  "kind": "package-set-records",
+  "record_set": "check-a-videos-motion-against-a-reference-tool-rows",
+  "what_this_is": "The Workshop row for the check-a-videos-motion-against-a-reference folder: a script the person's AI runs on the person's own computer to say whether a video they made moves as much as the video it copies, against a bar the person passes in.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-videos-motion-against-a-reference",
+        "label": "Check that my video moves as much as the one I copied (runs on your computer)",
+        "job": "Tell me whether the video I made is as lively as the video I am copying, or holds still too long",
+        "description": "Measures how much a reference video moves (the share of frames where the picture changes, and its longest still hold), sets the person's bar from the whole reference, then measures the piece from its start to the second its end card begins, at the same still threshold, and says whether it passed each row of the bar. The bar is not built in: the person passes a record of kind motion-bar, whose rows each name a measure, a relation (at_least or at_most) and either a multiple of the reference's own value or a fixed value. The bar always comes from the whole reference, so trimming a piece never moves it. Moving-pixel share is a measure of conformance to the reference, not of readability or quality. The measuring is done by this tool with ffmpeg and ffprobe, which it calls as declared programs; it reaches into no other app.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["reference", "render", "end_card_start_seconds", "bar"],
+          "properties": {
+            "reference": { "type": "string", "description": "The video file being copied, put where {reference} is in the command." },
+            "render": { "type": "string", "description": "The video file made, put where {render} is in the command." },
+            "end_card_start_seconds": { "type": "number", "exclusiveMinimum": 0, "description": "The second the made video's end card begins; the piece is measured from 0 to there. Put where {end_card_start_seconds} is in the command." },
+            "bar": { "type": "string", "description": "A JSON file holding a motion-bar record, put where {bar} is in the command: { kind: 'motion-bar', rows: [{ name, bar_key, measure, relation, times_reference | value }] }. The person's AI reads the person's own bar record and writes it to a file." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"still_threshold\", \"reference\": {\"path\", \"seconds\", \"moving_share\", \"longest_hold_s\"}, \"draft\": {\"path\", \"seconds\", \"moving_share\", \"longest_hold_s\", \"holds_over_1s_per_min\"}, \"bar\": {<each row's bar_key>: number}, \"pass\": {<each row's name>: boolean}, \"verdict\": \"passed\" | \"failed\"}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "install ffmpeg (brew install ffmpeg), which brings ffprobe"
+          ],
+          "run": "node tools/check-a-videos-motion-against-a-reference/do-work/check-motion.mjs --reference {reference} --render {render} --end-card-start {end_card_start_seconds} --bar {bar}",
+          "needs": [
+            "node",
+            "ffmpeg and ffprobe (declared programs; the measure calls them)",
+            "the person's motion-bar record"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Find the person's bar: read their records of kind motion-bar through the records door and write the right one to a JSON file; if they have none, ask how close to the reference the piece must stay (how much of its movement, how long a hold) and write rows for that, then offer to keep it as a record. Run `run` with the reference video, the made video, the second its end card begins and the bar file, then read the last line: { result } or { error } saying what to change. Tell the person the verdict, then for each row the piece's value against the bar. When it failed, name which rows failed and say where to add motion or cut a hold; do not call a passed piece good, only as lively as the reference."
+        },
+        "maker": "maker:check-a-videos-motion-against-a-reference",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "A frame-difference measure of motion written for this tool on ffmpeg: the whole-reference still level and the person's bar rows"
+        }
+      }
+    }
+  ]
+}

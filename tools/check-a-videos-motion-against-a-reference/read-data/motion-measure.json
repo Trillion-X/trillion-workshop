@@ -1,0 +1,12 @@
+{
+  "kind": "motion-measure-settings",
+  "what_this_is": "How the motion measure reads a video: frames are decoded as grey pictures this many pixels wide; the mean absolute difference in grey between two neighbouring frames, on a 0 to 255 scale, says how much the picture changed. These are the measure's own definition, not anyone's bar.",
+  "frame_width": 160,
+  "cut_level": 25,
+  "still_level": {
+    "from_percentile": 0.1,
+    "times": 2,
+    "floor": 0.5,
+    "ceiling": 1.5
+  }
+}
