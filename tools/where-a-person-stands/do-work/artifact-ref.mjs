@@ -4,7 +4,8 @@
 //   The one identity of a thing a person judges, so a stand said on it once finds it again wherever it is checked. Text
 //   (a title, a line, a part of a text the person named) is the same thing however it is typed: it is folded first (by
 //   the fold the caller's DATA declares), then hashed. Anything else (a file, a JSON view such as a plan) is its bytes.
-//   Every check that keys a stand on a thing calls this file; none keeps its own copy of the fold or the hash.
+//   Every check that keys a stand on a thing calls this file; none keeps its own copy of the fold. The hash of bytes is
+//   tools/content-identity's, the one owner of content identities.
 //
 // Non-negotiable invariants
 //   1. An identity is `1f:` and the 64 hex digits of BLAKE3-256: of the UTF-8 bytes of fold(text) for text, of the bytes
@@ -15,8 +16,8 @@
 //   3. Text is never hashed unfolded: a text identity without a fold is refused.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
+import { utf8ToBytes } from '@noble/hashes/utils.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 /** The fold a DATA block declares, as a function from text to folded text. */
 export function foldWith(fold) {
@@ -33,7 +34,7 @@ export function foldWith(fold) {
 }
 
 /** The identity of bytes. */
-export const bytesRef = bytes => `1f:${bytesToHex(blake3(bytes))}`;
+export const bytesRef = makeHashCodeHexFromBytes;
 
 /** The identity of a text, folded by `fold` (a DATA block or a function foldWith made). */
 export function textRef(text, fold) {

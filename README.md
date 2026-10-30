@@ -23,6 +23,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 |---|---|---|
 | `ask-questions-sort-answers-follow-up` | Makes quiz questions from text, checks answers against a form, scores answers and picks a segment | `tool:make-quiz-questions`, `tool:check-form-answers`, `tool:score-answers-and-pick-segment` |
 | `browse-public-page` | Reads a public web page: its title, words, links and card, refusing private addresses | `tool:read-public-web-page` |
+| `content-identity` | A library: the one BLAKE3 identity of exact bytes (`1f:` + 64 hex), whole or in chunks | (none: packed by `where-a-person-stands`) |
 | `customer-follow-up` | Each customer's steps and each product's progress toward its customer target | `tool:add-a-customer`, `tool:record-a-customer-step`, `tool:set-a-customer-target`, `tool:see-where-each-customer-is` |
 | `email-sending-domains` | Which domains the person's email-sending account may send from and how each stands, with the key handed on a private pipe | `tool:list-email-sending-domains` |
 | `headless-browser` | A library the browser tools pack: a headless Chromium spoken to over DevTools with the quiet switches, and a page clock that moves only when told | (none: packed by `page-critic` and `record-a-web-page`) |

@@ -44,6 +44,6 @@ jq -n --slurpfile s <export>.json --slurpfile r <rules>.json '{stances: $s[0].st
 
 ## Dependencies
 
-**Depends on:** `@noble/hashes` (BLAKE3; a dependency of this repository, packed into the container at `/opt/node_modules/@noble/hashes` by each row), Node 24 in the tool container.
+**Depends on:** `tools/content-identity` (the BLAKE3 identity of bytes, packed at `/opt/content-identity` by each row), `@noble/hashes` (packed at `/opt/node_modules/@noble/hashes` by each row), Node 24 in the tool container.
 
 **Depended on by:** `tool-rows.json` and `test/where-a-person-stands.test.mjs`.
