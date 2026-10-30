@@ -1,0 +1,162 @@
+{
+ "kind": "tool-rows",
+ "record_set": "social-posts-tool-rows",
+ "what_this_is": "The Workshop rows for the person's posts in tools/social-posts, read from their own post records through the run's records door.",
+ "records": [
+  {
+   "id": "package::social-posts::tool::read-post-calendar",
+   "address": "package::social-posts::tool::read-post-calendar",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:trillion",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:read-post-calendar",
+    "listed_on": "2026-09-30T07:01:23Z",
+    "label": "Posting calendar",
+    "job": "Show what this person is posting between two times, and which drafts have no time yet, so a post can be given a time or moved to another",
+    "description": "Give from and to (dates and times with their zone). Returns posts: each post whose scheduled time falls in between (or, sent without a time, when it was sent), earliest first, with at, status, words and can_move; and unscheduled: the drafts and approved posts with no time yet. A post gets a new time through draft_post with post_id and scheduled_for, which makes an approved or scheduled post a draft again to approve. Its screen is the month and hour calendar, where a post is dragged to its time.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "from",
+      "to"
+     ],
+     "properties": {
+      "from": {
+       "type": "string",
+       "format": "date-time",
+       "description": "The start of the span, like 2026-10-01T00:00:00-04:00"
+      },
+      "to": {
+       "type": "string",
+       "format": "date-time",
+       "description": "The end of the span, after from"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "from",
+      "to",
+      "posts",
+      "unscheduled"
+     ],
+     "properties": {
+      "from": {
+       "type": "string"
+      },
+      "to": {
+       "type": "string"
+      },
+      "posts": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "unscheduled": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/post-calendar.mjs",
+      "readPostCalendar"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion media-workspace scheduled-calendar.mjs and calendar-placement.mjs (the Mac's Schedule month, week and day views), rebuilt on src/social-posts.mjs calendar, the same read list_post_calendar makes (a2fdfe6), ported to the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "from": "2026-10-01T00:00:00Z",
+       "to": "2026-11-01T00:00:00Z"
+      },
+      "output_selector": "$.from",
+      "contains": "2026-10-01"
+     }
+    ],
+    "screen": {
+     "group": "content-plan",
+     "kind": "app-entry",
+     "entry": "calendar",
+     "icon": "CalendarDays",
+     "label": "Posting calendar",
+     "about": "When each of your posts goes out.",
+     "inputs": {
+      "from": {
+       "label": "From",
+       "placeholder": "Like 2026-10-01T09:00:00-04:00"
+      },
+      "to": {
+       "label": "To",
+       "placeholder": "A later date and time"
+      }
+     }
+    },
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}

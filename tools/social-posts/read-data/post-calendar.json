@@ -1,0 +1,5 @@
+{
+  "_what": "The posting calendar's limits, read by read-data/post-calendar.mjs: calendar_max_days is the longest span one read covers; list_limit is how many unscheduled posts are shown.",
+  "calendar_max_days": 400,
+  "list_limit": 50
+}
