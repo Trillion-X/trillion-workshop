@@ -1,0 +1,123 @@
+{
+  "kind": "tool-rows",
+  "record_set": "meaning-search-tool-rows",
+  "what_this_is": "The Workshop rows for tools/meaning-search: the package's find-similar-vector and find-similar actions, run on the person's own index descriptor and vector set.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-similar-to-a-vector",
+        "label": "Find what is closest to a vector",
+        "job": "Find the moments in my recordings, pictures or documents closest in meaning to a query vector, such as the picture vector of some words, and say the file and time of each",
+        "description": "Runs meaning-search's find-similar-vector on one of the person's semantic-index-descriptor records: the descriptor's vector set (items and their vectors, two of the person's files) is indexed by the package's own scripts for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptor names (tool:words-as-picture-vector gives one for words when the set holds picture vectors). Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["index_id", "query_vector_base64"],
+          "additionalProperties": false,
+          "properties": {
+            "index_id": { "type": "string", "minLength": 1, "description": "The index_id of one of the person's semantic-index-descriptor records" },
+            "query_vector_base64": { "type": "string", "minLength": 1, "description": "base64 of JSON {\"vector\": [...]}, made by the model the descriptor names" },
+            "limit": { "type": "integer", "minimum": 1, "description": "At most this many items; the descriptor's result_limit caps it" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["index_id", "result", "points_to"],
+          "properties": {
+            "index_id": { "type": "string" },
+            "model_id": { "type": "string" },
+            "model_version": { "type": "string" },
+            "result": { "type": "object", "required": ["items"], "properties": { "items": { "type": "array" } } },
+            "points_to": { "type": "object" }
+          }
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/meaning-search",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/meaning-search/read-data/meaning-search.mjs", "findSimilarVector"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "meaning-search", "paths": ["read-data", "do-work"], "at": "/opt/meaning-search" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "semantic-index-descriptor", "operations": ["records:list"] },
+              { "files": "/", "operations": ["read_file"] }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 60, "network_egress": false, "memory_mb": 2048 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:meaning-search"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-similar-by-meaning",
+        "label": "Find what is closest in meaning to some words",
+        "job": "Find the moments in my recordings or documents whose words or transcript are closest in meaning to what I ask, and say the file and time of each",
+        "description": "Runs meaning-search's find-similar on one of the person's semantic-index-descriptor records: query_text and any item of the vector set without a vector are embedded by the descriptor's model at its model_endpoint (the package's Ollama embedder), the set is indexed for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["index_id", "query_text"],
+          "additionalProperties": false,
+          "properties": {
+            "index_id": { "type": "string", "minLength": 1, "description": "The index_id of one of the person's semantic-index-descriptor records" },
+            "query_text": { "type": "string", "minLength": 1, "description": "The words to look for" },
+            "limit": { "type": "integer", "minimum": 1, "description": "At most this many items; the descriptor's result_limit caps it" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["index_id", "result", "points_to"],
+          "properties": {
+            "index_id": { "type": "string" },
+            "model_id": { "type": "string" },
+            "model_version": { "type": "string" },
+            "result": { "type": "object", "required": ["items"], "properties": { "items": { "type": "array" } } },
+            "points_to": { "type": "object" }
+          }
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/meaning-search",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/meaning-search/read-data/meaning-search.mjs", "findSimilar"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "meaning-search", "paths": ["read-data", "do-work"], "at": "/opt/meaning-search" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "semantic-index-descriptor", "operations": ["records:list"] },
+              { "files": "/", "operations": ["read_file"] }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 60, "network_egress": false, "memory_mb": 2048 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:meaning-search"
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "_what": "Where the Workshop seam of meaning-search (read-data/meaning-search.mjs) finds the person's index descriptors and vector sets. `descriptor_kind` is the record kind of the package's semantic-index-descriptor rows in the person's own records, read through the records door. `files` is the operation of the files door that reads a span of one of the person's files; `read_bytes` is how much one read asks for. `embedding_property` and `attribute_table` are the names the package's own scripts write embedding facts under (make-embedding-facts-from-command-output.py), so the seam hands the ranker exactly the facts the package wrote.",
+  "descriptor_kind": "semantic-index-descriptor",
+  "files": { "read": "read_file" },
+  "read_bytes": 262144,
+  "embedding_property": "prop:semantic-embedding:",
+  "attribute_table": "attribute_fact"
+}
