@@ -6,71 +6,223 @@
   {
    "id": "package::where-a-person-stands::tool::keep-where-you-stand",
    "address": "package::where-a-person-stands::tool::keep-where-you-stand",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:keep-where-you-stand",
     "label": "Keep where you stand on something",
     "status": "active",
     "job": "Write down whether a person agrees, disagrees or partly agrees with something made for them, such as a title, a take, a plan or a file, in their own words",
-    "description": "Give artifact_ref (the thing's identity: 1f: and 64 hex digits, or file: and that identity), stance (agree, disagree or partly, or null to take a stand back), why (the person's own words, kept exactly) and answered_by \"person\": only send what the person said. Returns the stance record, which is kept in the person's records as one record per thing (stance:<identity>), so a change of mind is a new version and every earlier stand stays in its history. A name instead of an identity, or a stand not answered by the person, is refused.",
+    "description": "Give kind (what the thing is: a title, a take, a plan, a file), the thing (artifact_ref, its identity: 1f: and 64 hex digits, or file: and that identity; or the thing itself: text, contains for a part of a text, or view for any JSON, with fold, how its owner says two texts are the same), stance (agree, disagree or partly, or null to take a stand back), why (the person's own words, kept exactly) and answered_by \"person\": only send what the person said. Returns the stance record, kept in the person's records as one record per kind and identity (stance:<kind>:<identity>), so a change of mind is a new version and every earlier stand stays in its history. Text is identified folded, so the same title typed again finds the same stand. A name instead of an identity, or a stand not answered by the person, is refused.",
     "input_schema": {
      "type": "object",
-     "required": ["artifact_ref", "stance", "answered_by"],
+     "required": [
+      "kind",
+      "stance",
+      "answered_by"
+     ],
      "additionalProperties": false,
      "properties": {
-      "artifact_ref": { "type": "string", "pattern": "^(file:)?1f:[0-9a-f]{64}$", "description": "The identity of the thing the stand is on" },
-      "stance": { "type": ["string", "null"], "enum": ["agree", "disagree", "partly", null], "description": "Where the person stands; null takes the stand back" },
-      "why": { "type": "string", "description": "The person's own words, exactly as they said them" },
-      "answered_by": { "type": "string", "enum": ["person"], "description": "Always person: a stand is only ever theirs" },
-      "by": { "type": "string", "description": "Who sent it (the app or chat), when it is not the person's own screen" },
-      "at": { "type": "string", "description": "When they said it, as an ISO time (default: now)" }
+      "kind": {
+       "type": "string",
+       "description": "What kind of thing the stand is on (title, voice take, plan, file)"
+      },
+      "artifact_ref": {
+       "type": "string",
+       "pattern": "^(file:)?1f:[0-9a-f]{64}$",
+       "description": "The identity of the thing the stand is on"
+      },
+      "text": {
+       "type": "string",
+       "description": "The thing itself, when it is a text"
+      },
+      "contains": {
+       "type": "string",
+       "description": "A part of a text the person named"
+      },
+      "view": {
+       "description": "The thing itself, when it is JSON (a plan, a measure report)"
+      },
+      "fold": {
+       "type": "object",
+       "description": "How two texts are the same text, as the owner of the rules declares it: lowercase, quotes ([[from characters, to]]), collapse_space, strip_trailing (a pattern)"
+      },
+      "stance": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "enum": [
+        "agree",
+        "disagree",
+        "partly",
+        null
+       ],
+       "description": "Where the person stands; null takes the stand back"
+      },
+      "why": {
+       "type": "string",
+       "description": "The person's own words, exactly as they said them"
+      },
+      "answered_by": {
+       "type": "string",
+       "enum": [
+        "person"
+       ],
+       "description": "Always person: a stand is only ever theirs"
+      },
+      "by": {
+       "type": "string",
+       "description": "Who sent it (the app or chat), when it is not the person's own screen"
+      },
+      "at": {
+       "type": "string",
+       "description": "When they said it, as an ISO time (default: now)"
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["stance_record"],
+     "required": [
+      "stance_record"
+     ],
      "properties": {
       "stance_record": {
        "type": "object",
-       "required": ["type", "id", "artifact", "stance", "by", "at"],
+       "required": [
+        "type",
+        "id",
+        "kind",
+        "artifact",
+        "stance",
+        "by",
+        "at"
+       ],
        "properties": {
-        "type": { "type": "string" },
-        "id": { "type": "string" },
-        "artifact": { "type": "string" },
-        "stance": { "type": ["string", "null"] },
-        "said": { "type": "string" },
-        "why": { "type": "string" },
-        "by": { "type": "string" },
-        "at": { "type": "string" }
+        "type": {
+         "type": "string"
+        },
+        "id": {
+         "type": "string"
+        },
+        "kind": {
+         "type": "string"
+        },
+        "artifact": {
+         "type": "string"
+        },
+        "text": {
+         "type": "string"
+        },
+        "contains": {
+         "type": "string"
+        },
+        "view": {},
+        "stance": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "said": {
+         "type": "string"
+        },
+        "why": {
+         "type": "string"
+        },
+        "by": {
+         "type": "string"
+        },
+        "at": {
+         "type": "string"
+        }
        }
       }
      }
     },
     "keeps_records": [
-     { "output_selector": "$.stance_record", "type_field": "type", "id_field": "id" }
+     {
+      "output_selector": "$.stance_record",
+      "type_field": "type",
+      "id_field": "id"
+     }
     ],
     "invoke": {
      "kind": "container",
-     "files": { "package_files": { "package": "where-a-person-stands", "paths": ["do-work", "read-data"], "at": "/opt/where-a-person-stands" } },
+     "files": {
+      "package_files": [
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
      "workdir": "/opt/where-a-person-stands",
      "internet": false,
      "stdout": "json",
-     "argv": ["node", "do-work/keep-where-you-stand.mjs"],
-     "stdin": { "fill": { "from": "input" } }
+     "argv": [
+      "node",
+      "do-work/keep-where-you-stand.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
     },
     "result_selector": "$.result",
-    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:where-a-person-stands",
-    "provenance": { "source": "the record-stance owner of the decision engine, as a tool: the stand is a record, its history is the record's versions" },
+    "provenance": {
+     "source": "the record-stance owner of the decision engine, as a tool: the stand is a record, its history is the record's versions"
+    },
     "verify": [
      {
       "kind": "sample-run",
-      "input": { "artifact_ref": "file:1f:0000000000000000000000000000000000000000000000000000000000000001", "stance": "partly", "why": "fine for now", "answered_by": "person", "at": "2026-10-29T12:00:00Z" },
-      "output_selector": "$.stance_record.said",
-      "contains": "You partly agree with this."
+      "input": {
+       "kind": "title",
+       "text": "Start Here.",
+       "fold": {
+        "lowercase": true,
+        "collapse_space": true,
+        "strip_trailing": "[.!?]+"
+       },
+       "stance": "partly",
+       "why": "fine for now",
+       "answered_by": "person",
+       "at": "2026-10-29T12:00:00Z"
+      },
+      "output_selector": "$.stance_record.id",
+      "contains": "stance:title:1f:"
      }
     ]
    }
@@ -78,72 +230,372 @@
   {
    "id": "package::where-a-person-stands::tool::read-where-you-stand",
    "address": "package::where-a-person-stands::tool::read-where-you-stand",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:read-where-you-stand",
     "label": "Read where you stand on things",
     "status": "active",
     "job": "See whether a person agrees, disagrees or partly agrees with each thing made for them, in their own words, with every time they changed their mind",
-    "description": "Give records: the versions of the person's stance records (stance:<identity>) as their records keep them, in any order, and optionally artifact_ref for one thing. Returns stances: for each thing its stand now (the newest version), said, why in the person's own words, by, at, and earlier, every stand before it, oldest first; and choices, the stands a person can take. A thing with no stand, or whose stand was taken back, reads stance null: silence is not agreement.",
+    "description": "Give records: the versions of the person's stance records (stance:<kind>:<identity>) as their records keep them, in any order, and optionally artifact_ref and kind for one thing. Returns stances: for each thing its stand now (the newest version), said, why in the person's own words, by, at, and earlier, every stand before it, oldest first; and choices, the stands a person can take. A thing with no stand, or whose stand was taken back, reads stance null: silence is not agreement.",
     "input_schema": {
      "type": "object",
-     "required": ["records"],
+     "required": [
+      "records"
+     ],
      "additionalProperties": false,
      "properties": {
-      "records": { "type": "array", "items": { "type": "object" }, "description": "The versions of the stance records, each the record value or { value }" },
-      "artifact_ref": { "type": "string", "pattern": "^(file:)?1f:[0-9a-f]{64}$", "description": "Optional: only the stand on this thing" }
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The versions of the stance records, each the record value or { value }"
+      },
+      "artifact_ref": {
+       "type": "string",
+       "pattern": "^(file:)?1f:[0-9a-f]{64}$",
+       "description": "Optional: only the stand on this thing"
+      },
+      "kind": {
+       "type": "string",
+       "description": "Optional: only stands on things of this kind"
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["stances", "choices"],
+     "required": [
+      "stances",
+      "choices"
+     ],
      "properties": {
       "stances": {
        "type": "array",
        "items": {
         "type": "object",
-        "required": ["artifact", "stance", "why", "earlier"],
+        "required": [
+         "artifact",
+         "stance",
+         "why",
+         "earlier"
+        ],
         "properties": {
-         "artifact": { "type": "string" },
-         "stance": { "type": ["string", "null"] },
-         "said": { "type": ["string", "null"] },
-         "why": { "type": ["string", "null"] },
-         "by": { "type": ["string", "null"] },
-         "at": { "type": ["string", "null"] },
-         "earlier": { "type": "array", "items": { "type": "object" } }
+         "id": {
+          "type": "string"
+         },
+         "kind": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "artifact": {
+          "type": "string"
+         },
+         "stance": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "said": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "why": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "by": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "at": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "earlier": {
+          "type": "array",
+          "items": {
+           "type": "object"
+          }
+         }
         }
        }
       },
-      "choices": { "type": "array", "items": { "type": "object" } }
+      "choices": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      }
      }
     },
     "invoke": {
      "kind": "container",
-     "files": { "package_files": { "package": "where-a-person-stands", "paths": ["do-work", "read-data"], "at": "/opt/where-a-person-stands" } },
+     "files": {
+      "package_files": [
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
      "workdir": "/opt/where-a-person-stands",
      "internet": false,
      "stdout": "json",
-     "argv": ["node", "do-work/read-where-you-stand.mjs"],
-     "stdin": { "fill": { "from": "input" } }
+     "argv": [
+      "node",
+      "do-work/read-where-you-stand.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
     },
     "result_selector": "$.result",
-    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:where-a-person-stands",
-    "provenance": { "source": "the record-stance owner of the decision engine, as a tool: the stand is a record, its history is the record's versions" },
+    "provenance": {
+     "source": "the record-stance owner of the decision engine, as a tool: the stand is a record, its history is the record's versions"
+    },
     "verify": [
      {
       "kind": "sample-run",
       "input": {
        "records": [
-        { "type": "stance", "id": "stance:1f:0000000000000000000000000000000000000000000000000000000000000001", "artifact": "1f:0000000000000000000000000000000000000000000000000000000000000001", "stance": "disagree", "said": "You disagree with this.", "why": "comes off as AI", "by": "person", "at": "2026-10-29T13:44:00Z" },
-        { "type": "stance", "id": "stance:1f:0000000000000000000000000000000000000000000000000000000000000001", "artifact": "1f:0000000000000000000000000000000000000000000000000000000000000001", "stance": "agree", "said": "You agree with this.", "why": "good", "by": "person", "at": "2026-10-29T11:40:00Z" }
+        {
+         "type": "stance",
+         "id": "stance:title:1f:0000000000000000000000000000000000000000000000000000000000000001",
+         "artifact": "1f:0000000000000000000000000000000000000000000000000000000000000001",
+         "stance": "disagree",
+         "said": "You disagree with this.",
+         "why": "comes off as AI",
+         "by": "person",
+         "at": "2026-10-29T13:44:00Z",
+         "kind": "title"
+        },
+        {
+         "type": "stance",
+         "id": "stance:title:1f:0000000000000000000000000000000000000000000000000000000000000001",
+         "artifact": "1f:0000000000000000000000000000000000000000000000000000000000000001",
+         "stance": "agree",
+         "said": "You agree with this.",
+         "why": "good",
+         "by": "person",
+         "at": "2026-10-29T11:40:00Z",
+         "kind": "title"
+        }
        ]
       },
       "output_selector": "$.stances[0].why",
       "contains": "comes off as AI"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::where-a-person-stands::tool::plan-a-stance-reload",
+   "address": "package::where-a-person-stands::tool::plan-a-stance-reload",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:plan-a-stance-reload",
+    "label": "Plan moving kept stands into stance records",
+    "status": "active",
+    "job": "Turn stands a person took that were kept somewhere else into their stance records, with every earlier stand as an earlier version, and show what would change before anything is written",
+    "description": "Give stances (rows: kind, text, contains or view, stance, why, by, at, earlier as [{stance, why, at}], and the old ref if there was one) and fold, how the owner of the rules says two texts are the same. Returns writes, the record versions to send one at a time in order (each record's earlier stands first, oldest first), and summary: rows, records and versions by kind, refs_changed (rows whose identity differs from their old ref) and collisions (records two or more rows became under the fold, with each row's text and time). summary_only true leaves the writes out. It writes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "stances",
+      "fold"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "stances": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The stands kept elsewhere, one row per thing"
+      },
+      "fold": {
+       "type": "object",
+       "description": "How two texts are the same text, as the owner of the rules declares it: lowercase, quotes ([[from characters, to]]), collapse_space, strip_trailing (a pattern)"
+      },
+      "by": {
+       "type": "string",
+       "description": "Who a row with no by was said through (default person)"
+      },
+      "summary_only": {
+       "type": "boolean",
+       "description": "True: only the summary"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "summary"
+     ],
+     "properties": {
+      "writes": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value"
+        ]
+       }
+      },
+      "summary": {
+       "type": "object",
+       "required": [
+        "rows",
+        "records",
+        "versions",
+        "by_kind",
+        "refs_changed",
+        "collisions"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/where-a-person-stands",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/plan-stance-reload.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:where-a-person-stands",
+    "provenance": {
+     "source": "the record-stance owner of the decision engine, as a tool: the stand is a record, its history is the record's versions"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "fold": {
+        "lowercase": true,
+        "strip_trailing": "[.!?]+"
+       },
+       "summary_only": true,
+       "stances": [
+        {
+         "kind": "title",
+         "text": "Start Here.",
+         "stance": "agree",
+         "why": "good",
+         "at": "2026-10-29T11:40:00Z",
+         "earlier": [
+          {
+           "stance": "disagree",
+           "why": "no",
+           "at": "2026-10-29T10:00:00Z"
+          }
+         ]
+        },
+        {
+         "kind": "title",
+         "text": "start here",
+         "stance": "disagree",
+         "why": "worse",
+         "at": "2026-10-29T13:44:00Z"
+        }
+       ]
+      },
+      "output_selector": "$.summary.collisions[0].kind",
+      "contains": "title"
      }
     ]
    }

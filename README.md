@@ -35,7 +35,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `revenue-ledger` | Revenue, refunds, net revenue and recurring revenue from any provider's payment events | `tool:add-up-revenue` |
 | `traffic-attribution` | Tracked links, visitors and sales by where they came from, what ad spend brings back, and conversions prepared for the ad platforms | `tool:make-tracked-link`, `tool:break-down-visits-and-sales`, `tool:measure-ad-return`, `tool:prepare-ad-conversions` |
 | `unit-economics` | ARPU, gross margin, CAC, LTV, LTV:CAC and payback from one period's numbers | `tool:work-out-unit-economics` |
-| `where-a-person-stands` | Keeps whether a person agrees, disagrees or partly agrees with something made for them, in their own words, and reads it back with every earlier stand | `tool:keep-where-you-stand`, `tool:read-where-you-stand` |
+| `where-a-person-stands` | Keeps whether a person agrees, disagrees or partly agrees with something made for them, in their own words, and reads it back with every earlier stand; owns the one identity of a judged thing (folded text or bytes, BLAKE3) | `tool:keep-where-you-stand`, `tool:read-where-you-stand`, `tool:plan-a-stance-reload` |
 | `wikimedia-commons` | Searches Wikimedia Commons files, reads one file's license metadata, and checks whether its license allows reuse and what credit it needs | `tool:search-wikimedia-commons-files`, `tool:read-wikimedia-commons-file-metadata`, `tool:assess-wikimedia-commons-file-reuse` |
 | `words-as-picture-vector` | Words as the vector a picture model gives pictures that show them | `tool:words-as-picture-vector` |
 | `work-breakdown` | A body of work as a tree: how much is really finished, new items, proof of finished work | `tool:roll-up-work-completion`, `tool:add-work-item`, `tool:check-proof-of-finished-work` |
@@ -81,7 +81,7 @@ See `CONTRIBUTING.md` for the rules a tool must follow.
 
 ## Dependencies
 
-**Depends on:** Node 22.6 or later (type stripping for `.ts`), Python 3 for the Python tools.
+**Depends on:** Node 22.6 or later (type stripping for `.ts`), Python 3 for the Python tools, `@noble/hashes` (BLAKE3 identities; `npm install`).
 
 **Depended on by:** Trillion, which installs this repository and reads every `tools/*/tool-rows.json` when it deploys.
 
