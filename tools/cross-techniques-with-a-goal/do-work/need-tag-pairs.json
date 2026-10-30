@@ -1,227 +1,31 @@
 {
-  "what_this_is": "Needs paired by hand with the property each is or is not about, from the 2026-10-30 backfill; measure-reuse-line.mjs over these pairs sets needs_tags.tag_min in technique-conventions.json. Each side is [title, text] as it is embedded: a need has no title.",
-  "same": [
-    [
-      [
-        "none",
-        "a question that asks for an answer"
-      ],
-      [
-        "curiosity",
-        "How strongly a person wants to know what is hidden or unseen."
-      ]
-    ],
-    [
-      [
-        "none",
-        "a threat that escalates in steps"
-      ],
-      [
-        "felt tension",
-        "How much threat or stake a person feels in a moment."
-      ]
-    ],
-    [
-      [
-        "none",
-        "a visible threat the viewpoint can look at"
-      ],
-      [
-        "felt tension",
-        "How much threat or stake a person feels in a moment."
-      ]
-    ],
-    [
-      [
-        "none",
-        "text that must stay readable"
-      ],
-      [
-        "legibility",
-        "How easily a person reads shapes or words."
-      ]
-    ],
-    [
-      [
-        "none",
-        "a foreground element placed near the subject"
-      ],
-      [
-        "attention focus",
-        "Where a person's attention settles at a given moment."
-      ]
-    ],
-    [
-      [
-        "none",
-        "ordered steps with one action each"
-      ],
-      [
-        "reading order",
-        "The sequence in which a person takes in a block of text."
-      ]
-    ],
-    [
-      [
-        "none",
-        "steps numbered in order"
-      ],
-      [
-        "reading order",
-        "The sequence in which a person takes in a block of text."
-      ]
-    ],
-    [
-      [
-        "none",
-        "a check that tells whether the current state still fits"
-      ],
-      [
-        "state visibility",
-        "How easily a person sees the current state of an automated process."
-      ]
-    ],
-    [
-      [
-        "none",
-        "the viewpoint given as a position relative to the hero"
-      ],
-      [
-        "orientation",
-        "How clearly a person knows where they are in a space."
-      ]
-    ],
-    [
-      [
-        "none",
-        "surface behaviour named for each material"
-      ],
-      [
-        "surface character",
-        "How a surface's finish reads, such as glossy, grainy, flat or glowing."
-      ]
-    ],
-    [
-      [
-        "none",
-        "the result stated in plain words"
-      ],
-      [
-        "fidelity to intent",
-        "How closely a result matches what the person meant."
-      ]
-    ]
-  ],
-  "different": [
-    [
-      [
-        "none",
-        "an open question at all times"
-      ],
-      [
-        "approachability",
-        "How open and easy to approach a thing feels."
-      ]
-    ],
-    [
-      [
-        "none",
-        "a product the person can use at once"
-      ],
-      [
-        "browsing ease",
-        "How easily a person moves through a set of items and finds one."
-      ]
-    ],
-    [
-      [
-        "none",
-        "every line of words and design written fresh"
-      ],
-      [
-        "perceived energy",
-        "How lively and forceful a design feels to a person."
-      ]
-    ],
-    [
-      [
-        "none",
-        "views compared by sound on one's own items"
-      ],
-      [
-        "sense of scale",
-        "How big a person judges an object to be relative to others."
-      ]
-    ],
-    [
-      [
-        "none",
-        "the overall feeling described before the subject"
-      ],
-      [
-        "sense of weight",
-        "How heavy and deliberate a motion feels."
-      ]
-    ],
-    [
-      [
-        "none",
-        "one motion named in one sentence"
-      ],
-      [
-        "sense of weight",
-        "How heavy and deliberate a motion feels."
-      ]
-    ],
-    [
-      [
-        "none",
-        "a written definition of success for each step"
-      ],
-      [
-        "sense of progress",
-        "How far along a person feels they are toward a goal."
-      ]
-    ],
-    [
-      [
-        "none",
-        "a tempo that the sound sets"
-      ],
-      [
-        "feedback speed",
-        "How quickly a person sees the result of a change."
-      ]
-    ],
-    [
-      [
-        "none",
-        "a stored action that completes the step"
-      ],
-      [
-        "action confirmation",
-        "How clearly a person knows an action took effect."
-      ]
-    ],
-    [
-      [
-        "none",
-        "a chain of angles set in order"
-      ],
-      [
-        "reading order",
-        "The sequence in which a person takes in a block of text."
-      ]
-    ],
-    [
-      [
-        "none",
-        "one small repeated change"
-      ],
-      [
-        "change risk",
-        "How likely a change is to break something that already works."
-      ]
-    ]
-  ]
+ "what_this_is": "Made-up needs paired by hand with the property each is or is not about; measure-reuse-line.mjs over these pairs sets needs_tags.tag_min in technique-conventions.json. Each side is [title, text] as it is embedded: a need has no title.",
+ "same": [
+  [["none", "a question the reader has not answered yet"], ["curiosity", "How much a person wants to find something out."]],
+  [["none", "an audience that sees itself in the story"], ["self-relevance", "How much a person feels something is about them."]],
+  [["none", "a source the audience already believes"], ["trust", "How much a person believes what they are told."]],
+  [["none", "something people already want to have"], ["perceived value", "How much something seems worth."]],
+  [["none", "a listener who stays to the end"], ["attention over time", "How long a person keeps paying attention."]],
+  [["none", "a first step that feels easy to take"], ["perceived effort", "How hard something feels to do."]],
+  [["none", "people who know where they are in the sequence"], ["orientation", "How well a person knows where they are and what comes next."]],
+  [["none", "a reader who understands the basic idea"], ["comprehension", "How well a person understands something."]],
+  [["none", "players who feel part of the group"], ["social belonging", "How much a person feels part of a group."]],
+  [["none", "a shopper open to being asked"], ["receptiveness to an offer", "How open a person is to being asked to buy or act."]],
+  [["none", "a sense that things are moving forward"], ["sense of progress", "How much a person feels they are moving forward."]],
+  [["none", "a phrase short enough to recall later"], ["memorability", "How easily something is recalled later."]]
+ ],
+ "different": [
+  [["none", "a question the reader has not answered yet"], ["trust", "How much a person believes what they are told."]],
+  [["none", "an audience that sees itself in the story"], ["perceived effort", "How hard something feels to do."]],
+  [["none", "a source the audience already believes"], ["curiosity", "How much a person wants to find something out."]],
+  [["none", "something people already want to have"], ["orientation", "How well a person knows where they are and what comes next."]],
+  [["none", "a listener who stays to the end"], ["perceived value", "How much something seems worth."]],
+  [["none", "a first step that feels easy to take"], ["social belonging", "How much a person feels part of a group."]],
+  [["none", "people who know where they are in the sequence"], ["self-relevance", "How much a person feels something is about them."]],
+  [["none", "a reader who understands the basic idea"], ["receptiveness to an offer", "How open a person is to being asked to buy or act."]],
+  [["none", "players who feel part of the group"], ["memorability", "How easily something is recalled later."]],
+  [["none", "a shopper open to being asked"], ["comprehension", "How well a person understands something."]],
+  [["none", "a sense that things are moving forward"], ["trust", "How much a person believes what they are told."]],
+  [["none", "a phrase short enough to recall later"], ["sense of progress", "How much a person feels they are moving forward."]]
+ ]
 }

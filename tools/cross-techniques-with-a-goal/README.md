@@ -1,6 +1,6 @@
 # tools/cross-techniques-with-a-goal/
 
-Keeps every technique a person captures by **why it works**, in words shared by every other technique, so any technique can be used for any goal in any medium: a stick-figure video's "the viewer is the one who did nothing" can serve a sales page, because both are stored as the same mechanism, not as "video". Two Workshop tools, both run on the person's own computer with models they name:
+Keeps every technique a person captures by **why it works**, in words shared by every other technique, so any technique can be used for any goal in any medium: a radio drama's "the narrator speaks to you as your younger self" can serve a sales page, because both are stored as the same mechanism, not as "radio". Two Workshop tools, both run on the person's own computer with models they name:
 
 - `tool:say-why-a-technique-works` gives technique rows their crossing fields and grows the shared vocabulary.
 - `tool:cross-techniques-with-a-goal` crosses all of them with a goal: the techniques whose mechanism serves it, from any medium; pairs that compound; one concrete line for each. It needs only a chat model.
@@ -17,6 +17,10 @@ Keeps every technique a person captures by **why it works**, in words shared by 
 | `proposed` | The writer's own answer, kept as evidence | No |
 
 Which fields are vocabulary-bound is DATA: `bound.why` and `bound.changes` in `do-work/technique-conventions.json`.
+
+Nothing about any person's techniques ships here: their rows, vocabulary and row shape come with each request. By default the writer reads `name`, `kind` and `description` first, then every other words field. A request names its own with `reading` (`first`, `skip`, ...), and `say-why-for-files.mjs` also takes `carry`, the source fields copied onto crossing rows. The worked examples the writer sees are made up.
+
+Nothing about any person's techniques ships here: their rows, vocabulary and row shape come with each request. By default the writer reads `name`, `kind` and `description` first, then every other words field; a request names its own with `reading` (`first`, `skip`, ...), and `say-why-for-files.mjs` also takes `carry`, the source fields copied onto crossing rows. The worked examples the writer sees are made up.
 
 ## The vocabulary rule (code-enforced)
 
@@ -40,11 +44,11 @@ A proposal waiting on a judgment enters as a **provisional** term, so later prop
 | Best single line | 0.552, still misplacing 3 of 21 pairs |
 | `new_below` / `reuse_at` | 0.43 / 0.72 |
 
-No single line separates the two sets: a shared word pulls different terms together. Only the band between the two lines is judged. In the 2026-10-30 backfill, the judge kept "reliability" apart from "reproducibility" (0.635) and "recognisability" apart from "comprehension" (0.649). A single line would have merged both.
+No single line separates the two sets: a shared word pulls different terms together. Only the band between the two lines is judged. Terms such as "reliability" and "reproducibility" can sit inside the band, close in meaning yet different; the judge keeps them apart where a single line would merge them.
 
 A term's meaning is whatever any proposal of it said: a writer that reuses a term leaves `says` empty, and the fold fills it from the proposal that defined it before anything is embedded or judged.
 
-Need tags (`needs_tags.tag_min` 0.467) were measured over `do-work/need-tag-pairs.json`: right tags 0.468-0.543, wrong ones 0.450-0.549, 2 of 22 misplaced. A tag is a lead for pairing, never a fact.
+Need tags (`needs_tags.tag_min` 0.366) were measured over the made-up pairs in `do-work/need-tag-pairs.json`: right tags 0.381-0.710, wrong ones 0.226-0.402, 1 of 24 misplaced. A tag is a lead for pairing, never a fact. Plain made-up needs separate more cleanly than real ones, so a person re-measures the line over pairs from their own needs (`measure-reuse-line.mjs` with `pairs` in the request).
 
 ## How crossing works
 
@@ -71,11 +75,11 @@ A term the writer names that is not in the vocabulary, or a mechanism outside it
 | `do-work/measure-reuse-line.mjs` | Measures a vocabulary's lines for one embedding model. |
 | `do-work/technique-conventions.json` | Bound fields, measured lines, the words the writer reads, instructions and Claude-written worked examples, crossing prompts and limits. |
 | `do-work/reuse-line-pairs.json` | The hand-labelled term pairs (vocabulary lines). |
-| `do-work/need-tag-pairs.json` | The hand-labelled need/property pairs (`needs_tags.tag_min`). |
+| `do-work/need-tag-pairs.json` | The made-up, hand-labelled need/property pairs (`needs_tags.tag_min`). |
 | `test/vocabulary-and-settle.test.mjs` | Admission order, the band, provisional terms, the fold, stale "none" judgments, definitions filled in, `rowText`. |
 | `test/cross-medium.test.mjs` | 20 rows from 4 media crossed with a sales page (a fifth medium) on the writer's recorded answers; the exact joins on their own. |
 | `test/record-cassette.mjs` | Re-records the writer's answers for the fixture from a live model. |
-| `test/fixtures/` | The cross-medium rows and their vocabulary (from the 2026-10-30 backfill, ids renamed), and the recorded writer answers. |
+| `test/fixtures/` | The cross-medium rows and their vocabulary (made up: four invented sources and a sales page goal), and the recorded writer answers. |
 
 ## A library of row files
 

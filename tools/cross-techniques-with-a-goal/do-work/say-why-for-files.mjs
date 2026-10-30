@@ -29,7 +29,7 @@ import { basename, dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { embedder, sameMeaning, writer } from './meaning.mjs';
-import { askingJudge, makeProposer, makeSettler, proposalSchema, recordedJudge, rowText, settledFields } from './say-why.mjs';
+import { askingJudge, forRows, makeProposer, makeSettler, proposalSchema, recordedJudge, rowText, settledFields } from './say-why.mjs';
 import { emptyLexicon, withoutProvisional } from './vocabulary.mjs';
 
 const conventionsFile = fileURLToPath(new URL('./technique-conventions.json', import.meta.url));
@@ -96,7 +96,7 @@ function openLexicon(request, conventions, meaning, fresh) {
 const vocabularySizes = lexicon => Object.fromEntries(Object.entries(lexicon.vocabularies).map(([name, vocabulary]) => [name, withoutProvisional(vocabulary).terms.length]));
 
 export async function sayWhyForFiles(request, log = () => {}) {
-  const conventions = json(conventionsFile);
+  const conventions = forRows(json(conventionsFile), request);
   const library = openLibrary(request);
 
   if (request.step === 'list') {

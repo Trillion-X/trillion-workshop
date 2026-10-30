@@ -33,6 +33,14 @@ const isWords = value => typeof value === 'string' && !/^https?:\/\//.test(value
 const wordsOf = value => (Array.isArray(value) ? value.filter(isWords).join(', ') : isWords(value) ? value : '');
 const unique = list => [...new Set(list)];
 
+// The conventions for one person's rows: their row shape comes with the request (`reading` fields laid over the
+// generic ones, `carry` replacing the generic list), so nothing about any person's records is shipped here.
+export function forRows(conventions, request) {
+  const unknown = Object.keys(request.reading ?? {}).filter(key => !(key in conventions.reading) || key === 'comment');
+  if (unknown.length) throw new Error(`reading takes only ${Object.keys(conventions.reading).filter(key => key !== 'comment').join(', ')}; not ${unknown.join(', ')}.`);
+  return { ...conventions, reading: { ...conventions.reading, ...request.reading }, carry: request.carry ?? conventions.carry };
+}
+
 // The words of a source row the writer reads: the `first` fields in order, then every other string field not skipped.
 export function rowText(row, reading) {
   const named = [...reading.first, ...Object.keys(row).filter(key => !reading.first.includes(key) && !reading.skip.includes(key))];

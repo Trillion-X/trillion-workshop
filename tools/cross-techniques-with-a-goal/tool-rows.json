@@ -72,6 +72,7 @@
      "properties": {
       "rows": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["id"] }, "description": "Technique rows in any shape, each with an id and its own words (name, kind, description...)" },
       "vocabulary": { "type": "object", "required": ["meaning", "vocabularies"], "description": "The vocabulary returned by the last call; omit to start one" },
+      "reading": { "type": "object", "additionalProperties": false, "properties": { "first": { "type": "array", "items": { "type": "string" } }, "skip": { "type": "array", "items": { "type": "string" } }, "max_chars": { "type": "integer", "minimum": 1 }, "row_max_chars": { "type": "integer", "minimum": 1 }, "rows_per_call": { "type": "integer", "minimum": 1 }, "nearest_shown": { "type": "integer", "minimum": 0 } }, "description": "The shape of these rows: which of their fields the writer reads first and which it skips; omit for name, kind and description first and every other words field after" },
       "models": { "type": "object", "required": ["writing", "meaning"], "properties": { "writing": { "type": "object", "required": ["url", "model"] }, "meaning": { "type": "object", "required": ["url", "model", "dims", "forms"] } } }
      }
     },
