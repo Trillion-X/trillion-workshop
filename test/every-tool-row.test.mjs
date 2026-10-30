@@ -1,10 +1,10 @@
 // Every tool folder's rows, checked the way Trillion reads them before it offers a tool: each tools/<name>/tool-rows.json
 // is { records: [{ payload }] }; a row's files (invoke.files.package_files) name a tool folder here and paths that are
-// in it; a tool-row-source's list.records names a records file here holding rows of its kind; every licence class a
+// in it; a tool-row-source's list.records names a records file (or a folder of them) here holding rows of its kind; every licence class a
 // row names is in licence-classes.json; and no two rows share an id. Nothing here names a tool.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
@@ -24,8 +24,13 @@ function rowsOf(folder) {
     if (payload.kind !== 'tool-row-source' || !payload.list?.records) return [{ folder, payload }];
     const { package: name, kind, file: records = 'records.json' } = payload.list.records;
     const path = join(tools, name, records);
-    assert.ok(existsSync(path), `${payload.id} lists ${name}/${records}, which is a file here`);
-    const listed = (json(path).things ?? []).filter(thing => thing?.payload?.kind === kind);
+    assert.ok(existsSync(path), `${payload.id} lists ${name}/${records}, which is here`);
+    // A file holds its rows; a folder holds files that each hold rows. Either way a row is { payload } in things or records.
+    const files = statSync(path).isDirectory()
+      ? readdirSync(path).filter(entry => entry.endsWith('.json')).map(entry => join(path, entry))
+      : [path];
+    const listed = files.flatMap(file => { const kept = json(file); return kept.things ?? kept.records ?? []; })
+      .filter(thing => thing?.payload?.kind === kind);
     assert.ok(listed.length, `${payload.id}: ${name}/${records} holds rows of kind ${kind}`);
     return [{ folder, payload }, ...listed.map(thing => ({ folder: name, payload: thing.payload }))];
   });
