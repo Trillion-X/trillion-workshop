@@ -153,7 +153,7 @@ test('each connection check asks with the value its place signs with, over https
   const checks = rows.records.map(record => record.payload).filter(payload => payload.invoke.kind === 'http');
   assert.ok(checks.length >= 2);
   for (const check of checks) {
-    const vendor = check.invoke.connection_id.replace(/^service_connection:/, '');
+    const vendor = check.invoke.connection.vendor;
     const place = places.places.find(item => item.connection_vendor === vendor);
     assert.ok(place, `${check.id} checks a vendor some place posts through`);
     const signed = JSON.stringify(place.options);

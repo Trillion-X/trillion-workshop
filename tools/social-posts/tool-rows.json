@@ -1195,7 +1195,15 @@
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "properties": {}
+     "required": [
+      "account_id"
+     ],
+     "properties": {
+      "account_id": {
+       "type": "string",
+       "description": "One of the person's accounts of this kind, service_connection:instagram or service_connection:instagram:<account>, from tool:list-post-destinations"
+      }
+     }
     },
     "output_schema": {
      "type": "object"
@@ -1210,7 +1218,6 @@
        "const": "user_id,username"
       }
      },
-     "connection_id": "service_connection:instagram",
      "credential_injections": [
       {
        "field_id": "access_token",
@@ -1219,7 +1226,11 @@
         "name": "access_token"
        }
       }
-     ]
+     ],
+     "connection": {
+      "vendor": "instagram",
+      "from_input": "account_id"
+     }
     },
     "provenance": {
      "provider": "Instagram",
@@ -1228,7 +1239,9 @@
     "verify": [
      {
       "kind": "sample-run",
-      "input": {},
+      "input": {
+       "account_id": "service_connection:instagram"
+      },
       "output_selector": "$",
       "contains": "id"
      }
@@ -1263,7 +1276,15 @@
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "properties": {}
+     "required": [
+      "account_id"
+     ],
+     "properties": {
+      "account_id": {
+       "type": "string",
+       "description": "One of the person's accounts of this kind, service_connection:facebook-messenger or service_connection:facebook-messenger:<account>, from tool:list-post-destinations"
+      }
+     }
     },
     "output_schema": {
      "type": "object"
@@ -1278,7 +1299,6 @@
        "const": "id,name"
       }
      },
-     "connection_id": "service_connection:facebook-messenger",
      "credential_injections": [
       {
        "field_id": "page_access_token",
@@ -1287,7 +1307,11 @@
         "name": "access_token"
        }
       }
-     ]
+     ],
+     "connection": {
+      "vendor": "facebook-messenger",
+      "from_input": "account_id"
+     }
     },
     "provenance": {
      "provider": "Facebook",
@@ -1296,7 +1320,9 @@
     "verify": [
      {
       "kind": "sample-run",
-      "input": {},
+      "input": {
+       "account_id": "service_connection:facebook-messenger"
+      },
       "output_selector": "$",
       "contains": "id"
      }
