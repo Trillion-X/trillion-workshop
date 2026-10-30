@@ -14,7 +14,10 @@
 //      thing is identified): `artifact_ref` (`1f:` and 64 hex digits, with or without `file:`), or the thing itself as
 //      `text`, `contains` (a part of a text) or `view` (any JSON) with the `fold` its owner declares. A name is not an
 //      identity and is refused, so two names for one file are one stand. One record per kind and identity.
-//   3. The newest version governs: versions are ordered by `at`, and every older one is an earlier stand, oldest first.
+//   3. The newest version governs: a record's history (its versions as the records door's records:history pages them,
+//      newest first) is ordered by `version`, the newest is the stand, and every older one is an earlier stand, oldest
+//      first. A deleted version (a tombstone) is the stand taken back. A history whose last page still has `next` is
+//      incomplete and says so: earlier stands it did not read are unknown, never none.
 //   4. A reload of stands kept elsewhere (planReload) writes each earlier stand as an earlier version of the same
 //      record, oldest first, and says how many records changed identity and which ones the fold made one.
 //   5. This file names no stand, kind or word: they are DATA in read-data/stances.json.
@@ -73,31 +76,32 @@ export function stanceRecord({ kind, artifact_ref, text, contains, view, fold, s
   };
 }
 
-// A version as a store hands it back: the record value itself, or wrapped in { value } or { payload }.
-const valueOf = version => (version && typeof version === 'object' ? version.value ?? version.payload ?? version : null);
-const stand = value => ({ stance: value.stance ?? null, said: value.said ?? null, why: value.why ?? null, by: value.by ?? null, at: value.at ?? null });
+// One version as records:history gives it: { version, value, deleted, at }. A tombstone has value null.
+const stand = ({ version, value, deleted, at }) => (deleted || !value
+  ? { version, stance: null, said: null, why: null, by: null, at, deleted: true }
+  : { version, stance: value.stance ?? null, said: value.said ?? null, why: value.why ?? null, by: value.by ?? null, at: value.at ?? at, deleted: false });
 
 /**
- * Where the person stands on each thing, from the versions of its stance records (any order, any number of things):
- * [{ id, kind, artifact, text?, contains?, view?, stance, said, why, by, at, earlier: [{ stance, said, why, by, at }] }]:
- * the newest version is the stand, and every older version is in `earlier`, oldest first. With `artifact_ref` (and
- * `kind`), only that thing, and a thing with no record reads stance null.
+ * Where the person stands on one thing, from its stance record's history: `versions` as records:history returns them
+ * ({ version, value, deleted, at }, newest first; the versions of every page read, in any order, may be passed
+ * together) and `next`, the last page's. Returns { id, kind, artifact, text? | contains? | view?, stance, said, why, by,
+ * at, version, earlier: [{ version, stance, said, why, by, at, deleted }] (oldest first), complete }. No version, or a
+ * newest version that is a tombstone or takes the stand back, reads stance null.
  */
-export function standsFrom(versions = [], { artifact_ref, kind } = {}) {
-  const wanted = artifact_ref === undefined ? null : artifactOf(artifact_ref);
-  const byRecord = new Map();
-  for (const value of versions.map(valueOf)) {
-    if (!value || value.type !== stanceData.kind || typeof value.artifact !== 'string' || typeof value.id !== 'string') continue;
-    if ((wanted && value.artifact !== wanted) || (kind !== undefined && value.kind !== kind)) continue;
-    byRecord.set(value.id, [...(byRecord.get(value.id) ?? []), value]);
+export function standFrom({ versions = [], next = null } = {}) {
+  if (!Array.isArray(versions) || versions.some(row => !row || !Number.isInteger(row.version) || row.version < 1)) {
+    throw new StanceRefusal(WORDS.refused_history);
   }
-  if (wanted && !byRecord.size) return [{ kind: kind ?? null, artifact: wanted, stance: null, said: null, why: null, by: null, at: null, earlier: [] }];
-  return [...byRecord].map(([id, kept]) => {
-    const ordered = [...kept].sort((a, b) => String(a.at ?? '').localeCompare(String(b.at ?? '')));
-    const newest = ordered.at(-1);
-    const thing = ['text', 'contains', 'view'].filter(key => newest[key] !== undefined).map(key => [key, newest[key]]);
-    return { id, kind: newest.kind ?? null, artifact: newest.artifact, ...Object.fromEntries(thing), ...stand(newest), earlier: ordered.slice(0, -1).map(stand) };
-  });
+  const byVersion = new Map(versions.map(row => [row.version, row]));
+  const ordered = [...byVersion.values()].sort((a, b) => a.version - b.version);
+  const complete = next === null;
+  const newest = ordered.at(-1);
+  if (!newest) return { id: null, kind: null, artifact: null, stance: null, said: null, why: null, by: null, at: null, version: null, earlier: [], complete };
+  const named = [...ordered].reverse().find(row => row.value && !row.deleted)?.value ?? {};
+  const thing = ['text', 'contains', 'view'].filter(key => named[key] !== undefined).map(key => [key, named[key]]);
+  const { deleted, ...now } = stand(newest);
+  return { id: named.id ?? null, kind: named.kind ?? null, artifact: named.artifact ?? null, ...Object.fromEntries(thing),
+    ...now, ...(deleted || now.stance === null ? { taken_back: true } : {}), earlier: ordered.slice(0, -1).map(stand), complete };
 }
 
 /**

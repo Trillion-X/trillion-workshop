@@ -25,6 +25,7 @@
   "refused_ref": "Name the thing the stand is on by artifact_ref, its identity (1f: and 64 hex digits, or file: and that identity), or give the thing itself as text, contains or view, with the fold its owner declares. A file name is not an identity; read the file's identity first.",
   "refused_kind": "kind is the kind of thing the stand is on (a title, a take, a plan), one word without '/'.",
   "refused_thing": "The thing could not be identified:",
-  "refused_why": "why is the person's own words, as text."
+  "refused_why": "why is the person's own words, as text.",
+  "refused_history": "Pass the record's history as records:history gives it: { versions: [{ version (1 or more), value, deleted, at }], next }, the versions of every page you read together and next from the last page."
  }
 }
