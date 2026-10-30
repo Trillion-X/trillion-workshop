@@ -1,0 +1,617 @@
+{
+ "kind": "tool-rows",
+ "record_set": "check-against-a-persons-rules-and-verdicts-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/check-against-a-persons-rules-and-verdicts: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::check-against-a-persons-rules-and-verdicts::tool::check-against-a-persons-rules-and-verdicts",
+   "address": "package::check-against-a-persons-rules-and-verdicts::tool::check-against-a-persons-rules-and-verdicts",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-against-a-persons-rules-and-verdicts",
+    "label": "Check words or anything made against a person's own rules and verdicts",
+    "status": "active",
+    "job": "Check words, a title, a script line or a plan against a person's own rules and the verdicts they already gave, and say pass, fail or uncertain for each, with why",
+    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "rules",
+      "units"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "rules": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "id"
+        ]
+       },
+       "description": "Rule rows: judge-words rows (see tool:judge-against-rules), each optionally with held_when ({ path, where } over a unit's facts: its findings there only hold), or ask rows { id, kinds?, says, ask: { question, options, fail, at_most?, calibration: { status, t_pass, t_fail } } }"
+      },
+      "units": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "kind"
+        ],
+        "properties": {
+         "text": {
+          "type": "string"
+         },
+         "view": {},
+         "kind": {
+          "type": "string"
+         },
+         "field": {
+          "type": "string"
+         },
+         "path": {
+          "type": "array"
+         },
+         "facts": {
+          "type": "object",
+          "description": "Facts a row's when and held_when read, such as where the words came from"
+         },
+         "context": {},
+         "context_requires_review": {
+          "type": "boolean"
+         },
+         "also_found": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "rule",
+            "outcome"
+           ]
+          },
+          "description": "Findings you already have for this unit, each with outcome fail or uncertain"
+         },
+         "where": {
+          "type": "string"
+         }
+        }
+       },
+       "description": "The things to check"
+      },
+      "verdict_rules": {
+       "type": "object",
+       "description": "The person's rule document: rows (judge-words rule rows; a row with part reads a part of a thing as another kind; a row with ask is a reading row a model answers), fold (how two texts are one text), stage.default (review or final), stance_rule and novel (the ids and words of the findings their stands and silence make) and agree_clears.rules (the generic rules their agree clears)",
+       "required": [
+        "rows",
+        "fold",
+        "stage",
+        "stance_rule",
+        "novel",
+        "agree_clears"
+       ]
+      },
+      "stands": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "artifact",
+         "stance"
+        ],
+        "description": "One stand, as tool:read-where-you-stand gives it: kind, artifact (1f: identity), text, contains or view, stance (agree, disagree, partly, or null when taken back), why (their own words) and at",
+        "properties": {
+         "kind": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "artifact": {
+          "type": "string"
+         },
+         "text": {
+          "type": "string"
+         },
+         "contains": {
+          "type": "string"
+         },
+         "view": {},
+         "stance": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "why": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "at": {
+          "type": [
+           "string",
+           "null"
+          ]
+         }
+        }
+       },
+       "description": "Where the person stands on things already made"
+      },
+      "stands_as_of": {
+       "type": "string",
+       "description": "When the stands were read, if they were read from a copy and not live"
+      },
+      "stage": {
+       "type": "string",
+       "enum": [
+        "review",
+        "final"
+       ],
+       "description": "review holds what final fails; the rule document's stage.default when left out"
+      },
+      "fields_by_kind": {
+       "type": "object",
+       "description": "The field a unit of a kind is judged as, when the unit names none"
+      },
+      "answers": {
+       "type": "object",
+       "description": "A model's answers by question id: { option: probability }"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status",
+      "passed",
+      "results",
+      "questions",
+      "lines"
+     ],
+     "properties": {
+      "status": {
+       "type": "string",
+       "enum": [
+        "unqualified",
+        "failed",
+        "uncertain",
+        "passed"
+       ]
+      },
+      "passed": {
+       "type": "boolean"
+      },
+      "results": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "verdict",
+         "breaks",
+         "uncertain",
+         "advisory",
+         "qualification"
+        ]
+       }
+      },
+      "questions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "rule",
+         "question",
+         "options",
+         "text"
+        ]
+       }
+      },
+      "lines": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
+        "package": "judge-words",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/judge-words"
+       },
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/check-against-a-persons-rules-and-verdicts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/check-against-their-rules-and-verdicts.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:check-against-a-persons-rules-and-verdicts",
+    "provenance": {
+     "source": "a copy gate made generic: the person's rules, verdicts and words are input, never kept here"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "rules": [
+        {
+         "id": "no-sparkle",
+         "words": [
+          "sparkle"
+         ],
+         "says": "No sparkle."
+        }
+       ],
+       "verdict_rules": {
+        "fold": {
+         "lowercase": true,
+         "collapse_space": true,
+         "strip_trailing": "[.!?]+"
+        },
+        "stage": {
+         "default": "final"
+        },
+        "stance_rule": "their-stance",
+        "novel": {
+         "rule": "novel",
+         "says": "Nothing of theirs judges this."
+        },
+        "agree_clears": {
+         "rules": []
+        },
+        "rows": [
+         {
+          "id": "no-zorblax",
+          "kinds": [
+           "title"
+          ],
+          "words": [
+           "zorblax"
+          ],
+          "says": "Never zorblax."
+         }
+        ]
+       },
+       "stands": [
+        {
+         "kind": "title",
+         "artifact": "1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366",
+         "text": "Zorblax rising",
+         "stance": "disagree",
+         "why": "not a word I use",
+         "at": "2026-01-01T00:00:00Z"
+        }
+       ],
+       "units": [
+        {
+         "text": "Zorblax rising",
+         "kind": "title"
+        }
+       ]
+      },
+      "output_selector": "$.lines[2]",
+      "contains": "They disagreed: \"not a word I use\""
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::check-against-a-persons-rules-and-verdicts::tool::make-examples-from-where-a-person-stands",
+   "address": "package::check-against-a-persons-rules-and-verdicts::tool::make-examples-from-where-a-person-stands",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:make-examples-from-where-a-person-stands",
+    "label": "Make labelled examples from where a person stands",
+    "status": "active",
+    "job": "Turn the verdicts a person already gave into good and bad examples, to tune a model that answers their reading rules",
+    "description": "Give the person's rule document (verdict_rules) and their stands. Every thing of a reading row's kinds whose current stand is their exact agree is a good example; a stand a reading row names in pairs[].rejected is a bad example for that row. A pair naming no current exact stand is refused.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "verdict_rules"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "verdict_rules": {
+       "type": "object",
+       "description": "The person's rule document: rows (judge-words rule rows; a row with part reads a part of a thing as another kind; a row with ask is a reading row a model answers), fold (how two texts are one text), stage.default (review or final), stance_rule and novel (the ids and words of the findings their stands and silence make) and agree_clears.rules (the generic rules their agree clears)",
+       "required": [
+        "rows",
+        "fold",
+        "stage",
+        "stance_rule",
+        "novel",
+        "agree_clears"
+       ]
+      },
+      "stands": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "artifact",
+         "stance"
+        ],
+        "description": "One stand, as tool:read-where-you-stand gives it: kind, artifact (1f: identity), text, contains or view, stance (agree, disagree, partly, or null when taken back), why (their own words) and at",
+        "properties": {
+         "kind": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "artifact": {
+          "type": "string"
+         },
+         "text": {
+          "type": "string"
+         },
+         "contains": {
+          "type": "string"
+         },
+         "view": {},
+         "stance": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "why": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "at": {
+          "type": [
+           "string",
+           "null"
+          ]
+         }
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "items",
+      "rows"
+     ],
+     "properties": {
+      "items": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "text",
+         "kind",
+         "good",
+         "bad_for",
+         "ref"
+        ]
+       }
+      },
+      "rows": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
+        "package": "judge-words",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/judge-words"
+       },
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/check-against-a-persons-rules-and-verdicts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/examples-from-where-they-stand.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:check-against-a-persons-rules-and-verdicts",
+    "provenance": {
+     "source": "a copy gate's label loop made generic"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "verdict_rules": {
+        "fold": {
+         "lowercase": true,
+         "collapse_space": true,
+         "strip_trailing": "[.!?]+"
+        },
+        "stage": {
+         "default": "final"
+        },
+        "stance_rule": "their-stance",
+        "novel": {
+         "rule": "novel",
+         "says": "Nothing of theirs judges this."
+        },
+        "agree_clears": {
+         "rules": []
+        },
+        "rows": [
+         {
+          "id": "reads-well",
+          "kinds": [
+           "title"
+          ],
+          "says": "Reads well.",
+          "ask": {
+           "question": "Does it read well?",
+           "options": [
+            "yes",
+            "no"
+           ],
+           "fail": "no"
+          },
+          "pairs": [
+           {
+            "rejected": "1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366"
+           }
+          ]
+         }
+        ]
+       },
+       "stands": [
+        {
+         "kind": "title",
+         "artifact": "1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366",
+         "text": "Zorblax rising",
+         "stance": "disagree",
+         "why": "not a word I use",
+         "at": "2026-01-01T00:00:00Z"
+        }
+       ]
+      },
+      "output_selector": "$.items[0].bad_for[0]",
+      "contains": "reads-well"
+     }
+    ]
+   }
+  }
+ ]
+}
