@@ -1,0 +1,19 @@
+{
+  "kind": "log-to-display-profile",
+  "title": "S-Log3 S-Gamut3.Cine to Rec709",
+  "log_curve": {
+    "code_scale": 1023,
+    "cut_code": 171.2102946929,
+    "log": { "base": 10, "offset_code": 420, "slope_code": 261.5, "mid_grey": 0.18, "pedestal": 0.01 },
+    "toe": { "origin_code": 95, "linear_at_cut": 0.01125 }
+  },
+  "gamut_matrix": [
+    [1.6269474097, -0.5401385389, -0.0868088708],
+    [-0.1785155271, 1.4179409275, -0.2394254004],
+    [0.0444361150, -0.1959199662, 1.2403560812]
+  ],
+  "luma_weights": [0.2126, 0.7152, 0.0722],
+  "video_range": { "black_code": 64, "white_code": 940 },
+  "shoulder": { "a": 2.51, "b": 0.03, "c": 2.43, "d": 0.59, "e": 0.14 },
+  "display_gamma": 2.4
+}
