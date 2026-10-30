@@ -1,0 +1,55 @@
+{
+ "what_this_is": "Every word do-work/rules-and-verdicts.mjs says: the ids of the findings it makes itself, the words of each finding, and the refusals. {name} is filled from the finding. A rule row's own words (says, suggest) come from the row, never from here.",
+ "rule_ids": {
+  "no_applicable_rule": "no-applicable-rule",
+  "uncertain_only": "uncertain-only-rows-cannot-qualify",
+  "context_review": "context-policy-unqualified"
+ },
+ "stance_did": {
+  "agree": "They agreed",
+  "disagree": "They disagreed",
+  "partly": "They partly agreed"
+ },
+ "quoted": "{did}: \"{why}\" ({ref}{at}{as_of}).",
+ "quoted_at": ", {at}",
+ "quoted_as_of": "; as of {as_of}, not read live",
+ "partly": "Partly is not shippable as is: held at review, failed at final.",
+ "basis_gone": "Basis gone: every stance this row came from was taken back, so it only holds.",
+ "part_unjudged": "They have not judged this {kind} ({value}): it waits for them.",
+ "held": "Held, not failed: the unit's facts are ones this row only holds on (its held_when), and no stance of theirs names this; a person decides.",
+ "held_why": "held_when: the row's finding only holds on a unit with these facts",
+ "reading_not_asked": "model qualification is not established ({status}); held from its DATA, the model is not asked",
+ "no_status": "no calibration status",
+ "no_calibration": "no calibration",
+ "ask_unqualified": "model qualification is not established ({status})",
+ "ask_no_answer": "no model answer",
+ "ask_capped_over": "the model says this may break the rule: P(fail) {p} is at or over {t_fail}; it never fails a unit on its own",
+ "ask_not_usable": "the model is not calibrated as usable on this rule ({status})",
+ "ask_bad_bounds": "calibration bounds are missing or invalid",
+ "ask_between": "P(fail) {p} is between the calibrated {t_pass} and {t_fail}",
+ "no_applicable_rule": {
+  "says": "No declared rule applies to this unit; it is unqualified, not passed.",
+  "why": "no applicable rules"
+ },
+ "uncertain_only": {
+  "says": "These rules can flag uncertainty but cannot establish a pass.",
+  "why": "no pass-capable rule applies"
+ },
+ "context_review": {
+  "finding_why": "Rule applicability to this source or instruction context needs qualified review.",
+  "says": "This unit needs context-specific review. Do not rewrite preserved source words from a word finding.",
+  "why": "No context-specific qualification is established."
+ },
+ "lines_head": "{units} units: {fail} fail, {uncertain} uncertain, {pass} pass",
+ "lines_unit": "{verdict} [{kind}] {where}",
+ "lines_finding": "  {rule}: \"{found}\"{p}. {says}{suggest}{why}",
+ "lines_suggest": " Say {suggest}.",
+ "refused": {
+  "rules": "rules is a non-empty list of rule rows: the rules the units are checked against.",
+  "units": "units is a non-empty list of { text, kind } (or { view, kind } for a JSON artifact): the things to check.",
+  "verdict_rules": "verdict_rules is the person's rule document: { rows, fold, stage: { default }, stance_rule, novel: { rule, says }, agree_clears: { rules } }. Missing: {missing}.",
+  "stage": "stage is review or final.",
+  "pairs": "A reading row's pairs[].rejected names a stand that is not a current exact stand on a text: {missing}. Pass that stand, or take the pair out of the row."
+ },
+ "usable": "usable"
+}
