@@ -12,7 +12,7 @@ The tool only reads. The engine keeps the causes (`src/wake.rs` in the engine, o
 |------|---------|
 | `do-work/what-runs-on-its-own.mjs` | `tool:see-what-runs-on-its-own`: one row per declared wake, red first. `wakeKey` is the engine's key for a wake: BLAKE3 of tool, a zero byte, id, a zero byte. |
 | `read-data/states.json` | The states (words, red or not), which state wins when several hold, how long past due counts as late, and the steps between states. A new state is one row. |
-| `tool-rows.json` | The Workshop row Trillion reads. It packs `@noble/hashes` (BLAKE3) into the container. |
+| `tool-rows.json` | The Workshop row Trillion reads. It packs `tools/content-identity` (BLAKE3) and `@noble/hashes` into the container. |
 | `part.json` | The tool and its states are public. |
 | `test/what-runs-on-its-own.test.mjs` | Every state and why it holds, off winning, red first with counts, the key against b3sum, the state graph (every state reachable, each with a way out, at most 20 arrows), and the sample run as the container runs it. |
 

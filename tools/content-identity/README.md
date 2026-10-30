@@ -24,7 +24,9 @@ imports it packs `read-data` beside its own files (with the `@noble/hashes` modu
 
 **Depends on:** `@noble/hashes` (BLAKE3).
 
-**Depended on by:** `tools/where-a-person-stands` (`do-work/artifact-ref.mjs`: the identity of a file, a JSON view or folded text).
+**Depended on by:** `tools/where-a-person-stands` (`do-work/artifact-ref.mjs`: the identity of a file, a JSON view or folded text),
+`tools/media-composition` (stage reuse), `tools/legal-document-builder` (each document's identity),
+`tools/what-runs-on-its-own` (`wakeKey`, the hex without `1f:`), `tools/cross-techniques-with-a-goal` (`hashOf`, its first 32 hex).
 
 ## Invariants
 

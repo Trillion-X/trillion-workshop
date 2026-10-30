@@ -127,6 +127,13 @@
         "at": "/opt/parts/legal-document-builder"
        },
        {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/parts/content-identity"
+       },
+       {
         "module": "@noble/hashes",
         "paths": [
          "LICENSE",

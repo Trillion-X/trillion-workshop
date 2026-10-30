@@ -7,12 +7,11 @@
 // prints one JSON line: each document's text, its BLAKE3 identity, the clauses used, whether it is ready to publish,
 // and which facts are missing or still to be confirmed, plus every fact each asked-for document reads.
 import { readFileSync } from 'node:fs';
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { assembleDocumentsForBusiness } from '../read-data/assemble-legal-documents.ts';
 
 const library = JSON.parse(readFileSync(new URL('../data/policy-clause-library.json', import.meta.url), 'utf8'));
-const identityOf = text => `1f:${bytesToHex(blake3(utf8ToBytes(text)))}`;
+const identityOf = text => makeHashCodeHexFromBytes(new TextEncoder().encode(text));
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
 export function writeLegalDocuments(input) {
