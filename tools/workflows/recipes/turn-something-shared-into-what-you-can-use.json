@@ -1,0 +1,207 @@
+{
+  "about": "A workflow every account can find and run: take anything a person shares (a post, a thread, an article, a video, a repository, a product page) and put each part where it can be used. Methods become technique records, step-by-step playbooks become workflow recipes, code becomes tools, and paid products become free or open-source tools that do the same job. One workflow-recipe row in the shape of the shared recipe shelf (job, input_schema, ordered steps, each with do, submit and checks).",
+  "records": [
+    {
+      "id": "turn-something-shared-into-what-you-can-use",
+      "address": "workflow-recipe:turn-something-shared-into-what-you-can-use",
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:turn-something-shared-into-what-you-can-use",
+        "label": "Turn something shared into what you can use",
+        "job": "Read what the person shared in full, split it into its parts, and put each part where the person's AI can use it again: methods and facts as technique records described by what they work on (never tied to one medium), step-by-step playbooks as workflow recipes, code as tools, and every paid product matched to a free or open-source tool that does the same job. Record every step that is not adopted and why.",
+        "source": {
+          "from": "a person's standing rule",
+          "name": "Anything shared means incorporate it, not acknowledge it",
+          "note": "Written from the way one person's AI handled 30 shared posts, repositories and product pages on 2026-10-30: each was split into parts and each part went to the owner of its kind. Steps that deceive people or evade a platform's checks are recorded as not adopted with the reason, never silently dropped."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["shared"],
+          "properties": {
+            "shared": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 3},
+              "description": "What the person shared: each item is a link, or the pasted text of a post or article"
+            },
+            "why": {
+              "type": "string",
+              "description": "Anything the person said about it, in their own words (for example 'must do 100%')"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "read",
+            "title": "Read every item in full",
+            "do": "For each item in the input shared: if it is pasted text, use it as it is. If it is a link, call tool:read-public-web-page with { \"url\": <the link> }. If that tool reports the page needs a signed-in browser (for example x.com or reddit.com), call tool:read-a-page-in-my-browser with the same url. Read the whole thing, including replies or linked articles that the item points to as its main content. For a video, get its words: use the platform's captions if the page has them; otherwise use the transcription tool the person has (a tools-from-github row such as whisper) on the downloaded audio. Record for each item: the url (or 'pasted'), its author, and its full text.",
+            "submit": {
+              "type": "object",
+              "required": ["items"],
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["source", "author", "text"],
+                    "properties": {
+                      "source": {"type": "string", "minLength": 3},
+                      "author": {"type": "string", "minLength": 1},
+                      "text": {"type": "string", "minLength": 20}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "items", "*", "source"], "of": ["input", "shared", "*"], "says": "Every shared item was read"}
+            ]
+          },
+          {
+            "id": "split",
+            "title": "Split it into parts and name each part's kind",
+            "do": "Go through the text of every item and list its parts. Each part is exactly one of: 'method' (a way of doing something that works on some property, such as hooks, timing, layout, pricing or verification), 'playbook' (an ordered procedure someone can follow step by step), 'code' (a repository, package or script), 'paid-product' (a product or service that charges), 'claim' (a number or result the author reports), or 'reference' (a list of examples, styles or components). Write each part in your own words; do not copy the author's prose. For every claim, keep the number and mark it as the author's claim, not a fact.",
+            "submit": {
+              "type": "object",
+              "required": ["parts"],
+              "properties": {
+                "parts": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["kind", "summary", "from_source"],
+                    "properties": {
+                      "kind": {"type": "string", "enum": ["method", "playbook", "code", "paid-product", "claim", "reference"]},
+                      "summary": {"type": "string", "minLength": 10},
+                      "from_source": {"type": "string", "minLength": 3}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "parts", "*", "from_source"], "of": ["steps", "read", "items", "*", "source"], "says": "Every part comes from something that was read"}
+            ]
+          },
+          {
+            "id": "check-what-exists",
+            "title": "Check what the person already has before adding anything",
+            "do": "For each part, search the person's existing technique records, workflow recipes and tools for one that does the same job: use the person's search tool on their records with the part's summary as the question, and list the Workshop tools. If one exists, mark the part 'already-have' with its id and say whether the new part improves it. Never add a second record, recipe or tool for a job that already has one; improve the existing one instead.",
+            "submit": {
+              "type": "object",
+              "required": ["matches"],
+              "properties": {
+                "matches": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["summary", "status"],
+                    "properties": {
+                      "summary": {"type": "string", "minLength": 10},
+                      "status": {"type": "string", "enum": ["new", "already-have", "improves-existing"]},
+                      "existing_id": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "free-instead-of-paid",
+            "title": "Find the free or open-source tool for every paid product",
+            "do": "For each paid-product part: write its job in one plain sentence. Search for open-source repositories and free tools that do that job (GitHub search for the job's words, and the person's existing Workshop tools). For each candidate record the repository, its licence as read from the repository's own licence file (never guessed), whether it runs on the person's own computer, and how close it comes to the paid product. If no free tool does the job, describe what the paid product shows on its public pages and public app files and what a tool would need to do the same; never sign up, pay, or install the paid product to find out.",
+            "submit": {
+              "type": "object",
+              "required": ["paid"],
+              "properties": {
+                "paid": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["product", "job", "free_options"],
+                    "properties": {
+                      "product": {"type": "string", "minLength": 2},
+                      "job": {"type": "string", "minLength": 10},
+                      "free_options": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": ["repo", "licence", "runs_locally"],
+                          "properties": {
+                            "repo": {"type": "string", "minLength": 3},
+                            "licence": {"type": "string", "minLength": 2},
+                            "runs_locally": {"type": "boolean"}
+                          }
+                        }
+                      },
+                      "if_none": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "not-adopted",
+            "title": "Name every step you will not adopt, and why",
+            "do": "Go through every playbook and method part. Any step that deceives people (pretending, hiding who you are or that you are selling), evades a platform's spam or safety checks, breaks a site's rules or a law, or copies someone's words or designs instead of their structure, is not adopted. For each, record the step, the reason, and the honest version if there is one. Everything else is adopted.",
+            "submit": {
+              "type": "object",
+              "required": ["not_adopted"],
+              "properties": {
+                "not_adopted": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["step", "reason"],
+                    "properties": {
+                      "step": {"type": "string", "minLength": 5},
+                      "reason": {"type": "string", "minLength": 10},
+                      "honest_version": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "place",
+            "title": "Put each part where it can be used again",
+            "do": "For each part marked new or improves-existing: a method, claim or reference becomes a technique record in the person's techniques list with id, name, kind, a description in your own words, source_url, author, and acts_on (the plain words for what it works on, never limited to one medium such as video). A playbook becomes a workflow recipe in this same shape: job, input_schema for what changes per person, and ordered steps, each with an exact do (name the exact tool, page, setting and input), a submit schema and checks; keep the person's own details out of a recipe meant for everyone. Code that does a job with an input and an output becomes a Workshop tool or a tools-from-github row with its licence read from the repository. A free option from the free-instead-of-paid step becomes a tools-from-github row the same way. Use the person's record write for records; show the person each recipe and tool before it is shared publicly.",
+            "submit": {
+              "type": "object",
+              "required": ["placed"],
+              "properties": {
+                "placed": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["summary", "went_to", "id"],
+                    "properties": {
+                      "summary": {"type": "string", "minLength": 10},
+                      "went_to": {"type": "string", "enum": ["technique-record", "workflow-recipe", "workshop-tool", "tools-from-github-row", "improved-existing"]},
+                      "id": {"type": "string", "minLength": 3}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "tell",
+            "title": "Tell the person what went where",
+            "do": "Call tool:tell-the-person with a short message: for each shared item, what was built from it and where (technique records with their count, recipes, tools), the free tools found for each paid product, the steps not adopted with their reasons, and anything that needs the person (an account, a payment, approving a public recipe). Give exact names and places, never just 'saved'.",
+            "submit": {
+              "type": "object",
+              "required": ["told"],
+              "properties": {"told": {"type": "boolean", "const": true}}
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
