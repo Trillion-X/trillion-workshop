@@ -36,6 +36,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `person-list` | Find people by any field; rank people by the points their activity earns | `tool:find-people`, `tool:rank-people-by-activity` |
 | `person-profile` | Lays out one person's profile from a description of what to show | `tool:lay-out-a-profile` |
 | `record-a-web-page` | Records a web page as a demo: plays steps in a headless browser and returns a video, a GIF and one marked picture per step | `tool:record-a-web-demo` |
+| `recently-deleted` | How long Recently Deleted and Archived keep files, with the person's own choice | `tool:read-deleted-files-keep-for` |
 | `records-door` | A library: the client for the person's records door and the one command that runs a tool written as a function, handing it the door | (none: packed by `saved-examples`, `tell-the-person`, `social-posts` and `recently-deleted`) |
 | `relationship-graph` | Who is connected to whom, from any records | `tool:map-who-is-connected` |
 | `revenue-ledger` | Revenue, refunds, net revenue and recurring revenue from any provider's payment events | `tool:add-up-revenue` |

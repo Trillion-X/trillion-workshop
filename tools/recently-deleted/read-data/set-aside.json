@@ -1,0 +1,8 @@
+{
+  "_what": "Recently Deleted and Archived as DATA, read by read-data/keep-for.mjs. Each state: its id; label (what the person calls it); after_days (how many days it keeps things by default; null keeps until put back; the person's own keep-for replaces it); when_due (what it becomes when that time ends: another state's id, or null: gone for good); due_words (the same in words). keep_for_choices are the usual numbers of days offered (null: until put back). A new state is one row here.",
+  "states": [
+    { "id": "deleted", "label": "Recently Deleted", "after_days": 30, "when_due": null, "due_words": "Deleted for good" },
+    { "id": "archived", "label": "Archived", "after_days": 30, "when_due": "deleted", "due_words": "Moves to Recently Deleted" }
+  ],
+  "keep_for_choices": [1, 7, 30, 90, 365, null]
+}
