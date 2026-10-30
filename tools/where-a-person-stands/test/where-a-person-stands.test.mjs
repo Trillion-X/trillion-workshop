@@ -51,9 +51,9 @@ test('only the person\'s own stand is kept, with their words exactly, and partly
   assert.throws(() => stanceRecord({ ...said, answered_by: 'ai', stance: 'agree' }), /answered_by/);
   assert.throws(() => stanceRecord({ ...said, stance: 'love' }), /agree, disagree, partly/);
   const why = '  Fine for now,  but the opening is slow. ';
-  const kept = stanceRecord({ ...said, stance: 'partly', why, at: '2026-10-29T12:00:00Z' });
+  const kept = stanceRecord({ ...said, stance: 'partly', why, at: '2026-01-01T12:00:00Z' });
   assert.deepEqual(kept, { type: 'stance', id: `stance:file:${IDENTITY}`, kind: 'file', artifact: IDENTITY, stance: 'partly',
-    said: 'You partly agree with this.', why, by: 'person', at: '2026-10-29T12:00:00Z' });
+    said: 'You partly agree with this.', why, by: 'person', at: '2026-01-01T12:00:00Z' });
   assert.deepEqual(stanceChoices().map(choice => choice.id), ['agree', 'disagree', 'partly']);
   const back = stanceRecord({ ...said, stance: null, why: 'ignored' });
   assert.deepEqual([back.stance, 'said' in back, 'why' in back], [null, false, false]);
@@ -61,36 +61,36 @@ test('only the person\'s own stand is kept, with their words exactly, and partly
 
 test('the newest version is the stand, every older one is earlier, and silence or a stand taken back is no stand', () => {
   const versions = [
-    stanceRecord({ ...said, stance: 'disagree', why: 'comes off as AI', at: '2026-10-29T13:44:00Z' }),
-    { value: stanceRecord({ ...said, stance: 'agree', why: 'good', at: '2026-10-29T11:40:00Z' }) },
-    { payload: stanceRecord({ ...said, artifact_ref: OTHER, stance: 'agree', at: '2026-10-29T10:00:00Z' }) },
-    { payload: stanceRecord({ ...said, kind: 'take', stance: 'agree', at: '2026-10-29T10:00:00Z' }) },
-    { type: 'message', id: 'm', artifact: IDENTITY, stance: 'agree', at: '2026-10-29T23:00:00Z' },
+    stanceRecord({ ...said, stance: 'disagree', why: 'reads as generic', at: '2026-01-01T13:00:00Z' }),
+    { value: stanceRecord({ ...said, stance: 'agree', why: 'good', at: '2026-01-01T11:00:00Z' }) },
+    { payload: stanceRecord({ ...said, artifact_ref: OTHER, stance: 'agree', at: '2026-01-01T10:00:00Z' }) },
+    { payload: stanceRecord({ ...said, kind: 'take', stance: 'agree', at: '2026-01-01T10:00:00Z' }) },
+    { type: 'message', id: 'm', artifact: IDENTITY, stance: 'agree', at: '2026-01-01T23:00:00Z' },
   ];
   const [one, other, take] = standsFrom(versions);
-  assert.deepEqual([one.artifact, one.kind, one.stance, one.why, one.at], [IDENTITY, 'file', 'disagree', 'comes off as AI', '2026-10-29T13:44:00Z']);
+  assert.deepEqual([one.artifact, one.kind, one.stance, one.why, one.at], [IDENTITY, 'file', 'disagree', 'reads as generic', '2026-01-01T13:00:00Z']);
   assert.deepEqual(one.earlier.map(item => [item.stance, item.why]), [['agree', 'good']]);
   assert.deepEqual([other.artifact, take.kind], [OTHER, 'take']);
   assert.deepEqual(standsFrom(versions, { artifact_ref: IDENTITY, kind: 'take' }).map(item => item.stance), ['agree']);
   const none = standsFrom(versions, { artifact_ref: `1f:${'c'.repeat(64)}` })[0];
   assert.deepEqual([none.stance, none.earlier], [null, []]);
-  const takenBack = standsFrom([...versions, stanceRecord({ ...said, stance: null, at: '2026-10-30T09:00:00Z' })], { artifact_ref: IDENTITY, kind: 'file' })[0];
+  const takenBack = standsFrom([...versions, stanceRecord({ ...said, stance: null, at: '2026-01-02T09:00:00Z' })], { artifact_ref: IDENTITY, kind: 'file' })[0];
   assert.deepEqual([takenBack.stance, takenBack.earlier.length], [null, 2]);
 });
 
 test('a reload plan writes earlier stands first, oldest first, counts changed refs and shows what the fold merged', () => {
   const plan = planReload({ fold: FOLD, stances: [
-    { kind: 'title', text: 'Start Here.', stance: 'agree', why: 'good', by: 'this browser', at: '2026-10-29T11:40:00Z',
-      ref: `file:${IDENTITY}`, earlier: [{ stance: 'disagree', why: 'no', at: '2026-10-29T10:00:00Z' }] },
-    { kind: 'title', text: 'Start  HERE?', stance: 'disagree', why: 'worse', at: '2026-10-29T13:44:00Z' },
-    { kind: 'title', text: 'start here!', stance: 'partly', why: 'mid', at: '2026-10-29T09:00:00Z', ref: `file:${textRef('start here', FOLD)}` },
-    { kind: 'onscreen', text: 'Start here', stance: 'agree', at: '2026-10-29T08:00:00Z' },
-    { kind: 'stitch-plan', view: { segments: [] }, text: '{"segments":[]}', stance: 'disagree', why: 'too many questions', at: '2026-10-29T12:00:00Z' },
+    { kind: 'title', text: 'Start Here.', stance: 'agree', why: 'good', by: 'this browser', at: '2026-01-01T11:00:00Z',
+      ref: `file:${IDENTITY}`, earlier: [{ stance: 'disagree', why: 'no', at: '2026-01-01T10:00:00Z' }] },
+    { kind: 'title', text: 'Start  HERE?', stance: 'disagree', why: 'worse', at: '2026-01-01T13:00:00Z' },
+    { kind: 'title', text: 'start here!', stance: 'partly', why: 'mid', at: '2026-01-01T09:00:00Z', ref: `file:${textRef('start here', FOLD)}` },
+    { kind: 'onscreen', text: 'Start here', stance: 'agree', at: '2026-01-01T08:00:00Z' },
+    { kind: 'stitch-plan', view: { segments: [] }, text: '{"segments":[]}', stance: 'disagree', why: 'too many questions', at: '2026-01-01T12:00:00Z' },
   ] });
   const id = `stance:title:${textRef('start here', FOLD)}`;
   const title = plan.writes.filter(write => write.id === id);
   assert.deepEqual(title.map(write => [write.value.stance, write.value.at]), [
-    ['partly', '2026-10-29T09:00:00Z'], ['disagree', '2026-10-29T10:00:00Z'], ['agree', '2026-10-29T11:40:00Z'], ['disagree', '2026-10-29T13:44:00Z']]);
+    ['partly', '2026-01-01T09:00:00Z'], ['disagree', '2026-01-01T10:00:00Z'], ['agree', '2026-01-01T11:00:00Z'], ['disagree', '2026-01-01T13:00:00Z']]);
   assert.equal(title[1].value.by, 'this browser', 'an earlier stand keeps who it was said through');
   assert.deepEqual(plan.summary.by_kind.title, { records: 1, versions: 4, rows: 3 });
   assert.equal(plan.summary.refs_changed, 1, 'only the row whose old ref is not its folded identity');
@@ -117,7 +117,7 @@ for (const row of rows) {
 
 test('the kept record is the one keeps_records selects, with its type and id read from its own fields', () => {
   const keep = rows.find(row => row.id === 'tool:keep-where-you-stand');
-  const ran = run(keep.invoke.argv.slice(1), { ...said, stance: 'agree', why: 'good', at: '2026-10-29T11:40:00Z' });
+  const ran = run(keep.invoke.argv.slice(1), { ...said, stance: 'agree', why: 'good', at: '2026-01-01T11:00:00Z' });
   const output = at(JSON.parse(ran.stdout.trim().split('\n').at(-1)), keep.result_selector);
   const [rule] = keep.keeps_records;
   const record = at(output, rule.output_selector);
