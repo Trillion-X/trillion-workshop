@@ -1,0 +1,232 @@
+{
+  "about": "A workflow every account can find and run: validate a consumer subscription app idea against money already being spent, study the top competitors' onboarding and pricing, build an onboarding with the same order of beats and original words, put an honest paywall at its end, publish a plain store page, and grow through five channels with a weekly review. One workflow-recipe row in the shape of the shared recipe shelf (job, input_schema, ordered steps, each with do, submit and checks).",
+  "records": [
+    {
+      "id": "validate-and-launch-a-subscription-app",
+      "address": "workflow-recipe:validate-and-launch-a-subscription-app",
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:validate-and-launch-a-subscription-app",
+        "label": "Validate and launch a subscription app",
+        "job": "Take a consumer app idea from a painful daily problem to a live subscription app: confirm that apps in the category already earn and that creators already post about the problem (stop if not), record the top 3 competitors' onboarding beats, paywall, price and growth channels from the person's own screenshots, write an onboarding that follows the winning order of beats in original words and design, end it with a paywall that states price, trial and cancellation plainly, publish a store page whose subtitle says what the app does, then run five growth channels (creators paid per post, influencers on a capped cost per 1,000 views, faceless slideshows, founder-made posts, paid ads after organic winners) with disclosures, and review installs, trials, paid users and revenue every week. Every number comes from a tool call or the person's own store and payment dashboards; where there is none, the answer is \"no data\". The AI drafts; the person owns the developer account, the payment setup and every contract, approves every word, and submits.",
+        "source": {
+          "from": "X posts",
+          "author": "Ernesto Lopez",
+          "url": "https://x.com/ErnestoSOFTWARE/status/2014110519913857122",
+          "name": "Ernesto Lopez, 'I built 10 apps in 10 months' guide (X article), and his post on cooking apps and generated cooking reels (https://x.com/ErnestoSOFTWARE/status/2115897827775988205)",
+          "note": "His claims, not checked here: about $800,000 a year from 10 apps; his first app made $20,000 in its first 30 days from 2 viral videos; a recipe app at about $1M a month; a paid influencer at $1 per 1,000 views capped at $1,000; creators paid $15 a post with bonuses from $150 at 100K views to $800 at 1M. His 8 steps: validate the niche (a daily painful problem, apps already earning over $10K a month, creators already posting), build fast with AI coding tools, borrow the onboarding and pricing of the best competitors (he says he means their structure, not a literal copy, with the inside of the app original), a hard paywall at the end of onboarding, a minimal store page (clear name, a subtitle that says what it does, 3 to 5 big-text screenshots, a simple description), then five growth channels: creators, influencers, faceless slideshows with one style or character, founder-led posts, paid ads. NOT ADOPTED, with the reason: (1) copying a competitor's screens, words or design, which is copyright and trade-dress infringement, so only the order of beats is reused and every word and screen is new; (2) a paywall that hides how to close it, restore a purchase or cancel, or that charges before a clearly stated trial end, which breaks App Store guideline 3.1.2 and consumer-protection rules on subscriptions, so the paywall states price, period, trial end and how to cancel; (3) creator and influencer posts without an ad disclosure, which breaks endorsement rules, so every paid post carries one; (4) hiring a minor to send 100 cold messages a day, so outreach is done by the person or an adult they contract, one message at a time and within each platform's messaging rules."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["problem", "audience", "category", "store"],
+          "properties": {
+            "problem": {
+              "type": "string",
+              "minLength": 5,
+              "description": "The painful problem the app solves, in one sentence, as the people who have it would say it"
+            },
+            "audience": {
+              "type": "string",
+              "minLength": 3,
+              "description": "Who has the problem every day"
+            },
+            "category": {
+              "type": "string",
+              "minLength": 2,
+              "description": "The store category the app would sit in, for example Health & Fitness or Food & Drink"
+            },
+            "store": {
+              "enum": ["app-store", "google-play"],
+              "description": "Which store the app launches in first"
+            },
+            "competitors": {
+              "type": "array",
+              "maxItems": 5,
+              "items": { "type": "string", "minLength": 2 },
+              "description": "Competing apps the person already knows, by name"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "money-proof",
+            "title": "Check that people already pay for this",
+            "do": "Call tool:read-public-web-page on the store's top-grossing chart page for the input category and on each input competitor's public store page. List every app that solves the input problem, with its store address, its price or subscription options as the store page shows them, and any revenue or download estimate a public page states, with that page's address. A revenue figure no page states is not written. Then for the problem's main words, read public post metadata on TikTok or Instagram with tool:github:yt-dlp-yt-dlp (`yt-dlp --flat-playlist --dump-json <search or profile address>`, metadata only, no downloads) and list posts that creators made about the problem, with address and views. Decide: validated when at least 3 apps charge for this and at least 5 creator posts about it exist; otherwise not validated, with the reason. If not validated, stop here and tell the person why with tool:tell-the-person.",
+            "submit": {
+              "type": "object",
+              "required": ["apps", "creator_posts", "validated", "reason", "no_data"],
+              "properties": {
+                "apps": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["name", "store_url", "pricing_seen"],
+                    "properties": {
+                      "name": { "type": "string", "minLength": 2 },
+                      "store_url": { "type": "string", "format": "uri" },
+                      "pricing_seen": { "type": "string", "minLength": 2 },
+                      "estimate": { "type": "string" },
+                      "estimate_source": { "type": "string", "format": "uri" }
+                    }
+                  }
+                },
+                "creator_posts": { "type": "array", "items": { "type": "object", "required": ["url", "views"], "properties": { "url": { "type": "string", "format": "uri" }, "views": { "type": ["integer", "null"] } } } },
+                "validated": { "type": "boolean" },
+                "reason": { "type": "string", "minLength": 5 },
+                "no_data": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "checks": [
+              { "kind": "excludes-words", "path": ["this", "reason"], "words": ["guaranteed", "will definitely", "can't fail"], "says": "The decision does not promise an outcome" }
+            ]
+          },
+          {
+            "id": "teardown",
+            "title": "Record the top 3 competitors' onboarding, paywall and growth",
+            "do": "Pick the 3 apps from the money-proof step with the strongest public evidence of earning. Call tool:tell-the-person with { \"title\": \"Install 3 competitor apps and screenshot them\", \"body\": \"Install each app, go through the whole onboarding to the paywall without paying, and screenshot every screen in order. Send me the screenshots in one folder per app.\" } and name the 3 apps. For an app that also has a web version, map it yourself with tool:map-an-apps-screens-and-controls. From each app's screenshots record: the onboarding as an ordered list of beats, each beat named by its job in plain words (for example: ask the goal, show the problem in numbers, social proof, personal plan preview, permission ask, paywall), the number of screens, the paywall's prices, periods and trial, how it can be closed, and which growth channels the app uses (look up its public creator and ad posts with tool:read-public-web-page). Do not copy any screen's words into this record beyond a 5-word quote.",
+            "submit": {
+              "type": "object",
+              "required": ["apps"],
+              "properties": {
+                "apps": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "object",
+                    "required": ["name", "beats", "screens", "paywall", "channels"],
+                    "properties": {
+                      "name": { "type": "string" },
+                      "beats": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 3 } },
+                      "screens": { "type": "integer", "minimum": 1 },
+                      "paywall": { "type": "object", "required": ["prices", "trial", "how_to_close"], "properties": { "prices": { "type": "string" }, "trial": { "type": "string" }, "how_to_close": { "type": "string" } } },
+                      "channels": { "type": "array", "items": { "enum": ["creators", "influencers", "faceless-slideshows", "founder-posts", "paid-ads", "other"] } }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "path": ["this", "apps", "*", "name"], "of": ["steps", "money-proof", "apps", "*", "name"], "says": "Only apps found in the money-proof step are torn down" }
+            ]
+          },
+          {
+            "id": "onboarding",
+            "title": "Write an onboarding with the winning order of beats and original words",
+            "do": "Take the order of beats the 3 competitors share (a beat used by at least 2 of them stays; keep their order). Write the person's onboarding screen by screen in that order: for each screen, the beat it serves, its headline, its body words and what the person taps. Every word is new and specific to the person's app; no headline or sentence matches a competitor's. Make the problem concrete in the person's audience's own words, and show the app as the answer before the paywall. Then check the words with tool:judge-against-rules against these rules: no sentence copied from a competitor screenshot; no promise of a result the app cannot measure; no false urgency (a countdown that resets, a fake 'only today').",
+            "submit": {
+              "type": "object",
+              "required": ["screens", "copied_phrases"],
+              "properties": {
+                "screens": { "type": "array", "minItems": 3, "items": { "type": "object", "required": ["beat", "headline", "body", "action"], "properties": { "beat": { "type": "string" }, "headline": { "type": "string", "minLength": 3 }, "body": { "type": "string" }, "action": { "type": "string", "minLength": 2 } } } },
+                "copied_phrases": { "type": "array", "maxItems": 0, "description": "Any phrase found to match a competitor's screen; the step is done only when this is empty" }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "path": ["this", "screens", "*", "beat"], "of": ["steps", "teardown", "apps", "*", "beats", "*"], "says": "Every screen serves a beat the competitors use" },
+              { "kind": "excludes-words", "path": ["this", "screens", "*", "headline"], "words": ["guaranteed", "clinically proven", "only today", "last chance"], "says": "No unproven promise and no false urgency in a headline" }
+            ]
+          },
+          {
+            "id": "paywall",
+            "title": "End the onboarding with an honest paywall",
+            "do": "Write the paywall shown right after the last onboarding screen. Choose prices and periods inside the range the teardown recorded. State on the paywall itself: the price and period of each option, the trial length and the date the first charge happens, that it renews automatically, how to cancel, a Restore Purchases button, links to the terms and privacy policy, and a visible way to close the paywall. Use the store's own subscription system (StoreKit or Google Play Billing) through a paywall library the person chooses. Draft the privacy policy and terms with tool:write-legal-documents.",
+            "submit": {
+              "type": "object",
+              "required": ["options", "trial_text", "renewal_text", "cancel_text", "has_restore", "has_close", "terms_url", "privacy_url"],
+              "properties": {
+                "options": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["price", "currency", "period"], "properties": { "price": { "type": "number", "exclusiveMinimum": 0 }, "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }, "period": { "enum": ["week", "month", "year", "lifetime"] } } } },
+                "trial_text": { "type": "string", "minLength": 5 },
+                "renewal_text": { "type": "string", "minLength": 5 },
+                "cancel_text": { "type": "string", "minLength": 5 },
+                "has_restore": { "const": true },
+                "has_close": { "const": true },
+                "terms_url": { "type": "string", "format": "uri" },
+                "privacy_url": { "type": "string", "format": "uri" }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "store-page",
+            "title": "Write a store page that says what the app does",
+            "do": "Write: the app name (clear, at most 30 characters); one subtitle that says what the app does for the person in plain words (at most 30 characters); 3 to 5 screenshot captions, one idea each, big text over a real screen of the app; and a short description that opens with the same idea. No buzzwords.",
+            "submit": {
+              "type": "object",
+              "required": ["name", "subtitle", "screenshots", "description"],
+              "properties": {
+                "name": { "type": "string", "minLength": 2, "maxLength": 30 },
+                "subtitle": { "type": "string", "minLength": 5, "maxLength": 30 },
+                "screenshots": { "type": "array", "minItems": 3, "maxItems": 5, "items": { "type": "string", "minLength": 3 } },
+                "description": { "type": "string", "minLength": 20 }
+              }
+            },
+            "checks": [
+              { "kind": "excludes-words", "path": ["this", "subtitle"], "words": ["AI-powered", "experience", "revolutionary", "next-gen", "ultimate"], "says": "The subtitle says what the app does, not how it is made" },
+              { "kind": "distinct-at-least", "path": ["this", "screenshots", "*"], "count": 3, "says": "At least three different screenshot ideas" }
+            ]
+          },
+          {
+            "id": "approve-and-submit",
+            "title": "The person approves and submits the app",
+            "do": "Show the person the onboarding screens, the paywall and the store page exactly as they will ship. Ask: \"Do you approve these exactly as shown?\" Wait, change only what they ask and show again. Then call tool:tell-the-person with { \"title\": \"Submit the app from your developer account\", \"body\": \"Submit the build and store page from your own developer account (Apple charges $99 a year and approval can take several days). Send me the store address once it is live.\" }. The AI does not create developer, payment or store accounts.",
+            "submit": {
+              "type": "object",
+              "required": ["approval_words", "store_url"],
+              "properties": {
+                "approval_words": { "type": "string", "minLength": 2 },
+                "store_url": { "type": ["string", "null"], "description": "The live store address, or null until it is live" }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "channels",
+            "title": "Plan the five growth channels",
+            "do": "Write one plan per channel. Creators: a contract, a flat fee per post plus stepped bonuses by views, a fresh account per creator, an ad disclosure on every post, and when one creator's format wins, the others use that format with their own words. Influencers: pay per 1,000 views with a maximum payout written into the contract, and an ad disclosure. Faceless slideshows: run the workflow workflow:run-a-slideshow-page-that-sells-a-small-digital-product with the app as the product. Founder posts: the person films posts in a format that already worked for others, in their own words. Paid ads: start only after at least 2 organic posts win, boost those, and measure with tool:make-tracked-link and the store's own campaign links. For each channel write the weekly budget the person sets (0 is allowed) and the number that decides keep or stop.",
+            "submit": {
+              "type": "object",
+              "required": ["plans"],
+              "properties": {
+                "plans": {
+                  "type": "array",
+                  "minItems": 5,
+                  "items": {
+                    "type": "object",
+                    "required": ["channel", "weekly_budget", "disclosure", "keep_if"],
+                    "properties": {
+                      "channel": { "enum": ["creators", "influencers", "faceless-slideshows", "founder-posts", "paid-ads"] },
+                      "weekly_budget": { "type": "number", "minimum": 0 },
+                      "disclosure": { "type": "string", "minLength": 2 },
+                      "keep_if": { "type": "string", "minLength": 5 }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              { "kind": "distinct-at-least", "path": ["this", "plans", "*", "channel"], "count": 5, "says": "All five channels have a plan" }
+            ]
+          },
+          {
+            "id": "weekly",
+            "title": "Every Monday: installs, trials, paid users and revenue by channel",
+            "do": "Every Monday, ask the person for, or read from the dashboards they connected, the week's installs, trial starts, paid starts and refunds by channel. Add up revenue with tool:add-up-revenue and work out cost per paid user and payback with tool:work-out-unit-economics. For each channel, compare with its keep_if number and write keep, change or stop with the reason. A number no dashboard gave is written as null and listed in no_data.",
+            "submit": {
+              "type": "object",
+              "required": ["week_of", "channels", "no_data"],
+              "properties": {
+                "week_of": { "type": "string", "format": "date" },
+                "channels": { "type": "array", "items": { "type": "object", "required": ["channel", "installs", "trials", "paid", "decision"], "properties": { "channel": { "type": "string" }, "installs": { "type": ["integer", "null"] }, "trials": { "type": ["integer", "null"] }, "paid": { "type": ["integer", "null"] }, "decision": { "enum": ["keep", "change", "stop"] } } } },
+                "no_data": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "path": ["this", "channels", "*", "channel"], "of": ["steps", "channels", "plans", "*", "channel"], "says": "Only planned channels are reviewed" }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
