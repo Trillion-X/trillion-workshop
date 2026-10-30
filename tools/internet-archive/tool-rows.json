@@ -1,0 +1,137 @@
+{
+ "kind": "tool-rows",
+ "record_set": "internet-archive-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/internet-archive: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::ai-tool-catalog::tool-row-source::internet-archive-tools",
+   "address": "package::ai-tool-catalog::tool-row-source::internet-archive-tools",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "tool-row-source",
+    "id": "source:internet-archive-tools",
+    "label": "Internet Archive search and item metadata",
+    "list": {
+     "records": {
+      "package": "internet-archive",
+      "kind": "ai-tool-descriptor"
+     }
+    },
+    "entry": {
+     "id": "record_name",
+     "label": "label",
+     "job": "job",
+     "description": "description",
+     "status": "status",
+     "input_schema": "input_schema",
+     "output_schema": "output_schema",
+     "invoke": "invoke",
+     "needs": "needs",
+     "licence_class": "licence_class",
+     "placements": "placements",
+     "maker": "maker",
+     "verify": "verify",
+     "result_selector": "result_selector",
+     "read_only": "read_only",
+     "provenance": "provenance"
+    },
+    "id_prefix": "tool:",
+    "row": {
+     "label": {
+      "fill": {
+       "from": "entry",
+       "field": "label"
+      }
+     },
+     "job": {
+      "fill": {
+       "from": "entry",
+       "field": "job"
+      }
+     },
+     "description": {
+      "fill": {
+       "from": "entry",
+       "field": "description"
+      }
+     },
+     "status": {
+      "fill": {
+       "from": "entry",
+       "field": "status"
+      }
+     },
+     "input_schema": {
+      "fill": {
+       "from": "entry",
+       "field": "input_schema"
+      }
+     },
+     "output_schema": {
+      "fill": {
+       "from": "entry",
+       "field": "output_schema"
+      }
+     },
+     "invoke": {
+      "fill": {
+       "from": "entry",
+       "field": "invoke"
+      }
+     },
+     "needs": {
+      "fill": {
+       "from": "entry",
+       "field": "needs"
+      }
+     },
+     "licence_class": {
+      "fill": {
+       "from": "entry",
+       "field": "licence_class"
+      }
+     },
+     "placements": {
+      "fill": {
+       "from": "entry",
+       "field": "placements"
+      }
+     },
+     "maker": {
+      "fill": {
+       "from": "entry",
+       "field": "maker"
+      }
+     },
+     "verify": {
+      "fill": {
+       "from": "entry",
+       "field": "verify"
+      }
+     },
+     "result_selector": {
+      "fill": {
+       "from": "entry",
+       "field": "result_selector"
+      }
+     },
+     "read_only": {
+      "fill": {
+       "from": "entry",
+       "field": "read_only"
+      }
+     },
+     "provenance": {
+      "fill": {
+       "from": "entry",
+       "field": "provenance"
+      }
+     }
+    }
+   }
+  }
+ ]
+}
