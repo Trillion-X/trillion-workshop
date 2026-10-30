@@ -1,0 +1,18 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "tool-row-source",
+        "id": "source:workflow-recipes",
+        "label": "Workflow recipes: step-by-step playbooks any person's AI can follow, one file each in recipes/",
+        "list": {
+          "records": {
+            "package": "workflows",
+            "kind": "workflow-recipe",
+            "file": "recipes"
+          }
+        }
+      }
+    }
+  ]
+}
