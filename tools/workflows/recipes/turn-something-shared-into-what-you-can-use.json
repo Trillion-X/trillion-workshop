@@ -86,9 +86,64 @@
             ]
           },
           {
+            "id": "make-generic",
+            "title": "Make every part generic, ask what a 1000x version would be, and find everything else it applies to",
+            "do": "For every part from the split step, answer these questions and write the answers down. (1) Make it generic: rewrite the part so that no medium (video, slides, a web page), product, platform or person is part of it. Test: delete every name and every medium word; if the part no longer says what to do, it is still tied to one case, so rewrite it again. (2) Say why it works: 'mechanism' is what it does to a person or to a system, in words that fit any medium (for example 'an open promise the person wants kept holds their attention until it is kept'). 'operates_on' is the abstract property it changes (for example attention, trust, timing, effort, cost, error rate). 'needs' lists what must already be true for it to work. 'produces' is the effect it has when it works. (3) Reuse terms: before you write a mechanism or an operates_on term, search the person's technique records for the closest existing term with the person's search tool. Use the existing term when it means the same thing. Add a new term only when no existing term fits, and record each new term with the reason in new_terms. (4) Ask what a 1000x version would be: not a bigger copy, but the version that removes the need for the part, makes it happen by itself, or makes it work for every case at once. Then judge the part by what it actually makes possible, not by how complete it looks, and apply the same question to the way you are doing this step. (5) Find everything else it applies to: list at least three other media or jobs where the same mechanism works (for example a sales demo, an onboarding screen, a document, a lesson, a support reply), each with one sentence on how. A part that applies to only one medium has not been made generic yet; go back to (1).",
+            "submit": {
+              "type": "object",
+              "required": ["parts"],
+              "properties": {
+                "parts": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["summary", "generic", "mechanism", "operates_on", "needs", "produces", "new_terms", "thousand_x", "applies_to"],
+                    "properties": {
+                      "summary": {"type": "string", "minLength": 10},
+                      "generic": {"type": "string", "minLength": 10},
+                      "mechanism": {"type": "string", "minLength": 10},
+                      "operates_on": {"type": "string", "minLength": 2},
+                      "needs": {"type": "array", "items": {"type": "string", "minLength": 3}},
+                      "produces": {"type": "string", "minLength": 5},
+                      "new_terms": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": ["term", "why_no_existing_term_fits"],
+                          "properties": {
+                            "term": {"type": "string", "minLength": 2},
+                            "why_no_existing_term_fits": {"type": "string", "minLength": 10}
+                          }
+                        }
+                      },
+                      "thousand_x": {"type": "string", "minLength": 10},
+                      "applies_to": {
+                        "type": "array",
+                        "minItems": 3,
+                        "items": {
+                          "type": "object",
+                          "required": ["where", "how"],
+                          "properties": {
+                            "where": {"type": "string", "minLength": 2},
+                            "how": {"type": "string", "minLength": 10}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "parts", "*", "summary"], "of": ["steps", "split", "parts", "*", "summary"], "says": "Every part from the split step was made generic"},
+              {"kind": "subset-of", "path": ["this", "parts", "*", "summary"], "of": ["steps", "split", "parts", "*", "summary"], "says": "Every generic part is one of the parts that were split out"}
+            ]
+          },
+          {
             "id": "check-what-exists",
             "title": "Check what the person already has before adding anything",
-            "do": "For each part, search the person's existing technique records, workflow recipes and tools for one that does the same job: use the person's search tool on their records with the part's summary as the question, and list the Workshop tools. If one exists, mark the part 'already-have' with its id and say whether the new part improves it. Never add a second record, recipe or tool for a job that already has one; improve the existing one instead.",
+            "do": "For each part, search the person's existing technique records, workflow recipes and tools for one that does the same job: use the person's search tool on their records with the part's generic text and its mechanism (from the make-generic step) as the question, and list the Workshop tools. If one exists, mark the part 'already-have' with its id and say whether the new part improves it. Never add a second record, recipe or tool for a job that already has one; improve the existing one instead.",
             "submit": {
               "type": "object",
               "required": ["matches"],
@@ -169,7 +224,7 @@
           {
             "id": "place",
             "title": "Put each part where it can be used again",
-            "do": "For each part marked new or improves-existing: a method, claim or reference becomes a technique record in the person's techniques list with id, name, kind, a description in your own words, source_url, author, and acts_on (the plain words for what it works on, never limited to one medium such as video). A playbook becomes a workflow recipe in this same shape: job, input_schema for what changes per person, and ordered steps, each with an exact do (name the exact tool, page, setting and input), a submit schema and checks; keep the person's own details out of a recipe meant for everyone. Code that does a job with an input and an output becomes a Workshop tool or a tools-from-github row with its licence read from the repository. A free option from the free-instead-of-paid step becomes a tools-from-github row the same way. Use the person's record write for records; show the person each recipe and tool before it is shared publicly.",
+            "do": "For each part marked new or improves-existing: a method, claim or reference becomes a technique record in the person's techniques list with id, name, kind, a description in your own words, source_url, author, and the fields from the make-generic step: mechanism, operates_on, needs, produces and applies_to, using the existing terms that step chose (never a field limited to one medium such as video). A playbook becomes a workflow recipe in this same shape: job, input_schema for what changes per person, and ordered steps, each with an exact do (name the exact tool, page, setting and input), a submit schema and checks; keep the person's own details out of a recipe meant for everyone. Code that does a job with an input and an output becomes a Workshop tool or a tools-from-github row with its licence read from the repository. A free option from the free-instead-of-paid step becomes a tools-from-github row the same way. Use the person's record write for records; show the person each recipe and tool before it is shared publicly.",
             "submit": {
               "type": "object",
               "required": ["placed"],
