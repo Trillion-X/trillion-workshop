@@ -1,0 +1,12 @@
+{
+  "public": [
+    "do-work/stage-reuse.mjs",
+    "read-data/layers-to-edit.mjs",
+    "do-work/export-xmeml.mjs",
+    "read-data/adjustment-layers.mjs",
+    "read-data/caption-lines.ts",
+    "read-data/caption-styles.mjs",
+    "read-data/caption-styles.json",
+    "read-data/looks.mjs"
+  ]
+}

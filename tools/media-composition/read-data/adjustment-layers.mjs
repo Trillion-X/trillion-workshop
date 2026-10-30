@@ -1,0 +1,13 @@
+export function validateAdjustments(rows,duration){
+ if(rows===undefined)return;
+ if(!Array.isArray(rows)||rows.length>64)throw Error('Choose up to 64 adjustment layers.');
+ const ids=new Set();return rows.map(row=>{const required=['start','end','brightness','contrast','saturation','x','y','width','height'],optional={exposure:[-2,2],hue:[-180,180],temperature:[-1,1]};if(!row||typeof row.id!=='string'||ids.has(row.id)||typeof row.name!=='string'||row.name.length>100||!required.every(k=>Number.isFinite(row[k]))||Object.keys(optional).some(k=>row[k]!==undefined&&(!Number.isFinite(row[k])||row[k]<optional[k][0]||row[k]>optional[k][1]))||row.start<0||row.end<=row.start||row.end>duration+.05||['brightness','contrast','saturation'].some(k=>row[k]<0||row[k]>2)||row.x<0||row.y<0||row.width<=0||row.height<=0||row.x+row.width>1.00001||row.y+row.height>1.00001)throw Error('Check adjustment layer timing, area and values.');if(row.mask_id!==undefined&&(typeof row.mask_id!=='string'||!/^[-a-f0-9]{36}$/.test(row.mask_id)))throw Error('Choose a saved object mask.');ids.add(row.id);return {id:row.id,name:row.name,...(row.mask_id?{mask_id:row.mask_id}:{}),...Object.fromEntries([...required.map(k=>[k,row[k]]),...Object.keys(optional).filter(k=>row[k]!==undefined).map(k=>[k,row[k]])])};});
+}
+export function adjustmentCss(row){const exposure=Number(row.exposure)||0,hue=Number(row.hue)||0,temperature=Number(row.temperature)||0;return `brightness(${row.brightness*Math.pow(2,exposure)}) contrast(${row.contrast}) saturate(${row.saturation+Math.abs(temperature)*.2}) hue-rotate(${hue}deg)${temperature?` sepia(${Math.abs(temperature)}) hue-rotate(${temperature>0?-15:190}deg)`:''}`;}
+export function adjustmentFilter(row){
+ // RGB arithmetic in the same order as the live CSS filters. No free-form
+ // filter syntax comes from a user; only validated numbers enter the graph.
+ const b=row.brightness*Math.pow(2,Number(row.exposure)||0),c=row.contrast,s=row.saturation,hue=Number(row.hue)||0,temperature=Number(row.temperature)||0,r=.2126*(1-s),g=.7152*(1-s),blue=.0722*(1-s);
+ const base=`format=gbrp,lutrgb=r='clip(val*${b},0,255)':g='clip(val*${b},0,255)':b='clip(val*${b},0,255)',lutrgb=r='clip((val-127.5)*${c}+127.5,0,255)':g='clip((val-127.5)*${c}+127.5,0,255)':b='clip((val-127.5)*${c}+127.5,0,255)',colorchannelmixer=rr=${r+s}:rg=${g}:rb=${blue}:gr=${r}:gg=${g+s}:gb=${blue}:br=${r}:bg=${g}:bb=${blue+s}`;
+ return `${base}${temperature?`,colorbalance=rs=${temperature}:gs=${temperature*.08}:bs=${-temperature}:rm=${temperature}:gm=${temperature*.08}:bm=${-temperature}:rh=${temperature}:gh=${temperature*.08}:bh=${-temperature}`:''}${hue?`,hue=h=${hue}`:''}`;
+}

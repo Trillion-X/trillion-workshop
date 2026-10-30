@@ -1,0 +1,480 @@
+{
+ "about": "Looks and colour adjustments a person or an AI can put on a clip. Each look lists the render fields it sets on the clip (merged in order: lists join, other fields are replaced by the later look). Each adjustment names where its number goes in the clip's render fields and the value that changes nothing. Adding a look or an adjustment is a row here; no code names one.",
+ "groups": [
+  {
+   "id": "style",
+   "label": "Styles",
+   "one_at_a_time": true
+  },
+  {
+   "id": "camera",
+   "label": "Camera"
+  },
+  {
+   "id": "colour",
+   "label": "Colour grades"
+  },
+  {
+   "id": "finish",
+   "label": "Finishing touches"
+  }
+ ],
+ "looks": [
+  {
+   "id": "vhs",
+   "label": "VHS tape",
+   "group": "style",
+   "segment": {
+    "look_stack": "vhs"
+   }
+  },
+  {
+   "id": "dreamy-bloom",
+   "label": "Dreamy glow",
+   "group": "style",
+   "segment": {
+    "look_stack": "dreamy-bloom"
+   }
+  },
+  {
+   "id": "crt",
+   "label": "Old TV screen",
+   "group": "style",
+   "segment": {
+    "look_stack": "crt"
+   }
+  },
+  {
+   "id": "cinematic-bloom",
+   "label": "Cinematic glow",
+   "group": "style",
+   "segment": {
+    "look_stack": "cinematic-bloom"
+   }
+  },
+  {
+   "id": "golden-hour",
+   "label": "Golden hour",
+   "group": "style",
+   "segment": {
+    "look_stack": "golden-hour"
+   }
+  },
+  {
+   "id": "log-to-normal",
+   "label": "Camera log to normal colour",
+   "group": "camera",
+   "note": "For video recorded in S-Log3. Put it before any other look.",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-slog3-to-709"
+     }
+    ]
+   }
+  },
+  {
+   "id": "clean-base",
+   "label": "Clean base",
+   "group": "colour",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-basic"
+     }
+    ]
+   }
+  },
+  {
+   "id": "punchy-curves",
+   "label": "Punchy curves",
+   "group": "colour",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-rgb-curves"
+     }
+    ]
+   }
+  },
+  {
+   "id": "richer-oranges",
+   "label": "Richer oranges",
+   "group": "colour",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-orange-richness"
+     }
+    ]
+   }
+  },
+  {
+   "id": "oranges-toward-red",
+   "label": "Oranges toward red",
+   "group": "colour",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-orange-to-red"
+     }
+    ]
+   }
+  },
+  {
+   "id": "brighter-colour",
+   "label": "More colour in bright areas",
+   "group": "colour",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-bright-colour"
+     }
+    ]
+   }
+  },
+  {
+   "id": "teal-and-orange",
+   "label": "Teal and orange",
+   "group": "colour",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-teal-and-orange"
+     }
+    ]
+   }
+  },
+  {
+   "id": "warm-oranges",
+   "label": "Warm oranges",
+   "group": "colour",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-warm-oranges"
+     }
+    ]
+   }
+  },
+  {
+   "id": "warm-film",
+   "label": "Warm film grade",
+   "group": "colour",
+   "note": "All seven colour steps above, in order.",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-basic"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-rgb-curves"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-orange-richness"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-orange-to-red"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-bright-colour"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-teal-and-orange"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-warm-oranges"
+     }
+    ]
+   }
+  },
+  {
+   "id": "warm-film-textured",
+   "label": "Warm film grade with texture",
+   "group": "colour",
+   "note": "The warm film grade plus colour fringe, soft glow and film grain.",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-basic"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-rgb-curves"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-orange-richness"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-orange-to-red"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-bright-colour"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-teal-and-orange"
+     },
+     {
+      "grade": "lut3d=${LUT}",
+      "grade_lut_ref": "package::media-composition::stored-bytes::grade-warm-oranges"
+     },
+     {
+      "grade": "rgbashift=rh=-4:bh=4"
+     }
+    ],
+    "glow": true,
+    "glow_strength": 0.36,
+    "grain": {
+     "amount": 14
+    }
+   }
+  },
+  {
+   "id": "widescreen-bars",
+   "label": "Widescreen bars",
+   "group": "finish",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "drawbox=x=0:y=0:w=iw:h=(ih-ih/2.39)/2:t=fill:color=black,drawbox=x=0:y=ih-(ih-ih/2.39)/2:w=iw:h=(ih-ih/2.39)/2:t=fill:color=black"
+     }
+    ]
+   }
+  },
+  {
+   "id": "soft-corners",
+   "label": "Soft dark corners",
+   "group": "finish",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "vignette=PI/4.2"
+     }
+    ]
+   }
+  },
+  {
+   "id": "colour-fringe",
+   "label": "Colour fringe",
+   "group": "finish",
+   "segment": {
+    "grade_layers": [
+     {
+      "grade": "rgbashift=rh=-4:bh=4"
+     }
+    ]
+   }
+  },
+  {
+   "id": "film-grain",
+   "label": "Film grain",
+   "group": "finish",
+   "segment": {
+    "grain": {
+     "amount": 14
+    }
+   }
+  },
+  {
+   "id": "soft-glow",
+   "label": "Soft glow",
+   "group": "finish",
+   "segment": {
+    "glow": true,
+    "glow_strength": 0.36
+   }
+  }
+ ],
+ "adjustments": [
+  {
+   "id": "brightness",
+   "label": "Brightness",
+   "min": -0.5,
+   "max": 0.5,
+   "step": 0.01,
+   "neutral": 0,
+   "field": [
+    "color_adjust",
+    "brightness"
+   ],
+   "preview": {
+    "filter": "brightness",
+    "at_neutral": 1,
+    "per_unit": 1
+   }
+  },
+  {
+   "id": "contrast",
+   "label": "Contrast",
+   "min": 0.5,
+   "max": 1.5,
+   "step": 0.01,
+   "neutral": 1,
+   "field": [
+    "color_adjust",
+    "contrast"
+   ],
+   "preview": {
+    "filter": "contrast",
+    "at_neutral": 1,
+    "per_unit": 1
+   }
+  },
+  {
+   "id": "saturation",
+   "label": "Saturation",
+   "min": 0,
+   "max": 2,
+   "step": 0.01,
+   "neutral": 1,
+   "field": [
+    "color_adjust",
+    "saturation"
+   ],
+   "preview": {
+    "filter": "saturate",
+    "at_neutral": 1,
+    "per_unit": 1
+   }
+  },
+  {
+   "id": "exposure",
+   "label": "Exposure",
+   "min": -2,
+   "max": 2,
+   "step": 0.05,
+   "neutral": 0,
+   "field": [
+    "exposure",
+    "stops"
+   ],
+   "preview": {
+    "filter": "brightness",
+    "at_neutral": 1,
+    "per_unit": 0.5
+   }
+  },
+  {
+   "id": "warmth",
+   "label": "Warmth",
+   "min": -1,
+   "max": 1,
+   "step": 0.01,
+   "neutral": 0,
+   "field": [
+    "warmth",
+    "amount"
+   ]
+  },
+  {
+   "id": "vibrance",
+   "label": "Vibrance",
+   "min": -1,
+   "max": 1,
+   "step": 0.01,
+   "neutral": 0,
+   "field": [
+    "vibrance",
+    "intensity"
+   ]
+  }
+ ],
+ "preview_chain": [
+  "color_adjust",
+  "warmth",
+  "vibrance",
+  "exposure"
+ ],
+ "timed_adjustments": [
+  {
+   "id": "brightness",
+   "label": "Brightness",
+   "min": 0,
+   "max": 2,
+   "step": 0.01,
+   "neutral": 1
+  },
+  {
+   "id": "contrast",
+   "label": "Contrast",
+   "min": 0,
+   "max": 2,
+   "step": 0.01,
+   "neutral": 1
+  },
+  {
+   "id": "saturation",
+   "label": "Saturation",
+   "min": 0,
+   "max": 2,
+   "step": 0.01,
+   "neutral": 1
+  },
+  {
+   "id": "exposure",
+   "label": "Exposure",
+   "min": -2,
+   "max": 2,
+   "step": 0.05,
+   "neutral": 0
+  },
+  {
+   "id": "temperature",
+   "label": "Warmth",
+   "min": -1,
+   "max": 1,
+   "step": 0.01,
+   "neutral": 0
+  },
+  {
+   "id": "hue",
+   "label": "Hue",
+   "min": -180,
+   "max": 180,
+   "step": 1,
+   "neutral": 0
+  }
+ ],
+ "fits": [
+  {
+   "id": "fill",
+   "label": "Fill the frame",
+   "reframe": {}
+  },
+  {
+   "id": "blur",
+   "label": "Fit over a blurred copy",
+   "reframe": {
+    "fill_mode": "blur"
+   }
+  },
+  {
+   "id": "black",
+   "label": "Fit with black bars",
+   "reframe": {
+    "fill_mode": "black"
+   }
+  }
+ ],
+ "source": "Ported from the Mac editor's colour presets (bitfield-packages media-composition grade blocks, colour stacks and effect styles)."
+}

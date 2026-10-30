@@ -1,0 +1,45 @@
+{
+ "about": "Files the renderer reads by address (package::media-composition::stored-bytes::<name>), placed with read-data so every container tool that carries read-data has them. source_path is relative to the media-composition part.",
+ "things": [
+  {
+   "type": "stored_bytes",
+   "name": "grade-slog3-to-709",
+   "source_path": "read-data/luts/00-slog3-to-709.cube"
+  },
+  {
+   "type": "stored_bytes",
+   "name": "grade-basic",
+   "source_path": "read-data/luts/01-basic.cube"
+  },
+  {
+   "type": "stored_bytes",
+   "name": "grade-rgb-curves",
+   "source_path": "read-data/luts/02-rgb-curves.cube"
+  },
+  {
+   "type": "stored_bytes",
+   "name": "grade-orange-richness",
+   "source_path": "read-data/luts/03-hue-v-sat-orange.cube"
+  },
+  {
+   "type": "stored_bytes",
+   "name": "grade-orange-to-red",
+   "source_path": "read-data/luts/04-hue-v-hue-orange-red.cube"
+  },
+  {
+   "type": "stored_bytes",
+   "name": "grade-bright-colour",
+   "source_path": "read-data/luts/05-luma-v-sat-increase.cube"
+  },
+  {
+   "type": "stored_bytes",
+   "name": "grade-teal-and-orange",
+   "source_path": "read-data/luts/06-color-wheels-teal-orange.cube"
+  },
+  {
+   "type": "stored_bytes",
+   "name": "grade-warm-oranges",
+   "source_path": "read-data/luts/07-hsl-orange-warm.cube"
+  }
+ ]
+}

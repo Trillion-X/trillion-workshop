@@ -1,0 +1,165 @@
+{
+ "kind": "tool-rows",
+ "record_set": "media-composition-tool-rows",
+ "what_this_is": "The Workshop rows for the video editing tools in tools/media-composition: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::ai-tool-catalog::tool-row-source::media-composition-tools",
+   "address": "package::ai-tool-catalog::tool-row-source::media-composition-tools",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "tool-row-source",
+    "id": "source:media-composition-tools",
+    "label": "Video editing: find moments, reframe, change speed, captions, colour, layers, render and export",
+    "list": {
+     "records": {
+      "package": "media-composition",
+      "kind": "ai-tool-descriptor"
+     }
+    },
+    "entry": {
+     "id": "record_name",
+     "label": "label",
+     "job": "job",
+     "description": "description",
+     "status": "status",
+     "input_schema": "input_schema",
+     "output_schema": "output_schema",
+     "invoke": "invoke",
+     "needs": "needs",
+     "licence_class": "licence_class",
+     "placements": "placements",
+     "maker": "maker",
+     "verify": "verify",
+     "result_selector": "result_selector",
+     "keeps_records": "keeps_records",
+     "price_ref": "price_ref",
+     "billing": "billing",
+     "provenance": "provenance",
+     "screen": "screen",
+     "controls": "controls"
+    },
+    "id_prefix": "tool:",
+    "row": {
+     "label": {
+      "fill": {
+       "from": "entry",
+       "field": "label"
+      }
+     },
+     "job": {
+      "fill": {
+       "from": "entry",
+       "field": "job"
+      }
+     },
+     "description": {
+      "fill": {
+       "from": "entry",
+       "field": "description"
+      }
+     },
+     "status": {
+      "fill": {
+       "from": "entry",
+       "field": "status"
+      }
+     },
+     "input_schema": {
+      "fill": {
+       "from": "entry",
+       "field": "input_schema"
+      }
+     },
+     "output_schema": {
+      "fill": {
+       "from": "entry",
+       "field": "output_schema"
+      }
+     },
+     "invoke": {
+      "fill": {
+       "from": "entry",
+       "field": "invoke"
+      }
+     },
+     "needs": {
+      "fill": {
+       "from": "entry",
+       "field": "needs"
+      }
+     },
+     "licence_class": {
+      "fill": {
+       "from": "entry",
+       "field": "licence_class"
+      }
+     },
+     "placements": {
+      "fill": {
+       "from": "entry",
+       "field": "placements"
+      }
+     },
+     "maker": {
+      "fill": {
+       "from": "entry",
+       "field": "maker"
+      }
+     },
+     "verify": {
+      "fill": {
+       "from": "entry",
+       "field": "verify"
+      }
+     },
+     "result_selector": {
+      "fill": {
+       "from": "entry",
+       "field": "result_selector"
+      }
+     },
+     "keeps_records": {
+      "fill": {
+       "from": "entry",
+       "field": "keeps_records"
+      }
+     },
+     "price_ref": {
+      "fill": {
+       "from": "entry",
+       "field": "price_ref"
+      }
+     },
+     "billing": {
+      "fill": {
+       "from": "entry",
+       "field": "billing"
+      }
+     },
+     "provenance": {
+      "fill": {
+       "from": "entry",
+       "field": "provenance"
+      }
+     },
+     "screen": {
+      "fill": {
+       "from": "entry",
+       "field": "screen"
+      }
+     },
+     "controls": {
+      "fill": {
+       "from": "entry",
+       "field": "controls"
+      }
+     }
+    }
+   }
+  }
+ ]
+}

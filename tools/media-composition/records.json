@@ -1,0 +1,5195 @@
+{
+ "package": "media-composition",
+ "things": [
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::find-action-moments",
+   "address": "package::media-composition::tool::find-action-moments",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-action-moments",
+    "label": "Find action moments in a video",
+    "status": "active",
+    "job": "Find where the action happens in a video, such as the moment a ball is hit, and give each moment's time in seconds",
+    "description": "Ranks the moments where a sharp sound meets movement in the picture (a racket meeting a ball, a clap, a landing) and returns their times in the video's own seconds, strongest first. Search the whole video or only a stretch of it.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "from": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Start of the stretch to search (default 0)"
+      },
+      "to": {
+       "type": "number",
+       "minimum": 0,
+       "description": "End of the stretch to search (default the end)"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 50,
+       "description": "How many moments to return (default 5)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "duration",
+        "moments",
+        "best"
+       ],
+       "properties": {
+        "duration": {
+         "type": "number"
+        },
+        "moments": {
+         "type": "array",
+         "minItems": 1,
+         "items": {
+          "type": "object",
+          "required": [
+           "time",
+           "strength"
+          ],
+          "properties": {
+           "time": {
+            "type": "number"
+           },
+           "strength": {
+            "type": "number"
+           }
+          }
+         }
+        },
+        "best": {
+         "type": "object",
+         "required": [
+          "time"
+         ]
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/find-action-moments.mjs",
+      {
+       "from": "video"
+      },
+      "--from",
+      {
+       "from": "from",
+       "otherwise": {
+        "const": 0
+       }
+      },
+      "--to",
+      {
+       "from": "to",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--count",
+      {
+       "from": "count",
+       "otherwise": {
+        "const": 5
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 180,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.best.time",
+      "at_least": {
+       "output_selector": "$.result.from"
+      },
+      "at_most": {
+       "output_selector": "$.result.to"
+      }
+     },
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.to",
+      "at_least": 0,
+      "at_most": {
+       "output_selector": "$.result.duration"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::find-scene-changes",
+   "address": "package::media-composition::tool::find-scene-changes",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-scene-changes",
+    "label": "Find scene changes in a video",
+    "status": "active",
+    "job": "Find the times where a video cuts from one shot to another",
+    "description": "Returns every time (seconds) where the picture changes to a new shot. A higher threshold (0 to 1) finds fewer, harder cuts.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "threshold": {
+       "type": "number",
+       "minimum": 0.01,
+       "maximum": 1,
+       "description": "How different two frames must be to count as a cut (default 0.3)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "cuts",
+        "count"
+       ],
+       "properties": {
+        "cuts": {
+         "type": "array",
+         "items": {
+          "type": "number"
+         }
+        },
+        "count": {
+         "type": "integer"
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/detect-scenes.mjs",
+      {
+       "from": "video"
+      },
+      {
+       "from": "threshold",
+       "otherwise": {
+        "const": 0.3
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 120,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.count",
+      "at_least": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::find-silence",
+   "address": "package::media-composition::tool::find-silence",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-silence",
+    "label": "Find the quiet parts of a video",
+    "status": "active",
+    "job": "Find the silent stretches in a video or recording and the parts worth keeping between them",
+    "description": "Returns the silent stretches and the spoken or sounding stretches to keep between them, in seconds, so pauses can be cut out.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "threshold_db": {
+       "type": "number",
+       "maximum": 0,
+       "description": "Quieter than this counts as silence (default -30)"
+      },
+      "min_silence_seconds": {
+       "type": "number",
+       "minimum": 0.05,
+       "description": "Shortest pause that counts (default 0.5)"
+      },
+      "pad_seconds": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Sound kept around each kept stretch (default 0.05)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "silences",
+        "keep",
+        "duration"
+       ],
+       "properties": {
+        "silences": {
+         "type": "array"
+        },
+        "keep": {
+         "type": "array"
+        },
+        "duration": {
+         "type": "number"
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/detect-silence.mjs",
+      {
+       "from": "video"
+      },
+      {
+       "from": "threshold_db",
+       "otherwise": {
+        "const": -30
+       }
+      },
+      {
+       "from": "min_silence_seconds",
+       "otherwise": {
+        "const": 0.5
+       }
+      },
+      {
+       "from": "pad_seconds",
+       "otherwise": {
+        "const": 0.05
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 120,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.duration",
+      "at_least": 0.01
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::find-beats",
+   "address": "package::media-composition::tool::find-beats",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-beats",
+    "label": "Find the beats in music",
+    "status": "active",
+    "job": "Find the beat times in a song or in a video's soundtrack, to cut on the beat",
+    "description": "Returns the time of each beat (seconds) and the tempo in beats per minute.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "beats",
+        "count"
+       ],
+       "properties": {
+        "beats": {
+         "type": "array",
+         "items": {
+          "type": "number"
+         }
+        },
+        "count": {
+         "type": "integer"
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/detect-beats.mjs",
+      {
+       "from": "video"
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 120,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.count",
+      "at_least": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::reframe-video",
+   "address": "package::media-composition::tool::reframe-video",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:reframe-video",
+    "label": "Reframe a video to a new shape",
+    "status": "active",
+    "job": "Make a video vertical, square or any other shape, with the frame following the person or action",
+    "description": "Crops the whole video to a new shape (9:16 for a reel by default) with the window following what moves in the picture, and saves the new video in your files.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "aspect_w": {
+       "type": "number",
+       "minimum": 1,
+       "description": "Width part of the shape (default 9)"
+      },
+      "aspect_h": {
+       "type": "number",
+       "minimum": 1,
+       "description": "Height part of the shape (default 16)"
+      },
+      "fill": {
+       "type": "string",
+       "description": "crop (default) fills the frame; blur fits the whole picture over a blurred copy; a colour such as black fits it over that colour"
+      },
+      "follow": {
+       "type": "string",
+       "enum": [
+        "motion",
+        "brightness"
+       ],
+       "description": "What the frame follows (default motion)"
+      },
+      "width": {
+       "type": "integer",
+       "minimum": 16,
+       "description": "Output width in pixels (with height); default the largest that fits without enlarging"
+      },
+      "height": {
+       "type": "integer",
+       "minimum": 16
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "duration_seconds",
+        "width",
+        "height",
+        "bytes"
+       ],
+       "properties": {
+        "duration_seconds": {
+         "type": "number",
+         "minimum": 0.1
+        },
+        "width": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "height": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "expected_duration_seconds": {
+         "type": "number"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/reframe-to-a-size.mjs",
+      "--video",
+      {
+       "from": "video"
+      },
+      "--output",
+      "/opt/media-composition/reframed.mp4",
+      "--aspect-w",
+      {
+       "from": "aspect_w",
+       "otherwise": {
+        "const": 9
+       }
+      },
+      "--aspect-h",
+      {
+       "from": "aspect_h",
+       "otherwise": {
+        "const": 16
+       }
+      },
+      "--fill",
+      {
+       "from": "fill",
+       "otherwise": {
+        "const": "crop"
+       }
+      },
+      "--follow",
+      {
+       "from": "follow",
+       "otherwise": {
+        "const": "motion"
+       }
+      },
+      "--width",
+      {
+       "from": "width",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--height",
+      {
+       "from": "height",
+       "otherwise": {
+        "const": ""
+       }
+      }
+     ],
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/media-composition/reframed.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 4000000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 240,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.result.duration_seconds"
+      },
+      "right": {
+       "output_selector": "$.result.expected_duration_seconds"
+      },
+      "tolerance": 0.3
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::change-speed-over-a-range",
+   "address": "package::media-composition::tool::change-speed-over-a-range",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:change-speed-over-a-range",
+    "label": "Change speed over part of a video",
+    "status": "active",
+    "job": "Play part of a video in slow motion or sped up, such as the moment of contact at half speed, and optionally keep only a window around it",
+    "description": "Plays the stretch from `from` to `to` (seconds) at `speed` (0.5 is half speed) with the sound, the rest at normal speed, keeping only `keep_from` to `keep_to` when given. Saves the new video in your files.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video",
+      "from",
+      "to",
+      "speed"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "from": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Start of the stretch to change"
+      },
+      "to": {
+       "type": "number",
+       "minimum": 0,
+       "description": "End of the stretch to change"
+      },
+      "speed": {
+       "type": "number",
+       "minimum": 0.1,
+       "maximum": 10,
+       "description": "0.5 is half speed, 2 is double"
+      },
+      "keep_from": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Keep the video from here (default the start)"
+      },
+      "keep_to": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Keep the video up to here (default the end)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "duration_seconds",
+        "width",
+        "height",
+        "bytes"
+       ],
+       "properties": {
+        "duration_seconds": {
+         "type": "number",
+         "minimum": 0.1
+        },
+        "width": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "height": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "expected_duration_seconds": {
+         "type": "number"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/change-speed-over-a-range.mjs",
+      "--video",
+      {
+       "from": "video"
+      },
+      "--from",
+      {
+       "from": "from"
+      },
+      "--to",
+      {
+       "from": "to"
+      },
+      "--speed",
+      {
+       "from": "speed"
+      },
+      "--keep-from",
+      {
+       "from": "keep_from",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--keep-to",
+      {
+       "from": "keep_to",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--output",
+      "/opt/media-composition/speed-changed.mp4"
+     ],
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/media-composition/speed-changed.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 4000000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 240,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.result.duration_seconds"
+      },
+      "right": {
+       "output_selector": "$.result.expected_duration_seconds"
+      },
+      "tolerance": 0.3
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::add-captions",
+   "address": "package::media-composition::tool::add-captions",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:add-captions",
+    "label": "Add captions to a video from its transcript",
+    "status": "active",
+    "job": "Burn captions into a video from its transcript, in a caption style: plain subtitles, large captions, or words that light up as they are said",
+    "description": "Takes timed words (the speech-to-text tool's output, or a list of {text, start, end}) and burns captions into the whole video in the style you name (see style), words gathered into short lines the way that style reads best. Saves the new video in your files.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video",
+      "transcript"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "transcript": {
+       "type": [
+        "object",
+        "array"
+       ],
+       "description": "Timed words: {words:[{text,start,end}]}, {segments:[{words}]} or a list of words"
+      },
+      "transcript_from": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Where in the video the transcript's zero is (default 0)"
+      },
+      "style": {
+       "anyOf": [
+        {
+         "type": "string",
+         "enum": [
+          "subtitles",
+          "emphasis",
+          "spoken-words",
+          "serif-spoken-words",
+          "white-words-light-up"
+         ],
+         "description": "A caption style by name"
+        },
+        {
+         "type": "object",
+         "description": "Your own caption look, starting from the style named by id and changing any of its fields",
+         "properties": {
+          "id": {
+           "type": "string",
+           "enum": [
+            "subtitles",
+            "emphasis",
+            "spoken-words",
+            "serif-spoken-words",
+            "white-words-light-up"
+           ]
+          },
+          "font": {
+           "type": "string"
+          },
+          "size": {
+           "type": "number",
+           "minimum": 1,
+           "description": "Text size in pixels on a frame whose shorter side is 1080"
+          },
+          "bold": {
+           "type": "boolean"
+          },
+          "italic": {
+           "type": "boolean"
+          },
+          "outline": {
+           "type": "number",
+           "minimum": 0
+          },
+          "shadow": {
+           "type": [
+            "object",
+            "null"
+           ],
+           "properties": {
+            "x": {
+             "type": "number"
+            },
+            "y": {
+             "type": "number"
+            },
+            "blur": {
+             "type": "number",
+             "minimum": 0
+            },
+            "spread": {
+             "type": "number",
+             "minimum": 0
+            },
+            "colour": {
+             "type": "string"
+            },
+            "opacity": {
+             "type": "number",
+             "minimum": 0,
+             "maximum": 1
+            }
+           },
+           "description": "Pixels on a frame whose shorter side is 1080: x, y is the offset; blur and spread make a soft halo; colour #rrggbb; opacity 0 to 1; null for no shadow"
+          },
+          "colours": {
+           "type": "object",
+           "properties": {
+            "spoken": {
+             "type": "string"
+            },
+            "upcoming": {
+             "type": "string"
+            },
+            "outline": {
+             "type": "string"
+            }
+           },
+           "description": "#rrggbb: spoken is a word being said (and every word of a line shown whole), upcoming the words still to come, outline the edge"
+          },
+          "position": {
+           "type": "object",
+           "properties": {
+            "x": {
+             "type": "number",
+             "minimum": 0,
+             "maximum": 1
+            },
+            "y": {
+             "type": "number",
+             "minimum": 0,
+             "maximum": 1
+            }
+           },
+           "description": "Where a caption's bottom-centre sits, as fractions of the frame from the left and the top"
+          },
+          "reveal": {
+           "type": "string",
+           "enum": [
+            "line",
+            "karaoke"
+           ],
+           "description": "line shows each line whole; karaoke lights each word up as it is said"
+          },
+          "grouping": {
+           "type": "object",
+           "properties": {
+            "maxWords": {
+             "type": "integer",
+             "minimum": 1
+            },
+            "maxChars": {
+             "type": "integer",
+             "minimum": 1
+            },
+            "maxGap": {
+             "type": "number",
+             "minimum": 0
+            },
+            "maxSeconds": {
+             "type": "number",
+             "minimum": 0.1
+            },
+            "breakAfterSentence": {
+             "type": "boolean"
+            },
+            "casing": {
+             "type": "object",
+             "properties": {
+              "sentenceStart": {
+               "type": "boolean"
+              },
+              "alwaysCapital": {
+               "type": "array",
+               "items": {
+                "type": "string"
+               }
+              }
+             },
+             "description": "How words are written whatever case they were heard in: a capital at each sentence's start, and words always written with a capital"
+            }
+           },
+           "description": "How spoken words are gathered into caption lines"
+          }
+         }
+        }
+       ],
+       "description": "The caption style (default subtitles): subtitles (Subtitles); emphasis (Large captions); spoken-words (Highlight spoken words); serif-spoken-words (Serif spoken words); white-words-light-up (White words light up). Or an object with id set to one of them and any of font, size, bold, italic, outline, shadow, colours, position, reveal, grouping changed."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "duration_seconds",
+        "width",
+        "height",
+        "bytes"
+       ],
+       "properties": {
+        "duration_seconds": {
+         "type": "number",
+         "minimum": 0.1
+        },
+        "width": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "height": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "expected_duration_seconds": {
+         "type": "number"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/cut-and-caption.mjs",
+      "--video",
+      {
+       "from": "video"
+      },
+      "--transcript",
+      {
+       "from": "transcript"
+      },
+      "--transcript-from",
+      {
+       "from": "transcript_from",
+       "otherwise": {
+        "const": 0
+       }
+      },
+      "--style",
+      {
+       "from": "style",
+       "otherwise": {
+        "const": {}
+       }
+      },
+      "--output",
+      "/opt/media-composition/captioned.mp4"
+     ],
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/media-composition/captioned.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 4000000000,
+       "results": [
+        {
+         "kind": "caption-style",
+         "from": "style",
+         "otherwise": {}
+        }
+       ]
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 240,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.result.duration_seconds"
+      },
+      "right": {
+       "output_selector": "$.result.expected_duration_seconds"
+      },
+      "tolerance": 0.3
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::cut-and-caption",
+   "address": "package::media-composition::tool::cut-and-caption",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:cut-and-caption",
+    "label": "Cut a clip and caption it",
+    "status": "active",
+    "job": "Cut one stretch out of a video and burn in its spoken words as captions",
+    "description": "Keeps `from` to `to` (seconds) of the video and burns the words spoken in it as captions in the style you name (see style), for example words that light up as they are said. Without a transcript it only cuts. Saves the clip in your files.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video",
+      "from",
+      "to"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "from": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Start of the clip"
+      },
+      "to": {
+       "type": "number",
+       "minimum": 0,
+       "description": "End of the clip"
+      },
+      "transcript": {
+       "type": [
+        "object",
+        "array"
+       ],
+       "description": "Timed words for the whole video or for the clip"
+      },
+      "transcript_from": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Where in the video the transcript's zero is: 0 for the whole video, the clip's start for the clip's own words"
+      },
+      "style": {
+       "anyOf": [
+        {
+         "type": "string",
+         "enum": [
+          "subtitles",
+          "emphasis",
+          "spoken-words",
+          "serif-spoken-words",
+          "white-words-light-up"
+         ],
+         "description": "A caption style by name"
+        },
+        {
+         "type": "object",
+         "description": "Your own caption look, starting from the style named by id and changing any of its fields",
+         "properties": {
+          "id": {
+           "type": "string",
+           "enum": [
+            "subtitles",
+            "emphasis",
+            "spoken-words",
+            "serif-spoken-words",
+            "white-words-light-up"
+           ]
+          },
+          "font": {
+           "type": "string"
+          },
+          "size": {
+           "type": "number",
+           "minimum": 1,
+           "description": "Text size in pixels on a frame whose shorter side is 1080"
+          },
+          "bold": {
+           "type": "boolean"
+          },
+          "italic": {
+           "type": "boolean"
+          },
+          "outline": {
+           "type": "number",
+           "minimum": 0
+          },
+          "shadow": {
+           "type": [
+            "object",
+            "null"
+           ],
+           "properties": {
+            "x": {
+             "type": "number"
+            },
+            "y": {
+             "type": "number"
+            },
+            "blur": {
+             "type": "number",
+             "minimum": 0
+            },
+            "spread": {
+             "type": "number",
+             "minimum": 0
+            },
+            "colour": {
+             "type": "string"
+            },
+            "opacity": {
+             "type": "number",
+             "minimum": 0,
+             "maximum": 1
+            }
+           },
+           "description": "Pixels on a frame whose shorter side is 1080: x, y is the offset; blur and spread make a soft halo; colour #rrggbb; opacity 0 to 1; null for no shadow"
+          },
+          "colours": {
+           "type": "object",
+           "properties": {
+            "spoken": {
+             "type": "string"
+            },
+            "upcoming": {
+             "type": "string"
+            },
+            "outline": {
+             "type": "string"
+            }
+           },
+           "description": "#rrggbb: spoken is a word being said (and every word of a line shown whole), upcoming the words still to come, outline the edge"
+          },
+          "position": {
+           "type": "object",
+           "properties": {
+            "x": {
+             "type": "number",
+             "minimum": 0,
+             "maximum": 1
+            },
+            "y": {
+             "type": "number",
+             "minimum": 0,
+             "maximum": 1
+            }
+           },
+           "description": "Where a caption's bottom-centre sits, as fractions of the frame from the left and the top"
+          },
+          "reveal": {
+           "type": "string",
+           "enum": [
+            "line",
+            "karaoke"
+           ],
+           "description": "line shows each line whole; karaoke lights each word up as it is said"
+          },
+          "grouping": {
+           "type": "object",
+           "properties": {
+            "maxWords": {
+             "type": "integer",
+             "minimum": 1
+            },
+            "maxChars": {
+             "type": "integer",
+             "minimum": 1
+            },
+            "maxGap": {
+             "type": "number",
+             "minimum": 0
+            },
+            "maxSeconds": {
+             "type": "number",
+             "minimum": 0.1
+            },
+            "breakAfterSentence": {
+             "type": "boolean"
+            },
+            "casing": {
+             "type": "object",
+             "properties": {
+              "sentenceStart": {
+               "type": "boolean"
+              },
+              "alwaysCapital": {
+               "type": "array",
+               "items": {
+                "type": "string"
+               }
+              }
+             },
+             "description": "How words are written whatever case they were heard in: a capital at each sentence's start, and words always written with a capital"
+            }
+           },
+           "description": "How spoken words are gathered into caption lines"
+          }
+         }
+        }
+       ],
+       "description": "The caption style (default subtitles): subtitles (Subtitles); emphasis (Large captions); spoken-words (Highlight spoken words); serif-spoken-words (Serif spoken words); white-words-light-up (White words light up). Or an object with id set to one of them and any of font, size, bold, italic, outline, shadow, colours, position, reveal, grouping changed."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "duration_seconds",
+        "width",
+        "height",
+        "bytes"
+       ],
+       "properties": {
+        "duration_seconds": {
+         "type": "number",
+         "minimum": 0.1
+        },
+        "width": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "height": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "expected_duration_seconds": {
+         "type": "number"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/cut-and-caption.mjs",
+      "--video",
+      {
+       "from": "video"
+      },
+      "--from",
+      {
+       "from": "from"
+      },
+      "--to",
+      {
+       "from": "to"
+      },
+      "--transcript",
+      {
+       "from": "transcript",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--transcript-from",
+      {
+       "from": "transcript_from",
+       "otherwise": {
+        "const": 0
+       }
+      },
+      "--style",
+      {
+       "from": "style",
+       "otherwise": {
+        "const": {}
+       }
+      },
+      "--output",
+      "/opt/media-composition/clip.mp4"
+     ],
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/media-composition/clip.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 4000000000,
+       "results": [
+        {
+         "kind": "caption-style",
+         "from": "style",
+         "otherwise": {}
+        }
+       ]
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 240,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.result.duration_seconds"
+      },
+      "right": {
+       "output_selector": "$.result.expected_duration_seconds"
+      },
+      "tolerance": 0.3
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::arrange-videos",
+   "address": "package::media-composition::tool::arrange-videos",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:arrange-videos",
+    "label": "Arrange videos side by side",
+    "status": "active",
+    "job": "Put two or more videos side by side, stacked, or in a grid in one frame, such as a swing next to a pro's",
+    "description": "Plays the videos together in one frame: side by side (h), stacked (v) or a grid, with their sound mixed. Saves the new video in your files.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "videos"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "videos": {
+       "type": "array",
+       "minItems": 2,
+       "maxItems": 9,
+       "format": "namespace-file",
+       "items": {
+        "type": "string"
+       },
+       "description": "The videos' identities in your files"
+      },
+      "layout": {
+       "type": "string",
+       "enum": [
+        "h",
+        "v",
+        "grid"
+       ],
+       "description": "h side by side (default), v stacked, grid"
+      },
+      "seconds": {
+       "type": "number",
+       "minimum": 0.5,
+       "description": "How long to play (default the videos' own length)"
+      },
+      "width": {
+       "type": "integer",
+       "minimum": 16,
+       "description": "Output width (default 1920)"
+      },
+      "height": {
+       "type": "integer",
+       "minimum": 16,
+       "description": "Output height (default 1080)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "duration_seconds",
+        "width",
+        "height",
+        "bytes"
+       ],
+       "properties": {
+        "duration_seconds": {
+         "type": "number",
+         "minimum": 0.1
+        },
+        "width": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "height": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "expected_duration_seconds": {
+         "type": "number"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/render-an-edit.mjs",
+      "--output",
+      "/opt/media-composition/arranged.mp4",
+      "--edl",
+      {
+       "encode": {
+        "width": {
+         "from": "width",
+         "otherwise": {
+          "const": 1920
+         }
+        },
+        "height": {
+         "from": "height",
+         "otherwise": {
+          "const": 1080
+         }
+        }
+       },
+       "spine": {
+        "segments": [
+         {
+          "kind": "split",
+          "id": "arranged",
+          "layout": {
+           "from": "layout",
+           "otherwise": {
+            "const": "h"
+           }
+          },
+          "sources": {
+           "from": "videos"
+          },
+          "duration": {
+           "from": "seconds",
+           "optional": true
+          }
+         }
+        ]
+       }
+      }
+     ],
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/media-composition/arranged.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 4000000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 240,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.duration_seconds",
+      "at_least": 0.1
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::render-an-edit",
+   "address": "package::media-composition::tool::render-an-edit",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:render-an-edit",
+    "label": "Render an edit",
+    "screen": {
+     "group": "content-make",
+     "kind": "app-entry",
+     "entry": "media-edit",
+     "label": "Video editor",
+     "icon": "Clapperboard",
+     "inputs": {
+      "edl": {
+       "hidden": true
+      }
+     },
+     "about": "Cut, arrange and export a video."
+    },
+    "status": "active",
+    "job": "Render a video from an edit decision list: cuts, speed changes, reframing, captions, music and layouts of your files",
+    "description": "Renders one edit in the media-composition edit format (spine.segments of clips with in, out, speed, speed_ramp, reframe, crop, fades; split layouts; subtitles.ass; audio_graph.music_bed; encode width and height). Every source is a file identity from your files. Saves the video in your files.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "edl"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "edl": {
+       "type": "object",
+       "format": "namespace-file",
+       "required": [
+        "spine"
+       ],
+       "description": "The edit itself, written here as JSON: nothing needs saving first. Wherever a source goes (a clip's source, a music bed, a subtitles file), give that file's identity (1f: then 64 hex) from find_file, list_files or write_file."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "duration_seconds",
+        "width",
+        "height",
+        "bytes"
+       ],
+       "properties": {
+        "duration_seconds": {
+         "type": "number",
+         "minimum": 0.1
+        },
+        "width": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "height": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "expected_duration_seconds": {
+         "type": "number"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/render-an-edit.mjs",
+      "--edl",
+      {
+       "from": "edl"
+      },
+      "--output",
+      "/opt/media-composition/edit.mp4"
+     ],
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/media-composition/edit.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 4000000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 300,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.duration_seconds",
+      "at_least": 0.1
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::measure-loudness",
+   "address": "package::media-composition::tool::measure-loudness",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:measure-loudness",
+    "label": "Measure a video's loudness",
+    "status": "active",
+    "job": "Measure how loud a video or recording is and whether it is ready to publish",
+    "description": "Measures integrated loudness (LUFS), loudness range and true peak, and says whether it meets the target (-14 LUFS by default) without clipping.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "target_lufs": {
+       "type": "number",
+       "description": "Target loudness (default -14)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "ok",
+        "reasons"
+       ],
+       "properties": {
+        "integrated_lufs": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "true_peak_dbfs": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "ok": {
+         "type": "boolean"
+        },
+        "reasons": {
+         "type": "array"
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/measure-loudness.mjs",
+      {
+       "from": "video"
+      },
+      "--target",
+      {
+       "from": "target_lufs",
+       "otherwise": {
+        "const": -14
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 120,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.integrated_lufs",
+      "at_least": -120,
+      "at_most": 10
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::pick-cover-frame",
+   "address": "package::media-composition::tool::pick-cover-frame",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:pick-cover-frame",
+    "label": "Pick a cover frame for a video",
+    "status": "active",
+    "job": "Choose the best frame of a video for its cover or thumbnail and save it as a picture",
+    "description": "Scores frames across the video for sharpness and exposure, saves the best one (or the frame at `at` seconds) as a JPEG in your files, and returns its time.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "at": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Use the frame at this time instead of choosing"
+      },
+      "width": {
+       "type": "integer",
+       "minimum": 16,
+       "description": "Picture width in pixels (default the video's)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "time",
+        "width",
+        "height",
+        "bytes"
+       ]
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "picture"
+       ],
+       "properties": {
+        "picture": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/save-cover-frame.mjs",
+      "--video",
+      {
+       "from": "video"
+      },
+      "--output",
+      "/opt/media-composition/cover.jpg",
+      "--at",
+      {
+       "from": "at",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--width",
+      {
+       "from": "width",
+       "otherwise": {
+        "const": 0
+       }
+      }
+     ],
+     "outputs": [
+      {
+       "name": "picture",
+       "path": "/opt/media-composition/cover.jpg",
+       "keep_in": "files",
+       "media_type": "image/jpeg",
+       "max_bytes": 4000000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 120,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.time",
+      "at_least": 0
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.picture.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::export-editor-timeline",
+   "address": "package::media-composition::tool::export-editor-timeline",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:export-editor-timeline",
+    "label": "Export an editor timeline",
+    "status": "active",
+    "job": "Export an edit as a timeline file (Final Cut Pro XML) that Premiere Pro, DaVinci Resolve or Final Cut can open",
+    "description": "Writes the edit (the same format render-an-edit takes, with encode width, height and fps) as an xmeml timeline naming each source by the path it has on the editor's computer, saves it in your files, and says what the file could not carry.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "edl"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "edl": {
+       "type": "object",
+       "required": [
+        "spine",
+        "encode"
+       ],
+       "description": "The edit; each source is the absolute path the editor will find it at"
+      },
+      "title": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The sequence's name"
+      },
+      "source_metadata": {
+       "type": "object",
+       "description": "Per source path: fps, duration, width, height, has_audio"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "sequence",
+        "bytes"
+       ]
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "timeline"
+       ],
+       "properties": {
+        "timeline": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/export-editor-timeline.mjs",
+      "--edl",
+      {
+       "from": "edl"
+      },
+      "--title",
+      {
+       "from": "title",
+       "otherwise": {
+        "const": "Edit"
+       }
+      },
+      "--source-metadata",
+      {
+       "from": "source_metadata",
+       "otherwise": {
+        "const": {}
+       }
+      },
+      "--output",
+      "/opt/media-composition/timeline.xml"
+     ],
+     "outputs": [
+      {
+       "name": "timeline",
+       "path": "/opt/media-composition/timeline.xml",
+       "keep_in": "files",
+       "media_type": "application/xml",
+       "max_bytes": 4000000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.sequence.duration_frames",
+      "at_least": 1
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.timeline.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::extract-sound",
+   "address": "package::media-composition::tool::extract-sound",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:extract-sound",
+    "label": "Extract the sound from a video",
+    "status": "active",
+    "job": "Take the sound out of a video as a small audio file, for example to transcribe it",
+    "description": "Saves the video's sound as a mono 16 kHz MP3 in your files (about 0.5 MB a minute), small enough for the speech-to-text tool.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "files"
+     ],
+     "properties": {
+      "files": {
+       "type": "object",
+       "required": [
+        "sound"
+       ],
+       "properties": {
+        "sound": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "argv": [
+      "ffmpeg",
+      "-v",
+      "error",
+      "-y",
+      "-reconnect",
+      "1",
+      "-reconnect_on_network_error",
+      "1",
+      "-reconnect_on_http_error",
+      "4xx,5xx",
+      "-reconnect_delay_max",
+      "60",
+      "-i",
+      {
+       "from": "video"
+      },
+      "-vn",
+      "-ac",
+      "1",
+      "-ar",
+      "16000",
+      "-b:a",
+      "64k",
+      "/opt/media-composition/sound.mp3"
+     ],
+     "outputs": [
+      {
+       "name": "sound",
+       "path": "/opt/media-composition/sound.mp3",
+       "keep_in": "files",
+       "media_type": "audio/mpeg",
+       "max_bytes": 4000000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true,
+     "memory_mb": 1024
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "ffmpeg in the Workshop's container image"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.files.sound.bytes",
+      "at_least": 1
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::find-recurring-voices",
+   "address": "package::media-composition::tool::find-recurring-voices",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-recurring-voices",
+    "status": "active",
+    "label": "Find recurring voices",
+    "job": "Group recurring voices across audio and video files, keep stable voice clusters, and show which files contain the same speaker",
+    "description": "Uses a public CAM++ speaker model on speech windows from your selected files. Returns candidate voice groups and their time spans, keeps cluster embeddings in your account for later files, and shows a person's name only when a name was explicitly attached.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "files"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "files": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 20,
+       "items": {
+        "type": "string",
+        "format": "namespace-file"
+       },
+       "description": "One to twenty audio or video file identities from your Files"
+      },
+      "max_seconds_per_file": {
+       "type": "integer",
+       "minimum": 30,
+       "maximum": 3600,
+       "description": "Maximum seconds to inspect in each file (default 1800)"
+      },
+      "minimum_similarity": {
+       "type": "number",
+       "minimum": 0.5,
+       "maximum": 0.95,
+       "description": "Cosine similarity required to reuse a voice cluster (default 0.72)"
+      },
+      "known_voices": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "x-your-records": [
+        "media-voice-cluster"
+       ],
+       "description": "Existing voice clusters from your account; filled automatically"
+      },
+      "person_bindings": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "x-your-records": [
+        "media-person-binding"
+       ],
+       "description": "Names explicitly attached to voice clusters; filled automatically"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "clusters",
+      "segments",
+      "voice_records",
+      "files_checked",
+      "errors"
+     ],
+     "properties": {
+      "clusters": {
+       "type": "array"
+      },
+      "segments": {
+       "type": "array"
+      },
+      "voice_records": {
+       "type": "array"
+      },
+      "files_checked": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "errors": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "python3",
+      "do-work/find-recurring-voices.py"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 180,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "keeps_records": [
+     {
+      "output_selector": "$.voice_records",
+      "type_field": "kind",
+      "id_field": "id"
+     }
+    ],
+    "provenance": {
+     "model": "3D-Speaker CAM++ 200k ONNX, Apache 2.0, pinned model revision",
+     "source": "media-composition/do-work/find-recurring-voices.py"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.files_checked",
+      "at_least": 1
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::blur-faces-not-agreed",
+   "address": "package::media-composition::tool::blur-faces-not-agreed",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:blur-faces-not-agreed",
+    "listed_on": "2026-10-06T05:10:00Z",
+    "status": "active",
+    "label": "Blur and silence everyone who has not agreed to be filmed",
+    "job": "Make a copy of a video with every face blurred and every word silenced except those of the people who agreed to be filmed, before it is posted or shared",
+    "description": "Give video, a video in the person's files, and agreed, pictures of each person who agreed to be filmed (a clear picture of their face; the person themself included). Every face in every frame is found; a face that matches someone who agreed stays as it is, and every other face, including one it cannot be sure of, is blurred past recognition. Give agreed_voices too, a recording of each of them speaking, and every word said by anyone else is silenced, judged half a second at a time; without it the sound is copied unchanged. The original video is never changed. The copy is kept in the person's files under Made by tools, named by name when given. Returns how many faces were seen, blurred and kept, how much speech was silenced, and any agreed picture in which no face was found. Faces are found with YuNet and recognized with SFace (OpenCV Zoo) and voices told apart with CAM++, on the tool's own computer; nothing leaves it.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video, by its identity in your files"
+      },
+      "agreed": {
+       "type": "array",
+       "maxItems": 50,
+       "items": {
+        "type": "string",
+        "format": "namespace-file"
+       },
+       "description": "Pictures of each person who agreed to be filmed, by identity in your files; with none, every face is blurred"
+      },
+      "agreed_voices": {
+       "type": "array",
+       "maxItems": 50,
+       "items": {
+        "type": "string",
+        "format": "namespace-file"
+       },
+       "description": "Recordings of each person who agreed speaking (ten seconds or more each); every word by anyone else is silenced, and with none, every word is"
+      },
+      "voice_match": {
+       "type": "number",
+       "minimum": 0.3,
+       "maximum": 0.9,
+       "description": "How alike speech must be to an agreed voice to be kept (default 0.5); higher silences more"
+      },
+      "match": {
+       "type": "number",
+       "minimum": 0.3,
+       "maximum": 0.9,
+       "description": "How alike a face must be to an agreed picture to be kept (default 0.363); higher blurs more"
+      },
+      "name": {
+       "type": "string",
+       "maxLength": 120,
+       "description": "What to call the copy, like Serve practice without strangers",
+       "x-free-text-because": "What to call the blurred copy this run makes: the name of the new file itself."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "frames",
+        "faces",
+        "blurred",
+        "kept",
+        "agreed_faces",
+        "video_bytes"
+       ],
+       "properties": {
+        "frames": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "seconds": {
+         "type": "number"
+        },
+        "width": {
+         "type": "integer"
+        },
+        "height": {
+         "type": "integer"
+        },
+        "faces": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "blurred": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "kept": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "agreed_faces": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "pictures_without_a_face": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "agreed_voices": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "silenced": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "silenced_seconds": {
+         "type": "number",
+         "minimum": 0
+        },
+        "video_bytes": {
+         "type": "integer",
+         "minimum": 1
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "media-composition",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/media-composition",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/media-composition",
+     "stdout": "json",
+     "argv": [
+      "python3",
+      "do-work/blur-faces-not-agreed.py"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/media-composition/out/blurred.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 4000000000,
+       "keep_as": {
+        "name_from": [
+         "name"
+        ]
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 600,
+     "network_egress": false,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "model": "YuNet face detection 2023mar (MIT) and SFace face recognition 2021dec (Apache 2.0), OpenCV Zoo, and 3D-Speaker CAM++ 200k (Apache 2.0), pinned revisions",
+     "source": "media-composition/do-work/blur-faces-not-agreed.py"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.frames",
+      "at_least": 1
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.video_bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::name-a-voice",
+   "address": "package::media-composition::tool::name-a-voice",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:name-a-voice",
+    "status": "active",
+    "label": "Name a voice",
+    "job": "Attach a person's name to one voice cluster after identifying that voice",
+    "description": "Keeps your explicit person name for an existing voice cluster. Later analysis shows that name on matching voice segments; the model itself never guesses a name.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "voice_id",
+      "person_name"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "voice_id": {
+       "type": "string",
+       "minLength": 8,
+       "description": "A voice_id returned by Find recurring voices"
+      },
+      "person_name": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The person you identified",
+       "x-record": {
+        "from": {
+         "row_types": [
+          "person",
+          "crm",
+          "customer",
+          "contact"
+         ]
+        },
+        "new": {
+         "list": "people",
+         "label": "person",
+         "list_label": "People",
+         "title_field": "name"
+        }
+       }
+      },
+      "known_voices": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "x-your-records": [
+        "media-voice-cluster"
+       ],
+       "description": "Existing voice clusters; filled automatically"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "binding",
+      "voice_id",
+      "person_name"
+     ],
+     "properties": {
+      "binding": {
+       "type": "object"
+      },
+      "voice_id": {
+       "type": "string"
+      },
+      "person_name": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "python3",
+      "do-work/name-a-voice.py"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "keeps_records": [
+     {
+      "output_selector": "$.binding",
+      "type_field": "kind",
+      "id_field": "id"
+     }
+    ],
+    "provenance": {
+     "source": "media-composition/do-work/name-a-voice.py"
+    },
+    "verify": [
+     {
+      "kind": "output-contains-input",
+      "output_selector": "$.person_name",
+      "input_field": "person_name"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::mix-sound-layers",
+   "address": "package::media-composition::tool::mix-sound-layers",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:mix-sound-layers",
+    "label": "Mix sounds under a video",
+    "status": "active",
+    "job": "Lay music, voice-overs and sound effects under a video at chosen times, each trimmed, with its own volume and fades, music lowering itself under speech",
+    "description": "Plays each sound from `start` seconds into the video, trimmed to `from`..`to` of its file, at its volume with fades; a sound with duck drops while the video's speech or a voice-over is heard. Optionally evens out the whole video's loudness (loudness_lufs, -14 suits most sites). Saves the new video in your files.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video",
+      "sounds"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "sounds": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 32,
+       "items": {
+        "type": "object",
+        "required": [
+         "file",
+         "start"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "file": {
+          "type": "string",
+          "format": "namespace-file",
+          "description": "The sound's identity in your files (1f: then 64 hex): music, a voice-over or a sound effect"
+         },
+         "label": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Your own name for it, like Music or Door slam"
+         },
+         "start": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Seconds into the video where it starts playing"
+         },
+         "from": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Where in the sound file to start (default 0)"
+         },
+         "to": {
+          "type": [
+           "number",
+           "null"
+          ],
+          "minimum": 0,
+          "description": "Where in the sound file to stop (default its end; it also stops when the video ends)"
+         },
+         "volume": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
+          "description": "1 is as recorded (default 1); 0.3 suits music under speech"
+         },
+         "fade_in": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Seconds to fade in"
+         },
+         "fade_out": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Seconds to fade out"
+         },
+         "duck": {
+          "type": "boolean",
+          "description": "Lower it automatically while the video's own speech, or any sound that does not duck, is heard"
+         }
+        }
+       },
+       "description": "The sounds to lay under the video"
+      },
+      "loudness_lufs": {
+       "type": "number",
+       "minimum": -40,
+       "maximum": -5,
+       "description": "Even out the finished video's loudness to this level (-14 suits most sites)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "duration_seconds",
+        "width",
+        "height",
+        "bytes"
+       ],
+       "properties": {
+        "duration_seconds": {
+         "type": "number",
+         "minimum": 0.1
+        },
+        "width": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "height": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "expected_duration_seconds": {
+         "type": "number"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/layer-over-video.mjs",
+      "--video",
+      {
+       "from": "video"
+      },
+      "--sounds",
+      {
+       "from": "sounds"
+      },
+      "--loudness",
+      {
+       "from": "loudness_lufs",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--output",
+      "/opt/media-composition/layered.mp4"
+     ],
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/media-composition/layered.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 4000000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 240,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.result.duration_seconds"
+      },
+      "right": {
+       "output_selector": "$.result.expected_duration_seconds"
+      },
+      "tolerance": 0.3
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ],
+    "screen": {
+     "group": "content-make",
+     "kind": "described",
+     "shows": [
+      "files"
+     ],
+     "icon": "AudioLines",
+     "inputs": {
+      "video": {
+       "label": "Video",
+       "file": {
+        "takes": "video"
+       }
+      },
+      "loudness_lufs": {
+       "label": "Loudness",
+       "placeholder": "-14 suits most sites"
+      },
+      "sounds": {
+       "hidden": true
+      }
+     },
+     "label": "Mix sounds",
+     "about": "Lays music and sounds under a video."
+    }
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::layer-pictures-over-video",
+   "address": "package::media-composition::tool::layer-pictures-over-video",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:layer-pictures-over-video",
+    "label": "Lay pictures over a video",
+    "status": "active",
+    "job": "Put a logo, a photo, or a picture-in-picture or b-roll video over a video at chosen times, with position, size and opacity",
+    "description": "Draws each picture or video from `start` seconds for its length, `size` wide, its centre at `x`,`y` (0..1 across and down), at its opacity, later ones over earlier ones; a video plays its `from`..`to` stretch. Saves the new video in your files.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video",
+      "pictures"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "pictures": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 32,
+       "items": {
+        "type": "object",
+        "required": [
+         "file",
+         "start"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "file": {
+          "type": "string",
+          "format": "namespace-file",
+          "description": "The picture's or video's identity in your files (1f: then 64 hex): a logo, a photo or b-roll"
+         },
+         "label": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Your own name for it, like Logo"
+         },
+         "kind": {
+          "type": "string",
+          "enum": [
+           "image",
+           "video"
+          ],
+          "description": "image for a still, video for a moving clip (read from the file when left out)"
+         },
+         "start": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Seconds into the video where it appears"
+         },
+         "from": {
+          "type": "number",
+          "minimum": 0,
+          "description": "For a video: where in it to start playing (default 0)"
+         },
+         "to": {
+          "type": "number",
+          "minimum": 0,
+          "description": "For a video: where in it to stop; for a still, from plus how many seconds it shows (default: a still stays to the end, a video plays its own length)"
+         },
+         "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Where its centre sits across the frame: 0 left edge, 0.5 middle, 1 right edge (default 0.5)"
+         },
+         "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Where its centre sits down the frame: 0 top edge, 0.5 middle, 1 bottom edge (default 0.5)"
+         },
+         "size": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "description": "Its width as a share of the frame's width, 1 fills the width (default 0.3)"
+         },
+         "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "1 solid, 0 invisible (default 1)"
+         },
+         "fade_in": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Seconds to fade in"
+         },
+         "fade_out": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Seconds to fade out"
+         }
+        }
+       },
+       "description": "The pictures and videos to lay over it, back to front"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "duration_seconds",
+        "width",
+        "height",
+        "bytes"
+       ],
+       "properties": {
+        "duration_seconds": {
+         "type": "number",
+         "minimum": 0.1
+        },
+        "width": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "height": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "expected_duration_seconds": {
+         "type": "number"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/layer-over-video.mjs",
+      "--video",
+      {
+       "from": "video"
+      },
+      "--pictures",
+      {
+       "from": "pictures"
+      },
+      "--output",
+      "/opt/media-composition/layered.mp4"
+     ],
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/media-composition/layered.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 4000000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 240,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "bitfield-packages packages/media-composition/do-work"
+    },
+    "verify": [
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.result.duration_seconds"
+      },
+      "right": {
+       "output_selector": "$.result.expected_duration_seconds"
+      },
+      "tolerance": 0.3
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ],
+    "screen": {
+     "group": "content-make",
+     "kind": "described",
+     "shows": [
+      "files"
+     ],
+     "icon": "Layers",
+     "inputs": {
+      "video": {
+       "label": "Video",
+       "file": {
+        "takes": "video"
+       }
+      },
+      "pictures": {
+       "hidden": true
+      }
+     },
+     "label": "Layer pictures",
+     "about": "Lays pictures and clips over a video."
+    }
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::point-editor-projects-at-new-places",
+   "address": "package::media-composition::tool::point-editor-projects-at-new-places",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:point-editor-projects-at-new-places",
+    "label": "Point editor projects at clips' new places",
+    "status": "active",
+    "job": "On the person's own computer, point their Premiere Pro projects and DaVinci Resolve's open project at clips that moved to a new place, such as their Trillion files connected as a drive",
+    "description": "Runs on the computer where the editors are. Rewrites each Premiere Pro project that names a moved clip so it opens the clip from its new place, keeping the original project beside it, and relinks the clips in the project DaVinci Resolve has open through Resolve's own scripting. A project that is open is left alone and reported. On a computer every Premiere project is found by Spotlight; elsewhere name the project files.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "moves"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "moves": {
+       "type": "array",
+       "minItems": 1,
+       "description": "Each moved clip or folder: its old full path and its new full path",
+       "items": {
+        "type": "object",
+        "required": [
+         "from",
+         "to"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "from": {
+          "type": "string",
+          "minLength": 2
+         },
+         "to": {
+          "type": "string",
+          "minLength": 2
+         }
+        }
+       }
+      },
+      "projects": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "minLength": 2
+       },
+       "description": "The Premiere project files to check; left out on a computer, every one Spotlight finds"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "projects",
+      "resolve",
+      "said"
+     ],
+     "properties": {
+      "projects": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "file",
+         "state"
+        ]
+       }
+      },
+      "resolve": {
+       "type": "object",
+       "required": [
+        "state"
+       ]
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "media-composition",
+       "paths": [
+        "do-work/relink-editor-projects.mjs",
+        "do-work/relink-in-resolve.py"
+       ],
+       "at": "/opt/media-composition"
+      }
+     },
+     "workdir": "/opt/media-composition",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/relink-editor-projects.mjs",
+      "--moves",
+      {
+       "from": "moves"
+      },
+      "--projects",
+      {
+       "from": "projects",
+       "optional": true
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "media-workspace premiere-relink.mjs, editor-relink.mjs, resolve-relink.py"
+    },
+    "verify": [
+     {
+      "kind": "output-contains",
+      "output_selector": "$.said",
+      "text": "."
+     }
+    ],
+    "screen": {
+     "group": "content-make",
+     "kind": "described",
+     "icon": "Link",
+     "inputs": {
+      "moves": {
+       "hidden": true
+      },
+      "projects": {
+       "hidden": true
+      }
+     },
+     "label": "Fix moved clips",
+     "about": "Points your Premiere projects at clips you moved."
+    }
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::grade-a-video",
+   "address": "package::media-composition::tool::grade-a-video",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:grade-a-video",
+    "label": "Change a video's colour",
+    "status": "active",
+    "job": "Put a colour look or grade on a video and adjust its brightness, contrast, saturation, exposure, warmth or vibrance",
+    "description": "Applies named looks (film grades, camera log to normal colour, VHS, golden hour, film grain and more) and colour adjustments to the whole video, optionally matching its colour to another video first, and saves the new video in your files at its own size and length.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "looks": {
+       "type": "array",
+       "maxItems": 32,
+       "items": {
+        "type": "string",
+        "enum": [
+         "vhs",
+         "dreamy-bloom",
+         "crt",
+         "cinematic-bloom",
+         "golden-hour",
+         "log-to-normal",
+         "clean-base",
+         "punchy-curves",
+         "richer-oranges",
+         "oranges-toward-red",
+         "brighter-colour",
+         "teal-and-orange",
+         "warm-oranges",
+         "warm-film",
+         "warm-film-textured",
+         "widescreen-bars",
+         "soft-corners",
+         "colour-fringe",
+         "film-grain",
+         "soft-glow"
+        ]
+       },
+       "description": "Looks to put on the video, applied in this order: vhs (VHS tape); dreamy-bloom (Dreamy glow); crt (Old TV screen); cinematic-bloom (Cinematic glow); golden-hour (Golden hour); log-to-normal (Camera log to normal colour); clean-base (Clean base); punchy-curves (Punchy curves); richer-oranges (Richer oranges); oranges-toward-red (Oranges toward red); brighter-colour (More colour in bright areas); teal-and-orange (Teal and orange); warm-oranges (Warm oranges); warm-film (Warm film grade); warm-film-textured (Warm film grade with texture); widescreen-bars (Widescreen bars); soft-corners (Soft dark corners); colour-fringe (Colour fringe); film-grain (Film grain); soft-glow (Soft glow)"
+      },
+      "brightness": {
+       "type": "number",
+       "minimum": -0.5,
+       "maximum": 0.5,
+       "description": "Brightness: -0.5 to 0.5; 0 leaves it unchanged"
+      },
+      "contrast": {
+       "type": "number",
+       "minimum": 0.5,
+       "maximum": 1.5,
+       "description": "Contrast: 0.5 to 1.5; 1 leaves it unchanged"
+      },
+      "saturation": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2,
+       "description": "Saturation: 0 to 2; 1 leaves it unchanged"
+      },
+      "exposure": {
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2,
+       "description": "Exposure: -2 to 2; 0 leaves it unchanged"
+      },
+      "warmth": {
+       "type": "number",
+       "minimum": -1,
+       "maximum": 1,
+       "description": "Warmth: -1 to 1; 0 leaves it unchanged"
+      },
+      "vibrance": {
+       "type": "number",
+       "minimum": -1,
+       "maximum": 1,
+       "description": "Vibrance: -1 to 1; 0 leaves it unchanged"
+      },
+      "match_to": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "Another video in your files whose colour this one should match (its identity, 1f: then 64 hex)"
+      },
+      "match_at": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Seconds into match_to to take its colour from (default 0)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "duration_seconds",
+        "width",
+        "height",
+        "bytes"
+       ],
+       "properties": {
+        "duration_seconds": {
+         "type": "number",
+         "minimum": 0.1
+        },
+        "width": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "height": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "expected_duration_seconds": {
+         "type": "number"
+        },
+        "looks": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/grade-a-video.mjs",
+      "--video",
+      {
+       "from": "video"
+      },
+      "--output",
+      "/opt/media-composition/graded.mp4",
+      "--looks",
+      {
+       "from": "looks",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--brightness",
+      {
+       "from": "brightness",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--contrast",
+      {
+       "from": "contrast",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--saturation",
+      {
+       "from": "saturation",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--exposure",
+      {
+       "from": "exposure",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--warmth",
+      {
+       "from": "warmth",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--vibrance",
+      {
+       "from": "vibrance",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--match-to",
+      {
+       "from": "match_to",
+       "otherwise": {
+        "const": ""
+       }
+      },
+      "--match-at",
+      {
+       "from": "match_at",
+       "otherwise": {
+        "const": ""
+       }
+      }
+     ],
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/media-composition/graded.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 4000000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 240,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "trillion parts/media-composition/do-work/grade-a-video.mjs with read-data/looks.json, ported from the Mac editor's colour presets"
+    },
+    "screen": {
+     "group": "content-make",
+     "kind": "described",
+     "shows": [
+      "files"
+     ],
+     "icon": "Palette",
+     "inputs": {
+      "video": {
+       "label": "Video",
+       "file": {
+        "takes": "video"
+       }
+      },
+      "looks": {
+       "hidden": true
+      },
+      "match_to": {
+       "label": "Match the colour of",
+       "file": {
+        "takes": "video"
+       }
+      },
+      "match_at": {
+       "label": "From second",
+       "placeholder": "Where in that video; the start when empty"
+      },
+      "brightness": {
+       "label": "Brightness",
+       "placeholder": "-0.5 to 0.5; 0 leaves it"
+      },
+      "contrast": {
+       "label": "Contrast",
+       "placeholder": "0.5 to 1.5; 1 leaves it"
+      },
+      "saturation": {
+       "label": "Saturation",
+       "placeholder": "0 to 2; 1 leaves it"
+      },
+      "exposure": {
+       "label": "Exposure",
+       "placeholder": "-2 to 2; 0 leaves it"
+      },
+      "warmth": {
+       "label": "Warmth",
+       "placeholder": "-1 to 1; 0 leaves it"
+      },
+      "vibrance": {
+       "label": "Vibrance",
+       "placeholder": "-1 to 1; 0 leaves it"
+      }
+     },
+     "label": "Colour a video",
+     "about": "Changes a video's colour and look."
+    },
+    "controls": {
+     "about": "How the video looks: warmer or cooler, more or less colour, brighter or darker.",
+     "subject": [
+      "video"
+     ],
+     "preview": {
+      "kind": "video-look",
+      "input": "video"
+     },
+     "suggested": [
+      "warmth",
+      "saturation",
+      "brightness"
+     ],
+     "settings": [
+      {
+       "input": "warmth",
+       "label": "Warmth",
+       "note": "Left is cooler and bluer, right is warmer and more orange",
+       "step": 0.01,
+       "neutral": 0
+      },
+      {
+       "input": "saturation",
+       "label": "Colour",
+       "note": "Left is softer, right is more vivid",
+       "step": 0.01,
+       "neutral": 1
+      },
+      {
+       "input": "brightness",
+       "label": "Brightness",
+       "note": "Left is darker, right is brighter",
+       "step": 0.01,
+       "neutral": 0
+      },
+      {
+       "input": "contrast",
+       "label": "Contrast",
+       "note": "Left is flatter, right is punchier",
+       "step": 0.01,
+       "neutral": 1
+      },
+      {
+       "input": "exposure",
+       "label": "Light",
+       "note": "Like opening or closing a camera's lens",
+       "step": 0.05,
+       "neutral": 0
+      },
+      {
+       "input": "vibrance",
+       "label": "Muted colours",
+       "note": "Lifts only the dull colours, leaving vivid ones alone",
+       "step": 0.01,
+       "neutral": 0
+      }
+     ],
+     "commit": {
+      "label": "Keep a full copy",
+      "busy_label": "Making the full copy",
+      "done_label": "Full copy kept",
+      "takes": "About a minute for a short video"
+     },
+     "result": {
+      "file": "files.video"
+     }
+    },
+    "verify": [
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.result.duration_seconds"
+      },
+      "right": {
+       "output_selector": "$.result.expected_duration_seconds"
+      },
+      "tolerance": 0.3
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::match-colour",
+   "address": "package::media-composition::tool::match-colour",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:match-colour",
+    "label": "Match a video's colour to another",
+    "status": "active",
+    "job": "Make one video's colours match another video's, so clips from different cameras or light look like one shoot",
+    "description": "Measures the colour of both videos (this one at its start, the other at match_at seconds) and shifts this video's colours to match, then saves the new video in your files at its own size and length.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video",
+      "match_to"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "match_to": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video whose colour to match (its identity, 1f: then 64 hex)"
+      },
+      "match_at": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Seconds into match_to to take its colour from (default 0)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "duration_seconds",
+        "width",
+        "height",
+        "bytes"
+       ],
+       "properties": {
+        "duration_seconds": {
+         "type": "number",
+         "minimum": 0.1
+        },
+        "width": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "height": {
+         "type": "integer",
+         "minimum": 2
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "expected_duration_seconds": {
+         "type": "number"
+        },
+        "looks": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "video"
+       ],
+       "properties": {
+        "video": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ],
+         "properties": {
+          "identity": {
+           "type": "string",
+           "minLength": 67
+          },
+          "bytes": {
+           "type": "integer",
+           "minimum": 1
+          },
+          "media_type": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/grade-a-video.mjs",
+      "--video",
+      {
+       "from": "video"
+      },
+      "--output",
+      "/opt/media-composition/matched.mp4",
+      "--match-to",
+      {
+       "from": "match_to"
+      },
+      "--match-at",
+      {
+       "from": "match_at",
+       "otherwise": {
+        "const": ""
+       }
+      }
+     ],
+     "outputs": [
+      {
+       "name": "video",
+       "path": "/opt/media-composition/matched.mp4",
+       "keep_in": "files",
+       "media_type": "video/mp4",
+       "max_bytes": 4000000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 240,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "trillion parts/media-composition/do-work/grade-a-video.mjs with read-data/looks.json, ported from the Mac editor's colour presets"
+    },
+    "screen": {
+     "group": "content-make",
+     "kind": "described",
+     "shows": [
+      "files"
+     ],
+     "icon": "Pipette",
+     "inputs": {
+      "video": {
+       "label": "Video",
+       "file": {
+        "takes": "video"
+       }
+      },
+      "match_to": {
+       "label": "Match the colour of",
+       "file": {
+        "takes": "video"
+       }
+      },
+      "match_at": {
+       "label": "From second",
+       "placeholder": "Where in that video; the start when empty"
+      }
+     },
+     "label": "Match colour",
+     "about": "Makes one video's colour match another's."
+    },
+    "verify": [
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.result.duration_seconds"
+      },
+      "right": {
+       "output_selector": "$.result.expected_duration_seconds"
+      },
+      "tolerance": 0.3
+     },
+     {
+      "kind": "output-numbers-close",
+      "left": {
+       "output_selector": "$.files.video.bytes"
+      },
+      "right": {
+       "output_selector": "$.result.bytes"
+      },
+      "tolerance": 0
+     }
+    ]
+   }
+  }
+ ]
+}
