@@ -1,0 +1,361 @@
+{
+  "what_this_is": "The craft rules a public page is judged against at every width in `widths` (tools/page-critic/do-work/critique-a-page.mjs, the Workshop tool tool:critique-a-public-page). Each rule is a row: its id, what it says to the person when broken (`says`, with {values}), and the numbers it measures against. Thresholds are DATA: changing what counts as too wide, too close to the edge, too long or too old is an edit here. `selectors` say which elements each rule looks at, so a page built another way is a row change, never a code change. A rule with `widths` is checked only at those widths. The four DATA-heavy rules read what a visitor sees: test_data (placeholder words and ids, in text, alt text and embedded frames), tiny_images (pictures and clips too small, too shrunk or too stretched), duplicate_cards (siblings titled the same once ids are removed) and stale_demo (an embedded live demo, matched by `demo_url_patterns`, that does not load, shows an error or stays empty, and looping clips that do not load). A rule with `in_frames` also runs inside every visible embedded frame.",
+  "widths": [
+    {
+      "id": "240",
+      "width": 240,
+      "height": 600
+    },
+    {
+      "id": "390",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "id": "1280",
+      "width": 1280,
+      "height": 860
+    }
+  ],
+  "settle_ms": 1500,
+  "most_findings_per_rule": 6,
+  "most_links_checked": 60,
+  "most_hovers_checked": 24,
+  "selectors": {
+    "headings": "h1, h2",
+    "control_name_candidates": "button, summary, input:not([type='hidden']), select, textarea, a[href], [contenteditable]:not([contenteditable='false']), [role='button'], [role='link'], [role='checkbox'], [role='combobox'], [role='listbox'], [role='menuitem'], [role='menuitemcheckbox'], [role='menuitemradio'], [role='option'], [role='radio'], [role='searchbox'], [role='slider'], [role='spinbutton'], [role='switch'], [role='tab'], [role='textbox'], [role='treeitem']",
+    "body_text": "main p, section p, article p",
+    "overflowing": "input, textarea, select, button, img, video, canvas, table, pre, a, h1, h2, h3, p, li",
+    "containers": "form, article, section, main, li, td",
+    "overflow_ignored": "[aria-hidden='true'], [hidden]",
+    "eyebrow_candidates": "p, span, div, small",
+    "text": "h1, h2, h3, h4, p, li, a, button, span",
+    "anchors": "a[href^='#']",
+    "links": "a[href]",
+    "cards": "[class*='card'], [data-card]",
+    "openers": "a[href], button, [role='link'], [role='button']",
+    "hoverable": "a[href], button, [role='button']",
+    "dates": "time[datetime]",
+    "test_data_ignored": "script, style, noscript, template, pre, code, textarea, [data-critic-ignore]",
+    "alt_text": "img[alt], area[alt], input[type='image'][alt]",
+    "card_items": "li, article, figure, [class*='card'], [data-card], [role='listitem']",
+    "card_titles": "h1, h2, h3, h4, h5, h6, [class*='title'], [class*='name'], figcaption, strong, b",
+    "duplicates_ignored": "[aria-hidden='true'], [hidden], [inert]",
+    "content_media": "img, video",
+    "media_ignored": "nav, footer, svg, [aria-hidden='true'], [hidden]",
+    "media_containers": "figure, [class*='card'], [data-card], li, article, section, main",
+    "videos": "video",
+    "alerts": "[role='alert'], [role='alertdialog'], [aria-live='assertive'], [data-error], [class*='toast'], [class*='error-'], [class*='-error'], [class*='alert']",
+    "demo_media": "canvas, img, svg, video",
+    "supporting_text": "p, small, figcaption, [data-slot=\"description\"], [data-description]",
+    "production_copy_text": "svg text",
+    "supporting_text_ignored": "label, legend, button, a, input, textarea, select, output, code, pre, details, [data-disclosure], [data-limitations], [data-record-type], [data-status], time, [datetime], [role=\"alert\"], [role=\"status\"], [aria-live], [aria-hidden=\"true\"], [hidden], [inert]",
+    "supporting_text_controls": "button, a, input, textarea, select, label, legend, [role=\"button\"], [role=\"link\"], [role=\"alert\"], [role=\"status\"], [aria-live]",
+    "eyebrow_ignored": "label, legend, button, a, [role=\"status\"], [role=\"alert\"], [aria-live], [data-record-type], [data-status], time, [datetime]",
+    "inline_icon_actions": "h1 button, h2 button, p button",
+    "inline_icon_context": "h1, h2, p"
+  },
+  "measurement_templates": {
+    "rendered_label_size": {
+      "id": "rendered_label_size",
+      "says": "The selected SVG label “{text}” could not meet its configured rendered-size check ({kind}).",
+      "in_frames": true,
+      "scope": "Opt-in measurement only. The consuming page supplies its teaching-label selector and positive finite min_height_px; no default universal size threshold. Screen-transformed character height is measured separately from whole-label containment, contrast, legibility and comprehension. Missing character geometry is unavailable, never a pass."
+    }
+  },
+  "rules": [
+    {
+      "id": "control_name",
+      "says": "The {role} control has no accessible name.",
+      "says_by_kind": {
+        "unavailable": "The browser could not verify the accessible name of this {role} control: {reason}."
+      },
+      "roles": ["DisclosureTriangle", "button", "checkbox", "combobox", "link", "listbox", "menuitem", "menuitemcheckbox", "menuitemradio", "option", "radio", "searchbox", "slider", "spinbutton", "switch", "tab", "textbox", "treeitem"],
+      "in_frames": true
+    },
+    {
+      "id": "heading_measure",
+      "says": "A heading runs {ch} characters wide; keep headings within {max_ch}.",
+      "max_ch": 28
+    },
+    {
+      "id": "body_width",
+      "says": "Body text spans {percent}% of the page width; keep it to about half ({max_percent}%).",
+      "max_fraction": 0.62,
+      "widths": [
+        "1280"
+      ]
+    },
+    {
+      "id": "eyebrow",
+      "says": "\"{text}\" is an eyebrow above a heading; say it in the heading or leave it out.",
+      "max_words": 6,
+      "smaller_than_heading": 0.6,
+      "max_gap_em": 1
+    },
+    {
+      "id": "inline_icon_scale",
+      "says": "The icon-only control in “{text}” is {icon}px beside {font}px text, with a {target}px target. Size the icon with its text and keep at least a {min_target}px target.",
+      "min_font_fraction": 0.45,
+      "min_target_px": 24
+    },
+    {
+      "id": "edge_padding",
+      "says": "\"{text}\" sits {px}px from the edge of the browser; keep at least {min_px}px.",
+      "min_px": 16,
+      "widths": [
+        "390",
+        "1280"
+      ]
+    },
+    {
+      "id": "overflow_outside_container",
+      "says": "\"{text}\" reaches {px}px past the edge of its container or the browser; it must fit inside.",
+      "min_px": 1
+    },
+    {
+      "id": "broken_anchor",
+      "says": "The link \"{text}\" points at #{target}, which is not on the page."
+    },
+    {
+      "id": "broken_link",
+      "says": "The link \"{text}\" opens {url}, which answers {status}.",
+      "widths": [
+        "390",
+        "1280"
+      ]
+    },
+    {
+      "id": "card_cannot_open",
+      "says": "The card \"{text}\" looks like it opens something, but nothing in it can be opened."
+    },
+    {
+      "id": "stale",
+      "says": "The newest date on this page is {newest}, {days} days ago; it should be within {max_days} days."
+    },
+    {
+      "id": "endless_scroll",
+      "says": "The page is {screens} screens long; keep it within {max_screens}.",
+      "max_screens": 14,
+      "widths": [
+        "390",
+        "1280"
+      ]
+    },
+    {
+      "id": "no_hover",
+      "says": "\"{text}\" does not change when a pointer rests on it.",
+      "widths": [
+        "1280"
+      ],
+      "styles": [
+        "color",
+        "background-color",
+        "border-color",
+        "box-shadow",
+        "text-decoration-line",
+        "opacity",
+        "transform",
+        "outline-style"
+      ]
+    },
+    {
+      "id": "test_data",
+      "says": "Test or placeholder data ({kind}) shows in the {source}: \"{text}\" at {selector}.",
+      "widths": [
+        "390",
+        "1280"
+      ],
+      "in_frames": true,
+      "most_findings": 12,
+      "context_chars": 30,
+      "patterns": [
+        {
+          "name": "edition hash",
+          "regex": "\\bedition\\s+(?=[0-9a-f]*\\d)[0-9a-f]{8,}\\b"
+        },
+        {
+          "name": "long hex id",
+          "regex": "\\b(?=[0-9a-f]*\\d)(?=[0-9a-f]*[a-f])[0-9a-f]{12,}\\b"
+        },
+        {
+          "name": "fictional",
+          "regex": "\\bfictional\\b"
+        },
+        {
+          "name": "dummy",
+          "regex": "\\bdummy\\b"
+        },
+        {
+          "name": "foo bar",
+          "regex": "\\bfoo ?bar\\b"
+        },
+        {
+          "name": "lorem ipsum",
+          "regex": "\\blorem ipsum\\b"
+        },
+        {
+          "name": "test data or user",
+          "regex": "\\btest (data|users?)\\b"
+        },
+        {
+          "name": "sample data or account",
+          "regex": "\\bsample (data|accounts?)\\b"
+        },
+        {
+          "name": "placeholder text or image",
+          "regex": "\\bplaceholder (text|images?)\\b"
+        },
+        {
+          "name": "TODO marker",
+          "regex": "\\b(TODO|FIXME|TBD|XXX)\\b",
+          "flags": ""
+        },
+        {
+          "name": "example.com address",
+          "regex": "\\bexample\\.(com|org|net)\\b"
+        },
+        {
+          "name": "proof email",
+          "regex": "[\\w.+-]*proof\\+[\\w.+-]*@[\\w.-]+"
+        },
+        {
+          "name": "real-screenshots disclaimer",
+          "regex": "\\breal (product )?screenshots?\\b"
+        }
+      ]
+    },
+    {
+      "id": "tiny_images",
+      "says": "The picture \"{text}\" at {selector} is not useful as shown ({kind}).",
+      "says_by_kind": {
+        "small": "The picture \"{text}\" at {selector} is only {rendered}px wide in a {container}px-wide space ({percent}%); make it at least {min_percent}% of that space.",
+        "downscaled": "The screenshot \"{text}\" at {selector} is shrunk {ratio} times (from {natural}px to {rendered}px), so its text is about {text_px}px; keep the shrink under {max_ratio} times or show a closer crop.",
+        "upscaled": "The picture \"{text}\" at {selector} is stretched to {percent}% of its own {natural}px width, so it looks blurry; keep it under {max_percent}%."
+      },
+      "widths": [
+        "390",
+        "1280"
+      ],
+      "fraction_widths": [
+        "1280"
+      ],
+      "most_findings": 12,
+      "min_fraction": 0.45,
+      "max_downscale": 3,
+      "max_upscale": 1.15,
+      "screenshot_text_px": 14,
+      "min_natural_px": 120,
+      "large_natural_px": 800,
+      "min_alt_chars": 12,
+      "screenshot_hint": "screenshot|screen|workspace|preview|editor|dashboard|interface|\\bapp\\b|\\bui\\b"
+    },
+    {
+      "id": "duplicate_cards",
+      "says": "{count} cards or list items in one group are titled \"{text}\" (first {first_selector}, repeat {selector}); remove the repeat or make each one different.",
+      "widths": [
+        "390",
+        "1280"
+      ],
+      "in_frames": true,
+      "min_similarity": 0.9,
+      "min_title_chars": 4,
+      "title_chars": 100,
+      "normalize_away": [
+        "\\b(?=[0-9a-f]*\\d)(?=[0-9a-f]*[a-f])[0-9a-f]{8,}\\b",
+        "\\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\b"
+      ]
+    },
+    {
+      "id": "stale_demo",
+      "says": "The live demo at {selector} has a problem.",
+      "says_by_kind": {
+        "failed": "The live demo {selector} ({demo}) {text}.",
+        "error": "The live demo {selector} ({demo}) shows an error: \"{text}\".",
+        "empty": "The live demo {selector} ({demo}) is still empty after {seconds} seconds: \"{text}\".",
+        "video_failed": "The clip {text} at {selector} does not load.",
+        "video_empty": "The clip {text} at {selector} loads but has no length."
+      },
+      "widths": [
+        "390",
+        "1280"
+      ],
+      "in_frames": true,
+      "most_findings": 8,
+      "demo_url_patterns": [
+        "^https?://live\\.gettrillion\\.ai/",
+        "^https?://app\\.gettrillion\\.ai/"
+      ],
+      "wait_seconds": 10,
+      "poll_ms": 500,
+      "video_wait_seconds": 6,
+      "error_phrases": [
+        "not saved",
+        "try again",
+        "something went wrong",
+        "went wrong",
+        "failed to (load|save|fetch)",
+        "(could not|couldn.t|unable to) (load|save|connect|find)",
+        "an error (has )?occurred",
+        "\\b(404|500|502|503)\\b.{0,20}(not found|error|unavailable)"
+      ],
+      "alert_phrases": [
+        "error",
+        "failed",
+        "unavailable",
+        "not found",
+        "offline",
+        "expired",
+        "cannot",
+        "can.t"
+      ],
+      "alert_min_chars": 12,
+      "empty_phrases": [
+        "empty tab",
+        "nothing here yet",
+        "no data",
+        "no results"
+      ],
+      "empty_max_chars": 30
+    },
+    {
+      "id": "repeated_supporting_text",
+      "says": "The {kind} \"{text}\" matches the configured secondary-copy check. Remove decorative copy; retain substantive teaching, required disclosures and text needed for accessibility, controls, status or recovery.",
+      "min_words": 2,
+      "short_max_words": 8,
+      "smaller_than_heading": 0.8,
+      "max_gap_em": 2.5,
+      "production_patterns": [
+        "^(staged example|illustration|illustrative (example|workflow))$",
+        "\\billustrative model\\b",
+        "\\b(deformation|interaction|effect|motion) (is )?(exaggerated|simplified|simulated)\\b",
+        "\\b(to make|so that) (the )?(interaction|effect|motion|deformation) (visible|clear)\\b",
+        "\\b(this is|this represents) (a )?(demo|preview|example|mockup|prototype)\\b",
+        "\\b(for|in) (this )?(demo|preview|example|prototype) only\\b"
+      ],
+      "in_frames": true,
+      "source": "https://x.com/Voxyz_ai/status/2113254050170843418",
+      "scope": "Rendered short adjacent secondary captions and configured production/evidence commentary, plus exact heading repetitions. The production phrase scan also reads visible SVG text leaves regardless of heading placement. Longer adjacent teaching prose and text needed by accessibility, controls, status, constraints or recovery are preserved."
+    }
+  ],
+  "most_pages": 80,
+  "longest_picture_px": 16000,
+  "could_not_open": "The page could not be opened: {error}",
+  "said_findings": "{findings} findings on {pages} pages; the most on {worst}.",
+  "said_none": "All {pages} pages follow the craft rules.",
+  "most_frames_scanned": 8,
+  "most_frame_depth": 2,
+  "scroll": {
+    "step_ms": 250,
+    "most_steps": 40
+  },
+  "frames_ignored": [
+    "youtube\\.com",
+    "youtube-nocookie\\.com",
+    "vimeo\\.com",
+    "stripe\\.com",
+    "google\\.com/recaptcha",
+    "googletagmanager\\.com",
+    "challenges\\.cloudflare\\.com"
+  ]
+}

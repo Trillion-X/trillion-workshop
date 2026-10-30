@@ -1,0 +1,8 @@
+{
+  "public": [
+    "quiet-switches.json",
+    "devtools.mjs",
+    "virtual-clock.mjs",
+    "deterministic-switches.json"
+  ]
+}

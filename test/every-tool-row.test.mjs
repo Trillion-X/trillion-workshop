@@ -1,7 +1,8 @@
 // Every tool folder's rows, checked the way Trillion reads them before it offers a tool: each tools/<name>/tool-rows.json
 // is { records: [{ payload }] }; a row's files (invoke.files.package_files) name a tool folder here and paths that are
 // in it; a tool-row-source's list.records names a records file (or a folder of them) here holding rows of its kind; every licence class a
-// row names is in licence-classes.json; and no two rows share an id. Nothing here names a tool.
+// row names is in licence-classes.json; no two rows share an id; and a folder with no row is a library some row
+// packs. Nothing here names a tool.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -38,8 +39,14 @@ function rowsOf(folder) {
 
 const rows = folders.flatMap(rowsOf);
 
-test('every tool folder offers at least one row', () => {
-  for (const folder of folders) assert.ok(rows.some(row => row.folder === folder), `tools/${folder} offers no row: add a tool-rows.json`);
+// A folder with no row of its own is a library: some row packs files from it (invoke.files.package_files).
+const packed = new Set(rows.flatMap(({ payload }) => [payload.invoke?.files?.package_files ?? []].flat().map(item => item.package)));
+
+test('every tool folder offers at least one row, or is a library a row packs', () => {
+  for (const folder of folders) {
+    assert.ok(rows.some(row => row.folder === folder) || packed.has(folder),
+      `tools/${folder} offers no row and no row packs it: add a tool-rows.json`);
+  }
 });
 
 test('no two rows share an id', () => {

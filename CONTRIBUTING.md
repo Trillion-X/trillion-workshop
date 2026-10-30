@@ -4,7 +4,7 @@ Thank you for making a tool. Every merged tool is offered to every Trillion user
 
 ## The rules a tool follows
 
-1. **One folder, everything in it.** Code, `tool-rows.json`, `README.md` and tests live in `tools/<your-tool>/`. A tool may import only from its own folder and from Node or Python's standard library, unless its row packs the module it needs.
+1. **One folder, everything in it.** Code, `tool-rows.json`, `README.md` and tests live in `tools/<your-tool>/`. A tool may import only from its own folder and from Node or Python's standard library, unless its row packs the module it needs. Code several tools share lives in a library folder (`part.json` and a README, no rows of its own); each row that needs it packs its files in `invoke.files.package_files`.
 2. **One JSON request in, one JSON answer out.** The command reads the request on standard input (or in `argv`, if its row says so) and prints its answer as the last line. Nothing is kept between runs.
 3. **The job is in plain words.** `job` is what a person would ask for ("work out my unit economics"), never the tool's internal name. Trillion finds tools by their job.
 4. **Say what it takes and gives back.** `input_schema` and `output_schema` are JSON Schemas; every answer is checked against `output_schema`.

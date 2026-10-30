@@ -1,0 +1,39 @@
+# tools/headless-browser/
+
+A library the browser tools pack: a headless Chromium started with the switches that keep macOS from asking for the
+login keychain, spoken to over the DevTools protocol with Node's own WebSocket and no browser library, and a page clock
+that moves only when told. It offers no tool of its own; `tools/page-critic` and `tools/record-a-web-page` pack its
+files beside theirs at `/opt/headless-browser`.
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `quiet-switches.json` | The switch list every Chromium starts with: `--use-mock-keychain` (no keychain prompt for "Chromium Safe Storage") and `--password-store=basic`. Adding a switch is one row here. |
+| `devtools.mjs` | `openBrowser(executable, { width, height, switches? })`, `attachPageTarget(send)` and `BrowserProblem`: a headless Chromium started with the quiet switches and spoken to over DevTools. A browser that does not start in 30 s or a call with no answer in 60 s ends with a `BrowserProblem`; the browser and its throwaway profile end with the run. |
+| `deterministic-switches.json` | DATA: the Chromium switches a virtual-clock recording starts with (`openBrowser(path, { switches })`), so a picture taken while the page's time is paused is not left waiting for a frame. |
+| `virtual-clock.mjs` | `createVirtualClock({ browser, fps, capture })`: the page's own clock moved only when told, one frame at a time, so a recording is the same every time. Used by `tools/record-a-web-page` with `--deterministic true`. |
+| `part.json` | The files code outside this folder may import. |
+| `test/devtools-target.test.mjs` | A browser with no startup page gets one made and attached; an existing page is attached without making another. |
+
+## Key Types / Functions
+
+| Name | Signature / Shape | Role |
+|------|-------------------|------|
+| `openBrowser` | `(executable: string, { width, height, switches? }) => Promise<{ send(method, params), on(listener), close() }>` | A page attached over DevTools. |
+| `attachPageTarget` | `(send) => Promise<{ targetId, sessionId }>` | Attach to the browser's page, making one when there is none. |
+| `BrowserProblem` | `class extends Error` | A problem whose message is shown to the person as it is. |
+| `createVirtualClock` | `({ browser, fps, capture }) => clock` | The page's time moved one frame at a time. |
+
+## Dependencies
+
+**Depends on:** a Chromium executable (the tool's `--browser` or `BROWSER_EXECUTABLE`), Node 24.
+
+**Depended on by:** `tools/page-critic` and `tools/record-a-web-page` (their rows pack these files), `test-helpers/chromium.mjs` (`quiet-switches.json`).
+
+## Invariants
+
+- Every Chromium starts with the quiet switches first.
+- However the calling run ends, the browser process ends with it and its throwaway profile folder is removed.
+- How many browsers run at once on one computer is the runner's decision; this library opens one browser per call
+  and keeps no lock or queue of its own.

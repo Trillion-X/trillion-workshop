@@ -1,0 +1,11 @@
+{
+  "_what": "The Chromium switches a recording on a virtual clock (virtual-clock.mjs) starts with, so that a picture taken while the page's time is paused is not left waiting for a frame the paused clock will never reach: every compositor stage runs before a frame is drawn, animations and scrolling run on the main thread where the paused clock governs them, and nothing waits on a rendering timeout.",
+  "switches": [
+    "--run-all-compositor-stages-before-draw",
+    "--disable-new-content-rendering-timeout",
+    "--disable-threaded-animation",
+    "--disable-threaded-scrolling",
+    "--disable-checker-imaging",
+    "--disable-image-animation-resync"
+  ]
+}

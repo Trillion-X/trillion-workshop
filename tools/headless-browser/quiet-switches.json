@@ -1,0 +1,6 @@
+{
+  "switches": [
+    "--use-mock-keychain",
+    "--password-store=basic"
+  ]
+}

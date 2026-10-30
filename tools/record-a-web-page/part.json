@@ -1,0 +1,3 @@
+{
+  "public": ["do-work/record-a-web-demo.mjs", "do-work/draw-the-demo.py", "do-work/capture-settings.json", "do-work/capture-source-frames.mjs"]
+}
