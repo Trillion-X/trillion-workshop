@@ -1,0 +1,3 @@
+{
+  "public": ["do-work/what-runs-on-its-own.mjs", "read-data/states.json"]
+}
