@@ -1,0 +1,58 @@
+{
+  "kind": "package-set-records",
+  "record_set": "audio-transcription-tool-rows",
+  "what_this_is": "The Workshop row for tools/audio-transcription: the audio-transcription package's own local Whisper transcription with word times, plus finding where Whisper looped and hearing only those windows again.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:transcribe-audio-and-repair-whisper-loops",
+        "label": "Transcribe a recording with a time for every word, and repair Whisper loops (runs on your computer)",
+        "job": "Turn a recording into a transcript with a time for every word, and fix the places where the transcription got stuck repeating one sentence",
+        "description": "Runs the audio-transcription package's own transcribe-audio.py on the person's own computer: the recording (audio, or video with sound) is decoded to 16 kHz mono and read by whisper.cpp, and the answer is the package's result: language, full text, segments, and words with a start, an end and a timing_source that says whether the time came from the engine's token times, from the segment's bounds or from an even split of the segment. The seam adds the recording's length. Whisper sometimes gets stuck and writes one sentence again and again over minutes of real speech or silence. find-loops finds those stretches (a sentence said four or more times that fills half a segment, or a segment that repeats the one before). repair merges the ones that are close, hears again only those windows with the earlier text not carried in (whisper.cpp -mc 0) and splices the new words in at their true seconds. A sentence that still loops is taken out and kept in removed_hallucinated, so nothing disappears silently. Nothing leaves the computer and no key is needed.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The recording on the person's computer, put where {input} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The JSON file to write the transcript to, put where {output} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line each command prints: {\"result\": ...}. transcribe: {transcript, segments, words, duration, language}, or {failed: {code, message}} with exit 2. find-loops: {transcripts_with_loops: [{transcript, segments, seconds}], total_looped_seconds}. repair: {transcript, repaired_windows, removed}, or clean or skipped."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "brew install whisper-cpp ffmpeg"
+          ],
+          "run": "python3 trillion-workshop/tools/audio-transcription/do-work/audio_transcription.py transcribe --audio {input} --out {output} --model-path MODEL.bin",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "whisper-cli (whisper.cpp)",
+            "a ggml Whisper model file, named in --model-path (for example ggml-tiny.en.bin, or a larger one from the whisper.cpp project for better words)"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check that whisper-cli and ffmpeg are installed (get_it has the commands) and ask which ggml model file to use, then run `run` with their recording in place of {input}, a new .json file for {output} and the model file for MODEL.bin. Then run the same script with `find-loops --transcript {output}` and tell the person which stretches looped and for how many seconds. If any did, run it with `repair --transcript {output} --audio {input} --model-path MODEL.bin`, then run find-loops again to show that the loops are gone. Tell the person each word's timing_source, because words timed by an even split of a segment are estimates. If a command fails, its last line says the code and why. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:audio-transcription",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "The audio-transcription package's transcribe-audio.py (copied unchanged), run with whisper.cpp (MIT, https://github.com/ggml-org/whisper.cpp) and ffmpeg"
+        }
+      }
+    }
+  ]
+}

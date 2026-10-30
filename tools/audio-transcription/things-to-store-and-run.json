@@ -1,0 +1,2596 @@
+{
+  "package": "audio-transcription",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::audio-transcription::checks",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "audio-transcription",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/__tests__/audio-master.test.mjs",
+          "do-work/__tests__/local-whisper-runtime.test.mjs",
+          "do-work/__tests__/prepare-local-whisper-admission.test.mjs",
+          "do-work/__tests__/staged-media-continuation.test.mjs",
+          "do-work/__tests__/transcribe-audio-word-timing-source.test.mjs"
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "make-audio-transcription-records-from-command-output-script",
+      "source_path": "do-work/process-scripts/make-audio-transcription-records-from-command-output.py"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "audio-master-script",
+      "source_path": "do-work/audio-master.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "transcribe-audio-script",
+      "source_path": "do-work/process-scripts/transcribe-audio.py"
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::placeable-surface::audio-transcription",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Mic",
+        "id": "audio-transcription.panel",
+        "kind": "placeable-surface",
+        "label": "Turn audio into text",
+        "material_target": "audio-transcription",
+        "factflow_ref": "package::audio-transcription::factflow::audio-transcription-surface",
+        "order": 641,
+        "accepts_material_kinds": [
+          "stored-audio",
+          "stored-video"
+        ],
+        "surface_id": "audio-transcription.panel",
+        "placement_labels": [
+          "recording-workspace"
+        ],
+        "placement_order_key": "000000641:audio-transcription.panel",
+        "package_entry": {
+          "package_name": "audio-transcription",
+          "entry_name": "audio-transcription"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::factflow::audio-transcription-surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "journal": {
+          "address_label": "audio-transcription.surface.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::audio-transcription::input::contentMediaEvidence"
+          },
+          {
+            "address": "package::audio-transcription::evidence-pipeline::config"
+          },
+          {
+            "address": "package::audio-transcription::workflow-action::submit-audio-transcription-request"
+          },
+          {
+            "address": "package::audio-transcription::workflow-action::write-command-run-record"
+          },
+          {
+            "address": "package::audio-transcription::stored-bytes::make-audio-transcription-records-from-command-output-script"
+          },
+          {
+            "address": "package::audio-transcription::blocker::feed-heavy-proof"
+          },
+          {
+            "address": "package::audio-transcription::input::published-records"
+          },
+          {
+            "address": "package::audio-transcription::workflow-action::audio-master"
+          },
+          {
+            "address": "package::audio-transcription::stored-bytes::audio-master-script"
+          },
+          {
+            "address": "package::audio-transcription::stored-bytes::transcribe-audio-script"
+          },
+          {
+            "address": "package::audio-transcription::workflow-action::auto-transcribe-recorded-media"
+          },
+          {
+            "address": "package::audio-transcription::trigger-rule::auto-transcribe-on-recorded-file"
+          },
+          {
+            "address": "package::audio-transcription::trigger-rule::auto-transcribe-on-stored-media"
+          },
+          {
+            "address": "package::audio-transcription::evidence-work-profile::local-whisper"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::audio-transcription::placeable-surface::audio-transcription"
+          }
+        ],
+        "blockers": [
+          {
+            "address": "package::audio-transcription::blocker::feed-heavy-proof"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::audio-transcription::entry::audio-transcription"
+          },
+          {
+            "address": "package::audio-transcription::capability::audio-transcription"
+          },
+          {
+            "address": "package::audio-transcription::contract::request"
+          },
+          {
+            "address": "package::audio-transcription::contract::result"
+          },
+          {
+            "address": "package::audio-transcription::contract::error"
+          },
+          {
+            "address": "package::audio-transcription::stored-bytes::make-audio-transcription-records-from-command-output-script"
+          },
+          {
+            "address": "package::audio-transcription::stored-bytes::audio-master-script"
+          },
+          {
+            "address": "package::audio-transcription::stored-bytes::transcribe-audio-script"
+          },
+          {
+            "address": "package::audio-transcription::evidence-work-profile::local-whisper"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address_label": "audio-transcription.facts.content-media-evidence"
+            }
+          ],
+          "intents": [
+            {
+              "address_label": "audio-transcription.intent.submit-transcription-request"
+            }
+          ],
+          "effects": [
+            {
+              "address_label": "audio-transcription.effect.run-transcription-command"
+            },
+            {
+              "address_label": "audio-transcription.effect.write-records-from-command-run"
+            }
+          ],
+          "validation": [
+            {
+              "address_label": "audio-transcription.validation.artifact-ref-multihash"
+            },
+            {
+              "address_label": "audio-transcription.validation.records-from-command-run"
+            }
+          ],
+          "permissions": [
+            {
+              "address_label": "audio-transcription.permission.invoke-workflow-intent"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "audio-transcription-content-media-evidence"
+            }
+          ],
+          "materializations": [
+            {
+              "address_label": "audio-transcription.materialization.placeable-surface"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::entry::audio-transcription",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "audio-transcription",
+        "entries",
+        "audio-transcription"
+      ],
+      "payload": {
+        "entry_name": "audio-transcription",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-audio-transcription.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-audio-transcription"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::capability::audio-transcription",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:audio-transcription",
+        "package": "audio-transcription",
+        "label": "Turn audio into text",
+        "description": "Turns stored audio or video bytes into full text, word timelines, segment timelines, speaker labels, and transcript artifact records through a package-owned command-output-to-records script and the shared command-run capability.",
+        "owned_record_kinds": [
+          "audio-transcription.request",
+          "audio-transcription.command-run-request",
+          "audio-transcription.result",
+          "audio-transcription.error",
+          "content-media.evidence-work-profile"
+        ],
+        "reuses": [
+          "workflow",
+          "process-session",
+          "stored_bytes",
+          "credentials-vault",
+          "content-media-evidence",
+          "record_from_matching_records"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::input::contentMediaEvidence",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "audio-transcription:contentMediaEvidence",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "role",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "source_package",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "blocker",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "audio-transcription-content-media-evidence"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::evidence-pipeline::config",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-media.evidence-pipeline.config",
+        "package": "audio-transcription",
+        "roles": {
+          "requests": [
+            "audio-transcription.request"
+          ],
+          "results": [
+            "audio-transcription.result"
+          ],
+          "errors": [
+            "audio-transcription.error"
+          ]
+        },
+        "artifact_roles": {
+          "source": [
+            "stored-audio",
+            "stored-video"
+          ],
+          "outputs": [
+            "transcript",
+            "segments",
+            "word-timeline",
+            "speaker-timeline"
+          ]
+        },
+        "execution_capabilities": [
+          "workflow",
+          "process-session",
+          "stored_bytes",
+          "credentials-vault"
+        ],
+        "projection_lanes": [
+          "requests",
+          "results",
+          "errors",
+          "artifacts"
+        ],
+        "maintained_projection_label": "audio-transcription-content-media-evidence",
+        "workflow_actions": [
+          {
+            "role": "submit",
+            "action_id": "action:submit-audio-transcription-request",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "process-execution-and-record-publication"
+          },
+          {
+            "role": "write-command-run-record",
+            "action_id": "action:write-audio-transcription-record-from-command-run",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "accepted-record-write"
+          }
+        ],
+        "artifact_ref_contract": {
+          "required_fields": [
+            "multihash"
+          ],
+          "optional_fields": [
+            "cas_address",
+            "byte_length",
+            "media_type"
+          ]
+        },
+        "proof_gates": [
+          "CPD-10F"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::evidence-work-profile::local-whisper",
+      "address_mode": "identity_text",
+      "path": [
+        "audio-transcription",
+        "evidence-work-profiles"
+      ],
+      "payload": {
+        "kind": "content-media.evidence-work-profile",
+        "profile_id": "local-whisper",
+        "owner_package": "audio-transcription",
+        "capability": {
+          "target": "compute.process",
+          "method": "process_descriptor",
+          "params": {
+            "process_descriptor_template": {
+              "argv": [
+                "local-whisper",
+                "packages/audio-transcription/do-work/transcribe-audio.py",
+                "media/source",
+                {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "request_id"
+                  }
+                },
+                "command-output.json"
+              ],
+              "cwd": null,
+              "timeout_ms": 1800000,
+              "termination_grace_ms": 1000,
+              "expected_termination": null,
+              "env": {
+                "BITFIELD_FFMPEG_PATH": "/usr/bin/ffmpeg",
+                "BITFIELD_WHISPER_CLI_PATH": "/opt/whisper/bin/whisper-cli",
+                "BITFIELD_WHISPER_MODEL": "ggml-tiny.en.bin",
+                "BITFIELD_WHISPER_MODEL_PATH": "/opt/whisper/models/ggml-tiny.en.bin"
+              },
+              "inputs": [
+                {
+                  "mount_path": "packages/audio-transcription/do-work/transcribe-audio.py",
+                  "content_type": "text/x-python",
+                  "source": {
+                    "kind": "blob_ref",
+                    "hash": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "read_transcribe_script",
+                        "path": "output.content_hash"
+                      }
+                    }
+                  },
+                  "executable": true
+                },
+                {
+                  "mount_path": "media/source",
+                  "content_type": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "source.media_type"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "source.artifact_ref.media_type"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "source": {
+                    "kind": "blob_ref",
+                    "hash": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source.artifact_ref.cas_address"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.if_null",
+                          "args": {
+                            "fallback": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "source.artifact_ref.multihash"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.if_null",
+                                  "args": {
+                                    "fallback": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "input",
+                                        "path": "source.artifact_ref.integrity_hash"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "input_trees": [],
+              "outputs": [
+                {
+                  "mount_path": "command-output.json",
+                  "storage": "inline",
+                  "content_type": "application/json"
+                }
+              ],
+              "containment": {
+                "kind": "descendant_effect_contained",
+                "pipe_eof_timeout_ms": 1000,
+                "publications": []
+              },
+              "capture_fds": [
+                1,
+                2
+              ],
+              "collected_files": []
+            }
+          }
+        },
+        "input": {
+          "artifact_ref_from": "request.source.artifact_ref",
+          "artifact_identity": "multihash",
+          "location_fallbacks": [
+            "cas_address"
+          ]
+        },
+        "program": {
+          "stored_bytes_ref": "package::audio-transcription::stored-bytes::transcribe-audio-script"
+        },
+        "output": {
+          "writer_action": "action:write-audio-transcription-record-from-command-run",
+          "record_roles": [
+            "requests",
+            "results",
+            "errors"
+          ],
+          "policy": {
+            "max_records_per_run": 64
+          }
+        },
+        "projection": {
+          "evidence_config": "package::audio-transcription::evidence-pipeline::config"
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "audio-transcription-content-media-evidence",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "audio-transcription",
+          "content-media-evidence"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "role"
+              ],
+              "present": true
+            }
+          ]
+        },
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "payload",
+                "role"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          },
+          {
+            "column": 2,
+            "source": {
+              "path": [
+                "record",
+                "source_package"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "audio-transcription-sources",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "content-media.relation.record"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::contract::request",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "audio-transcription.request",
+        "required_fields": [
+          "request_id",
+          "source",
+          "profile_ref",
+          "requested_at"
+        ],
+        "source_contract": {
+          "required_fields": [
+            "artifact_ref",
+            "media_type"
+          ],
+          "artifact_ref_contract": {
+            "required_fields": [
+              "multihash"
+            ],
+            "optional_fields": [
+              "cas_address",
+              "byte_length",
+              "media_type"
+            ]
+          }
+        },
+        "options_contract": {
+          "profile_ref": "address of a content-media.evidence-work-profile record; profile data owns execution target, command policy, output policy, and proof gates",
+          "output_options": "open caller preferences such as word timelines or segment timelines; never contains process descriptors, provider paths, or command policy"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::contract::result",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "audio-transcription.result",
+        "required_fields": [
+          "request_id",
+          "source_artifact_ref",
+          "source_fingerprint",
+          "command_run_id",
+          "language",
+          "full_text",
+          "segments",
+          "words",
+          "output_artifact_refs",
+          "completed_at"
+        ],
+        "word_shape": {
+          "required_fields": [
+            "t",
+            "start",
+            "end"
+          ],
+          "optional_fields": [
+            "confidence",
+            "emphasis",
+            "sentence_end",
+            "hidden",
+            "speaker",
+            "timing_source"
+          ]
+        },
+        "timing_source_semantics": {
+          "engine_token_timestamps": "Both start and end parse from the provider token row; this identifies the timing source and does not assert forced alignment or accuracy.",
+          "segment_uniform_estimate": "No token rows were available; the segment duration was divided evenly across its text tokens.",
+          "segment_bounds_fallback": "At least one token boundary was unavailable or invalid; a segment boundary supplied the fallback span."
+        },
+        "source_fingerprint_contract": "Stable source identity derived from source.artifact_ref integrity_hash, multihash, cas_address, content_hash, or sha256.",
+        "timing_evidence_fields": [
+          "segments",
+          "words"
+        ],
+        "large_artifact_contract": "Full transcript artifacts, word timelines, segment timelines, and provider raw output are stored in output_artifact_refs when they exceed inline preview size.",
+        "segment_shape": {
+          "required_fields": [
+            "segment_index",
+            "start",
+            "end",
+            "text"
+          ],
+          "optional_fields": [
+            "speaker",
+            "confidence"
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::contract::error",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "audio-transcription.error",
+        "required_fields": [
+          "request_id",
+          "source_artifact_ref",
+          "source_fingerprint",
+          "code",
+          "message",
+          "observed_at"
+        ],
+        "details_contract": "optional machine-readable command/process details; never stores fabricated transcript content"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::workflow-action::write-command-run-record",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:write-audio-transcription-record-from-command-run",
+        "kind": "action",
+        "is_active": true,
+        "name": "write-audio-transcription-record-from-command-run",
+        "description": "Write one canonical audio-transcription record emitted by the command run.",
+        "input_schema": {
+          "required": [
+            "record"
+          ],
+          "properties": {
+            "record": {
+              "type": "object"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.address"
+                    }
+                  },
+                  "path": [
+                    "audio-transcription",
+                    "content-media-evidence"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.payload"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "extra_properties": {
+          "reasserted_at": "2026-06-12T13:44"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::workflow-action::submit-audio-transcription-request",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:submit-audio-transcription-request",
+        "kind": "action",
+        "is_active": true,
+        "name": "submit-audio-transcription-request",
+        "description": "Write the canonical request, read the selected media evidence work profile, run its data-owned execution descriptor through compute.process, make package records from declared JSON output, and write accepted result/error records.",
+        "input_schema": {
+          "required": [
+            "request_id",
+            "source",
+            "profile_ref"
+          ],
+          "properties": {
+            "request_id": {
+              "type": "string"
+            },
+            "source": {
+              "type": "object"
+            },
+            "profile_ref": {
+              "type": "string"
+            },
+            "output_options": {
+              "type": "object"
+            },
+            "requested_at": {
+              "type": "string"
+            },
+            "existing_result_ref": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "read_existing_result",
+            "kind": "read",
+            "config": {
+              "from": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "existing_result_ref"
+                }
+              },
+              "fallback_output": {
+                "kind": "audio-transcription.result-missing"
+              }
+            }
+          },
+          {
+            "id": "verify_existing_result",
+            "kind": "ask",
+            "config": {
+              "name": "slot::formula-engine",
+              "input": {
+                "binding": {
+                  "$kind": "opaque-json",
+                  "value": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "context",
+                      "path": "existing_kind"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.and",
+                        "args": {
+                          "values": [
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "existing_kind"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": "audio-transcription.result"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "existing_request_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "expected_request_id"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "existing_source_artifact_ref"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "expected_source_artifact_ref"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "context": {
+                  "existing_kind": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_existing_result",
+                      "path": "output.kind"
+                    }
+                  },
+                  "existing_request_id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_existing_result",
+                      "path": "output.request_id"
+                    }
+                  },
+                  "existing_source_artifact_ref": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_existing_result",
+                      "path": "output.source_artifact_ref"
+                    }
+                  },
+                  "expected_request_id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    }
+                  },
+                  "expected_source_artifact_ref": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "source.artifact_ref"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "refuse_mismatched_existing_result",
+            "kind": "fail",
+            "config": {
+              "error": "The existing transcript does not match this exact request and source revision."
+            }
+          },
+          {
+            "id": "read_profile",
+            "kind": "read",
+            "config": {
+              "address_mode": "identity_text",
+              "from": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "profile_ref"
+                }
+              }
+            }
+          },
+          {
+            "id": "read_record_writer",
+            "kind": "read",
+            "config": {
+              "from": "package::audio-transcription::stored-bytes::make-audio-transcription-records-from-command-output-script"
+            }
+          },
+          {
+            "id": "read_transcribe_script",
+            "kind": "read",
+            "config": {
+              "from": "package::audio-transcription::stored-bytes::transcribe-audio-script"
+            }
+          },
+          {
+            "id": "write_request_and_run_record",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::audio-transcription::request::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "request_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "audio-transcription.request",
+                    "request_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "request_id"
+                      }
+                    },
+                    "source": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source"
+                      }
+                    },
+                    "profile_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "profile_ref"
+                      }
+                    },
+                    "output_options": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "output_options"
+                      }
+                    },
+                    "requested_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "requested_at"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::audio-transcription::command-run-request::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "request_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "audio-transcription",
+                    "content-media-evidence"
+                  ],
+                  "payload": {
+                    "kind": "audio-transcription.command-run-request",
+                    "request_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "request_id"
+                      }
+                    },
+                    "runner": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "read_profile",
+                        "path": "output.capability.target"
+                      }
+                    },
+                    "profile_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "profile_ref"
+                      }
+                    },
+                    "execution_target": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "read_profile",
+                        "path": "output.capability.target"
+                      }
+                    },
+                    "process_descriptor": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "read_profile",
+                        "path": "output.capability.params.process_descriptor_template"
+                      }
+                    },
+                    "output_contract": {
+                      "first_declared_output": "application/json command output consumed by the package record-making script"
+                    },
+                    "created_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "requested_at"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "run_profile_work",
+            "kind": "ask",
+            "config": {
+              "name": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "read_profile",
+                  "path": "output.capability.target"
+                }
+              },
+              "input": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "read_profile",
+                  "path": "output.capability.params.process_descriptor_template"
+                }
+              }
+            }
+          },
+          {
+            "id": "make_records",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "packages/audio-transcription/do-work/process-scripts/make-audio-transcription-records-from-command-output.py",
+                  "--request-json",
+                  "request.json",
+                  "--command-output-json",
+                  "command-output.json",
+                  "--output-json",
+                  "records.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/audio-transcription/do-work/process-scripts/make-audio-transcription-records-from-command-output.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_record_writer",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "request.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "command-output.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "run_profile_work",
+                          "path": "output.outputs.0.bytes.base64"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "records.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "write_records",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "make_records",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "records"
+                    }
+                  }
+                ]
+              },
+              "item_var": "record",
+              "max_iterations": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "read_profile",
+                  "path": "output.output.policy.max_records_per_run"
+                }
+              },
+              "parallel": false,
+              "definition_id": "action:write-audio-transcription-record-from-command-run",
+              "inputs": {
+                "record": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "record"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "read_written_result",
+            "kind": "read",
+            "config": {
+              "from": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "existing_result_ref"
+                }
+              },
+              "fallback_output": {
+                "kind": "audio-transcription.result-missing"
+              }
+            }
+          },
+          {
+            "id": "return_written_result",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "read_written_result",
+                  "path": "output"
+                }
+              }
+            }
+          },
+          {
+            "id": "verify_written_result",
+            "kind": "ask",
+            "config": {
+              "name": "slot::formula-engine",
+              "input": {
+                "binding": {
+                  "$kind": "opaque-json",
+                  "value": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "context",
+                      "path": "written_kind"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.and",
+                        "args": {
+                          "values": [
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "written_kind"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": "audio-transcription.result"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "written_request_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "expected_request_id"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "written_source_artifact_ref"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "expected_source_artifact_ref"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "context": {
+                  "written_kind": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_written_result",
+                      "path": "output.kind"
+                    }
+                  },
+                  "written_request_id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_written_result",
+                      "path": "output.request_id"
+                    }
+                  },
+                  "written_source_artifact_ref": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_written_result",
+                      "path": "output.source_artifact_ref"
+                    }
+                  },
+                  "expected_request_id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    }
+                  },
+                  "expected_source_artifact_ref": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "source.artifact_ref"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "refuse_missing_written_result",
+            "kind": "fail",
+            "config": {
+              "error": "Transcription finished without saving a matching transcript result."
+            }
+          },
+          {
+            "id": "return_existing_result",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "read_existing_result",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "read_existing_result",
+            "to": "verify_existing_result",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.not_equals",
+                  "args": {
+                    "value": "audio-transcription.result-missing"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "read_existing_result",
+            "to": "read_profile",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "audio-transcription.result-missing"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "verify_existing_result",
+            "to": "return_existing_result",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.result"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": true
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "verify_existing_result",
+            "to": "refuse_mismatched_existing_result",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.result"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "read_profile",
+            "to": "read_record_writer",
+            "kind": "on_result"
+          },
+          {
+            "from": "read_record_writer",
+            "to": "read_transcribe_script",
+            "kind": "on_result"
+          },
+          {
+            "from": "read_transcribe_script",
+            "to": "write_request_and_run_record",
+            "kind": "on_result"
+          },
+          {
+            "from": "write_request_and_run_record",
+            "to": "run_profile_work",
+            "kind": "on_result"
+          },
+          {
+            "from": "run_profile_work",
+            "to": "make_records",
+            "kind": "on_result"
+          },
+          {
+            "from": "make_records",
+            "to": "write_records",
+            "kind": "on_result"
+          },
+          {
+            "from": "write_records",
+            "to": "read_written_result",
+            "kind": "on_result"
+          },
+          {
+            "from": "read_written_result",
+            "to": "verify_written_result",
+            "kind": "on_result"
+          },
+          {
+            "from": "verify_written_result",
+            "to": "return_written_result",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.result"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": true
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "verify_written_result",
+            "to": "refuse_missing_written_result",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.result"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "extra_properties": {
+          "reasserted_at": "2026-06-12T13:44"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "audio-transcription-sources"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::workflow-action::audio-master",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:audio-master",
+        "kind": "action",
+        "is_active": true,
+        "name": "audio-master",
+        "description": "Master a voice track: highpass, two-pass loudnorm to target loudness, true-peak limiter, measurement-gated denoise. Emits the mastered file plus a before/after loudness report.",
+        "input_schema": {
+          "required": [
+            "in",
+            "out"
+          ],
+          "properties": {
+            "in": {
+              "type": "string"
+            },
+            "out": {
+              "type": "string"
+            },
+            "target_lufs": {
+              "type": "number"
+            },
+            "true_peak_db": {
+              "type": "number"
+            },
+            "lra": {
+              "type": "number"
+            },
+            "highpass_hz": {
+              "type": "number"
+            },
+            "denoise": {
+              "type": "string"
+            },
+            "denoise_floor_db": {
+              "type": "number"
+            },
+            "cwd": {
+              "type": "string"
+            },
+            "env": {
+              "type": "object"
+            },
+            "timeout_ms": {
+              "type": "number"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "read_audio_master_script",
+            "kind": "read",
+            "config": {
+              "from": "package::audio-transcription::stored-bytes::audio-master-script"
+            }
+          },
+          {
+            "id": "run",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "do-work/audio-master.mjs",
+                  "--in",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "in"
+                    }
+                  },
+                  "--out",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "out"
+                    }
+                  },
+                  "--target-lufs",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "target_lufs"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": -14
+                        }
+                      }
+                    ]
+                  },
+                  "--true-peak",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "true_peak_db"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": -1
+                        }
+                      }
+                    ]
+                  },
+                  "--lra",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "lra"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": 11
+                        }
+                      }
+                    ]
+                  },
+                  "--highpass-hz",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "highpass_hz"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": 80
+                        }
+                      }
+                    ]
+                  },
+                  "--denoise",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "denoise"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "auto"
+                        }
+                      }
+                    ]
+                  },
+                  "--denoise-floor-db",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "denoise_floor_db"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": -45
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "cwd"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.if_null",
+                      "args": {
+                        "fallback": null
+                      }
+                    }
+                  ]
+                },
+                "timeout_ms": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "timeout_ms"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.if_null",
+                      "args": {
+                        "fallback": 1800000
+                      }
+                    }
+                  ]
+                },
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "env"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.if_null",
+                      "args": {
+                        "fallback": {}
+                      }
+                    }
+                  ]
+                },
+                "inputs": [
+                  {
+                    "mount_path": "do-work/audio-master.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_audio_master_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "run",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "extra_properties": {
+          "reasserted_at": "2026-06-12T13:44"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::workflow-action::auto-transcribe-recorded-media",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:auto-transcribe-recorded-media",
+        "kind": "action",
+        "is_active": true,
+        "name": "auto-transcribe-recorded-media",
+        "description": "Hands-free lane: a newly recorded media fact submits itself for transcription through the same data-owned media evidence work profile as manual submit. Request id derives from the recorded file id, so re-firing the trigger re-uses one request instead of duplicating work.",
+        "input_schema": {
+          "required": [
+            "recorded_file_id",
+            "source"
+          ],
+          "properties": {
+            "recorded_file_id": {
+              "type": "string"
+            },
+            "source": {
+              "type": "object"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "submit_profile_request",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:submit-audio-transcription-request",
+              "inputs": {
+                "request_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "recorded_file_id"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "auto:",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "recorded_file_id"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "source"
+                  }
+                },
+                "profile_ref": "package::audio-transcription::evidence-work-profile::local-whisper",
+                "output_options": {
+                  "word_timestamps": true,
+                  "segments": true,
+                  "speaker_diarization": false
+                },
+                "existing_result_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "recorded_file_id"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "package::audio-transcription::result::auto:",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "recorded_file_id"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "op": "op:core.replace",
+                      "args": {
+                        "find": "%",
+                        "replace": "_"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "submit_profile_request",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "submit_profile_request",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ],
+        "extra_properties": {
+          "reasserted_at": "2026-06-12T13:44"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::trigger-rule::auto-transcribe-on-recorded-file",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:audio-transcription:auto-transcribe-on-recorded-file",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "_activation": "is_active IS the auto-transcribe switch — flipping it is a data write, zero code. ON by default: recordings transcribe themselves.",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "record-action-projection.record"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "capture_mode"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "audio"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "recording_id"
+              },
+              "transform": [
+                {
+                  "op": "op:core.starts_with",
+                  "args": {
+                    "prefix": "recording:"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:auto-transcribe-recorded-media",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "recorded_file_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "recorded_file_id"
+                }
+              },
+              "recorded_at": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "recorded_at"
+                }
+              },
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "source_ref"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::audio-transcription::trigger-rule::auto-transcribe-on-stored-media",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:audio-transcription:auto-transcribe-on-stored-media",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "content-media.relation.record"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "role_ref.id"
+              },
+              "transform": [
+                {
+                  "op": "op:core.or",
+                  "args": {
+                    "values": [
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "change",
+                          "path": "role_ref.id"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.equals",
+                            "args": {
+                              "value": "stored-media"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "change",
+                          "path": "role_ref.id"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.equals",
+                            "args": {
+                              "value": "stored-audio"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "change",
+                          "path": "role_ref.id"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.equals",
+                            "args": {
+                              "value": "stored-video"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "relation_id"
+              },
+              "transform": [
+                {
+                  "op": "op:core.not_equals",
+                  "args": {
+                    "value": ""
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "source_ref.artifact_ref.kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "canonical-artifact-ref/v1"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "source_ref.artifact_ref.media_type"
+              },
+              "transform": [
+                {
+                  "op": "op:core.or",
+                  "args": {
+                    "values": [
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "change",
+                          "path": "source_ref.artifact_ref.media_type"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.starts_with",
+                            "args": {
+                              "prefix": "audio/"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "change",
+                          "path": "source_ref.artifact_ref.media_type"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.starts_with",
+                            "args": {
+                              "prefix": "video/"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "error_ref"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": null
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "delivery": "later_with_durable_outcome",
+          "outcome_correlation_template": {
+            "relation_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "relation_id"
+              }
+            },
+            "source_revision": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "source_ref.artifact_ref.integrity_hash"
+              }
+            },
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "relation_id"
+              },
+              "transform": [
+                {
+                  "op": "op:core.concat",
+                  "args": {
+                    "values": [
+                      "auto:",
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "change",
+                          "path": "relation_id"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "result_ref": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "relation_id"
+              },
+              "transform": [
+                {
+                  "op": "op:core.concat",
+                  "args": {
+                    "values": [
+                      "package::audio-transcription::result::auto:",
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "change",
+                          "path": "relation_id"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "op": "op:core.replace",
+                  "args": {
+                    "find": "%",
+                    "replace": "_"
+                  }
+                }
+              ]
+            }
+          },
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:auto-transcribe-recorded-media",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "recorded_file_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "relation_id"
+                }
+              },
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "source_ref"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-audio-transcription",
+      "source_path": "built-stored-bytes/entry-bytes-audio-transcription",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-audio-transcription.source-closure.json"
+    }
+  ]
+}
