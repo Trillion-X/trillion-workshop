@@ -16,6 +16,8 @@ signs a request with is ever in a record, a row or this code.
 | `tool:approve-a-post` | Approves the post exactly as it was reviewed (`expected_values`); a post that reaches someone is approved only by the person | read and write `post` |
 | `tool:set-a-post-to-go-at-its-time` | An approved post with a time still ahead, ready for every place, becomes `scheduled`. Nothing is sent now | read and write `post`, list `connection` |
 | `tool:take-back-a-post` | A scheduled post nothing was sent for becomes a draft again, so its time sends nothing | read and write `post` |
+| `tool:check-the-instagram-connection` | Asks Instagram which account the person's `service_connection:instagram` signs in as, with its held value placed only as the request leaves. Posts nothing | none (http) |
+| `tool:check-the-facebook-page-connection` | Asks Facebook which Page the person's `service_connection:facebook-messenger` signs in as, the same way. Posts nothing | none (http) |
 | `tool:read-post-calendar` | The posts between two times, earliest first, each with whether it can still move, and the drafts and approved posts with no time yet | list `post` |
 | `tool:see-how-each-post-did` | How each place a post was published to did: that place's own counts (handed in), the visitors its link brought and what they bought (handed in, in tool:break-down-visits-and-sales' shape), joined by exact identity only | list `post` |
 
@@ -35,7 +37,7 @@ Sending a scheduled post at its time is not one of these tools yet: a post set t
 | `read-data/post-results.mjs` | `seeHowEachPostDid`, run by the records door's export command: each delivery a post record says was posted (with the place's own post id) becomes one published row; observations, visits and conversions become the join's rows. |
 | `read-data/post-performance-attribution.ts` | `readPostPerformanceAttributionRows`, ported from bitfield-packages `packages/content-analytics`: the latest place count linked by the place row or the place's own post id, visits whose `utm_content` is exactly the post id, the place's post id or `post_id::account_id` and names one place only, and conversions of those visitors in the same project. Nothing missing becomes a zero. |
 | `tool-rows.json` | The rows. |
-| `test/posts.test.mjs` | The posting rows against the fake records door: destinations, draft, check, approve as reviewed, set for its time with nothing sent, take back, the refusals. |
+| `test/posts.test.mjs` | The posting rows against the fake records door: destinations, draft, check, approve as reviewed, set for its time with nothing sent, take back, the refusals; and each connection check asks with the value its place signs with, on one of that place's hosts. |
 | `test/post-calendar.test.mjs` | The calendar row against the fake records door: the span, the order, what can move, the refusals. |
 | `test/post-results.test.mjs` | The results row against the fake records door: per-place counts, visits and sales, the shared-token refusal, post_ids, refusals. |
 | `test/post-performance-attribution.test.ts` | The join's own tests, carried from content-analytics. |
