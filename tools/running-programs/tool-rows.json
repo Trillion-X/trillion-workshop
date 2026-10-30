@@ -1,0 +1,97 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-running-programs",
+        "label": "Programs running on my computer",
+        "job": "List the programs running on this person's computer and how much memory each one uses, the largest first, optionally only the programs whose name has some words",
+        "description": "Runs on the person's computer with the right they granted it to see the programs running there. Returns total, programs (each with pid, name, footprint_bytes and resident_bytes; null memory for a program the person may not read) and complete (false when the list was cut at `most`).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Only programs whose name has these words, in any case."
+            },
+            "most": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2000,
+              "description": "How many programs to name, the largest memory first. 50 when not given."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "total",
+            "programs",
+            "complete"
+          ],
+          "properties": {
+            "total": {
+              "type": "integer"
+            },
+            "programs": {
+              "type": "array"
+            },
+            "complete": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-processes"
+          ],
+          "workdir": "/opt/running-programs",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/running-programs/read-data/running-programs.mjs",
+            "listRunningPrograms"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "running-programs",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/running-programs"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:running-programs",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    }
+  ]
+}

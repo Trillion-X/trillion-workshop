@@ -47,6 +47,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `records-door` | A library: the client for the person's records door and the one command that runs a tool written as a function, handing it the door | (none: packed by `saved-examples`, `tell-the-person`, `social-posts`, `recently-deleted` and `print-here`) |
 | `relationship-graph` | Who is connected to whom, from any records | `tool:map-who-is-connected` |
 | `revenue-ledger` | Revenue, refunds, net revenue and recurring revenue from any provider's payment events | `tool:add-up-revenue` |
+| `running-programs` | The programs running on the person's Mac and how much memory each one uses, the largest first (runs on the person's Mac with the process list they granted) | `tool:list-running-programs` |
 | `saved-examples` | Lists the examples a person saved of posts, videos and pages that worked, and removes one, from their own records | `tool:list-saved-examples`, `tool:remove-a-saved-example` |
 | `social-posts` | The person's posts on a calendar between two times, and the ones with no time yet | `tool:read-post-calendar` |
 | `tell-the-person` | What Trillion told the person: the newest notices, where each was seen and how far each way got | `tool:my-notices` |
