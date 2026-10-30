@@ -1,0 +1,12 @@
+{
+  "_what": "How the reframe camera moves (tools/media-composition/do-work/auto-reframe.mjs planCamera). A followed subject is a noisy point; a camera operator does not chase every wobble. The camera holds still while the subject stays inside the middle of the frame and moves only when the subject leaves it, at a bounded speed with eased starts and stops. `steady_seconds` is the span over which one noisy reading is outvoted by its neighbours (a running median). `hold_zone` is the share of the crop window, around its centre, the subject may move in before the camera moves at all. `max_speed` is the fastest the camera pans, in crop-window widths per second. `ease_seconds` is how gently a pan starts and stops. `cut_beyond` is how far, in crop-window widths, the subject may get ahead of the camera before the camera cuts to it instead of panning. `shutter_seconds` is how long each frame is exposed (a 180-degree shutter at 25 frames a second): a moving camera smears the picture by how far it travels in that time, as a share of the crop window. `least_streak` is the smallest smear worth drawing, and `streak_step` rounds smears so neighbouring moves share one blur. `keep_within` is the largest gap, as a share of the picture, a simplified path may leave from the planned one, so a held shot becomes two keyframes and a pan a few.",
+  "steady_seconds": 1.2,
+  "hold_zone": 0.5,
+  "max_speed": 0.45,
+  "ease_seconds": 0.45,
+  "keep_within": 0.003,
+  "cut_beyond": 0.75,
+  "shutter_seconds": 0.02,
+  "least_streak": 0.002,
+  "streak_step": 0.001
+}

@@ -1,0 +1,140 @@
+{
+  "_what": "Every caption style a video can be captioned in, as DATA read by read-data/caption-styles.mjs (the one builder that turns a style and timed caption lines into the burned-in subtitle). Adding a style is one row here; no code names a style. Sizes, outlines and shadow offsets, blurs and spreads are pixels on a frame whose shorter side is `measured_at_short_side`, scaled to the real frame. `position` is where a caption's bottom-centre sits, as fractions of the frame (x from the left, y from the top), used for every caption line that has no position of its own. `reveal` is `line` (the whole line shows at once) or `karaoke` (each word lights up in `colours.spoken` as it is said, the words still to come in `colours.upcoming`); a `line` style shows its words in `colours.spoken`. `grouping` is how spoken words are gathered into caption lines (read-data/caption-lines.ts). `preview.fonts` are the families a page previews the font with, first found wins; `preview.background` is what the sample sits on. `shadow` is decomposed: `x`, `y` (offset), `blur`, `spread`, `colour`, `opacity` (0 to 1); an offset alone is a drop shadow, any blur or spread is a soft halo under the words; null is no shadow. `settings` are the rows the shared inspector (parts/ui TuningPanel) draws to change any style field by field; each row's `path` is the field it changes.",
+  "measured_at_short_side": 1080,
+  "default": "subtitles",
+  "styles": [
+    {
+      "id": "subtitles",
+      "name": "Subtitles",
+      "font": "Arial",
+      "size": 36,
+      "bold": false,
+      "italic": false,
+      "outline": 2,
+      "shadow": { "x": 1, "y": 1, "blur": 0, "spread": 0, "colour": "#000000", "opacity": 0.608 },
+      "colours": { "spoken": "#ffffff", "upcoming": "#ffffff", "outline": "#000000" },
+      "position": { "x": 0.5, "y": 0.967 },
+      "reveal": "line",
+      "grouping": { "maxWords": 10, "maxChars": 42, "maxGap": 0.8, "maxSeconds": 4, "breakAfterSentence": true },
+      "preview": { "fonts": ["Arial", "Helvetica", "sans-serif"], "background": "#171717" }
+    },
+    {
+      "id": "emphasis",
+      "name": "Large captions",
+      "font": "Arial",
+      "size": 52,
+      "bold": true,
+      "italic": false,
+      "outline": 3,
+      "shadow": { "x": 1, "y": 1, "blur": 0, "spread": 0, "colour": "#000000", "opacity": 0.608 },
+      "colours": { "spoken": "#ffffff", "upcoming": "#ffffff", "outline": "#000000" },
+      "position": { "x": 0.5, "y": 0.935 },
+      "reveal": "line",
+      "grouping": { "maxWords": 6, "maxChars": 28, "maxGap": 0.6, "maxSeconds": 3, "breakAfterSentence": true },
+      "preview": { "fonts": ["Arial", "Helvetica", "sans-serif"], "background": "#171717" }
+    },
+    {
+      "id": "spoken-words",
+      "name": "Highlight spoken words",
+      "font": "Arial",
+      "size": 44,
+      "bold": true,
+      "italic": false,
+      "outline": 3,
+      "shadow": { "x": 1, "y": 1, "blur": 0, "spread": 0, "colour": "#000000", "opacity": 0.608 },
+      "colours": { "spoken": "#ffe000", "upcoming": "#ffffff", "outline": "#000000" },
+      "position": { "x": 0.5, "y": 0.949 },
+      "reveal": "karaoke",
+      "grouping": { "maxWords": 5, "maxChars": 32, "maxGap": 0.6, "maxSeconds": 2.6, "breakAfterSentence": true },
+      "preview": { "fonts": ["Arial", "Helvetica", "sans-serif"], "background": "#171717" }
+    },
+    {
+      "id": "serif-spoken-words",
+      "name": "Serif spoken words",
+      "font": "EB Garamond",
+      "size": 64,
+      "bold": false,
+      "italic": false,
+      "outline": 0,
+      "shadow": { "x": 0, "y": 0, "blur": 0, "spread": 0, "colour": "#000000", "opacity": 0 },
+      "colours": { "spoken": "#202020", "upcoming": "#b8b8b8", "outline": "#000000" },
+      "position": { "x": 0.5, "y": 0.8125 },
+      "reveal": "karaoke",
+      "grouping": { "maxWords": 5, "maxChars": 32, "maxGap": 0.6, "maxSeconds": 2.6, "breakAfterSentence": true },
+      "preview": { "fonts": ["Apple Garamond", "EB Garamond", "Garamond", "serif"], "background": "#f2efe8" }
+    },
+    {
+      "id": "white-words-light-up",
+      "name": "White words light up",
+      "font": "SF Pro Text",
+      "size": 84,
+      "bold": false,
+      "italic": false,
+      "outline": 0,
+      "shadow": { "x": 0, "y": 0, "blur": 24, "spread": 18, "colour": "#000000", "opacity": 0.55 },
+      "colours": { "spoken": "#ffffff", "upcoming": "#808080", "outline": "#000000" },
+      "position": { "x": 0.5, "y": 0.74 },
+      "reveal": "karaoke",
+      "grouping": { "maxWords": 5, "maxChars": 22, "maxGap": 0.8, "maxSeconds": 3.5, "breakAfterSentence": true, "casing": { "sentenceStart": true, "alwaysCapital": ["i", "i'm", "i've", "i'll", "i'd"] } },
+      "preview": { "fonts": ["SF Pro Text", "-apple-system", "system-ui", "sans-serif"], "background": "#3a3a3a" },
+      "said_by": "A person's request: SF Pro Text, white, a soft glow-like shadow at x 0, y 0; the whole block shows grey and each word turns full white as it is spoken, then the next block comes up grey. Spoken #FFFFFF and upcoming #808080 are the usual karaoke caption preset colours. Size 84 at 1080 wide, measured against posted short-video captions: their letters stand about 13 px tall on a 640 px high frame, so at 1080x1920 the letters are about 1.45 times the 64 first used; 84 keeps a five-word line inside the frame. The halo grows with the words (blur 24, spread 18)."
+    }
+  ],
+  "settings": [
+    {
+      "id": "type",
+      "title": "Type",
+      "settings": [
+        { "key": "font", "path": ["font"], "label": "Font", "widget": "choices", "options_drawn_with": "font-family", "options": [
+          { "value": "SF Pro Text", "label": "SF Pro Text" },
+          { "value": "Inter", "label": "Inter" },
+          { "value": "Arial", "label": "Arial" },
+          { "value": "EB Garamond", "label": "EB Garamond" }
+        ] },
+        { "key": "size", "path": ["size"], "label": "Size", "widget": "number", "prefix": "Aa", "min": 8, "max": 200, "unit": "px" },
+        { "key": "bold", "path": ["bold"], "label": "Bold", "widget": "toggle" },
+        { "key": "italic", "path": ["italic"], "label": "Italic", "widget": "toggle" }
+      ]
+    },
+    {
+      "id": "colour",
+      "title": "Colour",
+      "settings": [
+        { "key": "colours.spoken", "path": ["colours", "spoken"], "label": "Said", "widget": "color" },
+        { "key": "colours.upcoming", "path": ["colours", "upcoming"], "label": "Still to say", "widget": "color" },
+        { "key": "outline", "path": ["outline"], "label": "Outline", "widget": "number", "min": 0, "max": 20, "unit": "px" },
+        { "key": "colours.outline", "path": ["colours", "outline"], "label": "Outline colour", "widget": "color" }
+      ]
+    },
+    {
+      "id": "shadow",
+      "title": "Shadow",
+      "settings": [
+        { "key": "shadow", "path": ["shadow"], "label": "Shadow", "widget": "shadow" }
+      ]
+    },
+    {
+      "id": "place",
+      "title": "Place",
+      "settings": [
+        { "key": "position", "label": "Position", "widget": "number", "settings": [
+          { "key": "position.x", "path": ["position", "x"], "label": "Across", "widget": "number", "prefix": "X", "min": 0, "max": 1, "step": 0.01 },
+          { "key": "position.y", "path": ["position", "y"], "label": "Down", "widget": "number", "prefix": "Y", "min": 0, "max": 1, "step": 0.01 }
+        ] }
+      ]
+    },
+    {
+      "id": "timing",
+      "title": "Timing",
+      "settings": [
+        { "key": "reveal", "path": ["reveal"], "label": "Words", "widget": "segmented", "options": [
+          { "value": "karaoke", "label": "Light up as said" },
+          { "value": "line", "label": "All at once" }
+        ] },
+        { "key": "grouping.maxWords", "path": ["grouping", "maxWords"], "label": "Words per caption", "widget": "number", "min": 1, "max": 20 },
+        { "key": "grouping.maxSeconds", "path": ["grouping", "maxSeconds"], "label": "Longest caption", "widget": "number", "min": 0.5, "max": 10, "step": 0.1, "unit": "s" },
+        { "key": "grouping.maxGap", "path": ["grouping", "maxGap"], "label": "Break at a pause", "widget": "number", "min": 0.1, "max": 3, "step": 0.1, "unit": "s" }
+      ]
+    }
+  ]
+}
