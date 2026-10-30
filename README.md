@@ -36,8 +36,10 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `person-list` | Find people by any field; rank people by the points their activity earns | `tool:find-people`, `tool:rank-people-by-activity` |
 | `person-profile` | Lays out one person's profile from a description of what to show | `tool:lay-out-a-profile` |
 | `record-a-web-page` | Records a web page as a demo: plays steps in a headless browser and returns a video, a GIF and one marked picture per step | `tool:record-a-web-demo` |
+| `records-door` | A library: the client for the person's records door and the one command that runs a tool written as a function, handing it the door | (none: packed by `saved-examples`, `tell-the-person`, `social-posts` and `recently-deleted`) |
 | `relationship-graph` | Who is connected to whom, from any records | `tool:map-who-is-connected` |
 | `revenue-ledger` | Revenue, refunds, net revenue and recurring revenue from any provider's payment events | `tool:add-up-revenue` |
+| `saved-examples` | Lists the examples a person saved of posts, videos and pages that worked, and removes one, from their own records | `tool:list-saved-examples`, `tool:remove-a-saved-example` |
 | `traffic-attribution` | Tracked links, visitors and sales by where they came from, what ad spend brings back, and conversions prepared for the ad platforms | `tool:make-tracked-link`, `tool:break-down-visits-and-sales`, `tool:measure-ad-return`, `tool:prepare-ad-conversions` |
 | `unit-economics` | ARPU, gross margin, CAC, LTV, LTV:CAC and payback from one period's numbers | `tool:work-out-unit-economics` |
 | `where-a-person-stands` | Keeps whether a person agrees, disagrees or partly agrees with something made for them, in their own words, and reads it back with every earlier stand; owns the one identity of a judged thing (folded text or bytes, BLAKE3) | `tool:keep-where-you-stand`, `tool:read-where-you-stand`, `tool:plan-a-stance-reload` |

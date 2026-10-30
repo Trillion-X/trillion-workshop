@@ -10,6 +10,11 @@
   "engines": {
     "node": ">=22.6"
   },
+  "exports": {
+    "./package.json": "./package.json",
+    "./licence-classes.json": "./licence-classes.json",
+    "./tools/*": "./tools/*"
+  },
   "files": [
     "tools",
     "licence-classes.json",
