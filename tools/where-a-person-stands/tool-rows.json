@@ -219,7 +219,7 @@
        "stance": "partly",
        "why": "fine for now",
        "answered_by": "person",
-       "at": "2026-10-29T12:00:00Z"
+       "at": "2026-01-01T12:00:00Z"
       },
       "output_selector": "$.stance_record.id",
       "contains": "stance:title:1f:"
@@ -409,9 +409,9 @@
          "artifact": "1f:0000000000000000000000000000000000000000000000000000000000000001",
          "stance": "disagree",
          "said": "You disagree with this.",
-         "why": "comes off as AI",
+         "why": "reads as generic",
          "by": "person",
-         "at": "2026-10-29T13:44:00Z",
+         "at": "2026-01-01T13:00:00Z",
          "kind": "title"
         },
         {
@@ -422,13 +422,13 @@
          "said": "You agree with this.",
          "why": "good",
          "by": "person",
-         "at": "2026-10-29T11:40:00Z",
+         "at": "2026-01-01T11:00:00Z",
          "kind": "title"
         }
        ]
       },
       "output_selector": "$.stances[0].why",
-      "contains": "comes off as AI"
+      "contains": "reads as generic"
      }
     ]
    }
@@ -576,12 +576,12 @@
          "text": "Start Here.",
          "stance": "agree",
          "why": "good",
-         "at": "2026-10-29T11:40:00Z",
+         "at": "2026-01-01T11:00:00Z",
          "earlier": [
           {
            "stance": "disagree",
            "why": "no",
-           "at": "2026-10-29T10:00:00Z"
+           "at": "2026-01-01T10:00:00Z"
           }
          ]
         },
@@ -590,7 +590,7 @@
          "text": "start here",
          "stance": "disagree",
          "why": "worse",
-         "at": "2026-10-29T13:44:00Z"
+         "at": "2026-01-01T13:00:00Z"
         }
        ]
       },
