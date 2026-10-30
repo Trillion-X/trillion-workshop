@@ -15,6 +15,7 @@ its files beside theirs at `/opt/headless-browser`.
 | `virtual-clock.mjs` | `createVirtualClock({ browser, fps, capture })`: the page's own clock moved only when told, one frame at a time, so a recording is the same every time. Used by `tools/record-a-web-page` with `--deterministic true`. |
 | `part.json` | The files code outside this folder may import. |
 | `test/devtools-target.test.mjs` | A browser with no startup page gets one made and attached; an existing page is attached without making another. |
+| `test/proxy.test.mjs` | A browser told a proxy loads a page through it, and loopback, private and metadata addresses go to the proxy too (where the engine refuses them), never around it. |
 
 ## Key Types / Functions
 
@@ -38,5 +39,6 @@ its files beside theirs at `/opt/headless-browser`.
 - How many browsers run at once on one computer is the runner's decision; this library opens one browser per call
   and keeps no lock or queue of its own.
 - A run told a proxy (`HTTPS_PROXY`, as the engine tells every internet:true run) starts its browser with
-  `--proxy-server` set to it: Chromium does not read that setting itself, and the engine's sandbox lets the run reach
-  nothing but that proxy. Which addresses are public is the engine's to judge, never this library's.
+  `--proxy-server` set to it and loopback addresses sent there too (`--proxy-bypass-list=<-loopback>`; Chromium
+  would otherwise go to them directly). Chromium does not read that setting itself, and the engine's sandbox lets the
+  run reach nothing but that proxy. Which addresses are public is the engine's to judge, never this library's.
