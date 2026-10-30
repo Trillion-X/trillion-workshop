@@ -1,6 +1,6 @@
 # workflows
 
-Shared playbooks that any person's AI can follow step by step. Each playbook is one recipe file in `recipes/`; the workflow engine that runs them is arriving here from `crates/workflow-engine` in the main Trillion repository.
+Shared playbooks that any person's AI can follow step by step. Each playbook is one recipe file in `recipes/`; the workflow engine that runs them is arriving here from `crates/workflow-engine` in the main Trillion repository. If that engine ever needs bounded replay (host-owned limits on definitions, steps, loops and action depth, checked against the usage it reports), start from commit `5c340ea748` ("preserve bounded workflow replay"), kept in the main Trillion repository's `shipped/app-202610301249` branch history; it was left out of main because nothing called it.
 
 ## Files
 
