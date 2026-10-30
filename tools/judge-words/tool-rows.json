@@ -1,0 +1,136 @@
+{
+ "kind": "tool-rows",
+ "record_set": "judge-words-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/judge-words: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::judge-words::tool::judge-against-rules",
+   "address": "package::judge-words::tool::judge-against-rules",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:judge-against-rules",
+    "label": "Check words or anything made against your rules",
+    "status": "active",
+    "job": "Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead",
+    "description": "Give rules (one row each) and what to check: text, texts, value (any JSON whose words a person reads), artifact (any JSON a rule reads by path, like a plan or a take's measures) or items, each with an optional kind. A row picks words (words, pattern, exact or a named grammar check) or values (path, with where to keep only some), may apply only to some kinds, and may say what must hold: required, count_at_least, count_at_most, value_at_least, value_at_most or equals. Its because and at_most travel with every finding. Returns status (passed, failed, held when only capped rows found something, no-applicable-rule, no-input), findings and lines in plain words. Nothing passes on silence: a value test that finds nothing is a finding.",
+    "input_schema": {
+     "type": "object",
+     "required": ["rules"],
+     "additionalProperties": false,
+     "properties": {
+      "rules": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+         "id": { "type": "string", "description": "The row's own id" },
+         "says": { "type": "string", "description": "Why it matters, in the words the finding shows" },
+         "suggest": { "type": "string", "description": "What to write or do instead" },
+         "words": { "type": "array", "items": { "type": "string" }, "description": "Whole words or phrases, any case" },
+         "pattern": { "type": "string", "description": "A regular expression" },
+         "flags": { "type": "string", "description": "The pattern's flags" },
+         "exact": { "type": "array", "items": { "type": "string" }, "description": "The whole text is one of these" },
+         "check": { "type": "string", "description": "A named grammar check" },
+         "path": { "type": "string", "description": "A dot path into an artifact; * is one segment, ** any depth" },
+         "where": { "description": "Keep only the picked values equal to this value or one of this list" },
+         "kinds": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "The kinds of item the row applies to" },
+         "fields": { "type": "array", "items": { "type": "string" }, "description": "The keys whose words the row reads" },
+         "under": { "type": "string", "description": "Only words somewhere under this key" },
+         "allow": { "type": "array", "items": { "type": "string" }, "description": "A text holding one of these is never flagged by this row" },
+         "required": { "type": "boolean", "description": "True: something must be picked" },
+         "count_at_least": { "type": "number" },
+         "count_at_most": { "type": "number" },
+         "value_at_least": { "type": "number" },
+         "value_at_most": { "type": "number" },
+         "equals": { "type": "array", "description": "Every picked value is one of these" },
+         "because": { "description": "The records the row came from, carried onto each finding" },
+         "at_most": { "type": "string", "description": "Present on an inferred row: its findings hold, never fail" }
+        }
+       },
+       "description": "The rules, one row each"
+      },
+      "text": { "type": "string", "description": "One piece of text" },
+      "texts": { "type": "array", "items": { "type": "string" }, "description": "Several pieces of text" },
+      "value": { "description": "Any JSON whose strings a person reads" },
+      "fields": { "description": "Which keys of value hold words: a list of keys, or \"strings\" for every string (the default)" },
+      "paths": { "type": "array", "items": { "type": "string" }, "description": "Only the strings of value at these dot paths" },
+      "skip_keys": { "type": "array", "items": { "type": "string" }, "description": "Keys of value whose strings are not read" },
+      "skip_paths": { "type": "array", "items": { "type": "string" }, "description": "Exact dot paths of value that are not read" },
+      "artifact": { "description": "Any JSON that path rows read, such as a plan or a measure report" },
+      "items": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "text": { "type": "string" },
+         "value": {},
+         "kind": { "type": "string" },
+         "field": { "type": "string" },
+         "path": { "type": "array" }
+        }
+       },
+       "description": "Items to check, each text or value, with its own kind"
+      },
+      "kind": { "type": "string", "description": "The kind of every item that names none (title, plan, voice take...)" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["passed", "status", "findings", "lines", "said"],
+     "properties": {
+      "passed": { "type": "boolean" },
+      "status": { "type": "string", "enum": ["no-input", "no-applicable-rule", "failed", "held", "passed"] },
+      "coverage": { "type": "object" },
+      "findings": { "type": "array", "items": { "type": "object", "required": ["rule", "found"] } },
+      "lines": { "type": "array", "items": { "type": "string" } },
+      "said": { "type": "string" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "judge-words",
+       "paths": ["do-work"],
+       "at": "/opt/judge-words"
+      }
+     },
+     "workdir": "/opt/judge-words",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/judge-against-rules.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:judge-words",
+    "provenance": { "source": "the copy judge parts/judge-words, with kinds, path rows and tests added" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "rules": [
+        { "id": "one-question", "kinds": ["title"], "pattern": "\\?", "count_at_most": 1, "says": "One question at most." },
+        { "id": "few-asks", "kinds": ["plan"], "path": "segments.*.kind", "where": "question", "count_at_most": 1, "says": "Too many questions." }
+       ],
+       "items": [
+        { "text": "Why now? Why here?", "kind": "title" },
+        { "value": { "segments": [{ "kind": "question" }, { "kind": "answer" }] }, "kind": "plan" }
+       ]
+      },
+      "output_selector": "$.lines[0]",
+      "contains": "2 found, at most 1 allowed"
+     }
+    ]
+   }
+  }
+ ]
+}

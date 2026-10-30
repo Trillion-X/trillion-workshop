@@ -26,6 +26,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `customer-follow-up` | Each customer's steps and each product's progress toward its customer target | `tool:add-a-customer`, `tool:record-a-customer-step`, `tool:set-a-customer-target`, `tool:see-where-each-customer-is` |
 | `email-sending-domains` | Which domains the person's email-sending account may send from and how each stands, with the key handed on a private pipe | `tool:list-email-sending-domains` |
 | `internet-archive` | Searches the Internet Archive and reads one item's metadata and file list, keeping its rights fields | `tool:search-internet-archive`, `tool:read-internet-archive-item` |
+| `judge-words` | Checks words, a plan or anything else made against a person's rule rows (by kind, by value path, with tests that say what must hold), saying what breaks which rule and why | `tool:judge-against-rules` |
 | `legal-document-builder` | Terms of service, privacy policy, refund policy and waiver from a business's own facts | `tool:write-legal-documents` |
 | `move-records-through-declared-states` | Which stage a deal, order or applicant is in and where it may move next | `tool:check-a-stage-move`, `tool:check-a-pipeline` |
 | `person-list` | Find people by any field; rank people by the points their activity earns | `tool:find-people`, `tool:rank-people-by-activity` |
@@ -34,6 +35,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `revenue-ledger` | Revenue, refunds, net revenue and recurring revenue from any provider's payment events | `tool:add-up-revenue` |
 | `traffic-attribution` | Tracked links, visitors and sales by where they came from, what ad spend brings back, and conversions prepared for the ad platforms | `tool:make-tracked-link`, `tool:break-down-visits-and-sales`, `tool:measure-ad-return`, `tool:prepare-ad-conversions` |
 | `unit-economics` | ARPU, gross margin, CAC, LTV, LTV:CAC and payback from one period's numbers | `tool:work-out-unit-economics` |
+| `where-a-person-stands` | Keeps whether a person agrees, disagrees or partly agrees with something made for them, in their own words, and reads it back with every earlier stand | `tool:keep-where-you-stand`, `tool:read-where-you-stand` |
 | `wikimedia-commons` | Searches Wikimedia Commons files, reads one file's license metadata, and checks whether its license allows reuse and what credit it needs | `tool:search-wikimedia-commons-files`, `tool:read-wikimedia-commons-file-metadata`, `tool:assess-wikimedia-commons-file-reuse` |
 | `words-as-picture-vector` | Words as the vector a picture model gives pictures that show them | `tool:words-as-picture-vector` |
 | `work-breakdown` | A body of work as a tree: how much is really finished, new items, proof of finished work | `tool:roll-up-work-completion`, `tool:add-work-item`, `tool:check-proof-of-finished-work` |
