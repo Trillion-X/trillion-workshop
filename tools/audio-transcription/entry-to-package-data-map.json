@@ -1,0 +1,12 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "audio-transcription",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "audio-transcription",
+      "source_path": "show/mount-audio-transcription.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}
