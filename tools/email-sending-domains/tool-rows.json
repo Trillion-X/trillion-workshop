@@ -1,0 +1,49 @@
+{
+  "kind": "package-set-records",
+  "record_set": "email-sending-domains-tool-rows",
+  "what_this_is": "The Workshop row for the email-sending-domains folder: which domains the person's email-sending account (Resend) may send from. The person's held key reaches the one process on a private pipe (credential_mounts fd 3); the tool reads only and sends no email.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-email-sending-domains",
+        "label": "List email sending domains",
+        "job": "See which domains my email-sending account can send from and whether each is verified",
+        "description": "Reads the domains of the person's connected email-sending account (Resend) with the key they connected, and answers each domain's name and status and how many there are. It never shows the key and sends no email.",
+        "status": "active",
+        "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
+        "output_schema": {
+          "type": "object",
+          "required": ["domains", "count"],
+          "properties": {
+            "domains": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name", "status"],
+                "properties": { "name": { "type": "string" }, "status": { "type": "string" } }
+              }
+            },
+            "count": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/email-sending-domains",
+          "stdout": "json",
+          "argv": ["node", "/opt/email-sending-domains/do-work/list-email-sending-domains.mjs"],
+          "files": {
+            "package_files": { "package": "email-sending-domains", "paths": ["do-work"], "at": "/opt/email-sending-domains" }
+          },
+          "credential_mounts": [{ "secret_name": "resend-api-key", "fd": 3 }]
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    }
+  ]
+}

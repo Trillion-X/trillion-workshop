@@ -24,6 +24,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `ask-questions-sort-answers-follow-up` | Makes quiz questions from text, checks answers against a form, scores answers and picks a segment | `tool:make-quiz-questions`, `tool:check-form-answers`, `tool:score-answers-and-pick-segment` |
 | `browse-public-page` | Reads a public web page: its title, words, links and card, refusing private addresses | `tool:read-public-web-page` |
 | `customer-follow-up` | Each customer's steps and each product's progress toward its customer target | `tool:add-a-customer`, `tool:record-a-customer-step`, `tool:set-a-customer-target`, `tool:see-where-each-customer-is` |
+| `email-sending-domains` | Which domains the person's email-sending account may send from and how each stands, with the key handed on a private pipe | `tool:list-email-sending-domains` |
 | `legal-document-builder` | Terms of service, privacy policy, refund policy and waiver from a business's own facts | `tool:write-legal-documents` |
 | `move-records-through-declared-states` | Which stage a deal, order or applicant is in and where it may move next | `tool:check-a-stage-move`, `tool:check-a-pipeline` |
 | `person-list` | Find people by any field; rank people by the points their activity earns | `tool:find-people`, `tool:rank-people-by-activity` |
@@ -33,7 +34,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `unit-economics` | ARPU, gross margin, CAC, LTV, LTV:CAC and payback from one period's numbers | `tool:work-out-unit-economics` |
 | `words-as-picture-vector` | Words as the vector a picture model gives pictures that show them | `tool:words-as-picture-vector` |
 | `work-breakdown` | A body of work as a tree: how much is really finished, new items, proof of finished work | `tool:roll-up-work-completion`, `tool:add-work-item`, `tool:check-proof-of-finished-work` |
-| `tools-from-github` | 14 open-source repositories (captions, transcription, background removal and more) that run on the person's own computer | `tool:github:*` |
+| `tools-from-github` | 20 open-source repositories (captions, transcription, background removal, 3D and video rendering and more) that run on the person's own computer | `tool:github:*` |
 
 ## Key Types / Functions
 
