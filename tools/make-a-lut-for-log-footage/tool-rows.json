@@ -1,0 +1,57 @@
+{
+  "kind": "package-set-records",
+  "record_set": "make-a-lut-for-log-footage-tool-rows",
+  "what_this_is": "The Workshop row for the make-a-lut-for-log-footage folder: a script the person's AI runs on the person's own computer that writes a .cube colour lookup table turning a camera's log footage into display colour, from a camera profile the person passes in.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-lut-for-log-footage",
+        "label": "Make a colour lookup table that fixes flat log footage from any camera (runs on your computer)",
+        "job": "Make a LUT file so my flat, grey-looking log camera footage looks like normal colour",
+        "description": "Writes a .cube 3D lookup table that maps a camera's log footage to display colour. The camera is not built in: the person passes a profile (a record of kind log-to-display-profile) holding the camera's log curve (a straight-line toe under a cut code, a log segment above it), its gamut matrix, luma weights, video range, the soft shoulder that rolls highlights off and the display gamma, with optional look settings (exposure, saturation, size, red and blue white-balance gains). The table expects the colours ffmpeg gives after it decodes limited-range video to full-range RGB, so it first undoes that expansion. Flags override the profile's settings. The same profile and settings always give the same file, byte for byte. Do not apply a table to footage from another camera or curve: it makes that footage washed out or blown out.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["profile", "output"],
+          "properties": {
+            "profile": {
+              "type": "string",
+              "description": "A JSON file holding a log-to-display-profile record, put where {profile} is in the command. The person's AI reads the person's own profile record for the camera and writes it to a file, or the person gives the numbers from the camera maker's published log curve."
+            },
+            "output": {
+              "type": "string",
+              "description": "The .cube file to write, put where {output} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"lut\", \"profile\", \"size\", \"entries\", \"exposure\", \"saturation\", \"red_gain\", \"blue_gain\"}} or {\"error\": \"what to change\"}. The .cube file is the answer."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U numpy"
+          ],
+          "run": "python3 tools/make-a-lut-for-log-footage/do-work/make_lut.py --profile {profile} --out {output}",
+          "needs": [
+            "python",
+            "numpy",
+            "a log-to-display-profile for the camera"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Find the camera's profile: read the person's records of kind log-to-display-profile through the records door and write the right one to a JSON file; if they have none, ask for the camera and build one from the maker's published log curve, then offer to keep it as a record. Check numpy is installed, install it with get_it if not, run `run`, and add any of --exposure N (1.0 as shot; raise it for dark footage), --saturation N (1.0 keeps colour), --size N (points per side) and --red-gain N and --blue-gain N (white balance) when the person asks for them. Read the last line: { result } names the file; { error } says what to change in the profile. Tell the person the path, the profile and settings used, and that the table is for footage of that camera and curve only: it goes in the editor's or ffmpeg's LUT step ahead of any look."
+        },
+        "maker": "maker:make-a-lut-for-log-footage",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Camera makers' published log curves and gamut matrices (the example profile's numbers are Sony's published S-Log3 and S-Gamut3.Cine); a rational fit of the ACES filmic curve for the shoulder"
+        }
+      }
+    }
+  ]
+}
