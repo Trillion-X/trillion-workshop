@@ -18,6 +18,18 @@ test('a rule with kinds applies only to items of a listed kind, and an item of n
   assert.equal(judge({ text: 'A zorblax.', kind: 'heading', rules: [rule] }).status, 'failed');
 });
 
+test('capital-after-stop: a list marker (digits or one letter, then . or )) or an abbreviation ends no sentence; a full stop before a small letter mid-sentence does', () => {
+  const judge = makeJudge([{ id: 'fixture-capital', check: 'capital-after-stop', says: 'A new sentence starts with a capital letter.' }]);
+  assert.deepEqual(judge(['1. why does the fixture fall?']), []);
+  assert.deepEqual(judge(['First line.\n2. why does it stop?']), []);
+  assert.deepEqual(judge(['b. close the fixture lid.']), []);
+  assert.deepEqual(judge(['First line.\nc. then the fixture rests.']), []);
+  assert.deepEqual(judge(['3) why does it stop?']), []);
+  assert.equal(judge(['It holds a. then it goes on.']).length, 1);   // a letter mid-sentence is no list marker
+  assert.deepEqual(judge(['Fixtures, e.g. this one, pass.']), []);
+  assert.equal(judge(['The fixture ends. then it goes on.']).length, 1);
+  assert.equal(judge(['Step 12. then a fixture.']).length, 1);   // a number inside a sentence is no list number
+});
 test('a required rule fails only when nothing matches, and allow still keeps a text out of it', () => {
   const rule = { id: 'fixture-form', pattern: '^How to ', flags: 'i', required: true, says: 'Use one of the accepted forms.', allow: ['(draft)'] };
   const judge = makeJudge([rule]);
