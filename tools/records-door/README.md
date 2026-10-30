@@ -64,4 +64,4 @@ A row asks for the door in its invoke, with one rights item per record kind:
 **Depends on:** nothing outside Node.
 
 **Depended on by:** `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`,
-`tools/print-here`, `tools/connected-drives` (their rows pack this folder, and their tests use `test/run-row.mjs`).
+`tools/print-here`, `tools/connected-drives`, `tools/running-programs` (their rows pack this folder, and their tests use `test/run-row.mjs`).

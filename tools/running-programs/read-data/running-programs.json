@@ -1,0 +1,4 @@
+{
+  "_what": "Bounds of tool:list-running-programs (read-data/running-programs.mjs). `most`: how many programs one answer names, the largest memory first, when none is asked (`default`) and at most (`largest`); a list cut short says complete: false and its total.",
+  "most": { "default": 50, "largest": 2000 }
+}
