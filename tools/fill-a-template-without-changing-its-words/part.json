@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/wt_core.py", "read-data/wt_ops.py", "read-data/wt_render.py", "read-data/dimensions.json"]
+}

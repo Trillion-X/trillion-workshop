@@ -1,0 +1,980 @@
+{
+  "schema": "word-template-dimensions@1",
+  "_what": "Every dimension a template token can carry. A token is {id, unit, region, t?, dims: {dimension_id: value}, mark: KEEP | SLOT (+ slot, slot_type, slot_note)}. Adding a dimension = adding a row here. make_template.py fills a dimension when one of its 'measure' entries names a reader that has data for the piece; otherwise the dimension is listed as pending with the entry's method as the reason. A measure may set optional_if_reader_not_declared=true; pending is suppressed only when every measure is explicitly optional and each referenced reader is absent from the piece's sources. A declared but unavailable source remains pending (or fails when required); a readable source with no qualifying field values remains pending unless that source separately declares allow_empty=true. drift.py judges a dimension by its value_kind. A dimension or value kind drift.py does not know is reported, never dropped.",
+  "value_kinds": {
+    "_what": "A value kind is a comparator made from data: pair (how template and target values are lined up: sequence = difflib over the values, order = first with first, time = nearest in time within the dimension's tolerance_s) and test (equal after normalising, or distance with a metric under the dimension's drift.max). A new kind is a new row; a new metric is the only thing that needs code (wt_ops.METRICS).",
+    "text": {
+      "pair": "sequence",
+      "test": "equal",
+      "split": "words",
+      "what": "words; difflib on normalised words"
+    },
+    "category": {
+      "pair": "sequence",
+      "test": "equal",
+      "what": "one value from a list or a comma list; difflib on normalised values"
+    },
+    "number": {
+      "pair": "order",
+      "test": "distance",
+      "metric": "abs_or_rel",
+      "what": "a number with a unit; pass when |a-b| <= drift.max (or <= drift.rel x a)"
+    },
+    "event": {
+      "pair": "time",
+      "test": "equal_if",
+      "what": "a timed event; pass when a target event is within drift.tolerance_s (and has the same value when drift.match_value)"
+    },
+    "box": {
+      "pair": "order",
+      "test": "distance",
+      "metric": "one_minus_iou",
+      "what": "[x, y, w, h] as fractions of the canvas; pass when 1 - IoU <= drift.max"
+    },
+    "colour": {
+      "pair": "order",
+      "test": "distance",
+      "metric": "cie76",
+      "what": "#rrggbb; pass when CIE76 delta-E <= drift.max"
+    },
+    "vector": {
+      "pair": "order",
+      "test": "distance",
+      "metric": "euclidean",
+      "what": "a list of numbers (a taste or smell profile, an embedding); pass when euclidean distance <= drift.max"
+    }
+  },
+  "media": {
+    "_what": "The medium decides the units and the regions. Units are the pieces a person swipes, watches or reads one at a time; regions are places inside a unit.",
+    "video": {
+      "unit": "scene",
+      "what": "A timed stretch of picture with a voice, words on screen and captions.",
+      "regions": [
+        "speech",
+        "onscreen_text",
+        "captions"
+      ]
+    },
+    "carousel": {
+      "unit": "slide",
+      "regions": [
+        "headline",
+        "body",
+        "label",
+        "meta",
+        "chip",
+        "cta",
+        "image"
+      ]
+    },
+    "static": {
+      "unit": "slide",
+      "regions": [
+        "headline",
+        "body",
+        "label",
+        "chip",
+        "cta",
+        "image"
+      ]
+    },
+    "text-post": {
+      "unit": "post",
+      "regions": [
+        "paragraph",
+        "media",
+        "links"
+      ]
+    },
+    "thread": {
+      "unit": "post",
+      "regions": [
+        "paragraph",
+        "media",
+        "links"
+      ]
+    },
+    "article": {
+      "unit": "section",
+      "regions": [
+        "heading",
+        "paragraph",
+        "link",
+        "quote",
+        "image"
+      ]
+    },
+    "newsletter": {
+      "unit": "section",
+      "regions": [
+        "subject",
+        "heading",
+        "paragraph",
+        "link",
+        "quote",
+        "image"
+      ]
+    },
+    "thumbnail-title": {
+      "unit": "frame",
+      "regions": [
+        "title",
+        "thumbnail_text",
+        "face",
+        "colour",
+        "composition"
+      ]
+    },
+    "landing-page": {
+      "unit": "section",
+      "regions": [
+        "heading",
+        "copy",
+        "button",
+        "visual"
+      ]
+    },
+    "podcast": {
+      "unit": "segment",
+      "regions": [
+        "speech",
+        "sound"
+      ]
+    },
+    "audio": {
+      "unit": "segment",
+      "regions": [
+        "speech",
+        "sound"
+      ]
+    }
+  },
+  "readers": {
+    "_what": "Readers turn one measurement file into records. They are the only per-format code; a dimension picks a reader and a field.",
+    "transcript_words": {
+      "what": "A word-timed transcript JSON: one record per spoken word (text, speaker, duration), plus 'speech-summary' (wpm).",
+      "needs": [],
+      "detect": {
+        "suffix": [
+          ".json"
+        ],
+        "keys": [
+          "words"
+        ]
+      },
+      "default_medium": "video"
+    },
+    "segment_captions": {
+      "what": "Timestamped local caption text: [seconds] text, [seconds.fraction] text, or [minutes:seconds] text. Times identify caption segments, not individual word times; speaker identity is not inferred.",
+      "needs": [],
+      "detect": {
+        "suffix": [
+          ".txt"
+        ]
+      },
+      "default_medium": "video"
+    },
+    "json3_captions": {
+      "what": "Original JSON3 caption events. Reported text only; event times, display offsets, window metadata and annotations stay in provenance. Overlapping event text is not silently deduplicated; no word timing or speaker identity is inferred.",
+      "needs": [],
+      "detect": {
+        "suffix": [
+          ".json3"
+        ]
+      },
+      "default_medium": "video"
+    },
+    "tsv_rows": {
+      "what": "A table with a header row (.tsv): one record per row = one structural unit; every column is a field, plus duration. A row does not by itself prove one physical take or edit. Rows without an id column get ids `<id_prefix>-NN` in order.",
+      "needs": [],
+      "detect": {
+        "suffix": [
+          ".tsv"
+        ]
+      },
+      "default_medium": "video",
+      "id_prefix": "row"
+    },
+    "post_json": {
+      "what": "A post JSON as a public-post service returns it: paragraphs, links, mentions, hashtags, media, alt text, posting day and hour.",
+      "needs": [],
+      "detect": {
+        "suffix": [
+          ".json"
+        ],
+        "keys": [
+          "raw_text"
+        ]
+      },
+      "default_medium": "text-post"
+    },
+    "ocr_images": {
+      "what": "a folder of slide images: tesseract TSV per image; one record per text block (text, box, line height) and one unit record per slide (order, size).",
+      "needs": [
+        "tesseract"
+      ],
+      "detect": {
+        "dir_of": [
+          ".png",
+          ".jpg",
+          ".jpeg",
+          ".webp"
+        ]
+      },
+      "default_medium": "carousel"
+    },
+    "html_json_records": {
+      "what": "Authored records in an explicitly selected inert application/json script block in an HTML source. Records retain ids, fields and optional authored seconds; no scripts execute and no rendered visibility or spoken timing is inferred.",
+      "needs": []
+    }
+  },
+  "moment_spans": {
+    "_what": "A slot fill whose source is one of the person's recorded moments keeps where that moment plays ({clip, from, to, media} on the fill), so a filled format can be cut from the person's own recordings. A source is a moment when it cites a time range of a word-timed transcript (path@<from>-<to>s; the words spoken inside the range are what the value is checked against, read by transcript_words; the clip is the stem of the media file the transcript names under transcript_media_key), a time range of the recording itself (the file stem is the clip; its words cannot be read here, so the value is marked not checked) or one row of a TSV whose header holds tsv_columns (path:<line>). Any other source (a capability listing line, a URL, a commit) is not a moment and carries no span.",
+    "transcript_media_key": "source",
+    "tsv_columns": {
+      "clip": "clip",
+      "from": "start_s",
+      "to": "end_s",
+      "media": "original_path"
+    }
+  },
+  "slot_rules": {
+    "_what": "Automatic slot rules for dimensions with auto_slot_rules. README 'Slot rules' explains each. Explicit spec slots and spec keeps win over these.",
+    "auto": [
+      {
+        "id": "R1-number",
+        "type": "NUMBER",
+        "note": "a number the creator said or wrote",
+        "test": "has_digit_or_number_word"
+      },
+      {
+        "id": "R2-product",
+        "type": "PRODUCT",
+        "note": "the product's own name (spec product_names)",
+        "test": "product_phrase"
+      },
+      {
+        "id": "R4-name",
+        "type": "NAME",
+        "note": "a capitalised word inside a sentence (a name, place or title); every other occurrence of the same word follows",
+        "test": "capital_mid_sentence"
+      }
+    ],
+    "number_words": {
+      "en": [
+        "zero",
+        "one",
+        "two",
+        "three",
+        "four",
+        "five",
+        "six",
+        "seven",
+        "eight",
+        "nine",
+        "ten",
+        "eleven",
+        "twelve",
+        "fifteen",
+        "twenty",
+        "thirty",
+        "forty",
+        "fifty",
+        "hundred",
+        "thousand",
+        "million",
+        "billion",
+        "dozen",
+        "half"
+      ]
+    },
+    "function_words": {
+      "en": [
+        "i",
+        "i'm",
+        "i've",
+        "i'll",
+        "i'd",
+        "a",
+        "an",
+        "the",
+        "you",
+        "you'll",
+        "you're",
+        "we",
+        "we're",
+        "we've",
+        "it",
+        "it's",
+        "oh",
+        "so",
+        "and",
+        "but",
+        "or",
+        "like",
+        "this",
+        "that",
+        "what",
+        "how",
+        "do",
+        "check",
+        "thanks",
+        "bye",
+        "hey",
+        "okay",
+        "yes",
+        "no",
+        "in",
+        "on",
+        "at",
+        "for",
+        "to",
+        "of",
+        "my",
+        "our",
+        "your",
+        "he",
+        "she",
+        "they",
+        "his",
+        "her",
+        "their"
+      ]
+    }
+  },
+  "dimensions": [
+    {
+      "id": "speech.word",
+      "name": "spoken words",
+      "media": [
+        "video",
+        "podcast",
+        "audio"
+      ],
+      "region": "speech",
+      "value_kind": "text",
+      "auto_slot_rules": true,
+      "measure": [
+        {
+          "reader": "transcript_words",
+          "field": "text",
+          "token": "word",
+          "method": "word-timed transcript",
+          "tool": "a word-timed transcript of the audio"
+        },
+        {
+          "reader": "segment_captions",
+          "field": "text",
+          "token": "word",
+          "method": "timestamped caption segments (segment times only; no word timing or speaker attribution)"
+        },
+        {
+          "reader": "json3_captions",
+          "field": "text",
+          "token": "word",
+          "method": "reported JSON3 event text (display timestamps and offsets retained only as provenance)"
+        }
+      ],
+      "drift": {
+        "threshold": 1,
+        "judge": "every KEEP word survives; slot words are declared, sourced fills"
+      }
+    },
+    {
+      "id": "speech.speaker",
+      "name": "who speaks the word",
+      "media": [
+        "video",
+        "podcast",
+        "audio"
+      ],
+      "region": "speech",
+      "value_kind": "category",
+      "measure": [
+        {
+          "reader": "transcript_words",
+          "field": "speaker",
+          "token": "word",
+          "method": "diarisation in the transcript"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      },
+      "line_break_on_change": true
+    },
+    {
+      "id": "speech.word_duration",
+      "name": "how long each word is held",
+      "media": [
+        "video",
+        "podcast",
+        "audio"
+      ],
+      "region": "speech",
+      "value_kind": "number",
+      "unit": "s",
+      "measure": [
+        {
+          "reader": "transcript_words",
+          "field": "duration",
+          "token": "word",
+          "method": "word timings in the transcript"
+        }
+      ],
+      "drift": {
+        "threshold": 0.8,
+        "judge": "measured on the voiced render only",
+        "max": 0.15
+      }
+    },
+    {
+      "id": "voice.wpm",
+      "name": "speaking rate",
+      "media": [
+        "video",
+        "podcast",
+        "audio"
+      ],
+      "region": "speech",
+      "value_kind": "number",
+      "unit": "words/min",
+      "measure": [
+        {
+          "reader": "transcript_words",
+          "field": "wpm",
+          "token": "record",
+          "method": "words / spoken span"
+        }
+      ],
+      "drift": {
+        "rel": 0.1,
+        "threshold": 1
+      }
+    },
+    {
+      "id": "onscreen.word",
+      "name": "on-screen text",
+      "media": [
+        "video",
+        "carousel",
+        "static",
+        "thumbnail-title",
+        "landing-page"
+      ],
+      "region": "onscreen_text",
+      "value_kind": "text",
+      "auto_slot_rules": true,
+      "measure": [
+        {
+          "reader": "ocr_images",
+          "field": "text",
+          "token": "word",
+          "method": "tesseract TSV per image",
+          "tool": "tesseract <image> stdout --psm 3 tsv"
+        },
+        {
+          "method": "Authored text of the caption cues in an editor project; project source text is not pixel-level render verification"
+        },
+        {
+          "reader": "html_json_records",
+          "field": "text",
+          "token": "word",
+          "method": "Authored source text from a declared inert record block, consumed by the view from the same data; source exposure intervals are not OCR or spoken-word measurements"
+        },
+        {
+          "reader": null,
+          "method": "OCR on frames: extract frames at >= 1920 px wide, 2 fps (ffmpeg), tesseract TSV per frame, merge repeats"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "caption.card",
+      "name": "caption cards (timing and style)",
+      "media": [
+        "video"
+      ],
+      "region": "captions",
+      "value_kind": "event",
+      "measure": [
+        {
+          "method": "Authored caption cue: text, cue interval, format, language, style and cue settings; not exported pixel verification"
+        },
+        {
+          "reader": null,
+          "method": "For a rendered output, OCR the caption band on frames (see onscreen.word) and group words into cards with on/off times; editable source data does not prove export appearance"
+        }
+      ],
+      "drift": {
+        "tolerance_s": 0.1,
+        "match_value": true,
+        "threshold": 1
+      }
+    },
+    {
+      "id": "post.word",
+      "name": "post caption text",
+      "media": [
+        "text-post",
+        "thread",
+        "carousel",
+        "static",
+        "video"
+      ],
+      "region": "paragraph",
+      "value_kind": "text",
+      "auto_slot_rules": true,
+      "measure": [
+        {
+          "reader": "post_json",
+          "field": "text",
+          "token": "word",
+          "method": "post JSON text, blank lines kept as line breaks"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "article.word",
+      "name": "article, newsletter or page copy",
+      "media": [
+        "article",
+        "newsletter",
+        "landing-page"
+      ],
+      "region": "paragraph",
+      "value_kind": "text",
+      "auto_slot_rules": true,
+      "measure": [
+        {
+          "reader": null,
+          "method": "HTML or markdown to section/paragraph/word records (reader not built yet)"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "page.button",
+      "name": "buttons and calls to action",
+      "media": [
+        "landing-page",
+        "carousel",
+        "static"
+      ],
+      "region": "button",
+      "value_kind": "text",
+      "measure": [
+        {
+          "reader": null,
+          "method": "read buttons from the page DOM or the image"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "alt_text.word",
+      "name": "alt text",
+      "media": [
+        "text-post",
+        "thread",
+        "carousel",
+        "static",
+        "article",
+        "landing-page"
+      ],
+      "region": "media",
+      "value_kind": "text",
+      "measure": [
+        {
+          "reader": "post_json",
+          "field": "alt_text",
+          "token": "word",
+          "method": "media alt text in the post JSON"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "post.hashtag",
+      "name": "hashtags",
+      "media": [
+        "text-post",
+        "thread",
+        "carousel",
+        "static",
+        "video"
+      ],
+      "region": "links",
+      "value_kind": "category",
+      "measure": [
+        {
+          "reader": "post_json",
+          "field": "hashtag",
+          "token": "record",
+          "method": "post facets"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "post.mention",
+      "name": "mentions",
+      "media": [
+        "text-post",
+        "thread",
+        "carousel",
+        "static",
+        "video"
+      ],
+      "region": "links",
+      "value_kind": "category",
+      "measure": [
+        {
+          "reader": "post_json",
+          "field": "mention",
+          "token": "record",
+          "method": "post facets"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "post.link",
+      "name": "links",
+      "media": [
+        "text-post",
+        "thread",
+        "carousel",
+        "static",
+        "video",
+        "article",
+        "newsletter"
+      ],
+      "region": "links",
+      "value_kind": "category",
+      "measure": [
+        {
+          "reader": "post_json",
+          "field": "link",
+          "token": "record",
+          "method": "post facets (expanded URL)"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "post.media",
+      "name": "attached media (image or video slot)",
+      "media": [
+        "text-post",
+        "thread",
+        "carousel",
+        "static",
+        "video"
+      ],
+      "region": "media",
+      "value_kind": "category",
+      "measure": [
+        {
+          "reader": "post_json",
+          "field": "media",
+          "token": "record",
+          "method": "post media list: type, size, length"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "post.posted_day",
+      "name": "posting day (UTC)",
+      "media": [
+        "text-post",
+        "thread",
+        "carousel",
+        "static",
+        "video"
+      ],
+      "region": "post",
+      "value_kind": "category",
+      "measure": [
+        {
+          "reader": "post_json",
+          "field": "posted_day",
+          "token": "record",
+          "method": "created_at"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "post.posted_hour_utc",
+      "name": "posting hour (UTC)",
+      "media": [
+        "text-post",
+        "thread",
+        "carousel",
+        "static",
+        "video"
+      ],
+      "region": "post",
+      "value_kind": "number",
+      "unit": "h",
+      "measure": [
+        {
+          "reader": "post_json",
+          "field": "posted_hour_utc",
+          "token": "record",
+          "method": "created_at"
+        }
+      ],
+      "drift": {
+        "threshold": 1,
+        "max": 1
+      }
+    },
+    {
+      "id": "colour.text",
+      "name": "text colour",
+      "media": [
+        "video",
+        "carousel",
+        "static",
+        "thumbnail-title",
+        "landing-page"
+      ],
+      "region": "onscreen_text",
+      "value_kind": "colour",
+      "measure": [
+        {
+          "reader": null,
+          "method": "sample pixels inside each OCR word box (needs an image decoder)"
+        }
+      ],
+      "drift": {
+        "threshold": 1,
+        "max": 10
+      }
+    },
+    {
+      "id": "colour.background",
+      "name": "background colour",
+      "media": [
+        "video",
+        "carousel",
+        "static",
+        "thumbnail-title",
+        "landing-page"
+      ],
+      "region": "image",
+      "value_kind": "colour",
+      "measure": [
+        {
+          "reader": null,
+          "method": "median pixel colour of each unit outside text boxes"
+        }
+      ],
+      "drift": {
+        "threshold": 1,
+        "max": 15
+      }
+    },
+    {
+      "id": "layout.box",
+      "name": "layout box of a text block",
+      "media": [
+        "carousel",
+        "static",
+        "thumbnail-title",
+        "landing-page",
+        "video"
+      ],
+      "region": "onscreen_text",
+      "value_kind": "box",
+      "measure": [
+        {
+          "reader": "ocr_images",
+          "field": "box",
+          "token": "record",
+          "method": "tesseract block boxes / canvas size"
+        }
+      ],
+      "drift": {
+        "threshold": 1,
+        "max": 0.5
+      }
+    },
+    {
+      "id": "type.line_height_px",
+      "name": "type size (median word height at 1080 px wide)",
+      "media": [
+        "carousel",
+        "static",
+        "thumbnail-title",
+        "landing-page",
+        "video"
+      ],
+      "region": "onscreen_text",
+      "value_kind": "number",
+      "unit": "px@1080w",
+      "measure": [
+        {
+          "reader": "ocr_images",
+          "field": "line_height_px",
+          "token": "record",
+          "method": "median tesseract word height, scaled to 1080 px width"
+        }
+      ],
+      "drift": {
+        "rel": 0.2,
+        "threshold": 1
+      }
+    },
+    {
+      "id": "type.style",
+      "name": "type style (family, roman/italic, weight)",
+      "media": [
+        "carousel",
+        "static",
+        "thumbnail-title",
+        "landing-page",
+        "video"
+      ],
+      "region": "onscreen_text",
+      "value_kind": "category",
+      "measure": [
+        {
+          "reader": null,
+          "method": "read the image (spec annotation with its source); no font classifier yet"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "unit.order",
+      "name": "slide order",
+      "media": [
+        "carousel",
+        "static",
+        "thread"
+      ],
+      "region": "unit",
+      "value_kind": "number",
+      "measure": [
+        {
+          "reader": "ocr_images",
+          "field": "order",
+          "token": "record",
+          "method": "file order of the slide images"
+        }
+      ],
+      "drift": {
+        "threshold": 1,
+        "max": 0
+      }
+    },
+    {
+      "id": "media.size",
+      "name": "canvas size",
+      "media": [
+        "carousel",
+        "static",
+        "thumbnail-title"
+      ],
+      "region": "unit",
+      "value_kind": "category",
+      "measure": [
+        {
+          "reader": "ocr_images",
+          "field": "size",
+          "token": "record",
+          "method": "tesseract page box"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "image.slot",
+      "name": "image each unit carries",
+      "media": [
+        "carousel",
+        "static",
+        "thumbnail-title",
+        "article",
+        "landing-page",
+        "text-post"
+      ],
+      "region": "image",
+      "value_kind": "category",
+      "measure": [
+        {
+          "reader": null,
+          "method": "read the image (spec annotation with its source)"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      }
+    },
+    {
+      "id": "drift.status",
+      "name": "drift result for this token",
+      "media": [
+        "*"
+      ],
+      "region": "drift",
+      "value_kind": "category",
+      "measure": [
+        {
+          "reader": null,
+          "method": "written by drift.py (ops.drift) onto an annotated copy of the template"
+        }
+      ],
+      "drift": {
+        "threshold": 1
+      },
+      "written_by": "drift"
+    }
+  ],
+  "tokenizer": {
+    "_what": "Scripts written without spaces: each character is one token. Names are Unicode character-name prefixes.",
+    "per_char_scripts": [
+      "CJK UNIFIED IDEOGRAPH",
+      "CJK COMPATIBILITY IDEOGRAPH",
+      "HIRAGANA",
+      "KATAKANA",
+      "THAI",
+      "LAO",
+      "KHMER",
+      "MYANMAR",
+      "TIBETAN"
+    ],
+    "line_pause_s": 1.5,
+    "min_anchor_words": 2,
+    "anchor_context_words": 4
+  }
+}
