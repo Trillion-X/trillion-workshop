@@ -163,6 +163,13 @@
         "at": "/opt/where-a-person-stands"
        },
        {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
         "module": "@noble/hashes",
         "paths": [
          "LICENSE",
@@ -356,6 +363,13 @@
         "at": "/opt/where-a-person-stands"
        },
        {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
         "module": "@noble/hashes",
         "paths": [
          "LICENSE",
@@ -517,6 +531,13 @@
          "read-data"
         ],
         "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
        },
        {
         "module": "@noble/hashes",
