@@ -1,0 +1,145 @@
+{
+ "writer": "qwen2.5:14b-instruct",
+ "recorded": "2026-10-30",
+ "written": {
+  "goal_wants": {
+   "wants": [
+    {
+     "says": "The visitor understands the budgeting app's unique features and benefits.",
+     "properties": [
+      "comprehension",
+      "perceived value"
+     ]
+    },
+    {
+     "says": "The visitor feels the budgeting app is tailored to their personal financial situation.",
+     "properties": [
+      "self-relevance",
+      "perceived value"
+     ]
+    },
+    {
+     "says": "The visitor believes the budgeting app can help them achieve their financial goals.",
+     "properties": [
+      "trust",
+      "perceived value"
+     ]
+    },
+    {
+     "says": "The visitor is willing to try the budgeting app and sign up for a trial.",
+     "properties": [
+      "receptiveness to an offer",
+      "perceived effort"
+     ]
+    }
+   ]
+  },
+  "pick_mechanisms": {
+   "picks": [
+    {
+     "want": 0,
+     "mechanisms": [
+      "chunking",
+      "clutter removal",
+      "overview after detail"
+     ]
+    },
+    {
+     "want": 1,
+     "mechanisms": [
+      "embodiment"
+     ]
+    },
+    {
+     "want": 2,
+     "mechanisms": [
+      "evidence gap",
+      "sober authority",
+      "warmth"
+     ]
+    },
+    {
+     "want": 3,
+     "mechanisms": [
+      "clutter removal",
+      "graduated commitment"
+     ]
+    }
+   ]
+  },
+  "adapt_lines": {
+   "lines": [
+    {
+     "key": "fixture:design-system:bento",
+     "line": "Create a sales page layout with equal-sized blocks for each feature of the budgeting app, clearly highlighting the unique benefits.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:short-video:same-effort-mirror",
+     "line": "Produce a short video showing two identical financial scenarios, one with the budgeting app and one without, to demonstrate the app's impact on personal financial situations.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:short-video:no-invented-numbers",
+     "line": "Embed a video on the sales page that showcases real data from the budgeting app, stating 'no data' where applicable, to build trust in the app's accuracy.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:design-system:scheduling-clean",
+     "line": "Design a clean, uncluttered interface for the sales page that guides users through the sign-up process for a trial of the budgeting app.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:design-system:corporate",
+     "line": "Implement a corporate design style on the sales page to convey a sense of reliability and professionalism for the budgeting app.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:short-video:short-to-long-funnel",
+     "line": "Create a series of short videos that link to a longer, more detailed video explaining the benefits of the budgeting app, encouraging users to watch and sign up for a trial.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:camera:detail-then-reveal",
+     "line": "Use a crane shot in a video to show the detailed features of the budgeting app and then pull back to reveal how these features fit into the overall financial planning process.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:design-system:warm-assistant",
+     "line": "Apply a warm, inviting color scheme to the sales page to make the budgeting app feel approachable and user-friendly.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:design-system:bento + fixture:short-video:same-effort-mirror",
+     "line": "Integrate a Bento-style layout on the sales page and embed a video showing two identical financial scenarios, one with the budgeting app, to highlight the app's unique benefits and personal impact.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:design-system:bento + fixture:short-video:no-invented-numbers",
+     "line": "Use a Bento-style layout on the sales page to organize the app's features and embed a video showcasing real data from the budgeting app to build trust in its accuracy.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:short-video:no-invented-numbers + fixture:short-video:same-effort-mirror",
+     "line": "Embed two videos on the sales page: one showing real data from the budgeting app and another demonstrating the app's impact on personal financial situations with identical scenarios.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:design-system:corporate + fixture:design-system:scheduling-clean",
+     "line": "Design a corporate-style sales page with a clean, uncluttered interface to convey reliability and guide users through the sign-up process for a trial of the budgeting app.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:design-system:corporate + fixture:short-video:short-to-long-funnel",
+     "line": "Implement a corporate design style on the sales page and create a series of short videos linking to a detailed video explaining the benefits of the budgeting app, encouraging users to sign up for a trial.",
+     "ruled_out_by": ""
+    },
+    {
+     "key": "fixture:camera:detail-then-reveal + fixture:design-system:scheduling-clean",
+     "line": "Use a crane shot in a video to show the detailed features of the budgeting app and then pull back to reveal the overall financial planning process, while designing a clean, uncluttered interface for the sales page.",
+     "ruled_out_by": ""
+    }
+   ]
+  }
+ }
+}

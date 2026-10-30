@@ -1,0 +1,3 @@
+{
+  "public": ["do-work/cross.mjs", "do-work/say-why.mjs", "do-work/vocabulary.mjs", "do-work/meaning.mjs"]
+}

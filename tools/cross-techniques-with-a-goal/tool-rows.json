@@ -1,0 +1,103 @@
+{
+ "kind": "tool-rows",
+ "record_set": "cross-techniques-with-a-goal-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/cross-techniques-with-a-goal: describing why any technique works in words shared by every other technique, and crossing all of them with a goal in any medium.",
+ "records": [
+  {
+   "id": "package::cross-techniques-with-a-goal::tool::cross-techniques-with-a-goal",
+   "address": "package::cross-techniques-with-a-goal::tool::cross-techniques-with-a-goal",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:cross-techniques-with-a-goal",
+    "label": "Find the techniques from anywhere that would work for what you are making (runs on your computer)",
+    "status": "active",
+    "job": "Take what I am making (a sales page, a lesson, an app's first screens, a pitch) and find every technique I have kept, from any medium, whose reason for working serves it, which ones work better together, and exactly how to use each one here",
+    "description": "A writer model turns the goal into wants (what must happen in the mind of the person it is for, or in the system it runs on), each naming the properties of the shared vocabulary that must change. Every technique whose operates_on holds one of those properties is joined exactly, its mechanisms ranked by how many media they span, and the writer picks the mechanisms that serve each want. The answer is the techniques holding them, whatever medium each came from, spread over media. Pairs come from the rows' own fields: 'prepares' when one technique changes a property another needs, 'covers' when two serve different wants. The writer adds one concrete line per technique and pair for the goal's own medium, and drops any a constraint rules out (listed in ruled_out with the constraint). Terms the writer names that are not in the vocabulary are listed in unknown. Rows need the crossing fields that tool:say-why-a-technique-works gives them, and the vocabulary their terms come from. Uses a chat model the person names (any OpenAI-compatible server, such as Ollama on their computer).",
+    "input_schema": {
+     "type": "object",
+     "required": ["goal", "rows", "vocabulary", "models"],
+     "additionalProperties": false,
+     "properties": {
+      "goal": { "type": "string", "minLength": 3, "description": "What is being made or improved, in any medium, in plain words" },
+      "constraints": { "type": "array", "items": { "type": "string" }, "description": "Things the answer must respect (no testimonials yet, one screen only, no sound...)" },
+      "rows": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["id", "mechanism", "operates_on"], "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "description": { "type": "string" }, "source_url": { "type": "string" }, "mechanism": { "type": "array", "items": { "type": "string" } }, "operates_on": { "type": "array", "items": { "type": "string" } }, "needs": { "type": "array", "items": { "type": "object", "properties": { "says": { "type": "string" }, "property": { "type": ["string", "null"] } } } }, "produces": { "type": "array", "items": { "type": "string" } }, "from_medium": { "type": "string" } } }, "description": "The techniques, each with its crossing fields" },
+      "vocabulary": { "type": "object", "required": ["vocabularies"], "description": "The lexicon the rows' terms come from (tool:say-why-a-technique-works returns it)" },
+      "models": { "type": "object", "required": ["writing"], "properties": { "writing": { "type": "object", "required": ["url", "model"], "properties": { "url": { "type": "string" }, "model": { "type": "string" }, "key_env": { "type": "string" } } } }, "description": "The chat model: an OpenAI-compatible base url and model name" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["goal", "wants", "techniques", "pairs", "ruled_out", "unadapted", "unknown", "lines"],
+     "properties": {
+      "goal": { "type": "string" },
+      "wants": { "type": "array", "items": { "type": "object", "required": ["says", "properties"] } },
+      "unknown": { "type": "array", "items": { "type": "object", "required": ["vocabulary", "term"] } },
+      "unadapted": { "type": "array", "items": { "type": "string" } },
+      "techniques": { "type": "array", "items": { "type": "object", "required": ["id", "name", "from_medium", "mechanism", "operates_on", "serves", "adaptation"] } },
+      "pairs": { "type": "array", "items": { "type": "object", "required": ["first", "then", "how", "because", "adaptation"] } },
+      "ruled_out": { "type": "array", "items": { "type": "object", "required": ["key", "by"] } },
+      "lines": { "type": "array", "items": { "type": "string" } }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)", "ollama pull qwen2.5:14b-instruct"],
+     "run": "node tools/cross-techniques-with-a-goal/do-work/cross-techniques-with-a-goal.mjs < {input}",
+     "needs": ["node", "an OpenAI-compatible model server with a chat model (for example Ollama)"],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request (goal, constraints, the person's technique rows with their crossing fields, the vocabulary and the chat model) to a file, run `run` with that file as {input}, and read the last line: { result } or { error } saying what to change. Tell the person, for each technique, where it came from, why it works and its one line for their goal, then each pair and why the two compound. Rows without crossing fields get them from tool:say-why-a-technique-works first."
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:cross-techniques-with-a-goal",
+    "provenance": { "source": "Written for the N x N rule: every captured technique is kept by why it works, so it recombines with every other far beyond the medium it was found in" }
+   }
+  },
+  {
+   "id": "package::cross-techniques-with-a-goal::tool::say-why-a-technique-works",
+   "address": "package::cross-techniques-with-a-goal::tool::say-why-a-technique-works",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:say-why-a-technique-works",
+    "label": "Say why each technique works, in words every other technique shares (runs on your computer)",
+    "status": "active",
+    "job": "Describe each technique I kept by why it works, what it changes, what it needs and what it produces, in shared words that let it combine with every other technique whatever medium it came from",
+    "description": "For each technique row, a writer model proposes its mechanism (why it works, never naming a medium), the properties it changes (operates_on), its needs and what it produces, and the medium it came from, shown the nearest existing terms so it reuses them. Every proposed term then goes through the vocabulary's admission rule: the same words, or a term at least reuse_at close in meaning, is the same term (kept as an alias); a term below new_below is new; in between the writer judges. Each need is tagged with its closest property so one technique's change joins another's need. Returns the rows' fields with the writer's own proposal, the vocabulary to keep for the next call, what merged into what, and any row not read. Without a vocabulary it starts one from the measured lines.",
+    "input_schema": {
+     "type": "object",
+     "required": ["rows", "models"],
+     "additionalProperties": false,
+     "properties": {
+      "rows": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["id"] }, "description": "Technique rows in any shape, each with an id and its own words (name, kind, description...)" },
+      "vocabulary": { "type": "object", "required": ["meaning", "vocabularies"], "description": "The vocabulary returned by the last call; omit to start one" },
+      "models": { "type": "object", "required": ["writing", "meaning"], "properties": { "writing": { "type": "object", "required": ["url", "model"] }, "meaning": { "type": "object", "required": ["url", "model", "dims", "forms"] } } }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["rows", "vocabulary", "admitted", "unread"],
+     "properties": {
+      "rows": { "type": "array", "items": { "type": "object", "required": ["id", "mechanism", "operates_on", "needs", "produces", "from_medium", "proposed"] } },
+      "vocabulary": { "type": "object", "required": ["meaning", "vocabularies"] },
+      "admitted": { "type": "array", "items": { "type": "object", "required": ["how", "vocabulary", "row"] } },
+      "unread": { "type": "array", "items": { "type": "object", "required": ["id", "why"] } }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)", "ollama pull qwen2.5:14b-instruct", "ollama pull embeddinggemma"],
+     "run": "node tools/cross-techniques-with-a-goal/do-work/say-why-a-technique-works.mjs < {input}",
+     "needs": ["node", "an OpenAI-compatible model server with a chat model and an embedding model (for example Ollama)"],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request (the new technique rows, the person's current vocabulary, the two models) to a file, run `run` with that file as {input}, and read the last line. Save each returned row's fields onto the person's technique record (columns mechanism, operates_on, needs, produces, from_medium, proposed) and save the returned vocabulary in place of the old one. For a whole library of row files, use do-work/say-why-for-files.mjs (README)."
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:cross-techniques-with-a-goal",
+    "provenance": { "source": "Written for the N x N rule; the admission lines were measured with embeddinggemma over hand-labelled term pairs (do-work/reuse-line-pairs.json)" }
+   }
+  }
+ ]
+}
