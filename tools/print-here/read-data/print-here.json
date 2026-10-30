@@ -1,0 +1,21 @@
+{
+  "_what": "Printing on the person's own printers from their Mac (read-data/print-here.mjs: `printers` and `print`). A file is read from the person's files by its name or identity, through the local door with the run's own capability, and handed to the Mac's print system on standard input, so nothing is written to a folder first. `commands` are the Mac's own print commands with their arguments: `list` reads the printers and the default, `print` sends one job, where {printer}, {copies} and {title} are filled from the input. `options` maps each input field a person may give to the print system's own option name (paper size, fit to page, two-sided, colour); an option whose value was not given is left out. `files` is the door address of the person's files and the operations a read uses; `read_bytes` is how much one read asks for. `most_bytes` is the largest file sent. A new option is a row.",
+  "commands": {
+    "list": ["/usr/bin/lpstat", "-p", "-d"],
+    "print": ["/usr/bin/lp", "-d", "{printer}", "-n", "{copies}", "-t", "{title}"]
+  },
+  "options": { "paper": "media", "fit": "fit-to-page", "sides": "sides", "color": "print-color-mode", "orientation": "orientation-requested" },
+  "files": { "find": "find_file", "read": "read_file" },
+  "read_bytes": 262144,
+  "most_bytes": 100000000,
+  "default_title": "Print job",
+  "words": {
+    "printed": "Sent {title} to {printer} ({copies} copy).",
+    "no_printer": "This Mac has no printer set up. Add one in System Settings > Printers & Scanners, or use a print shop.",
+    "unknown_printer": "This Mac has no printer named {printer}. Its printers: {printers}.",
+    "no_file": "Say which file to print: its name in your files or its identity.",
+    "which_printer": "Say which printer to use: this Mac has no default printer. Its printers: {printers}.",
+    "too_big": "{title} is {mb} MB, larger than this Mac sends to a printer ({most} MB). Use a print shop.",
+    "not_read": "Could not read {file} from your files: {error}"
+  }
+}
