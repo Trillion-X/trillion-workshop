@@ -1,0 +1,54 @@
+{
+  "kind": "package-set-records",
+  "record_set": "file-spoken-moments-into-topic-buckets-tool-rows",
+  "what_this_is": "The Workshop row for the file-spoken-moments-into-topic-buckets folder: a script the person's AI runs on the person's own computer to cut word-timed transcripts into moments and file each moment under topic buckets with a relevance from 0 to 1, using a local Ollama model.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:file-spoken-moments-into-topic-buckets",
+        "label": "Sort what I said in my recordings into topics and rate how usable each moment is (runs on your computer)",
+        "job": "Go through my transcribed recordings, cut them into moments, file each moment under topics, and tell me which moments stand alone as a usable idea, story or lesson",
+        "description": "Cuts each transcript (a <name>.words.json with segments) into moments (a new one starts after a silence of 4 seconds or past 120 words), then asks a model that runs on the person's own computer (Ollama) which topic buckets each moment belongs to (0 to 3) and how much it stands alone as a usable spoken idea, claim, story or lesson (0 to 1: camera setup, filler and half sentences score near 0, a complete quotable idea 0.6 to 1). The model judges each moment only from its own words. The buckets come from a vocabulary file that starts from a short seed and grows as the model proposes new buckets, so the person can edit it. A moment the model leaves out of its answer is asked about again alone. The tool writes the moments, their buckets and relevance back into each transcript (or to a separate file with --dry-out), can tag a long file of moments one batch at a time and continue after a stop, and reports how many moments each bucket holds and how many are usable. Nothing leaves the computer, nothing is paid for and no key is needed.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The folder of <name>.words.json transcripts on the person's computer (the transcribe-recordings-and-repair-whisper-loops tool writes them), put where {input} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line each step prints: {\"result\": ...}. tag: {clips: [{clip, moments}], moments_tagged, vocabulary, buckets_in_vocabulary}. tag-moments: {moments_tagged, already_tagged, tagged, vocabulary}. report: {moments, untagged, bands, per_bucket: [{bucket, moments, description}], buckets_in_vocabulary}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "brew install ollama",
+            "ollama pull qwen2.5:14b-instruct"
+          ],
+          "run": "python3 trillion-workshop/tools/file-spoken-moments-into-topic-buckets/do-work/bucket_moments.py tag --transcripts {input}",
+          "needs": [
+            "python",
+            "ollama running on this computer",
+            "the model files: qwen2.5:14b-instruct (about 9 GB, pulled once with ollama pull); --model names another one that is pulled"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check that Ollama is running and the model is pulled (get_it has the commands), then run `run` with their transcripts folder in place of {input}. It writes each moment, its buckets and its relevance into the transcript and keeps the vocabulary in buckets.json in that folder. Then run the same script with `report --transcripts {input}` and tell the person how many moments there are, how many are usable (relevance 0.5 or more), and which buckets hold the most, with each bucket's description. The vocabulary is theirs to edit: say what the new buckets the model proposed are, so they can rename or remove any, then rerun on a copy to see the effect (transcripts that already hold moments are skipped; --dry-out FILE tags again and writes only to FILE). For a long file of moments, one JSON per line with an id and text, use `tag-moments --moments FILE --tagged OUT.jsonl`: it appends as each batch finishes and continues where it stopped. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:file-spoken-moments-into-topic-buckets",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Written for filing hours of raw spoken recordings by topic so the usable moments can be found. Asks a local model through Ollama (MIT, https://github.com/ollama/ollama)."
+        }
+      }
+    }
+  ]
+}
