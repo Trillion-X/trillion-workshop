@@ -47,12 +47,14 @@ test('HTML in the metadata becomes plain text in the credit', () => {
   assert.ok(!answer.credit.text.includes('<'));
 });
 
-test('the row runs the command with the input as its argument and answers on the last line', () => {
+test('the row runs the command with the input as its argument, and its sample run gives what its verify says', () => {
   const row = JSON.parse(readFileSync(resolve(folder, 'records.json'), 'utf8')).things.map(thing => thing.payload)
     .find(payload => payload.id === 'tool:assess-wikimedia-commons-file-reuse');
   const sample = row.verify.find(item => item.kind === 'sample-run');
   const argv = row.invoke.argv.map(item => (typeof item === 'string' ? item : JSON.stringify(sample.input)));
   const ran = spawnSync(process.execPath, argv.slice(1), { cwd: folder, encoding: 'utf8' });
   assert.equal(ran.status, 0, ran.stderr);
-  assert.equal(JSON.parse(ran.stdout.trim().split('\n').at(-1)).result.eligible_for_selection, true);
+  const answer = JSON.parse(ran.stdout.trim().split('\n').at(-1));
+  const picked = sample.output_selector.slice(1).match(/[^.[\]]+/g).reduce((value, key) => value?.[key], answer);
+  assert.ok(JSON.stringify(picked).includes(sample.contains), `${sample.output_selector} contains ${sample.contains}`);
 });

@@ -138,6 +138,5 @@ export function assessCommonsFileForReuse(input) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   let source = process.argv[2] ?? '';
   if (!source) for await (const chunk of process.stdin) source += chunk;
-  const result = assessCommonsFileForReuse(JSON.parse(source));
-  process.stdout.write(`${JSON.stringify({ result })}\n`);
+  process.stdout.write(`${JSON.stringify(assessCommonsFileForReuse(JSON.parse(source)))}\n`);
 }
