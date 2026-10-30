@@ -53,9 +53,13 @@ test('two deterministic recordings of the same steps give the same demo: same le
   } finally { for (const folder of folders) rmSync(folder, { recursive: true, force: true }); }
 });
 
+// The page's timer runs in real time while the page loads, and a busy machine runs those ticks late; a tick already
+// overdue when the clock pauses runs at the first virtual moment, not at its past due time. So time is measured with
+// Date.now() read while paused, and the spacing of ticks is checked only inside the measured virtual second, after the
+// first 100 ms has let every overdue tick run. A tick the real clock ran late is never part of a measurement.
 test('the page\'s timers and Date.now() move by exactly the virtual time, and a frame is taken for every grid second inside it', { timeout: 120000 }, async () => {
-  const page = '<!doctype html><title>t</title><div id="out"></div><script>const start = Date.now(); const log = []; let ticks = 0;'
-    + 'setInterval(() => { ticks += 1; document.getElementById("out").textContent = ticks + ":" + (Date.now() - start); }, 100);</script>';
+  const page = '<!doctype html><title>t</title><script>const start = Date.now(); const ticks = [];'
+    + 'setInterval(() => { ticks.push(Date.now() - start); }, 100);</script>';
   await withServer(page, async (url) => {
     const browser = await openBrowser(chromium.executablePath(), { width: 320, height: 180, switches: virtualClockSwitches });
     try {
@@ -67,16 +71,19 @@ test('the page\'s timers and Date.now() move by exactly the virtual time, and a 
       const taken = [];
       const clock = createVirtualClock({ browser, fps: 10, capture: async (t, index) => { taken.push([index, t]); } });
       await clock.start();
-      const read = async () => (await browser.send('Runtime.evaluate', { expression: 'document.getElementById("out").textContent', returnByValue: true })).result.value;
+      const read = async (expression) => (await browser.send('Runtime.evaluate', { expression, returnByValue: true })).result.value;
       await clock.sleep(100);
-      const [ticksBefore, elapsedBefore] = (await read()).split(':').map(Number);
+      const ticksBefore = await read('ticks.length');
+      const nowBefore = await read('Date.now()');
       await new Promise((done) => setTimeout(done, 400));
-      assert.equal(await read(), `${ticksBefore}:${elapsedBefore}`, 'paused: real time passing moves nothing');
+      assert.deepEqual([await read('ticks.length'), await read('Date.now()')], [ticksBefore, nowBefore], 'paused: real time passing moves nothing');
       await clock.sleep(1000);
       assert.equal(clock.now(), 1.1);
-      const [ticksAfter, elapsedAfter] = (await read()).split(':').map(Number);
-      assert.equal(ticksAfter - ticksBefore, 10, 'ten timer ticks in one virtual second');
-      assert.equal(elapsedAfter - elapsedBefore, 1000, 'Date.now moved by exactly 1000 ms');
+      assert.equal(await read('Date.now()') - nowBefore, 1000, 'Date.now moved by exactly 1000 ms');
+      const ticks = await read('ticks');
+      assert.equal(ticks.length - ticksBefore, 10, 'ten timer ticks in one virtual second');
+      const inTheSecond = ticks.slice(ticksBefore);
+      assert.deepEqual(inTheSecond.slice(1).map((at, index) => at - inTheSecond[index]), Array(9).fill(100), 'each tick in the virtual second is exactly 100 ms after the one before');
       assert.deepEqual(taken, Array.from({ length: 12 }, (_, index) => [index, index / 10]), 'a frame at 0, 0.1 ... 1.1');
       await clock.sleep(50);
       assert.equal(clock.now(), 1.15);
