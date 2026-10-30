@@ -1,0 +1,5 @@
+{
+  "_what": "Bounds of the drive tools (read-data/drives.mjs). `icon`: the square sizes in pixels a drive icon may be drawn at, and the size when none is asked. `kinds`: one look at what is on a drive reads at most `most_files` files for at most `most_ms` milliseconds, inside the engine's time for one run; a drive larger than that is answered as far as it was read, with `complete: false`. `largest_kept` is how many of the largest files are named.",
+  "icon": { "smallest": 32, "largest": 512, "default": 256 },
+  "kinds": { "most_files": 500000, "most_ms": 90000, "largest_kept": 10 }
+}

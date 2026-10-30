@@ -1,0 +1,469 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-connected-drives",
+        "label": "Drives on my computers",
+        "job": "List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected",
+        "description": "Runs on the person's computer with the drives they granted it to see. Returns devices: each with name, mount, size_bytes, free_bytes, kind, internal, ejectable and state.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "devices"
+          ],
+          "properties": {
+            "devices": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "see-connected-drives"
+          ],
+          "workdir": "/opt/connected-drives",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/connected-drives/read-data/drives.mjs",
+            "listConnectedDrives"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "connected-drives",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/connected-drives"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:connected-drives",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-a-drive-folder",
+        "label": "Look inside a folder on a drive",
+        "job": "List the files and folders in one folder on a drive connected to this person's computer, a page at a time",
+        "description": "Runs on the person's computer. hidden \"1\" includes hidden files; offset and limit page through a long folder. Returns path, name, parent, mount, entries (name, path, kind, file_kind, bytes, modified_at), total and has_more.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "A full path on a connected drive, like /Volumes/Drive/DCIM"
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            },
+            "hidden": {
+              "type": "string",
+              "enum": [
+                "1"
+              ],
+              "description": "\"1\" to include hidden files"
+            }
+          },
+          "required": [
+            "path"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "entries"
+          ],
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "entries": {
+              "type": "array"
+            },
+            "total": {
+              "type": "integer"
+            },
+            "has_more": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "see-connected-drives"
+          ],
+          "workdir": "/opt/connected-drives",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/connected-drives/read-data/drives.mjs",
+            "listDriveFolder"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "connected-drives",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/connected-drives"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:connected-drives",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:name-what-holds-a-drive",
+        "label": "What is using a drive",
+        "job": "Name the programs on this person's computer that are using one drive right now, which would stop it from ejecting",
+        "description": "Runs on the person's computer. Returns mount and processes (each pid and name): the programs with files open on that drive.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mount": {
+              "type": "string",
+              "description": "Where the drive is mounted on the computer, as tool:list-connected-drives lists it, like /Volumes/Drive"
+            }
+          },
+          "required": [
+            "mount"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "mount",
+            "processes"
+          ],
+          "properties": {
+            "mount": {
+              "type": "string"
+            },
+            "processes": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "see-connected-drives"
+          ],
+          "workdir": "/opt/connected-drives",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/connected-drives/read-data/drives.mjs",
+            "nameWhatHoldsADrive"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "connected-drives",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/connected-drives"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "maker": "maker:connected-drives",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-what-is-on-a-drive",
+        "label": "What is on a drive",
+        "job": "Tell what is on one drive connected to this person's computer by kind of file (videos, pictures, sound, documents), with how many of each and how much space they take",
+        "description": "Runs on the person's computer. Reads the drive once, inside one run's time; a drive with more files than that is answered as far as it was read (complete false). Returns mount, files, bytes, complete, kinds (kind, label, files, bytes) and largest (path, bytes).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mount": {
+              "type": "string",
+              "description": "Where the drive is mounted on the computer, as tool:list-connected-drives lists it, like /Volumes/Drive"
+            }
+          },
+          "required": [
+            "mount"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "mount",
+            "files",
+            "bytes",
+            "complete",
+            "kinds"
+          ],
+          "properties": {
+            "mount": {
+              "type": "string"
+            },
+            "files": {
+              "type": "integer"
+            },
+            "bytes": {
+              "type": "integer"
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "kinds": {
+              "type": "array"
+            },
+            "largest": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "see-connected-drives"
+          ],
+          "workdir": "/opt/connected-drives",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/connected-drives/read-data/drives.mjs",
+            "seeWhatIsOnADrive"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "connected-drives",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/connected-drives"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "maker": "maker:connected-drives",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:get-a-drive-icon",
+        "label": "A drive's icon",
+        "job": "Get the icon Finder shows for one drive connected to this person's computer, as a PNG picture",
+        "description": "Runs on the person's computer. size is the square size in pixels, 32 to 512 (256 when left out). Returns mount, media_type image/png and base64.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mount": {
+              "type": "string",
+              "description": "Where the drive is mounted on the computer, as tool:list-connected-drives lists it, like /Volumes/Drive"
+            },
+            "size": {
+              "type": "integer",
+              "minimum": 32,
+              "maximum": 512,
+              "description": "The icon's width in pixels"
+            }
+          },
+          "required": [
+            "mount"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "mount",
+            "media_type",
+            "base64"
+          ],
+          "properties": {
+            "mount": {
+              "type": "string"
+            },
+            "media_type": {
+              "type": "string"
+            },
+            "base64": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "see-connected-drives"
+          ],
+          "workdir": "/opt/connected-drives",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/connected-drives/read-data/drives.mjs",
+            "getADriveIcon"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "connected-drives",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/connected-drives"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:connected-drives",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    }
+  ]
+}
