@@ -246,99 +246,140 @@
     "id": "tool:read-where-you-stand",
     "label": "Read where you stand on things",
     "status": "active",
-    "job": "See whether a person agrees, disagrees or partly agrees with each thing made for them, in their own words, with every time they changed their mind",
-    "description": "Give records: the versions of the person's stance records (stance:<kind>:<identity>) as their records keep them, in any order, and optionally artifact_ref and kind for one thing. Returns stances: for each thing its stand now (the newest version), said, why in the person's own words, by, at, and earlier, every stand before it, oldest first; and choices, the stands a person can take. A thing with no stand, or whose stand was taken back, reads stance null: silence is not agreement.",
+    "job": "See whether a person agrees, disagrees or partly agrees with one thing made for them, in their own words, with every time they changed their mind",
+    "description": "Two steps. First page records:history at @own-records for the thing's stance record (id stance:<kind>:<identity>, limit up to 100, before_version from next) until next is null; this tool cannot read the person's records itself. Then give the versions of every page together and next from the last page, exactly as records:history returns them. Returns stand: its stand now (the newest version), said, why in the person's own words, by, at, version, earlier (every version before it, oldest first, a tombstone as deleted) and complete (false while next is not null: earlier stands not yet read are unknown); and choices, the stands a person can take. No version, a tombstone or a stand taken back reads stance null with taken_back: silence is not agreement.",
     "input_schema": {
      "type": "object",
      "required": [
-      "records"
+      "versions",
+      "next"
      ],
      "additionalProperties": false,
      "properties": {
-      "records": {
+      "versions": {
        "type": "array",
        "items": {
-        "type": "object"
+        "type": "object",
+        "required": [
+         "version",
+         "value",
+         "deleted",
+         "at"
+        ],
+        "properties": {
+         "version": {
+          "type": "integer",
+          "minimum": 1
+         },
+         "value": {
+          "type": [
+           "object",
+           "null"
+          ],
+          "description": "The stance record at that version; null for a tombstone"
+         },
+         "deleted": {
+          "type": "boolean",
+          "description": "True for a tombstone: the record was removed at that version"
+         },
+         "at": {
+          "type": "string",
+          "description": "When that version was written (ISO)"
+         }
+        }
        },
-       "description": "The versions of the stance records, each the record value or { value }"
+       "description": "The versions records:history returned, from every page read, in any order"
       },
-      "artifact_ref": {
-       "type": "string",
-       "pattern": "^(file:)?1f:[0-9a-f]{64}$",
-       "description": "Optional: only the stand on this thing"
-      },
-      "kind": {
-       "type": "string",
-       "description": "Optional: only stands on things of this kind"
+      "next": {
+       "type": [
+        "integer",
+        "null"
+       ],
+       "description": "next from the last page read; null when the oldest version was read"
       }
      }
     },
     "output_schema": {
      "type": "object",
      "required": [
-      "stances",
+      "stand",
       "choices"
      ],
      "properties": {
-      "stances": {
-       "type": "array",
-       "items": {
-        "type": "object",
-        "required": [
-         "artifact",
-         "stance",
-         "why",
-         "earlier"
-        ],
-        "properties": {
-         "id": {
-          "type": "string"
-         },
-         "kind": {
-          "type": [
-           "string",
-           "null"
-          ]
-         },
-         "artifact": {
-          "type": "string"
-         },
-         "stance": {
-          "type": [
-           "string",
-           "null"
-          ]
-         },
-         "said": {
-          "type": [
-           "string",
-           "null"
-          ]
-         },
-         "why": {
-          "type": [
-           "string",
-           "null"
-          ]
-         },
-         "by": {
-          "type": [
-           "string",
-           "null"
-          ]
-         },
-         "at": {
-          "type": [
-           "string",
-           "null"
-          ]
-         },
-         "earlier": {
-          "type": "array",
-          "items": {
-           "type": "object"
-          }
+      "stand": {
+       "type": "object",
+       "required": [
+        "stance",
+        "why",
+        "earlier",
+        "complete"
+       ],
+       "properties": {
+        "id": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "kind": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "artifact": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "stance": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "said": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "why": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "by": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "at": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "version": {
+         "type": [
+          "integer",
+          "null"
+         ]
+        },
+        "taken_back": {
+         "type": "boolean"
+        },
+        "earlier": {
+         "type": "array",
+         "items": {
+          "type": "object"
          }
+        },
+        "complete": {
+         "type": "boolean"
         }
        }
       },
@@ -416,32 +457,45 @@
      {
       "kind": "sample-run",
       "input": {
-       "records": [
+       "versions": [
         {
-         "type": "stance",
-         "id": "stance:title:1f:0000000000000000000000000000000000000000000000000000000000000001",
-         "artifact": "1f:0000000000000000000000000000000000000000000000000000000000000001",
-         "stance": "disagree",
-         "said": "You disagree with this.",
-         "why": "reads as generic",
-         "by": "person",
-         "at": "2026-01-01T13:00:00Z",
-         "kind": "title"
+         "version": 2,
+         "value": {
+          "type": "stance",
+          "id": "stance:title:1f:0000000000000000000000000000000000000000000000000000000000000001",
+          "kind": "title",
+          "artifact": "1f:0000000000000000000000000000000000000000000000000000000000000001",
+          "text": "Start here",
+          "stance": "disagree",
+          "said": "You disagree with this.",
+          "why": "reads as generic",
+          "by": "person",
+          "at": "2026-01-01T13:00:00.000Z"
+         },
+         "deleted": false,
+         "at": "2026-01-01T13:00:00.000Z"
         },
         {
-         "type": "stance",
-         "id": "stance:title:1f:0000000000000000000000000000000000000000000000000000000000000001",
-         "artifact": "1f:0000000000000000000000000000000000000000000000000000000000000001",
-         "stance": "agree",
-         "said": "You agree with this.",
-         "why": "good",
-         "by": "person",
-         "at": "2026-01-01T11:00:00Z",
-         "kind": "title"
+         "version": 1,
+         "value": {
+          "type": "stance",
+          "id": "stance:title:1f:0000000000000000000000000000000000000000000000000000000000000001",
+          "kind": "title",
+          "artifact": "1f:0000000000000000000000000000000000000000000000000000000000000001",
+          "text": "Start here",
+          "stance": "agree",
+          "said": "You agree with this.",
+          "why": "good",
+          "by": "person",
+          "at": "2026-01-01T11:00:00.000Z"
+         },
+         "deleted": false,
+         "at": "2026-01-01T11:00:00.000Z"
         }
-       ]
+       ],
+       "next": null
       },
-      "output_selector": "$.stances[0].why",
+      "output_selector": "$.stand.why",
       "contains": "reads as generic"
      }
     ]

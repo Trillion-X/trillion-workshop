@@ -14,7 +14,7 @@ This is taken from the decision engine's record-stance owner: the stands, the pe
 | `do-work/artifact-ref.mjs` | The one identity of a judged thing: `foldWith` (the DATA fold), `textRef`, `bytesRef`, `viewRef`, `artifactRef`. |
 | `do-work/where-a-person-stands.mjs` | Builds the record to keep, reads stands back from versions, and plans a reload. Its header holds the invariants. |
 | `do-work/keep-where-you-stand.mjs` | `tool:keep-where-you-stand`: the stance record to keep, or `{ error }` for a stand that is not the person's or a thing it cannot identify. |
-| `do-work/read-where-you-stand.mjs` | `tool:read-where-you-stand`: each thing's stand now, its why and its earlier stands. |
+| `do-work/read-where-you-stand.mjs` | `tool:read-where-you-stand`: one thing's stand now, its why and its earlier stands, from the history the caller read (it reads no records itself). |
 | `do-work/plan-stance-reload.mjs` | `tool:plan-a-stance-reload`: the versions to write and a summary (by kind, refs changed, fold collisions). It writes nothing. |
 | `part.json` | `do-work/where-a-person-stands.mjs` and `do-work/artifact-ref.mjs` are public. |
 | `tool-rows.json` | The Workshop rows Trillion reads for this folder: `tool:keep-where-you-stand` (with `keeps_records`), `tool:read-where-you-stand` and `tool:plan-a-stance-reload`. Each packs `@noble/hashes` (BLAKE3) into the container. |
@@ -29,9 +29,18 @@ This is taken from the decision engine's record-stance owner: the stands, the pe
 | `textRef` / `bytesRef` / `viewRef` | `(text, fold)` / `(bytes)` / `(json) -> "1f:<hex>"` | BLAKE3-256 of the folded text's UTF-8, of the bytes, or of `JSON.stringify(view)`. |
 | `artifactRef` | `({ text?, contains?, view? }, fold) -> "1f:<hex>"` | A view by its bytes, otherwise the text or part folded. |
 | `stanceRecord` | `({ kind, artifact_ref \| text \| contains \| view, fold?, stance, why?, answered_by: "person", by?, at? }) -> record` | The record to keep. Refuses anything but the person's own stand, a name instead of an identity, and text without a fold. |
-| `standsFrom` | `(versions, { artifact_ref?, kind? }) -> [{ id, kind, artifact, ..., stance, said, why, by, at, earlier }]` | Versions in any order, as values or `{ value }` / `{ payload }`. The newest by `at` is the stand, and every older one is in `earlier`, oldest first. A thing with no record reads `stance: null`. |
+| `standFrom` | `({ versions, next }) -> { id, kind, artifact, ..., stance, said, why, by, at, version, taken_back?, earlier, complete }` | The exact records:history output (the versions of every page read, together, and the last page's `next`). Ordered by `version` with overlaps counted once; the newest is the stand and every older one is in `earlier`, oldest first, a tombstone marked `deleted`. No version, a tombstone or a stand taken back reads `stance: null` with `taken_back`. `complete` is false while `next` is not null. |
 | `planReload` | `({ stances, fold, by? }) -> { writes, summary }` | Rows kept elsewhere become versions (each record's `earlier` first, oldest first). `summary` holds `rows`, `records`, `versions`, `by_kind`, `refs_changed` and `collisions`. |
 | `stanceChoices` | `() -> [{ id, label }]` | The stands a person can take. |
+
+## Reading a stand: two steps
+
+A tool run is not given the person's record history, so the AI that holds their key reads it and hands it over:
+
+1. Page `records:history` at `@own-records` with `{ id: "stance:<kind>:<identity>", limit: 100 }`, then again with `before_version: <next>` until `next` is null. Each page is `{ versions: [{ version, value, deleted, at }], next }`, newest first.
+2. Run `tool:read-where-you-stand` with `{ versions: <every page's versions together>, next: <the last page's next> }`.
+
+The identity comes from `do-work/artifact-ref.mjs` (or `stanceRecordId`), so the AI asks for the same record the keep tool wrote.
 
 ## Reload dry-run
 

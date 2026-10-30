@@ -8,7 +8,7 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { artifactRef, bytesRef, foldWith, textRef, viewRef } from '../do-work/artifact-ref.mjs';
-import { artifactOf, planReload, stanceChoices, stanceRecord, stanceRecordId, standsFrom } from '../do-work/where-a-person-stands.mjs';
+import { artifactOf, planReload, stanceChoices, stanceRecord, stanceRecordId, standFrom } from '../do-work/where-a-person-stands.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
 const IDENTITY = `1f:${'a'.repeat(64)}`;
@@ -59,23 +59,46 @@ test('only the person\'s own stand is kept, with their words exactly, and partly
   assert.deepEqual([back.stance, 'said' in back, 'why' in back], [null, false, false]);
 });
 
-test('the newest version is the stand, every older one is earlier, and silence or a stand taken back is no stand', () => {
-  const versions = [
-    stanceRecord({ ...said, stance: 'disagree', why: 'reads as generic', at: '2026-01-01T13:00:00Z' }),
-    { value: stanceRecord({ ...said, stance: 'agree', why: 'good', at: '2026-01-01T11:00:00Z' }) },
-    { payload: stanceRecord({ ...said, artifact_ref: OTHER, stance: 'agree', at: '2026-01-01T10:00:00Z' }) },
-    { payload: stanceRecord({ ...said, kind: 'take', stance: 'agree', at: '2026-01-01T10:00:00Z' }) },
-    { type: 'message', id: 'm', artifact: IDENTITY, stance: 'agree', at: '2026-01-01T23:00:00Z' },
-  ];
-  const [one, other, take] = standsFrom(versions);
-  assert.deepEqual([one.artifact, one.kind, one.stance, one.why, one.at], [IDENTITY, 'file', 'disagree', 'reads as generic', '2026-01-01T13:00:00Z']);
-  assert.deepEqual(one.earlier.map(item => [item.stance, item.why]), [['agree', 'good']]);
-  assert.deepEqual([other.artifact, take.kind], [OTHER, 'take']);
-  assert.deepEqual(standsFrom(versions, { artifact_ref: IDENTITY, kind: 'take' }).map(item => item.stance), ['agree']);
-  const none = standsFrom(versions, { artifact_ref: `1f:${'c'.repeat(64)}` })[0];
-  assert.deepEqual([none.stance, none.earlier], [null, []]);
-  const takenBack = standsFrom([...versions, stanceRecord({ ...said, stance: null, at: '2026-01-02T09:00:00Z' })], { artifact_ref: IDENTITY, kind: 'file' })[0];
-  assert.deepEqual([takenBack.stance, takenBack.earlier.length], [null, 2]);
+// A records:history page, newest first: versions numbered from 1, a tombstone with value null and deleted true.
+const page = (rows, next = null) => ({ versions: [...rows].reverse(), next });
+const version = (n, value, at) => ({ version: n, value, deleted: value === null, at });
+
+test('the newest version of a history is the stand, every older one is earlier, oldest first', () => {
+  const agreed = stanceRecord({ ...said, stance: 'agree', why: 'good', at: '2026-01-01T11:00:00.000Z' });
+  const disagreed = stanceRecord({ ...said, stance: 'disagree', why: 'reads as generic', at: '2026-01-01T13:00:00.000Z' });
+  const one = standFrom(page([version(1, agreed, '2026-01-01T11:00:00.000Z'), version(2, disagreed, '2026-01-01T13:00:00.000Z')]));
+  assert.deepEqual([one.id, one.artifact, one.kind, one.stance, one.why, one.version, one.complete, 'taken_back' in one],
+    [`stance:file:${IDENTITY}`, IDENTITY, 'file', 'disagree', 'reads as generic', 2, true, false]);
+  assert.deepEqual(one.earlier.map(item => [item.version, item.stance, item.why, item.deleted]), [[1, 'agree', 'good', false]]);
+  const none = standFrom({ versions: [], next: null });
+  assert.deepEqual([none.stance, none.earlier, none.complete], [null, [], true]);
+  assert.throws(() => standFrom({ versions: [{ version: 0, value: agreed }], next: null }), /records:history/);
+});
+
+test('a tombstone or a stand taken back is no stand, and the stands before it stay earlier', () => {
+  const agreed = stanceRecord({ ...said, stance: 'agree', why: 'good', at: '2026-01-01T11:00:00.000Z' });
+  const tomb = standFrom(page([version(1, agreed, '2026-01-01T11:00:00.000Z'), version(2, null, '2026-01-01T12:00:00.000Z')]));
+  assert.deepEqual([tomb.stance, tomb.taken_back, tomb.artifact, tomb.earlier.map(item => item.stance)], [null, true, IDENTITY, ['agree']]);
+  const back = stanceRecord({ ...said, stance: null, at: '2026-01-01T12:30:00.000Z' });
+  const again = stanceRecord({ ...said, stance: 'partly', why: 'better', at: '2026-01-01T14:00:00.000Z' });
+  const history = page([version(1, agreed, '2026-01-01T11:00:00.000Z'), version(2, null, '2026-01-01T12:00:00.000Z'),
+    version(3, back, '2026-01-01T12:30:00.000Z'), version(4, again, '2026-01-01T14:00:00.000Z')]);
+  const now = standFrom(history);
+  assert.deepEqual([now.stance, now.why, 'taken_back' in now], ['partly', 'better', false]);
+  assert.deepEqual(now.earlier.map(item => [item.version, item.stance, item.deleted]), [[1, 'agree', false], [2, null, true], [3, null, false]]);
+  assert.equal(standFrom(page([version(1, agreed, '2026-01-01T11:00:00.000Z'), version(2, back, '2026-01-01T12:30:00.000Z')])).taken_back, true);
+});
+
+test('two pages merge into one history, an overlap counts once, and a history with next left is incomplete', () => {
+  const at = n => `2026-01-0${n}T10:00:00.000Z`;
+  const v = n => version(n, stanceRecord({ ...said, stance: n % 2 ? 'agree' : 'disagree', why: `word ${n}`, at: at(n) }), at(n));
+  const newer = page([v(3), v(4), v(5)], 3);
+  const older = page([v(1), v(2), v(3)], null);
+  const merged = standFrom({ versions: [...newer.versions, ...older.versions], next: older.next });
+  assert.deepEqual([merged.version, merged.why, merged.complete], [5, 'word 5', true]);
+  assert.deepEqual(merged.earlier.map(item => item.version), [1, 2, 3, 4]);
+  const firstPageOnly = standFrom(newer);
+  assert.deepEqual([firstPageOnly.version, firstPageOnly.complete, firstPageOnly.earlier.map(item => item.version)], [5, false, [3, 4]]);
 });
 
 test('a reload plan writes earlier stands first, oldest first, counts changed refs and shows what the fold merged', () => {
