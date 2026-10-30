@@ -11,7 +11,7 @@ import { stanceChoices, standsFrom } from './where-a-person-stands.mjs';
 
 const input = JSON.parse((await text(process.stdin)) || '{}');
 try {
-  console.log(JSON.stringify({ result: { stances: standsFrom(input.records ?? [], input.artifact_ref), choices: stanceChoices() } }));
+  console.log(JSON.stringify({ result: { stances: standsFrom(input.records ?? [], { artifact_ref: input.artifact_ref, kind: input.kind }), choices: stanceChoices() } }));
 } catch (error) {
   console.log(JSON.stringify({ error: error.message }));
   process.exitCode = 1;

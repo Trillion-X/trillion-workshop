@@ -1,16 +1,30 @@
 {
- "what_this_is": "The stands a person can take on something made for them, read by do-work/where-a-person-stands.mjs. `kind` is the type of the record a stand is kept as, one record per thing, so every change of stand is a new version of that one record. `stances` are the stands, one row each: `label` on its button, `said` what a reader shows once it is taken. A new stand is one row here.",
+ "what_this_is": "The stands a person can take on something made for them, read by do-work/where-a-person-stands.mjs. `kind` is the type of the record a stand is kept as, one record per kind of thing and identity (`id_prefix`<thing kind>:<identity>), so every change of stand is a new version of that one record. `stances` are the stands, one row each: `label` on its button, `said` what a reader shows once it is taken. A new stand is one row here.",
  "kind": "stance",
  "id_prefix": "stance:",
  "stances": [
-  { "id": "agree", "label": "I agree", "said": "You agree with this." },
-  { "id": "disagree", "label": "I disagree", "said": "You disagree with this." },
-  { "id": "partly", "label": "Partly", "said": "You partly agree with this." }
+  {
+   "id": "agree",
+   "label": "I agree",
+   "said": "You agree with this."
+  },
+  {
+   "id": "disagree",
+   "label": "I disagree",
+   "said": "You disagree with this."
+  },
+  {
+   "id": "partly",
+   "label": "Partly",
+   "said": "You partly agree with this."
+  }
  ],
  "words": {
   "refused_stance": "stance is one of: {stances}, or null to take a stand back.",
   "refused_answered_by": "Ask your person where they stand, and set answered_by to \"person\": a stand is only ever theirs.",
-  "refused_ref": "artifact_ref is the identity of the thing the stand is on: 1f: and 64 hex digits (BLAKE3), or file: and that identity. A file name is not an identity; read the file's identity first.",
+  "refused_ref": "Name the thing the stand is on by artifact_ref, its identity (1f: and 64 hex digits, or file: and that identity), or give the thing itself as text, contains or view, with the fold its owner declares. A file name is not an identity; read the file's identity first.",
+  "refused_kind": "kind is the kind of thing the stand is on (a title, a take, a plan), one word without '/'.",
+  "refused_thing": "The thing could not be identified:",
   "refused_why": "why is the person's own words, as text."
  }
 }

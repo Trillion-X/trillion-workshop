@@ -3,10 +3,23 @@
   "description": "The open-source tools Trillion offers to every person's AI: one folder per tool, with its code, rows and tests.",
   "license": "Apache-2.0",
   "type": "module",
-  "repository": { "type": "git", "url": "https://github.com/Trillion-X/trillion-workshop.git" },
-  "engines": { "node": ">=22.6" },
-  "files": ["tools", "licence-classes.json", "LICENSE", "README.md"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Trillion-X/trillion-workshop.git"
+  },
+  "engines": {
+    "node": ">=22.6"
+  },
+  "files": [
+    "tools",
+    "licence-classes.json",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "test": "node --test 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'"
+  },
+  "dependencies": {
+    "@noble/hashes": "^2.4.0"
   }
 }

@@ -1,3 +1,3 @@
 {
-  "public": ["do-work/where-a-person-stands.mjs"]
+  "public": ["do-work/where-a-person-stands.mjs", "do-work/artifact-ref.mjs"]
 }
