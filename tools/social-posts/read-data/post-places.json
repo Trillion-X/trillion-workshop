@@ -1,0 +1,438 @@
+{
+  "_what": "The places a person posts to, one row per place: which kind of connection reaches the account (connection_vendor: a connection record of that vendor, `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), how a publisher is filled from it (options and account: {held: field} is a value held in the person's vault, read only as the request leaves; {plain: field} is a readable field of their connection record; {value} is fixed), which hosts a held value may go to, whether a file goes as bytes or a public address (media_from), the settings sent unless the post names its own (default_settings), and what the place takes (format: read by read-data/post-ready.mjs). Read by read-data/posts.mjs. A new place is a row; nothing in the code names a place.",
+  "places": [
+    {
+      "id": "post-place:youtube",
+      "platform": "youtube",
+      "label": "YouTube",
+      "adapter": "youtube",
+      "connection_vendor": "youtube",
+      "options": {
+        "auth": {
+          "accessToken": {
+            "held": "access_token"
+          },
+          "channelId": {
+            "plain": "youtube_channel_id"
+          }
+        }
+      },
+      "account": {
+        "plain": "youtube_channel_id"
+      },
+      "hosts": [
+        "www.googleapis.com",
+        "youtube.googleapis.com"
+      ],
+      "media_from": "bytes",
+      "default_settings": {
+        "visibility": "public",
+        "madeForKids": false
+      },
+      "format": {
+        "caption_max_characters": 5000,
+        "media_needed": true,
+        "media_kinds": {
+          "video": {}
+        },
+        "settings": [
+          {
+            "setting": "title",
+            "name": "title",
+            "needed": true,
+            "max_characters": 100,
+            "refuses_characters": "<>"
+          }
+        ],
+        "source": {
+          "kind": "hand-typed",
+          "from": "@opencoredev/social-sdk dist/platforms/youtube.js publish checks",
+          "read_on": "2026-09-29"
+        }
+      }
+    },
+    {
+      "id": "post-place:tiktok",
+      "platform": "tiktok",
+      "label": "TikTok",
+      "adapter": "tiktok",
+      "connection_vendor": "tiktok",
+      "options": {
+        "auth": {
+          "accessToken": {
+            "held": "access_token"
+          },
+          "openId": {
+            "plain": "open_id"
+          }
+        },
+        "verifiedMediaOrigins": [
+          {
+            "service_origin": true
+          }
+        ]
+      },
+      "account": {
+        "plain": "open_id"
+      },
+      "hosts": [
+        "open.tiktokapis.com"
+      ],
+      "media_from": "address",
+      "default_settings": {
+        "privacy": "PUBLIC_TO_EVERYONE",
+        "consentGiven": true
+      },
+      "format": {
+        "media_needed": true,
+        "media_kinds": {
+          "video": {
+            "caption_max_characters": 2200
+          },
+          "image": {
+            "caption_max_characters": 4000
+          }
+        },
+        "settings": [],
+        "source": {
+          "kind": "hand-typed",
+          "from": "@opencoredev/social-sdk dist/platforms/tiktok.js publish checks",
+          "read_on": "2026-09-29"
+        }
+      }
+    },
+    {
+      "id": "post-place:instagram",
+      "platform": "instagram",
+      "label": "Instagram",
+      "adapter": "instagram",
+      "connection_vendor": "instagram",
+      "options": {
+        "auth": {
+          "accessToken": {
+            "held": "access_token"
+          },
+          "accountId": {
+            "plain": "ig_user_id"
+          }
+        }
+      },
+      "account": {
+        "plain": "ig_user_id"
+      },
+      "hosts": [
+        "graph.instagram.com",
+        "graph.facebook.com"
+      ],
+      "media_from": "address",
+      "default_settings": {},
+      "format": {
+        "caption_max_characters": 2200,
+        "media_needed": true,
+        "media_kinds": {
+          "video": {
+            "media_types": [
+              "video/mp4",
+              "video/quicktime"
+            ],
+            "min_seconds": 3,
+            "max_seconds": 900,
+            "max_bytes": 314572800
+          },
+          "image": {
+            "media_types": [
+              "image/jpeg"
+            ],
+            "max_bytes": 8388608
+          }
+        },
+        "settings": [],
+        "source": {
+          "kind": "hand-typed",
+          "from": "@opencoredev/social-sdk dist/platforms/instagram.js publish checks, and Meta's Content Publishing limits (developers.facebook.com/docs/instagram-platform/content-publishing)",
+          "read_on": "2026-09-29"
+        }
+      }
+    },
+    {
+      "id": "post-place:facebook",
+      "platform": "facebook",
+      "label": "Facebook Page",
+      "adapter": "facebook-page",
+      "connection_vendor": "facebook-messenger",
+      "options": {
+        "auth": {
+          "accessToken": {
+            "held": "page_access_token"
+          }
+        },
+        "pageId": {
+          "plain": "page_id"
+        }
+      },
+      "account": {
+        "plain": "page_id"
+      },
+      "hosts": [
+        "graph.facebook.com"
+      ],
+      "media_from": "address",
+      "default_settings": {},
+      "format": {
+        "caption_max_characters": 63206,
+        "media_needed": false,
+        "media_kinds": {
+          "video": {},
+          "image": {}
+        },
+        "settings": [],
+        "source": {
+          "kind": "hand-typed",
+          "from": "developers.facebook.com/docs/pages-api/posts (/{page-id}/feed, /photos, /videos)",
+          "read_on": "2026-10-05"
+        }
+      }
+    },
+    {
+      "id": "post-place:instagram-facebook",
+      "platform": "instagram",
+      "label": "Instagram through Facebook",
+      "adapter": "instagram",
+      "connection_vendor": "instagram-facebook",
+      "options": {
+        "auth": {
+          "accessToken": {
+            "held": "page_access_token"
+          },
+          "accountId": {
+            "plain": "ig_user_id"
+          },
+          "flavor": {
+            "value": "facebook-login"
+          }
+        }
+      },
+      "account": {
+        "plain": "ig_user_id"
+      },
+      "hosts": [
+        "graph.facebook.com"
+      ],
+      "media_from": "address",
+      "default_settings": {},
+      "format": {
+        "caption_max_characters": 2200,
+        "media_needed": true,
+        "media_kinds": {
+          "video": {
+            "media_types": [
+              "video/mp4",
+              "video/quicktime"
+            ],
+            "min_seconds": 3,
+            "max_seconds": 900,
+            "max_bytes": 314572800
+          },
+          "image": {
+            "media_types": [
+              "image/jpeg"
+            ],
+            "max_bytes": 8388608
+          }
+        },
+        "settings": [],
+        "source": {
+          "kind": "hand-typed",
+          "from": "@opencoredev/social-sdk dist/platforms/instagram.js (auth.flavor facebook-login) and developers.facebook.com/documentation/instagram-platform/content-publishing",
+          "read_on": "2026-10-05"
+        }
+      }
+    },
+    {
+      "id": "post-place:threads",
+      "platform": "threads",
+      "label": "Threads",
+      "adapter": "threads",
+      "connection_vendor": "threads",
+      "options": {
+        "auth": {
+          "accessToken": {
+            "held": "access_token"
+          },
+          "userId": {
+            "plain": "threads_user_id"
+          }
+        }
+      },
+      "account": {
+        "plain": "threads_user_id"
+      },
+      "hosts": [
+        "graph.threads.net"
+      ],
+      "media_from": "address",
+      "default_settings": {},
+      "format": {
+        "caption_max_characters": 500,
+        "media_needed": false,
+        "media_kinds": {
+          "video": {},
+          "image": {}
+        },
+        "settings": [],
+        "source": {
+          "kind": "hand-typed",
+          "from": "@opencoredev/social-sdk dist/platforms/threads.js publish checks",
+          "read_on": "2026-09-29"
+        }
+      }
+    },
+    {
+      "id": "post-place:linkedin",
+      "platform": "linkedin",
+      "label": "LinkedIn",
+      "adapter": "linkedin",
+      "connection_vendor": "linkedin",
+      "options": {
+        "auth": {
+          "accessToken": {
+            "held": "access_token"
+          },
+          "author": {
+            "plain": "author_urn"
+          }
+        },
+        "apiVersion": {
+          "value": "202609"
+        }
+      },
+      "account": {
+        "plain": "author_urn"
+      },
+      "hosts": [
+        "api.linkedin.com"
+      ],
+      "media_from": "bytes",
+      "default_settings": {
+        "visibility": "public"
+      },
+      "format": {
+        "caption_max_characters": 3000,
+        "media_needed": false,
+        "media_kinds": {
+          "video": {},
+          "image": {}
+        },
+        "settings": [],
+        "source": {
+          "kind": "hand-typed",
+          "from": "@opencoredev/social-sdk dist/platforms/linkedin.js publish checks",
+          "read_on": "2026-09-29"
+        }
+      }
+    },
+    {
+      "id": "post-place:substack",
+      "platform": "substack",
+      "label": "Substack",
+      "adapter": "substack",
+      "connection_vendor": "substack",
+      "options": {
+        "auth": {
+          "session": {
+            "held": "session_cookie"
+          }
+        },
+        "publication": {
+          "plain": "publication_url"
+        }
+      },
+      "account": {
+        "plain": "publication_url"
+      },
+      "hosts": [
+        "substack.com",
+        {
+          "plain": "publication_url"
+        }
+      ],
+      "media_from": "address",
+      "default_settings": {
+        "audience": "everyone",
+        "send": true
+      },
+      "format": {
+        "caption_max_characters": null,
+        "media_needed": false,
+        "media_kinds": {},
+        "settings": [
+          {
+            "setting": "title",
+            "name": "title",
+            "needed": true
+          },
+          {
+            "setting": "subtitle",
+            "name": "subtitle",
+            "needed": false
+          }
+        ],
+        "source": {
+          "kind": "hand-typed",
+          "from": "Substack's own editor requests (POST /api/v1/drafts, POST /api/v1/drafts/<id>/publish), read from a signed-in browser",
+          "read_on": "2026-10-02"
+        }
+      }
+    },
+    {
+      "id": "post-place:x",
+      "platform": "x",
+      "label": "X",
+      "adapter": "x",
+      "connection_vendor": "x",
+      "options": {
+        "auth": {
+          "accessToken": {
+            "held": "access_token"
+          },
+          "userId": {
+            "plain": "user_id"
+          }
+        }
+      },
+      "account": {
+        "plain": "user_id"
+      },
+      "hosts": [
+        "api.x.com"
+      ],
+      "media_from": "bytes",
+      "default_settings": {},
+      "format": {
+        "caption_max_characters": 280,
+        "media_needed": false,
+        "media_kinds": {
+          "video": {
+            "media_types": [
+              "video/mp4"
+            ],
+            "max_bytes": 536870912
+          },
+          "image": {
+            "media_types": [
+              "image/jpeg",
+              "image/png"
+            ],
+            "max_bytes": 5242880
+          }
+        },
+        "settings": [],
+        "source": {
+          "kind": "hand-typed",
+          "from": "@opencoredev/social-sdk dist/platforms/x.js publish checks",
+          "read_on": "2026-09-29"
+        }
+      }
+    }
+  ]
+}
