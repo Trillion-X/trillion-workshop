@@ -1,0 +1,215 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:print-here",
+        "listed_on": "2026-10-06T16:00:00Z",
+        "id": "tool:printers",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "label": "Printers I can use",
+        "job": "List the printers the person's computer can print to, and which one is the default",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "printers"
+          ],
+          "properties": {
+            "printers": {
+              "type": "array"
+            },
+            "default": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "use-the-print-system"
+          ],
+          "workdir": "/opt/print-here",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/print-here/read-data/print-here.mjs",
+            "printers"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "print-here",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/print-here"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:print-here",
+        "listed_on": "2026-10-06T16:00:00Z",
+        "id": "tool:print",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "label": "Print a file",
+        "job": "Print a file from the person's Trillion files on a printer their computer already has (paper size, fit to page, two-sided, colour, copies), so the person never opens a print dialog",
+        "description": "Give file (its name in the person's files, such as /Projects/sample-card.pdf, or its identity); printer (from tool:printers; the computer's default when left out), copies, paper (the print system's size name, such as Letter, A4, Tabloid), fit (true to fit the page), sides (one-sided, two-sided-long-edge), color (color or monochrome), orientation and title when wanted. Returns printed, the printer, the job id and said. Large-format or many copies belong to a print shop (workflow:print-and-deliver).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "file"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string",
+              "minLength": 1
+            },
+            "printer": {
+              "type": "string"
+            },
+            "copies": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "paper": {
+              "type": "string"
+            },
+            "fit": {
+              "type": "boolean"
+            },
+            "sides": {
+              "type": "string"
+            },
+            "color": {
+              "type": "string"
+            },
+            "orientation": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "printed",
+            "said"
+          ],
+          "properties": {
+            "printed": {
+              "type": "boolean"
+            },
+            "printer": {
+              "type": "string"
+            },
+            "job": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "use-the-print-system"
+          ],
+          "workdir": "/opt/print-here",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/print-here/read-data/print-here.mjs",
+            "print"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "print-here",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/print-here"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "files": "/",
+                "operations": [
+                  "find_file",
+                  "read_file"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
