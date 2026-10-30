@@ -1,0 +1,220 @@
+{
+ "kind": "tool-rows",
+ "record_set": "copy-a-site-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/copy-a-site: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:copy-a-site",
+    "listed_on": "2026-10-05T08:00:00Z",
+    "label": "Copy a website",
+    "status": "active",
+    "job": "Copy an existing live website, its pages as visitors see them plus its pictures, styles and fonts, into the files a public app is published from",
+    "description": "Opens each page of the site in a headless browser, waits for it to finish drawing, and keeps it as a visitor sees it with its scripts taken out; follows the site's own links up to the page limit and fetches same-site pictures, styles and fonts. Copied addresses point at the copy; omitted pages and files keep their original addresses. Returns site.json in your files: { files: { path: contents } }, which publish_public_app_definition takes as its files, and a list of what could not be copied and why. Works on public web sites: the engine lets it reach nothing else.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "url"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "url": {
+       "type": "string",
+       "format": "uri",
+       "description": "The site's first page, like https://example.com/"
+      },
+      "max_pages": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 200,
+       "description": "The most pages to copy (default 60)"
+      },
+      "paths": {
+       "type": "array",
+       "maxItems": 200,
+       "items": {
+        "type": "string"
+       },
+       "description": "Pages to copy that no link reaches, like [\"/pricing\"]"
+      },
+      "exclude_paths": {
+       "type": "array",
+       "maxItems": 200,
+       "items": {
+        "type": "string"
+       },
+       "description": "Paths already copied in an earlier batch; they are not copied again"
+      },
+      "width": {
+       "type": "integer",
+       "minimum": 320,
+       "maximum": 2560,
+       "description": "Browser width in pixels the pages are drawn at (default 1280)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "origin",
+        "pages",
+        "files",
+        "bytes",
+        "skipped"
+       ],
+       "properties": {
+        "origin": {
+         "type": "string"
+        },
+        "pages": {
+         "type": "array",
+         "minItems": 1
+        },
+        "remaining_paths": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "redirects": {
+         "type": "array"
+        },
+        "asset_paths": {
+         "type": "array"
+        },
+        "all_skipped": {
+         "type": "array"
+        },
+        "files": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "skipped": {
+         "type": "array"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "site"
+       ],
+       "properties": {
+        "site": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "copy-a-site",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/copy-a-site"
+       },
+       {
+        "package": "headless-browser",
+        "paths": [
+         "quiet-switches.json",
+         "devtools.mjs"
+        ],
+        "at": "/opt/headless-browser"
+       }
+      ]
+     },
+     "workdir": "/opt/copy-a-site",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/copy-a-site.mjs",
+      "--url",
+      {
+       "from": "url"
+      },
+      "--out",
+      "/opt/copy-a-site/out",
+      "--max-pages",
+      {
+       "from": "max_pages",
+       "otherwise": {
+        "const": 60
+       }
+      },
+      "--paths",
+      {
+       "from": "paths",
+       "otherwise": {
+        "const": []
+       }
+      },
+      "--exclude-paths",
+      {
+       "from": "exclude_paths",
+       "otherwise": {
+        "const": []
+       }
+      },
+      "--width",
+      {
+       "from": "width",
+       "otherwise": {
+        "const": 1280
+       }
+      }
+     ],
+     "outputs": [
+      {
+       "name": "site",
+       "path": "/opt/copy-a-site/out/site.json",
+       "keep_in": "files",
+       "media_type": "application/json",
+       "max_bytes": 200000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 240,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:copy-a-site",
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.files",
+      "at_least": 1
+     }
+    ]
+   }
+  }
+ ]
+}

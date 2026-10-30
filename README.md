@@ -22,11 +22,12 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | Folder | What it does | Tools |
 |---|---|---|
 | `ask-questions-sort-answers-follow-up` | Makes quiz questions from text, checks answers against a form, scores answers and picks a segment | `tool:make-quiz-questions`, `tool:check-form-answers`, `tool:score-answers-and-pick-segment` |
-| `browse-public-page` | Reads a public web page: its title, words, links and card, refusing private addresses | `tool:read-public-web-page` |
+| `browse-public-page` | Reads a public web page (its title, words, links and card) and reads one link into a card; the engine keeps both to public sites | `tool:read-public-web-page`, `tool:read-a-link` |
 | `content-identity` | A library: the one BLAKE3 identity of exact bytes (`1f:` + 64 hex), whole or in chunks | (none: packed by `where-a-person-stands` and `media-composition`) |
+| `copy-a-site` | Copies a live website (its pages as visitors see them, plus its pictures, styles and fonts) into the files a public app is published from | `tool:copy-a-site` |
 | `customer-follow-up` | Each customer's steps and each product's progress toward its customer target | `tool:add-a-customer`, `tool:record-a-customer-step`, `tool:set-a-customer-target`, `tool:see-where-each-customer-is` |
 | `email-sending-domains` | Which domains the person's email-sending account may send from and how each stands, with the key handed on a private pipe | `tool:list-email-sending-domains` |
-| `headless-browser` | A library the browser tools pack: a headless Chromium spoken to over DevTools with the quiet switches, and a page clock that moves only when told | (none: packed by `page-critic` and `record-a-web-page`) |
+| `headless-browser` | A library the browser tools pack: a headless Chromium spoken to over DevTools with the quiet switches, and a page clock that moves only when told | (none: packed by `page-critic`, `record-a-web-page` and `copy-a-site`) |
 | `internet-archive` | Searches the Internet Archive and reads one item's metadata and file list, keeping its rights fields | `tool:search-internet-archive`, `tool:read-internet-archive-item` |
 | `judge-words` | Checks words, a plan or anything else made against a person's rule rows (by kind, by value path, with tests that say what must hold), saying what breaks which rule and why | `tool:judge-against-rules` |
 | `legal-document-builder` | Terms of service, privacy policy, refund policy and waiver from a business's own facts | `tool:write-legal-documents` |

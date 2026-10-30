@@ -4,8 +4,8 @@
 //   What one public page says about itself, from its bytes alone: its title, the words a person reads on it, its links,
 //   and the card it describes itself with (its pictures, videos, a line of description, its site's name and icon, from
 //   Open Graph and the plain head tags) plus its structured data (schema.org JSON-LD). The one reader of page bytes:
-//   the container tool (browse_public_page.mjs) and the Worker's link card (Trillion's src/read-link.mjs) both call it, so a page
-//   reads the same wherever it was fetched. Which tags carry which fact is DATA (./page-conventions.json).
+//   the two container tools (browse_public_page.mjs, read_a_link.mjs) and the old app's link card all call it, so a
+//   page reads the same wherever it was fetched. Which tags carry which fact is DATA (./page-conventions.json).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Pure: no network, no file system, no Node-only module, so a Worker and a container import the same file.

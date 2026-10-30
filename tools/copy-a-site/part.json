@@ -1,0 +1,3 @@
+{
+  "public": ["do-work/copy-a-site.mjs", "do-work/copy-addresses.mjs"]
+}

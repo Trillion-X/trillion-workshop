@@ -2,8 +2,8 @@
 
 A library the browser tools pack: a headless Chromium started with the switches that keep macOS from asking for the
 login keychain, spoken to over the DevTools protocol with Node's own WebSocket and no browser library, and a page clock
-that moves only when told. It offers no tool of its own; `tools/page-critic` and `tools/record-a-web-page` pack its
-files beside theirs at `/opt/headless-browser`.
+that moves only when told. It offers no tool of its own; `tools/page-critic`, `tools/record-a-web-page` and `tools/copy-a-site` pack
+its files beside theirs at `/opt/headless-browser`.
 
 ## Files
 
@@ -29,7 +29,7 @@ files beside theirs at `/opt/headless-browser`.
 
 **Depends on:** a Chromium executable (the tool's `--browser` or `BROWSER_EXECUTABLE`), Node 24.
 
-**Depended on by:** `tools/page-critic` and `tools/record-a-web-page` (their rows pack these files), `test-helpers/chromium.mjs` (`quiet-switches.json`).
+**Depended on by:** `tools/page-critic`, `tools/record-a-web-page` and `tools/copy-a-site` (their rows pack these files), `test-helpers/chromium.mjs` (`quiet-switches.json`).
 
 ## Invariants
 
@@ -37,3 +37,6 @@ files beside theirs at `/opt/headless-browser`.
 - However the calling run ends, the browser process ends with it and its throwaway profile folder is removed.
 - How many browsers run at once on one computer is the runner's decision; this library opens one browser per call
   and keeps no lock or queue of its own.
+- A run told a proxy (`HTTPS_PROXY`, as the engine tells every internet:true run) starts its browser with
+  `--proxy-server` set to it: Chromium does not read that setting itself, and the engine's sandbox lets the run reach
+  nothing but that proxy. Which addresses are public is the engine's to judge, never this library's.
