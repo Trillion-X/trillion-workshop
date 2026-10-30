@@ -74,7 +74,7 @@ async function connectionsOf(door) {
 }
 
 // The held fields a place's options name, in order.
-function heldFields(template, into = []) {
+export function heldFields(template, into = []) {
   if (Array.isArray(template)) template.forEach(item => heldFields(item, into));
   else if (object(template)) {
     if (typeof template.held === 'string' && Object.keys(template).length === 1) into.push(template.held);
@@ -139,7 +139,7 @@ function reachedBy(post, rules) {
 }
 
 // The words one destination is sent with: its own caption or the post's, then the link tagged for it.
-function wordsOf(post, place, accountId) {
+export function wordsOf(post, place, accountId) {
   const words = post.caption_by_platform?.[place.platform] ?? post.caption ?? '';
   if (!post.link) return words;
   const address = new URL(post.link);

@@ -1,5 +1,5 @@
 {
-  "_what": "How a person's posts are drafted, checked, approved and set to go at their time (read-data/posts.mjs). record_type is the kind of record a post is kept as; connection_type the kind of record a connection is kept as, whose id is connection_prefix + the connection id (encoded as a URL component). The link a post carries gets link_tags added, each a query parameter whose value is fixed (value) or taken from the post (from: post_id, platform or account_id); link_joiner goes between the words and the link. ready_limits are the limits a place's format may set on a file (read-data/post-ready.mjs), each the limit name in a media kind, the file fact it is compared with, whether the fact must stay at_most or at_least the limit, its unit and its plain name; ready_words are the plain words for each finding. first_contact: a post that names someone (names, a pattern whose first group is the handle) or lists them in reaches is approved only by the person on their own screen, never by a tool. words are every other plain answer.",
+  "_what": "How a person's posts are drafted, checked, approved and set to go at their time (read-data/posts.mjs). record_type is the kind of record a post is kept as; connection_type the kind of record a connection is kept as, whose id is connection_prefix + the connection id (encoded as a URL component). The link a post carries gets link_tags added, each a query parameter whose value is fixed (value) or taken from the post (from: post_id, platform or account_id); link_joiner goes between the words and the link. ready_limits are the limits a place's format may set on a file (read-data/post-ready.mjs), each the limit name in a media kind, the file fact it is compared with, whether the fact must stay at_most or at_least the limit, its unit and its plain name; ready_words are the plain words for each finding. first_contact: a post that names someone (names, a pattern whose first group is the handle) or lists them in reaches is approved only by the person on their own screen, never by a tool. words are every other plain answer. outcome_states turns each publisher outcome into the state a destination is in; resend_states are the states sent again by themselves (never one whose outcome is not known, which is resent only when the caller names it); outcome_words are the plain words for a failed destination, the first row matching its retry kind or a word in its code or message.",
   "record_type": "post",
   "connection_type": "connection",
   "connection_prefix": "connection:",
@@ -89,5 +89,70 @@
       "person_only": "This post reaches {names}. A first message to someone is approved only by the person, on their own screen, never by a tool.",
       "reaches": "reaches lists the people this post contacts first (at most {most}), each { network, handle, profile_url, provenance: [{ source, url, title, posted_at }] } with at least one place they were found."
     }
-  }
+  },
+  "outcome_states": {
+    "published": "posted",
+    "scheduled": "on its way",
+    "accepted": "on its way",
+    "processing": "on its way",
+    "failed": "failed",
+    "not-submitted": "failed",
+    "cancelled": "failed",
+    "unknown": "not known"
+  },
+  "resend_states": [
+    "failed",
+    "not sent"
+  ],
+  "outcome_words": [
+    {
+      "retry": "after-reconnect",
+      "says": "{platform} needs you to sign in again. Ask your AI for the {platform} connect link, sign in, then publish again."
+    },
+    {
+      "contains_any": [
+        "reconnect",
+        "unauthor",
+        "expired",
+        "revoked",
+        "token"
+      ],
+      "says": "{platform} needs you to sign in again. Ask your AI for the {platform} connect link, sign in, then publish again."
+    },
+    {
+      "retry": "after-delay",
+      "says": "{platform} is asking to slow down. Publish again later; the places that already have the post are not sent it again."
+    },
+    {
+      "contains_any": [
+        "rate",
+        "quota",
+        "too many"
+      ],
+      "says": "{platform} is asking to slow down. Publish again later; the places that already have the post are not sent it again."
+    },
+    {
+      "contains_any": [
+        "duration",
+        "file size",
+        "too large",
+        "aspect",
+        "resolution",
+        "codec",
+        "media",
+        "video"
+      ],
+      "says": "{platform} did not accept this video: {detail}"
+    },
+    {
+      "contains_any": [
+        "character",
+        "length",
+        "too long"
+      ],
+      "says": "The words are too long for {platform}. Shorten the caption for {platform} and publish again."
+    }
+  ],
+  "outcome_fallback": "{platform} did not publish it: {detail}",
+  "not_known_words": "It is not known whether {platform} took the post. Look on {platform}; if it is not there, send it to this account again with resend: true."
 }

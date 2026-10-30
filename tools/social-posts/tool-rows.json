@@ -1303,6 +1303,1419 @@
     ],
     "result_selector": "$"
    }
+  },
+  {
+   "id": "package::social-posts::tool::send-a-post-to-youtube",
+   "address": "package::social-posts::tool::send-a-post-to-youtube",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:send-a-post-to-youtube",
+    "label": "Send a post to YouTube",
+    "job": "Send one of the person's approved posts to one of their YouTube accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a youtube connection, service_connection:youtube or service_connection:youtube:<account>). The engine hands this run only that account's held values; they reach www.googleapis.com, youtube.googleapis.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on YouTube. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id",
+      "account_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "account_id": {
+       "type": "string",
+       "description": "One of the post's destinations"
+      },
+      "resend": {
+       "type": "boolean",
+       "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "youtube",
+      "from_input": "account_id"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "access_token",
+       "fd": 4
+      }
+     ]
+    },
+    "provenance": {
+     "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there",
+       "account_id": "service_connection:youtube"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::send-a-post-to-tiktok",
+   "address": "package::social-posts::tool::send-a-post-to-tiktok",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:send-a-post-to-tiktok",
+    "label": "Send a post to TikTok",
+    "job": "Send one of the person's approved posts to one of their TikTok accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a tiktok connection, service_connection:tiktok or service_connection:tiktok:<account>). The engine hands this run only that account's held values; they reach open.tiktokapis.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on TikTok. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id",
+      "account_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "account_id": {
+       "type": "string",
+       "description": "One of the post's destinations"
+      },
+      "resend": {
+       "type": "boolean",
+       "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "tiktok",
+      "from_input": "account_id"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "access_token",
+       "fd": 4
+      }
+     ]
+    },
+    "provenance": {
+     "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there",
+       "account_id": "service_connection:tiktok"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::send-a-post-to-instagram",
+   "address": "package::social-posts::tool::send-a-post-to-instagram",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:send-a-post-to-instagram",
+    "label": "Send a post to Instagram",
+    "job": "Send one of the person's approved posts to one of their Instagram accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a instagram connection, service_connection:instagram or service_connection:instagram:<account>). The engine hands this run only that account's held values; they reach graph.instagram.com, graph.facebook.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Instagram. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id",
+      "account_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "account_id": {
+       "type": "string",
+       "description": "One of the post's destinations"
+      },
+      "resend": {
+       "type": "boolean",
+       "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "instagram",
+      "from_input": "account_id"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "access_token",
+       "fd": 4
+      }
+     ]
+    },
+    "provenance": {
+     "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there",
+       "account_id": "service_connection:instagram"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::send-a-post-to-facebook",
+   "address": "package::social-posts::tool::send-a-post-to-facebook",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:send-a-post-to-facebook",
+    "label": "Send a post to Facebook Page",
+    "job": "Send one of the person's approved posts to one of their Facebook Page accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a facebook-messenger connection, service_connection:facebook-messenger or service_connection:facebook-messenger:<account>). The engine hands this run only that account's held values; they reach graph.facebook.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Facebook Page. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id",
+      "account_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "account_id": {
+       "type": "string",
+       "description": "One of the post's destinations"
+      },
+      "resend": {
+       "type": "boolean",
+       "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "facebook-messenger",
+      "from_input": "account_id"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "page_access_token",
+       "fd": 4
+      }
+     ]
+    },
+    "provenance": {
+     "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there",
+       "account_id": "service_connection:facebook-messenger"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::send-a-post-to-instagram-facebook",
+   "address": "package::social-posts::tool::send-a-post-to-instagram-facebook",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:send-a-post-to-instagram-facebook",
+    "label": "Send a post to Instagram through Facebook",
+    "job": "Send one of the person's approved posts to one of their Instagram through Facebook accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a instagram-facebook connection, service_connection:instagram-facebook or service_connection:instagram-facebook:<account>). The engine hands this run only that account's held values; they reach graph.facebook.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Instagram through Facebook. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id",
+      "account_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "account_id": {
+       "type": "string",
+       "description": "One of the post's destinations"
+      },
+      "resend": {
+       "type": "boolean",
+       "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "instagram-facebook",
+      "from_input": "account_id"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "page_access_token",
+       "fd": 4
+      }
+     ]
+    },
+    "provenance": {
+     "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there",
+       "account_id": "service_connection:instagram-facebook"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::send-a-post-to-threads",
+   "address": "package::social-posts::tool::send-a-post-to-threads",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:send-a-post-to-threads",
+    "label": "Send a post to Threads",
+    "job": "Send one of the person's approved posts to one of their Threads accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a threads connection, service_connection:threads or service_connection:threads:<account>). The engine hands this run only that account's held values; they reach graph.threads.net only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Threads. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id",
+      "account_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "account_id": {
+       "type": "string",
+       "description": "One of the post's destinations"
+      },
+      "resend": {
+       "type": "boolean",
+       "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "threads",
+      "from_input": "account_id"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "access_token",
+       "fd": 4
+      }
+     ]
+    },
+    "provenance": {
+     "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there",
+       "account_id": "service_connection:threads"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::send-a-post-to-linkedin",
+   "address": "package::social-posts::tool::send-a-post-to-linkedin",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:send-a-post-to-linkedin",
+    "label": "Send a post to LinkedIn",
+    "job": "Send one of the person's approved posts to one of their LinkedIn accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a linkedin connection, service_connection:linkedin or service_connection:linkedin:<account>). The engine hands this run only that account's held values; they reach api.linkedin.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on LinkedIn. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id",
+      "account_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "account_id": {
+       "type": "string",
+       "description": "One of the post's destinations"
+      },
+      "resend": {
+       "type": "boolean",
+       "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "linkedin",
+      "from_input": "account_id"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "access_token",
+       "fd": 4
+      }
+     ]
+    },
+    "provenance": {
+     "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there",
+       "account_id": "service_connection:linkedin"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::send-a-post-to-substack",
+   "address": "package::social-posts::tool::send-a-post-to-substack",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:send-a-post-to-substack",
+    "label": "Send a post to Substack",
+    "job": "Send one of the person's approved posts to one of their Substack accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a substack connection, service_connection:substack or service_connection:substack:<account>). The engine hands this run only that account's held values; they reach substack.com, the account's own address only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Substack. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id",
+      "account_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "account_id": {
+       "type": "string",
+       "description": "One of the post's destinations"
+      },
+      "resend": {
+       "type": "boolean",
+       "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "substack",
+      "from_input": "account_id"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "session_cookie",
+       "fd": 4
+      }
+     ]
+    },
+    "provenance": {
+     "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there",
+       "account_id": "service_connection:substack"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::send-a-post-to-x",
+   "address": "package::social-posts::tool::send-a-post-to-x",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:send-a-post-to-x",
+    "label": "Send a post to X",
+    "job": "Send one of the person's approved posts to one of their X accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a x connection, service_connection:x or service_connection:x:<account>). The engine hands this run only that account's held values; they reach api.x.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on X. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id",
+      "account_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "account_id": {
+       "type": "string",
+       "description": "One of the post's destinations"
+      },
+      "resend": {
+       "type": "boolean",
+       "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "x",
+      "from_input": "account_id"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "access_token",
+       "fd": 4
+      }
+     ]
+    },
+    "provenance": {
+     "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there",
+       "account_id": "service_connection:x"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
   }
  ]
 }
