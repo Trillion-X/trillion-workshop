@@ -1,0 +1,1167 @@
+{
+  "what_this_is": "20 technique rows from four media, with the crossing fields the 2026-10-30 backfill gave them (ids renamed, source addresses left out), the vocabulary their terms come from (every property, the mechanisms these rows hold; vectors left out: crossing reads terms), and a goal in a fifth medium.",
+  "request": {
+    "goal": "a sales page for a budgeting app",
+    "goal_medium": "sales page",
+    "constraints": [
+      "no customer testimonials exist yet"
+    ]
+  },
+  "expect": {
+    "surfaces": "fixture:short-video:same-effort-mirror",
+    "through": "embodiment"
+  },
+  "rows": [
+    {
+      "id": "fixture:web-motion:text-reveal",
+      "name": "Staggered text entrance from a clipped baseline",
+      "kind": "technique",
+      "description": "A motion idea seen on 138 of the 200 catalogued sites, kept here by the reason it works so it can be reused in any medium.",
+      "mechanism": [
+        "staggered arrival"
+      ],
+      "operates_on": [
+        "attention focus"
+      ],
+      "needs": [
+        {
+          "says": "text split into units",
+          "property": null
+        },
+        {
+          "says": "a clip or mask on each unit",
+          "property": null
+        },
+        {
+          "says": "a delay between units",
+          "property": "perceived waiting time"
+        }
+      ],
+      "produces": [
+        "a headline that arrives in reading order",
+        "large type that feels placed"
+      ],
+      "from_medium": "web page motion"
+    },
+    {
+      "id": "fixture:web-motion:cursor-reactive",
+      "name": "Pointer as a live input to the scene",
+      "kind": "technique",
+      "description": "A motion idea seen on 75 of the 200 catalogued sites, kept here by the reason it works so it can be reused in any medium.",
+      "mechanism": [
+        "feedback loop"
+      ],
+      "operates_on": [
+        "feedback speed"
+      ],
+      "needs": [
+        {
+          "says": "a pointer position read on every update",
+          "property": null
+        },
+        {
+          "says": "an eased follower value",
+          "property": null
+        }
+      ],
+      "produces": [
+        "a surface that leans toward or away from the hand",
+        "a feeling that the surface is physically there"
+      ],
+      "from_medium": "web page motion"
+    },
+    {
+      "id": "fixture:web-motion:scroll-scrub",
+      "name": "Scroll position as a playhead",
+      "kind": "technique",
+      "description": "A motion idea seen on 74 of the 200 catalogued sites, kept here by the reason it works so it can be reused in any medium.",
+      "mechanism": [
+        "agency"
+      ],
+      "operates_on": [
+        "sense of control"
+      ],
+      "needs": [
+        {
+          "says": "a timeline of the sequence",
+          "property": null
+        },
+        {
+          "says": "a pinned region",
+          "property": null
+        },
+        {
+          "says": "a mapping from input distance to timeline progress",
+          "property": null
+        }
+      ],
+      "produces": [
+        "a sequence the person plays at their own pace",
+        "the person runs the story forward and back"
+      ],
+      "from_medium": "web page motion"
+    },
+    {
+      "id": "fixture:web-motion:physics-object",
+      "name": "Real objects that obey simple physics",
+      "kind": "technique",
+      "description": "A motion idea seen on 45 of the 200 catalogued sites, kept here by the reason it works so it can be reused in any medium.",
+      "mechanism": [
+        "believable process"
+      ],
+      "operates_on": [
+        "perceived realism",
+        "attention over time"
+      ],
+      "needs": [
+        {
+          "says": "a physics step",
+          "property": null
+        },
+        {
+          "says": "collision on each object",
+          "property": null
+        },
+        {
+          "says": "a pointer force",
+          "property": null
+        }
+      ],
+      "produces": [
+        "a pile or model that reacts when touched",
+        "a person who stays longer to play"
+      ],
+      "from_medium": "web page motion"
+    },
+    {
+      "id": "fixture:web-motion:quiet-loader",
+      "name": "Immersive Garden",
+      "kind": "reference-site",
+      "description": "A Agency & Studio site rated 9/10 for motion, built with Three.js, Nuxt, WebGL; its motion is made of plaster relief reveal; mouse-reactive lighting; serif copy fade-up; loader-to-hero handoff; rising showreel frame.",
+      "mechanism": [
+        "closure",
+        "stillness"
+      ],
+      "operates_on": [
+        "perceived waiting time",
+        "attention focus"
+      ],
+      "needs": [
+        {
+          "says": "a loader that hands over to the first view",
+          "property": null
+        },
+        {
+          "says": "a fixed hero composition",
+          "property": null
+        },
+        {
+          "says": "light that follows the pointer",
+          "property": null
+        }
+      ],
+      "produces": [
+        "a hushed, gallery-calm first view",
+        "a wait that ends in arrival"
+      ],
+      "from_medium": "web page motion"
+    },
+    {
+      "id": "fixture:short-video:set-the-phone-down",
+      "name": "Set the phone down to begin, so the viewer sees the shot being made",
+      "kind": "method",
+      "description": "Named only by title. Reading: the clip opens on the person placing the camera down, stepping back and starting, which shows the moment of setting up and reads as unscripted. Filmable alone with a stable surface.",
+      "mechanism": [
+        "authenticity"
+      ],
+      "operates_on": [
+        "trust",
+        "perceived realism"
+      ],
+      "needs": [
+        {
+          "says": "a stable surface to set the device on",
+          "property": null
+        },
+        {
+          "says": "a clip that starts before the first line",
+          "property": null
+        }
+      ],
+      "produces": [
+        "the take reads as unscripted",
+        "the setting up is seen before the message"
+      ],
+      "from_medium": "short vertical video"
+    },
+    {
+      "id": "fixture:short-video:same-effort-mirror",
+      "name": "Mirror format: two identical people, one small repeated change, a counter, and the viewer sees themselves",
+      "kind": "format",
+      "description": "Two figures start identical at week 1. A visible counter advances. One adds a small fixed step each week and the other does not; by week 13 the gap is large and the closing line says same effort, only one added weight. The viewer realises they are the one who did not. In the example (16 seconds, vertical) the numbers are the poster's claims: both deadlift 60 kg at week 1, one adds 5 kg a week and lifts 120 kg at week 13, 7 million views across 5 videos on an account 8 days old, 3 million on the top one, and the poster guesses an AI model made it. Works for anything that compounds: savings, writing, practice, outreach.",
+      "mechanism": [
+        "embodiment",
+        "contrast"
+      ],
+      "operates_on": [
+        "self-relevance",
+        "felt tension"
+      ],
+      "needs": [
+        {
+          "says": "two identical starting figures",
+          "property": null
+        },
+        {
+          "says": "one small repeated change",
+          "property": null
+        },
+        {
+          "says": "a visible counter",
+          "property": null
+        }
+      ],
+      "produces": [
+        "the viewer sees their own inaction as the cause of a worse result",
+        "an urge to make the one change"
+      ],
+      "from_medium": "short vertical video"
+    },
+    {
+      "id": "fixture:short-video:no-invented-numbers",
+      "name": "Every number from the tool; say no data rather than invent one",
+      "kind": "principle",
+      "description": "The strategist prompt tells the agent to take every figure from the library tool's answers and to answer no data when the tool has none. In the recipe this is a rule on every step, not just a line in a prompt.",
+      "mechanism": [
+        "evidence gap"
+      ],
+      "operates_on": [
+        "trust",
+        "decision quality"
+      ],
+      "needs": [
+        {
+          "says": "a tool that returns the figures",
+          "property": null
+        },
+        {
+          "says": "a rule that applies to every step",
+          "property": null
+        }
+      ],
+      "produces": [
+        "every figure traced to a tool answer",
+        "missing data stated as no data"
+      ],
+      "from_medium": "short vertical video"
+    },
+    {
+      "id": "fixture:short-video:scene-cliffhanger",
+      "name": "Every scene ends on a small open question",
+      "kind": "method",
+      "description": "Each scene closes on something unresolved (a daydream, a reveal window, a line that invites 'what next?'), so attention carries across every cut.",
+      "mechanism": [
+        "open loop"
+      ],
+      "operates_on": [
+        "attention over time"
+      ],
+      "needs": [
+        {
+          "says": "an unresolved beat at the end of each scene",
+          "property": null
+        },
+        {
+          "says": "a next scene that answers it",
+          "property": null
+        }
+      ],
+      "produces": [
+        "attention carries across every cut",
+        "viewers stay through the whole piece"
+      ],
+      "from_medium": "short vertical video"
+    },
+    {
+      "id": "fixture:short-video:short-to-long-funnel",
+      "name": "Short pieces feed long-form where revenue per viewer is higher",
+      "kind": "method",
+      "description": "Use short reels to send viewers to long relaxing YouTube videos linked from the bio, where ad money per viewer is much larger. Products and brand deals fit once an audience trusts the character.",
+      "mechanism": [
+        "graduated commitment"
+      ],
+      "operates_on": [
+        "commitment",
+        "receptiveness to an offer"
+      ],
+      "needs": [
+        {
+          "says": "an audience that already trusts the character",
+          "property": null
+        },
+        {
+          "says": "a longer place linked from the short pieces",
+          "property": null
+        },
+        {
+          "says": "a reason to keep watching after the first piece",
+          "property": null
+        }
+      ],
+      "produces": [
+        "more time spent per visitor",
+        "more income per visitor from longer pieces"
+      ],
+      "from_medium": "short vertical video"
+    },
+    {
+      "id": "fixture:design-system:bento",
+      "name": "Bento",
+      "kind": "design-system",
+      "description": "Modular grid layout with card-like blocks, clear hierarchy, soft spacing, and subtle visual contrast for organized, scannable interfaces.",
+      "mechanism": [
+        "chunking",
+        "consistency"
+      ],
+      "operates_on": [
+        "comprehension",
+        "legibility"
+      ],
+      "needs": [
+        {
+          "says": "items that group into equal units",
+          "property": null
+        },
+        {
+          "says": "a few clear levels of importance",
+          "property": null
+        }
+      ],
+      "produces": [
+        "each block is scanned on its own",
+        "an organised overview at a glance"
+      ],
+      "from_medium": "interface design system"
+    },
+    {
+      "id": "fixture:design-system:exchange-urgency",
+      "name": "Binance.US",
+      "kind": "design-system",
+      "description": "Crypto exchange. Bold yellow accent on monochrome, trading-floor urgency.",
+      "mechanism": [
+        "restraint",
+        "urgency cue"
+      ],
+      "operates_on": [
+        "felt tension",
+        "attention focus"
+      ],
+      "needs": [
+        {
+          "says": "one bright signal on calm neutrals",
+          "property": null
+        },
+        {
+          "says": "moments that call for a quick decision",
+          "property": null
+        }
+      ],
+      "produces": [
+        "the eye jumps to the action",
+        "a sense that time is short"
+      ],
+      "from_medium": "interface design system"
+    },
+    {
+      "id": "fixture:design-system:scheduling-clean",
+      "name": "Cal.com",
+      "kind": "design-system",
+      "description": "Open-source scheduling. Clean neutral UI, developer-oriented simplicity.",
+      "mechanism": [
+        "clutter removal",
+        "association"
+      ],
+      "operates_on": [
+        "comprehension",
+        "perceived effort"
+      ],
+      "needs": [
+        {
+          "says": "few visual cues competing for attention",
+          "property": "attention over time"
+        },
+        {
+          "says": "a task the person already knows",
+          "property": null
+        }
+      ],
+      "produces": [
+        "the next step is obvious",
+        "starting a task takes less effort"
+      ],
+      "from_medium": "interface design system"
+    },
+    {
+      "id": "fixture:design-system:warm-assistant",
+      "name": "Claude (Anthropic)",
+      "kind": "design-system",
+      "description": "Anthropic's AI assistant. Warm terracotta accent, clean editorial layout.",
+      "mechanism": [
+        "warmth",
+        "typographic hierarchy"
+      ],
+      "operates_on": [
+        "approachability",
+        "trust"
+      ],
+      "needs": [
+        {
+          "says": "one warm accent in a neutral field",
+          "property": null
+        },
+        {
+          "says": "a clear reading order for long text",
+          "property": "reading order"
+        }
+      ],
+      "produces": [
+        "a human, thoughtful feel",
+        "long text is easy to follow"
+      ],
+      "from_medium": "interface design system"
+    },
+    {
+      "id": "fixture:design-system:corporate",
+      "name": "Corporate",
+      "kind": "design-system",
+      "description": "Professional, brand-aligned design with structured grids, minimalist layouts, and consistent enterprise patterns.",
+      "mechanism": [
+        "shared standard",
+        "sober authority"
+      ],
+      "operates_on": [
+        "trust",
+        "reliability"
+      ],
+      "needs": [
+        {
+          "says": "consistent patterns across many teams",
+          "property": null
+        },
+        {
+          "says": "a structured grid",
+          "property": null
+        }
+      ],
+      "produces": [
+        "the brand reads as dependable",
+        "a steady look across teams"
+      ],
+      "from_medium": "interface design system"
+    },
+    {
+      "id": "fixture:camera:static-shot",
+      "name": "Static shot",
+      "kind": "camera-move",
+      "description": "Camera does not move at all; the frame stays put for the whole clip.",
+      "mechanism": [
+        "stillness"
+      ],
+      "operates_on": [
+        "attention focus"
+      ],
+      "needs": [
+        {
+          "says": "a subject worth holding on",
+          "property": "attention over time"
+        },
+        {
+          "says": "a fixed framing for the full length",
+          "property": null
+        }
+      ],
+      "produces": [
+        "the subject is watched without distraction",
+        "a calm, steady feel"
+      ],
+      "from_medium": "film camera movement"
+    },
+    {
+      "id": "fixture:camera:push-in-anticipation",
+      "name": "Slow zoom in",
+      "kind": "camera-move",
+      "description": "Lens slowly tightens, so the subject grows in frame without the camera moving.",
+      "mechanism": [
+        "anticipation"
+      ],
+      "operates_on": [
+        "attention focus",
+        "felt tension"
+      ],
+      "needs": [
+        {
+          "says": "a subject that holds the eye",
+          "property": "attention over time"
+        },
+        {
+          "says": "time for the change to build",
+          "property": null
+        }
+      ],
+      "produces": [
+        "attention narrows onto the subject slowly",
+        "a building sense of expectation"
+      ],
+      "from_medium": "film camera movement"
+    },
+    {
+      "id": "fixture:camera:crash-zoom-in",
+      "name": "Crash zoom in",
+      "kind": "camera-move",
+      "description": "Punchy near-instant zoom snap onto the target, used for sudden emphasis.",
+      "mechanism": [
+        "abrupt emphasis",
+        "surprise"
+      ],
+      "operates_on": [
+        "attention focus"
+      ],
+      "needs": [
+        {
+          "says": "one target worth a sudden jump",
+          "property": null
+        },
+        {
+          "says": "calm moments around it",
+          "property": "sense of steadiness"
+        }
+      ],
+      "produces": [
+        "attention snaps to the target",
+        "a beat of surprise"
+      ],
+      "from_medium": "film camera movement"
+    },
+    {
+      "id": "fixture:camera:low-angle",
+      "name": "Low tracking",
+      "kind": "camera-move",
+      "description": "Camera moves very low, at ground or below-waist height, beside the subject's path, emphasising feet, wheels, ground.",
+      "mechanism": [
+        "low vantage"
+      ],
+      "operates_on": [
+        "perceived power"
+      ],
+      "needs": [
+        {
+          "says": "a moving subject with feet, wheels or ground detail",
+          "property": null
+        },
+        {
+          "says": "a low path beside it",
+          "property": null
+        }
+      ],
+      "produces": [
+        "the ground and motion feel close and heavy",
+        "the subject feels powerful"
+      ],
+      "from_medium": "film camera movement"
+    },
+    {
+      "id": "fixture:camera:detail-then-reveal",
+      "name": "Crane up",
+      "kind": "camera-move",
+      "description": "Camera rises on a boom arm, lifting and revealing the scene from higher up.",
+      "mechanism": [
+        "overview after detail"
+      ],
+      "operates_on": [
+        "comprehension"
+      ],
+      "needs": [
+        {
+          "says": "a scene whose parts must be seen together",
+          "property": "meaning shift"
+        },
+        {
+          "says": "a clear view of the whole",
+          "property": null
+        }
+      ],
+      "produces": [
+        "the viewer sees how the parts fit",
+        "the scene's scale is understood"
+      ],
+      "from_medium": "film camera movement"
+    }
+  ],
+  "vocabulary": {
+    "meaning": {
+      "model": "embeddinggemma",
+      "dims": 768,
+      "forms": {
+        "query": "task: search result | query: {text}",
+        "document": "title: {title} | text: {text}"
+      }
+    },
+    "vocabularies": {
+      "mechanism": {
+        "says": "Why a technique works, in words about what it does to a person or a system, never about the medium it was found in.",
+        "reuse_at": 0.72,
+        "new_below": 0.43,
+        "terms": [
+          {
+            "term": "chunking",
+            "says": "A small, equal set of named parts is grouped so a person holds the whole as one unit.",
+            "aliases": [
+              "grouping"
+            ]
+          },
+          {
+            "term": "open loop",
+            "says": "An unanswered question held in view keeps attention until it is closed.",
+            "aliases": [
+              "foreshadowing"
+            ]
+          },
+          {
+            "term": "surprise",
+            "says": "An unexpected number makes a person stop and reread the claim.",
+            "aliases": []
+          },
+          {
+            "term": "contrast",
+            "says": "A band over one key word sets it apart from the words around it.",
+            "aliases": []
+          },
+          {
+            "term": "feedback loop",
+            "says": "A visible response to each action keeps the person acting and shows them their effect.",
+            "aliases": []
+          },
+          {
+            "term": "believable process",
+            "says": "Typed input with measured pauses and printed output in chunks matches how real work unfolds, so the result is believed.",
+            "aliases": []
+          },
+          {
+            "term": "staggered arrival",
+            "says": "Items that arrive one after another in a fixed rhythm let the eye follow each in turn.",
+            "aliases": [
+              "timed sequence"
+            ]
+          },
+          {
+            "term": "stillness",
+            "says": "A fixed framing lets the subject hold all the attention without motion competing for it.",
+            "aliases": []
+          },
+          {
+            "term": "restraint",
+            "says": "A limited palette reads as chosen rather than defaulted, and one accent becomes the point of focus.",
+            "aliases": []
+          },
+          {
+            "term": "anticipation",
+            "says": "A wait filled with a rising signal turns idle time into expectation of what comes next.",
+            "aliases": []
+          },
+          {
+            "term": "overview after detail",
+            "says": "Pulling back after the detail shows how each part fits the whole.",
+            "aliases": []
+          },
+          {
+            "term": "closure",
+            "says": "A clear hand-off from the wait to the first real content makes the arrival feel completed.",
+            "aliases": []
+          },
+          {
+            "term": "association",
+            "says": "A look tied to a known field makes a person feel that field's qualities.",
+            "aliases": []
+          },
+          {
+            "term": "clutter removal",
+            "says": "Taking away the surroundings leaves only the part that matters, so it reads first.",
+            "aliases": [
+              "cue removal",
+              "surrounding space",
+              "empty surround"
+            ]
+          },
+          {
+            "term": "embodiment",
+            "says": "Addressing the person as you puts them inside the scenario, so its stakes feel personal.",
+            "aliases": []
+          },
+          {
+            "term": "agency",
+            "says": "Letting a person steer the pace and order of a story makes them invested in what they find.",
+            "aliases": []
+          },
+          {
+            "term": "shared standard",
+            "says": "A common set of rules lets many diverging versions still work together.",
+            "aliases": []
+          },
+          {
+            "term": "authenticity",
+            "says": "Real originals with their true damage show that the material is genuine.",
+            "aliases": []
+          },
+          {
+            "term": "typographic hierarchy",
+            "says": "A serif heading against a plain body text separates the heading from the rest at a glance.",
+            "aliases": []
+          },
+          {
+            "term": "consistency",
+            "says": "Repeating a known element makes continuing to follow feel like the natural next step.",
+            "aliases": []
+          },
+          {
+            "term": "evidence gap",
+            "says": "A measure with no data scores low and says so, so a guess is not counted as proof.",
+            "aliases": []
+          },
+          {
+            "term": "graduated commitment",
+            "says": "A small, free first step builds enough trust that a larger step feels natural to take.",
+            "aliases": []
+          },
+          {
+            "term": "warmth",
+            "says": "Warm hues on a soft neutral make a surface feel inviting and human.",
+            "aliases": [
+              "warmth cue"
+            ]
+          },
+          {
+            "term": "urgency cue",
+            "says": "A bright signal in a calm field makes a person feel time is short and act now.",
+            "aliases": [
+              "urgency"
+            ]
+          },
+          {
+            "term": "sober authority",
+            "says": "Restrained, sober surfaces signal that the maker is competent and can be relied on.",
+            "aliases": []
+          },
+          {
+            "term": "abrupt emphasis",
+            "says": "A sudden jump in scale or speed forces attention onto one thing.",
+            "aliases": []
+          },
+          {
+            "term": "low vantage",
+            "says": "A view from below the subject's height makes it look larger and more dominant.",
+            "aliases": [
+              "high vantage",
+              "downward gaze",
+              "low-angle dominance"
+            ]
+          }
+        ]
+      },
+      "property": {
+        "says": "The abstract property of a person or a system that a technique changes or needs, such as attention over time, trust, perceived effort, recognisability or reproducibility.",
+        "reuse_at": 0.72,
+        "new_below": 0.43,
+        "terms": [
+          {
+            "term": "comprehension",
+            "says": "How well a person understands what something is and how it differs from something else.",
+            "aliases": []
+          },
+          {
+            "term": "recognisability",
+            "says": "How easily a person identifies a thing as known.",
+            "aliases": []
+          },
+          {
+            "term": "perceived effort",
+            "says": "How much work or exposure a person feels an action will cost.",
+            "aliases": []
+          },
+          {
+            "term": "perceived waiting time",
+            "says": "How long a wait feels, separate from how long it is.",
+            "aliases": []
+          },
+          {
+            "term": "receptiveness to an offer",
+            "says": "How open a person is to being asked to buy or act.",
+            "aliases": []
+          },
+          {
+            "term": "attention focus",
+            "says": "Where a person's attention settles at a given moment.",
+            "aliases": []
+          },
+          {
+            "term": "decision quality",
+            "says": "How well a choice follows from the evidence behind it.",
+            "aliases": []
+          },
+          {
+            "term": "legibility",
+            "says": "How easily a person reads shapes or words.",
+            "aliases": []
+          },
+          {
+            "term": "production effort",
+            "says": "How much work it takes to make each new piece.",
+            "aliases": [
+              "running cost"
+            ]
+          },
+          {
+            "term": "perceived value",
+            "says": "How worth keeping or sharing a person judges a thing to be.",
+            "aliases": []
+          },
+          {
+            "term": "attribution",
+            "says": "How clearly a person can tell who said or did something.",
+            "aliases": []
+          },
+          {
+            "term": "trust",
+            "says": "How much a person believes a claim or result.",
+            "aliases": []
+          },
+          {
+            "term": "fidelity to intent",
+            "says": "How closely a result matches what the person meant.",
+            "aliases": []
+          },
+          {
+            "term": "attention over time",
+            "says": "How attention holds or fades as something unfolds.",
+            "aliases": []
+          },
+          {
+            "term": "state visibility",
+            "says": "How easily a person sees the current state of an automated process.",
+            "aliases": []
+          },
+          {
+            "term": "sense of progress",
+            "says": "How far along a person feels they are toward a goal.",
+            "aliases": []
+          },
+          {
+            "term": "first impression",
+            "says": "The judgement a person forms in the opening moments of meeting something.",
+            "aliases": []
+          },
+          {
+            "term": "perceived realism",
+            "says": "How real a shown process or object feels to a person.",
+            "aliases": [
+              "perceived brightness",
+              "perceived precision"
+            ]
+          },
+          {
+            "term": "editability",
+            "says": "How easily a thing can be changed without breaking the rest.",
+            "aliases": []
+          },
+          {
+            "term": "meaning shift",
+            "says": "How the sense of a picture changes when its parts are recombined.",
+            "aliases": []
+          },
+          {
+            "term": "sense of depth",
+            "says": "How three-dimensional a scene feels to a person.",
+            "aliases": [
+              "mood"
+            ]
+          },
+          {
+            "term": "perceived consensus",
+            "says": "How widely a person believes others agree or act.",
+            "aliases": []
+          },
+          {
+            "term": "sense of scale",
+            "says": "How big a person judges an object to be relative to others.",
+            "aliases": [
+              "sense of precision"
+            ]
+          },
+          {
+            "term": "sense of control",
+            "says": "How much a person feels their own choices set the speed and order of what they see.",
+            "aliases": []
+          },
+          {
+            "term": "perceived energy",
+            "says": "How lively and forceful a design feels to a person.",
+            "aliases": []
+          },
+          {
+            "term": "tolerance of the unreal",
+            "says": "How willingly a person accepts motion that breaks physical rules.",
+            "aliases": []
+          },
+          {
+            "term": "felt tension",
+            "says": "How much threat or stake a person feels in a moment.",
+            "aliases": []
+          },
+          {
+            "term": "coverage",
+            "says": "How many of the possible changes are considered before one is chosen.",
+            "aliases": []
+          },
+          {
+            "term": "feedback speed",
+            "says": "How quickly a person sees the result of a change.",
+            "aliases": []
+          },
+          {
+            "term": "perceived power",
+            "says": "How capable or strong a thing feels.",
+            "aliases": []
+          },
+          {
+            "term": "controllability",
+            "says": "How much of the output a person can bound in advance.",
+            "aliases": []
+          },
+          {
+            "term": "follow-through",
+            "says": "How reliably a planned action actually happens.",
+            "aliases": []
+          },
+          {
+            "term": "reproducibility",
+            "says": "How reliably the same result can be made again.",
+            "aliases": []
+          },
+          {
+            "term": "compatibility",
+            "says": "How well separate versions still work together.",
+            "aliases": []
+          },
+          {
+            "term": "fit between tool and job",
+            "says": "How well the tool's training target matches the success test of the task.",
+            "aliases": []
+          },
+          {
+            "term": "reach",
+            "says": "How many people see a piece.",
+            "aliases": []
+          },
+          {
+            "term": "orientation",
+            "says": "How clearly a person knows where they are in a space.",
+            "aliases": []
+          },
+          {
+            "term": "sense of weight",
+            "says": "How heavy and deliberate a motion feels.",
+            "aliases": []
+          },
+          {
+            "term": "control footprint",
+            "says": "How much space the controls take up without covering the content.",
+            "aliases": []
+          },
+          {
+            "term": "perceived responsiveness",
+            "says": "How alive a thing feels as it answers a person's input.",
+            "aliases": []
+          },
+          {
+            "term": "surface character",
+            "says": "How a surface's finish reads, such as glossy, grainy, flat or glowing.",
+            "aliases": []
+          },
+          {
+            "term": "visual density",
+            "says": "How crowded or sparse a visual field feels.",
+            "aliases": []
+          },
+          {
+            "term": "browsing ease",
+            "says": "How easily a person moves through a set of items and finds one.",
+            "aliases": []
+          },
+          {
+            "term": "place keeping",
+            "says": "How well a person keeps their place when one view changes to another.",
+            "aliases": []
+          },
+          {
+            "term": "reading order",
+            "says": "The sequence in which a person takes in a block of text.",
+            "aliases": []
+          },
+          {
+            "term": "perceived smoothness",
+            "says": "How fluid a movement feels to the person watching it.",
+            "aliases": [
+              "perceived speed",
+              "perceived motion"
+            ]
+          },
+          {
+            "term": "commitment",
+            "says": "How far a person has committed to keep following.",
+            "aliases": []
+          },
+          {
+            "term": "action confirmation",
+            "says": "How clearly a person knows an action took effect.",
+            "aliases": []
+          },
+          {
+            "term": "addressability",
+            "says": "How easily any single part of a system can be found and changed by its id.",
+            "aliases": []
+          },
+          {
+            "term": "reliability",
+            "says": "How dependably a system does what it is meant to do.",
+            "aliases": []
+          },
+          {
+            "term": "marginal cost",
+            "says": "How much one more unit costs to make.",
+            "aliases": []
+          },
+          {
+            "term": "coupling",
+            "says": "How tightly two parts depend on each other's details.",
+            "aliases": []
+          },
+          {
+            "term": "overhead",
+            "says": "How much support work a change needs beyond its own content.",
+            "aliases": []
+          },
+          {
+            "term": "retry safety",
+            "says": "How safely an action can be repeated without doubling its effect.",
+            "aliases": []
+          },
+          {
+            "term": "change risk",
+            "says": "How likely a change is to break something that already works.",
+            "aliases": []
+          },
+          {
+            "term": "self-relevance",
+            "says": "How much a person feels something is about them.",
+            "aliases": []
+          },
+          {
+            "term": "accountability",
+            "says": "How clearly each action can be traced to the decision that allowed it.",
+            "aliases": []
+          },
+          {
+            "term": "data exposure",
+            "says": "How many parties can see stored files and prompts.",
+            "aliases": []
+          },
+          {
+            "term": "outcome spread",
+            "says": "How widely results differ across pieces made in the same shape.",
+            "aliases": []
+          },
+          {
+            "term": "stability of result",
+            "says": "How well a result keeps what was chosen while it is changed.",
+            "aliases": []
+          },
+          {
+            "term": "judgement of what spreads",
+            "says": "How well a person can tell in advance what will reach people.",
+            "aliases": []
+          },
+          {
+            "term": "perceived craft",
+            "says": "How skilled and hand-made a result looks to a person.",
+            "aliases": []
+          },
+          {
+            "term": "availability",
+            "says": "How reliably a thing can be seen or used when a first option fails.",
+            "aliases": []
+          },
+          {
+            "term": "approachability",
+            "says": "How open and easy to approach a thing feels.",
+            "aliases": [
+              "warmth"
+            ]
+          },
+          {
+            "term": "anonymity",
+            "says": "How hard it is to tell who a shown person is.",
+            "aliases": []
+          },
+          {
+            "term": "inclusive access",
+            "says": "How well people with different abilities can take in and use a thing.",
+            "aliases": []
+          },
+          {
+            "term": "ranking accuracy",
+            "says": "How well a predictor's ranking matches real results.",
+            "aliases": []
+          },
+          {
+            "term": "sense of closeness",
+            "says": "How near to a person something feels.",
+            "aliases": [
+              "perceived closeness",
+              "sense of relationship",
+              "sense of belonging"
+            ]
+          },
+          {
+            "term": "curiosity",
+            "says": "How strongly a person wants to know what is hidden or unseen.",
+            "aliases": []
+          },
+          {
+            "term": "appetite",
+            "says": "How strongly a person wants what is shown, such as food.",
+            "aliases": []
+          },
+          {
+            "term": "sense of steadiness",
+            "says": "How steady and calm a person feels as things move around them.",
+            "aliases": []
+          },
+          {
+            "term": "felt isolation",
+            "says": "How alone a person feels in a setting.",
+            "aliases": []
+          },
+          {
+            "term": "felt exposure",
+            "says": "How exposed or watched a person feels.",
+            "aliases": []
+          },
+          {
+            "term": "visible detail",
+            "says": "How much fine tone and texture a person can make out in a region.",
+            "aliases": []
+          }
+        ]
+      }
+    }
+  }
+}

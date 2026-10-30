@@ -1,0 +1,28 @@
+{
+  "what_this_is": "Term pairs labelled by hand as meaning the same thing or not, from which measure-reuse-line.mjs measures a vocabulary's reuse_at: the closeness at which a proposed term is the same as an existing one. Each term is [term, what it means].",
+  "same": [
+    [["open loop", "an unanswered question holds attention until it is answered"], ["curiosity gap", "withheld information makes a person want to find out"]],
+    [["self-insertion", "the person sees themselves as the subject, so what happens feels like it happens to them"], ["self-recognition", "the viewer recognises their own situation in the figure shown"]],
+    [["social proof", "people trust a choice others have already made"], ["crowd validation", "seeing many others use something makes it feel safe"]],
+    [["deterministic replay", "the same input always gives the same output, so any result can be reproduced"], ["reproducibility by pure function", "output computed only from its inputs so reruns match exactly"]],
+    [["contrast", "a difference placed side by side is noticed faster than either thing alone"], ["juxtaposition", "two things shown together make their difference obvious"]],
+    [["anchoring", "the first number seen sets the reference later numbers are judged against"], ["reference price", "an initial figure frames how big or small the next figure feels"]],
+    [["progressive disclosure", "showing a little at a time keeps the load low"], ["chunking", "breaking information into small pieces makes it easier to take in"]],
+    [["attention over time", "how long a person keeps paying attention"], ["retention", "how much of a piece a person stays for"]],
+    [["perceived effort", "how hard something feels to do"], ["friction", "how much work or hesitation stands between a person and an action"]],
+    [["recognisability", "how quickly something is known again on sight"], ["memorability", "how easily something is recalled later"]]
+  ],
+  "different": [
+    [["open loop", "an unanswered question holds attention until it is answered"], ["anchoring", "the first number seen sets the reference later numbers are judged against"]],
+    [["social proof", "people trust a choice others have already made"], ["scarcity", "something limited feels more valuable"]],
+    [["contrast", "a difference placed side by side is noticed faster than either thing alone"], ["rhythm", "a regular beat makes the next event predictable"]],
+    [["self-insertion", "the person sees themselves as the subject"], ["authority", "people believe someone who appears to be an expert"]],
+    [["deterministic replay", "the same input always gives the same output"], ["early verification", "checking work while it is made catches mistakes where they cost least"]],
+    [["progressive disclosure", "showing a little at a time keeps the load low"], ["surprise", "an unexpected event grabs attention"]],
+    [["nostalgia", "a look tied to a past era brings back feelings from that time"], ["familiarity", "something seen before feels easier and safer"]],
+    [["continuity", "a smooth change between two states keeps the person oriented"], ["visual hierarchy", "size and placement tell the eye what to read first"]],
+    [["attention over time", "how long a person keeps paying attention"], ["trust", "how much a person believes what they are told"]],
+    [["perceived effort", "how hard something feels to do"], ["perceived value", "how much something seems worth"]],
+    [["reproducibility", "whether the same result comes out again"], ["editability", "how easily something can be changed later"]]
+  ]
+}

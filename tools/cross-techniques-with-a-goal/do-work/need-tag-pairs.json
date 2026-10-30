@@ -1,0 +1,227 @@
+{
+  "what_this_is": "Needs paired by hand with the property each is or is not about, from the 2026-10-30 backfill; measure-reuse-line.mjs over these pairs sets needs_tags.tag_min in technique-conventions.json. Each side is [title, text] as it is embedded: a need has no title.",
+  "same": [
+    [
+      [
+        "none",
+        "a question that asks for an answer"
+      ],
+      [
+        "curiosity",
+        "How strongly a person wants to know what is hidden or unseen."
+      ]
+    ],
+    [
+      [
+        "none",
+        "a threat that escalates in steps"
+      ],
+      [
+        "felt tension",
+        "How much threat or stake a person feels in a moment."
+      ]
+    ],
+    [
+      [
+        "none",
+        "a visible threat the viewpoint can look at"
+      ],
+      [
+        "felt tension",
+        "How much threat or stake a person feels in a moment."
+      ]
+    ],
+    [
+      [
+        "none",
+        "text that must stay readable"
+      ],
+      [
+        "legibility",
+        "How easily a person reads shapes or words."
+      ]
+    ],
+    [
+      [
+        "none",
+        "a foreground element placed near the subject"
+      ],
+      [
+        "attention focus",
+        "Where a person's attention settles at a given moment."
+      ]
+    ],
+    [
+      [
+        "none",
+        "ordered steps with one action each"
+      ],
+      [
+        "reading order",
+        "The sequence in which a person takes in a block of text."
+      ]
+    ],
+    [
+      [
+        "none",
+        "steps numbered in order"
+      ],
+      [
+        "reading order",
+        "The sequence in which a person takes in a block of text."
+      ]
+    ],
+    [
+      [
+        "none",
+        "a check that tells whether the current state still fits"
+      ],
+      [
+        "state visibility",
+        "How easily a person sees the current state of an automated process."
+      ]
+    ],
+    [
+      [
+        "none",
+        "the viewpoint given as a position relative to the hero"
+      ],
+      [
+        "orientation",
+        "How clearly a person knows where they are in a space."
+      ]
+    ],
+    [
+      [
+        "none",
+        "surface behaviour named for each material"
+      ],
+      [
+        "surface character",
+        "How a surface's finish reads, such as glossy, grainy, flat or glowing."
+      ]
+    ],
+    [
+      [
+        "none",
+        "the result stated in plain words"
+      ],
+      [
+        "fidelity to intent",
+        "How closely a result matches what the person meant."
+      ]
+    ]
+  ],
+  "different": [
+    [
+      [
+        "none",
+        "an open question at all times"
+      ],
+      [
+        "approachability",
+        "How open and easy to approach a thing feels."
+      ]
+    ],
+    [
+      [
+        "none",
+        "a product the person can use at once"
+      ],
+      [
+        "browsing ease",
+        "How easily a person moves through a set of items and finds one."
+      ]
+    ],
+    [
+      [
+        "none",
+        "every line of words and design written fresh"
+      ],
+      [
+        "perceived energy",
+        "How lively and forceful a design feels to a person."
+      ]
+    ],
+    [
+      [
+        "none",
+        "views compared by sound on one's own items"
+      ],
+      [
+        "sense of scale",
+        "How big a person judges an object to be relative to others."
+      ]
+    ],
+    [
+      [
+        "none",
+        "the overall feeling described before the subject"
+      ],
+      [
+        "sense of weight",
+        "How heavy and deliberate a motion feels."
+      ]
+    ],
+    [
+      [
+        "none",
+        "one motion named in one sentence"
+      ],
+      [
+        "sense of weight",
+        "How heavy and deliberate a motion feels."
+      ]
+    ],
+    [
+      [
+        "none",
+        "a written definition of success for each step"
+      ],
+      [
+        "sense of progress",
+        "How far along a person feels they are toward a goal."
+      ]
+    ],
+    [
+      [
+        "none",
+        "a tempo that the sound sets"
+      ],
+      [
+        "feedback speed",
+        "How quickly a person sees the result of a change."
+      ]
+    ],
+    [
+      [
+        "none",
+        "a stored action that completes the step"
+      ],
+      [
+        "action confirmation",
+        "How clearly a person knows an action took effect."
+      ]
+    ],
+    [
+      [
+        "none",
+        "a chain of angles set in order"
+      ],
+      [
+        "reading order",
+        "The sequence in which a person takes in a block of text."
+      ]
+    ],
+    [
+      [
+        "none",
+        "one small repeated change"
+      ],
+      [
+        "change risk",
+        "How likely a change is to break something that already works."
+      ]
+    ]
+  ]
+}
