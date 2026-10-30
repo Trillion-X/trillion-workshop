@@ -11,8 +11,9 @@
 //   - How many browsers may run at once on a computer is the runner's to decide, not this file's: a tool opens one
 //     browser when it is run.
 //   - A run told a proxy (HTTPS_PROXY, as the engine tells every internet:true run) sends the browser's traffic through
-//     it (--proxy-server): Chromium does not read that setting itself, and the engine's sandbox lets the run reach
-//     nothing else. Which addresses are public is the engine's to judge, never this file's.
+//     it (--proxy-server), loopback addresses included (--proxy-bypass-list=<-loopback>, since Chromium would
+//     otherwise go direct to them): Chromium does not read that setting itself, and the engine's sandbox lets the run
+//     reach nothing else. Which addresses are public is the engine's to judge, never this file's.
 import { spawn } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -52,7 +53,7 @@ export async function openBrowser(executable, { width, height, switches = [] } =
   profile = mkdtempSync(join(tmpdir(), 'headless-browser-'));
   const proxy = process.env.HTTPS_PROXY || process.env.https_proxy;
   child = spawn(executable, [
-    ...quietSwitches, ...switches, ...(proxy ? [`--proxy-server=${proxy}`] : []), '--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run',
+    ...quietSwitches, ...switches, ...(proxy ? [`--proxy-server=${proxy}`, '--proxy-bypass-list=<-loopback>'] : []), '--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run',
     '--no-default-browser-check', '--no-sandbox', '--disable-gpu', '--hide-scrollbars', '--mute-audio',
     '--disable-dev-shm-usage', '--force-color-profile=srgb', `--window-size=${width},${height}`, 'about:blank',
   ], { stdio: ['ignore', 'ignore', 'pipe'] });
