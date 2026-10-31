@@ -25,7 +25,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import { admit, boundFields, findTerm, nearest, termKey, withoutProvisional } from './vocabulary.mjs';
-import { sameMeaning } from './meaning.mjs';
+import { NotJson, sameMeaning } from './meaning.mjs';
 
 const clip = (text, max) => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
 // Words a person reads: strings, or lists of them; a web address is a pointer, not words, so it is left out.
@@ -69,12 +69,21 @@ export const answerSchema ={ type: 'object', additionalProperties: false, requir
 const judgeSchema = { type: 'object', additionalProperties: false, required: ['term'], properties: { term: { type: 'string' } } };
 
 // A judge that asks a writer model, now: async ({ vocabulary, proposal, candidates }) -> an existing term or ''.
-export const askingJudge = (write, conventions) => async ({ proposal, candidates }) => (await write({
-  name: 'same_meaning',
-  system: conventions.same_meaning.system,
-  user: { proposed: { term: proposal.term, says: proposal.says }, existing: candidates },
-  schema: judgeSchema,
-})).term;
+// A judge that asks the writer now. An answer that holds no JSON leaves the term undecided (undefined: provisional, judged
+// on a later settle) instead of ending the settle; failing to reach the writer still ends it.
+export const askingJudge = (write, conventions) => async ({ proposal, candidates }) => {
+  try {
+    return (await write({
+      name: 'same_meaning',
+      system: conventions.same_meaning.system,
+      user: { proposed: { term: proposal.term, says: proposal.says }, existing: candidates },
+      schema: judgeSchema,
+    })).term;
+  } catch (error) {
+    if (error instanceof NotJson) return undefined;
+    throw error;
+  }
+};
 
 // A judge that reads judgments made earlier ([{ vocabulary, term, chosen, among }]: `among` is the candidate terms the
 // judgment was made against). A choice holds while it is still a candidate; "none of them" holds only while every
