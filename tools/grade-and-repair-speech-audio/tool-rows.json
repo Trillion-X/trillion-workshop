@@ -1,0 +1,237 @@
+{
+  "kind": "package-set-records",
+  "record_set": "grade-and-repair-speech-audio-tool-rows",
+  "what_this_is": "The Workshop rows for the grade-and-repair-speech-audio folder: scripts the person's AI runs on the person's own computer to grade the speech in stretches of recordings, remaster what is poor, re-voice in the speaker's own voice what is still bad, read every result back, and pick the cleanest stretch of the speaker's speech to clone from.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:grade-and-repair-speech-audio",
+        "label": "Grade the speech in my recordings and clean up what sounds poor (runs on your computer)",
+        "job": "Check whether the speech in each part of my recordings sounds good, keep the good ones as they are and clean up noise, hum, wind, room echo and clipping in the rest",
+        "description": "Takes a list of spans (a stretch of one recording, the words said in it and, ideally, the word times) and measures each: loudness, noise floor read from the pauses between words, signal to noise, clipping, mains hum, wind rumble and room tail, against the person's own settings (a JSON file they give; the tool has no values of its own). A span with no fault is kept as it is. A span with a fault is remastered: high-pass, a notch at the hum and its harmonics, then up to three denoised candidates (DeepFilterNet3 full, DeepFilterNet3 limited to the soft limit in the person's settings, ffmpeg afftdn), each finished the same way (pauses ducked when the room was the fault, de-ess, gentle compression, loudness to the person's target) and read by whisper; the candidate whose read matches the original read or the text, with the best signal to noise, wins, and the remastered cut is graded again. Writes grades.json (per span: grade good, remaster or clone, why, the measures before and after, which candidate won) and one wav per span with the settings' handle either side; the source recordings are only read. A span that is still bad after the remaster is marked clone, for tool:clone-speech-that-repair-could-not-fix. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The spans file on the person's computer, put where {input} is in the command: a JSON object with a spans list; each span has clip (a name for the recording), source (its media file), from and to (seconds in the source), text (the words said) and, optionally, words (a list of text, start and end, seconds in the source). words gives a better noise reading, lets the room be ducked and is needed for cloning."
+            },
+            "output": {
+              "type": "string",
+              "description": "A new folder to write grades.json, audio/ and work/ into, put where {output} is in the command."
+            },
+            "settings": {
+              "type": "string",
+              "description": "The person's audio settings file on their computer, put where {settings} is in the command: a JSON file with every key listed in tools/grade-and-repair-speech-audio/read-data/settings-keys.json (their microphone, room, loudness target and voice). The tool has no values of its own and stops naming any key that is missing. Read the values from the person's own records (through the records door) or from the path they give; never invent them."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"grades\": \"<output>/grades.json\", \"counts\": {\"good\", \"remaster\", \"clone\"}}}. grades.json holds each span's grade, treatment, reasons, measures and the audio file."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "brew install ffmpeg",
+            "python3 -m pip install -U numpy scipy soundfile mlx-whisper",
+            "python3 -m venv deepfilternet-venv && deepfilternet-venv/bin/python -m pip install deepfilternet soundfile"
+          ],
+          "run": "python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/grade_and_repair_speech.py all --spans {input} --settings {settings} --out {output} --deepfilternet-python deepfilternet-venv/bin/python",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "apple-silicon",
+            "model: the speech-to-text model named in the settings' read_model (loaded through mlx-whisper, downloaded on first run)",
+            "model: DeepFilterNet3 (MIT or Apache-2.0, comes with the deepfilternet package; optional, without it only ffmpeg afftdn is tried)"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, write the spans file for the recordings they name, run `run` with it in place of {input} and a new folder for {output} (use `grade` instead of `all` to only measure and remaster nothing), then read grades.json in {output} and tell the person how many spans were good, remastered or need a clone and, for each that was not good, the reasons. Spans marked clone stay as their best remaster until tool:clone-speech-that-repair-could-not-fix runs. The source recordings are never changed. If you cannot run commands, give them these steps. The settings file is the person's own data: take it from their records or the path they give, and ask for what is missing; never fill a value in yourself."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ffmpeg, DeepFilterNet3 (https://github.com/Rikorose/DeepFilterNet) and mlx-whisper (https://github.com/ml-explore/mlx-examples) driven by the person's settings"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:clone-speech-that-repair-could-not-fix",
+        "label": "Re-voice the spans that are still bad, in the speaker's own voice (runs on your computer)",
+        "job": "Where the speech in a recording is still unusable after cleaning, say the same words again in the speaker's own voice, with the same timing",
+        "description": "Takes the output folder of tool:grade-and-repair-speech-audio and the same spans file, and for each span still graded clone: checks that the span's speaker is the voice of the reference recording (wespeaker embeddings; similarity at or above the threshold in the person's settings) and refuses it otherwise, so nobody else's voice is cloned. A span that passes is split into phrases at the pauses of the original; each phrase is spoken by the settings' clone model in the reference voice, read back by whisper (zero word errors against its words), stretched to the time the original phrase took (never more than the settings allow) and laid at its original offset, so the span keeps its length and every phrase starts where it started. The span is kept only when the whole read has zero word errors against its text, and is then marked cloned in grades.json. The reference must be a clean recording of the person who agreed to be cloned. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The spans file the grade was made from, put where {input} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The folder tool:grade-and-repair-speech-audio wrote, put where {output} is in the command. grades.json and audio/ there are updated."
+            },
+            "reference": {
+              "type": "string",
+              "description": "A clean recording of the speaker (about ten seconds, no pauses over 0.4 s), put where {reference} is in the command. tool:pick-the-cleanest-speech-to-clone-from finds one."
+            },
+            "reference_text": {
+              "type": "string",
+              "description": "The words said in the reference, put where {reference_text} is in the command."
+            },
+            "settings": {
+              "type": "string",
+              "description": "The person's audio settings file on their computer, put where {settings} is in the command: a JSON file with every key listed in tools/grade-and-repair-speech-audio/read-data/settings-keys.json (their microphone, room, loudness target and voice). The tool has no values of its own and stops naming any key that is missing. Read the values from the person's own records (through the records door) or from the path they give; never invent them."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"grades\": \"<output>/grades.json\", \"counts\": {\"good\", \"remaster\", \"clone\"}}}. Each cloned span has cloned true and a clone entry in grades.json; each refused span has not_cloned with the reason (speaker not verified, no passing take)."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "brew install ffmpeg",
+            "python3 -m pip install -U numpy scipy soundfile librosa torch pyannote.audio mlx mlx-audio mlx-whisper"
+          ],
+          "run": "python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/clone_speech.py --spans {input} --settings {settings} --out {output} --reference {reference} --reference-text \"{reference_text}\"",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "apple-silicon",
+            "model: the voice-cloning model named in the settings' clone_model (loaded through mlx-audio, downloaded on first run)",
+            "model: pyannote/wespeaker-voxceleb-resnet34-LM (speaker embeddings, CC-BY-4.0, downloaded on first run, may need a Hugging Face login)",
+            "model: the speech-to-text model named in the settings' read_model (loaded through mlx-whisper, downloaded on first run)"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Only clone a voice whose owner has agreed: ask the person that the reference is a recording of the speaker in the spans, and say that a span whose speaker does not match is refused. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run`, then read grades.json in {output} and tell the person which spans were cloned (and the stretch each phrase needed) and which were refused and why. A cloned span must be shown as cloned wherever it is used. If you cannot run commands, give them these steps. The settings file is the person's own data: take it from their records or the path they give, and ask for what is missing; never fill a value in yourself."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "A voice-cloning text-to-speech model through mlx-audio, pyannote wespeaker embeddings and mlx-whisper"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-back-repaired-speech",
+        "label": "Check by listening that every cleaned-up or re-voiced span still says the right words (runs on your computer)",
+        "job": "Read back every span in a graded folder with a speech transcriber and count the words that differ from what should be said",
+        "description": "Reads the part of each audio file between its handles with whisper large-v3-turbo and counts word errors (edit distance after lower-casing, dropping punctuation and spoken contractions) two ways: against a read of the untouched cut (same decoder, so only the audio differs) and against the span's text. A kept or remastered span passes with zero on either count; a cloned span, which speaks the text, passes with zero against the text. Writes work/verify.json with what was heard and lists every span under the bar. Single-word filler flips between two reads of nearly the same audio are listed, not hidden. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "output": {
+              "type": "string",
+              "description": "The folder tool:grade-and-repair-speech-audio wrote, put where {output} is in the command."
+            },
+            "settings": {
+              "type": "string",
+              "description": "The person's audio settings file on their computer, put where {settings} is in the command: a JSON file with every key listed in tools/grade-and-repair-speech-audio/read-data/settings-keys.json (their microphone, room, loudness target and voice). The tool has no values of its own and stops naming any key that is missing. Read the values from the person's own records (through the records door) or from the path they give; never invent them."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"verify\": \"<output>/work/verify.json\", \"files\": <count>, \"failing\": [<span ids under the bar>]}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "brew install ffmpeg",
+            "python3 -m pip install -U numpy scipy soundfile mlx-whisper"
+          ],
+          "run": "python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/check_speech_by_reading.py --settings {settings} --out {output}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "apple-silicon",
+            "model: the speech-to-text model named in the settings' read_model (loaded through mlx-whisper, downloaded on first run)"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: run `run` on the folder tool:grade-and-repair-speech-audio (and, if used, tool:clone-speech-that-repair-could-not-fix) wrote, then tell the person how many spans passed and, for each that did not, what was heard against what should be said. English speech only. If you cannot run commands, give them these steps. The settings file is the person's own data: take it from their records or the path they give, and ask for what is missing; never fill a value in yourself."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "mlx-whisper (https://github.com/ml-explore/mlx-examples) with the model named in the settings"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pick-the-cleanest-speech-to-clone-from",
+        "label": "Find the cleanest stretch of someone's speech to use as the voice to clone from (runs on your computer)",
+        "job": "From a person's own recordings, pick the cleanest ten seconds of continuous speech to clone their voice from",
+        "description": "Takes a list of recordings of the person who agreed to be cloned, each with its word times. In each recording it takes the first run of words with no pause over 0.4 s that lasts the window length (ten seconds by default), cuts it to a wav (the recording is only read), measures it, drops windows that are too quiet, too loud or clipped, and ranks the rest by signal to noise. Writes reference-candidates.json with each window's wav, text and measures, and prints the best few. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The recordings file, put where {input} is in the command: a JSON object with a recordings list; each recording has clip (a name for it), source (its media file) and words (a list of text, start and end, seconds in the source). List only recordings of the person who agreed to be cloned."
+            },
+            "output": {
+              "type": "string",
+              "description": "A new folder to write the windows and reference-candidates.json into, put where {output} is in the command."
+            },
+            "settings": {
+              "type": "string",
+              "description": "The person's audio settings file on their computer, put where {settings} is in the command: a JSON file with every key listed in tools/grade-and-repair-speech-audio/read-data/settings-keys.json (their microphone, room, loudness target and voice). The tool has no values of its own and stops naming any key that is missing. Read the values from the person's own records (through the records door) or from the path they give; never invent them."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"candidates\": \"<output>/reference-candidates.json\", \"best\": [<wav paths, best first>]}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "brew install ffmpeg",
+            "python3 -m pip install -U numpy scipy soundfile"
+          ],
+          "run": "python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/choose_clone_reference.py --recordings {input} --settings {settings} --out {output}",
+          "needs": [
+            "python",
+            "ffmpeg"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: write the recordings file from the recordings and word times the person names, run `run`, then give the best windows (their text and signal to noise) and the wav to use as the reference for tool:clone-speech-that-repair-could-not-fix. If you cannot run commands, give them these steps. The settings file is the person's own data: take it from their records or the path they give, and ask for what is missing; never fill a value in yourself."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "The tool's own loudness, noise and clipping measures (read-data/measure.py)"
+        }
+      }
+    }
+  ]
+}
