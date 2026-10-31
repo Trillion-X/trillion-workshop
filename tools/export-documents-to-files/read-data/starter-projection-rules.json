@@ -1,0 +1,170 @@
+[
+  {
+    "kind": "structured-file-projection-rules",
+    "id": "default",
+    "text_properties": [
+      "text",
+      "title",
+      "label"
+    ],
+    "heading_level_path": [
+      "props",
+      "heading_level"
+    ],
+    "table": {
+      "min_cells": 2,
+      "min_rows": 2
+    },
+    "formats": {
+      "pdf": {
+        "extension": "pdf",
+        "renderer": "pdf",
+        "mime_type": "application/pdf",
+        "font_family": "StructuredOutputUnicode",
+        "font_file": "Vera.ttf",
+        "default_heading_level": 2,
+        "heading_styles": {
+          "1": {
+            "font_size": 18,
+            "leading": 22,
+            "space_before": 16,
+            "space_after": 8
+          },
+          "2": {
+            "font_size": 15,
+            "leading": 19,
+            "space_before": 14,
+            "space_after": 7
+          },
+          "3": {
+            "font_size": 12.5,
+            "leading": 16,
+            "space_before": 11,
+            "space_after": 5
+          },
+          "4": {
+            "font_size": 11.5,
+            "leading": 15,
+            "space_before": 9,
+            "space_after": 4
+          },
+          "5": {
+            "font_size": 11,
+            "leading": 14,
+            "space_before": 8,
+            "space_after": 4
+          },
+          "6": {
+            "font_size": 10.5,
+            "leading": 13,
+            "space_before": 7,
+            "space_after": 3
+          },
+          "7": {
+            "font_size": 10,
+            "leading": 13,
+            "space_before": 6,
+            "space_after": 3
+          },
+          "8": {
+            "font_size": 9.5,
+            "leading": 12,
+            "space_before": 6,
+            "space_after": 3
+          },
+          "9": {
+            "font_size": 9,
+            "leading": 11,
+            "space_before": 5,
+            "space_after": 2
+          }
+        }
+      },
+      "docx": {
+        "extension": "docx",
+        "renderer": "docx",
+        "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "default_heading_level": 1,
+        "heading_styles": {
+          "1": {
+            "style_id": "Heading1",
+            "name": "heading 1",
+            "size_half_points": 30
+          },
+          "2": {
+            "style_id": "Heading2",
+            "name": "heading 2",
+            "size_half_points": 26
+          },
+          "3": {
+            "style_id": "Heading3",
+            "name": "heading 3",
+            "size_half_points": 24
+          },
+          "4": {
+            "style_id": "Heading4",
+            "name": "heading 4",
+            "size_half_points": 22
+          },
+          "5": {
+            "style_id": "Heading5",
+            "name": "heading 5",
+            "size_half_points": 21
+          },
+          "6": {
+            "style_id": "Heading6",
+            "name": "heading 6",
+            "size_half_points": 20
+          },
+          "7": {
+            "style_id": "Heading7",
+            "name": "heading 7",
+            "size_half_points": 19
+          },
+          "8": {
+            "style_id": "Heading8",
+            "name": "heading 8",
+            "size_half_points": 18
+          },
+          "9": {
+            "style_id": "Heading9",
+            "name": "heading 9",
+            "size_half_points": 17
+          }
+        }
+      },
+      "markdown": {
+        "extension": "md",
+        "title_template": "# {title}",
+        "heading_template": "## {heading}",
+        "line_template": "{line}",
+        "row_template": "| {cells} |",
+        "header_rule_template": "| {cells} |",
+        "header_rule_cell": "---",
+        "cell_separator": " | ",
+        "cell_escapes": [
+          {
+            "find": "|",
+            "replace": "\\|"
+          },
+          {
+            "find": "\n",
+            "replace": "<br />"
+          }
+        ],
+        "part_separator": "\n\n",
+        "document_template": "{body}\n"
+      },
+      "txt": {
+        "extension": "txt",
+        "title_template": "{title}",
+        "heading_template": "{heading}",
+        "line_template": "{line}",
+        "row_template": "{cells}",
+        "cell_separator": ": ",
+        "part_separator": "\n\n",
+        "document_template": "{body}\n"
+      }
+    }
+  }
+]
