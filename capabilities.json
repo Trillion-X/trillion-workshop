@@ -427,6 +427,16 @@
       "evidence": "broadcast-delivery README.md:1 broadcast message delivery via provider adapters; resend-email-sender sends transactional email; imessage-messages-sender sends over Messages"
     },
     {
+      "capability": "search, read, organize, trash and restore a person's Gmail mail and threads, keep and send drafts and set their send-as signature, as the Google account the run names",
+      "owner": ["tools/read-and-write-gmail/"],
+      "entry": "tools/read-and-write-gmail/tool-rows.json",
+      "evidence": "README.md:3 each tool is one http row, one Gmail request, run as the Google account the input's connection names; the token stays in the person's vault",
+      "distinct_from": [
+        {"job": "send a message or email to people through a chosen provider (email service, text message, Messages)", "why": "that sends through a sending service; this one reads and keeps the person's own Gmail mailbox, its drafts and labels"},
+        {"job": "bring a person's conversations from every app (chat apps, email, AI chats) into one place to read and reply", "why": "that decodes conversations it is given; this one makes the Gmail requests"}
+      ]
+    },
+    {
       "capability": "organize a person's saved browser items",
       "lives_at": ["bitfield-packages/packages/browser-saved-items/"],
       "moves_to": "tools/browser-saved-items/",
