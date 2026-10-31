@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:a70d5477a2d8ba6c203a04860682a652646dcea21f1f32aca856307c8fcf0a6b"
+  "blake3": "1f:0d7d144d8ddc15d1be9a540a376e0593e5b5c7635ad3c74b3ce0ba82e1521f8d"
  },
  "fields": [
   {
@@ -1156,6 +1156,21 @@
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
+    ],
+    "folder": "write-from-a-recipe"
+   }
+  },
+  {
+   "id": "tool:check-writing-file",
+   "values": {
+    "title": "Check writing from a file",
+    "job": "Check a source backed writing request from a file the person granted to be read, without sending the source bytes in the tool call",
+    "description": "Give file (a relative path in the folder you granted the tool to read), and optionally recipe_id or recipe to override the request's recipe. The file is bounded to 2 MiB and must be a regular JSON file inside the granted folder. It uses the same writing gate as tool:check-writing-against-its-recipe and returns only that gate result; the file contents are not returned.",
+    "status": "active",
+    "maker": "maker:write-from-a-recipe",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
     ],
     "folder": "write-from-a-recipe"
    }

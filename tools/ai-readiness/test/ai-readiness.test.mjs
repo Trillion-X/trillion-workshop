@@ -161,7 +161,9 @@ test('the tool row takes a page address, runs in the network-enabled container a
   assert.equal(row.invoke.kind, 'container');
   assert.equal(row.invoke.internet, true);
   assert.ok(row.verify.length > 0);
-  const shipped = row.invoke.files.package_files;
+  assert.ok(Array.isArray(row.invoke.files.package_files), 'the native container runner reads an array of packages');
+  assert.equal(row.result_selector, '$', 'the CLI returns the audit itself, with no result envelope');
+  const shipped = row.invoke.files.package_files.find(item => item.package === 'ai-readiness');
   assert.ok(shipped.paths.includes('do-work/check_a_page.mjs'));
   assert.ok(shipped.paths.includes('read-data/ai-readiness-checks.json'));
 });

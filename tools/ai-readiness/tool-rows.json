@@ -115,7 +115,7 @@
       }
      }
     },
-    "result_selector": "$.result",
+    "result_selector": "$",
     "invoke": {
      "kind": "container",
      "internet": true,
@@ -131,7 +131,7 @@
       }
      },
      "files": {
-      "package_files": {
+      "package_files": [{
        "package": "ai-readiness",
        "paths": [
         "do-work/check_a_page.mjs",
@@ -139,7 +139,7 @@
         "read-data/ai-readiness-checks.json"
        ],
        "at": "/opt/ai-readiness"
-      }
+      }]
      }
     },
     "needs": {

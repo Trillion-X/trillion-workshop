@@ -4,6 +4,69 @@
  "what_this_is": "The Workshop rows for tools/write-from-a-recipe: the instruction a person's AI writes from, built from a writing recipe, the check of what it wrote against that recipe, and the list of kept recipes and instruction blocks.",
  "records": [
   {
+   "id": "package::write-from-a-recipe::tool::check-writing-file",
+   "address": "package::write-from-a-recipe::tool::check-writing-file",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-writing-file",
+    "label": "Check writing from a file",
+    "status": "active",
+    "job": "Check a source backed writing request from a file the person granted to be read, without sending the source bytes in the tool call",
+    "description": "Give file (a relative path in the folder you granted the tool to read), and optionally recipe_id or recipe to override the request's recipe. The file is bounded to 2 MiB and must be a regular JSON file inside the granted folder. It uses the same writing gate as tool:check-writing-against-its-recipe and returns only that gate result; the file contents are not returned.",
+    "input_schema": {
+     "type": "object",
+     "required": ["file"],
+     "additionalProperties": false,
+     "properties": {
+      "file": { "type": "string", "description": "A relative path to the request JSON inside the granted folder" },
+      "recipe_id": { "type": "string", "description": "Optional recipe id; overrides recipe_id in the file" },
+      "recipe": { "type": "object", "description": "Optional recipe; overrides recipe in the file" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["passed"],
+     "properties": {
+      "passed": { "type": "boolean" },
+      "delivery": { "type": ["object", "null"] },
+      "reject_code": { "type": "string" },
+      "reason": { "type": "string" },
+      "review_binding": { "type": "object" },
+      "evidence_review": { "type": "object" },
+      "findings": { "type": "array" }
+     }
+    },
+    "invoke": {
+     "kind": "computer",
+     "capabilities": ["read-a-folder"],
+     "workdir": "/opt/write-from-a-recipe",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/write-from-a-recipe/do-work/check-writing-file.mjs",
+      { "fill": { "from": "task", "field": "grants.read-a-folder.folder" } }
+     ],
+     "stdin": { "fill": { "from": "input" } },
+     "files": {
+      "package_files": [
+       { "package": "write-from-a-recipe", "paths": ["do-work", "read-data"], "at": "/opt/write-from-a-recipe" },
+       { "package": "judge-words", "paths": ["do-work"], "at": "/opt/judge-words" },
+       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+       { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:write-from-a-recipe",
+    "provenance": { "source": "The existing check-writing-against-its-recipe gate, with file access constrained to the person's explicit folder grant." }
+   }
+  },
+  {
    "id": "package::write-from-a-recipe::tool::compose-a-writing-instruction",
    "address": "package::write-from-a-recipe::tool::compose-a-writing-instruction",
    "path": ["current-item", "published-record"],
