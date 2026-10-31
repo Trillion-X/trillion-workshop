@@ -1,0 +1,88 @@
+{
+  "about": "A workflow every account can find and run: make a brand book, a pitch deck and a sales deck from the person's own brand, look, claims and price, and a copy of each deck for each buyer (a company, a team, one person) where only the buyer's facts change. Brand rows, look, claims, price and buyers are the person's own records; the tools only pick, fill and draw. One workflow-recipe row in the shape of the shared recipe shelf (job, input_schema, ordered steps, each with do, submit and checks).",
+  "records": [
+    {
+      "id": "make-a-brand-book-and-decks",
+      "address": "workflow-recipe:make-a-brand-book-and-decks",
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:make-a-brand-book-and-decks",
+        "label": "Make a brand book and decks",
+        "job": "Make a brand book that shows every settled brand decision with its source, a pitch deck and a sales deck in that brand, and a copy of each deck for each buyer where only the buyer's own facts change, every claim and price read from the person's own records",
+        "produces": "A brand book PDF, a pitch deck PDF, a sales deck PDF and one PDF per buyer, each with a picture of every page, every claim and price traced to its source, and the person's approval of each.",
+        "input_schema": {
+          "type": "object",
+          "required": ["brand_list", "look", "faces", "claims", "price", "buyers", "out"],
+          "properties": {
+            "brand_list": {"type": "string", "minLength": 1, "description": "The id of the person's brand list (one row per logo variant and one selection row)"},
+            "look": {"type": "string", "minLength": 1, "description": "The look the brand wears: its record id, or a file holding the look record"},
+            "faces": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["family", "file"], "properties": {"family": {"type": "string"}, "weight": {"type": "integer"}, "style": {"type": "string"}, "file": {"type": "string"}}}, "description": "The person's own font files the look names, with their licences already theirs"},
+            "claims": {"type": "string", "minLength": 1, "description": "Where the person's verified claims are kept (a list or a file): each claim's exact words, its source and whether it is verified"},
+            "price": {"type": "string", "minLength": 1, "description": "The record or file that holds the price the decks quote"},
+            "decisions": {"type": "string", "description": "Optional: where the person's brand decisions are written down, each with its source"},
+            "buyers": {"type": "array", "items": {"type": "object", "required": ["kind", "record"], "properties": {"kind": {"enum": ["company", "team", "person"]}, "record": {"type": "string", "minLength": 1, "description": "The buyer's record or file: its facts, each with its source"}}}, "description": "Who each personal copy is for"},
+            "out": {"type": "string", "minLength": 1, "description": "The folder on the person's computer the PDFs and pictures go into"}
+          }
+        },
+        "steps": [
+          {
+            "id": "brand",
+            "title": "Read the brand's logo rows and pick the variants",
+            "do": "Read every row of the list named by the input brand_list. Write them into a request with tone light and run tool:resolve-a-brand, then again with tone dark. If the person keeps a copy of the logo files on this computer, name that folder as files_at so each variant names its local file. If no row has role selection, stop and ask the person which family is in use. Copy the family and every variant the two runs answer. A null variant means the brand has no row for it: list it under missing.",
+            "submit": {"type": "object", "required": ["family", "light", "dark", "missing"], "properties": {"family": {"type": "string", "minLength": 1}, "light": {"type": "object"}, "dark": {"type": "object"}, "missing": {"type": "array", "items": {"type": "string"}}}},
+            "checks": []
+          },
+          {
+            "id": "look",
+            "title": "Resolve the look into values and a stylesheet",
+            "do": "Read the look named by the input look as its owner keeps it (its tokens). Write a request with that look and the input faces and run tool:resolve-a-look with --css, writing the stylesheet into the input out folder. Copy the palette into a file beside it. If faces_missing is not empty, stop and ask the person for those files: a deck without its faces is drawn in another font.",
+            "submit": {"type": "object", "required": ["values_file", "css_file", "families", "faces_written", "faces_missing"], "properties": {"values_file": {"type": "string", "minLength": 3}, "css_file": {"type": "string", "minLength": 3}, "families": {"type": "array", "items": {"type": "string"}}, "faces_written": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "faces_missing": {"type": "array", "maxItems": 0, "items": {"type": "string"}}}},
+            "checks": []
+          },
+          {
+            "id": "decisions",
+            "title": "List the settled brand decisions, each with its source, and the open ones",
+            "do": "From the input decisions (when given), the brand rows, the look's values and the person's own earlier words, list every brand decision that is settled: name, logo, colours (with the look's values), type (with the families), voice and anything else the person decided. Each needs a source a reader can check: a file and line, a commit, a list row, or the person's own words with the date. A decision with no source is not settled: list it as open, with why and the options the person could pick. Never write a decision the sources do not show.",
+            "submit": {"type": "object", "required": ["settled", "open"], "properties": {"settled": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["topic", "decision", "source"], "properties": {"topic": {"type": "string", "minLength": 2}, "decision": {"type": "string", "minLength": 2}, "source": {"type": "string", "minLength": 3}}}}, "open": {"type": "array", "items": {"type": "object", "required": ["topic", "why", "options"], "properties": {"topic": {"type": "string", "minLength": 2}, "why": {"type": "string", "minLength": 3}, "options": {"type": "array", "items": {"type": "string"}}}}}}},
+            "checks": [{"kind": "distinct-at-least", "path": ["this", "settled", "*", "topic"], "count": 2, "says": "At least two brand decisions are settled with a source"}]
+          },
+          {
+            "id": "claims",
+            "title": "Copy the claims the decks may make, only verified ones",
+            "do": "Read the input claims. Copy each claim that is marked verified, with its exact words, its id and its source. Leave out every claim that is not verified, and every claim whose source you cannot open. Read the input price and copy the price exactly as written there, with its source. Write nothing that is not in these records: a slide line with no verified claim behind it stays out of the deck.",
+            "submit": {"type": "object", "required": ["claims", "price"], "properties": {"claims": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["id", "words", "source"], "properties": {"id": {"type": "string", "minLength": 1}, "words": {"type": "string", "minLength": 3}, "source": {"type": "string", "minLength": 3}}}}, "price": {"type": "object", "required": ["words", "source"], "properties": {"words": {"type": "string", "minLength": 2}, "source": {"type": "string", "minLength": 3}}}}},
+            "checks": []
+          },
+          {
+            "id": "brand-book",
+            "title": "Draw the brand book",
+            "do": "Write a board with one presentation frame per page, every frame the same size (1280 by 720): a cover with the wordmark; the logo on a light and on a dark page with the rule for each; each colour as a filled square with its variable name and value; each typeface set in itself with its family name and use; the voice rules; and the open decisions with their options. Write every colour and font as the look's variable name (for example --accent-primary), every logo as an asset from the brand step, and every decision with its source in small type under it. Run tool:turn-frames-into-slides with the brand step's assets and the look step's values_file and css_file, with --pdf and --pictures. Open every picture: text that ends in an ellipsis did not fit, so give it more room and run again.",
+            "submit": {"type": "object", "required": ["pdf", "pictures", "pages"], "properties": {"pdf": {"type": "string", "pattern": "\\.pdf$"}, "pictures": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "\\.png$"}}, "pages": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["topic"], "properties": {"topic": {"type": "string"}}}}}},
+            "checks": [{"kind": "subset-of", "path": ["this", "pages", "*", "topic"], "of": ["steps", "decisions", "settled", "*", "topic"], "says": "Every page shows a settled decision"}]
+          },
+          {
+            "id": "decks",
+            "title": "Draw the pitch deck and the sales deck",
+            "do": "Write two boards in the same frame size: a pitch deck (the problem, what the product is, how it works, proof, the business, the ask) and a sales deck (the buyer's problem, what changes for them, how it works, proof, the price, the next step). Every sentence on a slide is a claim from the claims step, word for word, with its id kept on the item as extra.claim; the price is the claims step's price, word for word. Write each buyer-specific word (the company name, the team size, the person's role) as made-up example words that the next step will mark as slots. Run tool:turn-frames-into-slides for each with --pdf and --pictures and look at every picture.",
+            "submit": {"type": "object", "required": ["pitch", "sales", "claims_used"], "properties": {"pitch": {"type": "object", "required": ["pdf", "html"], "properties": {"pdf": {"type": "string", "pattern": "\\.pdf$"}, "html": {"type": "string", "pattern": "\\.html$"}}}, "sales": {"type": "object", "required": ["pdf", "html"], "properties": {"pdf": {"type": "string", "pattern": "\\.pdf$"}, "html": {"type": "string", "pattern": "\\.html$"}}}, "claims_used": {"type": "array", "minItems": 1, "items": {"type": "string"}}}},
+            "checks": [{"kind": "subset-of", "path": ["this", "claims_used", "*"], "of": ["steps", "claims", "claims", "*", "id"], "says": "Every claim on a slide is a verified claim"}]
+          },
+          {
+            "id": "per-buyer",
+            "title": "Make each buyer's copy, changing only the buyer's facts",
+            "do": "For the sales deck (and the pitch deck when the person asks), write a word template spec over the deck's printed document: source html_json_records with script_id slide-words, medium carousel, and one slot per buyer-specific word from the decks step. Run tool:make-a-word-template. For each input buyer, read the buyer's record and write the fills: each slot's value with the line of the record it comes from. Run tool:fill-a-word-template, then tool:check-words-against-a-word-template with --check on the filled piece: every word that is not a slot must be unchanged. Run tool:turn-frames-into-slides on the deck's board with words_from set to the filled piece, with --pdf and --pictures. A slot with no sourced value stays visibly empty; ask the person for that fact instead of guessing it.",
+            "submit": {"type": "object", "required": ["copies"], "properties": {"copies": {"type": "array", "items": {"type": "object", "required": ["buyer", "kind", "pdf", "drift_passed", "empty_slots"], "properties": {"buyer": {"type": "string", "minLength": 1}, "kind": {"enum": ["company", "team", "person"]}, "pdf": {"type": "string", "pattern": "\\.pdf$"}, "drift_passed": {"const": true}, "empty_slots": {"type": "array", "items": {"type": "string"}}}}}}},
+            "checks": []
+          },
+          {
+            "id": "approve",
+            "title": "The person approves each document exactly as drawn",
+            "do": "Show the person, in the chat, every picture of the brand book, of each deck and of each buyer's copy, with the source of every claim and the price. Ask for each document: \"Do you approve this exactly as shown?\" Wait. If they change anything, make only that change, draw it again and ask again. Copy their approving words exactly. Nothing is sent to a buyer in this workflow.",
+            "submit": {"type": "object", "required": ["approved"], "properties": {"approved": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["pdf", "approval_words"], "properties": {"pdf": {"type": "string", "pattern": "\\.pdf$"}, "approval_words": {"type": "string", "minLength": 2, "description": "The person's own words approving this exact document"}}}}}},
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

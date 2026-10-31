@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/board-deck.ts", "read-data/board-svg.ts", "read-data/board-frames.ts", "read-data/group-board-model.ts"]
+}
