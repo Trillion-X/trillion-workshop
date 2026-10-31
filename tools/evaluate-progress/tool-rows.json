@@ -1,0 +1,1558 @@
+{
+ "kind": "tool-rows",
+ "record_set": "evaluate-progress-tool-rows",
+ "what_this_is": "The Workshop rows for tools/evaluate-progress: measures worked out from a person's records and bands, gates and scores over them. Each row runs one function of do-work/requests.mjs on the request given; the records, definitions, rules and words are the person's, none is built in.",
+ "records": [
+  {
+   "id": "package::evaluate-progress::tool::work-out-measures",
+   "address": "package::evaluate-progress::tool::work-out-measures",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:work-out-measures",
+    "label": "Work out measures from my records",
+    "status": "active",
+    "job": "Work out measures from my records: counts, totals, ratios, ranks, quantiles, the latest value, groups, or a ranked and packed list",
+    "description": "Takes facts (a list of records) and measure definitions, or a pipeline of stages where a later stage reads the rows an earlier stage emitted. Each definition names an op (count, sum, distinct, ratio, bin, band, rank, latest, quantile, angle, rollup, formula, reduce-graph, weighted-rank, derive-spans, constrained-span-pack, relevance-rank, mutual-overlap), the fact windows it reads (a match on fields and a field path) and the op's params. Answers each measure with its value, confidence, the ids of the facts it read and ok. An op that is not known, or that fails, gives ok false and confidence 0, never a made-up number. Nothing is named by the tool: the fields, bands, weights and words are in the definitions.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "facts"
+     ],
+     "properties": {
+      "facts": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The records to measure over"
+      },
+      "measures": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "op"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "op": {
+          "type": "string"
+         },
+         "inputs": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "properties": {
+            "match": {
+             "type": "object",
+             "description": "Fields a record must equal to be read"
+            },
+            "field": {
+             "type": "array",
+             "items": {
+              "type": "string"
+             },
+             "description": "Path to the value in each record"
+            }
+           }
+          }
+         },
+         "params": {
+          "type": "object"
+         },
+         "window": {},
+         "emit": {
+          "type": "string"
+         },
+         "failClosed": {
+          "type": "boolean"
+         }
+        }
+       },
+       "description": "Definitions to derive over the same facts"
+      },
+      "measure": {
+       "type": "object",
+       "description": "One definition, when there is only one"
+      },
+      "measure_id": {
+       "type": "string",
+       "description": "Derive only the definition with this id Refused when a pipeline is sent."
+      },
+      "params_override": {
+       "type": "object",
+       "description": "Params that replace the same-named params of the chosen definitions for this run Refused when a pipeline is sent."
+      },
+      "pipeline": {
+       "type": "object",
+       "required": [
+        "stages"
+       ],
+       "properties": {
+        "stages": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "required": [
+           "id",
+           "def"
+          ],
+          "properties": {
+           "id": {
+            "type": "string"
+           },
+           "def": {
+            "type": "object"
+           },
+           "from": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            },
+            "description": "Stage ids to read, or \"$facts\" for the raw records (the default)"
+           }
+          }
+         }
+        },
+        "result": {
+         "type": "string",
+         "description": "The stage that is the answer (the last one when left out)"
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "properties": {
+      "measures": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "measureId",
+         "value",
+         "confidence",
+         "basis",
+         "ok"
+        ]
+       }
+      },
+      "stages": {
+       "type": "object"
+      },
+      "order": {
+       "type": "array"
+      },
+      "result": {}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "evaluate-progress",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/evaluate-progress"
+      }
+     },
+     "workdir": "/opt/evaluate-progress",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "workOutMeasures"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:evaluate-progress",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "facts": [
+        {
+         "id": "o1",
+         "kind": "order",
+         "item": "rye",
+         "t": 1
+        },
+        {
+         "id": "o2",
+         "kind": "order",
+         "item": "scone",
+         "t": 2
+        },
+        {
+         "id": "r1",
+         "kind": "refund",
+         "item": "rye",
+         "t": 3
+        }
+       ],
+       "measures": [
+        {
+         "id": "last-ordered",
+         "op": "latest",
+         "inputs": [
+          {
+           "match": {
+            "kind": "order"
+           },
+           "field": [
+            "item"
+           ]
+          }
+         ],
+         "params": {
+          "sortBy": [
+           "t"
+          ]
+         }
+        }
+       ]
+      },
+      "output_selector": "$.measures[0].value",
+      "contains": "scone"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/progression-evaluator (read-data: derive-measure, measure-ops, measure-pipeline, evaluate-progression, band-membership, corroboration-gate, verify-grounding, score-instrument, cohort-stitch; the safety and nudge gates made generic)"
+    }
+   }
+  },
+  {
+   "id": "package::evaluate-progress::tool::pick-fired-rules",
+   "address": "package::evaluate-progress::tool::pick-fired-rules",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:pick-fired-rules",
+    "label": "Pick the progress rules that fire",
+    "status": "active",
+    "job": "Pick which of my progress rules fire for my current numbers and give the adjustment each carries",
+    "description": "Takes one value per metric (signals) and the person's rules. A rule fires when its metric has a number and the number lies in the rule's half-open band [min, max) (an omitted min is minus infinity, an omitted max is plus infinity). Answers the fired rules with the value that fired them, their adjustments in rule order, and whether any fired. Rules may overlap, so several can fire. Metrics, bands and adjustments are the person's; the tool knows none.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "signals",
+      "rules"
+     ],
+     "properties": {
+      "signals": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "metricRef",
+         "value"
+        ],
+        "properties": {
+         "metricRef": {
+          "type": "string"
+         },
+         "value": {
+          "type": "number"
+         }
+        }
+       }
+      },
+      "rules": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "metricRef",
+         "band",
+         "adjustment"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "metricRef": {
+          "type": "string"
+         },
+         "band": {
+          "type": "object",
+          "properties": {
+           "min": {
+            "type": "number"
+           },
+           "max": {
+            "type": "number"
+           }
+          }
+         },
+         "adjustment": {
+          "type": "object"
+         },
+         "label": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "fired",
+      "adjustments",
+      "matched"
+     ],
+     "properties": {
+      "fired": {
+       "type": "array"
+      },
+      "adjustments": {
+       "type": "array"
+      },
+      "matched": {
+       "type": "boolean"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "evaluate-progress",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/evaluate-progress"
+      }
+     },
+     "workdir": "/opt/evaluate-progress",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "pickFiredRules"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:evaluate-progress",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "signals": [
+        {
+         "metricRef": "sell-through",
+         "value": 0.7
+        }
+       ],
+       "rules": [
+        {
+         "id": "rule:low",
+         "metricRef": "sell-through",
+         "band": {
+          "max": 0.6
+         },
+         "adjustment": {
+          "bake": -1
+         }
+        },
+        {
+         "id": "rule:steady",
+         "metricRef": "sell-through",
+         "band": {
+          "min": 0.6,
+          "max": 0.85
+         },
+         "adjustment": {
+          "bake": 0
+         }
+        },
+        {
+         "id": "rule:high",
+         "metricRef": "sell-through",
+         "band": {
+          "min": 0.85
+         },
+         "adjustment": {
+          "bake": 1
+         }
+        }
+       ]
+      },
+      "output_selector": "$.fired[0].rule.id",
+      "contains": "rule:steady"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/progression-evaluator (read-data: derive-measure, measure-ops, measure-pipeline, evaluate-progression, band-membership, corroboration-gate, verify-grounding, score-instrument, cohort-stitch; the safety and nudge gates made generic)"
+    }
+   }
+  },
+  {
+   "id": "package::evaluate-progress::tool::check-corroboration",
+   "address": "package::evaluate-progress::tool::check-corroboration",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-corroboration",
+    "label": "Check a value has enough support",
+    "status": "active",
+    "job": "Check that a value has enough independent support before my AI acts on it",
+    "description": "Takes named checks (each passed or not, some required) and how many of the optional ones must agree. Permitted only when every required check passed and enough optional checks passed. No checks at all is not permitted. Answers permitted, which required checks failed, which optional checks agreed and the reason in words.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "checks",
+      "need"
+     ],
+     "properties": {
+      "checks": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "name",
+         "passed"
+        ],
+        "properties": {
+         "name": {
+          "type": "string"
+         },
+         "passed": {
+          "type": "boolean"
+         },
+         "required": {
+          "type": "boolean"
+         }
+        }
+       }
+      },
+      "need": {
+       "type": "integer",
+       "minimum": 0,
+       "description": "How many optional checks must have passed"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "permitted",
+      "required_failed",
+      "corroborating",
+      "reason"
+     ],
+     "properties": {
+      "permitted": {
+       "type": "boolean"
+      },
+      "required_failed": {
+       "type": "array"
+      },
+      "corroborating": {
+       "type": "array"
+      },
+      "reason": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "evaluate-progress",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/evaluate-progress"
+      }
+     },
+     "workdir": "/opt/evaluate-progress",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "checkCorroboration"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:evaluate-progress",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "checks": [
+        {
+         "name": "two-shops-agree",
+         "passed": true,
+         "required": true
+        },
+        {
+         "name": "matches-last-month",
+         "passed": true
+        },
+        {
+         "name": "matches-the-till",
+         "passed": false
+        }
+       ],
+       "need": 1
+      },
+      "output_selector": "$.reason",
+      "contains": "required + quorum met"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/progression-evaluator (read-data: derive-measure, measure-ops, measure-pipeline, evaluate-progression, band-membership, corroboration-gate, verify-grounding, score-instrument, cohort-stitch; the safety and nudge gates made generic)"
+    }
+   }
+  },
+  {
+   "id": "package::evaluate-progress::tool::hold-back-on-risk",
+   "address": "package::evaluate-progress::tool::hold-back-on-risk",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:hold-back-on-risk",
+    "label": "Hold an output back when risk is too high",
+    "status": "active",
+    "job": "Hold an output back, and give the person's own support resources instead, when its risk is too high or unknown",
+    "description": "Takes a risk assessment (was it run, the risk from 0 to 1 or null, categories) and the person's threshold. The output is released only when the assessment was run, the risk is a number and it is under the threshold. A missing, unfinished or unreadable assessment, or a threshold that is not a number, holds the output back. Held back, the answer carries the support resources the person gave. With an output sent, answers what goes out: the output, or the held-back notice.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "threshold"
+     ],
+     "properties": {
+      "assessment": {
+       "type": "object",
+       "properties": {
+        "evaluated": {
+         "type": "boolean"
+        },
+        "risk": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "categories": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "threshold": {
+       "type": "number"
+      },
+      "support_resources": {
+       "type": "array",
+       "description": "What to show when the output is held back"
+      },
+      "output": {
+       "description": "The output to release or hold back"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "release",
+      "hold_back",
+      "reason",
+      "support_resources",
+      "categories"
+     ],
+     "properties": {
+      "release": {
+       "type": "boolean"
+      },
+      "hold_back": {
+       "type": "boolean"
+      },
+      "reason": {
+       "type": "string"
+      },
+      "support_resources": {
+       "type": "array"
+      },
+      "categories": {
+       "type": "array"
+      },
+      "outcome": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "evaluate-progress",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/evaluate-progress"
+      }
+     },
+     "workdir": "/opt/evaluate-progress",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "holdBackOnRisk"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:evaluate-progress",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "assessment": {
+        "evaluated": true,
+        "risk": 0.9,
+        "categories": [
+         "spoilage"
+        ]
+       },
+       "threshold": 0.5,
+       "support_resources": [
+        "Call the supplier line"
+       ]
+      },
+      "output_selector": "$.reason",
+      "contains": "at or above the threshold"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/progression-evaluator (read-data: derive-measure, measure-ops, measure-pipeline, evaluate-progression, band-membership, corroboration-gate, verify-grounding, score-instrument, cohort-stitch; the safety and nudge gates made generic)"
+    }
+   }
+  },
+  {
+   "id": "package::evaluate-progress::tool::decide-a-nudge",
+   "address": "package::evaluate-progress::tool::decide-a-nudge",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:decide-a-nudge",
+    "label": "Decide whether to nudge a person",
+    "status": "active",
+    "job": "Decide whether a person should get a nudge now, honouring their opt-out and a rate limit",
+    "description": "Takes a person's context (a risk number, whether the rate limit still allows a nudge, whether they opted out) and the person's threshold, tone and framing. Checks in this order: opted out, rate limit, then risk. Nudges only when the risk is a number at or over the threshold. A missing context, an unknown risk or a threshold that is not a number means no nudge. The tone and framing come back exactly as the caller gave them. When allowed_tones is given, the nudge is only sent in a listed tone; any other tone means no nudge.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "context",
+      "risk_threshold"
+     ],
+     "properties": {
+      "context": {
+       "type": "object",
+       "required": [
+        "rate_limit_ok"
+       ],
+       "properties": {
+        "risk": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "rate_limit_ok": {
+         "type": "boolean"
+        },
+        "opted_out": {
+         "type": "boolean"
+        }
+       }
+      },
+      "risk_threshold": {
+       "type": "number"
+      },
+      "framing_ref": {
+       "type": "string",
+       "description": "Which framing the nudge uses"
+      },
+      "tone": {
+       "type": "string"
+      },
+      "allowed_tones": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "When given, a nudge in a tone not on this list (or with no tone) is not sent"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "nudge",
+      "tone",
+      "framing_ref",
+      "reason"
+     ],
+     "properties": {
+      "nudge": {
+       "type": "boolean"
+      },
+      "tone": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "framing_ref": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "reason": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "evaluate-progress",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/evaluate-progress"
+      }
+     },
+     "workdir": "/opt/evaluate-progress",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "decideNudge"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:evaluate-progress",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "context": {
+        "risk": 0.8,
+        "rate_limit_ok": true
+       },
+       "risk_threshold": 0.5,
+       "tone": "warm",
+       "framing_ref": "framing:welcome-back"
+      },
+      "output_selector": "$.tone",
+      "contains": "warm"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/progression-evaluator (read-data: derive-measure, measure-ops, measure-pipeline, evaluate-progression, band-membership, corroboration-gate, verify-grounding, score-instrument, cohort-stitch; the safety and nudge gates made generic)"
+    }
+   }
+  },
+  {
+   "id": "package::evaluate-progress::tool::check-claims-are-grounded",
+   "address": "package::evaluate-progress::tool::check-claims-are-grounded",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-claims-are-grounded",
+    "label": "Check claims cite sources that were read",
+    "status": "active",
+    "job": "Check that each claim in an answer cites a source that was really read, and none cites one that was not",
+    "description": "Takes the claims of an answer (each with citations naming a source id) and the ids of the sources that were really retrieved. A claim is grounded when at least one of its citations names a retrieved source. A claim with no citation is not grounded, and a citation to a source that was not retrieved is a fabricated reference that fails the whole answer. The answer is grounded when the share of grounded claims reaches min_grounded_ratio (1 when left out) and nothing was fabricated. An empty answer is never grounded.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "claims",
+      "retrieved_source_ids"
+     ],
+     "properties": {
+      "claims": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "text"
+        ],
+        "properties": {
+         "text": {
+          "type": "string"
+         },
+         "citations": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "source_id"
+           ],
+           "properties": {
+            "source_id": {
+             "type": "string"
+            },
+            "quote": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "retrieved_source_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "min_grounded_ratio": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "grounded",
+      "grounded_ratio",
+      "per_claim",
+      "ungrounded_claims",
+      "fabricated_citations"
+     ],
+     "properties": {
+      "grounded": {
+       "type": "boolean"
+      },
+      "grounded_ratio": {
+       "type": "number"
+      },
+      "per_claim": {
+       "type": "array"
+      },
+      "ungrounded_claims": {
+       "type": "array"
+      },
+      "fabricated_citations": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "evaluate-progress",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/evaluate-progress"
+      }
+     },
+     "workdir": "/opt/evaluate-progress",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "checkClaimsAreGrounded"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:evaluate-progress",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "claims": [
+        {
+         "text": "The shop opens at six.",
+         "citations": [
+          {
+           "source_id": "opening-times"
+          }
+         ]
+        }
+       ],
+       "retrieved_source_ids": [
+        "opening-times"
+       ]
+      },
+      "output_selector": "$.per_claim[0].reason",
+      "contains": "cited 1 retrieved source"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/progression-evaluator (read-data: derive-measure, measure-ops, measure-pipeline, evaluate-progression, band-membership, corroboration-gate, verify-grounding, score-instrument, cohort-stitch; the safety and nudge gates made generic)"
+    }
+   }
+  },
+  {
+   "id": "package::evaluate-progress::tool::score-questionnaire-responses",
+   "address": "package::evaluate-progress::tool::score-questionnaire-responses",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:score-questionnaire-responses",
+    "label": "Score a questionnaire's answers",
+    "status": "active",
+    "job": "Score the answers to a questionnaire, flipping reverse-keyed items and filing each item under its subscale",
+    "description": "Takes a questionnaire (its id, the response scale, the subscales and their item ids, which items are reverse-keyed) and a person's responses. Answers one scored fact per response: the response, the scored value (a reverse-keyed item is reflected on the scale: min + max - response), its subscale and whether it was reversed. A questionnaire not marked validated, or marked banned, is refused: it will not be scored.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "instrument",
+      "responses"
+     ],
+     "properties": {
+      "instrument": {
+       "type": "object",
+       "required": [
+        "id",
+        "validated",
+        "responseScale",
+        "subscales",
+        "responseFactKind"
+       ],
+       "properties": {
+        "id": {
+         "type": "string"
+        },
+        "validated": {
+         "type": "boolean"
+        },
+        "banned": {
+         "type": "boolean"
+        },
+        "bannedReason": {
+         "type": "string"
+        },
+        "measureFamily": {
+         "type": "string"
+        },
+        "responseFactKind": {
+         "type": "string",
+         "description": "The kind the scored facts carry (required)"
+        },
+        "responseScale": {
+         "type": "object",
+         "required": [
+          "min",
+          "max"
+         ],
+         "properties": {
+          "min": {
+           "type": "number"
+          },
+          "max": {
+           "type": "number"
+          }
+         }
+        },
+        "subscales": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "required": [
+           "id",
+           "items"
+          ],
+          "properties": {
+           "id": {
+            "type": "string"
+           },
+           "label": {
+            "type": "string"
+           },
+           "items": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        },
+        "reverseItems": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "items": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "required": [
+           "id",
+           "subscale"
+          ],
+          "properties": {
+           "id": {
+            "type": "string"
+           },
+           "subscale": {
+            "type": "string"
+           },
+           "text": {
+            "type": "string"
+           }
+          }
+         }
+        }
+       }
+      },
+      "responses": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "item",
+         "response"
+        ],
+        "properties": {
+         "item": {
+          "type": "string"
+         },
+         "response": {
+          "type": "number"
+         }
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "facts"
+     ],
+     "properties": {
+      "facts": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "kind",
+         "instrument",
+         "item",
+         "response",
+         "scored_value",
+         "reversed"
+        ]
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "evaluate-progress",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/evaluate-progress"
+      }
+     },
+     "workdir": "/opt/evaluate-progress",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "scoreResponses"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:evaluate-progress",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "instrument": {
+        "id": "taste-quiz",
+        "validated": true,
+        "responseScale": {
+         "min": 1,
+         "max": 5
+        },
+        "subscales": [
+         {
+          "id": "sweet",
+          "items": [
+           "q1",
+           "q2"
+          ]
+         }
+        ],
+        "reverseItems": [
+         "q2"
+        ],
+        "responseFactKind": "quiz.answer"
+       },
+       "responses": [
+        {
+         "item": "q1",
+         "response": 4
+        },
+        {
+         "item": "q2",
+         "response": 2
+        }
+       ]
+      },
+      "output_selector": "$.facts[0].id",
+      "contains": "taste-quiz:q1"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/progression-evaluator (read-data: derive-measure, measure-ops, measure-pipeline, evaluate-progression, band-membership, corroboration-gate, verify-grounding, score-instrument, cohort-stitch; the safety and nudge gates made generic)"
+    }
+   }
+  },
+  {
+   "id": "package::evaluate-progress::tool::stitch-facts-into-people",
+   "address": "package::evaluate-progress::tool::stitch-facts-into-people",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:stitch-facts-into-people",
+    "label": "Link records into people and stage each",
+    "status": "active",
+    "job": "Link records that share a key into one person and give each person the highest stage their records reach",
+    "description": "Takes records and a config. Records that share a value at any key path are one person (the same value at two different paths never links). Each person gets the highest-ranked stage any of their records reaches by the stage rules (exists, equals or greater-than tests on a field), the first source by time, the sum of a value field, and a confidence word: the identified word when any strong key is present, the anonymous word otherwise. Answers the people best stage first. Key paths, stage rules, the base stage and the confidence words are all in the config.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "facts",
+      "config"
+     ],
+     "properties": {
+      "facts": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "config": {
+       "type": "object",
+       "required": [
+        "keyPaths",
+        "sourcePath",
+        "timePath",
+        "confidence"
+       ],
+       "properties": {
+        "keyPaths": {
+         "type": "array",
+         "items": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "description": "Paths whose equal values link records"
+        },
+        "strongKeyPaths": {
+         "type": "array",
+         "items": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "description": "The key paths that identify a person"
+        },
+        "stageRules": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "required": [
+           "when",
+           "stage",
+           "rank"
+          ],
+          "properties": {
+           "when": {
+            "type": "object",
+            "required": [
+             "field"
+            ],
+            "properties": {
+             "field": {
+              "type": "array",
+              "items": {
+               "type": "string"
+              }
+             },
+             "exists": {
+              "type": "boolean"
+             },
+             "equals": {},
+             "gt": {
+              "type": "number"
+             }
+            }
+           },
+           "stage": {
+            "type": "string"
+           },
+           "rank": {
+            "type": "number"
+           }
+          }
+         }
+        },
+        "baseStage": {
+         "type": "object",
+         "properties": {
+          "stage": {
+           "type": "string"
+          },
+          "rank": {
+           "type": "number"
+          }
+         }
+        },
+        "sourcePath": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "timePath": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "valuePath": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "confidence": {
+         "type": "object",
+         "required": [
+          "identified",
+          "anonymous"
+         ],
+         "properties": {
+          "identified": {
+           "type": "string"
+          },
+          "anonymous": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "ledger"
+     ],
+     "properties": {
+      "ledger": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "personId",
+         "stage",
+         "stageRank",
+         "confidence",
+         "value",
+         "keyCount",
+         "factCount"
+        ],
+        "properties": {
+         "stage": {
+          "type": [
+           "string",
+           "null"
+          ],
+          "description": "Null when no rule matched and the config has no baseStage"
+         },
+         "stageRank": {
+          "type": [
+           "number",
+           "null"
+          ],
+          "description": "Null with the stage"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "evaluate-progress",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/evaluate-progress"
+      }
+     },
+     "workdir": "/opt/evaluate-progress",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "stitchFacts"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:evaluate-progress",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "facts": [
+        {
+         "member": "m-17",
+         "visit": "first",
+         "source": "flyer",
+         "at": "2026-01-01"
+        },
+        {
+         "member": "m-17",
+         "visit": "bought",
+         "source": "shop",
+         "at": "2026-01-02"
+        }
+       ],
+       "config": {
+        "keyPaths": [
+         [
+          "member"
+         ]
+        ],
+        "strongKeyPaths": [
+         [
+          "member"
+         ]
+        ],
+        "stageRules": [
+         {
+          "when": {
+           "field": [
+            "visit"
+           ],
+           "equals": "first"
+          },
+          "stage": "visited",
+          "rank": 1
+         },
+         {
+          "when": {
+           "field": [
+            "visit"
+           ],
+           "equals": "bought"
+          },
+          "stage": "customer",
+          "rank": 2
+         }
+        ],
+        "sourcePath": [
+         "source"
+        ],
+        "timePath": [
+         "at"
+        ],
+        "confidence": {
+         "identified": "known",
+         "anonymous": "unknown"
+        }
+       }
+      },
+      "output_selector": "$.ledger[0].stage",
+      "contains": "customer"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/progression-evaluator (read-data: derive-measure, measure-ops, measure-pipeline, evaluate-progression, band-membership, corroboration-gate, verify-grounding, score-instrument, cohort-stitch; the safety and nudge gates made generic)"
+    }
+   }
+  }
+ ]
+}
