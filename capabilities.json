@@ -935,7 +935,7 @@
       "capability": "turn a local date and clock time in a named time zone into an instant and back, across the clock changes, and tell a real zone name from anything else",
       "owner": ["tools/wall-time/"],
       "entry": "tools/wall-time/read-data/wall-time.mjs",
-      "evidence": "README.md:3 the one place a local date and time becomes an instant and back, and the one test of whether a zone name is a zone",
+      "evidence": "README.md:3 the one place a local date and time becomes an instant and back, and the one test of whether a zone name is a zone; tools/book-time reads it for its open times and keeps no zone code of its own",
       "distinct_from": [
         {"job": "show a person's time blocks on a calendar", "why": "that job lays out blocks of records on a day, week or month view; this one only resolves a clock time in a zone to an instant, with a rule for skipped and repeated times"}
       ]
