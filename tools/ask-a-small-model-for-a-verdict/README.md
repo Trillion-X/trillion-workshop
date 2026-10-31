@@ -72,6 +72,6 @@ These are the tool's mechanism, not anyone's preference, and they are not settin
 
 ## Dependencies
 
-**Depends on:** `@noble/hashes` (BLAKE3, as the content-identity tool uses), Node, and a model server on the person's computer or a hosted classifier whose key is in a file the person names.
+**Depends on:** `tools/content-identity` (the one BLAKE3 identity of bytes, through its public `read-data/identity.mjs`, which needs the checkout's `npm install`), Node, and a model server on the person's computer or a hosted classifier whose key is in a file the person names.
 
 **Depended on by:** `tool-rows.json`; any tool that needs a calibrated yes or no may import `do-work/ask-for-a-verdict.mjs`.
