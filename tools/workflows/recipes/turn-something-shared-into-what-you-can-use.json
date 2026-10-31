@@ -6,6 +6,10 @@
       "address": "workflow-recipe:turn-something-shared-into-what-you-can-use",
       "payload": {
         "kind": "workflow-recipe",
+        "produces": "New technique records, recipes and tools made from what was shared, with the free tool for each paid one; \"what I took from this and built\" is a post.",
+        "wakes": [
+          { "id": "shared", "on": { "record": { "resource": "own-records", "kind": "shared" } }, "budget": { "steps": 50, "wall_ms": 1800000 }, "input": { "start_at": "gather" } }
+        ],
         "id": "workflow:turn-something-shared-into-what-you-can-use",
         "label": "Turn something shared into what you can use",
         "job": "Read what the person shared in full, split it into its parts, and put each part where the person's AI can use it again: methods and facts as technique records described by what they work on (never tied to one medium), step-by-step playbooks as workflow recipes, code as tools, and every paid product matched to a free or open-source tool that does the same job. Record every step that is not adopted and why.",
@@ -16,13 +20,12 @@
         },
         "input_schema": {
           "type": "object",
-          "required": ["shared"],
           "properties": {
             "shared": {
               "type": "array",
               "minItems": 1,
               "items": {"type": "string", "minLength": 3},
-              "description": "What the person shared: each item is a link, or the pasted text of a post or article"
+              "description": "What the person shared: each item is a link, or the pasted text of a post or article. Left out when the run was woken by a shared record: the gather step reads it from the record."
             },
             "why": {
               "type": "string",
@@ -32,9 +35,27 @@
         },
         "steps": [
           {
+            "id": "gather",
+            "title": "Gather what was shared",
+            "do": "If the input names shared, use it as it is, and the input why as why. Otherwise the run was woken by the person sharing something: for each change in the run's cause (task.cause.detail.changes) whose id starts with shared: and is not deleted, call records:read with { \"id\": <that id> }. From each record's value.items take every link's url, every selection's text, and every file's file identity; that list is shared. The record's value.own_words, when it has them, is why (join the words of several records with a blank line).",
+            "submit": {
+              "type": "object",
+              "required": ["shared"],
+              "properties": {
+                "shared": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {"type": "string", "minLength": 3}
+                },
+                "why": {"type": "string"}
+              }
+            },
+            "checks": []
+          },
+          {
             "id": "read",
             "title": "Read every item in full",
-            "do": "For each item in the input shared: if it is pasted text, use it as it is. If it is a link, call tool:read-public-web-page with { \"url\": <the link> }. If that tool reports the page needs a signed-in browser (for example x.com or reddit.com), call tool:read-a-page-in-my-browser with the same url. Read the whole thing, including replies or linked articles that the item points to as its main content. For a video, get its words: use the platform's captions if the page has them; otherwise use the transcription tool the person has (a tools-from-github row such as whisper) on the downloaded audio. Record for each item: the url (or 'pasted'), its author, and its full text.",
+            "do": "For each item in shared from the gather step: if it is pasted text, use it as it is. If it is a link, call tool:read-public-web-page with { \"url\": <the link> }. If that tool reports the page needs a signed-in browser (for example x.com or reddit.com), call tool:read-a-page-in-my-browser with the same url. Read the whole thing, including replies or linked articles that the item points to as its main content. For a video, get its words: use the platform's captions if the page has them; otherwise use the transcription tool the person has (a tools-from-github row such as whisper) on the downloaded audio. Record for each item: the url (or 'pasted'), its author, and its full text.",
             "submit": {
               "type": "object",
               "required": ["items"],
@@ -55,7 +76,7 @@
               }
             },
             "checks": [
-              {"kind": "covers", "path": ["this", "items", "*", "source"], "of": ["input", "shared", "*"], "says": "Every shared item was read"}
+              {"kind": "covers", "path": ["this", "items", "*", "source"], "of": ["steps", "gather", "shared", "*"], "says": "Every shared item was read"}
             ]
           },
           {
@@ -222,9 +243,38 @@
             }
           },
           {
+            "id": "write-recipes",
+            "title": "Write every process as a recipe that runs, with what wakes it",
+            "do": "For each playbook part from the split step that the check-what-exists step marked new or improves-existing, and for each method part that is something a person does again and again (a weekly review, a follow-up, a refresh, a launch), write one workflow recipe in the shape of the shared recipe shelf (the Workshop's tools/workflows README, 'Recipe shape'): id (workflow: and lowercase words with dashes), label, job, source (the shared item it came from, and the steps not adopted with their reasons from the not-adopted step), input_schema with every detail that changes from person to person (names, products, places, amounts, platforms, thresholds), and ordered steps. Each step's do names the exact Workshop tool id it calls (list the Workshop tools; a step no tool does is done by the AI and says so), the exact input it gives, and which of the person's records it reads (by record kind); each step has a submit schema for what it hands back and checks from the Workshop's recipe-check-kinds.json that bind its output to earlier steps or the input. Then give the recipe its wake, read from the playbook's own words about when it happens: a rhythm ('every Monday', 'each quarter') is a time cause with every_ms and from_ms; a thing the person writes down or saves (a launch date, a new recording, a request) is a record cause on resource own-records with the record's kind; something that comes in from outside is an arrival cause with its source; something the computer notices (a card or drive connected, an app opened) is a host_event cause of a kind the Workshop's recipe-wake-causes.json lists. Each wake has an id, a budget of steps and wall_ms (at least that file's least_budget, at most the ledger its cause draws from), and input.start_at naming the step a woken run starts at. A process with no rhythm or event of its own gets no wake; say why in no_wake_because. Write produces: one line saying what a run makes that could be shared. Check every recipe with the recipe validator (recipeProblems in the Workshop's tools/workflows/read-data/recipe-problems.mjs) until it reports no problems; never name a person, product, number or place of the person's own inside a recipe meant for everyone.",
+            "submit": {
+              "type": "object",
+              "required": ["recipes"],
+              "properties": {
+                "recipes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["summary", "recipe_id", "wake_ids", "produces", "problems"],
+                    "properties": {
+                      "summary": {"type": "string", "minLength": 10},
+                      "recipe_id": {"type": "string", "pattern": "^workflow:[a-z0-9][a-z0-9-]*$"},
+                      "wake_ids": {"type": "array", "items": {"type": "string", "minLength": 1}},
+                      "no_wake_because": {"type": "string"},
+                      "produces": {"type": "string", "minLength": 10},
+                      "problems": {"type": "array", "maxItems": 0, "items": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "recipes", "*", "summary"], "of": ["steps", "split", "parts", "*", "summary"], "says": "Every recipe is written from a part that was split out"}
+            ]
+          },
+          {
             "id": "place",
             "title": "Put each part where it can be used again",
-            "do": "For each part marked new or improves-existing: a method, claim or reference becomes a technique record in the person's techniques list with id, name, kind, a description in your own words, source_url, author, and the fields from the make-generic step: mechanism, operates_on, needs, produces and applies_to, using the existing terms that step chose (never a field limited to one medium such as video). A playbook becomes a workflow recipe in this same shape: job, input_schema for what changes per person, and ordered steps, each with an exact do (name the exact tool, page, setting and input), a submit schema and checks; keep the person's own details out of a recipe meant for everyone. Code that does a job with an input and an output becomes a Workshop tool or a tools-from-github row with its licence read from the repository. A free option from the free-instead-of-paid step becomes a tools-from-github row the same way. Use the person's record write for records; show the person each recipe and tool before it is shared publicly.",
+            "do": "For each part marked new or improves-existing: a method, claim or reference becomes a technique record in the person's techniques list with id, name, kind, a description in your own words, source_url, author, and the fields from the make-generic step: mechanism, operates_on, needs, produces and applies_to, using the existing terms that step chose (never a field limited to one medium such as video). A playbook is the recipe the write-recipes step wrote: save it with the person's record write as a workflow-recipe record, and offer the ones meant for everyone to the shared recipe shelf. Code that does a job with an input and an output becomes a Workshop tool or a tools-from-github row with its licence read from the repository. A free option from the free-instead-of-paid step becomes a tools-from-github row the same way. Use the person's record write for records; show the person each recipe and tool before it is shared publicly.",
             "submit": {
               "type": "object",
               "required": ["placed"],

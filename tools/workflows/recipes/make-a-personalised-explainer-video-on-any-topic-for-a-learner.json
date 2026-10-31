@@ -6,6 +6,10 @@
       "address": "workflow-recipe:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
       "payload": {
         "kind": "workflow-recipe",
+        "produces": "A finished explainer video for one learner on one topic; the video itself, or a cut of it, is shareable.",
+        "wakes": [
+          { "id": "lesson-asked", "on": { "record": { "resource": "own-records", "kind": "lesson-request" } }, "budget": { "steps": 100, "wall_ms": 3600000 }, "input": { "start_at": "plan-the-lesson" } }
+        ],
         "id": "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
         "label": "Make a personalised explainer video on any topic for a learner",
         "job": "Turn a topic and a description of one learner (what they know, what they want, how long they will watch) into a finished explainer video: a lesson pitched at that learner, a spoken track, word-exact timing, one consistent animated character whose mouth follows the voice, one picture per spoken line, and a deterministic render. Every part uses a free or open-source tool that runs on the person's own computer, so a video for one more learner costs only the computer's time. Every number the video states comes from the lesson text the person's AI wrote or from a source it names; the AI never invents a statistic.",

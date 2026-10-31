@@ -2,6 +2,7 @@
 // be run by any account. Ported without change in behaviour from the workflow engine's `recipeProblems`.
 
 import { readFileSync } from 'node:fs';
+import { wakeProblems, WAKE_VOCABULARY } from './wake-problems.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -50,21 +51,40 @@ const SHAPES = {
   catalog: (value, vocabulary) => vocabulary.catalogs.some(row => row.catalog === value),
 };
 
-// Every problem with the keys of a path-shaped field: a list of keys (or a list of such lists) from a root, reading only earlier steps.
-function pathProblems(value, where, field, stepId, earlier, vocabulary) {
+// The JSON Schema a path's keys walk down, or undefined once the schema stops saying (no properties, no items): a
+// list key `*` goes to `items`, any other key to `properties`. Only a schema that lists its properties can refuse a key.
+function schemaAt(schema, keys) {
+  let at = schema;
+  for (const key of keys) {
+    if (!object(at)) return { known: false };
+    if (key === '*') { if (!object(at.items)) return { known: false }; at = at.items; continue; }
+    if (!object(at.properties) || at.additionalProperties !== undefined && at.additionalProperties !== false) return { known: false };
+    if (!(key in at.properties)) return { known: true, missing: key };
+    at = at.properties[key];
+  }
+  return { known: true };
+}
+
+// Every problem with the keys of a path-shaped field: a list of keys (or a list of such lists) from a root, reading only
+// earlier steps, and naming only fields the schema it reads declares (the step's or an earlier step's submit, or the
+// input schema), so a check can never read a field nothing hands back.
+function pathProblems(value, where, field, stepId, earlier, vocabulary, schemas) {
   const roots = vocabulary.roots.map(row => row.root);
   const problems = [];
   const paths = Array.isArray(value) && Array.isArray(value[0]) ? value : [value];
   for (const path of paths) {
-    if (!Array.isArray(path) || !roots.includes(path[0]) || path.some(key => typeof key !== 'string')) problems.push(`${where}.${field} must be a list of keys starting with ${roots.map(root => `"${root}"`).join(', ')}.`);
-    else if (path[0] === 'steps' && (path[1] === stepId || !earlier.has(path[1]))) problems.push(`${where}.${field} reads step "${path[1]}", which is not an earlier step.`);
+    if (!Array.isArray(path) || !roots.includes(path[0]) || path.some(key => typeof key !== 'string')) { problems.push(`${where}.${field} must be a list of keys starting with ${roots.map(root => `"${root}"`).join(', ')}.`); continue; }
+    if (path[0] === 'steps' && (path[1] === stepId || !earlier.has(path[1]))) { problems.push(`${where}.${field} reads step "${path[1]}", which is not an earlier step.`); continue; }
+    const [schema, keys] = path[0] === 'this' ? [schemas?.this, path.slice(1)] : path[0] === 'input' ? [schemas?.input, path.slice(1)] : [schemas?.steps?.get(path[1]), path.slice(2)];
+    const found = schemaAt(schema, keys);
+    if (found.missing) problems.push(`${where}.${field} reads "${found.missing}", which ${path[0] === 'steps' ? `step "${path[1]}"` : path[0] === 'this' ? 'this step' : 'the input'} does not declare.`);
   }
   return problems;
 }
 
 // Every problem with one list of check rules (the engine's `check` step config), for step `stepId` whose earlier
 // steps are `earlier`. What a kind takes comes from its row in the vocabulary; there is no branch on a kind's name.
-function checkProblems(checks, name, stepId, earlier, vocabulary) {
+function checkProblems(checks, name, stepId, earlier, vocabulary, schemas) {
   const problems = [];
   const kinds = new Map(vocabulary.kinds.map(row => [row.kind, row]));
   for (const [at, check] of (checks ?? []).entries()) {
@@ -76,7 +96,7 @@ function checkProblems(checks, name, stepId, earlier, vocabulary) {
     for (const { field, shape, required, refusal } of row.fields) {
       const value = check[field];
       if (value === undefined) { if (required) problems.push(refused(field, refusal)); continue; }
-      if (shape === 'path') problems.push(...pathProblems(value, where, field, stepId, earlier, vocabulary));
+      if (shape === 'path') problems.push(...pathProblems(value, where, field, stepId, earlier, vocabulary, schemas));
       else if (!SHAPES[shape](value, vocabulary)) problems.push(refused(field, refusal));
     }
     for (const { fields, refusal } of row.one_of ?? []) if (fields.every(field => !(field in check))) problems.push(`${where} ${refusal}`);
@@ -91,10 +111,15 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY) {
   if (!/^workflow:[a-z0-9][a-z0-9-]*$/.test(recipe.id ?? '')) problems.push('id must be "workflow:" followed by lowercase letters, numbers and dashes.');
   if (!nonempty(recipe.job)) problems.push('job must say in plain words what the workflow gets done.');
   if (recipe.made_from !== undefined && !(Array.isArray(recipe.made_from) && recipe.made_from.every(id => /^workflow:[a-z0-9][a-z0-9-]*$/.test(id ?? '')) && !recipe.made_from.includes(recipe.id))) problems.push('made_from must list the ids of the workflows this one was made from ("workflow:..."), never its own id.');
+  if (recipe.produces !== undefined && !nonempty(recipe.produces)) problems.push('produces must say in one line what a run makes that could become something to share.');
+  if (recipe[WAKE_VOCABULARY.field] !== undefined && recipe.produces === undefined) problems.push('a recipe with a wake must say what a run produces (produces), so the person knows what each firing makes.');
   if (recipe.input_schema !== undefined && !(object(recipe.input_schema) && recipe.input_schema.type === 'object')) problems.push('input_schema must be a JSON Schema with "type": "object".');
+  const stepIds = (Array.isArray(recipe.definition?.steps) ? recipe.definition.steps : Array.isArray(recipe.steps) ? recipe.steps : []).map(step => step?.id);
+  problems.push(...wakeProblems(recipe[WAKE_VOCABULARY.field], { stepIds, inputFields: Object.keys(recipe.input_schema?.properties ?? {}) }));
   if (recipe.definition !== undefined) return [...problems, ...definitionProblems(recipe.definition, vocabulary)];
   if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return [...problems, 'steps (or definition) must list at least one step.'];
   const seen = new Set();
+  const submits = new Map();
   const actorAsks = new Map(recipe.steps.map(step => [step?.id, { name: step?.run_tool?.tool_id ?? 'ai', policy: step?.actor_policy }]));
   recipe.steps.forEach((step, index) => {
     const name = `steps[${index}]`;
@@ -106,7 +131,8 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY) {
     if (!(object(step.submit) && step.submit.type === 'object')) problems.push(`${name}.submit must be a JSON Schema with "type": "object" for what the step hands back.`);
     if (step.run_tool !== undefined && !(object(step.run_tool) && /^tool:/.test(step.run_tool.tool_id ?? '') && (step.run_tool.input === undefined || object(step.run_tool.input)))) problems.push(`${name}.run_tool must be { tool_id: "tool:...", input: { field: value, or { "from": path } } }.`);
     else if (step.run_tool !== undefined) problems.push(...pinProblems(step.run_tool.pinned, `${name}.run_tool.pinned`));
-    problems.push(...checkProblems(step.checks, name, step.id, seen, vocabulary));
+    problems.push(...checkProblems(step.checks, name, step.id, seen, vocabulary, { this: step.submit, input: recipe.input_schema, steps: submits }));
+    submits.set(step.id, step.submit);
     problems.push(...actorPolicyProblems(step.actor_policy, { name, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && seen.has(id) }));
   });
   return problems;

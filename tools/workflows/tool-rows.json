@@ -11,6 +11,133 @@
             "kind": "workflow-recipe",
             "file": "recipes"
           }
+        },
+        "invoke_with": "tool:start-a-recipe-run"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:start-a-recipe-run",
+        "label": "Start a run of a recipe: leave its steps as a job for my AI",
+        "status": "active",
+        "job": "When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing",
+        "description": "Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row. It reads that recipe's steps from the recipes folder and writes one record of kind ai-job, id ai-job:<recipe id>:<request key>, holding status waiting, the recipe id and label, its steps, the input it was started with and the wake cause that started it. It does no step itself, schedules nothing and keeps nothing else. The AI that next connects to the person's records lists ai-job records with status waiting, does the oldest, and writes status done with its result. A firing or a call that comes again with the same request key finds its job and writes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": ["row"],
+          "properties": {
+            "row": { "type": "string", "description": "The recipe's id (workflow:...). The engine sets it to the recipe row being run." },
+            "start_at": { "type": "string", "description": "The step the run starts at, when a wake names one" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["job", "status"],
+          "properties": {
+            "job": { "type": "string", "description": "The id of the ai-job record" },
+            "status": { "type": "string", "enum": ["written", "already-there"] }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/workflows/read-data/start-a-recipe-run.mjs", "startARecipeRun"],
+          "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+          "files": {
+            "package_files": [
+              { "package": "workflows", "paths": ["read-data/start-a-recipe-run.mjs", "recipes"], "at": "/opt/workflows" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 1,
+            "rights": [
+              { "kind": "ai-job", "operations": ["records:read", "records:write"] }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:workflows"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:gate-a-piece-against-a-checklist",
+        "label": "Check a piece against my checklist before anyone sees it, and keep what was answered (runs on your computer)",
+        "status": "active",
+        "job": "Before I am shown anything I made, ask every required check of my checklist that applies to it, keep each answer with the files it judged, tell me which checks are still open, stale or failed, and list what was put in front of me without passing",
+        "description": "Reads a person's checklist (a JSON document of stages and checks, each with the tags it routes on and whether it is required) and a piece (a folder with a header of tags and the files it offers as items) on the person's own computer, through a schema file the person gives. The gate lists every required check that applies and has no current passing answer, per item where the check is per item. Answers are rows in an append-only file in the piece, each pinned by BLAKE3 to the bytes of the files it judged, so a row on a file that changed is stale. A check that a checker or a gate answers counts only on that checker's own row, carrying the reviewed pin of the checker version that produced it; a person's own row never stands in for it. A checker's JSON report is recorded check by check, only for checks whose pin is the reviewed one; a sweep runs the checker over every item of a folder and lists faults by rule; the schema's gates run over items and record their rows. An advisory answer passes only at the delivery stages its check names. A failed judgment on a rebuild of an item the person picked waits for their ruling. The tool also lists the items a gate must cover (the latest round plus the live picks) and audits the folders the person watches, optionally moving unchecked files to a held-back folder. It knows no checklist, piece kind, checker or gate by name: everything comes from the schema.",
+        "input_schema": {
+          "type": "object",
+          "required": ["library", "schema", "command"],
+          "properties": {
+            "library": { "type": "string", "description": "The folder the schema's files are relative to, put where {library} is in the command." },
+            "schema": { "type": "string", "description": "The schema file on the person's computer (see the README for its keys), put where {schema} is in the command." },
+            "command": { "type": "string", "description": "One of: gate <piece> --stage ID[,ID] [--option ITEM]... [--at DELIVERY_STAGE]; answer <piece> --check ID [--option ITEM] --answer pass|fail|n/a --evidence TEXT --by NAME; answers-from-report <piece> --json REPORT [--option ITEM]; sweep <piece> --previews FOLDER... [--only ITEM,ITEM]; run-gates <piece> --lane-dir FOLDER [--option ITEM,ITEM] [--at DELIVERY_STAGE]; run-files <piece> --file PATH... [--at DELIVERY_STAGE]; scope <piece> [--lane NAME]; audit <piece> [--hold] [--file PATH]... Put it where {command} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The JSON the script prints. gate: { all_passed, stages, options, at, tags, problems, unanswered_must, failed_must, waits_for_person_picked_design, advisory, unanswered_optional_count, per_option_checks_not_evaluated }, each open row with the command that answers it. answer: the row recorded. answers-from-report: { recorded, checks_not_recorded, rows }. sweep, run-gates and run-files: what was recorded and what failed or could not be measured. scope: the item ids. audit: { all_passed, offenders, waits_for_person, moved_to_held_back, superseded_picks }. The exit status is 0 when everything passed, 1 when something is open or failed and 2 when the schema or a file could not be read."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U blake3   # or have the b3sum command"
+          ],
+          "run": "python3 tools/workflows/do-work/checklist_gate.py --library {library} --schema {schema} {command}",
+          "needs": ["python", "blake3 (the python module) or the b3sum command"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. If you can run commands where they are: find the person's schema file (ask only if none exists yet; the README says what it holds), and run `gate` for the piece and stages they name before showing them anything. Report how many required checks are open, stale or failed, naming each check and item, and answer an open check only with evidence you actually looked at, under your own name: a checker's or gate's name is refused. Never write a checker's or gate's row by hand; run the command that records it. A row that says stale was answered on other bytes: look again. Never show the person an item whose required row is open or failed; a row that waits for the person's ruling is theirs to rule on. If you cannot run commands, give them the command."
+        },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:gate-a-piece-against-a-checklist",
+        "provenance": {
+          "source": "A pre-delivery gate over a person's own checklist where every answer is bound to the identity of the files it judged and every measuring tool's answer to the reviewed version of that tool"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:generate-a-checklist-from-my-text",
+        "label": "Turn my written checklist into the checklist file the gate reads, and check that file (runs on your computer)",
+        "status": "active",
+        "job": "Keep one written checklist of mine as the only source, generate the checklist document from it, tell me when the file on disk no longer matches my text, and find the mistakes a hand edit or a typo would make",
+        "description": "Reads a person's checklist text (one section per stage, one table row per check, notes that annotate a check, an optional file of rules whose wording is read from there and never copied) through the `checklist_source` part of the schema the person gives, which holds the regular expressions and constant fields that say how their text is laid out. `checklist` prints the document the text generates, `--check` says in words which checks differ from the file on disk, `--write` writes the file, and `--problems` checks the file on disk for repeated ids, a required flag that is not true or false, a route no reader can evaluate, a per-item check with no rule, an advisory stage that is not a delivery stage, a phase that names no check and counts that do not add up. It refuses a rule that has no row and a note that names no check. It knows no row kind, id shape or route tag.",
+        "input_schema": {
+          "type": "object",
+          "required": ["library", "schema"],
+          "properties": {
+            "library": { "type": "string", "description": "The folder the schema's files are relative to, put where {library} is in the command." },
+            "schema": { "type": "string", "description": "The schema file on the person's computer (its checklist_source part is described in the README), put where {schema} is in the command." },
+            "mode": { "type": "string", "description": "One of: --check, --write, --problems, or leave it out to print the generated document. Put it where {mode} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "--check and --problems print { all_passed, difference? | problems }; --write prints { written, checks, must }; with no mode the generated document. The exit status is 0 when everything passed, 1 when the file differs or has problems and 2 when the text or schema could not be read."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "python3 tools/workflows/do-work/checklist_gate.py --library {library} --schema {schema} checklist {mode}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. After the person edits their written checklist, run it with `--check`; if it says the file differs, run `--write`, then `--problems`, and tell the person what the text now generates and any problem found. Never edit the generated file by hand: the text is the source."
+        },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:generate-a-checklist-from-my-text",
+        "provenance": {
+          "source": "A checklist document generated from the person's own text by declared patterns, so there is one source and a check that the generated file has not drifted"
         }
       }
     }

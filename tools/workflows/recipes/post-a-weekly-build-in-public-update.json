@@ -1,0 +1,206 @@
+{
+  "about": "A workflow every account can find and run: every Friday, read what really changed in the person's records this week, pick the real numbers and one real setback, draft one update per platform the person names in that platform's own way, check the words, and have the person approve the exact words and post them. One workflow-recipe row in the shape of the shared recipe shelf (job, input_schema, ordered steps, each with do, submit and checks).",
+  "records": [
+    {
+      "id": "post-a-weekly-build-in-public-update",
+      "address": "workflow-recipe:post-a-weekly-build-in-public-update",
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:post-a-weekly-build-in-public-update",
+        "label": "Post a weekly build-in-public update",
+        "job": "Every week, build the person's public update from what really happened: read the changes this week in the lists and records the person names, pick the numbers that moved (each with the record it comes from), one setback or mistake that really happened, and what the person promised last week and whether it was done; draft one update per platform the person names, each written the way that platform reads (its first line, length and tone), check every word against the person's own rules, and have the person approve the exact words and post them. The AI never posts by itself and never writes a number no record holds.",
+        "produces": "One approved update per platform with the week's real numbers, one real setback and next week's promise, ready for the person to post.",
+        "source": {
+          "from": "principles mined from video captions",
+          "name": "Build in public with real numbers, announce what you will do, show the mess, write each platform natively",
+          "principles": ["P-069", "P-098", "P-012", "P-078"],
+          "note": "Not adopted: inventing or rounding up numbers, hiding a setback that happened, posting the same words unchanged on every platform, and any post the person did not approve word for word."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["lists", "platforms", "rules"],
+          "properties": {
+            "lists": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 2},
+              "description": "The record kinds or lists of the person's own records that show the work (tasks, releases, sales, sign-ups)"
+            },
+            "platforms": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 2},
+              "description": "The platforms the person posts the update on"
+            },
+            "rules": {"type": "array", "minItems": 1, "items": {"type": "object"}, "description": "The person's own word rules, as tool:check-against-a-persons-rules-and-verdicts takes them"},
+            "private": {"type": "array", "items": {"type": "string"}, "description": "Words, names and kinds of numbers the person never shares publicly"}
+          }
+        },
+        "wakes": [
+          {"id": "friday", "on": {"time": {"every_ms": 604800000, "from_ms": 144000000}}, "budget": {"steps": 40, "wall_ms": 1800000}, "input": {"start_at": "read-week"}}
+        ],
+        "steps": [
+          {
+            "id": "read-week",
+            "title": "Read what changed in the person's records this week",
+            "do": "For each kind in the input lists, list the person's own records of that kind with the records list (newest first) and keep those changed in the last 7 days; for each kept record read its history and copy its value now and its value 7 days ago (or 'new' when it did not exist). Also read the person's last post-a-weekly-build-in-public record, if any, and copy its next_promise. Copy only what the records hold; never estimate.",
+            "submit": {
+              "type": "object",
+              "required": ["changes"],
+              "properties": {
+                "changes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["record_id", "kind", "now", "before"],
+                    "properties": {
+                      "record_id": {"type": "string", "minLength": 2},
+                      "kind": {"type": "string"},
+                      "now": {},
+                      "before": {}
+                    }
+                  }
+                },
+                "last_promise": {"type": "string"}
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "changes", "*", "kind"], "of": ["input", "lists", "*"], "says": "Only the lists the person named are read"}
+            ]
+          },
+          {
+            "id": "pick",
+            "title": "Pick the numbers that moved, one real setback and last week's promise",
+            "do": "From the read-week changes pick: up to 3 numbers that moved, each with its before and now values and its record id; exactly one setback or mistake that really happened this week (a task that slipped, a release rolled back, a number that fell), with its record id; and whether last_promise was kept, with the record that shows it. Leave out anything listed in the input private. If nothing went wrong this week, say so in setback and pick none; never invent one.",
+            "submit": {
+              "type": "object",
+              "required": ["numbers", "setback", "promise_kept"],
+              "properties": {
+                "numbers": {
+                  "type": "array",
+                  "maxItems": 3,
+                  "items": {
+                    "type": "object",
+                    "required": ["what", "before", "now", "record_id"],
+                    "properties": {
+                      "what": {"type": "string"},
+                      "before": {},
+                      "now": {},
+                      "record_id": {"type": "string"}
+                    }
+                  }
+                },
+                "setback": {
+                  "type": "object",
+                  "required": ["what"],
+                  "properties": {
+                    "what": {"type": "string", "minLength": 5},
+                    "record_id": {"type": "string"}
+                  }
+                },
+                "promise_kept": {"type": "string", "enum": ["kept", "not-kept", "no-promise"]},
+                "next_promise": {"type": "string", "minLength": 5}
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "numbers", "*", "record_id"], "of": ["steps", "read-week", "changes", "*", "record_id"], "says": "Every number comes from a record that changed this week"}
+            ]
+          },
+          {
+            "id": "draft",
+            "title": "Draft one update per platform, written the way that platform reads",
+            "do": "For each platform in the input platforms, read the person's own last 5 posts there with tool:read-a-page-in-my-browser on their profile to see how long they are and how they open. Write one update: line one says the one thing that moved most or the setback, in the platform's own way (a hook in the first line where the feed cuts off; plain and useful where selling reads badly); then the numbers with before and now; then the setback in plain words; then last week's promise and whether it was kept; then next week's promise. Use only numbers from the pick step, written exactly. Never reuse one platform's words unchanged on another.",
+            "submit": {
+              "type": "object",
+              "required": ["drafts"],
+              "properties": {
+                "drafts": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["platform", "text"],
+                    "properties": {
+                      "platform": {"type": "string"},
+                      "text": {"type": "string", "minLength": 20}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "drafts", "*", "platform"], "of": ["input", "platforms", "*"], "says": "Every platform the person named has a draft"},
+              {"kind": "distinct-at-least", "path": ["this", "drafts", "*", "text"], "count": 1, "says": "Each draft has its own words"}
+            ]
+          },
+          {
+            "id": "check-words",
+            "title": "Check every draft against the person's rules and private words",
+            "do": "Call tool:check-against-a-persons-rules-and-verdicts with { \"rules\": <the input rules>, \"units\": [one unit per draft: { \"id\": <platform>, \"text\": <the draft text> }] }. For every unit it answers fail, rewrite that draft and call the tool again until it passes or is uncertain. Then confirm no draft contains a word from the input private.",
+            "submit": {
+              "type": "object",
+              "required": ["results"],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "verdict"],
+                    "properties": {
+                      "id": {"type": "string"},
+                      "verdict": {"type": "string", "enum": ["pass", "uncertain"]},
+                      "why": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "results", "*", "id"], "of": ["steps", "draft", "drafts", "*", "platform"], "says": "Every draft was checked"},
+              {"kind": "excludes-words", "path": ["this", "results", "*", "verdict"], "words": ["fail"], "says": "No draft is left failing the person's rules"}
+            ]
+          },
+          {
+            "id": "approve-and-post",
+            "title": "The person approves the exact words and posts them",
+            "do": "Show the person, in the chat, each platform's draft exactly as it will be posted, with the record behind every number and the checker's uncertain answers. Ask for each: \"Do you approve this update exactly as written?\" Wait; change only what they ask and show again. Then tell them to post each approved update themselves on its platform (the AI never posts) and to send the link. Open each link with tool:read-a-page-in-my-browser and confirm the approved words are live.",
+            "submit": {
+              "type": "object",
+              "required": ["posted"],
+              "properties": {
+                "posted": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["platform", "approved", "url"],
+                    "properties": {
+                      "platform": {"type": "string"},
+                      "approved": {"type": "boolean", "const": true},
+                      "url": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "posted", "*", "platform"], "of": ["steps", "draft", "drafts", "*", "platform"], "says": "Only drafted, approved updates are posted"}
+            ]
+          },
+          {
+            "id": "record",
+            "title": "Keep the week and next week's promise",
+            "do": "Write one record to the person's own records with their record write: { \"kind\": \"post-a-weekly-build-in-public\", \"numbers\": <the pick step's numbers>, \"setback\": <its setback>, \"next_promise\": <its next_promise>, \"posted\": <the posted links> }, so next week's run reads the promise back. Call tool:tell-the-person with the links posted and next week's promise.",
+            "submit": {
+              "type": "object",
+              "required": ["record_id", "told"],
+              "properties": {
+                "record_id": {"type": "string", "minLength": 3},
+                "told": {"type": "boolean", "const": true}
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

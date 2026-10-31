@@ -6,6 +6,10 @@
       "address": "workflow-recipe:run-a-slideshow-page-that-sells-a-small-digital-product",
       "payload": {
         "kind": "workflow-recipe",
+        "produces": "Each Monday: which carousels won on views and saves, the part 2 of each winner, and the video of the biggest one; the before-and-after numbers are a weekly results post.",
+        "wakes": [
+          { "id": "monday", "on": { "time": { "every_ms": 604800000, "from_ms": 378000000 } }, "budget": { "steps": 60, "wall_ms": 3600000 }, "input": { "start_at": "weekly" } }
+        ],
         "id": "workflow:run-a-slideshow-page-that-sells-a-small-digital-product",
         "label": "Run a slideshow page that sells a small digital product",
         "job": "Build a slideshow page around the person's own material and one small paid product: list the material they really made, read the biggest pages in the niche for their top 3 formats, fix one visual style, outline the product with every item marked as the person's own or still to make, write a batch of carousels whose first slide names who it is for and whose last slide shows the product with one action, render them as 1080x1350 images, get the person's approval of every batch, schedule only approved posts, and each week read views, saves and sales, make part 2 of the winners and turn the biggest winner into a video. Every number comes from a tool call, a package label, a cited database or the person's own analytics; where there is none, the answer is \"no data\". The AI drafts and renders; the person approves, owns every account and the checkout, and the AI never posts by itself.",

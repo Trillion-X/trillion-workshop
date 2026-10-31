@@ -1,0 +1,84 @@
+{
+  "about": "A workflow every account can find and run: each hour, note a new release of the person's repository with the commit subjects since the one before it, and write it as one row of the person's own list, only when the list does not hold that row yet. The row is the release's entry for tracking; it reaches the person's public changelog only after someone writes the words people read and flags it as the person's list says. One workflow-recipe row in the shape of the shared recipe shelf (job, input_schema, ordered steps, each with do, submit and checks).",
+  "records": [
+    {
+      "id": "keep-a-changelog-from-what-shipped",
+      "address": "workflow-recipe:keep-a-changelog-from-what-shipped",
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-a-changelog-from-what-shipped",
+        "label": "Keep a changelog from what shipped",
+        "job": "Every time the person ships, put one row for that release into the list they keep their work in: read their newest release (from the release program or git ref they name) with the subjects of the commits since the release before it, make the row with their own mapping, and write it only when the list lacks it, so a row someone already edited stays as they left it. The AI writes no words people read and never marks a row public by itself.",
+        "produces": "One row per release in the person's list, with its commit, name, time and the commit subjects since the release before it.",
+        "source": {
+          "from": "a working changelog list that filled itself from what each release shipped",
+          "name": "The work fills the list: each landing writes its own row, nobody types a changelog line twice",
+          "note": "Not adopted: rewriting a row someone edited, and writing public words from commit subjects without a person's review."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["repository", "settings", "staged", "mapping", "payload", "door_config", "work"],
+          "properties": {
+            "repository": { "type": "string", "minLength": 1, "description": "The person's repository folder" },
+            "settings": { "type": "string", "minLength": 1, "description": "The read-what-shipped settings file: where the newest release is read and which keys hold its commit, name and time" },
+            "staged": { "type": "string", "minLength": 1, "description": "The staged file of releases the reader keeps" },
+            "mapping": { "type": "string", "minLength": 1, "description": "The person's build-records-to-write mapping that makes one row of their list from each staged release" },
+            "roots": { "type": "string", "description": "The --root NAME=DIR arguments the mapping needs, if any" },
+            "payload": { "type": "string", "minLength": 1, "description": "Where the built payload is written" },
+            "door_config": { "type": "string", "minLength": 1, "description": "The sender config for the person's door, with keep_held true" },
+            "work": { "type": "string", "minLength": 1, "description": "A folder for the sender's plan, result and status files" }
+          }
+        },
+        "wakes": [
+          {
+            "id": "hourly",
+            "on": { "time": { "every_ms": 3600000, "from_ms": 0 } },
+            "budget": { "steps": 10, "wall_ms": 600000 },
+            "input": { "start_at": "read-release" }
+          }
+        ],
+        "steps": [
+          {
+            "id": "read-release",
+            "title": "Note the newest release, if it is new",
+            "do": "Run tool:read-what-shipped with the input's settings, repository and staged file. Copy what it printed. When added is null the newest release was already noted: submit it and stop the run after this step.",
+            "submit": {
+              "type": "object",
+              "required": ["releases", "added"],
+              "properties": {
+                "releases": { "type": "integer", "minimum": 0 },
+                "added": { "type": ["string", "null"] }
+              }
+            }
+          },
+          {
+            "id": "make-rows",
+            "title": "Make the rows from the staged releases",
+            "do": "Run tool:build-records-to-write with the input's mapping (and its roots) and write the payload to the input's payload file. Copy the counts it printed. Change nothing in the mapping: the words, stage and flags of a row are the person's.",
+            "submit": {
+              "type": "object",
+              "required": ["records", "commands"],
+              "properties": {
+                "records": { "type": "integer", "minimum": 0 },
+                "commands": { "type": "integer", "minimum": 0 }
+              }
+            }
+          },
+          {
+            "id": "write-new-rows",
+            "title": "Write only the rows the list lacks",
+            "do": "Run tool:put-records-into-my-account with the input's door_config (it must say keep_held true), work folder, payload and a status file in the work folder. Copy its last line. A refusal stops here with its words; never re-send without keep_held.",
+            "submit": {
+              "type": "object",
+              "required": ["state", "written"],
+              "properties": {
+                "state": { "type": "string", "enum": ["all_written", "stopped_on_refusal"] },
+                "written": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

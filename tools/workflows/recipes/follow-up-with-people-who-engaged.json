@@ -1,0 +1,229 @@
+{
+  "about": "A workflow every account can find and run: every week, find the people who commented on, replied to or signed up from the person's own posts, match each to the person's people records, draft one personal follow-up for each, and record every step once the person has sent their approved words. One workflow-recipe row in the shape of the shared recipe shelf (job, input_schema, ordered steps, each with do, submit and checks).",
+  "records": [
+    {
+      "id": "follow-up-with-people-who-engaged",
+      "address": "workflow-recipe:follow-up-with-people-who-engaged",
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:follow-up-with-people-who-engaged",
+        "label": "Follow up with the people who engaged",
+        "job": "Once a week, list the people who commented, replied or signed up because of the person's own posts in the window, match each to the person's people records (adding none without the person), rank them by what they did, draft one short personal follow-up for each of the top people that answers what they actually said, check every draft against the person's own rules, get the person's approval of the exact words, and record each follow-up the person sent. The AI reads and drafts; the person approves and sends every message from their own account, and the AI never sends, replies or posts by itself.",
+        "produces": "A weekly list of the real questions and objections people raised, which can become answer-the-question posts and a 'you asked' segment.",
+        "source": {
+          "from": "a cited principles registry mined from video captions",
+          "name": "Turn content engagement into a funnel: people who liked, commented, followed, signed up or visited are warm leads; reach out to them directly; use comments deliberately",
+          "principles": ["P-103", "P-050"],
+          "note": "Adopted: a weekly export of engagers with a personal follow-up, answering good comments. Not adopted: bulk or automated messages, messages to people who only liked a post, and any message the person did not approve word for word; a platform's rules on direct messages are read and followed."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["platforms", "offer"],
+          "properties": {
+            "platforms": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["platform", "profile_url"],
+                "properties": {
+                  "platform": {"type": "string", "minLength": 2},
+                  "profile_url": {"type": "string", "minLength": 8}
+                }
+              },
+              "description": "Each platform the person publishes on, with the address of their own profile there"
+            },
+            "offer": {
+              "type": "string",
+              "minLength": 10,
+              "description": "What the person can offer a person who engaged (an answer, a call, a free resource, the product), in their own words"
+            },
+            "window_days": {"type": "integer", "minimum": 1, "default": 7, "description": "How many days back to read; 7 when left out"},
+            "most_people": {"type": "integer", "minimum": 1, "default": 10, "description": "The most follow-ups to draft in one week; 10 when left out"}
+          }
+        },
+        "wakes": [
+          {"id": "thursday", "on": {"time": {"every_ms": 604800000, "from_ms": 32400000}}, "budget": {"steps": 40, "wall_ms": 1800000}, "input": {"start_at": "read-engagement"}}
+        ],
+        "steps": [
+          {
+            "id": "read-engagement",
+            "title": "Read who engaged with the person's own posts this week",
+            "do": "Read the person's records of their published pieces (records:list by the kind they keep them under, for example 'posted-piece') and keep the ones published or still active in the last window_days days (7 when left out). For each, call tool:read-a-page-in-my-browser with { \"url\": <the piece's address> } and read its comments and replies; for each platform in the input platforms also read the notifications or activity page of the person's own profile the same way, and the sign-ups the person's records list for the window (records:list of the kind they keep sign-ups or customers under). For each person who commented, replied, sent a message about a piece or signed up, copy their handle as shown, the platform, what they did, the piece's address, and their exact words (a comment or reply quoted exactly, never summarised). A like alone is not engagement here and is left out.",
+            "submit": {
+              "type": "object",
+              "required": ["engaged"],
+              "properties": {
+                "engaged": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["handle", "platform", "did", "piece", "words"],
+                    "properties": {
+                      "handle": {"type": "string", "minLength": 1},
+                      "platform": {"type": "string", "minLength": 2},
+                      "did": {"type": "string", "enum": ["commented", "replied", "messaged", "signed-up"]},
+                      "piece": {"type": "string", "minLength": 8},
+                      "words": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "engaged", "*", "platform"], "of": ["input", "platforms", "*", "platform"], "says": "Every person engaged on a platform the person publishes on"}
+            ]
+          },
+          {
+            "id": "match",
+            "title": "Match each person to the person's people records",
+            "do": "Call tool:find-people with the person's people records (records:list of the kind they keep people or contacts under) and, for each engaged handle, the handle and any name it shows as the search. A match is the same handle on the same platform, or a name and a detail that both agree; anything less is 'no match'. For a person with no match, mark them new and propose the record to add (handle, platform, first seen piece); add nothing yet: the person approves new people in the approve step.",
+            "submit": {
+              "type": "object",
+              "required": ["matched"],
+              "properties": {
+                "matched": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["handle", "status"],
+                    "properties": {
+                      "handle": {"type": "string", "minLength": 1},
+                      "status": {"type": "string", "enum": ["known", "new"]},
+                      "record_id": {"type": "string"},
+                      "earlier_steps": {"type": "array", "items": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "matched", "*", "handle"], "of": ["steps", "read-engagement", "engaged", "*", "handle"], "says": "Every person who engaged was looked up"}
+            ]
+          },
+          {
+            "id": "rank",
+            "title": "Rank the people by what they did",
+            "do": "Call tool:rank-people-by-activity with activity: one row per engagement from the read-engagement step (the person's handle, what they did and when) plus each known person's earlier customer steps from the person's records, and weights the person keeps in their records for this ranking (when they keep none: signed-up 5, messaged 4, replied 3, commented 2). Keep the top most_people (10 when left out). A person whose earlier steps show they asked not to be contacted is left out, whatever their rank.",
+            "submit": {
+              "type": "object",
+              "required": ["top"],
+              "properties": {
+                "top": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["handle", "points"],
+                    "properties": {
+                      "handle": {"type": "string", "minLength": 1},
+                      "points": {"type": "number", "minimum": 0}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "top", "*", "handle"], "of": ["steps", "read-engagement", "engaged", "*", "handle"], "says": "Everyone ranked actually engaged this week"}
+            ]
+          },
+          {
+            "id": "draft",
+            "title": "Draft one personal follow-up for each top person",
+            "do": "For each person in the rank step, write one follow-up of at most 3 sentences, in the person's own voice: the first sentence answers or builds on their exact words from the read-engagement step (never a generic 'thanks for your comment'); the second gives one useful thing; the last, only when it fits what they said, names the input offer as a question they can say no to. Say where it is sent: a public reply under their comment, or a direct message only where they messaged first or signed up and the platform allows it. Then call tool:check-against-a-persons-rules-and-verdicts with the drafts as units and the person's rules and verdicts from their records; rewrite every draft that fails and check it again; an uncertain line is shown to the person as uncertain.",
+            "submit": {
+              "type": "object",
+              "required": ["drafts"],
+              "properties": {
+                "drafts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["handle", "answers_words", "text", "where", "check"],
+                    "properties": {
+                      "handle": {"type": "string", "minLength": 1},
+                      "answers_words": {"type": "string"},
+                      "text": {"type": "string", "minLength": 10},
+                      "where": {"type": "string", "enum": ["public-reply", "direct-message"]},
+                      "check": {"type": "string", "enum": ["pass", "uncertain"]}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "drafts", "*", "handle"], "of": ["steps", "rank", "top", "*", "handle"], "says": "Every top person has a draft"},
+              {"kind": "excludes-words", "path": ["this", "drafts", "*", "text"], "words": ["thanks for your comment", "check out my", "link in bio", "limited time"], "says": "No draft is a generic thank-you or a pitch line"}
+            ]
+          },
+          {
+            "id": "approve",
+            "title": "The person approves the exact words and the new people",
+            "do": "Show the person, in the chat, each draft exactly as it would be sent: the person's handle, their words it answers, where it goes and the text, with any uncertain line marked. Ask for each: \"Do you approve this exactly as written?\" Wait for the answer; change only what they ask and show it again. Ask the same for each proposed new person record from the match step. Never treat silence as approval.",
+            "submit": {
+              "type": "object",
+              "required": ["approved", "new_people_approved"],
+              "properties": {
+                "approved": {"type": "array", "items": {"type": "object", "required": ["handle", "text"], "properties": {"handle": {"type": "string"}, "text": {"type": "string"}}}},
+                "new_people_approved": {"type": "array", "items": {"type": "string"}}
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "approved", "*", "handle"], "of": ["steps", "draft", "drafts", "*", "handle"], "says": "Only drafted follow-ups can be approved"}
+            ]
+          },
+          {
+            "id": "person-sends",
+            "title": "The person sends each approved message, and you confirm it",
+            "do": "The AI never sends. For each approved follow-up call tool:tell-the-person with the exact text and where to paste it (the address of the comment to reply under, or the person's direct messages on that platform). After they say it is sent, read the place with tool:read-a-page-in-my-browser and confirm the reply or message is there, word for word; a message you could not see is 'not confirmed', never 'sent'.",
+            "submit": {
+              "type": "object",
+              "required": ["sent"],
+              "properties": {
+                "sent": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["handle", "status"],
+                    "properties": {
+                      "handle": {"type": "string"},
+                      "status": {"type": "string", "enum": ["confirmed", "not-confirmed", "not-sent"]}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "sent", "*", "handle"], "of": ["steps", "approve", "approved", "*", "handle"], "says": "Every approved follow-up has a send status"}
+            ]
+          },
+          {
+            "id": "record",
+            "title": "Record every step and the questions people asked",
+            "do": "Add each person in new_people_approved to the person's people records with the person's record write. For each confirmed follow-up call tool:record-a-customer-step with contact_id the person's record id, step 'follow-up', label the platform and where, evidence the address where it was confirmed, and at today's time. Then list, from the words in the read-engagement step, every question or objection people raised (quoted exactly, with the piece it was under), so the person's next pieces can answer them, and call tool:tell-the-person with the count of follow-ups confirmed and that list.",
+            "submit": {
+              "type": "object",
+              "required": ["recorded", "questions"],
+              "properties": {
+                "recorded": {"type": "array", "items": {"type": "string"}},
+                "questions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["words", "piece"],
+                    "properties": {
+                      "words": {"type": "string", "minLength": 3},
+                      "piece": {"type": "string", "minLength": 8}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "questions", "*", "piece"], "of": ["steps", "read-engagement", "engaged", "*", "piece"], "says": "Every question listed was asked under one of the person's pieces"}
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

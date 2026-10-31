@@ -40,6 +40,18 @@ test('a check that reads a later step is refused', () => {
   assert.deepEqual(recipeProblems(recipe([early, step('second')])), ['steps[0].checks[0].path reads step "second", which is not an earlier step.']);
 });
 
+test('a check that reads a field no schema declares is refused, and one the schema leaves open is not', () => {
+  const declared = { type: 'object', properties: { picks: { type: 'array', items: { type: 'object', properties: { id: { type: 'string' } } } } } };
+  const first = { ...step('first'), submit: declared };
+  const reads = path => ({ ...step('second'), checks: [{ kind: 'distinct-at-least', says: 'Enough.', path, count: 1 }] });
+  assert.deepEqual(recipeProblems(recipe([first, reads(['steps', 'first', 'picks', '*', 'id'])])), []);
+  assert.deepEqual(recipeProblems(recipe([first, reads(['steps', 'first', 'picks', '*', 'name'])])), ['steps[1].checks[0].path reads "name", which step "first" does not declare.']);
+  assert.deepEqual(recipeProblems(recipe([first, reads(['this', 'anything'])])), []);
+  const open = { ...step('first'), submit: { type: 'object', properties: {}, additionalProperties: { type: 'string' } } };
+  assert.deepEqual(recipeProblems(recipe([open, reads(['steps', 'first', 'anything'])])), []);
+  assert.deepEqual(recipeProblems({ ...recipe([reads(['input', 'missing'])]), input_schema: { type: 'object', properties: { goal: { type: 'string' } } } }), ['steps[0].checks[0].path reads "missing", which the input does not declare.']);
+});
+
 test('a bad id and a missing job are both reported at once', () => {
   assert.equal(recipeProblems({ ...recipe([step('first')]), id: 'Workflow:Bad', job: '' }).length, 2);
 });
