@@ -16,7 +16,7 @@ Booking time with a person: the times they can be booked, booking one, moving a 
 
 | File | Purpose |
 |------|---------|
-| `read-data/derive-open-slots.ts` | `deriveOpenSlots`: weekly windows minus taken starts, buffered busy intervals and notice, zone- and clock-change-aware. Copied unchanged but for its path line. |
+| `read-data/derive-open-slots.ts` | `deriveOpenSlots`: weekly windows minus taken starts, buffered busy intervals and notice, zone- and clock-change-aware through `tools/wall-time` (`instantAt`, `timeZoneName`, `weekday`, `pad`), its one owner of a local time in a zone: a time the clock skips is not offered and a time it repeats is offered once, at the earlier. Copied but for its path line and that import. |
 | `read-data/booking-lifecycle.json` | The booking's stages and moves. |
 | `do-work/create-external-calendar-event.ts` | Makes the event (and, when asked, the video call); the Google adapter and the account's token call. Comments only changed. |
 | `do-work/external-calendar-busy-and-changes.ts` | Reads busy intervals, moves and cancels an event. Unchanged but for its path line. |

@@ -48,6 +48,7 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
             { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
             {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
             {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
@@ -120,6 +121,7 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
             { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
             {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
             {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
@@ -173,6 +175,7 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
             { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
             {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
             {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
@@ -226,6 +229,7 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
             { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
             {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
             {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
@@ -288,6 +292,7 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
             { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
             {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
             {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
@@ -338,6 +343,7 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
             { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
             {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
             {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
@@ -383,6 +389,7 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
             { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
             {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
             {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
@@ -440,6 +447,7 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
             { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
             {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
             {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}

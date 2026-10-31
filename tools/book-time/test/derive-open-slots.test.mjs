@@ -1,12 +1,13 @@
 // Window-fit, taken starts, buffers, busy intervals and the minimum-notice horizon: the package's own cases.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { deriveOpenSlots, zonedWallClockToUtcMs } from '../read-data/derive-open-slots.ts';
+import { deriveOpenSlots } from '../read-data/derive-open-slots.ts';
+import { instantAt } from '../../wall-time/read-data/wall-time.mjs';
 
 const TZ = 'America/Chicago';
 const DAY = '2026-08-10'; // a Monday
 const MON = [{ weekday: 1, start: '09:00', end: '11:00' }];
-const at = hhmm => { const [h, m] = hhmm.split(':').map(Number); return zonedWallClockToUtcMs(DAY, h * 60 + m, TZ); };
+const at = hhmm => { const [h, m] = hhmm.split(':').map(Number); return instantAt(DAY, hhmm, TZ); };
 const times = slots => slots.map(slot => slot.time);
 const derive = extra => deriveOpenSlots({ timezone: TZ, windows: MON, dateISO: DAY, durationMin: 45, stepMin: 30, ...extra });
 
@@ -51,6 +52,23 @@ test('a window in another weekday gives nothing, and two overlapping windows giv
 
 test('the wall clock is the zone\'s, across a clock change', () => {
   // 2026-03-08 is the day US clocks went forward; 09:00 in Chicago is then UTC-5, the day before UTC-6.
-  assert.equal(zonedWallClockToUtcMs('2026-03-07', 9 * 60, TZ), Date.UTC(2026, 2, 7, 15));
-  assert.equal(zonedWallClockToUtcMs('2026-03-08', 9 * 60, TZ), Date.UTC(2026, 2, 8, 14));
+  assert.equal(instantAt('2026-03-07', '09:00', TZ), Date.UTC(2026, 2, 7, 15));
+  assert.equal(instantAt('2026-03-08', '09:00', TZ), Date.UTC(2026, 2, 8, 14));
+});
+
+test('a time the clock skips is not offered and a time it repeats is offered once, at the earlier', () => {
+  const sunday = [{ weekday: 0, start: '01:00', end: '04:00' }];
+  const derived = date => deriveOpenSlots({ timezone: TZ, windows: sunday, dateISO: date, durationMin: 30, stepMin: 30 });
+  // 2026-03-08: Chicago clocks go from 02:00 to 03:00, so 02:00 and 02:30 do not exist.
+  const forward = derived('2026-03-08');
+  assert.deepEqual(times(forward), ['01:00', '01:30', '03:00', '03:30']);
+  assert.deepEqual(forward.map(slot => slot.startMs), [Date.UTC(2026, 2, 8, 7), Date.UTC(2026, 2, 8, 7, 30), Date.UTC(2026, 2, 8, 8), Date.UTC(2026, 2, 8, 8, 30)]);
+  // 2026-11-01: clocks go from 02:00 back to 01:00, so 01:00 and 01:30 happen twice and are offered at the first.
+  const back = derived('2026-11-01');
+  assert.deepEqual(times(back), ['01:00', '01:30', '02:00', '02:30', '03:00', '03:30']);
+  assert.deepEqual(back.slice(0, 3).map(slot => slot.startMs), [Date.UTC(2026, 10, 1, 6), Date.UTC(2026, 10, 1, 6, 30), Date.UTC(2026, 10, 1, 8)]);
+});
+
+test('a name that is not a time zone is refused', () => {
+  assert.throws(() => deriveOpenSlots({ timezone: 'Nowhere/Land', windows: MON, dateISO: DAY, durationMin: 45, stepMin: 30 }), /not a time zone/);
 });

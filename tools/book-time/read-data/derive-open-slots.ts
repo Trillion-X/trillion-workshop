@@ -20,10 +20,11 @@
 // The busy intervals are ABSOLUTE instants (UTC ms), because they come from
 // external calendars in real time. The bookee's availability windows are
 // WALL-CLOCK ("09:00" in a timezone), so this module converts each candidate
-// window to absolute instants and the two can be intersected correctly. The tz
-// conversion uses Intl (pure, deterministic: it depends only on the instant plus
-// the zone, never on the host machine's local timezone), so the whole module
-// stays a pure function with no I/O and no ambient clock.
+// window to absolute instants and the two can be intersected correctly. The
+// conversion is tools/wall-time's instantAt, the one owner of a local time in a
+// zone across clock changes (a time the clock skips is not offered, a time it
+// repeats is offered once, at the earlier), so the whole module stays a pure function
+// with no I/O and no ambient clock.
 //
 // =============================================================================
 // DELETION TEST (L069): with `busy = []` the result is IDENTICAL to a plain
@@ -32,6 +33,8 @@
 // Buffers only ever expand the conflict span checked against `busy`, so with
 // `busy = []` buffers are a no-op too. Proven in `derive-open-slots.test.ts`.
 // =============================================================================
+
+import { instantAt, pad, timeZoneName, weekday } from '../../wall-time/read-data/wall-time.mjs';
 
 // A weekly availability window, wall-clock in the availability timezone.
 export interface AvailabilityWindow {
@@ -90,51 +93,9 @@ export interface DeriveOpenSlotsInput {
   busy?: readonly Interval[];
 }
 
-// weekday (0=Sun..6=Sat) for a "YYYY-MM-DD" string, computed via UTC so it never
-// shifts by the host machine's runtime timezone.
-export function weekdayOf(dateISO: string): number {
-  const [y, m, d] = dateISO.split('-').map((n) => parseInt(n, 10));
-  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-}
-
 function toMinutes(hhmm: string): number {
   const [h, m] = hhmm.split(':').map((n) => parseInt(n, 10));
   return h * 60 + m;
-}
-
-function pad(n: number): string {
-  return n < 10 ? `0${n}` : String(n);
-}
-
-// How many minutes a timezone is ahead of UTC at a given instant (DST-aware: it
-// asks Intl what wall-clock that zone shows for the instant, then diffs). Pure:
-// depends only on the instant and the zone.
-export function tzOffsetMinutesAt(utcMs: number, tz: string): number {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: tz,
-    hourCycle: 'h23',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).formatToParts(new Date(utcMs));
-  const map: Record<string, string> = {};
-  for (const p of parts) map[p.type] = p.value;
-  const asIfUtc = Date.UTC(+map.year, +map.month - 1, +map.day, +map.hour, +map.minute, +map.second);
-  return Math.round((asIfUtc - utcMs) / 60000);
-}
-
-// The absolute instant (UTC ms) of a wall-clock "YYYY-MM-DD" at `minutesOfDay`
-// (minutes past midnight) expressed in `tz`.
-export function zonedWallClockToUtcMs(dateISO: string, minutesOfDay: number, tz: string): number {
-  const [y, mo, d] = dateISO.split('-').map((n) => parseInt(n, 10));
-  const h = Math.floor(minutesOfDay / 60);
-  const mi = minutesOfDay % 60;
-  const guess = Date.UTC(y, mo - 1, d, h, mi);
-  const offset = tzOffsetMinutesAt(guess, tz);
-  return guess - offset * 60000;
 }
 
 // True if the half-open interval [aStart, aEnd) overlaps [bStart, bEnd).
@@ -166,7 +127,8 @@ export function deriveOpenSlots(input: DeriveOpenSlotsInput): OpenSlot[] {
     busy = [],
   } = input;
 
-  const wd = weekdayOf(dateISO);
+  if (timeZoneName(timezone) === null) throw new RangeError(`${timezone} is not a time zone`);
+  const wd = weekday(dateISO);
   const takenSet = new Set<number>(taken);
   const bufferBeforeMs = bufferBeforeMin * 60000;
   const bufferAfterMs = bufferAfterMin * 60000;
@@ -182,7 +144,9 @@ export function deriveOpenSlots(input: DeriveOpenSlotsInput): OpenSlot[] {
     const winStart = toMinutes(w.start);
     const winEnd = toMinutes(w.end);
     for (let t = winStart; t + durationMin <= winEnd; t += stepMin) {
-      const startMs = zonedWallClockToUtcMs(dateISO, t, timezone);
+      const time = `${pad(Math.floor(t / 60))}:${pad(t % 60)}`;
+      const startMs = instantAt(dateISO, time, timezone, { gap: 'skip' });
+      if (startMs === null) continue; // a time the clock skips that day cannot be booked
       if (seen.has(startMs)) continue;
       seen.add(startMs);
 
@@ -201,7 +165,6 @@ export function deriveOpenSlots(input: DeriveOpenSlotsInput): OpenSlot[] {
       }
       if (conflicted) continue;
 
-      const time = `${pad(Math.floor(t / 60))}:${pad(t % 60)}`;
       slots.push({ startMs, endMs, date: dateISO, time });
     }
   }
