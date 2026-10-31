@@ -1,0 +1,471 @@
+{
+  "kind": "tool-rows",
+  "record_set": "reservations-tool-rows",
+  "what_this_is": "The Workshop rows for tools/reservations: a finite pool of places (seats, rooms, slots, bays) kept in one capacity-ledger record in the person's own records, with idempotent holds, a waitlist, release with promotion and expiry; and reservations sorted by status in the person's own order.",
+  "records": [
+    {
+      "id": "package::reservations::tool::open-a-capacity-ledger",
+      "address": "package::reservations::tool::open-a-capacity-ledger",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:open-a-capacity-ledger",
+        "label": "Open a capacity ledger",
+        "status": "active",
+        "job": "Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one",
+        "description": "Opens one capacity ledger as a record in the person's own records: the total number of places, and optionally how many are kept back for a named class (members, guests, VIP). A class that is not named shares what is left. Opening an id that already exists changes nothing and answers how full it is.",
+        "input_schema": {
+          "type": "object",
+          "required": ["ledger_id", "scope_ref", "total"],
+          "additionalProperties": false,
+          "properties": {
+            "ledger_id": { "type": "string", "description": "The ledger's id, like \"ledger:saturday-class\"" },
+            "scope_ref": { "type": "string", "description": "What the places are for, like \"scope:saturday-class\"" },
+            "total": { "type": "integer", "minimum": 0, "description": "How many places there are" },
+            "reserved_by_class": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 }, "description": "Places kept back for each named class; together they may not pass the total" },
+            "oversubscription_policy": { "type": "object" },
+            "release_policy": { "type": "object" },
+            "policy_ref": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["already_open", "ledger_id", "state", "total", "confirmed", "waiting"],
+          "properties": {
+            "already_open": { "type": "boolean" },
+            "ledger_id": { "type": "string" },
+            "state": { "type": "string" },
+            "total": { "type": "integer" },
+            "confirmed": { "type": "integer" },
+            "waiting": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/reservations",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/reservations/do-work/reservations.mjs", "openACapacityLedger"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "capacity-ledger", "operations": ["records:read", "records:write"] }] }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:reservations",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/reservation-tracker do-work/capacity-ledger.ts, ported to the records door" },
+        "verify": [{ "kind": "output-contains-input", "output_selector": "$.ledger_id", "input_field": "ledger_id" }]
+      }
+    },
+    {
+      "id": "package::reservations::tool::hold-a-place",
+      "address": "package::reservations::tool::hold-a-place",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:hold-a-place",
+        "label": "Hold a place",
+        "status": "active",
+        "job": "Hold a place for someone, or put them on the waitlist when every place is taken",
+        "description": "Holds one place on a capacity ledger for a subject, or adds them to the waitlist when their class has no place left. The same idempotency_key sent again answers the first outcome and holds nothing twice. A hold may expire after a number of seconds from now. Answers held or waitlisted and how full the ledger is.",
+        "input_schema": {
+          "type": "object",
+          "required": ["ledger_id", "subject_ref", "idempotency_key"],
+          "additionalProperties": false,
+          "properties": {
+            "ledger_id": { "type": "string" },
+            "subject_ref": { "type": "string", "description": "Who the place is for, like \"person:ana\"" },
+            "idempotency_key": { "type": "string", "description": "The same key for the same request sent again" },
+            "unit_class": { "type": "string", "description": "The named class to draw from; left out is the shared remainder" },
+            "expires_in_seconds": { "type": "integer", "minimum": 1, "description": "The hold ends this many seconds from now; left out is open-ended" },
+            "waitlist_reason": { "type": "string" },
+            "promotion_policy": { "type": "object" },
+            "notification_preference": { "type": "object" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["outcome", "ledger_id", "state", "total", "confirmed", "waiting"],
+          "properties": {
+            "outcome": { "type": "string", "description": "held or waitlisted" },
+            "hold": { "type": "object" },
+            "waitlist_entry": { "type": "object" },
+            "ledger_id": { "type": "string" },
+            "state": { "type": "string" },
+            "total": { "type": "integer" },
+            "confirmed": { "type": "integer" },
+            "waiting": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/reservations",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/reservations/do-work/reservations.mjs", "holdAUnit"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "capacity-ledger", "operations": ["records:read", "records:write"] }] }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:reservations",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/reservation-tracker do-work/capacity-ledger.ts holdUnit" },
+        "verify": [{ "kind": "output-contains-input", "output_selector": "$.ledger_id", "input_field": "ledger_id" }]
+      }
+    },
+    {
+      "id": "package::reservations::tool::release-a-place",
+      "address": "package::reservations::tool::release-a-place",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:release-a-place",
+        "label": "Release a place",
+        "status": "active",
+        "job": "Give a held place back, and offer it to the next person on the waitlist",
+        "description": "Releases one confirmed hold, named by its hold id or by its subject, and by default promotes the first waiting entry that fits the freed place. The same idempotency_key sent again changes nothing. Answers the released hold and the promoted one, if any.",
+        "input_schema": {
+          "type": "object",
+          "required": ["ledger_id", "idempotency_key"],
+          "additionalProperties": false,
+          "properties": {
+            "ledger_id": { "type": "string" },
+            "idempotency_key": { "type": "string" },
+            "hold_id": { "type": "string" },
+            "subject_ref": { "type": "string", "description": "Used when no hold_id is given: the confirmed hold for this subject" },
+            "promote_next": { "type": "boolean", "description": "false keeps the waitlist waiting (true when left out)" },
+            "promoted_hold_expires_in_seconds": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["released", "ledger_id", "state", "total", "confirmed", "waiting"],
+          "properties": {
+            "released": { "type": "boolean" },
+            "released_hold": { "type": "object" },
+            "promoted_hold": { "type": "object" },
+            "promoted_waitlist_entry": { "type": "object" },
+            "ledger_id": { "type": "string" },
+            "state": { "type": "string" },
+            "total": { "type": "integer" },
+            "confirmed": { "type": "integer" },
+            "waiting": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/reservations",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/reservations/do-work/reservations.mjs", "releaseAUnit"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "capacity-ledger", "operations": ["records:read", "records:write"] }] }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:reservations",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/reservation-tracker do-work/capacity-ledger.ts releaseUnit" },
+        "verify": [{ "kind": "output-contains-input", "output_selector": "$.ledger_id", "input_field": "ledger_id" }]
+      }
+    },
+    {
+      "id": "package::reservations::tool::join-a-waitlist",
+      "address": "package::reservations::tool::join-a-waitlist",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:join-a-waitlist",
+        "label": "Join a waitlist",
+        "status": "active",
+        "job": "Put someone on the waitlist for a class or table without trying to hold a place first",
+        "description": "Adds a subject to the end of a capacity ledger's waitlist with a reason, even when places are free. The same idempotency_key sent again answers the first entry and adds nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": ["ledger_id", "subject_ref", "idempotency_key", "reason"],
+          "additionalProperties": false,
+          "properties": {
+            "ledger_id": { "type": "string" },
+            "subject_ref": { "type": "string" },
+            "idempotency_key": { "type": "string" },
+            "reason": { "type": "string" },
+            "unit_class": { "type": "string" },
+            "promotion_policy": { "type": "object" },
+            "notification_preference": { "type": "object" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["waitlist_entry", "ledger_id", "state", "total", "confirmed", "waiting"],
+          "properties": {
+            "waitlist_entry": { "type": "object" },
+            "ledger_id": { "type": "string" },
+            "state": { "type": "string" },
+            "total": { "type": "integer" },
+            "confirmed": { "type": "integer" },
+            "waiting": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/reservations",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/reservations/do-work/reservations.mjs", "joinAWaitlist"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "capacity-ledger", "operations": ["records:read", "records:write"] }] }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:reservations",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/reservation-tracker do-work/capacity-ledger.ts joinWaitlist" },
+        "verify": [{ "kind": "output-contains-input", "output_selector": "$.ledger_id", "input_field": "ledger_id" }]
+      }
+    },
+    {
+      "id": "package::reservations::tool::promote-from-the-waitlist",
+      "address": "package::reservations::tool::promote-from-the-waitlist",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:promote-from-the-waitlist",
+        "label": "Promote from the waitlist",
+        "status": "active",
+        "job": "Move the next waiting person (or one I name) into a place that is free",
+        "description": "Promotes the first waiting entry whose class has a free place, or the waiting entry named, into a hold. Nothing happens when no place is free or nobody waits. The same idempotency_key sent again changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": ["ledger_id", "idempotency_key"],
+          "additionalProperties": false,
+          "properties": {
+            "ledger_id": { "type": "string" },
+            "idempotency_key": { "type": "string" },
+            "waitlist_entry_id": { "type": "string" },
+            "expires_in_seconds": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["promoted", "ledger_id", "state", "total", "confirmed", "waiting"],
+          "properties": {
+            "promoted": { "type": "boolean" },
+            "hold": { "type": "object" },
+            "waitlist_entry": { "type": "object" },
+            "ledger_id": { "type": "string" },
+            "state": { "type": "string" },
+            "total": { "type": "integer" },
+            "confirmed": { "type": "integer" },
+            "waiting": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/reservations",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/reservations/do-work/reservations.mjs", "promoteFromTheWaitlist"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "capacity-ledger", "operations": ["records:read", "records:write"] }] }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:reservations",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/reservation-tracker do-work/capacity-ledger.ts promoteWaitlist" },
+        "verify": [{ "kind": "output-contains-input", "output_selector": "$.ledger_id", "input_field": "ledger_id" }]
+      }
+    },
+    {
+      "id": "package::reservations::tool::expire-old-holds",
+      "address": "package::reservations::tool::expire-old-holds",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:expire-old-holds",
+        "label": "Expire old holds",
+        "status": "active",
+        "job": "Free the places whose hold time has run out, and offer each to the waitlist",
+        "description": "Ends every confirmed hold whose expiry has passed by this run's clock and, by default, promotes one waiting entry into each freed place. A hold with no expiry is never ended. Run it on a schedule so a place is never held for ever by someone who went quiet.",
+        "input_schema": {
+          "type": "object",
+          "required": ["ledger_id"],
+          "additionalProperties": false,
+          "properties": {
+            "ledger_id": { "type": "string" },
+            "promote_next": { "type": "boolean", "description": "false only frees the places (true when left out)" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["expired_holds", "promoted_holds", "ledger_id", "state", "total", "confirmed", "waiting"],
+          "properties": {
+            "expired_holds": { "type": "array", "items": { "type": "object" } },
+            "promoted_holds": { "type": "array", "items": { "type": "object" } },
+            "ledger_id": { "type": "string" },
+            "state": { "type": "string" },
+            "total": { "type": "integer" },
+            "confirmed": { "type": "integer" },
+            "waiting": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/reservations",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/reservations/do-work/reservations.mjs", "expireOldHolds"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "capacity-ledger", "operations": ["records:read", "records:write"] }] }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:reservations",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/reservation-tracker do-work/capacity-ledger.ts expireHolds" },
+        "verify": [{ "kind": "output-contains-input", "output_selector": "$.ledger_id", "input_field": "ledger_id" }]
+      }
+    },
+    {
+      "id": "package::reservations::tool::read-a-capacity-ledger",
+      "address": "package::reservations::tool::read-a-capacity-ledger",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-capacity-ledger",
+        "label": "Read a capacity ledger",
+        "status": "active",
+        "job": "See who holds the places and who is waiting",
+        "description": "Reads one capacity ledger: every hold and waitlist entry, how full it is, and the ledger as one reservation row (the scope, its state and who holds a place). It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": ["ledger_id"],
+          "additionalProperties": false,
+          "properties": {
+            "ledger_id": { "type": "string" },
+            "title": { "type": "string", "description": "The reservation row's title (the scope when left out)" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["ledger", "projection", "ledger_id", "state", "total", "confirmed", "waiting"],
+          "properties": {
+            "ledger": { "type": "object" },
+            "projection": { "type": "object" },
+            "ledger_id": { "type": "string" },
+            "state": { "type": "string" },
+            "total": { "type": "integer" },
+            "confirmed": { "type": "integer" },
+            "waiting": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/reservations",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/reservations/do-work/reservations.mjs", "readACapacityLedger"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "capacity-ledger", "operations": ["records:read"] }] }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:reservations",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/reservation-tracker do-work/capacity-ledger.ts readCapacityLedger and capacityLedgerProjection" },
+        "verify": [{ "kind": "output-contains-input", "output_selector": "$.ledger_id", "input_field": "ledger_id" }]
+      }
+    },
+    {
+      "id": "package::reservations::tool::sort-reservations-by-status",
+      "address": "package::reservations::tool::sort-reservations-by-status",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:sort-reservations-by-status",
+        "label": "Sort reservations by status",
+        "status": "active",
+        "job": "Group my reservations (tables, rooms, visits) by status, the ones that need me first",
+        "description": "Groups reservations by status, with the statuses the person lists in attention_order first and in that order, then any other status in the order seen. Reads the rows given, or the person's own reservation records when none are given. Rows may use camelCase or snake_case; a row with no id is dropped. Also lists the reservations that name no policy.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "reservations": { "type": "array", "items": { "type": "object" }, "description": "Rows with id, kind, title, status, starts_at, ends_at, provider_ref, policy_ref, party_refs, task_refs; read from the person's reservation records when left out" },
+            "attention_order": { "type": "array", "items": { "type": "string" }, "description": "The person's statuses, the ones that need them soonest first, like [\"changed\", \"requested\"]" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["count", "groups", "without_policy"],
+          "properties": {
+            "count": { "type": "integer" },
+            "groups": { "type": "array", "items": { "type": "object", "required": ["status", "needs_attention", "reservations"] } },
+            "without_policy": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/reservations",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/reservations/do-work/reservations.mjs", "sortReservationsByStatus"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "reservation", "operations": ["records:list"] }] }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:reservations",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/reservation-tracker read-data/reservation-tracker.ts decodeReservations and reservationsByStatus" },
+        "verify": [{
+          "kind": "sample-run",
+          "input": { "reservations": [{ "id": "reservation:one", "title": "Window table", "status": "requested" }, { "id": "reservation:two", "title": "Back room", "status": "confirmed" }], "attention_order": ["requested"] },
+          "output_selector": "$.groups[0].status",
+          "contains": "requested"
+        }]
+      }
+    }
+  ]
+}
