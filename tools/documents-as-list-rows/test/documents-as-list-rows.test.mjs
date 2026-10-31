@@ -147,6 +147,21 @@ test('a resumed long-body cursor reads future text pieces without rereading earl
   assert.ok(asked.every(one => one.offset >= 2997), 'none of the earlier body ranges is read again');
 });
 
+test('original BOM characters survive at the file start and at a bounded text-piece boundary', async () => {
+  const root = await scratch();
+  const text = '\ufeffA\ufeffB,C\n1,2\n';
+  await writeFile(join(root, 'table.csv'), text);
+  const rows = [];
+  let after = null;
+  do {
+    const page = await readDocumentRows({ root, paths: ['/table.csv'], text_extensions: ['csv'], content: { part_bytes: 4 }, limit: 1, after });
+    rows.push(...page.rows); after = page.next;
+  } while (after);
+  assert.equal(rows[0].values['document.text'][0], '\ufeff');
+  assert.equal(rows[1].values['document.text'][0], '\ufeff');
+  assert.deepEqual(Buffer.from(rows.map(row => row.values['document.text']).join('')), Buffer.from(text));
+});
+
 test('a granted filesystem root can read an exact positive catalogue without a recursive root listing', async () => {
   const folder = await scratch(), path = join(folder, 'one.md');
   await writeFile(path, 'one exact granted file\n');

@@ -8,7 +8,9 @@ import { splitDocuments } from './split.mjs';
 
 const CURSOR = 'document-content:';
 const encoder = new TextEncoder();
-const decoder = new TextDecoder('utf-8', { fatal: true });
+// A BOM is an original source character, including when a text piece happens to begin at one in the middle of a
+// document. The decoder must retain it so joining bounded text pieces preserves every original UTF-8 byte.
+const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
 const cursorText = value => CURSOR + Buffer.from(JSON.stringify(value)).toString('base64url');
 
