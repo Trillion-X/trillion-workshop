@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:2edaa61d51f740063ec6d8a0f97967671c11aae04c25ce939736c27dfe04ddf9"
+  "blake3": "1f:20059c867c036a8dba2072fc452d27a7405d28b7d4f09c3716d2eff4005bbf3b"
  },
  "fields": [
   {
@@ -4070,6 +4070,21 @@
      "placement:your-computer"
     ],
     "folder": "export-records-as-list-rows"
+   }
+  },
+  {
+   "id": "tool:publish-a-post-now",
+   "values": {
+    "title": "Publish a post now",
+    "job": "Queue an approved post for immediate sending through each destination's existing send row",
+    "description": "Give post_id and expected_values (the complete approval_values snapshot reviewed for this action). It is refused if the post changed, is not approved, or is not ready for every destination. When ready, it sets the post's time to now and queues the existing at-its-time wake; this action itself sends nothing and does not say the post was published. The wake and each destination's send row record the actual outcome. Repeating the same request while it is queued returns the existing state without arming another send. A destination whose outcome is not known is never sent again automatically. Returns post_id, status, post, ready and said.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
    }
   },
   {
