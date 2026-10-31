@@ -1,113 +1,109 @@
 // tools/read-a-list-view/read-data/list-view.mjs
 //
-// Purpose: one page of what a person's list shows: the list's own rows (records of its row type), then the rows of each
-// row source the list declares (`row_sources: [{ source, of?, match? }]`), each source read by running the tool that serves it.
-// With a saved view, the rows its rules keep, in its order. Ported from the read path of the lists in the earlier
-// Trillion app (src/lists.mjs withRowSources: own rows first, then each source in order, a source row's id
-// `<source>~<id>`, a cursor that says which source to go on in) and from the view read of
-// tools/export-records-as-list-rows (the person's rule-filter tool decides which rows the view's rules keep, then the
+// Purpose: what a person's list shows, read from their records only, and the refresh that writes a list's row sources
+// into those records. Reading a list is reads only: its rows are the records of its row type, a row source's rows
+// among them (written there by the last refresh), so opening a list or a saved view runs no tool. Refreshing a list
+// runs the tool each row source names and writes what it answers as the list's records, changing only the rows that
+// changed and removing the rows the source no longer has. Ported from the read path of the lists in the earlier
+// Trillion app (src/lists.mjs: a source row's id `<source>~<id>`) and from the view read of
+// tools/export-records-as-list-rows (the person's rule filter decides which rows the view's rules keep, then the
 // view's sort orders them).
 //
 // Non-Negotiable Invariants:
-//   1. Nothing is copied: a source's rows are read from the source at every read and are never written anywhere.
-//   2. No list, view, field, record type, source or tool is named here. The record names are the config's (`names`),
-//      the sources and their tools are DATA (list-view.json `row_sources`, which a config's `sources` may add to), and
-//      so are the bounds of a list read (list-view.json `limits`: read_page_rows, rows_per_read, row_sources_per_list).
-//   3. A list declaring more row sources than `row_sources_per_list`, or a source no row serves, is refused with words;
-//      a source tool that answers no rows is refused, never shown as empty.
-//   4. A page holds at most `limit` rows (`read_page_rows` when not given, never more than `rows_per_read`). A view with
-//      rules or a sort reads at most `rows_per_read` rows in all, since its order needs every row, and says
-//      `complete: false` when there were more.
-//   5. A source is told the room its answer has (`source_answer_bytes`, as `most_bytes`) when the door that carries it
-//      answers within a bounded message, so a page of big rows ends early and goes on, never becomes an unknown outcome.
+//   1. readListView reads records only: it never runs a tool and never writes. A view's rules are decided by the
+//      door's `filter` (the rule filter of tools/formulas, called in the same process as the read).
+//   2. No list, view, field, record type, source or tool is named here. The record names are the caller's (`names`),
+//      the sources and their tools are DATA (list-view.json `row_sources`), and so are the bounds (list-view.json
+//      `limits`), which a caller never passes.
+//   3. A refresh writes a source only once it has read the whole source (at most `rows_per_read` rows): a source
+//      read in part is refused and nothing of it is written, so a row is never removed because it was not read.
+//      A source that answers no rows is refused, never written as empty.
+//   4. A row source's record id is `<row type>:<source>~<its id, URI-encoded>`, so a row keeps its id from one
+//      refresh to the next and the door's ids (which hold no `/`) can carry a document's path.
+//   5. A write the door refuses for one row's values (a value that does not fit the list's field kind) is sent again
+//      one row at a time, so the other rows are written and the refused ones are named.
+//   6. Values are ordered by the bytes of their canonical JSON, the order the view publish gave (a published file's
+//      hash depends on it), with the platform's TextEncoder, so the same code runs on a computer and in a page.
 //
-//   readListView({ list | view, after?, limit?, names, sources?, filter?, source_answer_bytes? }, door)
-//     → { list, fields, rows: [{ id, record_id?, values, title, source? }], next, complete, of? }   (of: a view's rows before its rules)
-//   door: { read(type, id) → value | null, list({ type, limit, after? }) → { records, next }, run(tool, input) → its answer }
+//   readListView({ list | view, after?, limit?, names }, door)
+//     → { list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }
+//     door: { read(type, id) → value | null, list({ type, limit, after?, prefix? }) → { records, next },
+//             filter({ records, fields, tree }) → { matches, incomplete } (needed only for a view with rules) }
+//   refreshRowSources({ list, names, source_answer_bytes? }, door)
+//     → { list, sources: [{ source, rows, written, removed, unchanged, refused: [ids] }] }
+//     door: { read, list, run(tool, input) → its answer, write(records, { key }) → the door's answer }
 import data from './list-view.json' with { type: 'json' };
 
 const say = (code, words) => Object.assign(new Error(words), { code });
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
 const at = (value, path) => path.split('.').reduce((held, part) => (held == null ? held : held[part]), value);
-const SOURCE_CURSOR = 'src~';
-// The bounds of a list read are this reader's own DATA (list-view.json `limits`): the list read is this tool's job.
+const SOURCE_MARK = '~';
+// The bounds of a list read and a refresh are this reader's own DATA (list-view.json `limits`).
 const { limits } = data;
 
-function checked(input) {
+function checkedNames(input) {
   const names = input.names;
   if (!names || ['list_type', 'list_record', 'row_type'].some(key => typeof names[key] !== 'string') || (input.view && typeof names.view_type !== 'string')) {
     throw say('bad_input', 'names must give list_type, list_record (with {list_id}), row_type (with {row_type}) and, to read a view, view_type.');
   }
+  return names;
+}
+
+function checkedLimit(input) {
   const limit = input.limit ?? limits.read_page_rows;
   if (!Number.isSafeInteger(limit) || limit < 1) throw say('bad_input', 'limit must be a whole number from 1.');
-  return { names, limit: Math.min(limit, limits.rows_per_read) };
+  return Math.min(limit, limits.rows_per_read);
 }
 
 /** The sources a list declares, each with the row of the tool that serves it. */
-function sourcesOf(list, sources) {
+function sourcesOf(list) {
   const declared = list.row_sources ?? [];
   if (!Array.isArray(declared) || declared.length > limits.row_sources_per_list) {
     throw say('bad_list', `A list shows at most ${limits.row_sources_per_list} row sources.`);
   }
   return declared.map(row => {
-    const served = sources[row?.source];
+    const served = data.row_sources[row?.source];
     if (!served) throw say('bad_list', `No tool serves the row source ${JSON.stringify(row?.source)}.`);
     return { ...row, served };
   });
 }
 
-const titleOf = (list, values, otherwise) => (list.title_field && values?.[list.title_field]) ?? otherwise;
-
-/** One page of a source's rows, as list rows: { rows, next }. */
-async function sourcePage(door, list, source, { after, limit, mostBytes }) {
-  // A template the row source leaves empty is no value, so the tool gets only what the list says.
-  const input = Object.fromEntries(Object.entries(source.served.input)
-    .map(([key, template]) => [key, fill(template, { of: source.of ?? '', match: source.match ?? '' })]).filter(([, value]) => value !== ''));
-  const answer = await door.run(source.served.tool, { ...input, limit, ...(after ? { after } : {}), ...(mostBytes ? { most_bytes: mostBytes } : {}) });
-  const rows = at(answer, source.served.rows_at);
-  if (!Array.isArray(rows)) throw say('source_unanswered', `The row source ${source.source} answered no rows: ${JSON.stringify(answer).slice(0, 300)}`);
-  return {
-    rows: rows.slice(0, limit).map(row => ({ id: `${source.source}~${row.id}`, values: row.values ?? {}, title: titleOf(list, row.values, row.title ?? row.id), source: source.source })),
-    next: at(answer, source.served.next_at) ?? null,
-  };
+async function listOf(door, names, listId) {
+  if (typeof listId !== 'string' || !listId) throw say('bad_input', 'Name a list (list) or a saved view (view).');
+  const list = await door.read(names.list_type, fill(names.list_record, { list_id: listId }));
+  if (!list) throw say('not_found', `There is no list ${listId}.`);
+  return list;
 }
 
-/** One page of the list's own rows, the records of its row type: { rows, next }. */
-async function ownPage(door, list, names, { after, limit }) {
-  const type = fill(names.row_type, { row_type: list.row_type });
+const rowTypeOf = (list, names) => fill(names.row_type, { row_type: list.row_type });
+const titleOf = (list, values, otherwise) => (list.title_field && values?.[list.title_field]) ?? otherwise;
+
+/** One page of the list's rows, the records of its row type: { rows, next }. */
+async function rowPage(door, list, names, sources, { after, limit }) {
+  const type = rowTypeOf(list, names);
   const page = await door.list({ type, limit, ...(after ? { after } : {}) });
   if (!Array.isArray(page?.records)) throw say('records_unanswered', `Listing ${type} answered no records.`);
   return {
     rows: page.records.map(record => {
       const id = record.id.startsWith(`${type}:`) ? record.id.slice(type.length + 1) : record.id;
-      return { id, record_id: record.id, values: record.value ?? {}, title: titleOf(list, record.value, id) };
+      const source = sources.find(one => id.startsWith(`${one.source}${SOURCE_MARK}`))?.source;
+      return { id, record_id: record.id, values: record.value ?? {}, title: titleOf(list, record.value, id), ...(source ? { source } : {}) };
     }),
     next: page.records.length ? page.next ?? null : null,
   };
 }
 
-/** Rows from `cursor` on, own rows first and then each source in order, until `room` rows: { rows, next }. */
-async function pageFrom(door, list, names, sources, cursor, room, mostBytes) {
+/** Rows from `after` on until `room` rows, each request asking for at most read_page_rows: { rows, next }. */
+async function rowsFrom(door, list, names, sources, after, room) {
   const rows = [];
-  let part = 0, after = cursor;
-  if (typeof cursor === 'string' && cursor.startsWith(SOURCE_CURSOR)) {
-    const [index, ...rest] = cursor.slice(SOURCE_CURSOR.length).split('~');
-    part = Number(index) + 1;
-    after = rest.join('~') || null;
-    if (!Number.isSafeInteger(part) || part < 1 || part > sources.length) throw say('bad_input', 'after is not a cursor of this list.');
-  }
-  while (part <= sources.length) {
-    const left = room - rows.length;
-    if (left <= 0) return { rows, next: part === 0 ? after : `${SOURCE_CURSOR}${part - 1}~${after ?? ''}` };
-    // One request asks for at most read_page_rows: the door refuses a bigger page, and this loop gathers the rest.
-    const asked = Math.min(left, limits.read_page_rows);
-    const page = part === 0 ? await ownPage(door, list, names, { after, limit: asked }) : await sourcePage(door, list, sources[part - 1], { after, limit: asked, mostBytes });
+  while (rows.length < room) {
+    // The door refuses a bigger page, so one request asks for at most read_page_rows and this loop gathers the rest.
+    const page = await rowPage(door, list, names, sources, { after, limit: Math.min(room - rows.length, limits.read_page_rows) });
     rows.push(...page.rows);
-    if (page.next && page.rows.length) { after = page.next; continue; }
-    part += 1;
-    after = null;
+    after = page.next;
+    if (!after || !page.rows.length) return { rows, next: null };
   }
-  return { rows, next: null };
+  return { rows, next: after };
 }
 
 // Every field a rule tree names.
@@ -117,17 +113,17 @@ function ruleFields(tree) {
   return new Set((tree.rules ?? []).flatMap(rule => [...ruleFields(rule)]));
 }
 
-// The positions of the rows a view's rules keep, as the person's rule-filter tool decides; only the fields the rules
-// read are sent.
-async function keptPositions(door, filter, rows, fields, tree) {
+// The positions of the rows a view's rules keep, as the person's rule filter decides; only the fields the rules read
+// are given to it.
+async function keptPositions(door, rows, fields, tree) {
+  if (typeof door.filter !== 'function') throw say('bad_input', 'A view with rules needs the door\'s filter, the person\'s rule filter (tools/formulas).');
   const reads = ruleFields(tree);
-  const answer = await door.run(filter.tool, {
+  const found = await door.filter({
     records: rows.map(row => ({ value: Object.fromEntries([...reads].filter(name => name in row.values).map(name => [name, row.values[name]])) })),
     fields: fields.filter(field => reads.has(field.id)).map(field => ({ id: field.id, kind: field.kind, path: ['value', field.id] })),
     tree,
   });
-  const found = answer?.result ?? answer;
-  if (!Array.isArray(found?.matches)) throw say('filter_unanswered', `The rule filter did not answer: ${JSON.stringify(answer).slice(0, 300)}`);
+  if (!Array.isArray(found?.matches)) throw say('filter_unanswered', `The rule filter did not answer: ${JSON.stringify(found).slice(0, 300)}`);
   if (found.incomplete?.length) throw say('view_rules_unusable', `The view has rules the filter could not use: ${JSON.stringify(found.incomplete).slice(0, 300)}`);
   return found.matches;
 }
@@ -137,7 +133,12 @@ async function keptPositions(door, filter, rows, fields, tree) {
 const canonical = value => (Array.isArray(value) ? `[${value.map(canonical).join(',')}]`
   : value && typeof value === 'object' ? `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonical(value[key])}`).join(',')}}`
     : JSON.stringify(value));
-const compare = (x, y) => Buffer.compare(Buffer.from(canonical(x)), Buffer.from(canonical(y)));
+const utf8 = new TextEncoder();
+function compare(x, y) {
+  const a = utf8.encode(canonical(x)), b = utf8.encode(canonical(y));
+  for (let index = 0; index < Math.min(a.length, b.length); index += 1) if (a[index] !== b[index]) return a[index] - b[index];
+  return a.length - b.length;
+}
 
 // The rows in a view's order: each sort entry { field, direction } from the last to the first, a missing value last.
 function ordered(rows, sort) {
@@ -151,7 +152,8 @@ function ordered(rows, sort) {
 }
 
 export async function readListView(input = {}, door) {
-  const { names, limit } = checked(input);
+  const names = checkedNames(input);
+  const limit = checkedLimit(input);
   let listId = input.list, view = null;
   if (input.view) {
     const held = await door.read(names.view_type, input.view);
@@ -159,24 +161,105 @@ export async function readListView(input = {}, door) {
     listId = held.list_id;
     view = held.view ?? {};
   }
-  if (typeof listId !== 'string' || !listId) throw say('bad_input', 'Name a list (list) or a saved view (view).');
-  const list = await door.read(names.list_type, fill(names.list_record, { list_id: listId }));
-  if (!list) throw say('not_found', `There is no list ${listId}.`);
-  const sources = sourcesOf(list, { ...data.row_sources, ...(input.sources ?? {}) });
+  const list = await listOf(door, names, listId);
+  const sources = sourcesOf(list);
   const fields = list.fields ?? [];
   if (!view?.rules && !view?.sort?.length) {
-    const page = await pageFrom(door, list, names, sources, input.after ?? null, limit, input.source_answer_bytes);
+    const page = await rowsFrom(door, list, names, sources, input.after ?? null, limit);
     return { list: listId, fields, rows: page.rows, next: page.next, complete: true };
   }
-  const every = await pageFrom(door, list, names, sources, null, limits.rows_per_read, input.source_answer_bytes);
+  const every = await rowsFrom(door, list, names, sources, null, limits.rows_per_read);
   let rows = every.rows;
-  if (view.rules) {
-    if (!input.filter?.tool) throw say('bad_input', 'A view with rules needs filter: { tool }, the person\'s rule-filter tool.');
-    rows = (await keptPositions(door, input.filter, rows, fields, view.rules)).map(position => rows[position]);
-  }
+  if (view.rules) rows = (await keptPositions(door, rows, fields, view.rules)).map(position => rows[position]);
   rows = ordered(rows, view.sort);
   const from = input.after === undefined || input.after === null ? 0 : Number(input.after);
   if (!Number.isSafeInteger(from) || from < 0) throw say('bad_input', 'after is not a cursor of this view.');
   return { list: listId, fields, rows: rows.slice(from, from + limit), next: from + limit < rows.length ? String(from + limit) : null,
     of: every.rows.length, complete: every.next === null };
+}
+
+/** Every row a source's tool answers, page after page: [{ id, values }]. Refused when there are more than rows_per_read. */
+async function sourceRows(door, source, mostBytes) {
+  // A template the row source leaves empty is no value, so the tool gets only what the list says.
+  const input = Object.fromEntries(Object.entries(source.served.input)
+    .map(([key, template]) => [key, fill(template, { of: source.of ?? '', match: source.match ?? '' })]).filter(([, value]) => value !== ''));
+  const rows = [];
+  for (let after = null; ;) {
+    const answer = await door.run(source.served.tool, { ...input, limit: limits.read_page_rows, ...(after ? { after } : {}), ...(mostBytes ? { most_bytes: mostBytes } : {}) });
+    const page = at(answer, source.served.rows_at);
+    if (!Array.isArray(page)) throw say('source_unanswered', `The row source ${source.source} answered no rows: ${JSON.stringify(answer).slice(0, 300)}`);
+    rows.push(...page.map(row => ({ id: row.id, values: row.values ?? {} })));
+    if (rows.length > limits.rows_per_read) throw say('source_too_big', `The row source ${source.source} has more than ${limits.rows_per_read} rows; nothing of it was written.`);
+    after = at(answer, source.served.next_at) ?? null;
+    if (!after || !page.length) return rows;
+  }
+}
+
+/** The records a source wrote at its last refresh: Map(record id → value). */
+async function writtenRows(door, type, source) {
+  const held = new Map();
+  for (let after = null; ;) {
+    const page = await door.list({ type, prefix: `${type}:${source}${SOURCE_MARK}`, limit: limits.read_page_rows, ...(after ? { after } : {}) });
+    if (!Array.isArray(page?.records)) throw say('records_unanswered', `Listing ${type} answered no records.`);
+    for (const record of page.records) held.set(record.id, record.value);
+    after = page.records.length ? page.next ?? null : null;
+    if (!after) return held;
+  }
+}
+
+// The writes in batches of at most write_rows records and write_bytes bytes.
+function batches(records) {
+  const out = [];
+  let batch = [], bytes = 0;
+  for (const record of records) {
+    const size = utf8.encode(JSON.stringify(record)).length;
+    if (batch.length && (batch.length >= limits.write_rows || bytes + size > limits.write_bytes)) { out.push(batch); batch = []; bytes = 0; }
+    batch.push(record);
+    bytes += size;
+  }
+  return batch.length ? [...out, batch] : out;
+}
+
+/** Writes each batch; a batch the door refuses as written is sent again one record at a time. Answers the refused ids. */
+async function writeAll(door, records, key) {
+  const refused = [];
+  for (const [index, batch] of batches(records).entries()) {
+    try {
+      await door.write(batch, { key: `${key}:${index}` });
+    } catch (error) {
+      if (error.code !== 'original_input_refused') throw error;
+      for (const record of batch) {
+        await door.write([record], { key: `${key}:${index}:${record.id}` }).catch(one => {
+          if (one.code !== 'original_input_refused') throw one;
+          refused.push(record.id);
+        });
+      }
+    }
+  }
+  return refused;
+}
+
+export async function refreshRowSources(input = {}, door) {
+  const names = checkedNames(input);
+  const list = await listOf(door, names, input.list);
+  const type = rowTypeOf(list, names);
+  const run = globalThis.crypto.randomUUID();
+  const sources = [];
+  for (const source of sourcesOf(list)) {
+    const rows = await sourceRows(door, source, input.source_answer_bytes);
+    const held = await writtenRows(door, type, source.source);
+    const writes = [];
+    let unchanged = 0;
+    for (const row of rows) {
+      const id = `${type}:${source.source}${SOURCE_MARK}${encodeURIComponent(row.id)}`;
+      if (held.has(id) && canonical(held.get(id)) === canonical(row.values)) unchanged += 1;
+      else writes.push({ id, type, value: row.values });
+      held.delete(id);
+    }
+    const removals = [...held.keys()].map(id => ({ id, type, value: null }));
+    const refused = await writeAll(door, [...writes, ...removals], `refresh:${input.list}:${source.source}:${run}`);
+    const done = record => !refused.includes(record.id);
+    sources.push({ source: source.source, rows: rows.length, written: writes.filter(done).length, removed: removals.filter(done).length, unchanged, refused });
+  }
+  return { list: input.list, sources };
 }
