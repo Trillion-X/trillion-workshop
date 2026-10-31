@@ -64,3 +64,10 @@ test('reads every row, or one whole by id, and refuses an unknown id', () => {
   assert.equal(readRows({ id: 'opening' }).row.id, 'opening');
   assert.throws(() => readRows({ id: 'no-such-row' }), /No instruction row/);
 });
+
+test('the declared result selects the reader output itself', () => {
+  const whole = readRows({ id: 'decide-first' });
+  assert.ok(whole.row, 'the program emits the output object directly');
+  assert.equal(Object.hasOwn(whole, 'result'), false, 'there is no nested result envelope');
+  assert.equal(row.result_selector, '$', 'the container runner selects from raw JSON stdout');
+});
