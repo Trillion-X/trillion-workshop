@@ -1,0 +1,76 @@
+{
+  "kind": "tool-rows",
+  "record_set": "check-a-rendered-video-tool-rows",
+  "what_this_is": "The Workshop row for the check-a-rendered-video folder: a script the person's AI runs on the person's own computer against a rendered video (and, when there is one, the spec of how it was edited), printing PASS, WARN or FAIL per check with the times.",
+  "records": [
+    {
+      "id": "package::check-a-rendered-video::tool::check-a-rendered-video",
+      "address": "package::check-a-rendered-video::tool::check-a-rendered-video",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-rendered-video",
+        "label": "Check a rendered video's frames, joins and audio (runs on your computer)",
+        "status": "active",
+        "job": "Check my finished video for mistakes a viewer would notice: a stray frame at a cut, a cut inside a word, graphics off the frame or over a face, text too small, sound effects too quiet or harsh",
+        "description": "Reads a rendered video (and, for the checks that need it, a JSON spec of its cuts, held frames and the graphics laid over it, plus the overlay render with alpha) and runs checks on its frames, joins and audio: in-frame, joins, word-clip, jitter, text, face, exits, dwell, type-sync, backing, movement, sound-balance, sound-harsh, sound-loops, sound-sync, settle, tempo, zoom, camera, motion-blur, internal-text, text-size, info-added, math-shown, cue, broll, placement and filler-words-cut. Which checks run and every number and word list they use are the person's own limits, a JSON file the person gives (their AI reads the rows from the person's own records); the tool has no defaults, and a check with no limits row says so instead of passing. Each check prints PASS, WARN or FAIL with the seconds it happens at; a check that cannot run says why. It runs on the person's own computer, never on a server, and changes nothing it reads.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The rendered video file on the person's computer (.mp4), put where {input} is in the command. For a folder of videos, use `batch` in place of `check` and give the folder."
+            },
+            "spec": {
+              "type": "string",
+              "description": "The JSON spec of how the video was edited (cuts, held frames, graphics), put where {spec} is in the command. Leave `--spec {spec}` out when there is none: only the checks that need the video alone run."
+            },
+            "output": {
+              "type": "string",
+              "description": "A file to write every finding into as JSON, put where {output} is in the command."
+            },
+            "limits": {
+              "type": "string",
+              "description": "The person's limits file (JSON) on their computer: which checks run and the numbers and word lists they use, put where {limits} is in the command. Without it nothing runs."
+            }
+          },
+          "required": [
+            "input",
+            "limits"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"verdict\": \"PASS\" | \"WARN\" | \"FAIL\" | \"NOT_MEASURED\", \"videos\": [{\"video\", \"verdict\", \"failed\": [check names], \"warned\": [check names], \"not_measured\": {check: reason}}]}}. NOT_MEASURED means no check could run (say why from not_measured). The lines above it are the full report; the file named by --json holds every finding with its time."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U numpy opencv-python pillow scipy blake3",
+            "brew install ffmpeg",
+            "python3 -m pip install -U mlx-whisper   # Apple silicon only; or give --words FILE"
+          ],
+          "run": "python3 tools/check-a-rendered-video/do-work/check_a_rendered_video.py check {input} --limits {limits} --spec {spec} --json {output}",
+          "needs": [
+            "python",
+            "ffmpeg"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. It needs the person's limits: read them from the person's own records (or the file they point to), write them to a file, and pass its path as {limits}; do not invent limits. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their video in place of {input} (and their spec in place of {spec}, or leave `--spec {spec}` out), then read the last line and the report above it. Tell the person, for each FAIL and WARN, the check, the seconds it happens at and what it found, then which checks could not run and why (not_measured). Do not edit the video: say what to change. If you cannot run commands, give them these steps."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:check-a-rendered-video",
+        "provenance": {
+          "source": "Checks for the edit mistakes viewers notice, each with one passing and one failing synthetic case, on ffmpeg, numpy and OpenCV"
+        }
+      }
+    }
+  ]
+}

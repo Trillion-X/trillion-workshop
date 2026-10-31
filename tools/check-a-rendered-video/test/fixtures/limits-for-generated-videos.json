@@ -1,0 +1,855 @@
+{
+  "frame": {
+    "width": 1920,
+    "height": 1080
+  },
+  "analysis": {
+    "width": 192,
+    "height": 108,
+    "overlay_width": 480,
+    "overlay_height": 270,
+    "timeline_name": "timeline.json",
+    "timeline_id_aliases": {
+      "cover_c": "backdrop"
+    }
+  },
+  "in_frame": {
+    "safe_margin_pct": {
+      "x": 4,
+      "y": 4
+    },
+    "alpha_threshold": 230,
+    "min_overflow_px_at_analysis": 12,
+    "min_run_s": 0.6,
+    "bleed_area_frac": 0.25,
+    "spec_boxes": {
+      "box_a": {
+        "w": "size + 20",
+        "h": "size + 20"
+      },
+      "box_b": {
+        "w": "w + 20",
+        "h": "w * aspect + 20"
+      },
+      "box_g": {
+        "w": "w",
+        "h": "rows_n * row_px + 20"
+      }
+    },
+    "off_frame_ok_key": "off_frame",
+    "spec_defaults": {
+      "aspect": 0.5625
+    },
+    "edge_tolerance_px": 8,
+    "edge_min_fraction": 0.2,
+    "deliberate_bleed_types": [
+      "figure_t"
+    ],
+    "non_box_types": [
+      "pause",
+      "cover_c",
+      "figure_t",
+      "exit_t",
+      "slide_out",
+      "clear",
+      "effect_d",
+      "overlay_b"
+    ]
+  },
+  "joins": {
+    "window_frames_before": 3,
+    "window_frames_after": 8,
+    "min_visible_fraction": 0.15,
+    "alpha_threshold": 8,
+    "alpha_dilate_frames": 3,
+    "jump_abs": 8,
+    "jump_ratio": 6,
+    "stray_skip_ratio": 0.25,
+    "frozen_eps": 0.15,
+    "hold_exit_slack_frames": 4,
+    "scan_whole_clip_for_stray_frames": true,
+    "covers_a_roll_key": "covers_a_roll",
+    "cover_exit_tail_s": 0.3
+  },
+  "word_clip": {
+    "whisper_model": "mlx-community/whisper-large-v3-turbo",
+    "tolerance_s": 0.04,
+    "min_lead_s": 0.08,
+    "envelope_hop_s": 0.01,
+    "edge_window_s": 0.03,
+    "voiced_below_peak_db": 18,
+    "voiced_floor_db": -50,
+    "abrupt_drop_db": 15,
+    "max_trusted_word_s": 1,
+    "spelling_fixes": {},
+    "own_stop_tol_s": 0.03,
+    "own_stop_gap_s": 0.15
+  },
+  "jitter": {
+    "amplitude_px_key": "motion.jitter_px",
+    "default_amplitude_px": 1.5,
+    "default_on_types": [
+      "box_a",
+      "box_b",
+      "box_e"
+    ],
+    "explicit_key": "jitter",
+    "budget_px_seconds": 90,
+    "max_simultaneous": 4,
+    "max_single_s": 18,
+    "jitter_seconds_key": "jitter_s",
+    "drift_fast_px_s": 20,
+    "exit_types": {
+      "slide_out": "slide_out",
+      "exit_t": "tear",
+      "clear": "clear"
+    },
+    "clears_all_types": [
+      "exit_t"
+    ]
+  },
+  "text": {
+    "fields": {
+      "box_c": [
+        "text",
+        "then.text"
+      ],
+      "words_q": [
+        "text"
+      ],
+      "box_d": [
+        "text"
+      ],
+      "box_p": [
+        "text"
+      ],
+      "box_e": [
+        "text"
+      ],
+      "box_b": [
+        "label"
+      ],
+      "overlay_b": [
+        "label"
+      ],
+      "box_g": [
+        "rows.text"
+      ],
+      "box_h": [
+        "unit"
+      ],
+      "box_c2": [
+        "text"
+      ],
+      "box_i": [
+        "text"
+      ],
+      "box_f": [
+        "text"
+      ],
+      "box_e2": [
+        "text"
+      ],
+      "box_d2": [
+        "text"
+      ],
+      "box_j": [
+        "text"
+      ],
+      "box_k": [
+        "text"
+      ],
+      "box_h2": [
+        "unit"
+      ],
+      "box_o": [
+        "items.label"
+      ],
+      "box_g2": [
+        "rows.text",
+        "rows.mark"
+      ],
+      "box_l": [
+        "root.text",
+        "leaves.text"
+      ],
+      "box_m": [
+        "labels.text"
+      ],
+      "box_n": [
+        "ends.text",
+        "reasons.text",
+        "axis_label"
+      ]
+    },
+    "direct_over_footage_types": [
+      "words_q",
+      "box_h",
+      "box_h2"
+    ],
+    "timeline_box_types": [
+      "box_j",
+      "box_k"
+    ],
+    "bad_trailing_chars": ",;:-—–…",
+    "dangling_words": [
+      "and",
+      "or",
+      "the",
+      "a",
+      "an",
+      "of",
+      "to",
+      "with",
+      "but",
+      "for",
+      "in",
+      "on",
+      "so",
+      "that"
+    ],
+    "min_contrast_ratio": 3,
+    "outline_keys": [
+      "stroke",
+      "outline",
+      "border_text",
+      "stroke_px",
+      "outline_px"
+    ],
+    "outline_lum_delta": 0.35,
+    "outline_band_px": 2,
+    "caption_zone_bottom_pct": 15,
+    "caption_min_run_s": 0.75,
+    "text_like_min_lum": 0.85,
+    "text_like_max_lum": 0.12,
+    "text_like_max_chroma": 0.12,
+    "text_component_max_area_frac": 0.06,
+    "sample_every_s": 0.5,
+    "render_width": 960,
+    "render_height": 540,
+    "direct_text_box": {
+      "w_per_char_em": 0.62,
+      "h_em": 1.7,
+      "pad_px": 24
+    },
+    "ring_px": 12,
+    "alpha_core": 0.9,
+    "animated_keys": [
+      "rolling",
+      "animated"
+    ],
+    "default_settle_s": 1.2,
+    "continued_by_then_types": [
+      "box_c"
+    ]
+  },
+  "face": {
+    "sample_fps": 2,
+    "detect_width": 640,
+    "detect_height": 360,
+    "min_detections": 3,
+    "margin_frac": 0.15,
+    "alpha_threshold": 128,
+    "max_cover_frac": 0.08,
+    "min_run_s": 0.3,
+    "full_opaque_frac": 0.97,
+    "covers_a_roll_key": "covers_a_roll",
+    "person_level": 127,
+    "exit_start_key": "exit_start",
+    "exit_len_key": "exit_s"
+  },
+  "exits": {
+    "alpha_threshold": 128,
+    "min_area_px": 40,
+    "bleed_area_frac": 0.3,
+    "continue_overlap_frac": 0.2,
+    "moving_px_per_frame": 2,
+    "edge_tolerance_px": 3,
+    "erase_area_frac": 0.7,
+    "erase_inside_frac": 0.85
+  },
+  "dwell": {
+    "min_cover_frac": 0.002,
+    "gap_s": 0.3,
+    "min_hold_s": 1.5,
+    "s_per_word": 0.25,
+    "s_per_item": 0.4,
+    "dense_words": 14,
+    "dense_items": 5,
+    "dense_min_s": 4,
+    "tolerance_s": 0.15,
+    "non_content_types": [
+      "effect_d",
+      "clear",
+      "figure_t",
+      "cover_c",
+      "effect_a",
+      "pause",
+      "effect_b",
+      "slide_out",
+      "sound",
+      "effect_c",
+      "still_r",
+      "exit_t"
+    ],
+    "lead_s": 0.5,
+    "non_text_keys": [
+      "align",
+      "anchor",
+      "anim",
+      "animated",
+      "at",
+      "color",
+      "colour",
+      "covers_a_roll",
+      "dir",
+      "direction",
+      "dirs",
+      "draw",
+      "ease",
+      "easing",
+      "edge",
+      "enter",
+      "exit",
+      "exit_s",
+      "exit_start",
+      "file",
+      "fill",
+      "font",
+      "from",
+      "id",
+      "image",
+      "in_dir",
+      "jitter_s",
+      "kind",
+      "out",
+      "out_dir",
+      "backdrop",
+      "path",
+      "photo",
+      "rolling",
+      "settle_s",
+      "sound",
+      "sounds",
+      "src",
+      "style",
+      "targets",
+      "type",
+      "video",
+      "what",
+      "window"
+    ],
+    "narrate_window_s": 4,
+    "narrate_lead_s": 0.5,
+    "picture_types": [
+      "overlay_b",
+      "overlay_b2",
+      "figure_s"
+    ]
+  },
+  "type_sync": {
+    "type_on_keys": [
+      "cps",
+      "chars_per_s"
+    ],
+    "step_frames": 2,
+    "stem_name": "sfx-only.wav",
+    "box": {
+      "pad_px": 12,
+      "w_per_char_em": 0.62,
+      "h_em": 1.9
+    },
+    "pixel_delta": 24,
+    "min_change_frac": 0.0005,
+    "max_gap_s": 0.35,
+    "tolerance_s": 0.06,
+    "min_run_chars": 3,
+    "max_overrun_s": 0.15,
+    "hop_s": 0.005,
+    "onset_floor": 0.0012,
+    "onset_rise": 0.0006,
+    "refractory_s": 0.03,
+    "tail_silence_s": 0.1,
+    "appear_change_frac": 0.2,
+    "window_factor": 1.5,
+    "window_slack_s": 0.5,
+    "min_live_frac": 0.5,
+    "look_alike": {
+      "types": [
+        "typewriter",
+        "type",
+        "typing",
+        "typed",
+        "keys"
+      ],
+      "keys": [
+        "typewriter",
+        "type_on",
+        "typed",
+        "typing",
+        "char_by_char",
+        "per_char",
+        "keys",
+        "key_sound",
+        "keystrokes"
+      ]
+    }
+  },
+  "backing": {
+    "types": [
+      "box_f",
+      "box_b",
+      "box_c",
+      "box_c2",
+      "box_d",
+      "box_d2",
+      "box_g",
+      "box_g2",
+      "box_e",
+      "box_e2",
+      "box_k"
+    ],
+    "settle_s": 1.5,
+    "end_margin_s": 0.5,
+    "inner_from_px": 10,
+    "inner_to_px": 16,
+    "surround_from_px": 24,
+    "surround_to_px": 44,
+    "other_margin_px": 6,
+    "min_surround_px": 300,
+    "lighter_min_diff": 10,
+    "darker_min_diff": 60
+  },
+  "movement": {
+    "pad_px": 12,
+    "land_s": 0.5,
+    "window_s": 1,
+    "max_micro_step_px": 6,
+    "jitter_path_px_per_s": 8,
+    "jitter_net_over_path": 0.5,
+    "min_run_s": 1.8,
+    "still_px_per_s": 2,
+    "max_range_px": 8,
+    "still_levels": 3,
+    "blur_px": 15,
+    "chain_s": 0.5,
+    "ref_every_s": 0.25
+  },
+  "sound_balance": {
+    "appear_kinds": [
+      "slide_in",
+      "pop",
+      "card_in",
+      "word_in",
+      "click",
+      "drop",
+      "backdrop",
+      "key"
+    ],
+    "exit_kinds": [
+      "slide_out",
+      "card_out",
+      "word_out",
+      "whoosh",
+      "tear",
+      "exit_air"
+    ],
+    "ambient_kinds": [
+      "room_tone",
+      "pause"
+    ],
+    "window_s": 0.6,
+    "exit_tolerance_db": 1.5,
+    "voice_window_s": 3,
+    "voice_pct": 75,
+    "floor_db": -14
+  },
+  "sound_harsh": {
+    "hf_hz": 4000,
+    "max_hf_share": 0.45,
+    "max_centroid_hz": 2500,
+    "min_peak_db": -50,
+    "purpose_key": "harsh_sound_purpose",
+    "min_purpose_chars": 12,
+    "window_s": 0.5,
+    "click_window_s": 0.3,
+    "click_hf_hz": 3000,
+    "click_min_hf_share": 0.35,
+    "click_min_crest": 25
+  },
+  "sound_loops": {
+    "max_gap_s": 2.5,
+    "min_repeats": 4,
+    "min_copy_corr": 0.98,
+    "min_sound_s": 0.3,
+    "purpose_key": "loop_sound_purpose",
+    "min_purpose_chars": 12
+  },
+  "settle": {
+    "smooth_s": 0.25,
+    "min_window_s": 2,
+    "rest_frac": 0.4,
+    "exit_margin_s": 0.5,
+    "mass_px_per_frac": 400,
+    "approach_frac": 0.05,
+    "settle_px": 1,
+    "max_residual_px": 1.5,
+    "max_ease_tail_s": 1.2,
+    "purpose_key": "document_drift_purpose",
+    "min_purpose_chars": 12,
+    "rest_mass_frac": 0.01,
+    "longest_ease_s": 6,
+    "drift_types": [
+      "box_b",
+      "box_d",
+      "box_d2",
+      "box_a",
+      "box_a2",
+      "box_e",
+      "box_e2"
+    ],
+    "drift_min_period_s": 3,
+    "drift_box_pad_px": 40,
+    "min_mass_px": 50,
+    "blind_opaque_frac": 0.97,
+    "box_arrives_s": 0.3,
+    "cover_box_frac": 0.4,
+    "cover_key": "covers_a_roll",
+    "box_change_eps": 0.3,
+    "geometry_window_px": 7,
+    "box_edge_floor": 32,
+    "rest_split_s": 0.75,
+    "rest_band_px": 0.25,
+    "beat_min_window_s": 1,
+    "matte_exact_below": 0.75,
+    "drift_budget_px_seconds": 250,
+    "drift_max_simultaneous": 8
+  },
+  "internal_text": {
+    "patterns": {
+      "\\bprocess note\\b": "a process note, not something a viewer reads",
+      "\\bread\\s+\\d{1,2}\\s+[a-z]{3,9}\\.?\\s+\\d{4}\\b": "an access date note",
+      "[\\w-]+\\.(png|jpe?g|webp|svg|json|mp4|mov|wav|py|md|txt|csv|html)\\b": "a file name",
+      "\\b(placeholder|lorem ipsum|todo|tbd|fixme|overlay|timeline\\.json|render(ed)?|prompt|ffmpeg|python)\\b": "a tool, file or pipeline word"
+    }
+  },
+  "text_size": {
+    "size_keys": [
+      "size",
+      "font_px",
+      "text_px",
+      "title_px",
+      "label_px",
+      "row_px"
+    ],
+    "skip_keys": [
+      "drift",
+      "shadow",
+      "window",
+      "pos",
+      "box"
+    ],
+    "cap_height_ratio": 0.7,
+    "min_cap_px": 16.5,
+    "purpose_key": "small_text_purpose",
+    "min_purpose_chars": 12
+  },
+  "tempo": {
+    "smooth_s": 0.25,
+    "mass_px_per_frac": 400,
+    "idle_motion": 0.25,
+    "gap_s": 0.3,
+    "max_idle_s": 9,
+    "purpose_key": "long_hold_purpose",
+    "min_purpose_chars": 12,
+    "idle_pixel_change": 0.02
+  },
+  "zoom": {
+    "min_zoom_pct": 2,
+    "cut_s": 0.12
+  },
+  "placement": {
+    "heat_width": 192,
+    "heat_height": 108,
+    "covered_alpha": 10,
+    "max_box_frac": 0.4,
+    "min_uncovered_frac": 0.5,
+    "action_heat": 1.5,
+    "cover_key": "covers_a_roll",
+    "non_graphic_types": [
+      "sound"
+    ]
+  },
+  "info_added": {
+    "informational_types": [
+      "box_m",
+      "box_g",
+      "box_g2",
+      "box_o",
+      "box_q",
+      "box_r",
+      "box_s",
+      "box_t"
+    ],
+    "min_new_tokens": 3,
+    "stop_words": [
+      "the",
+      "a",
+      "an",
+      "of",
+      "to",
+      "in",
+      "on",
+      "and",
+      "or",
+      "for",
+      "with",
+      "is",
+      "are",
+      "it",
+      "at",
+      "as",
+      "by",
+      "per",
+      "your",
+      "you",
+      "this",
+      "that",
+      "what",
+      "how",
+      "why",
+      "not",
+      "no",
+      "vs"
+    ],
+    "skip_keys": [
+      "dirs",
+      "exit",
+      "enter",
+      "intro",
+      "kind",
+      "edge",
+      "face",
+      "ease",
+      "label_side",
+      "shape",
+      "icon",
+      "track"
+    ]
+  },
+  "motion_blur": {
+    "move_kinds": [
+      "slide_in",
+      "slide_out",
+      "card_in",
+      "card_out",
+      "whoosh",
+      "word_out",
+      "exit_air"
+    ],
+    "measure_width": 960,
+    "measure_height": 540,
+    "soft_lo": 0.08,
+    "soft_hi": 0.92,
+    "window_s": 0.5,
+    "soft_ref_frames": 22,
+    "min_ref_px": 500,
+    "blur_ratio": 1.15,
+    "purpose_key": "stop_motion_moves",
+    "min_purpose_chars": 12,
+    "inward_kinds": [
+      "slide_in",
+      "card_in"
+    ]
+  },
+  "sound_sync": {
+    "sr": 16000,
+    "max_offset_frames": 1,
+    "min_stem_peak": 0.0001,
+    "segment_min_s": 0.12,
+    "segment_max_s": 0.6,
+    "lead_s": 0.02,
+    "fmin_hz": 300,
+    "guard_s": 0.05,
+    "min_over_noise": 15,
+    "min_over_next": 1.5,
+    "min_event_over_noise": 15,
+    "max_missing_over_noise": 2.5,
+    "ambient_kinds": [
+      "room_tone",
+      "pause"
+    ],
+    "pad_s": 3
+  },
+  "camera": {
+    "min_push_s": 1.5,
+    "min_gain_pct": 10,
+    "min_rate_pct_per_s": 4,
+    "creep_min_s": 1,
+    "creep_speed_ratio": 1.5,
+    "still_zoom_types": [
+      "still_r"
+    ]
+  },
+  "sound_mix": {
+    "duration_tolerance_s": 0.05,
+    "gain_window_s": 0.5,
+    "min_residual_below_db": 6,
+    "stem_names": [
+      "sfx-only.wav",
+      "sound.wav"
+    ]
+  },
+  "math_shown": {
+    "tolerance": 0.02,
+    "min_value": 10,
+    "skip_keys": [
+      "out_dir",
+      "in_dir",
+      "dirs",
+      "exit",
+      "enter",
+      "intro",
+      "kind",
+      "edge",
+      "face",
+      "ease",
+      "label_side",
+      "shape",
+      "icon",
+      "track",
+      "pct"
+    ],
+    "operation_words": [
+      "total",
+      "sum",
+      "deficit",
+      "difference",
+      "left",
+      "remaining",
+      "per",
+      "times",
+      "saved",
+      "over",
+      "under",
+      "vs",
+      "more",
+      "less",
+      "gap",
+      "net",
+      "base",
+      "rate"
+    ],
+    "result_words": [
+      "deficit",
+      "difference",
+      "total",
+      "remaining",
+      "saved",
+      "surplus"
+    ],
+    "window_strings": 3
+  },
+  "cue": {
+    "grid_width": 192,
+    "grid_height": 108,
+    "cue_box_px": 240,
+    "look_back_s": 8,
+    "burst_ratio": 2.5,
+    "burst_min": 5,
+    "burst_hold_s": 0.25,
+    "max_late_s": 1,
+    "visual_types": [
+      "ring"
+    ],
+    "baseline_pct": 25
+  },
+  "broll": {
+    "cutaway_types": [
+      "still_r",
+      "overlay_b",
+      "overlay_b2"
+    ],
+    "alpha": 200,
+    "width": 96,
+    "height": 54,
+    "gap_s": 0.2,
+    "lead_s": 0.5,
+    "min_s": 3.2,
+    "max_delta_e": 9,
+    "adjacent_s": 0.5,
+    "min_purpose_chars": 12
+  },
+  "filler_words": {
+    "fillers": [
+      "uh",
+      "uhh",
+      "um",
+      "umm",
+      "er",
+      "erm",
+      "ah",
+      "uhm",
+      "hmm"
+    ],
+    "join_window_s": 3,
+    "loose_keep_after": [
+      "smells",
+      "smell",
+      "smelled",
+      "looks",
+      "look",
+      "looked",
+      "sounds",
+      "sound",
+      "feels",
+      "feel",
+      "felt",
+      "tastes",
+      "taste",
+      "seems",
+      "seem",
+      "acts",
+      "something",
+      "nothing",
+      "anything",
+      "exactly",
+      "would",
+      "i",
+      "you",
+      "we",
+      "they",
+      "to",
+      "do",
+      "dont",
+      "don't",
+      "didnt",
+      "didn't",
+      "doesnt",
+      "doesn't",
+      "does",
+      "did",
+      "people",
+      "who",
+      "what",
+      "just",
+      "more",
+      "much",
+      "most",
+      "never",
+      "always"
+    ],
+    "sentence_opening": [
+      "so"
+    ],
+    "after_filler": [
+      "yeah"
+    ],
+    "before_filler": [
+      "no"
+    ],
+    "loose": [
+      "like"
+    ]
+  }
+}
