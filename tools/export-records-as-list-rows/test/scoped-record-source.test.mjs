@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { rowOf, runRow } from '../../records-door/test/run-row.mjs';
+import { sendBuiltRecordWrite } from '../do-work/send_built_record_write.mjs';
 
 const tool = fileURLToPath(new URL('..', import.meta.url));
 const workshop = fileURLToPath(new URL('../../..', import.meta.url));
@@ -297,4 +298,50 @@ test('the same writer code stops when a separately configured target scope omits
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test('the managed writer refreshes through the same baseline owner, retains edits and refuses unsafe removals', async () => {
+  const rows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
+  const writer = rowInRepository(rowOf(rows, 'tool:put-records-into-my-account'));
+  const record = (id, value) => ({ id: `record:fixture:${id}`, type: 'record:fixture', value });
+  const payload = records => ({ commands: [{ input: { records } }] });
+  const original = { name: 'Imported', note: 'Original', _basis: { name: { by: 'source' } } };
+  const baseline = payload([record('one', original), record('deleted', { name: 'Deleted' }), record('remove', { name: 'Original' })]);
+  const desired = payload([record('one', { name: 'New source name', note: 'Improved', mechanism: ['cause'], _basis: { name: { by: 'new-source' } } }),
+    record('deleted', { name: 'Source changed' }), record('remove', null)]);
+  const input = { payload: desired, baseline, target_type: 'record:fixture', target_prefix: 'record:fixture:' };
+  const result = await runRow(writer, input, { records: [
+    record('one', { name: 'Person edit', note: 'Original', custom: 'Keep', _basis: { name: { by: 'person' } } }),
+    record('remove', { name: 'Peer edit' }),
+  ] });
+  assert.equal(result.status, 0, JSON.stringify(result));
+  assert.equal(result.result.state, 'written_with_conflicts');
+  assert.deepEqual(result.result.conflicts.map(c => [c.id, c.path, c.reason]), [
+    ['record:fixture:one', ['name'], 'live_changed'], ['record:fixture:deleted', [], 'live_deleted'],
+    ['record:fixture:remove', [], 'unsafe_removal'],
+  ]);
+  assert.deepEqual(result.kept.find(r => r.id === 'record:fixture:one').value,
+    { name: 'Person edit', note: 'Improved', custom: 'Keep', mechanism: ['cause'], _basis: { name: { by: 'person' } } });
+  assert.ok(!result.kept.some(r => r.id === 'record:fixture:deleted'));
+  assert.equal(result.kept.find(r => r.id === 'record:fixture:remove').value.name, 'Peer edit');
+  const repeated = await runRow(writer, input, { records: result.kept });
+  assert.equal(repeated.status, 0, JSON.stringify(repeated));
+  assert.equal(repeated.result.to_write, 0);
+  const invalid = await runRow(writer, { ...input, keep_held: true }, { records: result.kept });
+  assert.notEqual(invalid.status, 0);
+  assert.match(invalid.error, /cannot be combined/);
+});
+
+test('a write acknowledgement without a matching readback is not all_written', async () => {
+  const record = { id: 'record:fixture:one', type: 'record:fixture', value: { name: 'One' } };
+  const result = await sendBuiltRecordWrite({ payload: { commands: [{ input: { records: [record] } }] },
+    target_type: record.type, target_prefix: 'record:fixture:' }, {
+    door: { async *list() {}, async write() { return { changed: true }; } },
+  });
+  assert.equal(result.state, 'readback_differs');
+  assert.deepEqual(result.readback['record:fixture'].missing, [record.id]);
+  await assert.rejects(() => sendBuiltRecordWrite({ payload: { commands: [{ input: { records: [record] } }] },
+    target_type: record.type, target_prefix: 'record:fixture:' }, {
+    door: { async *list() { yield { id: record.id, type: record.type }; }, async write() { assert.fail('must not write after a malformed read'); } },
+  }), /outside the granted target type\/prefix/);
 });

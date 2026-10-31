@@ -179,7 +179,7 @@
         "id": "tool:put-records-into-my-account",
         "label": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer)",
         "job": "Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
-        "description": "Takes the result of tool:build-records-to-write directly. Through this run's separately scoped records door, it reads only the target record kinds declared on this row, skips records already held when keep_held is true, writes bounded commands with fresh per-run request keys, reconciles unknown write outcomes and returns readback counts. It reads no host payload file, config, keychain item or sender credential. The standalone send_record_write.py command remains available for a person who chooses the manual computer workflow.",
+        "description": "Takes the result of tool:build-records-to-write directly. Through this run's separately scoped records door, it reads only the target record kinds declared on this row, skips records already held when keep_held is true, or merges source changes against an optional previous-import baseline while preserving live edits and deletions. It reports conflicts, writes bounded commands with fresh per-run request keys, reconciles unknown write outcomes and returns readback counts; a mismatching readback is never all_written. It reads no host payload file, config, keychain item or sender credential. The standalone send_record_write.py command remains available for a person who chooses the manual computer workflow.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -188,18 +188,20 @@
             "payload": { "type": "object", "description": "The whole result object returned by tool:build-records-to-write, including commands." },
             "target_type": { "type": "string", "description": "The one target record type this run is granted to read and write; the run right is filled from this field." },
             "target_prefix": { "type": "string", "description": "The target record id prefix this run is granted to read and write; the run right is filled from this field." },
-            "keep_held": { "type": "boolean", "description": "When true, leave every target record already held as it is, including rows edited since they were first written." }
+            "keep_held": { "type": "boolean", "description": "When true, leave every target record already held as it is, including rows edited since they were first written." },
+            "baseline": { "type": "object", "description": "The previous imported builder payload. Refresh source fields only where the live value still matches this baseline; retain live edits/deletions and report conflicts. Cannot be combined with keep_held." }
           }
         },
         "output_schema": {
           "type": "object", "required": ["state", "to_write", "commands", "written", "out_of_scope", "readback"],
           "properties": {
-            "state": { "type": "string", "enum": ["all_written", "stopped_on_refusal"] },
+            "state": { "type": "string", "enum": ["all_written", "written_with_conflicts", "readback_differs", "stopped_on_refusal"] },
             "to_write": { "type": "integer", "minimum": 0 },
             "commands": { "type": "integer", "minimum": 0 },
             "written": { "type": "integer", "minimum": 0 },
             "out_of_scope": { "type": "integer", "minimum": 0 },
             "last_refusal": { "type": "object" },
+            "conflicts": { "type": "array", "items": { "type": "object" } },
             "readback": { "type": "object" }
           }
         },

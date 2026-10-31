@@ -41,6 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog=PROGRAM, description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--library', required=True, type=Path)
     ap.add_argument('--schema', required=True, type=Path)
+    ap.add_argument('--read-only', action='store_true', help='do not run the schema\'s on_first_gate command')
     sub = ap.add_subparsers(dest='cmd', required=True)
     g = sub.add_parser('gate')
     g.add_argument('piece', type=Path)
@@ -89,7 +90,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def run(lib: Library, a: argparse.Namespace):
     if a.cmd == 'gate':
-        return gate_answers.gate(lib, a.piece, comma_list(a.stage), comma_list(a.option), a.at)
+        return gate_answers.gate(lib, a.piece, comma_list(a.stage), comma_list(a.option), a.at, start_first_record=not a.read_only)
     if a.cmd == 'answer':
         return gate_answers.record_answer(lib, a.piece, a.check, a.answer, a.evidence, a.by, a.option)
     if a.cmd == 'answers-from-report':
@@ -122,7 +123,7 @@ def main(argv: list[str] | None = None) -> int:
     a = build_parser().parse_args(argv)
     with contextlib.ExitStack() as stack:
         try:
-            lib = Library(a.library, a.schema)
+            lib = Library(a.library, a.schema, read_only=a.read_only)
             if a.cmd not in UNLOCKED:
                 stack.enter_context(contextlib.closing(lib.lock()))
             out = run(lib, a)
