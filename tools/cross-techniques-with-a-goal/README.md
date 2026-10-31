@@ -99,7 +99,7 @@ A model in a request is `{ url, model, key_env? }`; a writing model may also nam
 - **`list`**: the rows with no current proposal (`{ source, id, text }`).
 - **`propose`**: asks `models.writing` for proposals, a few rows per call.
 - **`take`**: puts proposals written elsewhere onto their rows (`{ proposed_by, rows }` files).
-- **`settle`**: folds proposals into the lexicon. Use `fresh: true` for every row from an empty lexicon, otherwise only changed rows are folded. `judge: "ask"` judges now; `"recorded"` reads `judgments_file` and writes what is still to judge to `waiting_file`.
+- **`settle`**: folds proposals into the lexicon. Use `fresh: true` for every row from an empty lexicon, otherwise only changed rows are folded. Rows are folded `checkpoint_every` at a time (100 by default) and the sidecars and lexicon are saved after each part, so a settle that stops keeps what it finished and the next run folds only the rest. With `judge: "ask"`, an answer that is not JSON leaves that term undecided (provisional) rather than ending the settle. `judge: "ask"` judges now; `"recorded"` reads `judgments_file` and writes what is still to judge to `waiting_file`.
 - **`rows`**: the joined rows (`carry` fields plus crossing fields) ready for crossing.
 
 A sidecar row carries `from_hash` (BLAKE3 of the source row) and `settled_from` (BLAKE3 of its proposal), so every step only touches what changed.

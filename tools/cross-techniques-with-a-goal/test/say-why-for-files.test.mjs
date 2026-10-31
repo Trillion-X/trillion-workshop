@@ -3,11 +3,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { writer } from '../do-work/meaning.mjs';
-import { rowsOfFile, sayWhyForFiles, sidecarOf } from '../do-work/say-why-for-files.mjs';
+import { hashOf, rowsOfFile, sayWhyForFiles, sidecarOf } from '../do-work/say-why-for-files.mjs';
 
 test('a .jsonl source holds one row per line, and its sidecar is named without the .jsonl', async () => {
   const folder = mkdtempSync(join(tmpdir(), 'say-why-files-'));
@@ -39,6 +40,49 @@ test('a writer with seed null sends no seed, sends its body fields, and reads th
     assert.deepEqual(seen[0].chat_template_kwargs, { enable_thinking: false });
     await writer({ url, model: 'stand-in' })({ system: 's', user: 'u', schema: { type: 'object' }, name: 'n' });
     assert.equal(seen[1].seed, 7, 'a writer that names no seed keeps the fixed one');
+  } finally {
+    server.close();
+  }
+});
+
+test('a settle that stops keeps every part it finished, and the next settle folds only the rest', async () => {
+  const conventions = JSON.parse(readFileSync(fileURLToPath(new URL('../do-work/technique-conventions.json', import.meta.url)), 'utf8'));
+  const meaning = conventions.vocabulary_lines.meaning;
+  let calls = 0;
+  let failFrom = 2;
+  const server = createServer((request, response) => {
+    let body = '';
+    request.on('data', chunk => { body += chunk; });
+    request.on('end', () => {
+      calls += 1;
+      if (calls >= failFrom) { response.statusCode = 500; response.end('stopped'); return; }
+      const { input } = JSON.parse(body);
+      // Each text its own direction, so every term is new and no judge is asked.
+      const data = input.map((text, index) => {
+        const vector = Array(meaning.dims).fill(0);
+        vector[[...text].reduce((sum, ch) => (sum * 31 + ch.charCodeAt(0)) % meaning.dims, 7)] = 1;
+        return { index, embedding: vector };
+      });
+      response.end(JSON.stringify({ data }));
+    });
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const folder = mkdtempSync(join(tmpdir(), 'settle-parts-'));
+    const file = join(folder, 'made-up-rows.jsonl');
+    const rows = ['plant', 'water', 'weed'].map(word => ({ id: word, statement: `Made-up ${word} rule.` }));
+    writeFileSync(file, rows.map(row => JSON.stringify(row)).join('\n'));
+    const proposal = word => ({ mechanism: [{ term: `fixture-${word}-reason`, says: `a made-up reason about ${word}` }], operates_on: [], needs: [], produces: [], from_medium: 'fixture' });
+    writeFileSync(sidecarOf(file), JSON.stringify({ rows: rows.map(row => ({ id: row.id, from_hash: hashOf(row), proposed_by: 'stand-in', proposed: proposal(row.id) })) }));
+    const request = { step: 'settle', checkpoint_every: 1, sources: [{ file }], vocabulary_file: join(folder, 'vocabulary.json'),
+      models: { meaning: { ...meaning, url: `http://127.0.0.1:${server.address().port}/v1` } } };
+    await assert.rejects(() => sayWhyForFiles(request), /500/);
+    const saved = JSON.parse(readFileSync(sidecarOf(file), 'utf8')).rows;
+    assert.deepEqual(saved.filter(row => row.settled_from).map(row => row.id), ['plant'], 'the first part was kept before the stop');
+    failFrom = Infinity;
+    const resumed = await sayWhyForFiles(request);
+    assert.equal(resumed.settled, 2, 'only the rows not yet settled are folded again');
+    assert.deepEqual(resumed.files[0].settled, 3);
   } finally {
     server.close();
   }

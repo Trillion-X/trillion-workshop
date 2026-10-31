@@ -92,6 +92,10 @@ export function embedder(meaning) {
 // (writing) -> async ({ system, examples?, user, schema, name }) -> the parsed JSON object the schema shapes. Each
 // example { user, answer } becomes a worked turn before the real one; user and answer may be JSON values.
 const said = value => (typeof value === 'string' ? value : JSON.stringify(value));
+// A writer's answer that holds no JSON object: the model answered, but not in the shape asked for. A caller that can go on
+// without that one answer (a judge that may leave a term undecided) tells it from a failure to reach the model.
+export class NotJson extends Error {}
+
 export function writer(writing) {
   if (!writing?.url || !writing?.model) throw new Error('writing needs { url, model }: the chat model that writes the JSON.');
   return async ({ system, examples = [], user, schema, name }) => {
@@ -113,7 +117,7 @@ export function writer(writing) {
     try {
       return JSON.parse(bare.slice(bare.indexOf('{'), bare.lastIndexOf('}') + 1));
     } catch {
-      throw new Error(`${writing.model} answered text that is not JSON: ${text.slice(0, 300)}`);
+      throw new NotJson(`${writing.model} answered text that is not JSON: ${text.slice(0, 300)}`);
     }
   };
 }

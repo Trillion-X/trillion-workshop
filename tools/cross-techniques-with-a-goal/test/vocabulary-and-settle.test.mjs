@@ -136,3 +136,13 @@ test('rowText reads the first fields in order, skips listed fields and web addre
   const text = rowText({ id: 'x', source_url: 'https://example.org', notes: ['https://example.org/a', 'kept words'], description: 'a long description here', name: 'Fixture' }, reading);
   assert.equal(text, 'name: Fixture | description: a long desc… | notes: kept words');
 });
+
+test('a judge whose writer answers no JSON leaves the term undecided; a writer that cannot be reached still fails', async () => {
+  const { askingJudge } = await import('../do-work/say-why.mjs');
+  const { NotJson } = await import('../do-work/meaning.mjs');
+  const conventions = { same_meaning: { system: 'made up' } };
+  const asked = { proposal: { term: 'fixture-near', says: 'x' }, candidates: [{ term: 'fixture-loop', says: 'y', closeness: 0.6 }] };
+  assert.equal(await askingJudge(async () => { throw new NotJson('prose'); }, conventions)(asked), undefined);
+  assert.equal(await askingJudge(async () => ({ term: 'fixture-loop' }), conventions)(asked), 'fixture-loop');
+  await assert.rejects(() => askingJudge(async () => { throw new Error('Could not reach the model'); }, conventions)(asked), /Could not reach/);
+});

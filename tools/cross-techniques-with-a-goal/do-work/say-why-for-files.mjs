@@ -18,8 +18,9 @@
 //   2. A sidecar row carries `from_hash`, the BLAKE3 of the source row's JSON, and `settled_from`, the BLAKE3 of the
 //      proposal it was settled from. list/propose only touch rows whose source changed or that have no proposal;
 //      settle (unless fresh) only folds rows whose proposal changed since they were settled. Work is O(changed).
-//   3. Sidecars and the lexicon are saved whole to a temporary file and renamed, after every proposing batch and at
-//      the end of a settle, so a stopped run keeps everything finished before it stopped.
+//   3. Sidecars and the lexicon are saved whole to a temporary file and renamed, after every proposing batch and after
+//      every part of a settle (`checkpoint_every` rows, 100 by default), so a stopped run keeps everything finished
+//      before it stopped and the next run folds only what is left.
 //   4. Each sidecar names how its fields were made (writer per row in `proposed_by`, meaning model, the conventions
 //      file, the day). Every path a sidecar holds is relative to the sidecar.
 //
@@ -176,20 +177,34 @@ export async function sayWhyForFiles(request, log = () => {}) {
       .filter(kept => kept?.proposed && (request.fresh === true || kept.settled_from !== hashOf(kept.proposed)))
       .map(kept => ({ id: kept.id, proposed: kept.proposed, entry })));
     log(`settling ${items.length} rows${request.fresh === true ? ' from an empty vocabulary' : ''}`);
-    const result = await settle(items);
     const entryOf = new Map(items.map(item => [item.id, item.entry]));
-    for (const row of result.rows) {
-      const entry = entryOf.get(row.id);
-      const kept = entry.kept.get(row.id);
-      entry.kept.set(row.id, { id: row.id, from_hash: kept.from_hash, proposed_by: kept.proposed_by, ...row, settled_from: hashOf(kept.proposed), proposed: kept.proposed });
+    const checkpoint = () => {
+      for (const entry of library) writeSidecar(entry, embed.meaning);
+      save(request.vocabulary_file, { ...lexicon, vocabularies: Object.fromEntries(Object.entries(lexicon.vocabularies).map(([name, vocabulary]) => [name, withoutProvisional(vocabulary)])) });
+    };
+    // Rows are folded a part at a time and every part is saved before the next (invariant 3), so a settle that stops
+    // keeps every part finished before it; run again, it folds only rows whose proposal is not yet settled.
+    const every = request.checkpoint_every ?? 100;
+    const result = { rows: [], waiting: [], admitted: [] };
+    for (let start = 0; start < items.length; start += every) {
+      const part = await settle(items.slice(start, start + every));
+      for (const row of part.rows) {
+        const entry = entryOf.get(row.id);
+        const kept = entry.kept.get(row.id);
+        entry.kept.set(row.id, { id: row.id, from_hash: kept.from_hash, proposed_by: kept.proposed_by, ...row, settled_from: hashOf(kept.proposed), proposed: kept.proposed });
+      }
+      for (const id of part.waiting) {
+        const entry = entryOf.get(id);
+        const { id: keptId, from_hash: fromHash, proposed_by: proposedBy, proposed } = entry.kept.get(id);
+        entry.kept.set(id, { id: keptId, from_hash: fromHash, proposed_by: proposedBy, proposed });
+      }
+      result.rows.push(...part.rows);
+      result.waiting.push(...part.waiting);
+      result.admitted.push(...part.admitted);
+      checkpoint();
+      log(`settled ${Math.min(start + every, items.length)} of ${items.length}`);
     }
-    for (const id of result.waiting) {
-      const entry = entryOf.get(id);
-      const { id: keptId, from_hash: fromHash, proposed_by: proposedBy, proposed } = entry.kept.get(id);
-      entry.kept.set(id, { id: keptId, from_hash: fromHash, proposed_by: proposedBy, proposed });
-    }
-    for (const entry of library) writeSidecar(entry, embed.meaning);
-    save(request.vocabulary_file, { ...lexicon, vocabularies: Object.fromEntries(Object.entries(lexicon.vocabularies).map(([name, vocabulary]) => [name, withoutProvisional(vocabulary)])) });
+    if (!items.length) checkpoint();
     const waiting = request.judge === 'ask' ? [] : recorded.waiting;
     if (request.waiting_file) save(request.waiting_file, waiting);
     const how = result.admitted.reduce((counts, item) => ({ ...counts, [item.how]: (counts[item.how] ?? 0) + 1 }), {});
