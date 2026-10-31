@@ -19,6 +19,7 @@ A mapping:
                     `_generated`), so building the same files again gives the same records; without it, the time of the build
   payload_note      the `_what` of the payload
   emit              list ids in the order their rows are written (default: the order of the definitions)
+  emit_definitions  boolean (default true): false uses lists_file as a schema snapshot without writing list/view definitions
   breakdown         { list, field, staged_sources }: the payload counts, for each value of a link field, the rows made from the
                     named sources and all rows
   checks            [{ "links_resolve": { list, field, into, error } }]: every id in a row's field is the id of a row of `into`
@@ -323,6 +324,9 @@ def make_records(source: dict, ctx: Context, state: dict, record_reader) -> None
 
 def build(mapping: dict, roots: dict[str, Path], at: str | None = None, record_reader=None) -> dict:
     """The payload for a mapping: counts, what is pending or diverted, and the commands of records to send in order."""
+    emit_definitions = mapping.get('emit_definitions', True)
+    if not isinstance(emit_definitions, bool):
+        raise ValueError('emit_definitions must be a boolean.')
     at = at or datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
     ctx = Context(roots)
     limits = {**LIMIT_DEFAULTS, **mapping.get('limits', {})}
@@ -351,16 +355,19 @@ def build(mapping: dict, roots: dict[str, Path], at: str | None = None, record_r
         first_of_list.add(source['list'])
         make_rows_kind(source, own + made, ctx, state)
     check_rows(state)
-    records = [{'id': ids['list'].format(id=entry['id']), 'type': 'list', 'value': entry['value']} for entry in definition['lists']]
-    records += [{'id': ids['view'].format(list=v['list'], view_id=v['view']['id']), 'type': ids['view_type'], 'value': {'list_id': v['list'], 'view': v['view'], 'order': v['order']}}
-                for v in definition['views']]
+    records = []
+    if emit_definitions:
+        records = [{'id': ids['list'].format(id=entry['id']), 'type': 'list', 'value': entry['value']} for entry in definition['lists']]
+        records += [{'id': ids['view'].format(list=v['list'], view_id=v['view']['id']), 'type': ids['view_type'], 'value': {'list_id': v['list'], 'view': v['view'], 'order': v['order']}}
+                    for v in definition['views']]
     for list_id in mapping.get('emit', [entry['id'] for entry in definition['lists']]):
         row_type = list_value[list_id]['row_type']
         for row in state['rows'].get(list_id, []):
             value = {**row['values'], **({'_basis': row['basis']} if row['basis'] else {})}
             records.append({'id': ids['row'].format(row_type=row_type, id=row['id']), 'type': ids['row_type'].format(row_type=row_type), 'value': value})
     commands = commands_of(records, limits)
-    counts = {'records': len(records), 'commands': len(commands), 'lists': len(definition['lists']), 'views': len(definition['views']),
+    counts = {'records': len(records), 'commands': len(commands), 'lists': len(definition['lists']) if emit_definitions else 0,
+              'views': len(definition['views']) if emit_definitions else 0,
               'rows': {list_id: len(rows) for list_id, rows in state['rows'].items()}}
     if 'breakdown' in mapping:
         spec = mapping['breakdown']
