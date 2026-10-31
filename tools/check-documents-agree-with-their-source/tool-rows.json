@@ -1,0 +1,142 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-documents-agree-with-their-source",
+        "id": "tool:check-documents-agree-with-their-source",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "label": "Check my documents have not fallen behind their source",
+        "job": "Check that documents which each claim to reflect one source (summaries, translations, copies for other readers) still carry the source's newest numbered item, and the markers each must hold, and say which have fallen behind",
+        "description": "Give sets: one record per source, { set_id, source, unit_pattern, required_markers?, mirrors: [{ document, required_markers? }] }, every document a path inside the folder the person granted for reading. unit_pattern is a regular expression for the identifier the source and its mirrors share (its first capture, when it has one, is read as a number, so item 99 sorts below item 218). A mirror is behind when it lacks the source's newest unit; being shorter than its source is not a finding. required_markers are literal strings a document must carry (a set's apply to every mirror, a mirror's own replace them). A document that does not exist is reported as missing, not as stale. Returns agrees and, for each set, newest_unit, the mirrors behind with what each lacks, the markers missing and the documents missing. A run over no set is refused.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "sets"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "sets": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "source",
+                  "unit_pattern",
+                  "mirrors"
+                ],
+                "properties": {
+                  "set_id": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "description": "The source document, a path inside the granted folder"
+                  },
+                  "unit_pattern": {
+                    "type": "string",
+                    "description": "A regular expression for the shared identifier; a first capture is read as a number"
+                  },
+                  "required_markers": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "mirrors": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "document"
+                      ],
+                      "properties": {
+                        "document": {
+                          "type": "string"
+                        },
+                        "required_markers": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "agrees",
+            "reports"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string"
+            },
+            "agrees": {
+              "type": "boolean"
+            },
+            "reports": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "agrees"
+                ]
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/check-documents-agree-with-their-source",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/check-documents-agree-with-their-source/do-work/check-my-documents.mjs",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "check-documents-agree-with-their-source",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/check-documents-agree-with-their-source"
+            }
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
