@@ -970,6 +970,18 @@
         {"job": "keep challenges and enrol people in them", "why": "that job defines time-boxed challenges and who is enrolled; this one holds an ongoing agreement to account, with marks for each person each time"},
         {"job": "notify a person when their notification rules say so", "why": "that job decides whether to tell a person; this one decides who kept an agreement and says the sentence, and sends nothing"}
       ]
+    },
+    {
+      "capability": "tell who is in a recording or a picture: keep a person's voice or face print only with the consent words that say who agreed and how, name the voices of a transcript against those prints, and find and name faces in a picture or video",
+      "owner": ["tools/know-who-is-in-this/"],
+      "entry": "tools/know-who-is-in-this/tool-rows.json",
+      "evidence": "README.md:3 the old app's enrolment, people and who tools: a print is made only with consent words, a voice is named only when it is clearly one enrolled person (else the people it could be, else an unknown voice that keeps its number through the listening), and prints never leave the device they were made on",
+      "distinct_from": [
+        {"job": "group recurring voices across audio and video files and name a cluster", "why": "tools/media-composition find-recurring-voices clusters voices in files and keeps cluster numbers as account records with a later explicit name; this one keeps a print only with consent words, names each stretch of a transcript from the prints (named, unsure of which people, or an unknown voice with a stable number across a listening), and keeps every print on the device it was made on. It reuses that tool's CAM++ measurement and does not repeat it"},
+        {"job": "blur every face and silence every voice except those who agreed to be filmed", "why": "tools/media-composition blur-faces-not-agreed makes a changed copy of a video from pictures of the people who agreed; this one changes no file, answers who each stretch and each face is, and keeps the prints as records. It reuses that tool's face detector and recognizer"},
+        {"job": "turn a recording into words with word times", "why": "tools/audio-transcription answers what was said and when, with no speaker; this one takes those timed words and answers who said each stretch"},
+        {"job": "find things by meaning, picture or words across a person's files", "why": "tools/meaning-search finds the files nearest a phrase or a picture; this one never searches, it answers who a voice or a face is among the people who agreed to be known"}
+      ]
     }
   ]
 }
