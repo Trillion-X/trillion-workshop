@@ -26,8 +26,17 @@
           "GPL-2.0",
           "GPL-3.0",
           "LGPL-2.1-or-later",
+          "LGPL-2.1-only",
+          "LGPL-3.0-only",
+          "LGPL-3.0-or-later",
+          "GPL-2.0-only",
+          "GPL-2.0-or-later",
+          "GPL-3.0-only",
+          "GPL-3.0-or-later",
           "Unlicense",
-          "CC0-1.0"
+          "CC0-1.0",
+          "0BSD",
+          "BlueOak-1.0.0"
         ],
         "allowed_placements": [
           "placement:rented-model-runtime",
@@ -36,7 +45,8 @@
           "placement:deployed-container",
           "placement:small-container",
           "placement:hosted-sites",
-          "placement:this-worker"
+          "placement:this-worker",
+          "placement:your-computer"
         ],
         "serve_source_link": false,
         "store_bytes": true
@@ -54,7 +64,9 @@
         "id": "licence:network-copyleft",
         "label": "Open licence that asks for the source to be offered to every user",
         "licences": [
-          "AGPL-3.0"
+          "AGPL-3.0",
+          "AGPL-3.0-only",
+          "AGPL-3.0-or-later"
         ],
         "allowed_placements": [
           "placement:rented-model-runtime",
