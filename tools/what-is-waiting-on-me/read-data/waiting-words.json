@@ -1,0 +1,9 @@
+{
+  "_what": "The sentences tool:what-is-waiting-on-me says, with {holes}: a request may bring its own `words` over these.",
+  "words": {
+    "one": "1 thing is waiting on you.",
+    "many": "{count} things are waiting on you.",
+    "none": "Nothing is waiting on you.",
+    "unread": "Not read: {sources}."
+  }
+}

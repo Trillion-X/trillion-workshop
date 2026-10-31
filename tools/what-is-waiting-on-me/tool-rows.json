@@ -1,0 +1,193 @@
+{
+ "kind": "tool-rows",
+ "record_set": "what-is-waiting-on-me-tool-rows",
+ "what_this_is": "The Workshop row for the tool in tools/what-is-waiting-on-me: everything waiting on a person, merged from the places they keep it.",
+ "records": [
+  {
+   "id": "package::what-is-waiting-on-me::tool::what-is-waiting-on-me",
+   "address": "package::what-is-waiting-on-me::tool::what-is-waiting-on-me",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:what-is-waiting-on-me",
+    "label": "Show everything waiting on me",
+    "status": "active",
+    "job": "Show everything waiting on this person that only they can do, gathered from every place it is kept: what their AIs asked them for, drafts to approve, work that is stuck, a sign-in, a decision",
+    "description": "Give sources (the places that hold things up, the person's own list: { id, label, title, where?, detail?, opens?, at?, most? }) and found (the records of each source, { <source id>: [{ id, value }] }, read from the person's account by the caller). A record waits when every where test holds (equals, in, present or absent on a field). Answers one card per waiting record, newest first, with the title, detail and the address it opens read from the record by the source's templates, a count for each source, and a sentence. A source with no records handed in is told as unread, never as nothing waiting. The tool reads no records and names no source: a new place is a new row.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "sources",
+      "found"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "sources": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "title"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "title": {
+          "type": "string",
+          "description": "A template over the record's fields, {path} holes"
+         },
+         "detail": {
+          "type": "string"
+         },
+         "opens": {
+          "type": "string"
+         },
+         "at": {
+          "type": "string",
+          "description": "The field that holds when it started waiting"
+         },
+         "id_field": {
+          "type": "string"
+         },
+         "most": {
+          "type": "integer",
+          "minimum": 1
+         },
+         "where": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "field"
+           ],
+           "properties": {
+            "field": {
+             "type": "string"
+            },
+            "equals": {},
+            "in": {
+             "type": "array"
+            },
+            "present": {
+             "type": "boolean"
+            },
+            "absent": {
+             "type": "boolean"
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "found": {
+       "type": "object",
+       "description": "The records of each source, by source id"
+      },
+      "words": {
+       "type": "object",
+       "description": "The sentences an answer says, over read-data/waiting-words.json"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "cards",
+      "sources",
+      "count",
+      "said"
+     ],
+     "properties": {
+      "cards": {
+       "type": "array"
+      },
+      "sources": {
+       "type": "array"
+      },
+      "count": {
+       "type": "integer"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "what-is-waiting-on-me",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/what-is-waiting-on-me"
+      }
+     },
+     "workdir": "/opt/what-is-waiting-on-me",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/what-is-waiting-on-me.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:what-is-waiting-on-me",
+    "provenance": {
+     "source": "the app's Waiting on you answer, with its sources as the person's own rows"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "sources": [
+        {
+         "id": "sample",
+         "label": "Sample",
+         "title": "{name}"
+        }
+       ],
+       "found": {
+        "sample": [
+         {
+          "id": "r1",
+          "value": {
+           "name": "A made-up thing"
+          }
+         }
+        ]
+       }
+      },
+      "output_selector": "$.cards.0.title",
+      "contains": "A made-up thing"
+     }
+    ]
+   }
+  }
+ ]
+}
