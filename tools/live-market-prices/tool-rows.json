@@ -1,0 +1,223 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-public-prediction-markets",
+        "label": "List public prediction markets",
+        "job": "See which prediction markets are open right now, what each asks, its outcomes, their prices and its trading volume",
+        "description": "Reads the public prediction-market list (no account, no key) and gives each market's question, outcomes, outcome prices (the market's own odds), outcome token ids, volume, liquidity, whether it is open and when it ends. The busiest markets come first. Give limit (1 to 100, default 20). The answer's status says live or error with the HTTP status; an error returns no markets and never invented ones. Use a market's token id with tool:read-prediction-market-order-book.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "limit": { "type": "integer", "minimum": 1, "maximum": 100, "description": "How many markets to read (default 20)" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["markets", "status"],
+          "properties": {
+            "markets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {},
+                  "question": {},
+                  "slug": {},
+                  "condition_id": {},
+                  "outcomes": { "type": "array" },
+                  "outcome_prices": { "type": "array" },
+                  "token_ids": { "type": "array" },
+                  "volume": {},
+                  "liquidity": {},
+                  "active": {},
+                  "closed": {},
+                  "accepting_orders": {},
+                  "end_date": {},
+                  "start_date": {},
+                  "min_tick_size": {},
+                  "min_order_size": {},
+                  "image": {}
+                }
+              }
+            },
+            "status": {
+              "type": "object",
+              "required": ["state", "market_count"],
+              "properties": {
+                "state": { "type": "string" },
+                "market_count": { "type": "integer" },
+                "http_status": {},
+                "fetched_at": { "type": "string" },
+                "note": { "type": "string" }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/live-market-prices",
+          "stdout": "json",
+          "argv": ["python3", "/opt/live-market-prices/do-work/read-market-prices.py", "markets"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": { "package": "live-market-prices", "paths": ["do-work", "sources"], "at": "/opt/live-market-prices" }
+          }
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 10, "network_egress": true, "memory_mb": 256 },
+        "maker": "maker:live-market-prices",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "provenance": { "source": "bitfield-packages packages/polymarket/do-work" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "limit": 1 },
+            "output_selector": "$.status.state",
+            "contains": "live"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-prediction-market-order-book",
+        "label": "Read a prediction market's order book",
+        "job": "See the buy and sell offers on one prediction market outcome: the best prices, the gap between them and how much is offered",
+        "description": "Reads the public order book (no account, no key) of one outcome token and gives every bid and ask as price and size, the best bid and best ask, the spread, the midpoint and the total size on each side. Give token_id (one of a market's token_ids from tool:list-public-prediction-markets). The answer's status says live or error with the HTTP status; an unknown token or an empty book is an error with no levels, never invented ones.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["token_id"],
+          "additionalProperties": false,
+          "properties": {
+            "token_id": { "type": "string", "minLength": 1, "description": "The outcome token of a market, from the market list's token_ids" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["book", "status"],
+          "properties": {
+            "book": {
+              "type": "object",
+              "properties": {
+                "token_id": {},
+                "market": {},
+                "timestamp": {},
+                "hash": {},
+                "bids": { "type": "array" },
+                "asks": { "type": "array" },
+                "best_bid": {},
+                "best_ask": {},
+                "best_bid_size": {},
+                "best_ask_size": {},
+                "spread": {},
+                "midpoint": {},
+                "bid_depth": {},
+                "ask_depth": {},
+                "levels": { "type": "integer" }
+              }
+            },
+            "status": {
+              "type": "object",
+              "required": ["state"],
+              "properties": {
+                "state": { "type": "string" },
+                "token_id": {},
+                "http_status": {},
+                "fetched_at": { "type": "string" },
+                "note": { "type": "string" }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/live-market-prices",
+          "stdout": "json",
+          "argv": ["python3", "/opt/live-market-prices/do-work/read-market-prices.py", "book"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": { "package": "live-market-prices", "paths": ["do-work", "sources"], "at": "/opt/live-market-prices" }
+          }
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 10, "network_egress": true, "memory_mb": 256 },
+        "maker": "maker:live-market-prices",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "provenance": { "source": "bitfield-packages packages/polymarket/do-work" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "token_id": "0" },
+            "output_selector": "$.status.token_id",
+            "contains": "0"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-price-bars-from-my-market-data-account",
+        "label": "Read price bars from my market-data account",
+        "job": "Read recent price bars (open, high, low, close, volume) and the latest price for symbols from my own market-data account",
+        "description": "Give feed (how your market-data account is read: url, its default query and the query names it allows, where each held field goes as credential_injections, where the bars are as bars_at, and what each bar field is called as fields with at least timestamp and close) and query (such as the symbols and the bar size, by the feed's own names). Answers bars (symbol, timestamp in milliseconds, open, high, low, close, volume), latest (each symbol's newest close, ready as the prices a trading policy's market orders need) and status (live or error with the HTTP status). An error answer carries no bars, never invented ones. The held market-data-credentials (a JSON object of named fields) reach only the request and are never shown.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "feed": { "type": "object", "description": "{ url, query?, query_names?, headers?, credential_injections: [{ field, placement: { kind: header or query, name, prefix? } }], bars_at?, fields: { timestamp, close, open?, high?, low?, volume?, symbol? }, timeout_seconds? }" },
+            "query": { "type": "object", "description": "The request's query by the feed's names, on top of the feed's defaults" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["bars", "latest", "status"],
+          "properties": {
+            "bars": { "type": "array", "items": { "type": "object" } },
+            "latest": { "type": "object" },
+            "status": {
+              "type": "object",
+              "required": ["state", "bar_count"],
+              "properties": {
+                "state": { "type": "string" },
+                "bar_count": { "type": "integer" },
+                "http_status": {},
+                "fetched_at": { "type": "string" },
+                "note": { "type": "string" }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/live-market-prices",
+          "stdout": "json",
+          "argv": ["python3", "/opt/live-market-prices/do-work/read-market-prices.py", "bars"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": { "package": "live-market-prices", "paths": ["do-work", "sources"], "at": "/opt/live-market-prices" }
+          },
+          "credential_mounts": [{ "secret_name": "market-data-credentials", "fd": 3 }]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 15, "network_egress": true, "memory_mb": 256 },
+        "maker": "maker:live-market-prices",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "bitfield-packages packages/market-data-feed (the pull-market-bars request and bar normalizer), ported" }
+      }
+    }
+  ]
+}
