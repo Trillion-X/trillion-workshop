@@ -103,6 +103,10 @@ def record_answer(lib: Library, piece: Path, check_id: str, answer: str, evidenc
         raise ValueError(f'{check_id} is answered per option: add --option <option id>')
     if option and not check.get('per_option'):
         raise ValueError(f'{check_id} is answered once per piece: drop --option')
+    if option:
+        known = all_items_of(lib, piece)
+        if option not in known:
+            raise ValueError(f'unknown option {option}; options are {", ".join(known) or "none"}')
     if len(evidence.strip()) < cfg['min_evidence_chars']:
         raise ValueError(f'evidence is required (at least {cfg["min_evidence_chars"]} characters): the file, number or list that shows it')
     if not by.strip():
@@ -209,10 +213,17 @@ def gate(lib: Library, piece: Path, stages: list[str], options: list[str], at: s
     unknown = [s for s in stages if s not in known]
     if unknown:
         raise ValueError(f'unknown stage {", ".join(unknown)}; stages are {", ".join(sorted(known))}')
+    if not any(s['id'] in stages and s.get('checks') for s in doc['stages']):
+        raise ValueError(f'the selected stage(s) have no checks; refusing to pass an empty review: {", ".join(stages)}')
     started = start_record(lib, piece)
     header = parse_header(piece / lib.piece_header['file'], lib.piece_header['heading'])
-    tags, option_tags, routed_by, flags_unknown = routing(lib, piece, options)
-    files = item_files(lib, piece, options)
+    all_options = all_items_of(lib, piece)
+    tags, option_tags, routed_by, flags_unknown = routing(lib, piece, options or all_options)
+    invalid_options = sorted(set(options) - set(all_options))
+    if invalid_options:
+        raise ValueError(f'unknown option {", ".join(invalid_options)}; options are {", ".join(all_options) or "none"}')
+    # Piece-level rows describe the whole offered piece. Even with no explicit option, bind them to all current item bytes.
+    files = item_files(lib, piece, options or all_options)
     pins = file_pins(lib, piece, files)
     every_id = {c['id'] for s in doc['stages'] for c in s['checks']}
     later = {phase_check_id(x, every_id) for x in doc['publish_phase'] + doc['after_phase']}
@@ -271,7 +282,8 @@ def gate(lib: Library, piece: Path, stages: list[str], options: list[str], at: s
     if any(s['id'] in stages for s in doc['stages'] if any(c.get('per_option') for c in s['checks'])) and rule_checks_routed == 0:
         problems.append('WARNING: 0 per-option rule checks are routed for this piece header, so none of the per-option rule checks would be asked. '
                         f'Header tags are {sorted(tags)}; fix the header (medium/source/flags) or the rule routes in the checklist.')
-    return {'all_passed': not (problems or unanswered or failed), 'per_option_rule_checks_routed': rule_checks_routed, 'piece': str(piece), 'stages': stages, 'options': options,
+    must_scope_missing = [c for c in per_option_skipped if any(c == x['id'] and x['must'] for s in doc['stages'] if s['id'] in stages for x in s['checks'])]
+    return {'all_passed': not (problems or unanswered or failed or must_scope_missing), 'per_option_rule_checks_routed': rule_checks_routed, 'piece': str(piece), 'stages': stages, 'options': options,
             'at': at, 'tags': sorted(tags), 'flags_unknown': flags_unknown, 'investigation_started': started, 'problems': problems,
             'unanswered_must': unanswered, 'failed_must': failed, 'waits_for_person_picked_design': waits_for_person, 'advisory': advisory,
             'unanswered_optional_count': len(unanswered_optional),
