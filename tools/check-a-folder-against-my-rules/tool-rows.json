@@ -1,0 +1,139 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-a-folder-against-my-rules",
+        "id": "tool:check-a-folder-against-my-rules",
+        "placements": ["placement:your-computer"],
+        "needs": { "expected_seconds": 20, "network_egress": false },
+        "label": "Check a folder's files against rules I wrote",
+        "job": "Check the source files of a project folder against rules the person wrote down, and say which files break which rule, where, and why the rule exists",
+        "description": "Give rules: one row each, { kind: \"source-file-rule\", id, why, scope: { path_matches, path_excludes }, applies_when: { all | any | content_matches | content_absent }, subject: { named: \"path\" | \"text\" | \"every_path\" }, violation: { unit: { split }, forbidden, required, exempt }, message }. A pattern is a regular expression, or { pattern, flags }, or { collected: { pattern, capture } } to match any value found in the text being judged. forbidden and required mean AND across a list; exempt means OR. The rule is data: the checker knows no rule. Optional under (a sub-folder to judge) and recorded ({ known_findings: { <rule id>: [\"path\" or \"path:line\"] } }) to compare against a written baseline in both directions. Runs over the folder the person granted for reading, using git's listing when the folder is a repository and every file otherwise; it reads the files as they are on disk and refuses links and special files instead of following them. Returns passed, said, violations ({ rule_id, path, line, evidence }), report (findings grouped under each rule's why), rule_coverage, refused_paths, dangling_paths, files, ratchet. A run where no file met a rule is not a pass.",
+        "input_schema": {
+          "type": "object",
+          "required": ["rules"],
+          "additionalProperties": false,
+          "properties": {
+            "rules": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["id", "violation"],
+                "properties": {
+                  "id": { "type": "string", "description": "The rule's own id; findings are counted by it, so two rules may not share one" },
+                  "why": { "type": "string", "description": "Why the rule exists, shown with its findings" },
+                  "scope": { "type": "object", "description": "Which paths the rule covers: path_matches and path_excludes, regular expressions" },
+                  "applies_when": { "type": "object", "description": "A condition on the file's text: all, any, content_matches, content_absent" },
+                  "subject": { "type": "object", "description": "Which string the rule judges: { named: \"path\" | \"text\" | \"every_path\" }; the text when left out" },
+                  "violation": { "type": "object", "description": "unit (how to divide the text), forbidden, required, exempt" },
+                  "message": { "type": "string" },
+                  "requires_regular_file": { "type": "boolean" },
+                  "baseline_policy": { "type": "string", "description": "\"zero\": a finding fails the run even when it is recorded" }
+                }
+              },
+              "description": "The rules, one row each"
+            },
+            "under": { "type": "string", "description": "A sub-folder of the granted folder: only its files are judged" },
+            "recorded": { "type": "object", "description": "A written baseline: { known_findings: { <rule id>: [path or path:line] } }" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["passed", "said", "violations"],
+          "properties": {
+            "passed": { "type": "boolean" },
+            "said": { "type": "string" },
+            "rules": { "type": "integer" },
+            "files": { "type": "integer" },
+            "content_files": { "type": "integer" },
+            "scanned_from": { "type": "string" },
+            "violations": { "type": "array", "items": { "type": "object", "required": ["rule_id", "path"] } },
+            "report": { "type": "array" },
+            "rule_coverage": { "type": "array" },
+            "no_applicable_rule": { "type": "boolean" },
+            "refused_paths": { "type": "array" },
+            "dangling_paths": { "type": "array" },
+            "ratchet": { "type": ["object", "null"] }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["read-a-folder"],
+          "workdir": "/opt/check-a-folder-against-my-rules",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/check-a-folder-against-my-rules/do-work/check-my-folder.mjs",
+            { "fill": { "from": "task", "field": "grants.read-a-folder.folder" } }
+          ],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": {
+              "package": "check-a-folder-against-my-rules",
+              "paths": ["do-work"],
+              "at": "/opt/check-a-folder-against-my-rules"
+            }
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-a-folder-against-my-rules",
+        "id": "tool:rewrite-control-bytes-as-escapes",
+        "placements": ["placement:your-computer"],
+        "needs": { "expected_seconds": 20, "network_egress": false },
+        "label": "Make a raw control byte in my source files searchable again",
+        "job": "Rewrite a raw control character hiding in source files (which makes search tools skip the file as binary) as the escape that means the same character, so the file stays exactly the program it was",
+        "description": "Give files: the paths, inside the folder the person granted for change, of the files to rewrite (names, never a search: finding them is the caller's job, with grep -a). A file is rewritten only when putting every escape back reproduces the original byte for byte and, for a file Node can parse, Node still accepts the result; otherwise it is left alone and the answer says why. Tab, newline and carriage return are never touched. A path that is a link, special file or leaves the folder is refused. Returns rewritten, left_alone and each file's outcome.",
+        "input_schema": {
+          "type": "object",
+          "required": ["files"],
+          "additionalProperties": false,
+          "properties": {
+            "files": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 }, "description": "Paths relative to the granted folder" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["rewritten", "left_alone", "each"],
+          "properties": {
+            "rewritten": { "type": "integer" },
+            "left_alone": { "type": "integer" },
+            "each": { "type": "array", "items": { "type": "object", "required": ["path", "changed"] } }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["change-a-folder"],
+          "workdir": "/opt/check-a-folder-against-my-rules",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/check-a-folder-against-my-rules/do-work/repair-control-bytes-in-my-folder.mjs",
+            { "fill": { "from": "task", "field": "grants.change-a-folder.folder" } }
+          ],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": {
+              "package": "check-a-folder-against-my-rules",
+              "paths": ["do-work"],
+              "at": "/opt/check-a-folder-against-my-rules"
+            }
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
