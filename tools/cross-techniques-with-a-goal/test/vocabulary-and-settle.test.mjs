@@ -29,6 +29,44 @@ const fresh = () => {
 };
 const never = async () => assert.fail('the judge is not asked outside the uncertain band');
 
+test('judgment-required admission cannot bypass review by a high score, a low score, or an existing label', async () => {
+  for (const [proposal, vector] of [
+    [{ term: 'different operation', says: 'A different cause despite a similar vector' }, at(0)],
+    [{ term: 'undefined', says: '' }, away],
+    [{ term: 'fixture-loop', says: 'A changed meaning under an old label' }, null],
+    [{ term: 'fixture-loop', says: '' }, null],
+  ]) {
+    const vocabulary = fresh().vocabularies.mechanism;
+    const recorded = recordedJudge([]);
+    const result = await admit(vocabulary, proposal, vector, input => recorded.judge({ vocabulary: 'mechanism', ...input }), { requireJudgment: true });
+    assert.equal(result.provisional, true);
+    assert.equal(recorded.waiting.length, 1);
+    assert.equal(withoutProvisional(vocabulary).terms.length, 1);
+    assert.deepEqual(vocabulary.terms[0].aliases, []);
+  }
+});
+
+test('strict same-name admission holds when the canonical meaning is missing', async () => {
+  const vocabulary = fresh().vocabularies.mechanism;
+  vocabulary.terms[0].says = '';
+  const recorded = recordedJudge([]);
+  const result = await admit(vocabulary, { term: 'fixture-loop', says: 'A supplied proposal definition' }, null,
+    input => recorded.judge({ vocabulary: 'mechanism', ...input }), { requireJudgment: true });
+  assert.equal(result.provisional, true);
+  assert.equal(recorded.waiting.length, 1);
+});
+
+test('judgment-required admission still applies exact bound approvals', async () => {
+  const vocabulary = fresh().vocabularies.mechanism;
+  const proposal = { term: 'reviewed loop', says: 'Leaving a question open holds attention' };
+  const recorded = recordedJudge([{ vocabulary: 'mechanism', term: proposal.term, proposed_says: proposal.says,
+    chosen: 'fixture-loop', among: ['fixture-loop'], candidate_definitions: [{ term: 'fixture-loop', says: vocabulary.terms[0].says }] }]);
+  const result = await admit(vocabulary, proposal, at(0), input => recorded.judge({ vocabulary: 'mechanism', ...input }), { requireJudgment: true });
+  assert.equal(result.how, 'judged-same');
+  assert.equal(result.term, 'fixture-loop');
+  assert.deepEqual(vocabulary.terms[0].aliases, ['reviewed loop']);
+});
+
 test('the same words, or an alias, are the same term without a vector', async () => {
   const vocabulary = fresh().vocabularies.mechanism;
   assert.deepEqual(await admit(vocabulary, { term: 'Fixture Loop' }, null, never), { term: 'fixture-loop', how: 'same-words' });
@@ -123,10 +161,12 @@ test('recorded choices bind proposal and candidate meanings, and legacy unbound 
     proposed_says: proposal.says, candidate_definitions: candidates };
   const run = (records, p = proposal, c = candidates) => recordedJudge(records).judge({ vocabulary: 'mechanism', proposal: p, candidates: c });
   assert.equal(await run([entry]), 'loop');
+  assert.equal(await run([entry], proposal, [{ term: 'unrelated', says: 'A new unrelated candidate' }, ...candidates]), 'loop', 'a positive binds its selected pair independently of other candidates');
   assert.equal(await run([entry], { ...proposal, says: 'a repeating animation' }), undefined);
   assert.equal(await run([entry], proposal, [{ term: 'loop', says: 'a repeating animation' }]), undefined);
   assert.equal(await run([{ vocabulary: 'mechanism', term: 'near', chosen: 'loop', among: ['loop'] }]), undefined);
   assert.equal(await run([{ ...entry, chosen: '' }]), '');
+  assert.equal(await run([{ ...entry, chosen: '' }], proposal, [...candidates, { term: 'unrelated', says: 'A new candidate' }]), undefined, 'a negative must cover every current candidate');
   assert.equal(await run([{ ...entry, chosen: '' }], proposal, [{ term: 'loop', says: 'a changed meaning' }]), undefined);
 });
 
