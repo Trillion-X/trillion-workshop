@@ -410,6 +410,227 @@
      }
     ]
    }
+  },
+  {
+   "id": "package::person-list::tool::rank-people-by-recorded-activity",
+   "address": "package::person-list::tool::rank-people-by-recorded-activity",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:rank-people-by-recorded-activity",
+    "label": "Rank people by the activity in your records",
+    "status": "active",
+    "job": "Rank the people in the person's own records by the points their recorded activity earns, all time or over the last days, and give each their level",
+    "description": "Reads the person-activity records the person holds (each {person, kind, at}; fields maps another shape by dotted path) instead of being handed the activity. weights, metrics, levels, rank_by and now are as in tool:rank-people-by-activity. Returns each person with their rank, points, every count and level, best first.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "weights",
+      "metrics",
+      "levels"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "weights": {
+       "type": "object",
+       "description": "Points per kind of activity, like {\"post\": 5, \"reply\": 1}"
+      },
+      "metrics": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "key",
+         "label"
+        ],
+        "properties": {
+         "key": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "lookback_days": {
+          "type": [
+           "number",
+           "null"
+          ]
+         },
+         "order": {
+          "type": "number"
+         }
+        }
+       },
+       "minItems": 1
+      },
+      "levels": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "level",
+         "name",
+         "min_points"
+        ]
+       },
+       "minItems": 1
+      },
+      "rank_by": {
+       "type": "string",
+       "description": "Optional: the metric key to rank by (default the first metric)"
+      },
+      "now": {
+       "type": "string",
+       "description": "Optional: the time the windows count back from (ISO; default now)"
+      },
+      "fields": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": {
+        "person": {
+         "type": "string"
+        },
+        "kind": {
+         "type": "string"
+        },
+        "at": {
+         "type": "string"
+        }
+       },
+       "description": "Optional: where a record keeps the person, kind and time (dotted path); default person, kind, at"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "ranked",
+      "rank_by"
+     ],
+     "properties": {
+      "ranked": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "person",
+         "rank",
+         "points",
+         "level"
+        ]
+       }
+      },
+      "rank_by": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "person-list",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/person-list"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/person-list",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/person-list/read-data/rank-recorded-activity.mjs",
+      "rankRecordedActivity"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "person-activity",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:person-list",
+    "provenance": {
+     "source": "bitfield-packages packages/person-list do-work/read-activity-effects.ts, ported to the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "weights": {
+        "post": 5,
+        "reply": 1
+       },
+       "metrics": [
+        {
+         "key": "all_time",
+         "label": "All time",
+         "lookback_days": null,
+         "order": 0
+        },
+        {
+         "key": "week",
+         "label": "Last 7 days",
+         "lookback_days": 7,
+         "order": 1
+        }
+       ],
+       "levels": [
+        {
+         "level": 1,
+         "name": "New",
+         "min_points": 0
+        },
+        {
+         "level": 2,
+         "name": "Regular",
+         "min_points": 5
+        }
+       ],
+       "rank_by": "all_time",
+       "now": "2026-09-27T12:00:00Z"
+      },
+      "output_selector": "$.ranked[0].person",
+      "contains": "ana"
+     }
+    ]
+   }
   }
  ]
 }

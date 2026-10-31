@@ -57,7 +57,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `move-records-through-declared-states` | Which stage a deal, order or applicant is in and where it may move next | `tool:check-a-stage-move`, `tool:check-a-pipeline` |
 | `office-files` | Reads a spreadsheet, document or presentation as data, changes cells or words by rules while keeping everything else, and edits a presentation's text and slide order then reads it back as proof (all run on the person's own computer) | `tool:read-an-office-file`, `tool:change-cells-or-words-in-an-office-file`, `tool:edit-a-presentations-text`, `tool:describe-a-presentation-runtime` |
 | `page-critic` | Judges a public page against craft rules at every width and keeps a marked picture of each width | `tool:critique-a-public-page` |
-| `person-list` | Find people by any field; rank people by the points their activity earns | `tool:find-people`, `tool:rank-people-by-activity` |
+| `person-list` | Find people by any field; rank people by the points their activity earns, handed in or read from their records | `tool:find-people`, `tool:rank-people-by-activity`, `tool:rank-people-by-recorded-activity` |
 | `person-profile` | Lays out one person's profile from a description of what to show | `tool:lay-out-a-profile` |
 | `print-here` | Prints a file from the person's files on a printer their Mac already has, and lists its printers (runs on the person's Mac with the print system they granted) | `tool:printers`, `tool:print` |
 | `record-a-web-page` | Records a web page as a demo: plays steps in a headless browser and returns a video, a GIF and one marked picture per step | `tool:record-a-web-demo` |

@@ -66,3 +66,5 @@ A row asks for the door in its invoke, with one rights item per record kind:
 **Depended on by:** `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`
 (their rows pack this folder, and their tests use `test/run-row.mjs`), and `tools/meaning-search` (its rows pack this
 folder and read the person's files with `door.files`).
+**Depended on by:** `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`, `tools/person-list`
+(their rows pack this folder, and their tests use `test/run-row.mjs`).
