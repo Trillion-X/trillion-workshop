@@ -867,6 +867,17 @@
       "moves_to": "tools/write-from-a-recipe/",
       "entry": "bitfield-packages/packages/content-generation/",
       "evidence": "content-generation recipe composer and fail-closed gate; content-actions; ai-instruction-blocks"
+    },
+    {
+      "capability": "find a picture or a clip that fits a few words, from the person's own tagged media or from free-licence stock libraries",
+      "owner": ["tools/find-media-for-a-description/"],
+      "entry": "tools/find-media-for-a-description/tool-rows.json",
+      "evidence": "README.md:1 gets a picture or a clip that fits a description from the person's tagged media or free-licence stock libraries",
+      "distinct_from": [
+        {"job": "find things by meaning, picture or words across a person's files", "why": "that job searches an index of the person's own files by meaning and answers ranked matches; this one resolves a few words to ONE picture or clip to use, from a folder of tagged media or from free-licence stock libraries, and answers the file with its licence"},
+        {"job": "request photo and video analysis and keep its results", "why": "that job analyses a photo or video and keeps what it found; this one finds media that fits a description and analyses nothing"},
+        {"job": "find a person's files by words, name, place, kind or spoken words in the index their computer already keeps", "why": "that job looks up the person's existing files in the computer's file index; this one gets a picture or clip, including from stock libraries on the internet, not a file the person already has indexed"}
+      ]
     }
   ]
 }
