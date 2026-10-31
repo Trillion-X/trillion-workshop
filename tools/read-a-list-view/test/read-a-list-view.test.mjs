@@ -6,6 +6,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { readListView, refreshRowSources } from '../read-data/list-view.mjs';
 import { openDoor } from '../read-data/door.mjs';
 import data from '../read-data/list-view.json' with { type: 'json' };
@@ -18,11 +21,12 @@ const recipe = (name, minutes) => ({ id: `/${name}.md`, title: name, values: { '
 function bakery({ sources = [{ source: 'documents', of: '/recipes' }], folder = [recipe('bread', 40), recipe('buns', 25), recipe('scones', 15), recipe('tart', 55)] } = {}) {
   const records = new Map([
     ['list:chores', { label: 'Chores', row_type: 'chore', title_field: 'chore', fields: [{ id: 'chore', kind: 'text' }, { id: 'minutes', kind: 'number' }], row_sources: sources }],
-    ['list-view:quick', { list_id: 'chores', view: { rules: { kind: 'rule', field: 'minutes', op: 'less_than', value: 30 }, sort: [{ field: 'minutes', direction: 'asc' }] } }],
+    ['list-view:quick', { list_id: 'chores', view: { rules: { kind: 'rule', field: 'minutes', operator: 'less_than', params: { value: 30 } }, sort: [{ field: 'minutes', direction: 'desc' }] } }],
+    ['list-view:by-cook', { list_id: 'chores', view: { rules: { kind: 'rule', field: 'cook', operator: 'is_any_of', params: { values: ['Ada'] } } } }],
     ['record:chore:sweep', { chore: 'sweep the floor', minutes: 10 }],
     ['record:chore:mop', { chore: 'mop', minutes: 20 }],
   ]);
-  const runs = [], writes = [], filtered = [];
+  const runs = [], writes = [];
   const door = {
     read: async (type, id) => (records.has(id) ? records.get(id) : null),
     // Greatest id first, like the door with no order; `after` is the last id shown.
@@ -46,13 +50,8 @@ function bakery({ sources = [{ source: 'documents', of: '/recipes' }], folder = 
       }
       return { changed: true, write_count: rows.length };
     },
-    filter: async request => {
-      filtered.push(request);
-      const minutes = row => row.value.minutes ?? row.value['note.minutes'];
-      return { matches: request.records.flatMap((row, at) => (minutes(row) < 30 ? [at] : [])), incomplete: [] };
-    },
   };
-  return { door, records, runs, writes, filtered, folder };
+  return { door, records, runs, writes, folder };
 }
 
 const read = (door, input) => readListView({ names: NAMES, ...input }, door);
@@ -158,15 +157,14 @@ test('a sort orders values by their canonical JSON bytes, as the view publish di
   assert.equal(page.of, 5);
 });
 
-test('a view keeps the rows its rules keep, as the rule filter says, in its sort, giving it only the fields the rules read', async () => {
-  const { door, runs, filtered } = bakery();
+test('a view keeps the rows its rules keep, decided in the same process by the formulas rule filter, in its sort', async () => {
+  const { door, runs } = bakery();
   const page = await read(door, { view: 'list-view:quick', limit: 10 });
-  assert.deepEqual(page.rows.map(row => row.id), ['sweep', 'mop']);
-  assert.deepEqual(filtered[0].fields.map(field => field.id), ['minutes']);
-  assert.ok(filtered[0].records.every(record => Object.keys(record.value).every(key => key === 'minutes')));
+  assert.deepEqual(page.rows.map(row => row.id), ['mop', 'sweep']);
+  assert.deepEqual([page.of, page.complete], [2, true]);
   assert.equal(runs.length, 0);
-  const { filter, ...unfiltered } = door;
-  await assert.rejects(read(unfiltered, { view: 'list-view:quick' }), /needs the door's filter/);
+  // A rule on a field the list does not declare is one the filter cannot use: refused, never an empty view.
+  await assert.rejects(read(door, { view: 'list-view:by-cook' }), /rules the filter could not use/);
 });
 
 test('the door sends the key only in the header, refuses an answer that holds it, and writes with the key it is given', async () => {
@@ -194,7 +192,21 @@ test('the door sends the key only in the header, refuses an answer that holds it
   await assert.rejects(door.read('list', 'leak'), /held the key/);
   assert.deepEqual(await door.write([{ id: 'record:chore:x', type: 'record:chore', value: { chore: 'x' } }], { key: 'refresh:chores:documents:1:0' }), { changed: true, write_count: 1 });
   assert.equal(heard.at(-1).args.request_key, 'refresh:chores:documents:1:0');
-  await assert.rejects(door.filter({ records: [], fields: [], tree: null }), /needs filter/);
   assert.ok(heard.every(one => one.auth === `Bearer ${KEY}` && !one.body.includes(KEY)));
   server.close();
+});
+
+test('a tool the config lists in local_tools runs on the computer, with its fixed input, and answers as a run', async () => {
+  const folder = await mkdtemp(join(tmpdir(), 'bakery-'));
+  await writeFile(join(folder, 'bread.md'), '---\nchore: bake bread\nminutes: 40\n---\nKnead.\n');
+  await writeFile(join(folder, 'buns.md'), '---\nchore: bake buns\nminutes: 25\n---\nShape.\n');
+  const door = await openDoor({ transport: { url: 'http://127.0.0.1:9/mcp', credential: { keychain_item: 'made-up' } },
+    records: { address: '@own-records', read_method: 'records:read', list_method: 'records:list' }, tools: { address: '@workshop-tools', run_method: 'tools:run' },
+    local_tools: { 'tool:read-documents-as-list-rows': { module: 'documents-as-list-rows/read-data/rows.mjs', export: 'readDocumentRows', input: { root: folder } } } },
+  { keyOf: async () => 'made-up-key' });
+  const answer = await door.run('tool:read-documents-as-list-rows', { folder: '/', limit: 10 });
+  assert.deepEqual(answer.result.rows.map(row => [row.id, row.values['note.minutes']]), [['/bread.md', 40], ['/buns.md', 25]]);
+  await assert.rejects(openDoor({ transport: { url: 'http://127.0.0.1:9/mcp', credential: {} }, records: { address: 'a', read_method: 'r', list_method: 'l' }, tools: { address: 't', run_method: 'run' },
+    local_tools: { 'tool:x': { module: 'documents-as-list-rows/read-data/rows.mjs', export: 'nothingLikeThis' } } }, { keyOf: async () => 'k' }).then(one => one.run('tool:x', {})), /exports no nothingLikeThis/);
+  await rm(folder, { recursive: true });
 });
