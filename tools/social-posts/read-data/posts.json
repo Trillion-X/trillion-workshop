@@ -175,6 +175,25 @@
       "no_longer_set": "This post is no longer set to go at that time, so nothing was sent."
     }
   },
+  "markup": {
+    "_what": "The markups a place may take a post's words in (read-data/publisher-requests.mjs inMarkup, named by a place row's {post: words, markup}). The words are read as Markdown into a post document (headings, paragraphs, lists, quotes, bold, italic, links); each node and mark is then wrapped in its row's opening and closing text ({level} is a heading's level, {href} a link's address), and each character in escape is written as its replacement. A node with no row is written as its contents. This is the wire format a place's API asks for, not anything shown on a screen.",
+    "html": {
+      "nodes": {
+        "paragraph": ["<p>", "</p>"],
+        "heading": ["<h{level}>", "</h{level}>"],
+        "bullet_list": ["<ul>", "</ul>"],
+        "ordered_list": ["<ol>", "</ol>"],
+        "list_item": ["<li>", "</li>"],
+        "blockquote": ["<blockquote>", "</blockquote>"]
+      },
+      "marks": {
+        "strong": ["<strong>", "</strong>"],
+        "em": ["<em>", "</em>"],
+        "link": ["<a href=\"{href}\">", "</a>"]
+      },
+      "escape": { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }
+    }
+  },
   "outcome_fallback": "{platform} did not publish it: {detail}",
   "not_known_words": "It is not known whether {platform} took the post. Look on {platform}; if it is not there, send it to this account again with resend: true."
 }

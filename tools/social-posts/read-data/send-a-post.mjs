@@ -25,8 +25,9 @@
 //      that send goes only while the post still carries the armed_at it was set with. Nothing here polls, and the
 //      wake's run sends nothing itself.
 //
+import { createHmac } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { connectedAccountRef, createSocial } from '@opencoredev/social-sdk';
+import { SocialError, connectedAccountRef, createSocial } from '@opencoredev/social-sdk';
 import { instagram } from '@opencoredev/social-sdk/instagram';
 import { linkedin } from '@opencoredev/social-sdk/linkedin';
 import { threads } from '@opencoredev/social-sdk/threads';
@@ -35,14 +36,15 @@ import { x } from '@opencoredev/social-sdk/x';
 import { youtube } from '@opencoredev/social-sdk/youtube';
 import settings from './posts.json' with { type: 'json' };
 import placeRows from './post-places.json' with { type: 'json' };
-import { heldFields, wordsOf } from './posts.mjs';
+import { heldFields, isHeld, wordsOf } from './posts.mjs';
 import { facebookPage } from './publisher-facebook-page.mjs';
+import { requests } from './publisher-requests.mjs';
 import { substack } from './publisher-substack.mjs';
 import { shaped } from './post-shape.mjs';
 
 // The publishers this tool carries, bound by the names place rows use (`adapter`). A place whose adapter is not here
 // is refused in plain words.
-export const PUBLISHERS = { 'facebook-page': facebookPage, instagram, linkedin, substack, threads, tiktok, x, youtube };
+export const PUBLISHERS = { 'facebook-page': facebookPage, instagram, linkedin, requests, substack, threads, tiktok, x, youtube };
 const FIRST_HELD_DESCRIPTOR = 4;
 const TYPE = settings.record_type;
 const PLACES = placeRows.places;
@@ -65,8 +67,29 @@ export function heldFromDescriptors(place) {
   };
 }
 
+// A value made from a held one as the request leaves, by its place row's `sign` (`{held, sign}`), so the held value
+// itself never goes anywhere. One kind: `jwt-hs256`, a token signed with HMAC-SHA256 from a held value written
+// `<key id>:<hex secret>`, with the row's claims, issued now and good for the row's seconds.
+const SIGNERS = {
+  'jwt-hs256': (value, sign) => {
+    const [keyId, secretHex] = value.split(':');
+    if (!keyId || !/^[0-9a-f]+$/i.test(secretHex ?? '')) throw new Refused('A held key that signs a token is written as its id and its secret, joined by a colon. Connect the place again.');
+    const now = Math.floor(Date.now() / 1000);
+    const part = fields => Buffer.from(JSON.stringify(fields)).toString('base64url');
+    const unsigned = `${part({ alg: 'HS256', typ: 'JWT', kid: keyId })}.${part({ iat: now, exp: now + sign.seconds, ...sign.claims })}`;
+    return `${unsigned}.${createHmac('sha256', Buffer.from(secretHex, 'hex')).update(unsigned).digest('base64url')}`;
+  },
+};
+function signed(value, sign) {
+  const signer = SIGNERS[sign.kind];
+  if (!signer) throw new Refused(`This tool cannot make a ${sign.kind} from a held value.`);
+  return signer(value, sign);
+}
+
 // The fetch a publisher is handed: each stand-in in the address, a header or a text body becomes the person's value
-// as the request leaves, and only for the place's own hosts.
+// as the request leaves, and only for the place's own hosts. What it refuses is refused before the request leaves, as
+// the publishers' own error that is never sent again (invalid_input), so no publisher takes it for a cut-off send.
+const refusedBeforeSending = message => new SocialError({ code: 'invalid_input', operation: 'held-fetch', message, retryDisposition: { kind: 'never' } });
 export function heldFetch({ standIns, hosts, send = fetch }) {
   return async (input, init = {}) => {
     const source = input instanceof Request ? input : null;
@@ -77,9 +100,10 @@ export function heldFetch({ standIns, hosts, send = fetch }) {
     const seen = [...standIns.keys()].filter(mark => url.includes(mark) || [...headers.values()].some(value => value.includes(mark)) || (typeof body === 'string' && body.includes(mark)));
     if (seen.length) {
       const host = new URL(url).hostname;
-      if (!hosts.includes(host)) throw new Refused(`A connection's key goes only to ${hosts.join(', ')}, so nothing was sent to ${host}.`);
+      if (!hosts.includes(host)) throw refusedBeforeSending(`A connection's key goes only to ${hosts.join(', ')}, so nothing was sent to ${host}.`);
       for (const mark of seen) {
-        const value = standIns.get(mark)();
+        let value;
+        try { value = standIns.get(mark)(); } catch (error) { throw refusedBeforeSending(error.message); }
         url = url.split(mark).join(encodeURIComponent(value));
         for (const [name, current] of [...headers]) if (current.includes(mark)) headers.set(name, current.split(mark).join(value));
         if (typeof body === 'string') body = body.split(mark).join(value);
@@ -91,7 +115,7 @@ export function heldFetch({ standIns, hosts, send = fetch }) {
 }
 
 // One value of a publisher's options, from where its place row says it comes.
-const leaf = value => object(value) && ['held', 'plain', 'service_origin', 'value'].some(key => key in value) && Object.keys(value).length === 1;
+const leaf = value => isHeld(value) || (object(value) && ['plain', 'service_origin', 'value'].some(key => key in value) && Object.keys(value).length === 1);
 function filled(template, { plain, standIn, label }) {
   if (Array.isArray(template)) return template.map(item => filled(item, { plain, standIn, label }));
   if (!object(template)) return template;
@@ -103,7 +127,7 @@ function filled(template, { plain, standIn, label }) {
       if (typeof found !== 'string' || !found) throw new Refused(`Your ${label} connection does not say its ${template.plain.replace(/_/g, ' ')}, so nothing can be posted there. Connect ${label} again.`);
       return found;
     }
-    return standIn(template.held);
+    return standIn(template.held, template.sign);
   }
   return Object.fromEntries(Object.entries(template).map(([key, item]) => [key, filled(item, { plain, standIn, label })]));
 }
@@ -112,9 +136,9 @@ function filled(template, { plain, standIn, label }) {
 export function publisherFor(place, connection, { held, send = fetch, publishers = PUBLISHERS }) {
   const plain = object(connection.plain) ? connection.plain : {};
   const standIns = new Map();
-  const standIn = field => {
+  const standIn = (field, sign) => {
     const mark = `held-${crypto.randomUUID().replace(/-/g, '')}`;
-    standIns.set(mark, () => held(field));
+    standIns.set(mark, () => (sign ? signed(held(field), sign) : held(field)));
     return mark;
   };
   const options = filled(place.options, { plain, standIn, label: place.label });

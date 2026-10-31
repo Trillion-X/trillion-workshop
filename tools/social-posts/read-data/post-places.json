@@ -1,5 +1,5 @@
 {
-  "_what": "The places a person posts to, one row per place: which kind of connection reaches the account (connection_vendor: a connection record of that vendor, `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), how a publisher is filled from it (options and account: {held: field} is a value held in the person's vault, read only as the request leaves; {plain: field} is a readable field of their connection record; {value} is fixed), which hosts a held value may go to, how a post's file reaches the place (media_from: stream, its bytes streamed to the place; whole, its bytes handed as one piece to a place whose uploader takes a file only so; address, a share of it the place fetches), the settings sent unless the post names its own (default_settings), and what the place takes (format: read by read-data/post-ready.mjs), and which tool row sends to it (send_tool, run at a post's time by tool:send-each-post-at-its-time). Read by read-data/posts.mjs. A new place is a row; nothing in the code names a place.",
+  "_what": "The places a person posts to, one row per place: which kind of connection reaches the account (connection_vendor: a connection record of that vendor, `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), how a publisher is filled from it (options and account: {held: field} is a value held in the person's vault, read only as the request leaves, and {held: field, sign} a value made from it then (read-data/send-a-post.mjs signers: jwt-hs256 with claims and seconds); {plain: field} is a readable field of their connection record; {value} is fixed), which hosts a held value may go to, how a post's file reaches the place (media_from: stream, its bytes streamed to the place; whole, its bytes handed as one piece to a place whose uploader takes a file only so; address, a share of it the place fetches), the settings sent unless the post names its own (default_settings), and what the place takes (format: read by read-data/post-ready.mjs), and which tool row sends to it (send_tool, run at a post's time by tool:send-each-post-at-its-time). Read by read-data/posts.mjs. A place reached by a plain JSON API takes adapter requests and writes its requests in its options (read-data/publisher-requests.mjs). A new place is a row; nothing in the code names a place.",
   "places": [
     {
       "id": "post-place:youtube",
@@ -440,6 +440,295 @@
           "kind": "hand-typed",
           "from": "@opencoredev/social-sdk dist/platforms/x.js publish checks",
           "read_on": "2026-09-29"
+        }
+      }
+    },
+    {
+      "id": "post-place:beehiiv",
+      "send_tool": "tool:send-a-post-to-beehiiv",
+      "platform": "beehiiv",
+      "label": "beehiiv",
+      "adapter": "requests",
+      "connection_vendor": "beehiiv",
+      "options": {
+        "platform": "beehiiv",
+        "account": {
+          "plain": "publication_id"
+        },
+        "steps": [
+          {
+            "id": "created",
+            "operation": "beehiiv.posts.create",
+            "method": "POST",
+            "url": {
+              "join": [
+                "https://api.beehiiv.com/v2/publications/",
+                {
+                  "plain": "publication_id"
+                },
+                "/posts"
+              ]
+            },
+            "headers": {
+              "authorization": {
+                "join": [
+                  "Bearer ",
+                  {
+                    "held": "api_key"
+                  }
+                ]
+              }
+            },
+            "body": {
+              "title": {
+                "setting": "title"
+              },
+              "subtitle": {
+                "setting": "subtitle",
+                "optional": true
+              },
+              "body_html": {
+                "post": "words",
+                "markup": "html"
+              },
+              "status": "confirmed"
+            },
+            "goes_public": true,
+            "needs": [
+              "data.id"
+            ]
+          },
+          {
+            "id": "read",
+            "operation": "beehiiv.posts.read",
+            "url": {
+              "join": [
+                "https://api.beehiiv.com/v2/publications/",
+                {
+                  "plain": "publication_id"
+                },
+                "/posts/",
+                {
+                  "step": "created",
+                  "at": "data.id"
+                }
+              ]
+            },
+            "headers": {
+              "authorization": {
+                "join": [
+                  "Bearer ",
+                  {
+                    "held": "api_key"
+                  }
+                ]
+              }
+            },
+            "same": [
+              [
+                {
+                  "step": "read",
+                  "at": "data.id"
+                },
+                {
+                  "step": "created",
+                  "at": "data.id"
+                }
+              ]
+            ]
+          }
+        ],
+        "post_id": {
+          "step": "created",
+          "at": "data.id"
+        },
+        "url": {
+          "step": "read",
+          "at": "data.web_url"
+        }
+      },
+      "account": {
+        "plain": "publication_id"
+      },
+      "hosts": [
+        "api.beehiiv.com"
+      ],
+      "media_from": "address",
+      "default_settings": {},
+      "format": {
+        "caption_max_characters": null,
+        "media_needed": false,
+        "media_kinds": {},
+        "settings": [
+          {
+            "setting": "title",
+            "name": "title",
+            "needed": true
+          },
+          {
+            "setting": "subtitle",
+            "name": "subtitle",
+            "needed": false
+          }
+        ],
+        "source": {
+          "kind": "hand-typed",
+          "from": "beehiiv's API v2 (POST /v2/publications/<publication id>/posts with title, subtitle, body_html and status confirmed, then GET /v2/publications/<publication id>/posts/<post id>), the request shapes of the posting owner's beehiiv sender",
+          "read_on": "2026-10-31"
+        }
+      }
+    },
+    {
+      "id": "post-place:ghost",
+      "send_tool": "tool:send-a-post-to-ghost",
+      "platform": "ghost",
+      "label": "Ghost",
+      "adapter": "requests",
+      "connection_vendor": "ghost",
+      "options": {
+        "platform": "ghost",
+        "account": {
+          "plain": "site_url"
+        },
+        "steps": [
+          {
+            "id": "created",
+            "operation": "ghost.posts.create",
+            "method": "POST",
+            "url": {
+              "join": [
+                {
+                  "plain": "site_url"
+                },
+                "/ghost/api/admin/posts/?source=html"
+              ]
+            },
+            "headers": {
+              "authorization": {
+                "join": [
+                  "Ghost ",
+                  {
+                    "held": "admin_api_key",
+                    "sign": {
+                      "kind": "jwt-hs256",
+                      "claims": {
+                        "aud": "/admin/"
+                      },
+                      "seconds": 300
+                    }
+                  }
+                ]
+              }
+            },
+            "body": {
+              "posts": [
+                {
+                  "title": {
+                    "setting": "title"
+                  },
+                  "html": {
+                    "post": "words",
+                    "markup": "html"
+                  },
+                  "status": "published",
+                  "custom_excerpt": {
+                    "setting": "excerpt",
+                    "optional": true
+                  }
+                }
+              ]
+            },
+            "goes_public": true,
+            "needs": [
+              "posts.0.id"
+            ]
+          },
+          {
+            "id": "read",
+            "operation": "ghost.posts.read",
+            "url": {
+              "join": [
+                {
+                  "plain": "site_url"
+                },
+                "/ghost/api/admin/posts/",
+                {
+                  "step": "created",
+                  "at": "posts.0.id"
+                },
+                "/?formats=html"
+              ]
+            },
+            "headers": {
+              "authorization": {
+                "join": [
+                  "Ghost ",
+                  {
+                    "held": "admin_api_key",
+                    "sign": {
+                      "kind": "jwt-hs256",
+                      "claims": {
+                        "aud": "/admin/"
+                      },
+                      "seconds": 300
+                    }
+                  }
+                ]
+              }
+            },
+            "same": [
+              [
+                {
+                  "step": "read",
+                  "at": "posts.0.id"
+                },
+                {
+                  "step": "created",
+                  "at": "posts.0.id"
+                }
+              ]
+            ]
+          }
+        ],
+        "post_id": {
+          "step": "created",
+          "at": "posts.0.id"
+        },
+        "url": {
+          "step": "read",
+          "at": "posts.0.url"
+        }
+      },
+      "account": {
+        "plain": "site_url"
+      },
+      "hosts": [
+        {
+          "plain": "site_url"
+        }
+      ],
+      "media_from": "address",
+      "default_settings": {},
+      "format": {
+        "caption_max_characters": null,
+        "media_needed": false,
+        "media_kinds": {},
+        "settings": [
+          {
+            "setting": "title",
+            "name": "title",
+            "needed": true
+          },
+          {
+            "setting": "excerpt",
+            "name": "excerpt",
+            "needed": false
+          }
+        ],
+        "source": {
+          "kind": "hand-typed",
+          "from": "Ghost's Admin API (POST /ghost/api/admin/posts/?source=html with posts [{title, html, status published, custom_excerpt}], then GET /ghost/api/admin/posts/<post id>/?formats=html, each with a 5-minute HS256 token made from the Admin API key, audience /admin/), the request shapes of the posting owner's Ghost sender",
+          "read_on": "2026-10-31"
         }
       }
     }

@@ -7,7 +7,8 @@ import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-do
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import places from '../read-data/post-places.json' with { type: 'json' };
-import { heldFetch, sendAPost, sendEachPostAtItsTime } from '../read-data/send-a-post.mjs';
+import { createHmac } from 'node:crypto';
+import { heldFetch, publisherFor, sendAPost, sendEachPostAtItsTime } from '../read-data/send-a-post.mjs';
 import { rowOf, runRow } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
 import settings from '../read-data/posts.json' with { type: 'json' };
 import { heldFields } from '../read-data/posts.mjs';
@@ -247,3 +248,97 @@ async function doorOf(records) {
   return openRecordsDoor({ descriptor: fake.descriptor });
 }
 test.after(async () => { for (const fake of opened) await fake.close(); });
+
+// Newsletter places written as requests in their place rows (adapter requests): beehiiv and Ghost, against stand-ins
+// that answer as each place's API does. Every key, publication and site here is made up.
+const BEEHIIV = 'service_connection:beehiiv:second';
+const GHOST = 'service_connection:ghost:second';
+const SITE = 'https://site.example.test';
+const GHOST_KEY = `made-up-key-id:${'ab'.repeat(32)}`;
+const newsletter = [
+  { id: `connection:${encodeURIComponent(BEEHIIV)}`, type: 'connection', value: { connection_id: BEEHIIV, vendor: 'beehiiv', plain: { publication_id: 'pub_made_up' }, held: ['api_key'] } },
+  { id: `connection:${encodeURIComponent(GHOST)}`, type: 'connection', value: { connection_id: GHOST, vendor: 'ghost', plain: { site_url: SITE }, held: ['admin_api_key'] } },
+];
+const letter = fields => post({ caption: '## A heading\n\nA **short** letter with [a link](https://example.test/a?b=1&c=2).', settings_by_platform: { beehiiv: { title: 'A letter' }, ghost: { title: 'A letter', excerpt: 'In short' } }, ...fields });
+
+// A stand-in place that keeps what it was asked and answers each request by its method.
+function api(answers) {
+  const asked = [];
+  const send = async (url, init) => {
+    asked.push({ url, method: init.method, authorization: new Headers(init.headers).get('authorization'), body: init.body ? JSON.parse(init.body) : null });
+    return new Response(JSON.stringify(answers[init.method]), { status: init.method === 'POST' ? 201 : 200, headers: { 'content-type': 'application/json' } });
+  };
+  return { asked, send };
+}
+
+test('a post goes to beehiiv as the place row writes it: made with its title and HTML words, then read back', async () => {
+  const stand = api({ POST: { data: { id: 'post_made_up' } }, GET: { data: { id: 'post_made_up', web_url: 'https://letters.example.test/p/a-letter' } } });
+  await withDoor([letter({ destinations: [BEEHIIV] }), ...newsletter], async (door, fake) => {
+    const sent = await sendAPost({ post_id: 'post:p1', account_id: BEEHIIV }, { door, send: stand.send, held: () => VALUE });
+    assert.equal(sent.status, 'posted', sent.said);
+    assert.deepEqual(stand.asked.map(item => [item.method, item.url]), [['POST', 'https://api.beehiiv.com/v2/publications/pub_made_up/posts'], ['GET', 'https://api.beehiiv.com/v2/publications/pub_made_up/posts/post_made_up']]);
+    assert.ok(stand.asked.every(item => item.authorization === `Bearer ${VALUE}`));
+    const body = stand.asked[0].body;
+    assert.equal(body.title, 'A letter');
+    assert.equal(body.status, 'confirmed');
+    assert.ok(!('subtitle' in body), 'a setting the post leaves out is left out');
+    assert.equal(body.body_html, '<h2>A heading</h2><p>A <strong>short</strong> letter with <a href="https://example.test/a?b=1&amp;c=2">a link</a>.</p>');
+    const kept = fake.kept.get('post:p1').value.deliveries[BEEHIIV];
+    assert.equal(kept.url, 'https://letters.example.test/p/a-letter');
+    assert.equal(kept.platform_post_id, 'post_made_up');
+    assert.ok(!JSON.stringify([...fake.kept.values()]).includes(VALUE), 'the held value is in no record');
+  });
+});
+
+test('a post goes to Ghost with a five-minute token made from the held key as the request leaves, never the key', async () => {
+  const stand = api({ POST: { posts: [{ id: 'ghost_made_up' }] }, GET: { posts: [{ id: 'ghost_made_up', url: `${SITE}/a-letter/` }] } });
+  await withDoor([letter({ destinations: [GHOST] }), ...newsletter], async (door, fake) => {
+    const sent = await sendAPost({ post_id: 'post:p1', account_id: GHOST }, { door, send: stand.send, held: () => GHOST_KEY });
+    assert.equal(sent.status, 'posted', sent.said);
+    assert.deepEqual(stand.asked.map(item => [item.method, item.url]), [['POST', `${SITE}/ghost/api/admin/posts/?source=html`], ['GET', `${SITE}/ghost/api/admin/posts/ghost_made_up/?formats=html`]]);
+    const [made] = stand.asked[0].body.posts;
+    assert.deepEqual({ title: made.title, status: made.status, custom_excerpt: made.custom_excerpt }, { title: 'A letter', status: 'published', custom_excerpt: 'In short' });
+    for (const { authorization } of stand.asked) {
+      const [scheme, token] = authorization.split(' ');
+      assert.equal(scheme, 'Ghost');
+      assert.ok(!authorization.includes(GHOST_KEY.split(':')[1]), 'the secret never leaves');
+      const [header, claims, signature] = token.split('.');
+      const read = part => JSON.parse(Buffer.from(part, 'base64url').toString());
+      assert.deepEqual(read(header), { alg: 'HS256', typ: 'JWT', kid: 'made-up-key-id' });
+      assert.equal(read(claims).aud, '/admin/');
+      assert.equal(read(claims).exp - read(claims).iat, 300);
+      assert.equal(signature, createHmac('sha256', Buffer.from('ab'.repeat(32), 'hex')).update(`${header}.${claims}`).digest('base64url'));
+    }
+    assert.equal(fake.kept.get('post:p1').value.deliveries[GHOST].url, `${SITE}/a-letter/`);
+    assert.ok(!JSON.stringify([...fake.kept.values()]).includes(GHOST_KEY), 'the held key is in no record');
+  });
+});
+
+test('a newsletter place that does not confirm the post it made leaves the send not known, and its key goes only to its own host', async () => {
+  const unconfirmed = api({ POST: { data: { id: 'post_made_up' } }, GET: { data: { id: 'another_post' } } });
+  await withDoor([letter({ destinations: [BEEHIIV] }), ...newsletter], async (door, fake) => {
+    await sendAPost({ post_id: 'post:p1', account_id: BEEHIIV }, { door, send: unconfirmed.send, held: () => VALUE });
+    assert.equal(fake.kept.get('post:p1').value.deliveries[BEEHIIV].status, 'not known');
+  });
+  const elsewhere = { ...newsletter[1], value: { ...newsletter[1].value, plain: { site_url: SITE } } };
+  const ghostRow = places.places.find(item => item.platform === 'ghost');
+  const misplaced = { ...ghostRow, options: { ...ghostRow.options, steps: ghostRow.options.steps.map(step => ({ ...step, url: 'https://elsewhere.example/steal' })) } };
+  const stand = api({ POST: { posts: [{ id: 'x' }] }, GET: { posts: [{ id: 'x' }] } });
+  const { social, account } = publisherFor(misplaced, elsewhere.value, { held: () => GHOST_KEY, send: stand.send });
+  const refused = await social.posts.publish({ targets: [{ account, options: { title: 'A letter' } }], content: { text: 'Words' }, idempotencyKey: 'k' }).catch(error => ({ error }));
+  assert.equal(refused.outcomes[0].state, 'failed', 'refused before sending, so it failed: it is not a send whose outcome is not known');
+  assert.match(JSON.stringify(refused.outcomes[0]), /goes only to site\.example\.test/);
+  assert.equal(stand.asked.length, 0);
+});
+
+test('each newsletter place has its send row, mounting the one key its requests sign with', () => {
+  for (const [platform, field] of [['beehiiv', 'api_key'], ['ghost', 'admin_api_key']]) {
+    const placed = places.places.find(item => item.platform === platform);
+    assert.equal(placed.adapter, 'requests');
+    assert.ok(placed.media_from, `${platform} says how a file reaches it`);
+    assert.deepEqual(heldFields(placed.options), [field]);
+    const row = rowOf(rows, placed.send_tool);
+    assert.deepEqual(row.invoke.credential_mounts, [{ field_id: field, fd: 4 }]);
+    assert.equal(row.invoke.connection.vendor, placed.connection_vendor);
+  }
+});
