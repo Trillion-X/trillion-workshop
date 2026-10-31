@@ -930,6 +930,26 @@
         {"job": "walk an app's user journeys in a real browser and keep evidence that people can still do what they came for", "why": "that job checks that an app works for its users and keeps pictures and video of each step; this one reads records and never opens an app"},
         {"job": "hold a body of work as a tree: roll up what is really finished, add requested items, check the proof behind finished work", "why": "that job keeps one body of work's items; this one merges the waiting records of many unrelated places by rows the person writes"}
       ]
+    },
+    {
+      "capability": "turn a local date and clock time in a named time zone into an instant and back, across the clock changes, and tell a real zone name from anything else",
+      "owner": ["tools/wall-time/"],
+      "entry": "tools/wall-time/read-data/wall-time.mjs",
+      "evidence": "README.md:3 the one place a local date and time becomes an instant and back, and the one test of whether a zone name is a zone",
+      "distinct_from": [
+        {"job": "show a person's time blocks on a calendar", "why": "that job lays out blocks of records on a day, week or month view; this one only resolves a clock time in a zone to an instant, with a rule for skipped and repeated times"}
+      ]
+    },
+    {
+      "capability": "hold a group to what it agreed: keep each agreement, work out when to remind and check, mark who kept it from the evidence handed in, and keep the scorecard",
+      "owner": ["tools/hold-to-it/"],
+      "entry": "tools/hold-to-it/tool-rows.json",
+      "evidence": "README.md:3 keeps a group's agreements, checks who came from the evidence it is handed, marks each person and keeps the scorecard",
+      "distinct_from": [
+        {"job": "book time with a person: the times they can be booked, booking one, and putting it on their calendar", "why": "that job books one meeting with one person on a calendar; this one keeps what a group agreed to do again and again, and scores who kept it"},
+        {"job": "keep challenges and enrol people in them", "why": "that job defines time-boxed challenges and who is enrolled; this one holds an ongoing agreement to account, with marks for each person each time"},
+        {"job": "notify a person when their notification rules say so", "why": "that job decides whether to tell a person; this one decides who kept an agreement and says the sentence, and sends nothing"}
+      ]
     }
   ]
 }

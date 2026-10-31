@@ -1,0 +1,239 @@
+{
+ "kind": "tool-rows",
+ "record_set": "hold-to-it-tool-rows",
+ "what_this_is": "The Workshop row for the tool in tools/hold-to-it: a group's agreements, who kept them, and the scorecard.",
+ "records": [
+  {
+   "id": "package::hold-to-it::tool::hold-to-it",
+   "address": "package::hold-to-it::tool::hold-to-it",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:hold-to-it",
+    "label": "Hold a group to what it agreed",
+    "status": "active",
+    "job": "Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline), work out when to remind and check, mark who kept it and keep the scorecard",
+    "description": "keep { group, what, agreed_by, cadence?, ... } keeps the agreement as a record and, when it says a time, answers its next meeting and the reminder and the check as something to arm (a repeat or one time); with no time it answers needs_time and arms nothing. retime { group, agreement_id, at, ... } gives or moves its time. agreements lists the group's. remind answers the sentence. check { group, agreement_id, arranged, evidence } works out who came to the last meeting from the evidence handed in (speakers heard, members who wrote), marks each person from the group's policy, keeps one mark per person, day and rule, and answers who missed and any run of misses. mark records one mark with its evidence (a newer mark for the same day replaces the older). scorecard answers each person's points. Nothing is sent or booked: whoever runs it arms the wake, books the calendar and tells the group. The marks and their points, the meeting length, the time zone and the reminder and check minutes are the group's policy, a record or handed in; there is no default. Reading who was heard in a call needs a listening owner; until one exists the caller hands in the names it has.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "operation",
+      "group"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "operation": {
+       "enum": [
+        "keep",
+        "retime",
+        "agreements",
+        "remind",
+        "check",
+        "mark",
+        "scorecard"
+       ]
+      },
+      "group": {
+       "type": "string",
+       "description": "Which group's agreements"
+      },
+      "what": {
+       "type": "string"
+      },
+      "agreed_by": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "proposed_by": {
+       "type": "string"
+      },
+      "cadence": {
+       "type": "object",
+       "description": "{ every: day | week | once, at: HH:MM, on?: [weekdays], date?: YYYY-MM-DD for once, minutes?, time_zone? }; no time is never guessed"
+      },
+      "quote": {
+       "type": "string"
+      },
+      "source_ref": {
+       "type": "string"
+      },
+      "aliases": {
+       "type": "object",
+       "description": "Other names a person is heard by"
+      },
+      "agreement_id": {
+       "type": "string"
+      },
+      "at": {
+       "type": "string",
+       "description": "retime: the new HH:MM"
+      },
+      "date": {
+       "type": "string"
+      },
+      "time_zone": {
+       "type": "string"
+      },
+      "minutes": {
+       "type": "integer"
+      },
+      "on": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "because": {
+       "type": "string"
+      },
+      "arranged": {
+       "type": "boolean",
+       "description": "check: whether the meeting was set up on the calendar, read from the calendar by the caller"
+      },
+      "evidence": {
+       "description": "check: [{ name, at }] speakers heard or members who wrote in the meeting's window; mark: the words that show it"
+      },
+      "read_from": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "check: where the evidence was read"
+      },
+      "person": {
+       "type": "string"
+      },
+      "rule": {
+       "type": "string"
+      },
+      "area": {
+       "type": "string"
+      },
+      "policy": {
+       "type": "object",
+       "description": "The group's marks and defaults, when not kept as a record: { marks, defaults: { minutes, time_zone, remind_minutes, check_after_minutes }, evidence_before_minutes?, evidence_after_minutes?, unnamed_prefix? }"
+      },
+      "policy_id": {
+       "type": "string"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "keep: { agreement_id, next, remind, check, said } or { agreement_id, needs_time, said }; retime the same; agreements: { agreements }; remind: { said, people }; check: { date, present, absent, marks, said }; mark: { said }; scorecard: { people, said }"
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/hold-to-it",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/hold-to-it/read-data/hold-to-it.mjs",
+      "holdToIt"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "most_writes": 64,
+      "rights": [
+       {
+        "kind": "record:agreements",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "record:agreement-marks",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "record:agreement-policy",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "hold-to-it",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/hold-to-it"
+       },
+       {
+        "package": "wall-time",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/wall-time"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:hold-to-it",
+    "provenance": {
+     "source": "the app's hold-to-it action, as records and a pure core; the space, calendar, listening and wake calls it made are the caller's"
+    }
+   }
+  }
+ ]
+}
