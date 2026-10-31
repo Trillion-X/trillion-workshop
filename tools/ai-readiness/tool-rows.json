@@ -1,0 +1,171 @@
+{
+ "kind": "tool-rows",
+ "record_set": "ai-readiness-tool-rows",
+ "what_this_is": "The Workshop row for the tool in tools/ai-readiness: what it does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::ai-readiness::tool::check-a-page-for-search-and-answer-engines",
+   "address": "package::ai-readiness::tool::check-a-page-for-search-and-answer-engines",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-a-page-for-search-and-answer-engines",
+    "label": "Check a page for search and answer engines",
+    "job": "Read one public page the way a search or answer engine does, from the HTML it is served with and no script run, and say which checks it passes, which it misses and how to fix each",
+    "description": "Fetches one public HTTP or HTTPS page, its host's robots.txt and, up to a set number, the pages it links to, and checks the served HTML against check rows: readable text without a script, one clear definition in the first words, a question as the first subheading, headings in order, named controls and labelled fields, structured data, a canonical address, published and updated dates, robots rules that let the answer-engine crawlers in, working links and more. A page that asks not to be indexed (a noindex robots tag) is not scored. It answers score (the share of scored checks that pass, among those that could be run), passed, failed, missing (each failed scored check with what it says, how to fix it and up to three examples), suggestions (failed checks that never change the score), and not_checked (checks that needed something that could not be read). The check rows ship with the tool and a caller may pass its own rows as checks, or name check ids to skip. It follows a small number of redirects, keeps at most 2 MB of a page and does not sign in.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "url"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "url": {
+       "type": "string",
+       "format": "uri",
+       "description": "One public HTTP or HTTPS page address."
+      },
+      "checks": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "Check rows to run instead of the shipped ones; each row is { id, area, says, fix, check } in the shape tools/ai-readiness/read-data/ai-readiness-checks.json describes."
+      },
+      "skip": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Check ids not to run."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "url",
+      "final_url",
+      "status",
+      "indexable",
+      "score",
+      "passed",
+      "failed",
+      "missing",
+      "suggestions",
+      "not_checked"
+     ],
+     "properties": {
+      "url": {
+       "type": "string"
+      },
+      "final_url": {
+       "type": "string"
+      },
+      "status": {
+       "type": "integer"
+      },
+      "indexable": {
+       "type": "boolean"
+      },
+      "score": {
+       "type": [
+        "integer",
+        "null"
+       ]
+      },
+      "passed": {
+       "type": "integer"
+      },
+      "failed": {
+       "type": "integer"
+      },
+      "missing": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "says",
+         "fix",
+         "examples"
+        ]
+       }
+      },
+      "suggestions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "says",
+         "fix"
+        ]
+       }
+      },
+      "not_checked": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/work",
+     "stdout": "json",
+     "argv": [
+      "/usr/local/bin/node",
+      "/opt/ai-readiness/do-work/check_a_page.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": {
+       "package": "ai-readiness",
+       "paths": [
+        "do-work/check_a_page.mjs",
+        "do-work/audit-served-html.mjs",
+        "read-data/ai-readiness-checks.json"
+       ],
+       "at": "/opt/ai-readiness"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": true,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:ai-readiness",
+    "provenance": {
+     "source": "the Workshop's ai-readiness folder: the served-HTML audit engine, its check rows and the container seam that fetches a page"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "url": "https://example.com"
+      },
+      "output_selector": "$.final_url",
+      "contains": "example.com"
+     }
+    ]
+   }
+  }
+ ]
+}
