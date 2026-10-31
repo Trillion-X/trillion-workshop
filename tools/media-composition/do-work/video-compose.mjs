@@ -23,7 +23,7 @@
  * The EDL contract is published as record contract::edl in this package's
  * things-to-store-and-run.json (a NEW contract this plan authors — Round-6 finding 6).
  */
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -32,6 +32,7 @@ import { visualOverlayBatches } from './visual-overlay-order.mjs';
 import { chooseByThreshold } from './choose-by-threshold.mjs';
 import { resolveRenderDimensions } from './resolve-render-dimensions.mjs';
 import { channelStats, computeColorTransfer, colorMatchFilter } from './color-match.mjs';
+import { measureLoudness } from './measure-loudness.mjs';
 import { markStage, reusable, stageIdentity, stageInputChunks } from './stage-reuse.mjs';
 import { makeHashCodeHexFromChunks } from '../../content-identity/read-data/identity.mjs';
 
@@ -370,6 +371,20 @@ function probeDuration(file) {
 }
 
 const round3 = (n) => Math.round(n * 1000) / 1000;
+
+/** The `volume=<dB>dB,` that brings a narration placement's stretch to its `level`, or '' when it names none. */
+function narrationLevel(placement, file, from, seconds, k) {
+  const level = placement.level;
+  if (level === undefined) return '';
+  const bounds = level?.gain_db ?? [-Infinity, Infinity];
+  if (!Number.isFinite(level?.lufs) || !Array.isArray(bounds) || bounds.length !== 2 || !(bounds[0] <= bounds[1]))
+    throw new Error(`[video.compose] narration entry ${k} level needs lufs and gain_db [lowest, highest]`);
+  const measured = measureLoudness(file, { from, seconds, channels: 2 }).integrated_lufs;
+  // A silent stretch has no loudness to bring anywhere; it takes the highest gain allowed, which is still silence.
+  const gain = measured === null ? bounds[1] : Math.max(bounds[0], Math.min(bounds[1], level.lufs - measured));
+  if (!Number.isFinite(gain)) throw new Error(`[video.compose] narration entry ${k} is silent and its level names no highest gain`);
+  return `volume=${round3(gain)}dB,`;
+}
 // #plugin-arch Stage 5: the compute-effect taxonomy (color_adjust/letterbox/scrim), built once. The
 // compositor resolves an entry and pushes its fragment(s) IN PLACE (L179: vParts is the ordered -vf list).
 // safeColor/colorToRgb255 are hoisted function declarations, so referencing them here is fine.
@@ -573,15 +588,29 @@ function buildClip(segment) {
   const speed = typeof segment.speed === 'number' && segment.speed > 0 ? segment.speed : 1;
   // #102 A speed_ramp [{t,speed}] envelope varies the speed over the clip (velocity curve); it
   // overrides constant speed and mutes the clip audio (variable-speed audio is a separate concern).
+  // `frames` (a whole number) is the clip's exact length in output frames: the picture is cut (or its last frame
+  // held) to that count and the sound padded or cut to the same seconds, so a cut of many clips lands frame-exact.
+  const frameCount = segment.frames ?? null;
+  if (frameCount !== null && (!Number.isInteger(frameCount) || frameCount < 1))
+    throw new Error(`[video.compose] clip ${segment.id} frames must be a whole number of frames, 1 or more`);
+  // `still: {at, duration?}` holds the source frame at `at` seconds for `duration` seconds (or `frames`): one
+  // picture that the rest of the chain (grade, ken_burns, fades) treats as a clip of that length. It has no sound.
+  const still = segment.still && typeof segment.still === 'object' ? segment.still : null;
+  if (still && !(Number.isFinite(still.at) && still.at >= 0))
+    throw new Error(`[video.compose] clip ${segment.id} still needs at, the source second of the held frame`);
+  const stillLen = still ? (Number.isFinite(still.duration) && still.duration > 0 ? still.duration : frameCount ? frameCount / fpsNum : NaN) : null;
+  if (still && !Number.isFinite(stillLen))
+    throw new Error(`[video.compose] clip ${segment.id} still needs duration or frames, how long the frame is held`);
   // trim window (source seconds)
   const seek = [];
-  if (Number.isFinite(segment.in)) seek.push('-ss', String(segment.in));
+  if (still) seek.push('-ss', String(still.at));
+  if (!still && Number.isFinite(segment.in)) seek.push('-ss', String(segment.in));
   // Preserve source-clock precision through both input trim and the silent
   // output track below; rounding574/30 down to19.133 can lose its final frame.
-  if (Number.isFinite(segment.out)) seek.push('-t', String(segment.out - (segment.in ?? 0)));
+  if (!still && Number.isFinite(segment.out)) seek.push('-t', String(segment.out - (segment.in ?? 0)));
 
   // effective clip length on the FINAL timeline (for fades + envelope domain)
-  const srcLen = Number.isFinite(segment.out)
+  const srcLen = still ? stillLen : Number.isFinite(segment.out)
     ? segment.out - (segment.in ?? 0)
     : probeDuration(segment.source) - (segment.in ?? 0);
   // #102 speed_ramp keyframe times are source SECONDS by default; `speed_ramp_unit:'fraction'`
@@ -600,6 +629,8 @@ function buildClip(segment) {
 
   // ---- video chain ----
   const vParts = [];
+  // A still is its one frame, held: everything after this sees a clip `stillLen` seconds long.
+  if (still) vParts.push(`trim=end_frame=1,setpts=PTS-STARTPTS,tpad=stop_mode=clone:stop_duration=${stillLen}`);
   // #85 Stabilization / deshake (DaVinci warp-stabilizer class) as a DATA flag. vidstab is two passes;
   // STABILIZE_EFFECT.resolve (effect-registry) runs pass 1 (vidstabdetect on the seeked source) and returns
   // the pass-2 vidstabtransform fragment (or null, fail-soft). It goes FIRST on the raw forward frames
@@ -1486,7 +1517,7 @@ function buildClip(segment) {
   // #107 A ramp mutes clip audio by default; `speed_ramp_audio: true` opts into retiming the
   // audio THROUGH the ramp (per-span atempo, preprocessed below) so it stays in sync.
   const rampAudio = rampExpr !== null && segment.speed_ramp_audio === true;
-  const silent = segment.silent_audio || segment.muted || (rampExpr !== null && !rampAudio) || !fileHasAudio(segment.source);
+  const silent = Boolean(still) || segment.silent_audio || segment.muted || (rampExpr !== null && !rampAudio) || !fileHasAudio(segment.source);
   const aParts = [];
   // #76 Reverse the audio to mirror the reversed video (FIRST, so the rest of the chain
   // rides the reversed signal).
@@ -1598,6 +1629,14 @@ function buildClip(segment) {
     aParts.push(`loudnorm=I=${round3(lufs)}:TP=-1.5:LRA=11`);
   }
 
+  // `frames`: the composed picture's last frame is held past its end (when the source runs short) and the output
+  // stops at exactly that many frames; the sound is padded and cut to the same seconds.
+  const exactLen = frameCount ? frameCount / fpsNum : null;
+  if (frameCount) {
+    vParts.push(`tpad=stop_mode=clone:stop=${frameCount}`);
+    if (!silent) aParts.push(`apad=whole_dur=${exactLen}`, `atrim=end=${exactLen}`);
+  }
+
   const sourceFrameRate = segment.source_frame_rate;
   if (sourceFrameRate !== undefined && (!Number.isFinite(sourceFrameRate) || sourceFrameRate <= 0))
     throw new Error('[video.compose] source_frame_rate must be finite and positive.');
@@ -1607,7 +1646,7 @@ function buildClip(segment) {
     // #102 fix (D3): the silent track must span the FULL final video length: the ramped
     // output length PLUS any freeze extension (tpad grows the video by freezeDur), or
     // `-shortest` truncates the freeze/ramp tail against a too-short anullsrc.
-    ffArgs.push('-f', 'lavfi', '-t', String(outLen + freezeDur), '-i', 'anullsrc=r=48000:cl=stereo',
+    ffArgs.push('-f', 'lavfi', '-t', String(exactLen ?? outLen + freezeDur), '-i', 'anullsrc=r=48000:cl=stereo',
       '-vf', vParts.join(','), '-map', '0:v', '-map', '1:a', '-shortest');
   } else if (cleanedAudio) {
     // External-denoised audio: take video from input 0, audio from the cleaned WAV
@@ -1618,7 +1657,7 @@ function buildClip(segment) {
     ffArgs.push('-vf', vParts.join(','));
     if (aParts.length > 0) ffArgs.push('-af', aParts.join(','));
   }
-  ff([...ffArgs, ...V, ...A, out], `clip ${segment.id}`);
+  ff([...ffArgs, ...(frameCount ? ['-frames:v', String(frameCount)] : []), ...V, ...A, out], `clip ${segment.id}`);
   // #89 Loop / boomerang: repeat the built clip N times (odd copies reversed when boomerang).
   const loopCount = Number.isInteger(segment.loop_count) && segment.loop_count > 1 ? segment.loop_count : 1;
   push(loopCount > 1 ? buildClipLoop(out, loopCount, segment.loop_boomerang === true) : out);
@@ -1862,14 +1901,19 @@ function buildCard(segment) {
     if (!line || typeof line.text !== 'string' || line.text === '') {
       throw new Error(`[video.compose] card ${segment.id} line ${i} has no text`);
     }
+    if (line.font_file !== undefined && (typeof line.font_file !== 'string' || /['\\]/.test(line.font_file))) {
+      throw new Error(`[video.compose] card ${segment.id} line ${i} font_file must be a path without quotes or backslashes`);
+    }
     const lf = join(T, `card-${segment.id}-${i}.txt`);
     writeFileSync(lf, translateText(line.text, line.translate));
-    return { textfile: lf, size: line.size ?? Math.round(H * 0.06), color: line.color, gap: line.gap };
+    return { textfile: lf, size: line.size ?? Math.round(H * 0.06), color: line.color, gap: line.gap, font_file: line.font_file, border_px: line.border_px, border_color: line.border_color };
   });
   const duration = typeof segment.duration === 'number' ? segment.duration : 3;
   const { lavfi, vf } = buildCardLayout({ width: W, height: H, fps: FPS, duration, bg: segment.bg, lines });
+  // `audio_source` is the card's sound: an opaque lavfi audio source (a room tone such as anoisesrc), silence when absent.
+  const sound = typeof segment.audio_source === 'string' && segment.audio_source.trim() ? segment.audio_source.trim() : 'anullsrc=r=48000:cl=stereo';
   ff(['-f', 'lavfi', '-i', lavfi,
-    '-f', 'lavfi', '-i', `anullsrc=r=48000:cl=stereo`,
+    '-f', 'lavfi', '-i', sound,
     '-vf', vf, '-t', String(duration), '-map', '0:v', '-map', '1:a',
     '-shortest', ...V, ...A, out], `card ${segment.id}`);
   push(out);
@@ -2076,8 +2120,13 @@ if (Array.isArray(audio.narration) && audio.narration.length > 0) {
     const fadeIn = Number.isFinite(n.fade_in) && n.fade_in > 0 ? `afade=t=in:st=0:d=${round3(Math.min(n.fade_in, length))}:curve=qsin,` : '';
     const fadeOut = Number.isFinite(n.fade_out) && n.fade_out > 0 && length > 0
       ? `afade=t=out:st=${round3(Math.max(0, length - n.fade_out))}:d=${round3(Math.min(n.fade_out, length))}:curve=qsin,` : '';
+    // `level: {lufs, gain_db: [lowest, highest]}` brings the placed stretch to `lufs` integrated loudness, measured on
+    // that stretch as heard (stereo), the gain held between the two dB bounds. `audio_filters` is an opaque ffmpeg
+    // audio chain (a limiter, an EQ) run after the level and before the fades.
+    const level = narrationLevel(n, narFiles[k], inS, length, k);
+    const filters = typeof n.audio_filters === 'string' && n.audio_filters.trim() ? `${n.audio_filters.trim()},` : '';
     // input 0 is `mixed`, so narration input k is at ffmpeg index k+1
-    return `[${k + 1}:a]${trim}asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,${fadeIn}${fadeOut}adelay=${delayMs}|${delayMs},volume=${round3(vol)}[n${k}]`;
+    return `[${k + 1}:a]${trim}asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,${level}${filters}${fadeIn}${fadeOut}adelay=${delayMs}|${delayMs},volume=${round3(vol)}[n${k}]`;
   });
   // Ducking (DATA `duck` on a placement, `true` or {threshold, ratio, attack, release}): a ducked placement is
   // sidechain-compressed, KEYED by everything heard that does not duck (the program so far and every other
@@ -2421,8 +2470,20 @@ if (edl.master_loudnorm !== undefined && edl.master_loudnorm !== false) {
   if (!Number.isFinite(truePeak) || truePeak <= -9 || truePeak >= 0) {
     throw new Error(`[video.compose] invalid master_true_peak_dbfs ${truePeak}: expected a finite number in (-9,0)`);
   }
+  const range = edl.master_loudness_range ?? 11;
+  if (!Number.isFinite(range) || range < 1 || range > 50) throw new Error(`[video.compose] invalid master_loudness_range ${range}: expected LU in 1..50`);
   const mastered = join(T, 'mastered.mp4');
-  ff(['-i', mixed, '-af', `loudnorm=I=${round3(lufs)}:TP=${round3(truePeak)}:LRA=11`, '-c:v', 'copy', ...A, mastered], 'master loudnorm');
+  let target = `loudnorm=I=${round3(lufs)}:TP=${round3(truePeak)}:LRA=${round3(range)}`;
+  // `master_loudnorm_linear: true` measures the whole program first and then applies one gain to all of it (two-pass
+  // linear loudnorm), so the mix keeps its own dynamics instead of riding loudnorm's moving gain.
+  if (edl.master_loudnorm_linear === true) {
+    const run = spawnSync('ffmpeg', ['-hide_banner', '-nostats', '-i', mixed, '-vn', '-af', `${target}:print_format=json`, '-f', 'null', '-'], { encoding: 'utf8', maxBuffer: 1 << 26 });
+    const said = run.stderr ?? '';
+    if (run.status !== 0 || !said.includes('"input_i"')) throw new Error(`[video.compose] ffmpeg failed at master loudness measure: ${said.slice(-400)}`);
+    const m = JSON.parse(said.slice(said.lastIndexOf('{'), said.lastIndexOf('}') + 1));
+    target += `:measured_I=${m.input_i}:measured_TP=${m.input_tp}:measured_LRA=${m.input_lra}:measured_thresh=${m.input_thresh}:offset=${m.target_offset}:linear=true`;
+  }
+  ff(['-i', mixed, '-af', target, '-c:v', 'copy', ...A, mastered], 'master loudnorm');
   mixed = mastered;
 }
 
@@ -2719,13 +2780,16 @@ export function buildCardLayout({ width, height, fps, duration, bg = 'black', li
     const lead = round((heights[i] - size) / 2);
     const y = `${cursor}+${lead}`;
     cursor = `${cursor}+${round(heights[i])}`;
+    // A line may name its font file and a border (outline) of border_px in border_color (default black).
     return [
       `drawtext=textfile='${line.textfile}'`,
       'expansion=none',
+      ...(line.font_file ? [`fontfile='${line.font_file}'`] : []),
       'x=(w-text_w)/2',
       `y=${y}`,
       `fontsize=${size}`,
       `fontcolor=${color}`,
+      ...(Number.isFinite(line.border_px) && line.border_px > 0 ? [`borderw=${round(line.border_px)}`, `bordercolor=${safeColor(line.border_color, 'black')}`] : []),
     ].join(':');
   });
 
