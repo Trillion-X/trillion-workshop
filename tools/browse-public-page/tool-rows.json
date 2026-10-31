@@ -14,8 +14,8 @@
     "kind": "ai-tool-descriptor",
     "id": "tool:read-public-web-page",
     "label": "Read a public web page",
-    "job": "Open one public web page and return its title, readable text, links, the card it describes itself with, every picture and video it declares and its structured data",
-    "description": "Reads one public HTTP or HTTPS page and returns its title, readable text and links, and the card it describes itself with: its picture, description, site name and icon (each null when the page does not say), every picture (images) and video (videos) it declares in its tags and structured data, and that structured data (data, its schema.org JSON-LD objects). It reaches public sites only (the engine judges every address, every redirect and every address a name resolves to), follows a small number of redirects, limits the response to 2 MB and returns at most 30,000 text characters and 100 links. It does not sign in or reuse browser cookies.",
+    "job": "Open one public web page and return its title, readable text, links, the card it describes itself with, every picture and video it declares and its structured data; or walk an outlet's archive from a start address, following its older pages and reading a chosen, dated sample of its entries",
+    "description": "Reads one public HTTP or HTTPS page and returns its title, readable text and links, and the card it describes itself with: its picture, description, site name and icon (each null when the page does not say), every picture (images) and video (videos) it declares in its tags and structured data, and that structured data (data, its schema.org JSON-LD objects). It reaches public sites only (the engine judges every address, every redirect and every address a name resolves to), follows a small number of redirects, limits the response to 2 MB and returns at most 30,000 text characters and 100 links. It does not sign in or reuse browser cookies. With walk it also walks the start address's archive: it reads the site's robots.txt first and obeys it and its crawl delay, follows the listing's next or older links (or a sitemap and its child sitemaps) for at most walk.max_listing_pages listing pages, collects the entries they list with the day each was published, chooses entries by walk.window (a first and last day) or by walk.eras (some of early, middle, recent: equal thirds of the time between the oldest and newest day the listings showed) with walk.count entries from each era or in all, and reads those pages one at a time with at least walk.delay_seconds (2 or more) between requests. Every request stays on the start address's own site. The answer is the start page's read with a walk object: the listing pages read, how many entries were seen and dated, whether the oldest listing page was reached, the eras, the pages read (title, text, day and where the day came from, era) and why the walk stopped. A count of 0 only measures the archive. With walk.source wayback the url is a page, not a listing: the walk asks the Wayback Machine's public index (web.archive.org, no login) for the snapshots of that page that were answered normally, one per walk.collapse period (year, month or day; default month) and inside walk.window when given, picks them by window or eras exactly as above, and reads each chosen snapshot as it was archived (the answer's pages carry snapshot_of, the address that was archived; their day is the snapshot's). Its robots.txt, delay and own-site rules apply to web.archive.org.",
     "status": "active",
     "input_schema": {
      "type": "object",
@@ -27,7 +27,34 @@
       "url": {
        "type": "string",
        "format": "uri",
-       "description": "One public HTTP or HTTPS page address; only standard ports are supported."
+       "description": "One public HTTP or HTTPS page address; only standard ports are supported. With walk, the archive listing page or sitemap to start from."
+      },
+      "walk": {
+       "type": "object",
+       "additionalProperties": false,
+       "description": "Walk this address's archive, not only read it. Ask for a window or for eras, not both; with neither, the first count entries in listing order are read.",
+       "properties": {
+        "source": { "enum": ["listing", "wayback"], "description": "Where the entries come from: the address's own archive listing or sitemap (default), or the Wayback Machine's snapshots of the page at this address." },
+        "collapse": { "enum": ["year", "month", "day"], "description": "With source wayback, keep one snapshot per year, month (default) or day." },
+        "window": {
+         "type": "object",
+         "additionalProperties": false,
+         "description": "Only entries published on these days, both ends inclusive and optional; count of them are read, spread across the window.",
+         "properties": {
+          "from": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+          "to": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+         }
+        },
+        "eras": {
+         "type": "array",
+         "minItems": 1,
+         "items": { "enum": ["early", "middle", "recent"] },
+         "description": "Read count entries from each of these eras, spread across the era."
+        },
+        "count": { "type": "integer", "minimum": 0, "maximum": 200, "description": "Entries to read: per era when eras is given, otherwise in all. Default 10; 0 reads none and only measures the archive." },
+        "max_listing_pages": { "type": "integer", "minimum": 1, "maximum": 50, "description": "Listing pages and sitemaps to read while collecting entries. Default 10." },
+        "delay_seconds": { "type": "number", "minimum": 2, "maximum": 30, "description": "Seconds between requests. Default 2; a longer crawl delay in robots.txt wins." }
+       }
       }
      }
     },
@@ -104,6 +131,10 @@
        "items": {
         "type": "object"
        }
+      },
+      "walk": {
+       "type": "object",
+       "description": "Only with walk: listing_pages, entries_seen, dated, span, reached_oldest, eras, pages, requests, delay_seconds, stopped."
       }
      }
     },
@@ -118,11 +149,8 @@
       "/opt/browse-public-page/do-work/browse_public_page.mjs"
      ],
      "stdin": {
-      "url": {
-       "fill": {
-        "from": "input",
-        "field": "url"
-       }
+      "fill": {
+       "from": "input"
       }
      },
      "files": {
@@ -131,14 +159,16 @@
        "paths": [
         "do-work/browse_public_page.mjs",
         "do-work/page-facts.mjs",
-        "do-work/page-conventions.json"
+        "do-work/page-conventions.json",
+        "do-work/walk-archive.mjs",
+        "do-work/archive-facts.mjs"
        ],
        "at": "/opt/browse-public-page"
       }
      }
     },
     "needs": {
-     "expected_seconds": 15,
+     "expected_seconds": 600,
      "network_egress": true,
      "memory_mb": 128
     },

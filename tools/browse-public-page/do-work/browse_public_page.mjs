@@ -5,17 +5,21 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { checkedUrl, extractPage } from './page-facts.mjs';
+import { walkArchive } from './walk-archive.mjs';
 
 const MAX_BYTES = 2_000_000;
 const WAIT_MS = 12_000;
 const TOO_LARGE = 'The page is larger than the 2 MB limit.';
+const PAGE_MEDIA = ['text/html', 'application/xhtml+xml', 'text/plain'];
+// A walk also reads sitemaps.
+const WALK_MEDIA = [...PAGE_MEDIA, 'application/xml', 'text/xml'];
 
 // One answer, its redirect not followed (readPublicPage judges and follows it), at most MAX_BYTES of body.
 async function fetchOnce(url) {
   let response;
   try {
     response = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(WAIT_MS),
-      headers: { accept: 'text/html,application/xhtml+xml,text/plain;q=0.9', 'user-agent': 'PublicPageReader/1.0' } });
+      headers: { accept: 'text/html,application/xhtml+xml,text/plain;q=0.9,application/xml;q=0.8,text/xml;q=0.8', 'user-agent': 'PublicPageReader/1.0' } });
   } catch { throw new Error('The public page could not be read.'); }
   const headers = Object.fromEntries(response.headers);
   if (Number(headers['content-length']) > MAX_BYTES) { await response.body?.cancel(); throw new Error(TOO_LARGE); }
@@ -31,7 +35,8 @@ async function fetchOnce(url) {
   return { status: response.status, headers, body: Buffer.concat(chunks) };
 }
 
-export async function readPublicPage(input, fetchPage = fetchOnce) {
+// One checked page's bytes, decoded: { url, final_url, status, media, body }. A refusal carries the page's HTTP status as `status`.
+export async function readBody(input, fetchPage = fetchOnce, accepted = PAGE_MEDIA) {
   let current = checkedUrl(input);
   for (let redirects = 0; redirects <= 5; redirects++) {
     const response = await fetchPage(current);
@@ -43,23 +48,38 @@ export async function readPublicPage(input, fetchPage = fetchOnce) {
       current = next;
       continue;
     }
-    if (response.status < 200 || response.status >= 300) throw new Error(`The page returned HTTP ${response.status}.`);
+    if (response.status < 200 || response.status >= 300) throw Object.assign(new Error(`The page returned HTTP ${response.status}.`), { status: response.status });
     const contentType = response.headers['content-type'] ?? 'text/html';
     const media = contentType.split(';')[0].trim().toLowerCase();
-    if (!['text/html', 'application/xhtml+xml', 'text/plain'].includes(media)) throw new Error('The address did not return an HTML or plain-text page.');
+    if (!accepted.includes(media)) throw new Error('The address did not return an HTML or plain-text page.');
     if (response.body.length > MAX_BYTES) throw new Error(TOO_LARGE);
     const charset = /charset\s*=\s*["']?([a-z0-9._-]+)/i.exec(contentType)?.[1] ?? 'utf-8';
     let decoder;
     try { decoder = new TextDecoder(charset, { fatal: false }); } catch { decoder = new TextDecoder(); }
-    return { url: input, final_url: current.href, status: response.status, ...extractPage(decoder.decode(response.body), current, media === 'text/plain') };
+    return { url: input, final_url: current.href, status: response.status, media, body: decoder.decode(response.body) };
   }
   throw new Error('The page redirected too many times.');
+}
+
+const factsOf = page => ({ url: page.url, final_url: page.final_url, status: page.status, ...extractPage(page.body, new URL(page.final_url), page.media === 'text/plain') });
+
+export async function readPublicPage(input, fetchPage = fetchOnce) {
+  return factsOf(await readBody(input, fetchPage));
+}
+
+/** The same read of the start page, plus the walk of its archive (./walk-archive.mjs) when `walk` is asked for: the start page's facts with `walk` added. */
+export async function readPublicPageOrArchive(input, fetchPage = fetchOnce, sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds))) {
+  if (input.walk === undefined) return readPublicPage(input.url, fetchPage);
+  const { first, walk } = await walkArchive(input.url, input.walk, { read: address => readBody(address, fetchPage, WALK_MEDIA), sleep });
+  // A sitemap has no words of its own: its start-page facts are the empty read.
+  const start = first.media.endsWith('xml') ? { ...first, body: '', media: 'text/plain' } : first;
+  return { ...factsOf(start), walk };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     const input = JSON.parse(readFileSync(0, 'utf8'));
-    process.stdout.write(JSON.stringify(await readPublicPage(input.url)) + '\n');
+    process.stdout.write(JSON.stringify(await readPublicPageOrArchive(input)) + '\n');
   } catch (error) {
     process.stdout.write(JSON.stringify({ error: error.message }) + '\n');
     process.exitCode = 2;
