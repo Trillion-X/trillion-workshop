@@ -1,0 +1,258 @@
+{
+  "kind": "tool-rows",
+  "record_set": "walk-through-an-app-like-its-users-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/walk-through-an-app-like-its-users: walking an app's journeys in a real browser on the person's own computer and reporting what to fix, and mapping an app's screens and controls to write journeys from.",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::tool::walk-through-an-app-like-its-users",
+      "address": "package::ai-tool-catalog::tool::walk-through-an-app-like-its-users",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:walk-through-an-app-like-its-users",
+        "label": "Walk through an app like its users",
+        "job": "Check that people can still do what they come to my app for after a change: walk each journey in a real browser, keep pictures, a log and a video, and tell my coding agent exactly what to fix, then check the fix",
+        "description": "Opens the app at app_url in a headless Chromium on the person's own computer (so it reaches local, VPN and Tailscale addresses the computer reaches) and walks each journey in a browser context of its own. A journey is DATA: { id, goal, expect_every_step?, steps: [{ id, intent, do?, expect? }] }. `do` is one action a person takes: goto { url }, click { target }, fill { target, value }, press { key }, upload { target, files } (files relative to fixtures_folder) or wait { ms }; a target names a control as a person sees it: { role, name } or { role, name_contains }, with nth when several match. `expect` lists what must then be true: text_visible, text_absent, url_contains, title_contains { text }; control_present, control_absent { target }; field_value { target, equals }; checked { target, equals }; no_console_errors; no_failed_requests. A step with no `do` (or a learned action whose control has gone) stops as needs_decision with the actions the page offers, as `do` objects to copy back; the AI chooses one and runs again with it in `learned` or in the journey. Answers the report: verdict, each step with its pictures (the touched control boxed and numbered), console errors and failed requests, `fixes` (for each failed step: what was expected, what was there, the steps that reproduce it and the evidence), `decisions_needed`, `learned` (the actions that passed, to replay next time) and, given previous_report, `compared_with_previous` (fixed, still_failing, newly_failing, still_passing, now_passing). Every run walks every step again; nothing passes because it passed before. Evidence is written under evidence_folder (or a new folder in the computer's temporary folder) and report_file names the saved report.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["app_url", "journeys"],
+          "additionalProperties": false,
+          "properties": {
+            "app_url": { "type": "string", "description": "Where every journey starts: an http, https, file or data address the person's computer can open." },
+            "journeys": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["id", "steps"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "goal": { "type": "string", "description": "What the person on this journey wants done, in their words." },
+                  "expect_every_step": { "type": "array", "items": { "type": "object" }, "description": "Expectations added to every step, such as { \"kind\": \"no_console_errors\" }." },
+                  "steps": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "intent": { "type": "string" },
+                        "do": {
+                          "type": "object",
+                          "required": ["action"],
+                          "properties": {
+                            "action": { "enum": ["goto", "click", "fill", "press", "upload", "wait"] },
+                            "target": { "type": "object", "properties": { "role": { "type": "string" }, "name": { "type": "string" }, "name_contains": { "type": "string" }, "nth": { "type": "integer", "minimum": 0 } } },
+                            "url": { "type": "string" },
+                            "value": { "type": "string" },
+                            "key": { "type": "string" },
+                            "files": { "type": "array", "items": { "type": "string" } },
+                            "ms": { "type": "integer", "minimum": 0 }
+                          }
+                        },
+                        "expect": { "type": "array", "items": { "type": "object", "required": ["kind"] } }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "learned": { "type": "array", "items": { "type": "object", "required": ["journey", "step", "do"] }, "description": "Actions to take for steps whose journey gives none: a previous report's learned list, or a choice from decisions_needed." },
+            "previous_report": { "type": "object", "description": "The report of an earlier run: its learned actions are replayed and every step is compared with it." },
+            "version": { "type": "string", "description": "What build of the app this is (a commit, a preview name), kept in the report and every fix." },
+            "fixtures_folder": { "type": "string", "description": "The folder upload files are named relative to." },
+            "evidence_folder": { "type": "string", "description": "Where pictures, logs, videos and report.json are written." },
+            "window": { "type": "object", "properties": { "width": { "type": "integer" }, "height": { "type": "integer" } } },
+            "browser": { "type": "object", "properties": { "executable": { "type": "string" }, "devtools_address": { "type": "string", "description": "A browser already listening, such as http://127.0.0.1:9222 from obscura serve or a Chrome started with --remote-debugging-port." } } }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["kind", "run", "verdict", "fixes", "decisions_needed", "learned", "journeys", "report_file"],
+          "properties": {
+            "kind": { "const": "app-walk-report" },
+            "run": { "type": "object" },
+            "verdict": { "enum": ["passed", "failed", "blocked"] },
+            "counts": { "type": "object" },
+            "fixes": { "type": "array", "items": { "type": "object" } },
+            "decisions_needed": { "type": "array", "items": { "type": "object" } },
+            "learned": { "type": "array", "items": { "type": "object" } },
+            "compared_with_previous": { "type": ["array", "null"] },
+            "journeys": { "type": "array", "items": { "type": "object" } },
+            "report_file": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/walk-through-an-app-like-its-users",
+          "stdout": "json",
+          "argv": ["node", "/opt/walk-through-an-app-like-its-users/do-work/walk-through-an-app.mjs", "walk"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": { "package": "walk-through-an-app-like-its-users", "paths": ["do-work"], "at": "/opt/walk-through-an-app-like-its-users" }
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 60, "network_egress": true, "programs": ["a Chromium-family browser", "ffmpeg (optional, for each journey's video)"] },
+        "maker": "maker:walk-through-an-app-like-its-users",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer", "placement:caller-sandbox"],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "app_url": "data:text/html,<title>Ready</title><h1>Ready</h1><button>Go</button>",
+              "journeys": [{ "id": "see-ready", "goal": "See the page is ready", "steps": [{ "id": "press-go", "intent": "Press Go", "do": { "action": "click", "target": { "role": "button", "name": "Go" } }, "expect": [{ "kind": "text_visible", "text": "Ready" }] }] }]
+            },
+            "output_selector": "$.verdict",
+            "contains": "passed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::map-an-apps-screens-and-controls",
+      "address": "package::ai-tool-catalog::tool::map-an-apps-screens-and-controls",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:map-an-apps-screens-and-controls",
+        "label": "Map an app's screens and controls",
+        "job": "Find the screens of my app and what a person can do on each, so journeys can be written to check it",
+        "description": "Opens the app at app_url in a headless Chromium on the person's own computer and follows its links within the same origin, at most most_screens screens (20 at most). For each screen: its address, title, headings, the same-origin links, every visible control with its role and accessible name, the actions it offers as `do` objects ready to paste into a journey for tool:walk-through-an-app-like-its-users, a picture, and the console errors and failed requests seen while it loaded. not_opened lists links that were found but not opened.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["app_url"],
+          "additionalProperties": false,
+          "properties": {
+            "app_url": { "type": "string" },
+            "most_screens": { "type": "integer", "minimum": 1, "maximum": 20 },
+            "evidence_folder": { "type": "string" },
+            "window": { "type": "object", "properties": { "width": { "type": "integer" }, "height": { "type": "integer" } } },
+            "browser": { "type": "object", "properties": { "executable": { "type": "string" }, "devtools_address": { "type": "string" } } }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["kind", "app_url", "screens", "not_opened"],
+          "properties": {
+            "kind": { "const": "app-map" },
+            "app_url": { "type": "string" },
+            "browser": { "type": "string" },
+            "evidence_folder": { "type": "string" },
+            "screens": { "type": "array", "items": { "type": "object" } },
+            "not_opened": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/walk-through-an-app-like-its-users",
+          "stdout": "json",
+          "argv": ["node", "/opt/walk-through-an-app-like-its-users/do-work/walk-through-an-app.mjs", "map"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": { "package": "walk-through-an-app-like-its-users", "paths": ["do-work"], "at": "/opt/walk-through-an-app-like-its-users" }
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 60, "network_egress": true, "programs": ["a Chromium-family browser"] },
+        "maker": "maker:walk-through-an-app-like-its-users",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer", "placement:caller-sandbox"],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "app_url": "data:text/html,<title>Ready</title><h1>Ready</h1><button>Go</button>" },
+            "output_selector": "$.screens[0].title",
+            "contains": "Ready"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::read-what-a-running-app-shows",
+      "address": "package::ai-tool-catalog::tool::read-what-a-running-app-shows",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-what-a-running-app-shows",
+        "label": "Read what a running app really shows",
+        "job": "Drive my running app through some steps and report what is actually on the screen after each: which controls exist, what a click would land on, errors, timing",
+        "description": "Opens the app at app_url in a headless Chromium on the person's own computer, does each step's `do` (the same actions as a walk: goto, click, fill, press, upload, wait, on a control named by role and name), then reads what the page holds as the step's `observe` asks: `elements` (for each match of a selector: its box, cursor, stacking, opacity, whether it is disabled, what a pointer aimed at its own centre would land on, and `pointer_is_self`, which tells a control that is missing from one a layer covers), `count`, `attributes` (named attributes and the form value), `text`, `global_path` (whether a dotted name exists on the page and its kind) and `media_ready` (milliseconds until a video or audio can play). It asserts nothing and fails nothing: a step that cannot complete comes back with `completed: false` and `blocked_by`, its readings are still taken, and the run goes on. The page is never intercepted or stubbed; requests reach the real server. Page errors and failed requests are listed. Use tool:walk-through-an-app-like-its-users to check that people can do what they came for, with expectations and a verdict; use this to see why something is not working.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["app_url", "steps"],
+          "additionalProperties": false,
+          "properties": {
+            "app_url": { "type": "string", "description": "The address of the running app: http, https, file or data." },
+            "steps": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string", "description": "Unique within the list. Defaults to step-N." },
+                  "intent": { "type": "string" },
+                  "do": { "type": "object", "description": "One action: { action: goto, url } | { action: click, target } | { action: fill, target, value } | { action: press, key } | { action: upload, target, files } | { action: wait, ms }. A target is { role, name } or { role, name_contains }, optional nth." },
+                  "observe": {
+                    "type": "object",
+                    "description": "Readings to take after the step, each under a name you choose: { read: elements, selector, limit? } | { read: count, selector } | { read: attributes, selector, names: [attribute names], limit? } | { read: text, selector, most? } | { read: global_path, path } | { read: media_ready, selector, timeout_ms? }.",
+                    "additionalProperties": { "type": "object" }
+                  },
+                  "picture": { "type": "boolean", "description": "Keep a picture of the page after this step." }
+                }
+              }
+            },
+            "fixtures_folder": { "type": "string" },
+            "evidence_folder": { "type": "string" },
+            "window": { "type": "object", "properties": { "width": { "type": "integer" }, "height": { "type": "integer" } } },
+            "browser": { "type": "object", "properties": { "executable": { "type": "string" }, "devtools_address": { "type": "string" } } }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["kind", "run", "page_errors", "failed_requests", "steps"],
+          "properties": {
+            "kind": { "const": "app-observation" },
+            "run": { "type": "object" },
+            "page_errors": { "type": "array", "items": { "type": "string" } },
+            "failed_requests": { "type": "array", "items": { "type": "object" } },
+            "steps": { "type": "array", "items": { "type": "object" } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/walk-through-an-app-like-its-users",
+          "stdout": "json",
+          "argv": ["node", "/opt/walk-through-an-app-like-its-users/do-work/walk-through-an-app.mjs", "observe"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": { "package": "walk-through-an-app-like-its-users", "paths": ["do-work"], "at": "/opt/walk-through-an-app-like-its-users" }
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 30, "network_egress": true, "programs": ["a Chromium-family browser"] },
+        "maker": "maker:walk-through-an-app-like-its-users",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer", "placement:caller-sandbox"],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "app_url": "data:text/html,<title>Ready</title><h1>Ready</h1><button>Go</button>",
+              "steps": [{ "id": "look", "observe": { "buttons": { "read": "elements", "selector": "button" } } }]
+            },
+            "output_selector": "$.steps[0].observed.buttons[0].label",
+            "contains": "Go"
+          }
+        ]
+      }
+    }
+  ]
+}
