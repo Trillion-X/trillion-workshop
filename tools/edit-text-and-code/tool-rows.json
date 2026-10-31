@@ -1,0 +1,59 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:edit-text-and-code",
+        "id": "tool:replace-one-piece-of-text-in-a-file",
+        "placements": ["placement:your-computer"],
+        "needs": { "expected_seconds": 5, "network_egress": false },
+        "label": "Change one piece of text in a file",
+        "job": "Change one exact piece of text in a text or code file without sending the whole file: give the words to find and the words to put there",
+        "description": "Give file (a path inside the folder the person granted for change), find (the exact text, as it is in the file, newlines and quotes included) and replace (what to put there; empty removes the found text). The find text must occur exactly once: no match or more than one is refused and nothing is written, so a change that did not happen is never reported as done. Bytes are compared as they are: no pattern, no case folding, no whitespace tolerance. The file is replaced in one step after the full new text is written, keeps its permissions, and is left alone if it changed while the edit was prepared. A path that leaves the folder, goes through a link, is a folder or is not UTF-8 text is refused. Returns the file, its size before and after, and replaced: 1.",
+        "input_schema": {
+          "type": "object",
+          "required": ["file", "find", "replace"],
+          "additionalProperties": false,
+          "properties": {
+            "file": { "type": "string", "minLength": 1, "description": "Path relative to the granted folder" },
+            "find": { "type": "string", "minLength": 1, "description": "The exact text to find; it must occur exactly once in the file" },
+            "replace": { "type": "string", "description": "The text to put in its place; may be empty" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["file", "bytes_before", "bytes_after", "replaced"],
+          "properties": {
+            "file": { "type": "string" },
+            "bytes_before": { "type": "integer" },
+            "bytes_after": { "type": "integer" },
+            "replaced": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["change-a-folder"],
+          "workdir": "/opt/edit-text-and-code",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/edit-text-and-code/do-work/replace-exact-text.mjs",
+            { "fill": { "from": "task", "field": "grants.change-a-folder.folder" } }
+          ],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": {
+              "package": "edit-text-and-code",
+              "paths": ["do-work"],
+              "at": "/opt/edit-text-and-code"
+            }
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
