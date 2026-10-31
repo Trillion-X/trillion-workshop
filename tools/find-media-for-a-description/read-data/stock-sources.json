@@ -1,0 +1,35 @@
+{
+  "about": "The free-licence stock libraries the stock provider asks, in order. Each row is data: where to search (`search`, with {query} and {key} filled in), how the library wants its key (`key_env` names the variable on the person's computer; `key_header` sends it as that header on the search request only, otherwise {key} in `search` carries it), and for each kind (clip, still) where the answer's file address is (`pick`: `at` is a dotted path into the answer, a number picks an array item; when it lands on an array, `largest_by` picks the item with the biggest value of that field, else the first; `url` lists dotted paths inside what was picked, the first that holds an address wins). Every library here serves free-licence (cc0) pictures and clips only. To use another library, add a row; no code changes.",
+  "license": "cc0",
+  "sources": [
+    {
+      "id": "pexels",
+      "key_env": "PEXELS_API_KEY",
+      "key_header": "Authorization",
+      "kinds": {
+        "clip": {
+          "search": "https://api.pexels.com/videos/search?query={query}&per_page=1",
+          "pick": { "at": "videos.0.video_files", "largest_by": "width", "url": ["link"] }
+        },
+        "still": {
+          "search": "https://api.pexels.com/v1/search?query={query}&per_page=1",
+          "pick": { "at": "photos.0.src", "url": ["original"] }
+        }
+      }
+    },
+    {
+      "id": "pixabay",
+      "key_env": "PIXABAY_API_KEY",
+      "kinds": {
+        "clip": {
+          "search": "https://pixabay.com/api/videos/?key={key}&q={query}&per_page=3",
+          "pick": { "at": "hits.0.videos", "url": ["large.url", "medium.url"] }
+        },
+        "still": {
+          "search": "https://pixabay.com/api/?key={key}&q={query}&per_page=3",
+          "pick": { "at": "hits.0", "url": ["largeImageURL"] }
+        }
+      }
+    }
+  ]
+}

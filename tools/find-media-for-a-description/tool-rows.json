@@ -1,0 +1,52 @@
+{
+  "kind": "package-set-records",
+  "record_set": "find-media-for-a-description-tool-rows",
+  "what_this_is": "The Workshop row for the find-media-for-a-description folder: a script the person's AI runs on the person's own computer to get a picture or a clip that fits a description, from the person's own tagged media or from free-licence stock libraries.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-media-for-a-description",
+        "label": "Find a picture or clip that fits a description (runs on your computer)",
+        "job": "Get a picture or a video clip that fits a few words, from my own media folder or from free-licence stock libraries, and save it as a file",
+        "description": "Takes a description, whether it is a still or a clip, where to save it, and which provider to ask. The provider `bank` looks in one folder of the person's own media: each file may have a sidecar <file>.tags.json holding {\"tags\": [...]}, and the best match by words in the tags and the file name is copied to the output path (nothing else in the folder is read or changed). The provider `stock` asks the free-licence libraries listed in read-data/stock-sources.json one after another, with the person's own key for each read from an environment variable on their computer, and downloads the first match; only free-licence (cc0) pictures and clips are served. Providers are rows in read-data/media-providers.json: a program that generates a clip from a description is one more row. A request a provider cannot serve (a kind or a licence it does not offer) is refused with what it does offer, and a provider that finds nothing fails saying so; nothing is made up.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The request file on the person's computer, put where {input} is in the command: JSON with provider (bank or stock), description, kind (still or clip), out (the file to write), bank_dir (for bank), and optionally license."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {provider, file, request}}. A refusal or a failure prints why on the error stream and exits non-zero: 2 unknown provider, 3 kind not offered, 4 licence not offered or nothing found, 5 no out, 6 the provider made no file."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "node trillion-workshop/tools/find-media-for-a-description/do-work/find_media.mjs < {input}",
+          "needs": [
+            "node 22 or later",
+            "for the stock provider: a key for each library in read-data/stock-sources.json, in the environment variable that row names (key_env); never ask for the key's value"
+          ],
+          "internet": true,
+          "say": "This runs on the person's own computer, never on Trillion. Write the request file (provider, description, kind, out, and bank_dir for bank) and run `run` with it in place of {input}. For the stock provider the person's keys must already be in the environment variables named in read-data/stock-sources.json; if one is missing the library is skipped and the run says so. Tell the person which provider found the file and where it is, and say that stock files are free-licence (cc0). If nothing was found, say so and offer the other provider. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:find-media-for-a-description",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages packages/media-analysis (media.resolve): the provider-table resolver and the bank and stock providers, with the stock libraries moved from code into read-data/stock-sources.json"
+        }
+      }
+    }
+  ]
+}
