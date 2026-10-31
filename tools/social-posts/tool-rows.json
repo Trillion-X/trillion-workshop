@@ -2843,6 +2843,342 @@
    }
   },
   {
+   "id": "package::social-posts::tool::send-a-post-to-beehiiv",
+   "address": "package::social-posts::tool::send-a-post-to-beehiiv",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:send-a-post-to-beehiiv",
+    "label": "Send a post to beehiiv",
+    "job": "Send one of the person's approved posts to one of their beehiiv accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a beehiiv connection, service_connection:beehiiv or service_connection:beehiiv:<account>). The engine hands this run only that account's held values; they reach api.beehiiv.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on beehiiv. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id",
+      "account_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "account_id": {
+       "type": "string",
+       "description": "One of the post's destinations"
+      },
+      "resend": {
+       "type": "boolean",
+       "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      },
+      "armed_at": {
+       "type": "string",
+       "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
+        ]
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "beehiiv",
+      "from_input": "account_id"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "api_key",
+       "fd": 4
+      }
+     ]
+    },
+    "provenance": {
+     "source": "the request shapes of the posting owner's beehiiv sender, written as its place row (read-data/post-places.json, adapter requests) and sent by the one requests publisher"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there",
+       "account_id": "service_connection:beehiiv"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::send-a-post-to-ghost",
+   "address": "package::social-posts::tool::send-a-post-to-ghost",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:send-a-post-to-ghost",
+    "label": "Send a post to Ghost",
+    "job": "Send one of the person's approved posts to one of their Ghost accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a ghost connection, service_connection:ghost or service_connection:ghost:<account>). The engine hands this run only that account's held values; they reach the site's own address only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Ghost. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "post_id",
+      "account_id"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string",
+       "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"
+      },
+      "account_id": {
+       "type": "string",
+       "description": "One of the post's destinations"
+      },
+      "resend": {
+       "type": "boolean",
+       "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      },
+      "armed_at": {
+       "type": "string",
+       "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "post_id",
+      "status",
+      "said"
+     ],
+     "properties": {
+      "post_id": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "post": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendAPost"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
+        ]
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "ghost",
+      "from_input": "account_id"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "admin_api_key",
+       "fd": 4
+      }
+     ]
+    },
+    "provenance": {
+     "source": "the request shapes of the posting owner's Ghost sender, written as its place row (read-data/post-places.json, adapter requests) and sent by the one requests publisher"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_id": "post:that-is-not-there",
+       "account_id": "service_connection:ghost"
+      },
+      "output_selector": "$",
+      "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
    "address": "package::social-posts::tool::send-each-post-at-its-time",
    "id": "package::social-posts::tool::send-each-post-at-its-time",
    "path": [

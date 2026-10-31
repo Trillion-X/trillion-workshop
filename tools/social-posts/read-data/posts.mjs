@@ -73,11 +73,15 @@ async function connectionsOf(door) {
   return found;
 }
 
-// The held fields a place's options name, in order.
+/** A held value in a place's options: { held: field }, or { held: field, sign } for a value made from it as the
+ *  request leaves (read-data/send-a-post.mjs signers). */
+export const isHeld = template => object(template) && typeof template.held === 'string' && Object.keys(template).every(key => key === 'held' || key === 'sign');
+
+// The held fields a place's options name, each once, in the order they first appear.
 export function heldFields(template, into = []) {
   if (Array.isArray(template)) template.forEach(item => heldFields(item, into));
   else if (object(template)) {
-    if (typeof template.held === 'string' && Object.keys(template).length === 1) into.push(template.held);
+    if (isHeld(template)) { if (!into.includes(template.held)) into.push(template.held); }
     else Object.values(template).forEach(item => heldFields(item, into));
   }
   return into;
