@@ -80,7 +80,7 @@ import {randomUUID} from 'node:crypto'
 import {isDeepStrictEqual} from 'node:util'
 import {resolve, dirname, relative, sep} from 'node:path'
 import {pathToFileURL, fileURLToPath} from 'node:url'
-import {blake3} from '@noble/hashes/blake3.js'
+import {makeHashCodeHexFromBytes} from '../../content-identity/read-data/identity.mjs'
 
 export class VerdictRefused extends Error {}
 
@@ -377,12 +377,12 @@ export async function scoreCandidate({candidate, rubric, ask, passes}) {
  */
 const keyCache = new Map()
 
-// BLAKE3 hashed in this process, by the same library the content-identity tool uses. One `b3sum` process per key
-// cost 2-3 s of exec wait on a busy computer and ran past its timeout, so every rubric was refused.
+// BLAKE3 from the content-identity tool, the one owner of content identities, hashed in this process. One `b3sum`
+// process per key cost 2-3 s of exec wait on a busy computer and ran past its timeout, so every rubric was refused.
 
-/** The BLAKE3 identity of bytes as 64 hex characters. */
+/** The BLAKE3 identity of bytes as 64 hex characters (content-identity's `1f:` identity without its prefix). */
 export function blake3Hex(bytes) {
-  return Buffer.from(blake3(bytes)).toString('hex')
+  return makeHashCodeHexFromBytes(new Uint8Array(bytes)).slice(3)
 }
 
 /** Reuse the installed content-identity owner. */
