@@ -15,6 +15,28 @@
   ],
   "capabilities": [
     {
+      "capability": "keep and read the standing instruction rows an AI receives when it connects, with their fill declarations and default order",
+      "owner": [
+        "tools/tell-ais-how-to-act/"
+      ],
+      "entry": "tools/tell-ais-how-to-act/tool-rows.json",
+      "evidence": "tools/tell-ais-how-to-act/README.md: rows.json owns the default instruction words; the tool lists their metadata or reads one row; the Rust MCP door projects them through its authenticated reader",
+      "distinct_from": [
+        {
+          "job": "teach agents how to do a kind of work: skills and plugins with their instructions, references and scripts",
+          "why": "that owner teaches task-specific methods; this package holds the product-wide default rows the existing MCP door tells every connected AI, and implements no skill runner"
+        },
+        {
+          "job": "let people and AIs in: the door (local HTTP, MCP, the Mac channel) and their sign-in and rights",
+          "why": "the Rust door remains the sole authenticated projection and transport; this package is its instruction DATA and a read-only Workshop reader, with no sign-in, rights or transport implementation"
+        },
+        {
+          "job": "read what the product told the person, in order",
+          "why": "that owner reads notices already told to the person; this package holds default standing instructions to connected AIs, never the person notice history"
+        }
+      ]
+    },
+    {
       "capability": "take a person to the thing that needs them: from one card of what waits on them, give the screen to open, the arrangement that puts it beside what the caller names, the walkthrough that points at the thing's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places",
       "owner": ["tools/take-me-there/"],
       "entry": "tools/take-me-there/tool-rows.json",
