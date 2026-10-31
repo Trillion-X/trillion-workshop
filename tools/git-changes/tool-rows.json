@@ -1,0 +1,535 @@
+{
+ "records": [
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:git-changes",
+    "listed_on": "2026-10-30T12:00:00Z",
+    "id": "tool:see-changes-in-a-project",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "label": "See what changed in a project",
+    "job": "See every file that changed in a project on the person's computer and where each one stands: staged for the next commit, changed but not staged, or new",
+    "description": "Give folder, the full path of a project folder the person has let this tool use. Returns the branch, how many commits it is ahead of and behind its upstream, and one row per changed file per place it stands (bucket staged, unstaged or untracked, with git's one-letter status). Changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "folder"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "folder": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The full path of the project folder."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "folder",
+      "branch",
+      "ahead",
+      "behind",
+      "changes"
+     ],
+     "properties": {
+      "folder": {
+       "type": "string"
+      },
+      "branch": {
+       "type": "string"
+      },
+      "ahead": {
+       "type": "integer"
+      },
+      "behind": {
+       "type": "integer"
+      },
+      "changes": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "file_path",
+         "bucket",
+         "status"
+        ],
+        "properties": {
+         "file_path": {
+          "type": "string"
+         },
+         "bucket": {
+          "type": "string",
+          "enum": [
+           "staged",
+           "unstaged",
+           "untracked"
+          ]
+         },
+         "status": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer",
+     "capabilities": [
+      "use-git-in-a-folder"
+     ],
+     "workdir": "/opt/git-changes",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/git-changes/read-data/git-changes.mjs",
+      "seeChangesInAProject"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "git-changes",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/git-changes"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result.result",
+    "provenance": {
+     "source": "bitfield-packages packages/git-worktree (refresh-git-worktree)"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:git-changes",
+    "listed_on": "2026-10-30T12:00:00Z",
+    "id": "tool:see-a-files-change",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "label": "See how one file changed",
+    "job": "See the difference between one file in a project on the person's computer and the last commit",
+    "description": "Give folder (the full path of the project folder the person has let this tool use) and file_path (the file, relative to the folder). Returns diff, git's text of the difference from the last commit. A project with no commit yet has no last commit to compare with, and git's own words say so. Changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "folder",
+      "file_path"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "folder": {
+       "type": "string",
+       "minLength": 1
+      },
+      "file_path": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "folder",
+      "file_path",
+      "diff"
+     ],
+     "properties": {
+      "folder": {
+       "type": "string"
+      },
+      "file_path": {
+       "type": "string"
+      },
+      "diff": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer",
+     "capabilities": [
+      "use-git-in-a-folder"
+     ],
+     "workdir": "/opt/git-changes",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/git-changes/read-data/git-changes.mjs",
+      "seeAFilesChange"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "git-changes",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/git-changes"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result.result",
+    "provenance": {
+     "source": "bitfield-packages packages/git-worktree (fetch-git-diff)"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:git-changes",
+    "listed_on": "2026-10-30T12:00:00Z",
+    "id": "tool:stage-changes",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "label": "Choose files for the next commit",
+    "job": "Add chosen files in a project on the person's computer to the next commit",
+    "description": "Give folder (the full path of the project folder the person has let this tool use) and paths (the files to add, relative to the folder). Returns the project's changes after it, as tool:see-changes-in-a-project does. The files themselves are not changed.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "folder",
+      "paths"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "folder": {
+       "type": "string",
+       "minLength": 1
+      },
+      "paths": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "folder",
+      "branch",
+      "changes"
+     ],
+     "properties": {
+      "folder": {
+       "type": "string"
+      },
+      "branch": {
+       "type": "string"
+      },
+      "changes": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer",
+     "capabilities": [
+      "use-git-in-a-folder"
+     ],
+     "workdir": "/opt/git-changes",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/git-changes/read-data/git-changes.mjs",
+      "stageChanges"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "git-changes",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/git-changes"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result.result",
+    "provenance": {
+     "source": "bitfield-packages packages/git-worktree (stage-git-files)"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:git-changes",
+    "listed_on": "2026-10-30T12:00:00Z",
+    "id": "tool:unstage-changes",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "label": "Take files out of the next commit",
+    "job": "Take chosen files in a project on the person's computer out of the next commit, leaving the files as they are",
+    "description": "Give folder (the full path of the project folder the person has let this tool use) and paths (the files to take out, relative to the folder). Returns the project's changes after it. The files keep every edit they have; only their place in the next commit changes.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "folder",
+      "paths"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "folder": {
+       "type": "string",
+       "minLength": 1
+      },
+      "paths": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "folder",
+      "branch",
+      "changes"
+     ],
+     "properties": {
+      "folder": {
+       "type": "string"
+      },
+      "branch": {
+       "type": "string"
+      },
+      "changes": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer",
+     "capabilities": [
+      "use-git-in-a-folder"
+     ],
+     "workdir": "/opt/git-changes",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/git-changes/read-data/git-changes.mjs",
+      "unstageChanges"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "git-changes",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/git-changes"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result.result",
+    "provenance": {
+     "source": "bitfield-packages packages/git-worktree (unstage-git-files)"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:git-changes",
+    "listed_on": "2026-10-30T12:00:00Z",
+    "id": "tool:commit-changes",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "label": "Commit the chosen changes",
+    "job": "Commit what is chosen for the next commit in a project on the person's computer, with a message",
+    "description": "Give folder (the full path of the project folder the person has let this tool use) and message (what this commit says). Commits what is staged, as the person's own git settings say who made it, and returns the project's changes after it. It does not stage anything itself and does not send the commit anywhere. With nothing staged, git's own words say so.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "folder",
+      "message"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "folder": {
+       "type": "string",
+       "minLength": 1
+      },
+      "message": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "folder",
+      "branch",
+      "changes"
+     ],
+     "properties": {
+      "folder": {
+       "type": "string"
+      },
+      "branch": {
+       "type": "string"
+      },
+      "changes": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer",
+     "capabilities": [
+      "use-git-in-a-folder"
+     ],
+     "workdir": "/opt/git-changes",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/git-changes/read-data/git-changes.mjs",
+      "commitChanges"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "git-changes",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/git-changes"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result.result",
+    "provenance": {
+     "source": "bitfield-packages packages/git-worktree (commit-git-changes)"
+    }
+   }
+  }
+ ]
+}
