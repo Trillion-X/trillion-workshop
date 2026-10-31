@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:700aff5f380fe3e620c2d3c8173c8904b62a047b0c15b9b6aebec3ef54060154"
+  "blake3": "1f:ac36cfdea4f72c2ca19a943f5fe8b09d90e6259824ca56f31a18d126c03bd105"
  },
  "fields": [
   {
@@ -1661,6 +1661,21 @@
      "placement:your-computer"
     ],
     "folder": "find-media-for-a-description"
+   }
+  },
+  {
+   "id": "tool:find-nearest-places",
+   "values": {
+    "title": "Find the nearest places of a brand or name",
+    "job": "Find the nearest stores or places of a brand or name around a start, each with route buttons",
+    "description": "Give name (a brand or a place name) and near (an address or place name as words, or { lat, lon }), and optionally radius_km, most and mode. Reads the open address and places services the settings name, tries the other copies of the places service when one is busy, and answers the nearest places first with their address, distance, opening hours and route buttons. A service that does not answer is told in words, never guessed around. The settings are in read-data/get-there.json.",
+    "status": "active",
+    "maker": "maker:get-there",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "get-there"
    }
   },
   {
@@ -4852,6 +4867,21 @@
    }
   },
   {
+   "id": "tool:route-buttons",
+   "values": {
+    "title": "Route buttons for a trip",
+    "job": "Give one-tap buttons that open the route to a place in each maps app, from a start and through stops on the way",
+    "description": "Give destination, and optionally origin, stops (places on the way) and mode. Answers one button per maps app, each { id, label, url }. Pure: it reaches no network. A new maps app is a row in read-data/get-there.json.",
+    "status": "active",
+    "maker": "maker:get-there",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "get-there"
+   }
+  },
+  {
    "id": "tool:route-to-the-owner-that-answers",
    "values": {
     "title": "Pick which of my places holds the answer to what I am looking for (runs on your computer)",
@@ -6073,6 +6103,36 @@
    }
   },
   {
+   "id": "tool:what-can-trillion-do",
+   "values": {
+    "title": "List what can do steps",
+    "job": "List everything that can do a step for a person, with what each covers and what it costs, and the reasons a step may stay the person's",
+    "description": "Give doers (the caller's own list) and optionally only_a_person. Answers each doer's id, label, the needs it covers, cost, and whether it spends money or reaches others, and the reasons. It is the list a caller chooses `needs` words from for tool:who-does-each-step.",
+    "status": "active",
+    "maker": "maker:who-does-each-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "who-does-each-step"
+   }
+  },
+  {
+   "id": "tool:what-is-waiting-on-me",
+   "values": {
+    "title": "Show everything waiting on me",
+    "job": "Show everything waiting on this person that only they can do, gathered from every place it is kept: what their AIs asked them for, drafts to approve, work that is stuck, a sign-in, a decision",
+    "description": "Give sources (the places that hold things up, the person's own list: { id, label, title, where?, detail?, opens?, at?, most? }) and found (the records of each source, { <source id>: [{ id, value }] }, read from the person's account by the caller). A record waits when every where test holds (equals, in, present or absent on a field). Answers one card per waiting record, newest first, with the title, detail and the address it opens read from the record by the source's templates, a count for each source, and a sentence. A source with no records handed in is told as unread, never as nothing waiting. The tool reads no records and names no source: a new place is a new row.",
+    "status": "active",
+    "maker": "maker:what-is-waiting-on-me",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "what-is-waiting-on-me"
+   }
+  },
+  {
    "id": "tool:who-agreed-to-get-which-emails",
    "values": {
     "title": "Who agreed to get which emails",
@@ -6085,6 +6145,21 @@
      "placement:small-container"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:who-does-each-step",
+   "values": {
+    "title": "Say who should do each step of a plan",
+    "job": "For each step of my plan, protocol, checklist or workflow, say who should do it instead of me: a tool or my AIs, a tool after one tap, or only me for a reason only I can meet",
+    "description": "Give steps (words, or { id, words, needs, only_a_person_because, given_in, past }) and doers (the caller's own list: { id, label, does: [words], tool_id?, cost?, spends?, reaches_others?, hand_off?, how? }), and optionally only_a_person (the reasons only the person can do a step), approved (doer ids the person already said yes to), past (outcomes { doer, result: met or failed }), words and ranking. For every step answers who (trillion, one-tap, you or nobody-yet), the doers that cover it with their cost and whether they need a tap, the needs nobody covers, and a sentence. A step is the person's only for a reason in only_a_person; a step nobody can do is nobody-yet, never a to-do; a reason the person gave once is not asked again when the step names the message that gave it; a reason with a first_try doer waits until that doer failed. Nothing is spent or sent. The doers and reasons are never built in.",
+    "status": "active",
+    "maker": "maker:who-does-each-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "who-does-each-step"
    }
   },
   {
