@@ -887,6 +887,26 @@
         {"job": "request photo and video analysis and keep its results", "why": "that job analyses a photo or video and keeps what it found; this one finds media that fits a description and analyses nothing"},
         {"job": "find a person's files by words, name, place, kind or spoken words in the index their computer already keeps", "why": "that job looks up the person's existing files in the computer's file index; this one gets a picture or clip, including from stock libraries on the internet, not a file the person already has indexed"}
       ]
+    },
+    {
+      "capability": "open the route to a place in the person's maps apps with stops on the way, and find the nearest stores or places of a brand or name around a start",
+      "owner": ["tools/get-there/"],
+      "entry": "tools/get-there/tool-rows.json",
+      "evidence": "README.md:3 turns a destination into one route button per maps app and finds the nearest places of a brand or name with their routes",
+      "distinct_from": [
+        {"job": "plan a trip: notes, itinerary, packing and bookings", "why": "that job keeps a trip's plan as records; this one only opens a route in a maps app and finds places near a start"},
+        {"job": "find a person's files by words, name, place, kind or spoken words in the index their computer already keeps", "why": "that job looks up files on the person's own computer; this one finds stores and places in the world and builds the buttons that open a route to them"}
+      ]
+    },
+    {
+      "capability": "say who should do each step of a plan: the person's tools or AIs, one tap first when it spends or reaches someone, only the person when a reason they alone can meet is given, or a doer still to build; and list what can do steps",
+      "owner": ["tools/who-does-each-step/"],
+      "entry": "tools/who-does-each-step/tool-rows.json",
+      "evidence": "README.md:3 weighs every step of a plan against the caller's doers and says who does it, so no step silently lands on the person",
+      "distinct_from": [
+        {"job": "break a project into steps, owners and what blocks each", "why": "that job makes and tracks the steps of a project; this one takes steps that exist and says which doer covers each need, what it costs and whether the person must be asked"},
+        {"job": "hand a request to the owner that answers it and keep the owner's receipt", "why": "that job routes one request to its owner and records the receipt; this one weighs every step of a plan against a list of doers before anything is asked of anyone"}
+      ]
     }
   ]
 }

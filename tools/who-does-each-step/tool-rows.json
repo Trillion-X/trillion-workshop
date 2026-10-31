@@ -1,0 +1,425 @@
+{
+ "kind": "tool-rows",
+ "record_set": "who-does-each-step-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/who-does-each-step: who should do each step of a plan, and the list of what can do steps.",
+ "records": [
+  {
+   "id": "package::who-does-each-step::tool::who-does-each-step",
+   "address": "package::who-does-each-step::tool::who-does-each-step",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:who-does-each-step",
+    "label": "Say who should do each step of a plan",
+    "status": "active",
+    "job": "For each step of my plan, protocol, checklist or workflow, say who should do it instead of me: a tool or my AIs, a tool after one tap, or only me for a reason only I can meet",
+    "description": "Give steps (words, or { id, words, needs, only_a_person_because, given_in, past }) and doers (the caller's own list: { id, label, does: [words], tool_id?, cost?, spends?, reaches_others?, hand_off?, how? }), and optionally only_a_person (the reasons only the person can do a step), approved (doer ids the person already said yes to), past (outcomes { doer, result: met or failed }), words and ranking. For every step answers who (trillion, one-tap, you or nobody-yet), the doers that cover it with their cost and whether they need a tap, the needs nobody covers, and a sentence. A step is the person's only for a reason in only_a_person; a step nobody can do is nobody-yet, never a to-do; a reason the person gave once is not asked again when the step names the message that gave it; a reason with a first_try doer waits until that doer failed. Nothing is spent or sent. The doers and reasons are never built in.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "steps",
+      "doers"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "steps": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "description": "A step's words, or { id?, words, needs?, only_a_person_because?, given_in?, past?, input? }"
+       }
+      },
+      "doers": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "label",
+         "does"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "does": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          },
+          "description": "Open words for the needs this doer covers"
+         },
+         "tool_id": {
+          "type": "string"
+         },
+         "purpose": {
+          "type": "string"
+         },
+         "hand_off": {
+          "type": "boolean"
+         },
+         "how": {
+          "type": "string"
+         },
+         "cost": {
+          "type": "object",
+          "properties": {
+           "usd": {
+            "type": "number"
+           },
+           "per": {
+            "type": "string"
+           }
+          }
+         },
+         "spends": {
+          "type": "boolean"
+         },
+         "reaches_others": {
+          "type": "boolean"
+         }
+        }
+       },
+       "description": "The doers that can do steps: the caller's own list"
+      },
+      "only_a_person": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "words"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "words": {
+          "type": "string"
+         },
+         "given_once": {
+          "type": "boolean"
+         },
+         "first_try": {
+          "type": "string",
+          "description": "A doer id tried first"
+         }
+        }
+       },
+       "description": "The reasons only the person can do a step: the caller's own list"
+      },
+      "approved": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Doer ids the person already said yes to"
+      },
+      "past": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "doer",
+         "result"
+        ],
+        "properties": {
+         "doer": {
+          "type": "string"
+         },
+         "result": {
+          "enum": [
+           "met",
+           "failed"
+          ]
+         }
+        }
+       }
+      },
+      "words": {
+       "type": "object",
+       "description": "The sentences an answer says, over read-data/words.json"
+      },
+      "ranking": {
+       "type": "object",
+       "description": "How much met and failed move a doer"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "steps",
+      "counts",
+      "said"
+     ],
+     "properties": {
+      "steps": {
+       "type": "array"
+      },
+      "counts": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "who-does-each-step",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/who-does-each-step"
+      }
+     },
+     "workdir": "/opt/who-does-each-step",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/who-does-each-step.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:who-does-each-step",
+    "provenance": {
+     "source": "the app's who-does-it module; the doers and the reasons only a person can meet come with each request"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "steps": [
+        {
+         "id": "one",
+         "words": "write a note"
+        }
+       ],
+       "doers": [
+        {
+         "id": "sample-doer",
+         "label": "Sample doer",
+         "does": [
+          "write a note"
+         ],
+         "cost": {
+          "usd": 0
+         }
+        }
+       ]
+      },
+      "output_selector": "$.steps.0.who",
+      "contains": "trillion"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::who-does-each-step::tool::list-who-can-do",
+   "address": "package::who-does-each-step::tool::list-who-can-do",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:what-can-trillion-do",
+    "label": "List what can do steps",
+    "status": "active",
+    "job": "List everything that can do a step for a person, with what each covers and what it costs, and the reasons a step may stay the person's",
+    "description": "Give doers (the caller's own list) and optionally only_a_person. Answers each doer's id, label, the needs it covers, cost, and whether it spends money or reaches others, and the reasons. It is the list a caller chooses `needs` words from for tool:who-does-each-step.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "doers"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "doers": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "label",
+         "does"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "does": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          },
+          "description": "Open words for the needs this doer covers"
+         },
+         "tool_id": {
+          "type": "string"
+         },
+         "purpose": {
+          "type": "string"
+         },
+         "hand_off": {
+          "type": "boolean"
+         },
+         "how": {
+          "type": "string"
+         },
+         "cost": {
+          "type": "object",
+          "properties": {
+           "usd": {
+            "type": "number"
+           },
+           "per": {
+            "type": "string"
+           }
+          }
+         },
+         "spends": {
+          "type": "boolean"
+         },
+         "reaches_others": {
+          "type": "boolean"
+         }
+        }
+       }
+      },
+      "only_a_person": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "words"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "words": {
+          "type": "string"
+         },
+         "given_once": {
+          "type": "boolean"
+         },
+         "first_try": {
+          "type": "string",
+          "description": "A doer id tried first"
+         }
+        }
+       },
+       "description": "The reasons only the person can do a step: the caller's own list"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "doers"
+     ],
+     "properties": {
+      "doers": {
+       "type": "array"
+      },
+      "only_a_person": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "who-does-each-step",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/who-does-each-step"
+      }
+     },
+     "workdir": "/opt/who-does-each-step",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/list-who-can-do.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:who-does-each-step",
+    "provenance": {
+     "source": "the app's who-does-it module; the doers and the reasons only a person can meet come with each request"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "doers": [
+        {
+         "id": "sample-doer",
+         "label": "Sample doer",
+         "does": [
+          "write a note"
+         ],
+         "cost": {
+          "usd": 0
+         }
+        }
+       ]
+      },
+      "output_selector": "$.doers.0.id",
+      "contains": "sample-doer"
+     }
+    ]
+   }
+  }
+ ]
+}

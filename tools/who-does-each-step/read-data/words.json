@@ -1,0 +1,21 @@
+{
+  "_what": "The words and the ranking of tool:who-does-each-step (read-data/who-does.mjs). `words` are the sentences each answer says, with {holes}: a request may bring its own `words` over these. `ranking` is how much a past outcome (`met`, `failed`) moves a doer that covers the same need up or down. The doers and the reasons only a person can meet are never here: they come with each request.",
+  "words": {
+    "trillion": "This is done for you: {doers}.",
+    "one_tap": "One tap and this is done for you: {doers}, about {cost}.",
+    "you": "Only you can do this, because {reason}. The rest is done for you: {doers}.",
+    "you_alone": "Only you can do this, because {reason}.",
+    "try_first": "Your assistants try this first: {doers}. It reaches you only if they are stopped, and then they say exactly what stopped them.",
+    "nobody_yet": "Nothing can do this yet ({needs}), so a doer for it is to be built. It is not on your list.",
+    "already_given": "You already said yes ({given_in}), so this is done for you without asking again{with}.",
+    "already_given_with": ": {doers}",
+    "joiner": ", ",
+    "free": "free",
+    "cost": "${usd} {per}",
+    "summary": "{trillion} done for you, {one_tap} one tap, {you} only you, {nobody_yet} to be built."
+  },
+  "ranking": {
+    "met": 1,
+    "failed": -2
+  }
+}

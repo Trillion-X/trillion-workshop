@@ -1,0 +1,226 @@
+{
+ "kind": "tool-rows",
+ "record_set": "get-there-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/get-there: route buttons for a trip, and the nearest places of a brand or name.",
+ "records": [
+  {
+   "id": "package::get-there::tool::route-buttons",
+   "address": "package::get-there::tool::route-buttons",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:route-buttons",
+    "label": "Route buttons for a trip",
+    "status": "active",
+    "job": "Give one-tap buttons that open the route to a place in each maps app, from a start and through stops on the way",
+    "description": "Give destination, and optionally origin, stops (places on the way) and mode. Answers one button per maps app, each { id, label, url }. Pure: it reaches no network. A new maps app is a row in read-data/get-there.json.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "destination"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "destination": {
+       "description": "An address or place name as words, or { lat, lon }, or { address }"
+      },
+      "origin": {
+       "description": "An address or place name as words, or { lat, lon }, or { address }"
+      },
+      "stops": {
+       "type": "array",
+       "items": {
+        "description": "An address or place name as words, or { lat, lon }, or { address }"
+       }
+      },
+      "mode": {
+       "enum": [
+        "drive",
+        "walk",
+        "transit",
+        "cycle"
+       ],
+       "description": "How to travel; drive when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "buttons"
+     ],
+     "properties": {
+      "buttons": {
+       "type": "array"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "get-there",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/get-there"
+      }
+     },
+     "workdir": "/opt/get-there",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/route-buttons.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:get-there",
+    "provenance": {
+     "source": "the app's getting-there module, with its maps and places services as DATA"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "destination": "1 Example Street, Sampleton",
+       "origin": "2 Sample Road, Sampleton",
+       "mode": "walk"
+      },
+      "output_selector": "$.buttons.0.url",
+      "contains": "maps.apple.com"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::get-there::tool::find-nearest-places",
+   "address": "package::get-there::tool::find-nearest-places",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-nearest-places",
+    "label": "Find the nearest places of a brand or name",
+    "status": "active",
+    "job": "Find the nearest stores or places of a brand or name around a start, each with route buttons",
+    "description": "Give name (a brand or a place name) and near (an address or place name as words, or { lat, lon }), and optionally radius_km, most and mode. Reads the open address and places services the settings name, tries the other copies of the places service when one is busy, and answers the nearest places first with their address, distance, opening hours and route buttons. A service that does not answer is told in words, never guessed around. The settings are in read-data/get-there.json.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "name",
+      "near"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "name": {
+       "type": "string",
+       "description": "A brand or place name"
+      },
+      "near": {
+       "description": "An address or place name as words, or { lat, lon }, or { address }"
+      },
+      "radius_km": {
+       "type": "number",
+       "description": "How far to search around the start; the settings' default when left out"
+      },
+      "most": {
+       "type": "integer",
+       "description": "How many places at most"
+      },
+      "mode": {
+       "enum": [
+        "drive",
+        "walk",
+        "transit",
+        "cycle"
+       ],
+       "description": "How to travel; drive when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "places",
+      "said"
+     ],
+     "properties": {
+      "places": {
+       "type": "array"
+      },
+      "start": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "get-there",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/get-there"
+      }
+     },
+     "workdir": "/opt/get-there",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/find-nearest-places.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:get-there",
+    "provenance": {
+     "source": "the app's getting-there module, with its maps and places services as DATA"
+    },
+    "verify": []
+   }
+  }
+ ]
+}
