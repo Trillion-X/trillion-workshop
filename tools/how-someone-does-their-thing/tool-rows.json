@@ -1,0 +1,196 @@
+{
+ "kind": "tool-rows",
+ "record_set": "how-someone-does-their-thing-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/how-someone-does-their-thing: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::how-someone-does-their-thing::tool::brief-a-profile",
+   "address": "package::how-someone-does-their-thing::tool::brief-a-profile",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:brief-a-profile",
+    "label": "Brief a profile of how someone does their thing",
+    "status": "active",
+    "job": "Work out how a person or creator does their thing, such as their style or voice, from what they have made or said",
+    "description": "Give the profile's name, the subject's name and the subject's own records (what they made or said). Returns what you need to derive the profile: the records, the rules for the answer and the shape of the answer. It asks no model; you derive the items, then give them to tool:keep-a-profile. An empty list of records is refused.",
+    "input_schema": {
+     "type": "object",
+     "required": ["profile_ref", "subject_ref", "subject_records"],
+     "additionalProperties": false,
+     "properties": {
+      "profile_ref": { "type": "string", "description": "The name the profile record will be kept under" },
+      "subject_ref": { "type": "string", "description": "Whose way of doing the thing this is" },
+      "subject_records": { "type": "array", "minItems": 1, "items": { "type": "object" }, "description": "What the subject made or said, read from their records" },
+      "instruction": { "type": "string", "description": "An extra rule for the answer, if any" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["brief"],
+     "properties": {
+      "brief": {
+       "type": "object",
+       "required": ["profile_ref", "subject_ref", "subject_records", "rules", "answer_shape"],
+       "properties": {
+        "profile_ref": { "type": "string" },
+        "subject_ref": { "type": "string" },
+        "subject_records": { "type": "array" },
+        "rules": { "type": "array", "items": { "type": "string" } },
+        "answer_shape": { "type": "object" }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "how-someone-does-their-thing", "paths": ["do-work", "read-data"], "at": "/opt/how-someone-does-their-thing" } },
+     "workdir": "/opt/how-someone-does-their-thing",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/brief-a-profile.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:how-someone-does-their-thing",
+    "provenance": { "source": "bitfield-packages packages/how-someone-does-their-thing" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "profile_ref": "profile:bakery-voice", "subject_ref": "baker:1", "subject_records": [{ "text": "Warm loaves, no fuss." }] },
+      "output_selector": "$.brief.rules",
+      "contains": "Use only the supplied subject records."
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::how-someone-does-their-thing::tool::keep-a-profile",
+   "address": "package::how-someone-does-their-thing::tool::keep-a-profile",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:keep-a-profile",
+    "label": "Keep a profile of how someone does their thing",
+    "status": "active",
+    "job": "Keep the profile of how a person does their thing, so drafts made for them are shaped by it and checked against it",
+    "description": "Give the profile's name, the subject's name, the items you derived (a non-empty list of objects) and, as refs, the feature schemas, evaluators, generators and validation policy that go with it. Returns and keeps one profile record under the profile's name; keeping it again replaces it. Empty items, or a ref that is not a non-empty string, are refused.",
+    "input_schema": {
+     "type": "object",
+     "required": ["profile_ref", "subject_ref", "derived_items"],
+     "additionalProperties": false,
+     "properties": {
+      "profile_ref": { "type": "string" },
+      "subject_ref": { "type": "string" },
+      "derived_items": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["kind", "value", "evidence"], "properties": { "kind": { "type": "string" }, "evidence": { "type": "string" } } } },
+      "feature_schema_refs": { "type": "array", "items": { "type": "string" } },
+      "evaluator_refs": { "type": "array", "items": { "type": "string" } },
+      "generator_refs": { "type": "array", "items": { "type": "string" } },
+      "validation_policy_ref": { "description": "One ref, or the gate and the spec the gate judges by", "oneOf": [{ "type": "string" }, { "type": "object", "required": ["gate_target_ref", "gate_spec_ref"], "additionalProperties": false, "properties": { "gate_target_ref": { "type": "string" }, "gate_spec_ref": { "type": "string" } } }] }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["profile"],
+     "properties": {
+      "profile": {
+       "type": "object",
+       "required": ["type", "id", "subject_ref", "feature_schema_refs", "evaluator_refs", "generator_refs", "derived_items"],
+       "properties": {
+        "type": { "type": "string" },
+        "id": { "type": "string" },
+        "subject_ref": { "type": "string" },
+        "feature_schema_refs": { "type": "array" },
+        "evaluator_refs": { "type": "array" },
+        "generator_refs": { "type": "array" },
+        "validation_policy_ref": { "oneOf": [{ "type": "string" }, { "type": "object" }] },
+        "derived_items": { "type": "array" }
+       }
+      }
+     }
+    },
+    "keeps_records": [{ "output_selector": "$.profile", "type_field": "type", "id_field": "id" }],
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "how-someone-does-their-thing", "paths": ["do-work", "read-data"], "at": "/opt/how-someone-does-their-thing" } },
+     "workdir": "/opt/how-someone-does-their-thing",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/keep-a-profile.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:how-someone-does-their-thing",
+    "provenance": { "source": "bitfield-packages packages/how-someone-does-their-thing" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "profile_ref": "profile:bakery-voice", "subject_ref": "baker:1", "derived_items": [{ "kind": "tone", "value": "warm", "evidence": "post:1" }], "evaluator_refs": ["evaluator:tone"] },
+      "output_selector": "$.profile.id",
+      "contains": "profile:bakery-voice"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::how-someone-does-their-thing::tool::check-a-draft-against-a-profile",
+   "address": "package::how-someone-does-their-thing::tool::check-a-draft-against-a-profile",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-a-draft-against-a-profile",
+    "label": "Check a draft carries its profile",
+    "status": "active",
+    "job": "Check that a draft made for a person carries the references to the profile that shaped it and the profile it is checked by",
+    "description": "Give the draft (a list of blocks, each an object), the names of the fields that must carry a profile reference, and optionally the profile's name. A field passes when some block of the draft holds a non-empty value in it, and, when you gave the profile's name, when one of those values is that name. Returns whether the draft fits and, for each field, whether it passed and why not. It judges references only, not the words.",
+    "input_schema": {
+     "type": "object",
+     "required": ["draft", "required_ref_fields"],
+     "additionalProperties": false,
+     "properties": {
+      "draft": { "type": "object", "required": ["blocks"], "properties": { "blocks": { "type": "array", "items": { "type": "object" } } } },
+      "required_ref_fields": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+      "profile_ref": { "type": "string" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["fits", "rules"],
+     "properties": {
+      "fits": { "type": "boolean" },
+      "rules": { "type": "array", "items": { "type": "object", "required": ["field", "passed", "reason"], "properties": { "field": { "type": "string" }, "passed": { "type": "boolean" }, "reason": { "type": "string" } } } }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "how-someone-does-their-thing", "paths": ["do-work", "read-data"], "at": "/opt/how-someone-does-their-thing" } },
+     "workdir": "/opt/how-someone-does-their-thing",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/check-a-draft-against-a-profile.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:how-someone-does-their-thing",
+    "provenance": { "source": "bitfield-packages packages/how-someone-does-their-thing" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "draft": { "blocks": [{ "text": "Fresh today.", "profile_ref": "profile:bakery-voice" }] }, "required_ref_fields": ["profile_ref"], "profile_ref": "profile:bakery-voice" },
+      "output_selector": "$.fits",
+      "contains": "true"
+     }
+    ]
+   }
+  }
+ ]
+}
