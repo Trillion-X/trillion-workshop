@@ -1,0 +1,49 @@
+{
+  "things": [
+    {
+      "payload": {
+        "kind": "message-template",
+        "template_name": "account-login-link",
+        "message": {
+          "subject": "Sign in",
+          "html_template": [
+            "<p>Use this link to sign in to your account:</p>",
+            "<p><a href=\"{{link}}\">Sign in</a></p>",
+            "<p>If you did not request this, you can ignore this email.</p>"
+          ],
+          "text_template": [
+            "Use this link to sign in to your account:",
+            "",
+            "{{link}}",
+            "",
+            "If you did not request this, you can ignore this email."
+          ]
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "message-template",
+        "template_name": "account-onboarding",
+        "message": {
+          "subject": "Welcome — your access is now active",
+          "html_template": [
+            "<p>Welcome aboard!</p>",
+            "<p>Your access is now active.</p>",
+            "<p><a href=\"{{loginUrl}}\">Open your account</a></p>",
+            "<p>If you have any questions, just reply to this email.</p>"
+          ],
+          "text_template": [
+            "Welcome aboard!",
+            "",
+            "Your access is now active.",
+            "",
+            "Open your account: {{loginUrl}}",
+            "",
+            "If you have any questions, just reply to this email."
+          ]
+        }
+      }
+    }
+  ]
+}
