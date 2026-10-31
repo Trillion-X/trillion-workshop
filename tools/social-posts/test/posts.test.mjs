@@ -107,47 +107,53 @@ test('changing a scheduled post makes it a draft again, and a stale review is re
 
 test('a post with no time ahead, or not ready for a place, is not set to go', async () => {
   const past = await step('draft-a-post', { caption: 'Late', destinations: ['service_connection:x:second'], scheduled_for: '2001-01-01T00:00:00Z' }, accounts);
-  const pastApproved = await step('approve-a-post', { post_id: past.result.post.post_id }, past.records);
+  const pastApproved = await step('approve-a-post', { post_id: past.result.post.post_id, expected_values: past.result.post.approval_values }, past.records);
   const pastSet = await step('set-a-post-to-go-at-its-time', { post_id: past.result.post.post_id }, pastApproved.records);
   assert.equal(pastSet.status, 1);
   assert.match(pastSet.error, /no time still ahead/);
 
   const notReady = await step('draft-a-post', { caption: 'Needs a video', destinations: ['service_connection:x'], scheduled_for: AHEAD }, accounts);
-  const notReadyApproved = await step('approve-a-post', { post_id: notReady.result.post.post_id }, notReady.records);
+  const notReadyApproved = await step('approve-a-post', { post_id: notReady.result.post.post_id, expected_values: notReady.result.post.approval_values }, notReady.records);
   const notReadySet = await step('set-a-post-to-go-at-its-time', { post_id: notReady.result.post.post_id }, notReadyApproved.records);
   assert.equal(notReadySet.status, 0, notReadySet.error);
   assert.equal(notReadySet.result.status, 'approved');
   assert.match(notReadySet.result.said, /It was not set to go\..*holds no access token/);
 });
 
-// The row's standard input as the engine fills it (src/runtime/workshop/fill.rs): each {fill: {from, field}} is that
-// fact of the run's input or task, and a fact that is not there leaves its field out.
-const filledStdin = (template, { input, task }) => Object.fromEntries(Object.entries(template)
-  .map(([name, { fill }]) => [name, (fill.from === 'input' ? input : task)[fill.field]])
-  .filter(([, value]) => value !== undefined));
-
-test('a post that names someone is approved only by a run the person\'s own page starts', async () => {
+test('an AI can approve a named post exactly as reviewed under its row grant, without claiming page origin', async () => {
   const draft = await step('draft-a-post', { caption: 'Thanks @someone for the idea', destinations: ['service_connection:x:second'] }, accounts);
   const { post_id: postId, approval_values: reviewed } = draft.result.post;
   const approve = row('approve-a-post');
-  assert.deepEqual(approve.invoke.stdin.run_origin, { fill: { from: 'task', field: 'origin' } }, 'the origin comes only from the task the engine attests');
   assert.equal(approve.input_schema.additionalProperties, false);
-  assert.ok(!('run_origin' in approve.input_schema.properties) && !('origin' in approve.input_schema.properties), 'no input can name an origin');
+  assert.ok(!('run_origin' in approve.invoke.stdin) && !('origin' in approve.input_schema.properties), 'the approval row does not invent or accept page origin');
+  assert.deepEqual(approve.input_schema.required, ['post_id', 'expected_values']);
+  assert.deepEqual(approve.invoke.records.rights, [{ kind: 'post', operations: ['records:read', 'records:write'] }]);
 
-  // An AI key's run: its task carries no origin, so an origin claimed in the input never reaches the tool.
-  const byAnAi = filledStdin(approve.invoke.stdin, { input: { post_id: postId, expected_values: reviewed, run_origin: 'page', origin: 'page' }, task: { request_key: 'k1' } });
-  assert.equal(byAnAi.run_origin, undefined);
-  const refused = await runRow(approve, byAnAi, { records: draft.records });
-  assert.equal(refused.status, 1);
-  assert.match(refused.error, /reaches @someone.*approved only by the person/);
-  assert.equal(refused.kept.find(record => record.id === postId).value.status, 'draft');
-
-  // The person's own page: the engine stamps origin page on the run's task.
-  const onTheirPage = filledStdin(approve.invoke.stdin, { input: { post_id: postId, expected_values: reviewed }, task: { request_key: 'k2', origin: 'page' } });
-  const approved = await runRow(approve, onTheirPage, { records: draft.records });
+  const approved = await runRow(approve, { post_id: postId, expected_values: reviewed, approved_by: 'Sample AI', origin: 'page' }, { records: draft.records });
   assert.equal(approved.status, 0, approved.error);
   assert.equal(approved.result.post.status, 'approved');
-  assert.equal(approved.kept.find(record => record.id === postId).value.approved_from, 'page');
+  assert.equal(approved.result.post.approved_by, 'Sample AI');
+  assert.equal(approved.kept.find(record => record.id === postId).value.approved_from, undefined);
+
+  const ungranted = structuredClone(approve);
+  ungranted.invoke.records.rights[0].operations = ['records:read'];
+  const denied = await runRow(ungranted, { post_id: postId, expected_values: reviewed }, { records: draft.records });
+  assert.equal(denied.status, 1);
+  assert.equal(denied.kept.find(record => record.id === postId).value.status, 'draft');
+});
+
+test('approval requires the complete reviewed values and refuses a named post after it changes', async () => {
+  const draft = await step('draft-a-post', { caption: 'Thanks @someone for the idea', destinations: ['service_connection:x:second'] }, accounts);
+  const { post_id: postId, approval_values: reviewed } = draft.result.post;
+  const missingReview = await step('approve-a-post', { post_id: postId }, draft.records);
+  assert.equal(missingReview.status, 1);
+  assert.match(missingReview.error, /complete approval_values/);
+
+  const changed = await step('draft-a-post', { post_id: postId, caption: 'Thanks @someone for the updated idea' }, draft.records);
+  const stale = await step('approve-a-post', { post_id: postId, expected_values: reviewed }, changed.records);
+  assert.equal(stale.status, 1);
+  assert.match(stale.error, /changed after it was reviewed/);
+  assert.equal(stale.records.find(record => record.id === postId).value.status, 'draft');
 });
 
 test('a check reports what it could not see as not checked, and a missing post as missing', async () => {
