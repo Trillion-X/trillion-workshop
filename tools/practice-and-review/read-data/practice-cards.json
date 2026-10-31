@@ -1,0 +1,19 @@
+{
+  "_what": "How tool:practice (read-data/practice-cards.mjs) keeps cards. `types` are the record types of the cards, of each grade given and of the person's spacing policy (the policy itself is the person's: starting ease, the first two gaps, the lapse quality, the grade words and their quality, and optionally the field named by `mastery_field`, the interval in days that counts as fully learned). `default_policy_id` is the policy record used when a request names none. A card's id is `card_id_start`, its deck and the first `card_id_hex` hex digits of the BLAKE3 of its deck and prompt; a grade's id starts with `grade_id_start`. `mastery_scale` is what a fully learned card reads as. `due_limit_default` is how many due cards `due` lists when no limit is asked. `words` are what the answers say.",
+  "types": { "card": "record:practice-cards", "grade": "record:practice-grades", "policy": "record:practice-policy" },
+  "default_policy_id": "default",
+  "default_deck": "general",
+  "card_id_start": "card:",
+  "card_id_hex": 16,
+  "grade_id_start": "grade:",
+  "mastery_field": "mastered_at_days",
+  "mastery_scale": 1000,
+  "due_limit_default": 20,
+  "words": {
+    "no_policy": "No spacing policy is kept: give policy in the request, or keep one as a record of the policy type. This tool has no default.",
+    "no_card": "No card {card_id} is kept.",
+    "remind_one": "1 card is due to practise now.",
+    "remind_many": "{count} cards are due to practise now.",
+    "remind_none": "Nothing is due to practise now."
+  }
+}
