@@ -202,6 +202,197 @@
      }
     ]
    }
+  },
+  {
+   "type": "record",
+   "id": "package::legal-document-builder::tool::make-a-sales-contract",
+   "address": "package::legal-document-builder::tool::make-a-sales-contract",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:make-a-sales-contract",
+    "label": "Make a sales contract's terms, file request and approval link",
+    "status": "active",
+    "job": "Make the terms of an accepted sales contract ready to give out: what the buyer must accept, the terms as rows, the request that turns them into a PDF, Word, spreadsheet, Markdown or text file, and a link the buyer opens to accept",
+    "description": "Give a contract (its name, currency, total in cents, customer, offer and a list of rules such as Commitment and GrantAccess) and which file forms you want (pdf, csv, xlsx, md, txt; all by default). Returns acceptance_requirements (always the terms; the payment obligation when a rule is a Commitment; the installment authorization when it has a payment schedule), terms_rows (the contract's facts and one row per rule, money in the locale you name, en-US by default), file_request (a structured-file-output.request that tool:export-documents-to-files turns into the files) and output_forms. With a base_url it also returns approval_link: a link that carries the whole request, so the buyer can open it on any computer and see the same contract. The forms a contract can be made in are the rows of data/contract-output-targets.json. Nothing here knows what is being sold, who the parties are or what anything costs.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "contract"
+     ],
+     "properties": {
+      "contract": {
+       "type": "object",
+       "required": [
+        "rules"
+       ],
+       "properties": {
+        "id": {
+         "type": "string"
+        },
+        "name": {
+         "type": "string"
+        },
+        "status": {
+         "type": "string"
+        },
+        "currency": {
+         "type": "string"
+        },
+        "total_amount": {
+         "type": "number",
+         "description": "In cents"
+        },
+        "intended_actor_id": {
+         "type": "string"
+        },
+        "resource_id": {
+         "type": "string"
+        },
+        "rules": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         },
+         "description": "The contract's rules, each with a type such as Commitment or GrantAccess"
+        }
+       }
+      },
+      "formats": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "File forms by extension, from data/contract-output-targets.json (default all)"
+      },
+      "actor_id": {
+       "type": "string",
+       "description": "Who the approval is for"
+      },
+      "base_url": {
+       "type": "string",
+       "description": "Where the approval page lives; asked for only when a link is wanted"
+      },
+      "request_id": {
+       "type": "string"
+      },
+      "created_at": {
+       "type": "string",
+       "description": "When the request is made, as a date and time (default now)"
+      },
+      "locale": {
+       "type": "string",
+       "description": "How money is written (default en-US)"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "acceptance_requirements",
+      "terms_rows",
+      "file_request",
+      "output_forms"
+     ],
+     "properties": {
+      "acceptance_requirements": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "terms_rows": {
+       "type": "array",
+       "items": {
+        "type": "array"
+       }
+      },
+      "file_request": {
+       "type": "object"
+      },
+      "output_forms": {
+       "type": "array"
+      },
+      "approval_link": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "legal-document-builder",
+       "paths": [
+        "do-work",
+        "read-data",
+        "data"
+       ],
+       "at": "/opt/parts/legal-document-builder"
+      }
+     },
+     "workdir": "/opt/parts/legal-document-builder",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/make-a-sales-contract.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:legal-document-builder",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/sales-contract-builder"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "contract": {
+        "id": "contract-1",
+        "name": "Swim Coaching Agreement",
+        "currency": "usd",
+        "total_amount": 48000,
+        "rules": [
+         {
+          "type": "Commitment",
+          "amount": 48000,
+          "recurrence": "one_time"
+         }
+        ]
+       },
+       "formats": [
+        "pdf"
+       ]
+      },
+      "output_selector": "$.acceptance_requirements[1]",
+      "contains": "payment obligation"
+     },
+     {
+      "kind": "output-contains",
+      "output_selector": "$.terms_rows[5][1]",
+      "text": "USD 480.00"
+     }
+    ]
+   }
   }
  ]
 }
