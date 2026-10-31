@@ -1,0 +1,161 @@
+{
+  "kind": "tool-rows",
+  "record_set": "plan-trips-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/plan-trips: what each tool does, what it takes and gives back, and how it runs.",
+  "records": [
+    {
+      "id": "package::plan-trips::tool::rank-open-trip-things",
+      "address": "package::plan-trips::tool::rank-open-trip-things",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:rank-open-trip-things",
+        "label": "Rank what is still open on a trip",
+        "status": "active",
+        "job": "Plan a trip: list everything still open across its schedule, packing list and bookings in the order to deal with it, with the one thing to do first and a count of open things per lane",
+        "description": "Give the trip's lanes, each a list of rows (id, title, status, and optionally kind, group, day_order, day_date, starts_at, ends_at), and the person's policy: priority_order (the priority names, most urgent first, the last one meaning closed) and, for each lane, default_priority, priority_by_status (which status has which priority) and sort_by (the row fields that order things of the same priority, for example day_order then starts_at). A row with no status takes the lane's default_status. Returns every row with its priority, then the first open one as focus, the other open ones as later, and for each lane how many rows it holds and how many are open. Things of the same priority come lane by lane in the order the lanes were given. A row with no id is skipped and named under skipped. The tool knows no status and no urgency: a lane the policy does not cover, a priority name outside priority_order and a missing policy are refused.",
+        "input_schema": {
+          "type": "object",
+          "required": ["policy", "lanes"],
+          "additionalProperties": false,
+          "properties": {
+            "policy": {
+              "type": "object",
+              "required": ["priority_order", "lanes"],
+              "description": "priority_order: priority names, most urgent first, last = closed. lanes: for each lane id, { default_priority, default_status?, priority_by_status?: { status: priority }, sort_by?: [row field names] }",
+              "additionalProperties": true
+            },
+            "lanes": {
+              "type": "array",
+              "minItems": 1,
+              "description": "The trip's lanes in the order same-priority things should come",
+              "items": {
+                "type": "object",
+                "required": ["id", "rows"],
+                "properties": {
+                  "id": { "type": "string", "description": "The lane's id, as the policy names it" },
+                  "label": { "type": "string", "description": "What to call the lane" },
+                  "rows": { "type": "array", "items": { "type": "object", "additionalProperties": true }, "description": "Rows: id, title, status, kind, group, day_order, day_date, starts_at, ends_at" }
+                }
+              }
+            },
+            "trip_name": { "type": "string", "description": "The trip's name, handed back as given" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["items", "focus", "later", "lanes", "skipped"],
+          "properties": {
+            "trip_name": { "type": ["string", "null"] },
+            "items": { "type": "array", "description": "Every row, most urgent first: { id, source_id, lane, title, status, priority, detail, time_label? }" },
+            "focus": { "type": ["object", "null"], "description": "The first open row, or null when nothing is open" },
+            "later": { "type": "array", "description": "The other open rows, in order" },
+            "lanes": { "type": "array", "description": "{ id, label, count, open_count } for each lane" },
+            "skipped": { "type": "array", "description": "{ lane, index, why } for each row left out" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "plan-trips", "paths": ["do-work", "read-data"], "at": "/opt/plan-trips" } },
+          "workdir": "/opt/plan-trips",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/rank-open-trip-things.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:plan-trips",
+        "provenance": { "source": "ported from the travel-operations package (open trip things ranked by status urgency, counted per lane)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "policy": {
+                "priority_order": ["urgent", "normal", "later", "closed"],
+                "lanes": {
+                  "stops": { "default_priority": "later", "priority_by_status": { "booked": "normal" }, "sort_by": ["day_order", "starts_at"] },
+                  "bags": { "default_priority": "normal", "priority_by_status": { "missing": "urgent", "packed": "closed" }, "sort_by": ["group", "title"] }
+                }
+              },
+              "trip_name": "Sample outing",
+              "lanes": [
+                { "id": "stops", "label": "Stops", "rows": [{ "id": "s1", "title": "Walk to the harbour", "status": "booked", "day_order": 1, "starts_at": "09:00" }] },
+                { "id": "bags", "label": "Bags", "rows": [{ "id": "b1", "title": "Rain jacket", "status": "missing", "group": "clothes" }, { "id": "b2", "title": "Sandwiches", "status": "packed", "group": "food" }] }
+              ]
+            },
+            "output_selector": "$.focus.title",
+            "contains": "Rain jacket"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::plan-trips::tool::measure-a-checklist",
+      "address": "package::plan-trips::tool::measure-a-checklist",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:measure-a-checklist",
+        "label": "Measure how much of a checklist is done",
+        "status": "active",
+        "job": "See how much of a packing list or other checklist is done and group its items, for example by category",
+        "description": "Give the items (id, status, and optionally group) and which statuses mean done and which statuses leave the count (an item no longer needed). Returns how many counted items are done, how many are counted, the share done (0 when nothing is counted), and the items grouped by their group with a count and a done count for each. An item with no group goes under ungrouped_label (default uncategorized). Both status lists must be given, and may be empty. An item with no id is refused.",
+        "input_schema": {
+          "type": "object",
+          "required": ["items", "done_statuses", "skipped_statuses"],
+          "additionalProperties": false,
+          "properties": {
+            "items": { "type": "array", "items": { "type": "object", "required": ["id"], "additionalProperties": true }, "description": "The checklist's items: id, status, group" },
+            "done_statuses": { "type": "array", "items": { "type": "string" }, "description": "Statuses that mean the item is done" },
+            "skipped_statuses": { "type": "array", "items": { "type": "string" }, "description": "Statuses whose items are left out of the count (still listed in their group)" },
+            "ungrouped_label": { "type": "string", "description": "What to call the group of items with no group" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["done", "total", "ratio", "groups"],
+          "properties": {
+            "done": { "type": "integer" },
+            "total": { "type": "integer" },
+            "ratio": { "type": "number" },
+            "groups": { "type": "array", "description": "{ group, count, done, items } for each group, in order of first appearance" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "plan-trips", "paths": ["do-work", "read-data"], "at": "/opt/plan-trips" } },
+          "workdir": "/opt/plan-trips",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/measure-a-checklist.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:plan-trips",
+        "provenance": { "source": "ported from the packing-list package (packing progress and items by category)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "items": [
+                { "id": "a", "status": "packed", "group": "clothes" },
+                { "id": "b", "status": "planned", "group": "clothes" },
+                { "id": "c", "status": "dropped" }
+              ],
+              "done_statuses": ["packed"],
+              "skipped_statuses": ["dropped"]
+            },
+            "output_selector": "$.ratio",
+            "contains": "0.5"
+          }
+        ]
+      }
+    }
+  ]
+}
