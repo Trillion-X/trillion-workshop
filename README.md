@@ -133,6 +133,8 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `wikimedia-commons` | Searches Wikimedia Commons files, reads one file's license metadata, and checks whether its license allows reuse and what credit it needs | `tool:search-wikimedia-commons-files`, `tool:read-wikimedia-commons-file-metadata`, `tool:assess-wikimedia-commons-file-reuse` |
 | `words-as-picture-vector` | Words as the vector a picture model gives pictures that show them | `tool:words-as-picture-vector` |
 | `work-breakdown` | A body of work as a tree: how much is really finished, new items, proof of finished work, tasks and what blocks them | `tool:roll-up-work-completion`, `tool:add-work-item`, `tool:check-proof-of-finished-work`, `tool:list-tasks-and-what-blocks-them` |
+| `work-breakdown` | A body of work as a tree: how much is really finished, new items, proof of finished work | `tool:roll-up-work-completion`, `tool:add-work-item`, `tool:check-proof-of-finished-work` |
+| `write-from-a-recipe` | Builds the exact instruction a person's AI writes from, from a writing recipe and the person's material, checks what it wrote against the same recipe (only the sources given, the recipe's rules and reviews) and shapes it for the next tool; keeps ready recipes and instruction blocks | `tool:compose-a-writing-instruction`, `tool:check-writing-against-its-recipe`, `tool:list-writing-recipes` |
 | `tools-from-github` | 20 open-source repositories (captions, transcription, background removal, 3D and video rendering and more) that run on the person's own computer | `tool:github:*` |
 
 ## Key Types / Functions
