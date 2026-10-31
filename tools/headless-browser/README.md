@@ -1,7 +1,7 @@
 # tools/headless-browser/
 
 A library the browser tools pack: a headless Chromium started with the switches that keep macOS from asking for the
-login keychain, spoken to over the DevTools protocol with Node's own WebSocket and no browser library, and a page clock
+login keychain, spoken to over the DevTools protocol through a pipe (`--remote-debugging-pipe`: no TCP port, so a sandbox that lets a browser listen on nothing can run it) and no browser library, and a page clock
 that moves only when told. It offers no tool of its own; `tools/page-critic`, `tools/record-a-web-page` and `tools/copy-a-site` pack
 its files beside theirs at `/opt/headless-browser`.
 
@@ -10,11 +10,12 @@ its files beside theirs at `/opt/headless-browser`.
 | File | Purpose |
 |------|---------|
 | `quiet-switches.json` | The switch list every Chromium starts with: `--use-mock-keychain` (no keychain prompt for "Chromium Safe Storage") and `--password-store=basic`. Adding a switch is one row here. |
-| `devtools.mjs` | `openBrowser(executable, { width, height, switches? })`, `attachPageTarget(send)` and `BrowserProblem`: a headless Chromium started with the quiet switches and spoken to over DevTools. A browser that does not start in 30 s or a call with no answer in 60 s ends with a `BrowserProblem`; the browser and its throwaway profile end with the run. |
+| `devtools.mjs` | `openBrowser(executable, { width, height, switches? })`, `attachPageTarget(send)` and `BrowserProblem`: a headless Chromium started with the quiet switches and spoken to over DevTools through the pipe (descriptor 3 in, 4 out, one JSON message ended by a NUL byte each). A browser that does not answer its first call in 30 s, one that exits at start, or a call with no answer in 60 s ends with a `BrowserProblem`; the browser and its throwaway profile end with the run. |
 | `deterministic-switches.json` | DATA: the Chromium switches a virtual-clock recording starts with (`openBrowser(path, { switches })`), so a picture taken while the page's time is paused is not left waiting for a frame. |
 | `virtual-clock.mjs` | `createVirtualClock({ browser, fps, capture })`: the page's own clock moved only when told, one frame at a time, so a recording is the same every time. Used by `tools/record-a-web-page` with `--deterministic true`. |
 | `part.json` | The files code outside this folder may import. |
 | `test/devtools-target.test.mjs` | A browser with no startup page gets one made and attached; an existing page is attached without making another. |
+| `test/devtools-pipe.test.mjs`, `test/stand-in/pipe-browser.mjs` | The browser is started with the pipe and no port; messages split across writes are framed by the NUL byte; one that exits at start is a `BrowserProblem` with its own words. The stand-in browser speaks only the pipe. |
 | `test/proxy.test.mjs` | A browser told a proxy loads a page through it, and loopback, private and metadata addresses go to the proxy too (where the engine refuses them), never around it. |
 
 ## Key Types / Functions
