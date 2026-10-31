@@ -594,10 +594,10 @@
       "evidence": "commander-triage README.md:1 score every sensed item against the founder's priorities with a data-chosen disposition"
     },
     {
-      "capability": "write a post, check it for each place it goes, approve it as reviewed and set it to go at its time",
+      "capability": "write a post, check it for each place it goes, approve it as reviewed and set it to go at its time or queue it now",
       "owner": ["tools/social-posts/"],
       "entry": "tools/social-posts/tool-rows.json",
-      "evidence": "tools/social-posts/README.md: tool:draft-a-post, tool:check-a-post, tool:approve-a-post, tool:set-a-post-to-go-at-its-time, tool:take-back-a-post and tool:list-post-destinations, over the person's post and connection records",
+      "evidence": "tools/social-posts/README.md: tool:draft-a-post, tool:check-a-post, tool:approve-a-post, tool:publish-a-post-now, tool:set-a-post-to-go-at-its-time, tool:take-back-a-post and tool:list-post-destinations, over the person's post and connection records",
       "distinct_from": [
         {"job": "read a person's social posts and their posting calendar", "why": "that row reads posts onto a calendar; this one writes a post and moves it from draft to approved to scheduled"},
 

@@ -88,6 +88,61 @@ test('draft, check, approve as reviewed, then set for its time: scheduled, nothi
   assert.equal(back.records.find(record => record.id === postId).value.armed_at, undefined);
 });
 
+test('publish now queues the exact reviewed post through its existing wake and is idempotent', async () => {
+  const draft = await step('draft-a-post', { caption: 'A post approved for now', destinations: ['service_connection:x:second'] }, accounts);
+  const { post_id: postId, approval_values: reviewed } = draft.result.post;
+  const approved = await step('approve-a-post', { post_id: postId, expected_values: reviewed }, draft.records);
+  const publishNow = row('publish-a-post-now');
+  assert.deepEqual(publishNow.input_schema.required, ['post_id', 'expected_values']);
+  assert.equal(publishNow.invoke.internet, false, 'the queueing action sends no network request');
+  assert.deepEqual(publishNow.invoke.records.rights, [
+    { kind: 'post', operations: ['records:read', 'records:write'] },
+    { kind: 'connection', operations: ['records:list'] },
+  ]);
+
+  const ungranted = structuredClone(publishNow);
+  ungranted.invoke.records.rights = [{ kind: 'post', operations: ['records:read', 'records:write'] }];
+  const denied = await runRow(ungranted, { post_id: postId, expected_values: reviewed }, { records: approved.records });
+  assert.equal(denied.status, 1, 'the current records grant must allow checking destination connections');
+  assert.equal(denied.kept.find(record => record.id === postId).value.status, 'approved');
+
+  const queued = await runRow(publishNow, { post_id: postId, expected_values: reviewed }, { records: approved.records });
+  assert.equal(queued.status, 0, queued.error);
+  assert.equal(queued.result.status, 'scheduled');
+  assert.equal(queued.result.ready.ready, true);
+  assert.ok(Date.parse(queued.result.post.approval_values.scheduled_for) <= Date.now());
+  assert.equal(queued.result.post.status, 'scheduled');
+  assert.equal(queued.result.post.approved_at, approved.result.post.approved_at);
+  assert.deepEqual(queued.result.post.destinations.map(item => item.status), ['not sent']);
+  assert.match(queued.result.said, /Queued for the send wake.*did not send/);
+
+  const again = await runRow(publishNow, { post_id: postId, expected_values: reviewed }, { records: queued.kept });
+  assert.equal(again.status, 0, again.error);
+  assert.equal(again.result.post.armed_at, queued.result.post.armed_at);
+  assert.equal(again.result.post.updated_at, queued.result.post.updated_at);
+  assert.equal(again.calls.filter(call => call.method === 'records:write').length, 0, 'a repeated request creates no second write or wake');
+
+  const changed = await step('draft-a-post', { post_id: postId, caption: 'Different reviewed words' }, approved.records);
+  const stale = await runRow(publishNow, { post_id: postId, expected_values: reviewed }, { records: changed.records });
+  assert.equal(stale.status, 1);
+  assert.match(stale.error, /changed after it was reviewed/);
+  assert.equal(stale.kept.find(record => record.id === postId).value.status, 'draft');
+});
+
+test('publish now stays approved when a current destination connection is not ready', async () => {
+  const draft = await step('draft-a-post', { caption: 'Wait for the account', destinations: ['service_connection:x'] }, accounts);
+  const { post_id: postId, approval_values: reviewed } = draft.result.post;
+  const approved = await step('approve-a-post', { post_id: postId, expected_values: reviewed }, draft.records);
+  const result = await runRow(row('publish-a-post-now'), { post_id: postId, expected_values: reviewed }, { records: approved.records });
+  assert.equal(result.status, 0, result.error);
+  assert.equal(result.result.status, 'approved');
+  assert.equal(result.result.ready.ready, false);
+  assert.match(result.result.said, /not queued/);
+  assert.match(result.result.ready.destinations[0].said, /holds no access token/);
+  assert.equal(result.kept.find(record => record.id === postId).value.status, 'approved');
+  assert.equal(result.kept.find(record => record.id === postId).value.armed_at, undefined);
+});
+
 test('changing a scheduled post makes it a draft again, and a stale review is refused', async () => {
   const draft = await step('draft-a-post', { caption: 'First words', destinations: ['service_connection:x:second'], scheduled_for: AHEAD }, accounts);
   const { post_id: postId, approval_values: reviewed } = draft.result.post;

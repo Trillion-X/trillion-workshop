@@ -933,6 +933,69 @@
    }
   },
   {
+   "id": "package::social-posts::tool::publish-a-post-now",
+   "address": "package::social-posts::tool::publish-a-post-now",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:social-posts",
+    "needs": {"expected_seconds": 5, "network_egress": false},
+    "id": "tool:publish-a-post-now",
+    "label": "Publish a post now",
+    "job": "Queue an approved post for immediate sending through each destination's existing send row",
+    "description": "Give post_id and expected_values (the complete approval_values snapshot reviewed for this action). It is refused if the post changed, is not approved, or is not ready for every destination. When ready, it sets the post's time to now and queues the existing at-its-time wake; this action itself sends nothing and does not say the post was published. The wake and each destination's send row record the actual outcome. Repeating the same request while it is queued returns the existing state without arming another send. A destination whose outcome is not known is never sent again automatically. Returns post_id, status, post, ready and said.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": ["post_id", "expected_values"],
+     "properties": {
+      "post_id": {"type": "string", "description": "A post_id from tool:draft-a-post or tool:read-post-calendar"},
+      "expected_values": {"type": "object", "description": "The complete approval_values from the post as reviewed"}
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["post_id", "status", "post", "said"],
+     "properties": {
+      "post_id": {"type": "string"},
+      "status": {"type": "string"},
+      "post": {"type": "object"},
+      "ready": {"type": "object"},
+      "said": {"type": "string"}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {"package": "social-posts", "paths": ["read-data"], "at": "/opt/social-posts"},
+       {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"},
+       {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+       {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/social-posts/read-data/posts.mjs", "publishAPostNow"],
+     "stdin": {"fill": {"from": "input"}},
+     "records": {
+      "fd": 3,
+      "rights": [
+       {"kind": "post", "operations": ["records:read", "records:write"]},
+       {"kind": "connection", "operations": ["records:list"]}
+      ]
+     }
+    },
+    "provenance": {"source": "the posting owner of the person's posts, using the existing post wake and each place's send and delivery-record owner"},
+    "verify": [{"kind": "sample-run", "input": {"post_id": "post:that-is-not-there", "expected_values": {}}, "output_selector": "$", "contains": "There is no post"}],
+    "result_selector": "$.result"
+   }
+  },
+  {
    "id": "package::social-posts::tool::set-a-post-to-go-at-its-time",
    "address": "package::social-posts::tool::set-a-post-to-go-at-its-time",
    "path": [

@@ -42,6 +42,15 @@ const PLACES = placeRows.places;
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const text = (value, max) => (typeof value === 'string' && value.trim() ? value.trim().slice(0, max) : null);
 const fillWords = (words, values) => words.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+const completeApprovalValues = value => object(value) && Object.keys(value).length === APPROVAL_FIELDS.length
+  && APPROVAL_FIELDS.every(field => Object.hasOwn(value, field));
+function requireCurrentReview(expected, post) {
+  if (!completeApprovalValues(expected)) throw new Error('Give the complete approval_values from the review as expected_values.');
+  if (contentOf(expected) !== contentOf(post)) throw new Error('The post changed after it was reviewed. Read and review its current approval_values before continuing.');
+}
+function sameReviewExceptSchedule(expected, post) {
+  return completeApprovalValues(expected) && contentOf({ ...expected, scheduled_for: null }) === contentOf({ ...post, scheduled_for: null });
+}
 const textMap = (value, max) => (object(value)
   ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, text(item, max)]).filter(([key, item]) => /^[a-z0-9_-]{1,40}$/i.test(key) && item))
   : {});
@@ -252,14 +261,7 @@ export async function approveAPost({ post_id: postId, expected_values: expected,
   if (!post) throw new Error(`There is no post ${postId ?? ''}.`);
   // The reviewed snapshot is compared with the post as it is now, so newer words, destinations or timing are never
   // approved by accident, including by a retry.
-  if (expected === undefined) throw new Error('Give the complete approval_values from the review as expected_values.');
-  if (!object(expected) || Object.keys(expected).length !== APPROVAL_FIELDS.length
-    || APPROVAL_FIELDS.some(field => !Object.hasOwn(expected, field))) {
-    throw new Error('Give the complete approval_values from the review as expected_values.');
-  }
-  if (contentOf(expected) !== contentOf(post)) {
-    throw new Error('The post changed after it was reviewed. Read and review its current approval_values before approving it.');
-  }
+  requireCurrentReview(expected, post);
   if (post.status === 'approved') return { post: shaped(post), said: 'The post was already approved.' };
   if (post.status !== 'draft') throw new Error(`${post.post_id} is ${post.status}, so there is nothing to approve.`);
   if (!post.destinations?.length) throw nowhere(post);
@@ -267,6 +269,36 @@ export async function approveAPost({ post_id: postId, expected_values: expected,
   const by = text(approvedBy, 100);
   const approved = await keep(door, { ...post, status: 'approved', approved_at: at, ...(by ? { approved_by: by } : {}), updated_at: at }, 'approve');
   return { post: shaped(approved), said: 'Approved. tool:set-a-post-to-go-at-its-time sets it to go at its scheduled time.' };
+}
+
+/** tool:publish-a-post-now: queue an approved post at the current time; its own wake and each place's send row own
+ *  the send and delivery receipt. This action never reports a queued post as published. */
+export async function publishAPostNow({ post_id: postId, expected_values: expected } = {}, { door, now = () => new Date() }) {
+  const post = await readPost(door, postId);
+  if (!post) throw new Error(`There is no post ${postId ?? ''}.`);
+  const at = now();
+
+  // Once this action has queued the post, a retry with the same reviewed content returns its current state without
+  // changing armed_at or creating another wake. Changing the schedule through the draft tool makes it a draft instead.
+  const due = Number.isFinite(Date.parse(post.scheduled_for ?? '')) && Date.parse(post.scheduled_for) <= at.getTime();
+  if (due && sameReviewExceptSchedule(expected, post)) {
+    if (post.status === 'scheduled') return { post_id: post.post_id, status: post.status, post: shaped(post), said: 'Already queued for the send wake. Each destination will show its own outcome; this action did not send the post.' };
+    if (post.status === 'posted') return { post_id: post.post_id, status: post.status, post: shaped(post), said: 'Already published to every destination; no duplicate send was queued.' };
+    if (['partial', 'failed'].includes(post.status)) return { post_id: post.post_id, status: post.status, post: shaped(post), said: 'This post already has delivery outcomes. A destination with an unknown outcome is not sent again automatically; check each destination before retrying.' };
+  }
+
+  requireCurrentReview(expected, post);
+  if (post.status !== 'approved') {
+    if (post.status === 'scheduled') throw new Error(`${post.post_id} is already set to go at ${post.scheduled_for}. Take it back before choosing Publish now.`);
+    throw new Error(`${post.post_id} is ${post.status}. Only an approved post can be queued to publish now.`);
+  }
+  if (!post.destinations?.length) throw nowhere(post);
+  const ready = await checksOf(door, post);
+  if (!ready.ready) return { post_id: post.post_id, status: post.status, post: shaped(post), ready, said: `It was not queued. ${ready.said} ${ready.destinations.filter(item => !item.ready).map(item => item.said).join(' ')}`.trim() };
+
+  const timestamp = at.toISOString();
+  const scheduled = await keep(door, { ...post, scheduled_for: timestamp, status: 'scheduled', armed_at: timestamp, updated_at: timestamp }, 'publish-now');
+  return { post_id: scheduled.post_id, status: scheduled.status, post: shaped(scheduled), ready, said: 'Queued for the send wake now. Each destination will show its own outcome; this action did not send the post.' };
 }
 
 /** tool:set-a-post-to-go-at-its-time: an approved post whose time is still ahead and that is ready for every place
