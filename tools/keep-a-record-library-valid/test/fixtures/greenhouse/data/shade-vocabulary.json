@@ -1,0 +1,1 @@
+{"fields": {"light": {"one_of": ["full", "part", "shade"]}, "covers": {"list_of": ["herb", "root", "leaf"]}, "ph": {"number": true}, "remark": {"free_text": true}}}

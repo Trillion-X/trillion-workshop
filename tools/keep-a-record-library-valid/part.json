@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/library.py", "read-data/checks.py", "read-data/routes.py", "read-data/investigation.py", "read-data/derived_data.py", "read-data/quote_locator.py", "read-data/frame_evidence.py", "read-data/json_patch.py", "read-data/adoption.py"]
+}

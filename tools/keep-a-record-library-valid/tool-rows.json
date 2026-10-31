@@ -1,0 +1,198 @@
+{
+  "kind": "package-set-records",
+  "record_set": "keep-a-record-library-valid-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/keep-a-record-library-valid: checking that a library of record files is valid by the checks its own schema declares, and working one piece through a question bank with evidence. Scripts the person's AI runs on the person's own computer.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-record-library",
+        "label": "Check that a library of records is valid (runs on your computer)",
+        "job": "Check that my library of record files is consistent: every id a record names exists, ids are unique, counts match, tables use only their allowed values, and files derived from a source are not stale",
+        "description": "Reads a library of JSON record files on the person's own computer through a schema file the person gives (it names the files, the relations that must hold between them, the tab-separated tables and their allowed values, the builders of files derived from other files, and the commands that say a derived file is stale). Runs every check the schema declares and prints one report: how many passed, which ones broke and exactly which ids or values break them, the table cells outside their allowed values and which derived files are stale. It changes nothing. It knows no record kinds: every file, id field and check comes from the schema.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["library", "schema"],
+          "properties": {
+            "library": { "type": "string", "description": "The folder the library's files are relative to, put where {library} is in the command." },
+            "schema": { "type": "string", "description": "The schema file on the person's computer (see the README for its keys), put where {schema} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The JSON the script prints: { all_passed, passed, total, checks: { <check name>: true | false | [the ids or values that break it] }, id_problems: { only the checks that broke }, <one block per table the schema checks>, <the stale-file list the schema names>, scope }. The exit status is 0 when everything passed, 1 when something broke and 2 when the schema or a file could not be read."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library {library} --schema {schema} validate",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer. If you can run commands where they are: clone the Workshop if it is not there, find the folder of their library and its schema file (ask only if the schema does not exist yet; the README says what it holds), run `run`, and read the report. Tell the person how many checks passed, then for each check that broke, which ids or values break it and in which file to fix them. A derived file reported stale is rebuilt by the command the schema names for it, not by hand. The script changes nothing. If you cannot run commands, give them the command."
+        },
+        "maker": "maker:keep-a-record-library-valid",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "Written for the Workshop: relation checks over a person's own record files, declared as data, in the way a database declares foreign keys"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:work-a-piece-through-a-question-bank",
+        "label": "Work one piece through a bank of questions, with evidence for every answer (runs on your computer)",
+        "job": "Ask a small set of the right questions about one thing I am making or reviewing, keep each answer with the files that show it, tell me when an answer's evidence has changed, and add what I learned to my library of findings",
+        "description": "From a person's bank of questions and the run profile they name, picks a small routed set for one piece (a folder with a header listing its tags), writes the piece's investigation record, says which questions can be answered next, records each answer with the BLAKE3 identity of every evidence file (a missing file is refused, an unchanged file is not recorded twice), reports progress and which answers rest on evidence that has since changed or gone, and adds findings to the findings library. A recorded answer establishes structure and file identity, not that the answer is true. Everything about the bank, the profiles, the routes, the statuses and the finding kinds comes from the schema the person gives.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["library", "schema", "command"],
+          "properties": {
+            "library": { "type": "string", "description": "The folder the library's files are relative to, put where {library} is in the command." },
+            "schema": { "type": "string", "description": "The schema file on the person's computer, put where {schema} is in the command." },
+            "command": { "type": "string", "description": "One of: start <piece> --profile ID [--limit N] [--objective TEXT]; next <piece>; evidence <piece> --q ID --status STATUS --file PATH --note TEXT [--append] [--defect] [--caught-by ID]; finding <piece> --kind KIND --title TITLE --field NAME=VALUE ... [--q ID] [--evidence E1]; progress <piece>. Put it where {command} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The JSON the script prints: start gives the written record and the questions selected; next the questions ready and waiting; evidence the updated progress; finding the piece finding and the library entry; progress the counts, defects, evidence still matching and the answers whose evidence changed. Exit status 2 with a reason on standard error when a request is refused."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library {library} --schema {schema} {command}",
+          "needs": ["python", "blake3 (the python module) or the b3sum command"],
+          "say": "This runs on the person's own computer. Run `start` once for a piece, then loop: `next` to see what can be answered, answer by reading the files the question says to verify, record each answer with `evidence` naming the files that show it (never an answer without a file, never a file that does not exist), and `progress` to see what is left and what has changed. Tell the person plainly that a recorded answer shows which files it rests on, not that it is true. Add a `finding` when something is worth keeping for the next piece. A refusal on standard error says what to change."
+        },
+        "maker": "maker:keep-a-record-library-valid",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "Written for the Workshop: an investigation loop (select, answer with evidence, report progress) where each answer is bound to the identity of the files that show it"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:rebuild-files-derived-from-my-records",
+        "label": "Rebuild the files derived from my records, or list which are stale (runs on your computer)",
+        "job": "Rebuild the files that are computed from my source record files, or tell me which of them are out of date, without changing anything",
+        "description": "Runs the builders a person's schema declares for files derived from other files (counts, merged lists, tab-separated tables). With --check it writes nothing and lists the stale files, exiting 1 if any; otherwise it rewrites them, or writes them under a folder the person names. Which files, builders and formats come from the schema.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["library", "schema", "command"],
+          "properties": {
+            "library": { "type": "string", "description": "The folder the library's files are relative to, put where {library} is in the command." },
+            "schema": { "type": "string", "description": "The schema file on the person's computer, put where {schema} is in the command." },
+            "command": { "type": "string", "description": "Either `rebuild-data --check` to list stale files, or `rebuild-data [--out FOLDER]` to write them. Put it where {command} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The JSON the script prints: the files rebuilt or the stale list. Exit status 1 with --check when any file is stale, 2 when the schema or a file could not be read."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library {library} --schema {schema} {command}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run `rebuild-data --check` first and tell the person which derived files are stale; rebuild only when they want the files updated. If you cannot run commands, give them the command."
+        },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:keep-a-record-library-valid",
+        "provenance": {
+          "source": "Derived files declared as builders over source files, stale when their bytes differ from a fresh build"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pin-video-frames-as-evidence-pages",
+        "label": "Pin a video's frames into labelled contact-sheet pages (runs on your computer)",
+        "job": "Turn a manifest of extracted video frames into labelled page images, with timestamps, that an AI can look at and cite",
+        "description": "Projects a frame manifest into the form the pages need, then tiles the frames into labelled page images (optionally pairing adjacent candidate frames with their frame number and time). Each page is bound to the identity of the frames on it. Sizes, quality and font are options.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["library", "schema", "command"],
+          "properties": {
+            "library": { "type": "string", "description": "The folder the library's files are relative to, put where {library} is in the command." },
+            "schema": { "type": "string", "description": "The schema file on the person's computer, put where {schema} is in the command." },
+            "command": { "type": "string", "description": "One of: project-frame-manifest --manifest FILE --output FILE; frame-pages MANIFEST OUTPUT [--per-page N] [--tile-width N] [--quality N] [--font FILE] [--candidate-pairs] [--pairs-per-page N]. Put it where {command} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The JSON the script prints: the pages written and their frame identities. Exit status 2 with a reason on standard error when a request is refused."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U pillow"
+          ],
+          "run": "python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library {library} --schema {schema} {command}",
+          "needs": ["python", "pillow (the python module)"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run project-frame-manifest, then frame-pages, then look at the pages and cite frames by the labels on them. If you cannot run commands, give them the command."
+        },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:keep-a-record-library-valid",
+        "provenance": {
+          "source": "Contact-sheet pages whose journal binds each page to the identity of its frames"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:adopt-reviewed-evidence-into-my-library",
+        "label": "Adopt a reviewed window of evidence into my library (runs on your computer)",
+        "job": "Take a saved, reviewed set of intervals or evidence and adopt it into my library of records, refusing anything that does not match",
+        "description": "Reads a saved adoption input the person gives (its schema member picks intervals or evidence-only) and adopts it into the library under the profile the library's schema declares, checking membership against the declared table first. Which tables, fields and rules apply comes from the schema.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["library", "schema", "command"],
+          "properties": {
+            "library": { "type": "string", "description": "The folder the library's files are relative to, put where {library} is in the command." },
+            "schema": { "type": "string", "description": "The schema file on the person's computer, put where {schema} is in the command." },
+            "command": { "type": "string", "description": "`adopt-window INPUT_FILE`, where INPUT_FILE is the saved adoption input. Put it where {command} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The JSON the script prints: what was adopted. Exit status 2 with a reason on standard error when the input is refused."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U blake3   # or have the b3sum command"
+          ],
+          "run": "python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library {library} --schema {schema} {command}",
+          "needs": ["python", "blake3 (the python module) or the b3sum command"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run it only on an input the person has reviewed, and report any refusal exactly. If you cannot run commands, give them the command."
+        },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:keep-a-record-library-valid",
+        "provenance": {
+          "source": "Adopting reviewed evidence only when it matches the library's declared membership"
+        }
+      }
+    }
+  ]
+}

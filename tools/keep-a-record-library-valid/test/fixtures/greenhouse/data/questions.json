@@ -1,0 +1,13 @@
+{
+ "count": 8,
+ "questions": [
+  {"id": "QN-001", "stage": "prepare", "question": "Is the soil loose enough to push a finger in to the knuckle?", "verify_by": "a note on the soil test", "source": "garden guide", "routes": "all"},
+  {"id": "QN-002", "stage": "orchard-only", "question": "Does the bed drain within an hour of watering?", "verify_by": "the drainage reading", "source": "garden guide", "routes": "outdoor"},
+  {"id": "QN-003", "stage": "plant", "question": "Is each seed planted at the depth on its packet?", "verify_by": "the planting note", "source": "seed packets", "routes": "all"},
+  {"id": "QN-004", "stage": "plant", "question": "Are the herbs kept out of afternoon sun?", "verify_by": "a shade reading", "source": "seed packets", "routes": "herb + outdoor (not indoor)"},
+  {"id": "QN-005", "stage": "tend", "question": "Was the watering schedule written down?", "verify_by": "the schedule file", "source": "garden guide", "routes": "all"},
+  {"id": "QN-006", "stage": "review", "question": "Which plant would you not grow again?", "verify_by": "a note from the grower", "source": "grower", "routes": "all"},
+  {"id": "QN-007", "stage": "review", "question": "What did this bed teach that the next one can reuse?", "verify_by": "a finding in the findings file", "source": "grower", "routes": "all"},
+  {"id": "QN-008", "stage": "tend", "question": "Is watering on a schedule?", "verify_by": "the schedule file", "source": "garden guide", "routes": "all", "same_as": "W1.1"}
+ ]
+}

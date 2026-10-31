@@ -1,0 +1,11 @@
+{
+ "groups": [
+  {"id": "GR-1", "season_id": "SN-01", "tools": ["trowel"], "questions": ["QN-001", "QN-002"]},
+  {"id": "GR-2", "season_id": "SN-01", "tools": ["seed tray"], "questions": ["QN-003", "QN-004"]},
+  {"id": "GR-3", "season_id": "SN-02", "tools": ["watering can"], "questions": ["QN-005", "QN-008"]},
+  {"id": "GR-4", "season_id": "SN-02", "tools": ["notebook"], "questions": ["QN-006", "QN-007"]}
+ ],
+ "profiles": [
+  {"id": "spring-planting", "groups": ["GR-1", "GR-2", "GR-3", "GR-4"], "question_ids": ["QN-001", "QN-002", "QN-003", "QN-004", "QN-005", "QN-008", "QN-006", "QN-007"], "selected_questions": 8}
+ ]
+}

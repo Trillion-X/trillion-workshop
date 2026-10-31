@@ -1,0 +1,5 @@
+{"cards": [
+ {"id": "CD-001", "crop_id": "CR-001", "season_id": "SN-01"},
+ {"id": "CD-002", "crop_id": "CR-001", "season_id": "SN-02"},
+ {"id": "CD-003", "crop_id": "CR-002", "season_id": "SN-01"}
+]}
