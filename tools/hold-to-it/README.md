@@ -8,7 +8,7 @@ Rules it keeps: a time nobody said is never guessed (an agreement without one is
 
 Nothing is sent or booked. The answer says the times to arm (the reminder and the check, as a repeat or once, with a schedule id taken from the agreement so arming again changes them instead of adding more) and the sentences to say; whoever runs the tool arms the wake, books the calendar (`tools/calendar`, `tools/book-time`), tells the group (`tools/notifications`, `tools/tell-the-person`) and brings the group in (`tools/form-groups-and-matches`).
 
-**Waits for a listening owner:** reading who spoke in a call (the old tool read it from the person's listening and meeting apps) is not carried. Until the Workshop has a listening owner, the caller hands in the names it has as `evidence`.
+**Heard turns:** the check takes `heard`, one row per speaker turn in the listening owner's shape (`{ start, end, speaker, me, voice, score, unsure?, text }`), and reads the speaker as the name. A speaker the policy's `unnamed_prefixes` names (a voice with no name, or one of several candidates) is an unclear voice, so nobody is marked absent on it. The caller reads the rows; this tool never reads a call. The live capture that writes them is not built yet, so until it is the caller hands in the names it has as `evidence`.
 
 ## Files
 

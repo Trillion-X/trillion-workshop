@@ -98,6 +98,15 @@ const forms = (name, aliases = {}) => {
   return new Set([...all, ...all.map(each => each.split(/\s+/)[0])]);
 };
 
+/** Evidence from heard turns ([{ start, speaker, ... }], one row per speaker turn): the speaker is the name and the start
+ *  the time. A turn whose speaker is a voice with no name, or one of several names, is evidence of an unclear voice only
+ *  when the policy's `unnamed_prefixes` say so. */
+export function evidenceFromHeard(heard) {
+  return (Array.isArray(heard) ? heard : [])
+    .filter(row => row && typeof row.speaker === 'string' && row.speaker.trim())
+    .map(row => ({ name: row.speaker.trim(), at: row.start }));
+}
+
 /** Which of `people` the evidence names: evidence is [{ name, at }] (a speaker heard, a member who wrote). */
 export function presentAmong(people, evidence, aliases = {}) {
   const heard = evidence.map(each => String(each.name ?? '').toLowerCase().trim()).filter(Boolean);
@@ -240,9 +249,10 @@ export async function holdToIt(input, { door, now = () => Date.now() } = {}) {
     const { last, next } = aroundNow(held.cadence, current, policy);
     if (!last) return { said: words.none_yet };
     if (typeof input.arranged !== 'boolean') refuse(words.needs_arranged);
-    const evidence = (Array.isArray(input.evidence) ? input.evidence : []).filter(row => row && typeof row.name === 'string');
+    const evidence = [...(Array.isArray(input.evidence) ? input.evidence : []), ...evidenceFromHeard(input.heard)].filter(row => row && typeof row.name === 'string');
     const windowed = evidence.filter(row => { const at = Date.parse(row.at); return Number.isNaN(at) || (at >= last.starts - (policy.evidence_before_minutes ?? 0) * 60_000 && at <= last.ends + (policy.evidence_after_minutes ?? 0) * 60_000); });
-    const unnamed = new Set(windowed.map(row => row.name).filter(name => name.startsWith(policy.unnamed_prefix ?? '\u0000'))).size;
+    const unnamedPrefixes = [policy.unnamed_prefixes ?? []].flat();
+    const unnamed = new Set(windowed.map(row => row.name).filter(name => unnamedPrefixes.some(prefix => prefix && name.startsWith(prefix)))).size;
     const present = presentAmong(held.agreed_by, windowed, held.aliases);
     const marks = marksFor({ people: held.agreed_by, present, arranged: input.arranged, unnamed }, policy);
     await door.write(marks.map(({ person, mark }) => ({

@@ -98,6 +98,11 @@
       "evidence": {
        "description": "check: [{ name, at }] speakers heard or members who wrote in the meeting's window; mark: the words that show it"
       },
+      "heard": {
+       "type": "array",
+       "description": "check: one row per speaker turn heard, { start, end?, speaker, ... }; the speaker is the name, or text the policy's unnamed_prefixes say is a voice with no name. The caller reads these rows; the tool never reads a call",
+       "items": { "type": "object" }
+      },
       "read_from": {
        "type": "array",
        "items": {
@@ -116,7 +121,7 @@
       },
       "policy": {
        "type": "object",
-       "description": "The group's marks and defaults, when not kept as a record: { marks, defaults: { minutes, time_zone, remind_minutes, check_after_minutes }, evidence_before_minutes?, evidence_after_minutes?, unnamed_prefix? }"
+       "description": "The group's marks and defaults, when not kept as a record: { marks, defaults: { minutes, time_zone, remind_minutes, check_after_minutes }, evidence_before_minutes?, evidence_after_minutes?, unnamed_prefixes? (names that start with one of these are voices with no name) }"
       },
       "policy_id": {
        "type": "string"
