@@ -1,0 +1,163 @@
+{
+ "package": "referral-codes-and-rewards",
+ "things": [
+  {
+   "type": "record",
+   "id": "package::referral-codes-and-rewards::tool::work-out-referral-codes",
+   "address": "package::referral-codes-and-rewards::tool::work-out-referral-codes",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:work-out-referral-codes",
+    "label": "Work out referral codes",
+    "status": "active",
+    "job": "See which referral codes are live, which sales a code a buyer typed earns, what share it earns, and how many referrals an account has accepted",
+    "description": "Reads the referral events a person saved (a code made, a code withdrawn, a signup that named a referrer) and works out the codes: who made each one, what it points at, and whether it is still live. The first account to make a code keeps it, in any order the events arrive; only the account that made a code can withdraw it. Give it the codes buyers typed and the sales, and it says for each pair which live code that is, whether the sale earns it (the sale attribute the code points at has the value the code names), and, when you give a share rule (the amount field and basis points), what the sale earns in whole cents. It reads and adds up only: it moves no money and sends nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": ["events"],
+     "properties": {
+      "events": {"type": "array", "items": {"type": "object"}, "description": "The referral events: { kind?, subject, material: { event_type?, referral_code?, target?, referrer_account_id?, occurred_at } }"},
+      "codes": {"type": "array", "items": {"type": "string"}, "description": "Codes buyers typed, to check"},
+      "sales": {"type": "array", "items": {"type": "object"}, "description": "Sale records; each code is checked against each sale"},
+      "share": {"type": "object", "required": ["amount_field", "basis_points"], "properties": {"amount_field": {"type": "string"}, "basis_points": {"type": "integer", "minimum": 0, "maximum": 10000}}, "description": "What a code earns: the sale field holding the whole-number amount, and the share in basis points (1000 is 10 percent)"},
+      "account": {"type": "string", "description": "Count this account's newest code and accepted referrals"}
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["codes"],
+     "properties": {
+      "codes": {"type": "array"},
+      "checked": {"type": "array"},
+      "state": {"type": "object"}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {"package_files": {"package": "referral-codes-and-rewards", "paths": ["do-work", "read-data"], "at": "/opt/parts/referral-codes-and-rewards"}},
+     "workdir": "/opt/parts/referral-codes-and-rewards",
+     "stdout": "json",
+     "argv": ["node", "do-work/work-out-referral-codes.mjs", {"fill": {"from": "input"}}]
+    },
+    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:deployed-container"],
+    "maker": "maker:referral-codes-and-rewards",
+    "result_selector": "$.result",
+    "provenance": {"source": "bitfield-packages packages/referrals and packages/codes-and-rewards"},
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "events": [
+        {"kind": "referral_code_created", "subject": "account:ada", "material": {"event_type": "referral_code_created", "referral_code": "BREAD-7K3Q", "target": {"on": "product_id", "value": "loaf"}, "occurred_at": "2026-01-01T00:00:00Z"}}
+       ],
+       "codes": ["bread-7k3q"],
+       "sales": [{"product_id": "loaf", "amount_cents": 2000}],
+       "share": {"amount_field": "amount_cents", "basis_points": 1000}
+      },
+      "output_selector": "$.checked[0].earned",
+      "contains": "200"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::referral-codes-and-rewards::tool::make-a-referral-code",
+   "address": "package::referral-codes-and-rewards::tool::make-a-referral-code",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:make-a-referral-code",
+    "label": "Make a referral code",
+    "status": "active",
+    "job": "Make a referral code that earns a share of the sales of one product or one seller, and give back the event to save",
+    "description": "Makes a short readable code (letters and digits, no I, L, O or U, so it survives being read aloud) or checks the one you chose, and gives back the event that makes it live once the person saves it. You say what the code points at: the sale attribute and the value it must have, from the attributes you allow. A code someone else already made stays theirs when the events are read. Nothing is kept by the tool.",
+    "input_schema": {
+     "type": "object",
+     "required": ["referrer", "target", "allowed_on"],
+     "properties": {
+      "referrer": {"type": "string", "description": "The account that shares the code"},
+      "target": {"type": "object", "required": ["on", "value"], "properties": {"on": {"type": "string"}, "value": {"type": "string"}}, "description": "The sale attribute and the value a sale must have to earn this code"},
+      "allowed_on": {"type": "array", "items": {"type": "string"}, "description": "The sale attributes a code may point at"},
+      "prefix": {"type": "string", "description": "Letters the made code starts with"},
+      "code": {"type": "string", "description": "A code you chose, 4 to 32 letters, digits or dashes"},
+      "occurred_at": {"type": "string", "description": "When it was made; now when absent"}
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {"type": "object", "required": ["code", "event"], "properties": {"code": {"type": "string"}, "event": {"type": "object"}}},
+    "invoke": {
+     "kind": "container",
+     "files": {"package_files": {"package": "referral-codes-and-rewards", "paths": ["do-work", "read-data"], "at": "/opt/parts/referral-codes-and-rewards"}},
+     "workdir": "/opt/parts/referral-codes-and-rewards",
+     "stdout": "json",
+     "argv": ["node", "do-work/make-a-referral-code.mjs", {"fill": {"from": "input"}}]
+    },
+    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:deployed-container"],
+    "maker": "maker:referral-codes-and-rewards",
+    "result_selector": "$.result",
+    "provenance": {"source": "bitfield-packages packages/referrals"},
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {"referrer": "account:ada", "target": {"on": "product_id", "value": "loaf"}, "allowed_on": ["product_id"], "code": "bread-7k3q", "occurred_at": "2026-01-01T00:00:00Z"},
+      "output_selector": "$.code",
+      "contains": "BREAD-7K3Q"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::referral-codes-and-rewards::tool::withdraw-a-referral-code",
+   "address": "package::referral-codes-and-rewards::tool::withdraw-a-referral-code",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:withdraw-a-referral-code",
+    "label": "Withdraw a referral code",
+    "status": "active",
+    "job": "Stop a referral code from earning, and give back the event to save",
+    "description": "Gives back the event that, once saved, stops a referral code you made from earning. Only the account that made a code can withdraw it; a withdrawal from any other account is ignored when the events are read.",
+    "input_schema": {
+     "type": "object",
+     "required": ["referrer", "code"],
+     "properties": {
+      "referrer": {"type": "string", "description": "The account that made the code"},
+      "code": {"type": "string"},
+      "occurred_at": {"type": "string", "description": "When it was withdrawn; now when absent"}
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {"type": "object", "required": ["event"], "properties": {"event": {"type": "object"}}},
+    "invoke": {
+     "kind": "container",
+     "files": {"package_files": {"package": "referral-codes-and-rewards", "paths": ["do-work", "read-data"], "at": "/opt/parts/referral-codes-and-rewards"}},
+     "workdir": "/opt/parts/referral-codes-and-rewards",
+     "stdout": "json",
+     "argv": ["node", "do-work/withdraw-a-referral-code.mjs", {"fill": {"from": "input"}}]
+    },
+    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:deployed-container"],
+    "maker": "maker:referral-codes-and-rewards",
+    "result_selector": "$.result",
+    "provenance": {"source": "bitfield-packages packages/referrals"},
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {"referrer": "account:ada", "code": "bread-7k3q", "occurred_at": "2026-01-02T00:00:00Z"},
+      "output_selector": "$.event.kind",
+      "contains": "referral_code_withdrawn"
+     }
+    ]
+   }
+  }
+ ]
+}
