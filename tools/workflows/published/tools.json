@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:a4be0f6cd3df3dadd1303191e639d4e385373e3f22d642d2787b55633602ae3f"
+  "blake3": "1f:61735173fc267c6f88bea75299c3fc51bc13de06f9b21dc90c31718755d731b6"
  },
  "fields": [
   {
@@ -1135,6 +1135,21 @@
    }
   },
   {
+   "id": "tool:choose-what-a-visitor-sees",
+   "values": {
+    "title": "Choose what one visitor sees",
+    "job": "Pick which version of a page, offer, headline or feature one visitor gets, from rules you write as data, keeping the same visitor on the same version",
+    "description": "Scores every candidate version with a decider (a rule written as structured data: a split by visitor, a switch on what is known about the visitor, a preference for the version with the best recorded result) and returns the winner, the full ranking and any findings. The same visitor key always lands on the same version. One candidate is a feature flag, two or more is an A/B test, a decider that reads recorded results is a bandit. A candidate set or decider that does not validate is refused with every problem listed.",
+    "status": "active",
+    "maker": "maker:run-experiments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "run-experiments"
+   }
+  },
+  {
    "id": "tool:cite-principles-from-captions",
    "values": {
     "title": "Keep principles from captioned videos, each backed by a quote checked word for word (runs on your computer)",
@@ -1239,6 +1254,21 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:credit-outcomes-to-candidates",
+   "values": {
+    "title": "Credit what visitors did to the version they saw",
+    "job": "Join who saw which version with who bought, signed up or clicked, so each version's results can be read",
+    "description": "Takes two lists of records (which visitor was assigned which candidate, and which outcomes each visitor produced) and a join that names the fields of each, and returns one observation per visitor, outcome and candidate with how many times it happened and the value it carried. The same records always give the same observations. A join that does not validate is refused with every problem listed.",
+    "status": "active",
+    "maker": "maker:run-experiments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "run-experiments"
    }
   },
   {
@@ -3883,6 +3913,21 @@
      "placement:your-computer"
     ],
     "folder": "documents-as-list-rows"
+   }
+  },
+  {
+   "id": "tool:read-experiment-results",
+   "values": {
+    "title": "Read how each version did",
+    "job": "Sum what visitors did on each version of an experiment and work out the rate that decides the winner",
+    "description": "Takes the recorded outcome facts for one experiment (views, clicks, conversions or any metric you track, per candidate version) and returns each version's totals. A rate you name (converted over views) is worked out per version, left out where either number is missing or the denominator is zero, and the version that leads on it is named.",
+    "status": "active",
+    "maker": "maker:run-experiments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "run-experiments"
    }
   },
   {
