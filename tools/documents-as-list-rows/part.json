@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/document-properties.mjs", "read-data/folder-files.mjs", "read-data/namespace-files.mjs", "read-data/split.mjs", "read-data/rows.mjs"]
+}
