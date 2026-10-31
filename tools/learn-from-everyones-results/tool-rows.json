@@ -1,0 +1,322 @@
+{
+ "kind": "tool-rows",
+ "record_set": "learn-from-everyones-results-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/learn-from-everyones-results: the one randomized bit a person's own store sends about a result, and, in the one account that holds the pool, adding a situation a person made safe to show strangers, adding that bit, withdrawing a person's bits and the only answer anyone gets from them.",
+ "records": [
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:randomize-a-result",
+    "label": "Make the private bit for a result",
+    "job": "Turn whether something worked into the one noisy yes or no that may leave my account to teach everyone, so nobody can tell my real result",
+    "description": "Randomized response in the person's own store: returns worked as the truth with probability e^epsilon/(1+e^epsilon) and the opposite otherwise, drawn from the platform's cryptographic random source. rules.epsilon is the pool's privacy loss (the pool's own settings). Keep the bit you got with the result it is for, so the same result is never sent with a new draw.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": ["worked", "rules"],
+     "additionalProperties": false,
+     "properties": {
+      "worked": { "type": "boolean", "description": "Whether it worked, the clean result, which never leaves the store" },
+      "rules": { "type": "object", "required": ["epsilon"], "properties": { "epsilon": { "type": "number", "exclusiveMinimum": 0 } }, "description": "The pool's rules; epsilon is read" }
+     }
+    },
+    "output_schema": { "type": "object", "required": ["worked"], "properties": { "worked": { "type": "boolean" } } },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/learn-from-everyones-results",
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/learn-from-everyones-results/read-data/pooled-results.mjs", "randomizeAResult"],
+     "stdin": { "fill": { "from": "input" } },
+     "files": {
+      "package_files": [
+       { "package": "learn-from-everyones-results", "paths": ["read-data"], "at": "/opt/learn-from-everyones-results" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+       { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+      ]
+     }
+    },
+    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:learn-from-everyones-results"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:add-a-pooled-result",
+    "label": "Add a private result to the pool",
+    "job": "Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id",
+    "description": "Runs in the account that holds the pool. Keeps one row of the pooled results list: { contributor, situation, worked, embedding, day }. The embedding is read from the shared situation's own row (list pooled-situations), never taken from the sender, so a result lands only on a situation that is shared and is linked to no shared text. contributor is the person's random id (64 lowercase hex), kept only in their own store; worked is the randomized bit tool:randomize-a-result gave. The row holds no account.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": ["contributor", "situation", "worked"],
+     "additionalProperties": false,
+     "properties": {
+      "contributor": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "The person's random contributor id" },
+      "situation": { "type": "string", "minLength": 1, "description": "The shared situation's row id in pooled-situations" },
+      "worked": { "type": "boolean", "description": "The randomized bit, as the person's store drew it" }
+     }
+    },
+    "output_schema": { "type": "object", "required": ["added"], "properties": { "added": { "type": "boolean" } } },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/learn-from-everyones-results",
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/learn-from-everyones-results/read-data/pooled-results.mjs", "addPooledResult"],
+     "stdin": { "fill": { "from": "input" } },
+     "files": {
+      "package_files": [
+       { "package": "learn-from-everyones-results", "paths": ["read-data"], "at": "/opt/learn-from-everyones-results" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+       { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       { "kind": "record:pooled-situation", "operations": ["records:read"] },
+       { "kind": "record:pooled-result", "operations": ["records:write"] }
+      ]
+     }
+    },
+    "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:learn-from-everyones-results"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:withdraw-pooled-results",
+    "label": "Take a person's results out of the pool",
+    "job": "Remove every noisy result one person ever gave the pool when they stop sharing",
+    "description": "Runs in the account that holds the pool. Removes every pooled results row whose id starts with the contributor's id, in writes of at most the engine's cap, and says how many were removed. The next answer is worked out from what is left, with new noise for the shards it changed.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": ["contributor"],
+     "additionalProperties": false,
+     "properties": { "contributor": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "The person's random contributor id" } }
+    },
+    "output_schema": { "type": "object", "required": ["removed"], "properties": { "removed": { "type": "integer", "minimum": 0 } } },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/learn-from-everyones-results",
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/learn-from-everyones-results/read-data/pooled-results.mjs", "withdrawPooledResults"],
+     "stdin": { "fill": { "from": "input" } },
+     "files": {
+      "package_files": [
+       { "package": "learn-from-everyones-results", "paths": ["read-data"], "at": "/opt/learn-from-everyones-results" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+       { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       { "kind": "record:pooled-result", "operations": ["records:list", "records:write"] }
+      ]
+     }
+    },
+    "needs": { "expected_seconds": 30, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:learn-from-everyones-results"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:how-similar-results-turned-out",
+    "label": "How results like this turned out for everyone",
+    "job": "Say how often things worked for other people in situations like mine, without anyone's own result being readable",
+    "description": "Runs in the account that holds the pool, and is the only read of it: the pooled results whose situation is at least rules.min_similarity close in meaning (cosine) to the asked embedding, then one vote per contributor, nothing under rules.min_people distinct people, the median across rules.shards contributor shards, the randomized response undone, Laplace noise fixed by the question and by the rows of the shards that answer it (asking again gives the same answer; any join or withdrawal there draws new noise), and counts rounded to rules.people_bucket and rules.share_step. Returns { enough, people_at_least, worked_share? }, never a row or a contributor. rules are the pool's own settings (pooled_outcomes with search.min_similarity).",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": ["embedding", "rules"],
+     "additionalProperties": false,
+     "properties": {
+      "embedding": { "type": "array", "items": { "type": "number" }, "minItems": 1, "maxItems": 4096, "description": "The asked situation's meaning, by the same embedding model as the pool's situations" },
+      "rules": {
+       "type": "object",
+       "required": ["epsilon", "min_people", "shards", "query_epsilon", "people_bucket", "share_step", "min_similarity"],
+       "properties": {
+        "epsilon": { "type": "number" }, "min_people": { "type": "integer" }, "shards": { "type": "integer" }, "query_epsilon": { "type": "number" },
+        "people_bucket": { "type": "number" }, "share_step": { "type": "number" }, "min_similarity": { "type": "number" }
+       },
+       "description": "The pool's rules"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["enough", "people_at_least"],
+     "properties": { "enough": { "type": "boolean" }, "people_at_least": { "type": "integer" }, "worked_share": { "type": "number" } }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/learn-from-everyones-results",
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/learn-from-everyones-results/read-data/pooled-results.mjs", "howSimilarResultsTurnedOut"],
+     "stdin": { "fill": { "from": "input" } },
+     "files": {
+      "package_files": [
+       { "package": "learn-from-everyones-results", "paths": ["read-data"], "at": "/opt/learn-from-everyones-results" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+       { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       { "kind": "record:pooled-result", "operations": ["records:list"] }
+      ]
+     }
+    },
+    "needs": { "expected_seconds": 30, "network_egress": false, "memory_mb": 512 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:learn-from-everyones-results"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:add-a-shared-situation",
+    "label": "Add a shared situation to the pool",
+    "job": "Keep one situation a person made safe to show strangers, with its meaning, so others can learn how similar decisions turned out",
+    "description": "Runs in the account that holds the pool. Keeps one row of the pooled situations list: { entry, embedding, day }, under a new random id it answers. The entry is the rewrite the person's side already checked (tool:share-a-decision); the plain privacy pass runs on it again here with no private terms, and words that still carry an address, a handle, a long number, an amount of money, a key, the removed mark or a name inside a sentence are refused. embedding is the meaning of the entry's situation, at most 4096 numbers. The row holds no account and no contributor.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "entry",
+      "embedding"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "entry": {
+       "type": "object",
+       "description": "The shared words: at most 16 fields, each words or a list of words"
+      },
+      "embedding": {
+       "type": "array",
+       "items": {
+        "type": "number"
+       },
+       "maxItems": 4096,
+       "description": "The meaning of the shared situation"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "situation"
+     ],
+     "properties": {
+      "situation": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/learn-from-everyones-results",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/learn-from-everyones-results/read-data/pooled-results.mjs",
+      "addPooledSituation"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "record:pooled-situation",
+        "operations": [
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:learn-from-everyones-results"
+   }
+  }
+ ]
+}

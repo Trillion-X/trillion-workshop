@@ -1,0 +1,1410 @@
+{
+ "kind": "tool-rows",
+ "record_set": "decide-with-a-method-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/decide-with-a-method: decisions a person's AI makes with a method, kept as the person's own decision records.",
+ "records": [
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:bring-back-similar-decisions",
+    "label": "Bring back my similar decisions",
+    "job": "When I am about to decide something, show what I decided in similar decisions before, what came next and how each turned out",
+    "description": "Reads the person's own decision records. The newest ones are weighed by the words their goals share with the named decision's goal, plus a point for the same method (read-data/decide-with-a-method.json `similar`). The closest are kept, closest first, limit of them (10 when not given, never more than 50). Each comes back with its goal, its method, the option it chose, its next action, its status (from its own current evidence) and its observed and reported results. Only those few are read whole, and nothing leaves the person's account.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "decision_id"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "decision_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The decision about to be made"
+      },
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 50,
+       "description": "How many to bring back"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "similar_decisions"
+     ],
+     "properties": {
+      "similar_decisions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "case_id",
+         "goal",
+         "method",
+         "decision",
+         "next_action",
+         "status",
+         "observed",
+         "reported"
+        ]
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/similar-decisions.mjs",
+      "similarDecisions"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:start-a-decision",
+    "label": "Start a decision with my method",
+    "job": "Start a decision my AI will make with my method: what is being decided, the facts, and the options",
+    "description": "Opens a decision in the person's own records from a source_id (the same source always opens the same decision; the same input again is that decision, different input is refused), its goal, its evidence ({ref, claim}, each ref unique) and at least two options ({id, label}), under the method named or the person's default (their Methods list). The decision keeps the exact method it was opened with. Returns case_id and the first question.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "source_id",
+      "goal",
+      "evidence",
+      "options"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "source_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "Unique text naming where this decision comes from"
+      },
+      "goal": {
+       "type": "string",
+       "minLength": 1,
+       "description": "What is being decided"
+      },
+      "evidence": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "ref",
+         "claim"
+        ],
+        "properties": {
+         "ref": {
+          "type": "string"
+         },
+         "claim": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "options": {
+       "type": "array",
+       "minItems": 2,
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "label"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "method": {
+       "type": "string",
+       "minLength": 1,
+       "description": "A method id from the person's methods"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "case_id"
+     ],
+     "properties": {
+      "case_id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/decisions.mjs",
+      "startADecision"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-call",
+        "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method-check",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:next-decision-question",
+    "label": "Read a decision's next question",
+    "job": "See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions",
+    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "decision_id"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "decision_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The decision"
+      },
+      "explain": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 128,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       },
+       "description": "Ids of this question's checks whose whole words (what a good answer does, what it refuses) to send back as explained"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "case_id"
+     ],
+     "properties": {
+      "case_id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/decisions.mjs",
+      "nextDecisionQuestion"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method-check",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:answer-a-decision-question",
+    "label": "Answer a decision's question",
+    "job": "Answer the question my method is asking about a decision, with each of its checks",
+    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. Keeps the answer as its own step record and returns the next question.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "decision_id",
+      "step_id",
+      "answer"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "decision_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "step_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "answer": {
+       "type": "object"
+      },
+      "verdicts": {
+       "type": "array",
+       "description": "Your judge's verdicts on this step's checks, as the question's `verdicts` words say: each { check, meets, rests_on, missing?, graded_by }",
+       "items": {
+        "type": "object",
+        "required": [
+         "check",
+         "meets",
+         "rests_on",
+         "graded_by"
+        ],
+        "properties": {
+         "check": {
+          "type": "string"
+         },
+         "meets": {
+          "type": "boolean"
+         },
+         "rests_on": {
+          "type": "string"
+         },
+         "missing": {
+          "type": "string"
+         },
+         "graded_by": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "usage": {
+       "type": "object",
+       "description": "What answering cost, as you count it (model calls, tokens, seconds, a model name)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "case_id"
+     ],
+     "properties": {
+      "case_id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/decisions.mjs",
+      "answerADecisionQuestion"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-call",
+        "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method-check",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:make-the-decision",
+    "label": "Make the decision",
+    "job": "Record what my AI decided, why, what to do next and how we will know it worked",
+    "description": "Once every question is answered: decision is { option_id (one of the options), reason, next_action, success_measure, evidence_refs, move?, and every decision field the decision asks for }. verdicts are your judge's on the decision fields. A decided decision changes only after a failed result: the earlier decision moves to decision_history. Returns what to do now and how to say it.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "decision_id",
+      "decision"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "decision_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "decision": {
+       "type": "object",
+       "required": [
+        "option_id",
+        "reason",
+        "next_action",
+        "success_measure",
+        "evidence_refs"
+       ],
+       "properties": {
+        "option_id": {
+         "type": "string"
+        },
+        "reason": {
+         "type": "string"
+        },
+        "next_action": {
+         "type": "string"
+        },
+        "success_measure": {
+         "type": "string"
+        },
+        "evidence_refs": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "move": {
+         "type": "string"
+        }
+       }
+      },
+      "verdicts": {
+       "type": "array",
+       "description": "Your judge's verdicts on this step's checks, as the question's `verdicts` words say: each { check, meets, rests_on, missing?, graded_by }",
+       "items": {
+        "type": "object",
+        "required": [
+         "check",
+         "meets",
+         "rests_on",
+         "graded_by"
+        ],
+        "properties": {
+         "check": {
+          "type": "string"
+         },
+         "meets": {
+          "type": "boolean"
+         },
+         "rests_on": {
+          "type": "string"
+         },
+         "missing": {
+          "type": "string"
+         },
+         "graded_by": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "usage": {
+       "type": "object"
+      },
+      "expected_generation": {
+       "type": "integer",
+       "minimum": 1
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "case_id"
+     ],
+     "properties": {
+      "case_id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/decisions.mjs",
+      "makeTheDecision"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-call",
+        "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method-check",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:report-a-decision-result",
+    "label": "Report how a decision turned out",
+    "job": "Tell Trillion how a decision actually turned out, in my words",
+    "description": "Keeps the person's result of a decided decision: result (met, failed or unknown), summary, answered_by \"person\" (ask them). A failed result opens the decision for a new one. The same words again are kept once; source_ref and supersedes correct an earlier report. A claim is kept as the caller's claim; nothing here marks it verified.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "decision_id",
+      "result",
+      "summary",
+      "answered_by"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "decision_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "result": {
+       "type": "string",
+       "enum": [
+        "met",
+        "failed",
+        "unknown"
+       ]
+      },
+      "summary": {
+       "type": "string",
+       "minLength": 1
+      },
+      "answered_by": {
+       "type": "string",
+       "const": "person"
+      },
+      "source_ref": {
+       "type": "string",
+       "minLength": 1
+      },
+      "supersedes": {
+       "type": "string",
+       "minLength": 1
+      },
+      "observed_at": {
+       "type": "string",
+       "description": "When it was seen, at or before now"
+      },
+      "expected_generation": {
+       "type": "integer",
+       "minimum": 1
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "case_id"
+     ],
+     "properties": {
+      "case_id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/decisions.mjs",
+      "reportADecisionResult"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-call",
+        "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method-check",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:say-what-was-done",
+    "label": "Say what was done about a decision",
+    "job": "Tell Trillion my AI did the next step of a decision, or the exact wall it reached",
+    "description": "Keeps, with the decision generation it carried out, that its next action was done (state done) or the exact wall reached (state wall: the file, field, refused command or missing credential), in what_happened.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "decision_id",
+      "state",
+      "what_happened"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "decision_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "state": {
+       "type": "string",
+       "enum": [
+        "done",
+        "wall"
+       ]
+      },
+      "what_happened": {
+       "type": "string",
+       "minLength": 1
+      },
+      "by": {
+       "type": "string"
+      },
+      "expected_generation": {
+       "type": "integer",
+       "minimum": 1
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "case_id"
+     ],
+     "properties": {
+      "case_id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/decisions.mjs",
+      "sayWhatWasDone"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-call",
+        "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method-check",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:share-a-decision",
+    "label": "Make a decision safe to share",
+    "job": "Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words",
+    "description": "In three turns. With only decision_id: the decision's facts with every private term already redacted, and how to rewrite them in general terms. With rewrite: the plain privacy pass (tools/learn-from-everyones-results) runs on it with the person's own private terms (their never-publish list rows and the proper names in the decision) and must find nothing; then reidentification, the whole answer tool:ask-a-small-model-for-a-verdict gave for the rubric and content this tool names, must be accepted and bound to exactly this rewrite. Only then is the entry kept on the decision as shared and answered with the pool tool to send it to (tool:add-a-shared-situation). Nothing leaves the person's records here.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "decision_id"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "decision_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "rewrite": {
+       "type": "object",
+       "description": "{ situation, options: [words], chosen, why, measured_by }, written by the calling AI from the redacted facts"
+      },
+      "reidentification": {
+       "type": "object",
+       "description": "The whole answer of tool:ask-a-small-model-for-a-verdict for the check this tool named"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "case_id"
+     ],
+     "properties": {
+      "case_id": {
+       "type": "string"
+      },
+      "next": {
+       "type": "string"
+      },
+      "facts": {
+       "type": "object"
+      },
+      "check": {
+       "type": "object"
+      },
+      "shared": {
+       "type": "object"
+      },
+      "send": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/share-a-decision.mjs",
+      "shareADecision"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "record:never-publish",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method"
+   }
+  }
+ ]
+}

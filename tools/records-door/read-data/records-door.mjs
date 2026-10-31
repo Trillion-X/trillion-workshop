@@ -8,6 +8,8 @@
 //   const door = openRecordsDoor();                       reads descriptor 3
 //   await door.read('post', 'post:abc')                   -> the value, or null
 //   for await (const record of door.list({ type: 'post' })) ...   every record of a kind, page after page
+//                                                          (`fields: [..]` narrows each value to those top-level fields;
+//                                                          `where: { field: value }` keeps the rows whose fields equal it)
 //   await door.write([{ id, type, value }], { key })      -> { changed, write_count }; value null removes
 //   await door.files('list_files', { folder: '/notes/' })   -> the files door's answer, at `files_resource`, which the
 //                                                          descriptor holds when the row declares a `files` right
@@ -90,8 +92,8 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
       return (await call('records:read', { id, type })).value ?? null;
     },
     // Every record the query names, in the door's order. A short page that names a next page is not the end.
-    async *list({ type, order, prefix, above, below, reverse, limit = PAGE } = {}) {
-      const query = Object.fromEntries(Object.entries({ type, order, prefix, above, below, reverse, limit }).filter(([, value]) => value !== undefined));
+    async *list({ type, order, prefix, above, below, reverse, fields, where, limit = PAGE } = {}) {
+      const query = Object.fromEntries(Object.entries({ type, order, prefix, above, below, reverse, fields, where, limit }).filter(([, value]) => value !== undefined));
       for (let after; ;) {
         const page = await call('records:list', after === undefined ? query : { ...query, after });
         yield* page.records;

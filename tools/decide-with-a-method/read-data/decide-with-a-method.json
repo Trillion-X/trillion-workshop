@@ -1,0 +1,166 @@
+{
+  "about": "DATA for tools/decide-with-a-method. `records`: where the person's own decision records are: the methods they decide with (rows of `method_list`, row type `method_row`, one per method: its id, name, steps, switches, backbone, decision fields and voice) and their checks (rows of `check_list`, row type `check_row`, one per check: its id, the step it sharpens, its `method`, its switch, its question and what a good answer does); a call reads only the checks of the step it asks or judges, by the row fields `check_step_field` and `check_id_field` (the door's `where`), and a question sends each check as its id and question, its whole words (good answer, refusals) coming by id on request, at most `most_explained` ids at once, a decision's answered steps (`step` + <decision id> + ':' + its number, `step_digits` wide; a logged call likewise under `call`, `call_digits` wide) and a decision opened from a source (`case_prefix` + the source id in base64url). `precedence`: who the current outcome of a decision belongs to when the person and a check disagree (read-data/decision-outcome.mjs): with person_confirmed_wins true a later check never replaces the person's own confirmed report; false, the newest current evidence wins. `similar`: how earlier decisions are brought back when a similar one comes up (read-data/similar-decisions.mjs): the newest `look_back` decisions in `order` (a declared order of the engine's decision records, newest first) are weighed by the words of `word` (a regular expression, matched in lower case) their goals share with this one, plus `same_method` when they were made with the same method; a decision whose method is not named was made with `default_method`. Those scoring more than `above` are kept, closest first, `limit` of them unless the caller asks for fewer or more, never more than `most`. `pursuits`: the person's pursuits travel with the questions whose step ids are in `with_steps`, the newest `carried` of them, found among at most `scan`. `most_cited_refs`: how many different references one answer may cite. `grader`: who judges each check (the calling AI, on its own subscription: `self` or `second-judge`) and the words it is given. `words`: what Trillion says at each moment of a decision ({name} is filled from the decision) and every refusal. `share`: how a decided decision is made safe to show strangers (tool:share-a-decision): the person's never-publish phrases are rows of row type `never_publish_row` (field `never_publish_field`); a rewrite has the `entry_fields` (words, or a list of words); `rewrite` is what the calling AI is told; the plain privacy pass (tools/learn-from-everyones-results) must find nothing in it, then `check_tool` must accept it under the `reidentification` rubric (a true-or-false question, synthetic calibration cases, accepted only when the answer is false), bound to exactly that rewrite; the kept entry is then sent to `pool_tool`. `writes` and `write_bytes`: how many records and bytes of their JSON one door write carries (the engine's cap, and room under its 64 KiB message); a decision laid apart in one change that needs more is written in parts, its root last.",
+  "records": {
+    "method_row": "method",
+    "method_list": "list:methods",
+    "check_row": "method-check",
+    "check_list": "list:method-checks",
+    "check_step_field": "step",
+    "check_id_field": "id",
+    "step": "decision-step:",
+    "step_digits": 3,
+    "case_prefix": "source:",
+    "call": "decision-call:",
+    "call_digits": 6
+  },
+  "precedence": {
+    "person_confirmed_wins": false
+  },
+  "similar": {
+    "order": "decision/created_at",
+    "look_back": 200,
+    "word": "[a-z0-9]{4,}",
+    "same_method": 1,
+    "above": 1,
+    "limit": 10,
+    "most": 50,
+    "default_method": "universal"
+  },
+  "pursuits": {
+    "with_steps": [
+      "outcome",
+      "alignment"
+    ],
+    "carried": 100,
+    "scan": 400
+  },
+  "most_cited_refs": 256,
+  "most_explained": 128,
+  "grader": {
+    "grader": "second-judge",
+    "words": "Hand each check of this answer to a second judge with fresh context: a subagent, or a different model where your host offers one, on the same subscription. Give it the check, this answer and the evidence of the case, and nothing of how the answer was drafted. Send its verdicts beside this answer as verdicts: [{ check, meets, rests_on, missing?, graded_by }]. check is the id of a checklist item above; meets says whether the answer meets that check; rests_on quotes words of this answer (at least eight characters) or names an evidence ref of the case; missing, only when meets is false, copies exactly the words of the check the answer does not address; graded_by names that second judge (its model or agent name). A verdict that does not meet these rules is ignored."
+  },
+  "words": {
+    "ready": "Every question is answered, so make the decision now with tool:make-the-decision, in this turn: a decision left open changes nothing. Choose the option the evidence supports and send its id from options as option_id. Leave a question to the person only when its answer is their own values, drive or budget, and then ask them that one question; settle every product, architecture, placement, naming or build question from the facts yourself, even when they have objected to every option.",
+    "resume": "Do this now: {next_action}. How you will know it worked: {success_measure}. If it does not, bring back what actually happened: a failed result is a fact, and the fastest way to the right next move. Once it works, bring the larger change it makes possible as the next decision.",
+    "carry_out": "Do this now, in this same turn: {next_action}. Then name the next step that doing it makes possible and do that too, until this is true: {success_measure}. When it is done, or you reach a wall you cannot get past, call tool:say-what-was-done with decision_id {case_id}: done with what happened, or the exact wall (the file, field, refused command or missing credential). Never end the turn with this step still to do, a list of follow-ups, or a question about whether to do it.",
+    "pursuits_note": "Cite a pursuit in evidence_refs by its id.",
+    "more_pursuits_note": "These are the newest {count}; any other pursuit can be cited by its id.",
+    "no_pursuits_note": "No pursuits are recorded for this person. Use what you already know about them (your memory of them, their files and past conversations).",
+    "no_methods": "This person has no methods to decide with yet: their Methods list (list:methods) has no rows.",
+    "no_decision": "Name the decision (decision_id).",
+    "not_found": "No decision has that id.",
+    "explain_note": "The checklist names each check by its id and question. To read what a good answer to some of them does and what it refuses, call tool:next-decision-question again with explain: [their ids]; answer each check in your own words either way.",
+    "explain_shape": "explain names the ids of this question's checks to explain, from 1 to {count} of them.",
+    "explain_unknown": "This question does not ask {ids}: explain names ids from its checklist or verdict_checks.",
+    "new_case": "Give this decision a source_id (choose unique text; an existing conversation, message or file id is not required), goal (what is being decided), evidence (an array of {ref, claim}) and at least two options (each {id, label}). Correct the input and try again.",
+    "evidence_item": "Each evidence item needs a unique ref and claim",
+    "option_item": "Each option needs a unique id and label",
+    "method_name": "method must name a method id",
+    "source_changed": "Source {source_id} already has decision {case_id} with different content. Continue that decision with its id, or use a new source_id.",
+    "answer_needs_step": "Answer needs a step_id",
+    "already_decided": "This decision already has a decision",
+    "different_answer": "Step already has a different answer",
+    "all_answered": "Every question of this decision is answered ({count}); decide it next.",
+    "out_of_turn": "This decision is waiting for its \"{step}\" question ({count} answered so far), not \"{sent}\". Read it with tool:next-decision-question.",
+    "too_many_refs": "An answer can cite at most {count} different references.",
+    "complete_first": "Complete the guided questions before deciding",
+    "decision_shape": "Decision needs option, reason, next action, success measure, and evidence refs",
+    "generation_shape": "expected_generation must name the positive decision generation being prepared",
+    "move_shape": "move, when given, is the chosen move in words",
+    "needs_field": "Decision needs {name}: {ask}",
+    "generation_changed": "The prepared decision generation changed. Read the current decision before continuing.",
+    "unknown_option": "Decision names an unknown option ({option}): option_id is one of {options}",
+    "decision_evidence": "Decision must cite existing evidence",
+    "new_decision_needs_failure": "A new decision requires a failed result or check",
+    "decision_phase_runs": "This decision planned a workflow run its decision needs ({workflows}); a finished run cannot be checked by this tool yet, so the decision waits.",
+    "decided_note": "This decision was already made with these words; nothing changed.",
+    "result_shape": "A result needs result (met, failed or unknown) and a summary",
+    "ask_the_person": "Ask your person what happened and set answered_by to \"person\"",
+    "no_decision_yet": "This decision has no decision yet",
+    "source_ref_shape": "source_ref must name the original report",
+    "report_generation_shape": "expected_generation must name the positive decision generation this report concerns",
+    "report_words_differ": "This report source already has different words. Keep a new source_ref and name the original in supersedes to correct it.",
+    "stale_outcome": "The decision changed while the result was being reported. Read the current decision before reporting it again.",
+    "supersedes_shape": "supersedes must name an earlier report source in this decision generation",
+    "observed_at_shape": "observed_at must be a time at or before now",
+    "said_shape": "Say state (done or wall) and what_happened: what was done, or the exact wall (the file, field, refused command or missing credential)",
+    "said_generation_changed": "The decision generation changed before its carried-out receipt. Read the current decision before continuing.",
+    "run_id_unchecked": "{label} names a run_id; a run cannot be checked by this tool yet, so leave run_id out and keep the plan.",
+    "share_shape": "A rewrite is { situation, options: [words], chosen, why, measured_by }, each one words, and nothing else.",
+    "share_not_safe": "The rewrite could still point to someone: {found}. Rewrite those parts in general terms and send it again.",
+    "share_check": "Ask {tool} whether these words could point to one person, with exactly this rubric and content, and send its whole answer back as reidentification."
+  },
+  "share": {
+    "never_publish_row": "never-publish",
+    "never_publish_field": "words",
+    "entry_fields": [
+      {
+        "name": "situation",
+        "kind": "words"
+      },
+      {
+        "name": "options",
+        "kind": "list"
+      },
+      {
+        "name": "chosen",
+        "kind": "words"
+      },
+      {
+        "name": "why",
+        "kind": "words"
+      },
+      {
+        "name": "measured_by",
+        "kind": "words"
+      }
+    ],
+    "rewrite": "Rewrite this decision so no one could tell who made it. Remove or generalize every name, nickname, company, product, brand, place, event, date, month, age, number, job title, and any unusual detail that could point to one person. Say sizes and shares in words, never as figures, and never write [removed]; write around anything missing in plain general words. Keep the kind of situation, the choices, what was chosen, why, and how success is measured. Send it back as rewrite: { situation, options: [words], chosen, why, measured_by }.",
+    "check_tool": "tool:ask-a-small-model-for-a-verdict",
+    "pool_tool": "tool:add-a-shared-situation",
+    "reidentification": {
+      "id": "could-point-to-one-person",
+      "question": "Could these words point to one specific person, company, product, brand, place, event or date, or carry a detail unusual enough to recognise? Ordinary words for common activities, roles and equipment do not.",
+      "answer_shape": {
+        "kind": "true-or-false",
+        "means": {
+          "yes": "Something in the words could lead a reader to one particular person, business, place, event or date: a name, a precise place or time, a rank, a one-of-a-kind role, or a rare circumstance.",
+          "no": "Every detail is general: it would fit many people, and nothing in it is rare or precise enough to recognise."
+        }
+      },
+      "pass_when_share_correct": 1,
+      "accept_when_answer_in": [
+        false
+      ],
+      "calibration": [
+        {
+          "content": "Dana Whitfield, who owns the Bluebird Bakery on Elm Street, chose to open a second shop in March.",
+          "expect": true
+        },
+        {
+          "content": "The only paediatric surgeon on a small island chose to stop taking night shifts after her twins were born.",
+          "expect": true
+        },
+        {
+          "content": "The founder of the country's largest chain of coffee shops chose to step down as its chief executive.",
+          "expect": true
+        },
+        {
+          "content": "Someone with a steady job weighed starting a small business on the side and chose to keep the job while testing the idea on weekends.",
+          "expect": false
+        },
+        {
+          "content": "A person deciding how to spend spare evenings chose a short course over a second part-time job, and counts it a success if they finish it.",
+          "expect": false
+        },
+        {
+          "content": "A team lead chose to move a weekly meeting to every other week to give people more time to focus.",
+          "expect": false
+        }
+      ]
+    }
+  },
+  "writes": 256,
+  "write_bytes": 48000
+}

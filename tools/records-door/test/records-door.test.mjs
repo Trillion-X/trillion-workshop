@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { openRecordsDoor, RecordsDoorError } from '../read-data/records-door.mjs';
 import { wholeAnswer } from '../read-data/byte-pages.mjs';
 import { startFakeDoor } from './fake-door.mjs';
+import { writeBatches } from '../read-data/write-batches.mjs';
 
 const ALL = ['records:read', 'records:list', 'records:write'];
 const noWait = async () => {};
@@ -36,6 +37,19 @@ test('a list keeps paging while the door names a next page, short pages included
     for await (const record of client.list({ type: 'note', limit: 3 })) listed.push(record.value.at);
     assert.deepEqual(listed, [6, 5, 4, 3, 2, 1, 0]);
     assert.equal(door.calls.length, 4, 'four cut pages of two');
+  } finally { await door.close(); }
+});
+
+test('a list sends fields and where to the door, and keeps paging past pages where nothing matched', async () => {
+  const records = Array.from({ length: 7 }, (_, at) => ({ id: `note:${at}`, type: 'note', value: { at, shelf: at === 1 || at === 5 ? 'top' : 'low', words: 'w'.repeat(50) } }));
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], records, pageCut: 2 });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor });
+    const listed = [];
+    for await (const record of client.list({ type: 'note', where: { shelf: 'top' }, fields: ['at'] })) listed.push(record);
+    assert.deepEqual(listed, [{ id: 'note:5', type: 'note', value: { at: 5 } }, { id: 'note:1', type: 'note', value: { at: 1 } }]);
+    assert.deepEqual(door.calls[0].input.where, { shelf: 'top' });
+    assert.equal(door.calls.length, 4, 'a cut page with no match still names the next one');
   } finally { await door.close(); }
 });
 
@@ -190,4 +204,13 @@ test('files operations go to the files resource the run was handed, and a run wi
   writeFileSync(none, JSON.stringify({ url: 'http://127.0.0.1:9/mcp', resource: '@made-up-records', capability: 'run_made_up' }));
   await assert.rejects(openRecordsDoor({ descriptor: none, fetchImpl }).files('list_files', {}), { code: 'no_files' });
   assert.equal(sent.length, 1);
+});
+
+test('writes are cut to fit one message: at most rows records and bytes of JSON each, a larger record alone', () => {
+  const record = (n, size) => ({ id: `note:${n}`, type: 'note', value: { words: 'w'.repeat(size) } });
+  const sizes = batches => batches.map(batch => batch.map(item => item.id));
+  assert.deepEqual(sizes(writeBatches([1, 2, 3, 4, 5].map(n => record(n, 10)), { rows: 2, bytes: 10_000 })), [['note:1', 'note:2'], ['note:3', 'note:4'], ['note:5']]);
+  assert.deepEqual(sizes(writeBatches([record(1, 400), record(2, 400), record(3, 5000), record(4, 10)], { rows: 256, bytes: 1000 })), [['note:1', 'note:2'], ['note:3'], ['note:4']]);
+  assert.deepEqual(writeBatches([], { rows: 1, bytes: 1 }), []);
+  for (const bounds of [{ rows: 0, bytes: 10 }, { rows: 1 }, { rows: 1.5, bytes: 10 }]) assert.throws(() => writeBatches([record(1, 1)], bounds), TypeError);
 });

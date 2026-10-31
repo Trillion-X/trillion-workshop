@@ -33,6 +33,7 @@
 //     door: { read, list, run(tool, input) → its answer, write(records, { key }) → the door's answer }
 import data from './list-view.json' with { type: 'json' };
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 
 const say = (code, words) => Object.assign(new Error(words), { code });
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
@@ -207,17 +208,7 @@ async function writtenRows(door, type, source) {
 }
 
 // The writes in batches of at most write_rows records and write_bytes bytes.
-function batches(records) {
-  const out = [];
-  let batch = [], bytes = 0;
-  for (const record of records) {
-    const size = utf8.encode(JSON.stringify(record)).length;
-    if (batch.length && (batch.length >= limits.write_rows || bytes + size > limits.write_bytes)) { out.push(batch); batch = []; bytes = 0; }
-    batch.push(record);
-    bytes += size;
-  }
-  return batch.length ? [...out, batch] : out;
-}
+const batches = records => writeBatches(records, { rows: limits.write_rows, bytes: limits.write_bytes });
 
 /** Writes each batch; a batch the door refuses as written is sent again one record at a time. Answers the refused ids. */
 async function writeAll(door, records, key) {
