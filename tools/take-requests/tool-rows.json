@@ -1,0 +1,297 @@
+{
+ "kind": "tool-rows",
+ "record_set": "take-requests-tool-rows",
+ "what_this_is": "The Workshop rows for taking requests, in tools/take-requests: each kept as a record, handed to the owner who can act on it and closed by the owner's receipt, in the person's own records through the run's records door.",
+ "records": [
+  {
+   "id": "package::take-requests::tool::take-a-request",
+   "address": "package::take-requests::tool::take-a-request",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:take-requests",
+    "needs": { "expected_seconds": 1, "network_egress": false },
+    "id": "tool:take-a-request",
+    "listed_on": "2026-10-30T20:00:00Z",
+    "label": "Take a request",
+    "job": "Keep one request that arrived, as decided, and ask the owner who should act on it",
+    "description": "request is what arrived: request_id, source_ref, atom_ref, text, origin_ref, optionally message_ref, content_revision and at. Its origin_ref must be one the person accepts (an intake-origins record with id intake-origins:accepted). decision is the caller's: disposition and reason, and hand_to_owner true with owner_ref (an active intake-owner record) and acceptance_criteria when an owner should act; hand_off, required when hand_to_owner is true, names what the owner is asked to run (action_ref or action_refs, optional id, input and copy rows). existing_task_ref is refused (current_task_executor_not_verified): a task reference says nothing about who runs it now. max_text_chars (default 65536) bounds the kept text: a longer text is kept cut to it, or, when it is being handed to an owner, held back. Returns { status, request_id, problems, owner_request, said }. status is handed, recorded, deferred (nothing is kept because the owner is not on file or the text is too long; take it again once fixed), already-taken (the same request again changes nothing) or refused (no accepted origins on file, incomplete, origin not accepted, a decision that names an existing task, or the same id from another source, message, place or version).",
+    "input_schema": {
+     "type": "object",
+     "required": ["request", "decision"],
+     "additionalProperties": false,
+     "properties": {
+      "request": {
+       "type": "object",
+       "required": ["request_id", "source_ref", "atom_ref", "text", "origin_ref"],
+       "additionalProperties": false,
+       "properties": {
+        "request_id": { "type": "string", "minLength": 1 },
+        "source_ref": { "type": "string", "minLength": 1 },
+        "atom_ref": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 },
+        "origin_ref": { "type": "string", "minLength": 1 },
+        "message_ref": { "type": "string" },
+        "content_revision": { "type": "string" },
+        "at": { "type": "string" }
+       }
+      },
+      "decision": {
+       "type": "object",
+       "required": ["disposition", "reason"],
+       "additionalProperties": false,
+       "properties": {
+        "disposition": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "hand_to_owner": { "type": "boolean" },
+        "owner_ref": { "type": "string" },
+        "acceptance_criteria": { "type": "string" },
+        "existing_task_ref": { "type": "string" }
+       }
+      },
+      "hand_off": {
+       "type": "object",
+       "description": "What the owner is asked to run. Required when decision.hand_to_owner is true: give action_ref, or action_refs.",
+       "additionalProperties": false,
+       "properties": {
+        "id": { "type": "string" },
+        "action_ref": { "type": "string" },
+        "action_refs": { "type": "array", "items": { "type": "string" } },
+        "input": { "type": "object" },
+        "copy": { "type": "array", "items": { "type": "object", "required": ["key"], "properties": { "key": { "type": "string" }, "from": { "type": "string" }, "value": {} } } }
+       }
+      },
+      "max_text_chars": { "type": "integer", "minimum": 1, "description": "The most characters of the request's text to keep (default 65536)" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["status", "problems", "said"],
+     "properties": {
+      "status": { "type": "string", "enum": ["handed", "recorded", "deferred", "already-taken", "refused"] },
+      "request_id": { "type": ["string", "null"] },
+      "problems": { "type": "array", "items": { "type": "object", "required": ["code", "said"], "properties": { "code": { "type": "string" }, "said": { "type": "string" } } } },
+      "owner_request": { "type": ["string", "null"] },
+      "said": { "type": "string" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "take-requests", "paths": ["read-data"], "at": "/opt/take-requests" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+      ]
+     },
+     "workdir": "/opt/take-requests",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/take-requests/read-data/requests.mjs", "takeARequest"],
+     "stdin": { "fill": { "from": "input" } },
+     "records": { "fd": 3, "rights": [
+      { "kind": "intake-origins", "operations": ["records:read"] },
+      { "kind": "intake-owner", "operations": ["records:read"] },
+      { "kind": "intake-request", "operations": ["records:read", "records:write"] },
+      { "kind": "owner-action-request", "operations": ["records:read", "records:write"] }
+     ] }
+    },
+    "provenance": { "source": "bitfield-packages request-intake do-work/request-intake-actions.ts decideSourceMessageIntake (whole request, accepted origin, same id from one source, owner on file, one hand-off), ported to the records door with the origin list, owners and action in the person's records" },
+    "verify": [{ "kind": "sample-run", "input": { "request": { "request_id": "request-1", "source_ref": "source-1", "atom_ref": "atom-1", "text": "Two loaves for Friday.", "origin_ref": "origin-1" }, "decision": { "disposition": "recorded", "reason": "A customer asked." } }, "output_selector": "$.request_id", "contains": "request-1" }],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::take-requests::tool::hand-a-request-to-its-owner",
+   "address": "package::take-requests::tool::hand-a-request-to-its-owner",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:take-requests",
+    "needs": { "expected_seconds": 1, "network_egress": false },
+    "id": "tool:hand-a-request-to-its-owner",
+    "listed_on": "2026-10-30T20:00:00Z",
+    "label": "Hand a request to its owner",
+    "job": "Ask an owner to run an action with what a form, a check or a person supplied, once",
+    "description": "action names the owner and what is asked: owner, action_ref (or action_refs, one request each), optionally id, a fixed input, and copy rows { key, from } or { key, value } where from reads request.<field>, answers.<field> or fields.<field> of the context. context has operation_id (asking again with it is the same request), and optionally record_ref, shape_ref, field_values, answers, linked_receipt_refs, receipt_ref and requested_at. Returns { handed, already, said }: the owner-action-request ids kept now and those already kept, which stay as the owner left them.",
+    "input_schema": {
+     "type": "object",
+     "required": ["action", "context"],
+     "additionalProperties": false,
+     "properties": {
+      "action": {
+       "type": "object",
+       "required": ["owner"],
+       "properties": {
+        "id": { "type": "string" },
+        "owner": { "type": "string", "minLength": 1 },
+        "action_ref": { "type": "string" },
+        "action_refs": { "type": "array", "items": { "type": "string" } },
+        "input": { "type": "object" },
+        "copy": { "type": "array", "items": { "type": "object", "required": ["key"], "properties": { "key": { "type": "string" }, "from": { "type": "string" }, "value": {} } } }
+       }
+      },
+      "context": {
+       "type": "object",
+       "required": ["operation_id"],
+       "properties": {
+        "operation_id": { "type": "string", "minLength": 1 },
+        "record_ref": { "type": "string" },
+        "shape_ref": { "type": "string" },
+        "field_values": { "type": "object" },
+        "answers": { "type": "object" },
+        "linked_receipt_refs": { "type": "array", "items": { "type": "string" } },
+        "receipt_ref": { "type": "string" },
+        "requested_at": { "type": "string" }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["handed", "already", "said"],
+     "properties": { "handed": { "type": "array", "items": { "type": "string" } }, "already": { "type": "array", "items": { "type": "string" } }, "said": { "type": "string" } }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "take-requests", "paths": ["read-data"], "at": "/opt/take-requests" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+      ]
+     },
+     "workdir": "/opt/take-requests",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/take-requests/read-data/requests.mjs", "handARequestToItsOwner"],
+     "stdin": { "fill": { "from": "input" } },
+     "records": { "fd": 3, "rights": [{ "kind": "owner-action-request", "operations": ["records:read", "records:write"] }] }
+    },
+    "provenance": { "source": "bitfield-packages request-intake do-work/request-intake-actions.ts buildRequestIntakeActionRequests (action input, answers and copy rows into one request per definition), ported to owner-action-request records in the records door" },
+    "verify": [{ "kind": "sample-run", "input": { "action": { "owner": "owner-1", "action_ref": "action-1" }, "context": { "operation_id": "operation-1" } }, "output_selector": "$.said", "contains": "owner-1" }],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::take-requests::tool::record-the-owners-receipt",
+   "address": "package::take-requests::tool::record-the-owners-receipt",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:take-requests",
+    "needs": { "expected_seconds": 1, "network_egress": false },
+    "id": "tool:record-the-owners-receipt",
+    "listed_on": "2026-10-30T20:00:00Z",
+    "label": "Record what the owner gave back",
+    "job": "Link an owner's receipt to the request it answers",
+    "description": "request_id is a request kept by tool:take-a-request; receipt has ref, owner_ref, title and optionally summary, process_ref, observed_at and raw. Returns { request_id, receipt_ref, linked, said }; the same receipt again changes nothing, a receipt that already answers another request is refused, and a request that is not kept is said in words with nothing linked (linked false).",
+    "input_schema": {
+     "type": "object",
+     "required": ["request_id", "receipt"],
+     "additionalProperties": false,
+     "properties": {
+      "request_id": { "type": "string", "minLength": 1 },
+      "receipt": {
+       "type": "object",
+       "required": ["ref", "owner_ref", "title"],
+       "additionalProperties": false,
+       "properties": {
+        "ref": { "type": "string", "minLength": 1 },
+        "owner_ref": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string" },
+        "process_ref": { "type": "string" },
+        "observed_at": { "type": "string" },
+        "raw": {}
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["request_id", "receipt_ref", "linked", "said"],
+     "properties": { "request_id": { "type": "string" }, "receipt_ref": { "type": "string" }, "linked": { "type": "boolean" }, "said": { "type": "string" } }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "take-requests", "paths": ["read-data"], "at": "/opt/take-requests" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+      ]
+     },
+     "workdir": "/opt/take-requests",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/take-requests/read-data/requests.mjs", "recordTheOwnersReceipt"],
+     "stdin": { "fill": { "from": "input" } },
+     "records": { "fd": 3, "rights": [
+      { "kind": "intake-request", "operations": ["records:read", "records:write"] },
+      { "kind": "intake-receipt", "operations": ["records:read", "records:write"] }
+     ] }
+    },
+    "provenance": { "source": "bitfield-packages request-intake do-work/request-intake-actions.ts recordRequestIntakeOwnerReceipt (an owner receipt linked to the record it answers), ported to the records door" },
+    "verify": [{ "kind": "sample-run", "input": { "request_id": "request-1", "receipt": { "ref": "receipt-1", "owner_ref": "owner-1", "title": "Done" } }, "output_selector": "$.request_id", "contains": "request-1" }],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::take-requests::tool::my-requests",
+   "address": "package::take-requests::tool::my-requests",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "read_only": true,
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:take-requests",
+    "needs": { "expected_seconds": 1, "network_egress": false },
+    "id": "tool:my-requests",
+    "listed_on": "2026-10-30T20:00:00Z",
+    "label": "Requests taken and who owes an answer",
+    "job": "List the requests taken, newest first, with their receipts and the ones still waiting on an owner",
+    "description": "Optional owner (only that owner's requests), waiting true (only requests handed to an owner that has given no receipt) and limit (up to 100, default 20). Returns { requests: [{ request_id, text, at, status, disposition, reason, owner_ref, owner_request, receipts, waiting_on_owner }], said }. It changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": { "owner": { "type": "string" }, "waiting": { "type": "boolean" }, "limit": { "type": "integer", "minimum": 1, "maximum": 100 } }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["requests", "said"],
+     "properties": { "requests": { "type": "array", "items": { "type": "object", "required": ["request_id", "status", "receipts", "waiting_on_owner"] } }, "said": { "type": "string" } }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "take-requests", "paths": ["read-data"], "at": "/opt/take-requests" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+      ]
+     },
+     "workdir": "/opt/take-requests",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/take-requests/read-data/requests.mjs", "myRequests"],
+     "stdin": { "fill": { "from": "input" } },
+     "records": { "fd": 3, "rights": [
+      { "kind": "intake-request", "operations": ["records:list"] },
+      { "kind": "intake-receipt", "operations": ["records:list"] }
+     ] }
+    },
+    "provenance": { "source": "bitfield-packages request-intake read-data/request-intake-projection.ts (a record with its linked owner receipts), read through the records door without its screen model" },
+    "verify": [{ "kind": "sample-run", "input": { "limit": 1 }, "output_selector": "$.said", "contains": "request" }],
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}
