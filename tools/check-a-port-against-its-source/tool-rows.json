@@ -1,0 +1,147 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-a-port-against-its-source",
+        "id": "tool:check-a-reference-adaptation-contract",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "label": "Check my port or replica keeps its promises to its reference",
+        "job": "Check a contract for work taken from a reference (a source ported, a behaviour ported, a visual replica, an inspiration, an anti-reference): the source and its identity, what must be preserved, and the proof (retained source lines, required mechanisms, measured pictures and pixel difference)",
+        "description": "Give contract (the contract itself) or contract_file (a path inside the folder the person granted for reading), stage (pre-edit before the work starts, completion, the default, when it is done) and optionally target (a path the contract must own). A contract names schema (reference-adaptation-contract/reference-grounded-adaptation), id (REF-...), status, mode (SOURCE_FIRST_PORT, BEHAVIORAL_PORT, VISUAL_REPLICA, INSPIRATION_ONLY or ANTI_REFERENCE), directive, sources, targets, preserve, allowed_deltas, banned_substitutions, baseline and proof; every identity is the BLAKE3 identity 1f:<64 hex> of the exact bytes. Paths are read relative to the granted folder. Source drift, a copy directive relabelled inspiration, a missing target, retained-line and mechanism proof, and for a visual replica the measured geometry, the picture identities and an independently measured pixel difference at or under three percent are all checked. Returns valid, errors (each in words), id, mode, status and measurements.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "contract": {
+              "type": "object",
+              "description": "The contract"
+            },
+            "contract_file": {
+              "type": "string",
+              "description": "Or a path inside the granted folder to the contract's JSON"
+            },
+            "stage": {
+              "type": "string",
+              "enum": [
+                "pre-edit",
+                "completion"
+              ]
+            },
+            "target": {
+              "type": "string",
+              "description": "A path the contract must own"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "valid",
+            "errors"
+          ],
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mode": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "status": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "measurements": {
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/check-a-port-against-its-source",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/check-a-port-against-its-source/do-work/check-my-reference-contract.mjs",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-a-port-against-its-source",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/check-a-port-against-its-source"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
