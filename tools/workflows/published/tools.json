@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:4dd80872d563dfb51a199ebfc6da866c5b45b7efb4c718cd3e60423f6eeedde3"
+  "blake3": "1f:2b8714c345bb15943b0e3671a5341a20e804a2458df07c7fa49eb6f7a6baaa99"
  },
  "fields": [
   {
@@ -1457,7 +1457,7 @@
    "values": {
     "title": "Enrol someone's voice or face so they can be named",
     "job": "Let the person's AI name this person later by their voice or face, after they agreed to be known that way",
-    "description": "Measures a recording of one person speaking, or a picture or video of one person's face, or takes a voice heard in a listening, and keeps it as that person's print so later recordings and pictures can name them. It refuses before it measures anything unless `consent` says who agreed to be known by their voice or face and how. Enrolling the same name again adds samples and the new consent words to the same print and keeps the earlier ones. The voice-print, face-print and voice-session record kinds are stays_on_this_device: true: the numbers of a print are kept only on the device they were made on and are never shared, exported, synced or sent to a model off it. The answer says how many samples the person has, never the numbers.",
+    "description": "Measures a recording of one person speaking, or a picture or video of one person's face, or takes a voice heard in a listening, and keeps it as that person's print so later recordings and pictures can name them. It refuses before it measures anything unless `consent` says who agreed to be known by their voice or face and how. Enrolling the same name again adds samples and the new consent words to the same print and keeps the earlier ones. The voice-print, face-print and listening-voices record kinds are stays_on_this_device: true: the numbers of a print are kept only on the device they were made on and are never shared, exported, synced or sent to a model off it. The answer says how many samples the person has, never the numbers.",
     "status": "active",
     "maker": "maker:know-who-is-in-this",
     "licence_class": "licence:permissive",
@@ -3170,6 +3170,21 @@
      "placement:small-container"
     ],
     "folder": "write-from-a-recipe"
+   }
+  },
+  {
+   "id": "tool:listen-for-a-while",
+   "values": {
+    "title": "Listen to the microphone until a time, and keep who said what",
+    "job": "Listen in on a meeting or a room until a time I give, and keep each person's turn as it is said",
+    "description": "Records the microphone on this computer until `until`, hears each short piece of it on this computer with the Whisper model the person names, names each turn from the voices people enrolled (tool:enrol-a-voice-or-face; unknown voices keep the same number for the whole listening), and writes one heard row per turn as soon as its piece has been heard: the listening, the device, when it began and ended, the words, who said it, whether it is the person, the voice and how sure the match was. The sound never leaves this computer: pieces are kept in the run's own folder and deleted once heard, and only the words and the names are written. It stops at `until` by itself; the person's AI cancels the run to turn listening off, and what was heard before then is kept. The run lasts as long as `until` is from now, up to the row's longest run. The voice-print and listening-voices record kinds are stays_on_this_device: true.",
+    "status": "active",
+    "maker": "maker:listen-for-a-while",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "listen-for-a-while"
    }
   },
   {
@@ -6536,6 +6551,21 @@
    }
   },
   {
+   "id": "tool:take-me-there",
+   "values": {
+    "title": "Take me to the thing that needs me",
+    "job": "Take a person to the thing that needs them: give the screen to open on one waiting card, the arrangement that puts it beside what the caller names, the walkthrough that points at the card's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places",
+    "description": "Give thing (a card id from the answer of tool:what-is-waiting-on-me, or a batch section's key, batch: and the section id), waiting (that answer: { sections: [{ cards }] } or { cards }, a card { id, source?, title?, action?, address?, points_at? }), screens (the caller's rows, { path_prefix, tool_id, route_input_from_query?: [names] }, one for each address path that opens a screen) and own_origins (the origins whose links open inside the person's own places). Answers { taken: false, said } when the thing is not waiting now or its link leads outside those origins or to no screen; otherwise { taken: true, screen: { tool_id, route_input }, arrangement (one pane, or a split with beside, its id the thing's key), tour (when steps are given: each step points at the card's own control, points_at filled with the item id, else a fallback selector; started by name, finished when the card's ids are completed), notice (when say is given), open (the address that opens the arrangement and tour), said }. It saves no arrangement or tour and sends no notice: whoever keeps those does that with what this returns.",
+    "status": "active",
+    "maker": "maker:take-me-there",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-me-there"
+   }
+  },
+  {
    "id": "tool:tally-match-picks",
    "values": {
     "title": "Tally a community's match picks",
@@ -6767,7 +6797,7 @@
    "values": {
     "title": "Say who said each part of a recording",
     "job": "Name who said each stretch of a call or recording, from the voices of people who agreed to be known",
-    "description": "Takes a recording and its transcript (the timed stretches tools/audio-transcription gives) and answers each turn with who said it: the person's name when one enrolled person is clearly the closest voice; every person it could be when two are too close to tell, so a guess is never made silently; otherwise an unknown voice with a number that stays the same for the whole listening, across every recording of it. Stretches of one voice are judged together, a stretch too short to measure takes its neighbour's voice, and turns of one voice a couple of seconds apart are joined. Thresholds, the wording of the labels and the gap that joins turns are inputs; the starting values are not yet calibrated on the person's own consented clips. The voice-print and voice-session record kinds are stays_on_this_device: true: only the listening's voice-session record is kept, with the numbers of the unknown voices heard, on this device. It names no one who has not enrolled.",
+    "description": "Takes a recording and its transcript (the timed stretches tools/audio-transcription gives) and answers each turn with who said it: the person's name when one enrolled person is clearly the closest voice; every person it could be when two are too close to tell, so a guess is never made silently; otherwise an unknown voice with a number that stays the same for the whole listening, across every recording of it. Stretches of one voice are judged together, a stretch too short to measure takes its neighbour's voice, and turns of one voice a couple of seconds apart are joined. Thresholds, the wording of the labels and the gap that joins turns are inputs; the starting values are not yet calibrated on the person's own consented clips. The voice-print and listening-voices record kinds are stays_on_this_device: true: only the listening's listening-voices record is kept, with the numbers of the unknown voices heard, on this device. It names no one who has not enrolled.",
     "status": "active",
     "maker": "maker:know-who-is-in-this",
     "licence_class": "licence:permissive",
