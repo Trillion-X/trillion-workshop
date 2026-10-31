@@ -1,0 +1,205 @@
+{
+ "kind": "tool-rows",
+ "record_set": "triage-against-priorities-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/triage-against-priorities: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::triage-against-priorities::tool::brief-a-triage",
+   "address": "package::triage-against-priorities::tool::brief-a-triage",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:brief-a-triage",
+    "label": "Brief a triage of one incoming item",
+    "status": "active",
+    "job": "Decide what to do with one incoming item, such as a message, note or finding, by weighing it against what the person cares most about",
+    "description": "Give the item (a ref, an optional version, and what it says), the person's priorities, the dispositions an item can be settled as (each a ref and a label; exactly one is the fallback; blocked_default and needs_objective are optional), the least confidence an answer may have (0 to 1) and, if the person wants limits, the most words the rationale and the objective may have (max_words). Returns what you need to judge it: the item, the priorities, the dispositions, the rules for the answer (including fail closed to the fallback; where a disposition needs an objective, that it is the smallest safe, reversible assignment that produces evidence and may not authorize messages, spending, publishing, promises, credential changes, live changes, anything illegal, deceiving or harassing anyone, or taking what belongs to another party) and the shape of the answer. It asks no model; you judge, then give your answer to tool:settle-a-triage.",
+    "input_schema": {
+     "type": "object",
+     "required": ["item", "priorities", "dispositions", "min_confidence"],
+     "additionalProperties": false,
+     "properties": {
+      "item": { "type": "object", "required": ["ref"], "description": "The thing to triage: ref (its stable name), optional version (a cursor or content identity) and whatever it says" },
+      "priorities": { "type": "array", "items": { "type": "object" }, "description": "What the person cares about most, read from their records; an empty list means every item fails closed" },
+      "dispositions": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": ["ref", "label"],
+        "properties": {
+         "ref": { "type": "string" },
+         "label": { "type": "string" },
+         "note": { "type": "string" },
+         "fallback": { "type": "boolean", "description": "True on exactly one row: where an item goes when it fails closed" },
+         "blocked_default": { "type": "boolean", "description": "False only where the disposition may be acted on at once; anything else is blocked until its owner clears it" },
+         "needs_objective": { "type": "boolean", "description": "True where an answer must carry an objective and acceptance_criteria" }
+        }
+       },
+       "description": "What an item can be settled as"
+      },
+      "min_confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "The least confidence an answer may have" },
+      "max_words": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": {
+        "rationale": { "type": "integer", "minimum": 1 },
+        "objective": { "type": "integer", "minimum": 1 }
+       },
+       "description": "Optional: the most words the answer's rationale and objective may have; unnamed means no limit"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["item", "priorities", "dispositions", "rules", "answer_shape"],
+     "properties": {
+      "item": { "type": "object" },
+      "priorities": { "type": "array" },
+      "dispositions": { "type": "array" },
+      "min_confidence": { "type": "number" },
+      "max_words": { "type": "object" },
+      "rules": { "type": "array", "items": { "type": "string" } },
+      "answer_shape": { "type": "object" },
+      "priorities_given": { "type": "boolean" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "triage-against-priorities",
+       "paths": ["do-work", "read-data"],
+       "at": "/opt/triage-against-priorities"
+      }
+     },
+     "workdir": "/opt/triage-against-priorities",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/brief-a-triage.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:triage-against-priorities",
+    "provenance": { "source": "bitfield-packages packages/commander-triage" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "item": { "ref": "note:1", "text": "The flour bin is nearly empty" },
+       "priorities": [{ "text": "Never run out of flour" }],
+       "dispositions": [
+        { "ref": "keep-note", "label": "Keep the note", "blocked_default": false },
+        { "ref": "hold", "label": "Hold for the baker", "fallback": true }
+       ],
+       "min_confidence": 0.6
+      },
+      "output_selector": "$.rules",
+      "contains": "answer hold"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::triage-against-priorities::tool::settle-a-triage",
+   "address": "package::triage-against-priorities::tool::settle-a-triage",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:settle-a-triage",
+    "label": "Settle a triage of one incoming item",
+    "status": "active",
+    "job": "Keep the decision made about one incoming item only if it holds up against the person's priorities and dispositions, and otherwise hold the item back",
+    "description": "Give the same item, priorities, dispositions and least confidence you were briefed with, and answers: a list holding your one answer ({disposition_ref, confidence, rationale, target_ref, and objective with acceptance_criteria where the disposition needs them}). Returns and keeps one decision record per item and version. If there are no priorities, no answer or more than one, the confidence is not a number, is outside 0 to 1 or is under the least, the rationale or objective has more words than max_words allows, the disposition is not listed, or a needed objective is missing, the decision is the fallback disposition, blocked, with each reason in words. blocked is false only where the disposition's row says blocked_default is false. It does nothing else; whoever owns the disposition acts on the decision.",
+    "input_schema": {
+     "type": "object",
+     "required": ["item", "priorities", "dispositions", "min_confidence"],
+     "additionalProperties": false,
+     "properties": {
+      "item": { "type": "object", "required": ["ref"] },
+      "priorities": { "type": "array", "items": { "type": "object" } },
+      "dispositions": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["ref", "label"] } },
+      "min_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+      "max_words": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": {
+        "rationale": { "type": "integer", "minimum": 1 },
+        "objective": { "type": "integer", "minimum": 1 }
+       },
+       "description": "The same word limits you were briefed with; an answer over a limit fails closed"
+      },
+      "answers": { "type": "array", "items": { "type": "object" }, "description": "Your one answer, in a list; empty or missing fails closed" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["decision"],
+     "properties": {
+      "decision": {
+       "type": "object",
+       "required": ["type", "id", "item", "disposition_ref", "confidence", "blocked", "fail_closed", "reasons"],
+       "properties": {
+        "type": { "type": "string" },
+        "id": { "type": "string" },
+        "item": { "type": "object" },
+        "priorities_seen": { "type": "number" },
+        "disposition_ref": { "type": "string" },
+        "confidence": { "type": "number" },
+        "blocked": { "type": "boolean" },
+        "fail_closed": { "type": "boolean" },
+        "reasons": { "type": "array", "items": { "type": "string" } },
+        "rationale": { "type": "string" },
+        "objective": { "type": "string" },
+        "acceptance_criteria": { "type": "array", "items": { "type": "string" } },
+        "target_ref": { "type": "string" }
+       }
+      }
+     }
+    },
+    "keeps_records": [{ "output_selector": "$.decision", "type_field": "type", "id_field": "id" }],
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "triage-against-priorities",
+       "paths": ["do-work", "read-data"],
+       "at": "/opt/triage-against-priorities"
+      }
+     },
+     "workdir": "/opt/triage-against-priorities",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/settle-a-triage.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:triage-against-priorities",
+    "provenance": { "source": "bitfield-packages packages/commander-triage" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "item": { "ref": "note:1", "version": "v1", "text": "The flour bin is nearly empty" },
+       "priorities": [{ "text": "Never run out of flour" }],
+       "dispositions": [
+        { "ref": "keep-note", "label": "Keep the note", "blocked_default": false },
+        { "ref": "hold", "label": "Hold for the baker", "fallback": true }
+       ],
+       "min_confidence": 0.6,
+       "answers": [{ "disposition_ref": "keep-note", "confidence": 0.8, "rationale": "Matches the flour priority." }]
+      },
+      "output_selector": "$.decision.disposition_ref",
+      "contains": "keep-note"
+     }
+    ]
+   }
+  }
+ ]
+}
