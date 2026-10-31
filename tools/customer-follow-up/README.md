@@ -11,6 +11,8 @@ A customer's steps (outreach, a reply, a booked call, a purchase, onboarding, a 
 | `do-work/record-customer-step.ts` | Builds one `customer-step` record: a fresh id, trimmed text, each reference once, a plain default label per kind. |
 | `do-work/see-where-each-customer-is.mjs` | `tool:see-where-each-customer-is`: the views, from records in the input or a JSON file from the person's files. |
 | `do-work/record-a-customer-step.mjs` | `tool:record-a-customer-step`: the step record to keep. |
+| `test/customer-follow-up.test.ts` | Carried from the package: target progress invents nothing; the step builder trims and de-duplicates its references. |
+| `test/customer-follow-up-tools.test.mjs` | Runs the four tools the way the container does: each record a row keeps has a type and an id, and the views read back what the others made. |
 | `part.json` | The readers and the step builder are public. |
 | `tool-rows.json` | The Workshop rows Trillion reads for this folder: `tool:see-where-each-customer-is`, `tool:record-a-customer-step`, `tool:add-a-customer`, `tool:set-a-customer-target`. |
 
