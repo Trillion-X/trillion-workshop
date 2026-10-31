@@ -104,7 +104,8 @@
         "package": "headless-browser",
         "paths": [
          "quiet-switches.json",
-         "devtools.mjs"
+         "devtools.mjs",
+         "browser-places.json"
         ],
         "at": "/opt/headless-browser"
        }
