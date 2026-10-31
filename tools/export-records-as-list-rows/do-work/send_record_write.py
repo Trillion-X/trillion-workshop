@@ -31,10 +31,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--work', required=True, type=Path, help='a folder for the plan and result files of each call')
     ap.add_argument('--url', help='another address for an mcp transport (the same account served elsewhere, for example a copy)')
     ap.add_argument('--key-prefix', help='another start for every request key (one config shared by several loads, each with keys of its own)')
+    ap.add_argument('--read-prefix', action='append', default=[], metavar='TYPE=PREFIX', help='bound reads of a type to a prefix; repeat for several prefixes; every target must be covered')
     sub = ap.add_subparsers(dest='command', required=True)
     for name in ('plan', 'send', 'readback'):
         one = sub.add_parser(name)
         one.add_argument('--payload', required=True, type=Path)
+        one.add_argument('--baseline', type=Path, help='previous imported payload; refresh only source fields whose live value has not been edited')
         if name == 'send':
             one.add_argument('--status', required=True, type=Path)
     out = sub.add_parser('export')
@@ -48,21 +50,30 @@ def main(argv: list[str] | None = None) -> int:
             config['transport'] = {**config.get('transport', {}), 'url': a.url}
         if a.key_prefix:
             config['request_key_prefix'] = a.key_prefix
+        if a.read_prefix:
+            prefixes = {}
+            for scope in a.read_prefix:
+                kind, separator, prefix = scope.partition('=')
+                if not separator or not kind or not prefix:
+                    raise ValueError('--read-prefix is TYPE=PREFIX, each nonempty.')
+                prefixes.setdefault(kind, []).append(prefix)
+            config['read_prefixes'] = {**config.get('read_prefixes', {}), **prefixes}
         door = sender.Door(config, a.work, a.config.resolve().parent)
         if a.command == 'export':
             print(json.dumps(sender.export(door, a.type, a.out, a.prefix)))
             return 0
         payload = json.loads(a.payload.read_text())
+        baseline = json.loads(a.baseline.read_text()) if a.baseline else None
         if a.command == 'plan':
-            print(json.dumps(sender.plan(door, payload)))
+            print(json.dumps(sender.plan(door, payload, baseline)))
             return 0
         if a.command == 'send':
-            status = sender.send(door, payload, a.status)
+            status = sender.send(door, payload, a.status, baseline=baseline)
             print(json.dumps({k: v for k, v in status.items() if k != 'done'}))
             return 0 if status['state'] == 'all_written' else 1
-        result = sender.readback(door, payload)
-        print(json.dumps({kind: {**entry, 'missing': entry['missing'][:20], 'differing': entry['differing'][:20]} for kind, entry in result.items()}))
-        return 0 if all(entry['equal'] == entry['payload'] for entry in result.values()) else 1
+        result = sender.readback(door, payload, baseline)
+        print(json.dumps({kind: ({**entry, 'missing': entry['missing'][:20], 'differing': entry['differing'][:20]} if kind != '_refresh' else entry) for kind, entry in result.items()}))
+        return 0 if all(entry['equal'] == entry['payload'] for kind, entry in result.items() if kind != '_refresh') and not result.get('_refresh', {}).get('conflicts') else 1
     except (ValueError, KeyError, OSError, json.JSONDecodeError) as exc:
         print(f'Error: {exc!r}' if isinstance(exc, KeyError) else f'Error: {exc}', file=sys.stderr)
         return 2

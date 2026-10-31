@@ -69,7 +69,8 @@
         },
         "output_schema": { "type": "object", "required": ["manifest", "outputs", "diagnostics"], "properties": { "manifest": { "type": "object" }, "outputs": { "type": "object" }, "diagnostics": { "type": "array" } } },
         "invoke": {
-          "kind": "computer",
+          "kind": "container",
+          "internet": false,
           "workdir": "/opt/publish-content-for-discovery",
           "stdout": "json",
           "argv": ["node", "/opt/publish-content-for-discovery/do-work/prepare-from-stdin.mjs"],

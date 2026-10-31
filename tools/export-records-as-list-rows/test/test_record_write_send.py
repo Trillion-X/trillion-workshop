@@ -263,6 +263,129 @@ class Door(Pantry):
         with self.assertRaisesRegex(ValueError, 'did not answer list'):
             broken.read_type('record:stores')
 
+    def test_baseline_refresh_preserves_live_edits_and_their_basis_and_adds_source_fields(self):
+        original = {'name': 'Imported', 'description': 'Original', '_basis': {'name': {'by': 'source'}, 'description': {'by': 'source'}}}
+        record = {'id': 'record:stores:one', 'type': 'record:stores', 'value': original}
+        baseline = {'commands': [{'input': {'records': [record]}}]}
+        live = {'name': 'Person edit', 'description': 'Original', 'personal_note': 'Keep me', '_basis': {'name': {'by': 'person'}, 'description': {'by': 'source'}}}
+        desired = {'name': 'Source changed', 'description': 'Source improved', 'mechanism': ['repeat'],
+                   '_basis': {'name': {'by': 'new-source'}, 'description': {'by': 'new-source'}, 'mechanism': {'by': 'new-source'}}}
+        payload = {'commands': [{'input': {'records': [{**record, 'value': desired}]}}]}
+        state = self.held()
+        state['records'][record['id']] = {'type': record['type'], 'value': live}
+        self.account.write_text(json.dumps(state))
+        preview = sender.plan(self.door(), payload, baseline)
+        self.assertEqual(preview['to_write'], 1)
+        self.assertEqual(preview['conflicts'], [{'id': record['id'], 'path': ['name'], 'reason': 'live_changed'}])
+        status = sender.send(self.door(), payload, self.status, lambda _: None, baseline)
+        self.assertEqual(status['state'], 'written_with_conflicts')
+        saved = self.held()['records'][record['id']]['value']
+        self.assertEqual(saved['name'], 'Person edit')
+        self.assertEqual(saved['description'], 'Source improved')
+        self.assertEqual(saved['mechanism'], ['repeat'])
+        self.assertEqual(saved['personal_note'], 'Keep me')
+        self.assertEqual(saved['_basis']['name'], {'by': 'person'})
+        self.assertEqual(saved['_basis']['description'], {'by': 'new-source'})
+        # The same baseline can recover an interrupted send without rewriting preserved edits.
+        second = sender.send(self.door(), payload, self.status, lambda _: None, baseline)
+        self.assertEqual(second['to_write'], 0)
+        self.assertTrue(sender.readback(self.door(), payload, baseline)['_refresh']['conflicts'])
+
+    def test_baseline_does_not_resurrect_a_deleted_record_or_remove_an_edited_one(self):
+        old = [{'id': f'record:stores:{n}', 'type': 'record:stores', 'value': {'name': 'Original'}} for n in range(3)]
+        baseline = {'commands': [{'input': {'records': old}}]}
+        target = [{**old[0], 'value': {'name': 'Changed'}}, {**old[1], 'value': None}, {**old[2], 'value': None}]
+        payload = {'commands': [{'input': {'records': target}}]}
+        state = self.held()
+        state['records'] = {old[1]['id']: {'type': 'record:stores', 'value': {'name': 'Live edit'}},
+                            old[2]['id']: {'type': 'record:stores', 'value': {'name': 'Original'}}}
+        self.account.write_text(json.dumps(state))
+        status = sender.send(self.door(), payload, self.status, lambda _: None, baseline)
+        self.assertEqual(status['written'], 1)
+        self.assertEqual([c['reason'] for c in status['conflicts']], ['live_deleted', 'unsafe_removal'])
+        self.assertNotIn(old[0]['id'], self.held()['records'])
+        self.assertIn(old[1]['id'], self.held()['records'])
+        self.assertNotIn(old[2]['id'], self.held()['records'])
+
+    def test_baseline_nested_removals_do_not_erase_peer_changes_or_attach_rejected_basis(self):
+        record = {'id': 'a', 'type': 't', 'value': {'settings': {'x': 1, 'y': 2}, 'title': 'Old', '_basis': {'title': {'by': 'source'}}}}
+        baseline = {'commands': [{'input': {'records': [record]}}]}
+        fresh = {**record, 'value': {'settings': {'x': 3}, 'title': 'New', '_basis': {'title': {'by': 'new-source'}}}}
+        held = {'a': {'settings': {'x': 1, 'y': 4, 'z': 5}, 'title': 'Peer', '_basis': {}}}
+        result, conflicts = sender.refresh_records([fresh], baseline, held)
+        self.assertEqual(result[0]['value'], {'settings': {'x': 3, 'y': 4, 'z': 5}, 'title': 'Peer', '_basis': {}})
+        self.assertEqual([c['path'] for c in conflicts], [['settings', 'y'], ['title']])
+
+    def test_baseline_handles_scalar_edits_new_records_after_removal_and_duplicate_id_refusal(self):
+        baseline = {'commands': [{'input': {'records': [{'id': 'a', 'type': 't', 'value': None}]}}]}
+        record = {'id': 'a', 'type': 't', 'value': {'name': 'New'}}
+        records, conflicts = sender.refresh_records([record], baseline, {})
+        self.assertEqual((records, conflicts), ([record], []))
+        records, conflicts = sender.refresh_records([{**record, 'value': 'Changed'}], baseline, {'a': {'name': 'Live'}})
+        self.assertEqual(records[0]['value'], {'name': 'Live'})
+        self.assertEqual(conflicts[0]['path'], [])
+        with self.assertRaisesRegex(ValueError, 'duplicate record ids'):
+            sender.refresh_records([record, record], baseline, {})
+
+    def test_scoped_reads_do_not_scan_unrelated_rows_and_refuse_uncovered_targets(self):
+        payload = {'commands': [{'input': {'records': [{'id': 'record:stores:target', 'type': 'record:stores', 'value': {'name': 'Target'}}]}}]}
+        state = self.held()
+        state['records'] = {f'record:stores:unrelated-{n}': {'type': 'record:stores', 'value': {'name': 'Other'}} for n in range(20)}
+        self.account.write_text(json.dumps(state))
+        self.config['read_prefixes'] = {'record:stores': ['record:stores:target']}
+        self.assertEqual(sender.plan(self.door(), payload)['to_write'], 1)
+        self.assertEqual(len(self.held()['calls']), 1)
+        self.config['read_prefixes'] = {'record:stores': ['record:stores:wrong']}
+        with self.assertRaisesRegex(ValueError, 'does not cover every target'):
+            sender.plan(self.door(), payload)
+        self.assertEqual(len(self.held()['calls']), 1, 'scope refusal occurs before reads or writes')
+
+    def test_multiple_prefix_reads_have_different_keys_and_malformed_reads_never_become_absence(self):
+        door = self.door()
+        replies = iter([{'records': [], 'next': 'continue'},
+                        {'records': [{'id': 'record:stores:a', 'type': 'record:stores', 'value': {}}], 'next': None},
+                        {'records': [], 'next': None}])
+        keys = []
+        def answer(method, key, given):
+            keys.append(key)
+            return {'answer': next(replies)}
+        door.play = answer
+        self.assertEqual(len(door.read_type('record:stores', 'record:stores:a')), 1, 'an empty nonterminal page is followed')
+        self.assertEqual(door.read_type('record:stores', 'record:stores:b'), [])
+        self.assertEqual(len(set(keys)), 3)
+        door.play = lambda *args: {'answer': {'records': [{'id': 'wrong', 'type': 'record:stores', 'value': {}}], 'next': None}}
+        with self.assertRaisesRegex(ValueError, 'outside its requested type/prefix'):
+            door.read_type('record:stores', 'record:stores:a')
+        door.play = lambda *args: {'answer': {'records': [{'id': 'record:stores:a', 'type': 'record:stores'}], 'next': None}}
+        with self.assertRaisesRegex(ValueError, 'outside its requested type/prefix'):
+            door.read_type('record:stores', 'record:stores:a')
+        door.play = lambda *args: {'answer': {'records': [], 'next': 'same'}}
+        with self.assertRaisesRegex(ValueError, 'repeated continuation cursor'):
+            door.read_type('record:stores')
+
+    def test_cli_baseline_plan_send_and_readback_share_refresh_semantics(self):
+        record = {'id': 'record:stores:one', 'type': 'record:stores', 'value': {'name': 'One'}}
+        baseline = {'commands': [{'input': {'records': [record]}}]}
+        fresh = {'commands': [{'input': {'records': [{**record, 'value': {'name': 'One', 'mechanism': ['cause']}}]}}]}
+        (self.tmp / 'baseline.json').write_text(json.dumps(baseline))
+        (self.tmp / 'fresh.json').write_text(json.dumps(fresh))
+        sender.send(self.door(), baseline, self.status, lambda _: None)
+        common = ['--payload', str(self.tmp / 'fresh.json'), '--baseline', str(self.tmp / 'baseline.json')]
+        prefix = ['--read-prefix', 'record:stores=record:stores:one']
+        code, out, err = self.run_cli(*prefix, 'plan', *common)
+        self.assertEqual((code, json.loads(out)['to_write']), (0, 1), err)
+        code, out, err = self.run_cli(*prefix, 'send', *common, '--status', str(self.status))
+        self.assertEqual(code, 0, err)
+        code, out, err = self.run_cli(*prefix, 'readback', *common)
+        self.assertEqual(code, 0, err)
+        self.assertEqual(json.loads(out)['_refresh']['conflicts'], [])
+        self.config['keep_held'] = True
+        with self.assertRaisesRegex(ValueError, 'cannot be combined'):
+            sender.plan(self.door(), fresh, baseline)
+        wrong_type = {'commands': [{'input': {'records': [{**record, 'type': 'other'}]}}]}
+        with self.assertRaisesRegex(ValueError, 'changes type'):
+            sender.refresh_records(sender.records_of(wrong_type), baseline, {})
+
 
 class McpDoor(unittest.TestCase):
     """The mcp transport against a made-up door on a loopback port: run_resource_operation as JSON-RPC tools/call, the key from the

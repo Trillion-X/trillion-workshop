@@ -32,6 +32,8 @@ operation names:
                     write_replay_wait seconds before each (default 0)
   keep_held         optional, true: a record the account already holds is never written again, whatever its value (a row someone
                     edited after it was first written keeps their edits); only records it lacks are sent
+  read_prefixes     optional { type: [prefix, ...] }: read only these prefixes for that type; every target must be covered.
+                    A returned record outside its requested type/prefix is refused, never treated as absence.
 
 A write's request key is `<prefix>-<first 32 hex of the BLAKE3 of the command's records>`: the same records make the same key, so a door
 that answers a repeated key with its first answer never writes them twice. Reads get keys of their own run, so a read is never a replay.
@@ -105,6 +107,10 @@ def checked(config: dict) -> dict:
             raise ValueError('A call transport is an argv list holding "{plan}" and "{result}".')
     else:
         raise ValueError('transport.kind is mcp or call.')
+    prefixes = config.get('read_prefixes', {})
+    if not isinstance(prefixes, dict) or any(not isinstance(t, str) or not isinstance(ps, list) or not ps or
+            any(not isinstance(p, str) or not p for p in ps) for t, ps in prefixes.items()):
+        raise ValueError('read_prefixes is an object of record types to nonempty lists of nonempty prefixes.')
     return config
 
 
@@ -129,6 +135,7 @@ class Door:
         self.key = key_of(self.transport['credential']) if self.transport['kind'] == 'mcp' else None
         self.run = f'{os.getpid()}-{time.time_ns()}'
         self.steps = 0
+        self.reads = 0
 
     def play(self, method: str, request_key: str, input_: dict, address: str | None = None) -> dict:
         """One operation's line, { is_error, answer }, at the config's address unless another is given; a door or program that does not
@@ -186,14 +193,15 @@ class Door:
 
     def read_type(self, record_type: str, prefix: str | None = None) -> list[dict]:
         """Every record of the type the door lists (only ids starting with prefix, when given), page by page."""
-        records, after, page, limit = [], None, 0, self.config['page_limit']
+        self.reads += 1
+        records, after, page, limit, cursors = [], None, 0, self.config['page_limit'], set()
         shrink_if = self.config.get('page_shrink_if', [])
         retry_if, retries, tried = self.config.get('page_retry_if', []), self.config.get('page_retries', 3), 0
         while True:
             page += 1
             input_ = {'type': record_type, 'limit': limit, **({'prefix': prefix} if prefix else {}),
                       **({'after': after} if after is not None else {})}
-            key = f'{self.config["request_key_prefix"]}-read-{self.run}-{slug(record_type, 60)}-{page}'
+            key = f'{self.config["request_key_prefix"]}-read-{self.run}-{slug(record_type, 60)}-{self.reads}-{page}'
             line = self.play(self.config['list_method'], key, input_)
             answer = line.get('answer') or {}
             if line.get('is_error') or not isinstance(answer.get('records'), list):
@@ -207,10 +215,16 @@ class Door:
                     time.sleep(self.config.get('page_retry_wait', 5))
                     continue
                 raise ValueError(f'Reading {record_type} page {page} was refused: {text[:300]}')
+            for record in answer['records']:
+                if not isinstance(record, dict) or not isinstance(record.get('id'), str) or 'value' not in record or record.get('type') != record_type or (prefix and not record['id'].startswith(prefix)):
+                    raise ValueError(f'Reading {record_type} returned a record outside its requested type/prefix.')
             records += answer['records']
             after = answer.get('next')
-            if not after or not answer['records']:
+            if not after:
                 return records
+            if not isinstance(after, str) or after in cursors:
+                raise ValueError(f'Reading {record_type} returned an invalid or repeated continuation cursor.')
+            cursors.add(after)
 
 
 def records_of(payload: dict) -> list[dict]:
@@ -221,9 +235,105 @@ def held_by_type(door: Door, records: list[dict]) -> dict[str, dict]:
     """{id: value} the account holds, for every type the records name."""
     held: dict[str, dict] = {}
     for record_type in sorted({record['type'] for record in records if record.get('type')}):
-        for record in door.read_type(record_type):
-            held[record['id']] = record.get('value')
+        prefixes = door.config.get('read_prefixes', {}).get(record_type, [None])
+        targets = [record['id'] for record in records if record.get('type') == record_type]
+        if prefixes != [None] and any(not any(target.startswith(prefix) for prefix in prefixes) for target in targets):
+            raise ValueError(f'read_prefixes does not cover every target of {record_type}.')
+        for prefix in prefixes:
+            for record in door.read_type(record_type, prefix):
+                held[record['id']] = record.get('value')
     return held
+
+
+_MISSING = object()
+
+
+def same(left, right) -> bool:
+    return left is right or (left is not _MISSING and right is not _MISSING and canonical(left) == canonical(right))
+
+
+def refresh_records(records: list[dict], baseline: dict, held: dict) -> tuple[list[dict], list[dict]]:
+    """Three-way source refresh. Live edits/deletions win, with conflicts reported by id/path (never private values).
+
+    A source field can change or disappear only while the live field still equals the previous import. Nested maps are
+    merged independently, including basis maps. A field whose live edit is retained also retains its own live basis.
+    """
+    previous = {record['id']: record for record in records_of(baseline)}
+    if len(previous) != len(records_of(baseline)):
+        raise ValueError('The baseline has duplicate record ids.')
+    if len({record['id'] for record in records}) != len(records):
+        raise ValueError('The refresh payload has duplicate record ids.')
+    conflicts, refreshed = [], []
+
+    def merge(old, new, live, record_id, path=()):
+        if same(new, old) or same(new, live):
+            return live
+        if same(live, old):
+            return new
+        if isinstance(new, dict) and isinstance(live, dict) and (isinstance(old, dict) or old is _MISSING):
+            old = {} if old is _MISSING else old
+            result = dict(live)
+            for key in sorted(set(old) | set(new)):
+                value = merge(old.get(key, _MISSING), new.get(key, _MISSING), live.get(key, _MISSING), record_id, (*path, key))
+                if value is _MISSING:
+                    result.pop(key, None)
+                else:
+                    result[key] = value
+            return result
+        conflicts.append({'id': record_id, 'path': list(path), 'reason': 'live_changed'})
+        return live
+
+    for record in records:
+        rid = record['id']
+        base = previous.get(rid)
+        if base and base.get('type') != record.get('type'):
+            raise ValueError(f'{rid} changes type from its baseline; refusing a refresh across types.')
+        old = base['value'] if base and base['value'] is not None else _MISSING
+        live = held.get(rid, _MISSING)
+        desired = record['value']
+        if live is _MISSING and old is not _MISSING and old is not None and desired is not None:
+            conflicts.append({'id': rid, 'path': [], 'reason': 'live_deleted'})
+            continue
+        # A whole-record removal is safe only when an actual baseline matches the live record.
+        if desired is None:
+            if live is _MISSING:
+                continue
+            if old is not _MISSING and same(live, old):
+                refreshed.append(record)
+            else:
+                conflicts.append({'id': rid, 'path': [], 'reason': 'unsafe_removal'})
+            continue
+        result = merge(old, desired, live, rid)
+        if result is _MISSING:
+            continue
+        # A retained value must never acquire the source's attribution for a rejected source edit.
+        if isinstance(result, dict) and isinstance(live, dict) and isinstance(desired, dict):
+            basis = dict(result.get('_basis') or {})
+            retained = set()
+            for field in set(desired) | (set(old) if isinstance(old, dict) else set()):
+                if field == '_basis' or same(result.get(field, _MISSING), desired.get(field, _MISSING)):
+                    continue
+                retained.add(field)
+                live_basis = (live.get('_basis') or {}).get(field, _MISSING)
+                if live_basis is _MISSING:
+                    basis.pop(field, None)
+                else:
+                    basis[field] = live_basis
+            if basis or '_basis' in result:
+                result['_basis'] = basis
+            conflicts[:] = [c for c in conflicts if c['id'] != rid or len(c['path']) < 2 or
+                            c['path'][0] != '_basis' or c['path'][1] not in retained]
+        refreshed.append({**record, 'value': result})
+    return refreshed, conflicts
+
+
+def prepared(door: Door, payload: dict, baseline: dict | None = None) -> tuple[list[dict], dict, list[dict]]:
+    if baseline is not None and door.config.get('keep_held', False):
+        raise ValueError('baseline and keep_held cannot be combined: choose a source refresh or an add-only import.')
+    records = records_of(payload)
+    held = held_by_type(door, records)
+    records, conflicts = refresh_records(records, baseline, held) if baseline is not None else (records, [])
+    return records, held, conflicts
 
 
 def to_write(records: list[dict], held: dict, keep_held: bool = False) -> list[dict]:
@@ -254,18 +364,19 @@ def write_commands(config: dict, records: list[dict]) -> list[dict]:
     return commands
 
 
-def plan(door: Door, payload: dict) -> dict:
+def plan(door: Door, payload: dict, baseline: dict | None = None) -> dict:
     """What a send would write, by type, without writing."""
-    records = records_of(payload)
-    pending = to_write(records, held_by_type(door, records), door.config.get('keep_held', False))
+    records, held, conflicts = prepared(door, payload, baseline)
+    pending = to_write(records, held, door.config.get('keep_held', False))
     by_type: dict[str, int] = {}
     for record in pending:
         by_type[record.get('type') or 'removal'] = by_type.get(record.get('type') or 'removal', 0) + 1
-    return {'records': len(records), 'to_write': len(pending), 'by_type': by_type,
-            'commands': len(write_commands(door.config, pending)) if pending else 0}
+    return {'records': len(records_of(payload)), 'to_write': len(pending), 'by_type': by_type,
+            'commands': len(write_commands(door.config, pending)) if pending else 0,
+            **({'conflicts': conflicts} if baseline is not None else {})}
 
 
-def send(door: Door, payload: dict, status_file: Path, log=print) -> dict:
+def send(door: Door, payload: dict, status_file: Path, log=print, baseline: dict | None = None) -> dict:
     """Write what differs, command by command, logging each. A command the door answers with a `write_halve_if` text (it took no
     effect, the command was too big for the door's time) is sent as two halves; one answered with a `write_replay_if` text (the
     effect may have happened) is sent again under the same request key, at most `write_replays` times, which recovers its answer.
@@ -275,10 +386,12 @@ def send(door: Door, payload: dict, status_file: Path, log=print) -> dict:
     status = json.loads(status_file.read_text()) if status_file.is_file() else {}
     done = status.setdefault('done', {})
     status.pop('last_refusal', None)
-    records = records_of(payload)
-    pending = to_write(records, held_by_type(door, records), door.config.get('keep_held', False))
+    records, held, conflicts = prepared(door, payload, baseline)
+    pending = to_write(records, held, door.config.get('keep_held', False))
     commands = write_commands(config, pending) if pending else []
     status.update({'state': 'sending', 'to_write': len(pending), 'commands': len(commands), 'written': 0})
+    if baseline is not None:
+        status['conflicts'] = conflicts
 
     def save():
         status_file.write_text(json.dumps(status, indent=1))
@@ -315,15 +428,14 @@ def send(door: Door, payload: dict, status_file: Path, log=print) -> dict:
             save()
             log(json.dumps({'command': number, 'of': len(commands), 'refused': True, 'request_key': refusal['request_key'], 'at': local_time()}))
             return status
-    status['state'] = 'all_written'
+    status['state'] = 'written_with_conflicts' if conflicts else 'all_written'
     save()
     return status
 
 
-def readback(door: Door, payload: dict) -> dict:
+def readback(door: Door, payload: dict, baseline: dict | None = None) -> dict:
     """Per type: the records the payload names, how many the account holds, how many hold the payload's value, and which differ."""
-    records = records_of(payload)
-    held = held_by_type(door, records)
+    records, held, conflicts = prepared(door, payload, baseline)
     out: dict[str, dict] = {}
     for record in records:
         kind = record.get('type') or 'removal'
@@ -340,6 +452,8 @@ def readback(door: Door, payload: dict) -> dict:
             entry['equal'] += 1
         else:
             entry['differing'].append(record['id'])
+    if baseline is not None:
+        out['_refresh'] = {'conflicts': conflicts}
     return out
 
 

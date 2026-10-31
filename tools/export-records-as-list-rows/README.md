@@ -121,6 +121,10 @@ The config says what to run (`send`, optionally `warm` before every send), how t
 
 A config with `keep_held: true` writes only the records the account lacks: a record it already holds is left as it is, whatever its value, so a row someone edited after it was first written keeps their edits. `tool:put-records-into-my-account` is the `send` command as a Workshop row.
 
+For a source refresh, pass `--baseline PREVIOUS_PAYLOAD` to `plan`, `send` and `readback` (or `baseline` to `tool:put-records-into-my-account`). The same sender then merges each field against that previous import: source changes apply where the live field still matches the baseline; live edits, extra fields and deleted records stay as they are. Nested maps are merged too, and a retained field keeps its live `_basis` attribution. Removing a record requires a baseline equal to its live value. Conflicts contain record IDs and field paths, never private values; `send` returns `written_with_conflicts` and exit 1 when it applied safe changes but retained a conflicting edit. `readback` reports remaining conflicts under `_refresh` and exits 1 until they are resolved. Never combine baseline refresh with `keep_held`.
+
+To avoid reading unrelated records, add `--read-prefix 'TYPE=PREFIX'` before the subcommand, repeating it for several scopes, or put `{ "read_prefixes": { "TYPE": ["PREFIX", "OTHER_PREFIX"] } }` in the config. Every target of a scoped type must be covered. Wrong-type/out-of-prefix answers and repeated cursors are refused; an empty page with a continuation is followed. Managed writes already use their declared `target_type` and `target_prefix`. Refreshes use the account snapshot they read; the records door has no conditional-write primitive, so these checks do not provide atomic protection against an edit arriving between that read and its write.
+
 ## Noting what shipped
 
 `do-work/read_what_shipped.py` adds a new release to a staged file, with the commit subjects since the release before it, and leaves the file as it is when that release is already there. Where the release is read is the person's setting: a program in the repository that prints JSON naming a release, or a git ref they move when they ship. For a branch whose commits are the source, `each: "commit"` makes one entry per commit after the stored cursor (or the `after` commit on the first run). `skip_subjects` is data that omits commits such as regenerated files. Each entry carries that commit's date, subject and stable commit identity; it does not infer push boundaries or combine same-day commits. The builder makes rows from staged entries with the person's mapping, and the sender with `keep_held` writes only rows the list lacks, preserving every row it already holds. `tools/workflows/recipes/keep-a-changelog-from-what-shipped.json` runs the steps every hour.
@@ -159,6 +163,7 @@ Prints `{ ok, bundle_id, file, written, reference_issues, tier_issues }`. The fi
 | `do-work/build_record_write.py` | The records:write builder's command line. |
 | `do-work/send_list_rows.py` | The batch sender's command line. |
 | `read-data/records_write.py` | The mapping, sources, staged-file readers, bases, checks and payload. |
+| `do-work/refresh_record_values.py` | The managed writer's stdin/stdout adapter to the same pure three-way refresh used by the CLI; reads and writes no host files. |
 | `read-data/expressions.py` | The expressions a mapping uses (paths, templates, conditions, lookups, lists, slugs, file text, requirements). |
 | `read-data/send_batches.py` | Sending with warm-up, retry, halving and a status file. |
 | `do-work/send_record_write.py` | The records:write sender's command line (plan, send, readback, export). |

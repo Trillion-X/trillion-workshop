@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:3fd0f47e3d462af2997462b3439ea4568a00f914b775b7993c8f3fc21084d76e"
+  "blake3": "1f:a70d5477a2d8ba6c203a04860682a652646dcea21f1f32aca856307c8fcf0a6b"
  },
  "fields": [
   {
@@ -1990,9 +1990,9 @@
   {
    "id": "tool:gate-a-piece-against-a-checklist",
    "values": {
-    "title": "Check a piece against my checklist before anyone sees it, and keep what was answered (runs on your computer)",
-    "job": "Before I am shown anything I made, ask every required check of my checklist that applies to it, keep each answer with the files it judged, tell me which checks are still open, stale or failed, and list what was put in front of me without passing",
-    "description": "Reads a person's checklist (a JSON document of stages and checks, each with the tags it routes on and whether it is required) and a piece (a folder with a header of tags and the files it offers as items) on the person's own computer, through a schema file the person gives. The gate lists every required check that applies and has no current passing answer, per item where the check is per item. Answers are rows in an append-only file in the piece, each pinned by BLAKE3 to the bytes of the files it judged, so a row on a file that changed is stale. A check that a checker or a gate answers counts only on that checker's own row, carrying the reviewed pin of the checker version that produced it; a person's own row never stands in for it. A checker's JSON report is recorded check by check, only for checks whose pin is the reviewed one; a sweep runs the checker over every item of a folder and lists faults by rule; the schema's gates run over items and record their rows. An advisory answer passes only at the delivery stages its check names. A failed judgment on a rebuild of an item the person picked waits for their ruling. The tool also lists the items a gate must cover (the latest round plus the live picks) and audits the folders the person watches, optionally moving unchecked files to a held-back folder. It knows no checklist, piece kind, checker or gate by name: everything comes from the schema.",
+    "title": "Run a read-only checklist gate on my files (runs on your computer)",
+    "job": "Before I am shown anything I made, list the required checks that apply to it and identify which answers are open, stale or failed, without changing my files",
+    "description": "Reads the person's checklist (stages, checks and routes), schema and piece from one folder they grant. It runs the existing checklist gate read-only: every required check that applies to the piece is listed with its current answer state, file identity and criterion pins. It accepts `gate`, `scope`, `audit` without `--hold`, and read-only `checklist` commands. It does not create a lock file, first-gate record or pin cache, and it cannot answer checks, run write-producing sweeps or hold files. The same generic checklist consumer still refuses empty or unknown scopes, reports stale answers and requires exact BLAKE3 file and definition pins. A separate write-grant tool handles commands that change the library. Nothing about a person's checklist or piece is known by this tool; the schema owns those details.",
     "status": "active",
     "maker": "maker:gate-a-piece-against-a-checklist",
     "licence_class": "licence:maker-own",
@@ -4257,7 +4257,7 @@
    "values": {
     "title": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer)",
     "job": "Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
-    "description": "Takes the result of tool:build-records-to-write directly. Through this run's separately scoped records door, it reads only the target record kinds declared on this row, skips records already held when keep_held is true, writes bounded commands with fresh per-run request keys, reconciles unknown write outcomes and returns readback counts. It reads no host payload file, config, keychain item or sender credential. The standalone send_record_write.py command remains available for a person who chooses the manual computer workflow.",
+    "description": "Takes the result of tool:build-records-to-write directly. Through this run's separately scoped records door, it reads only the target record kinds declared on this row, skips records already held when keep_held is true, or merges source changes against an optional previous-import baseline while preserving live edits and deletions. It reports conflicts, writes bounded commands with fresh per-run request keys, reconciles unknown write outcomes and returns readback counts; a mismatching readback is never all_written. It reads no host payload file, config, keychain item or sender credential. The standalone send_record_write.py command remains available for a person who chooses the manual computer workflow.",
     "status": "active",
     "maker": "maker:export-records-as-list-rows",
     "licence_class": "licence:maker-own",
@@ -5171,6 +5171,21 @@
     ],
     "listed_on": "2026-09-29T20:38:25Z",
     "folder": "record-a-web-page"
+   }
+  },
+  {
+   "id": "tool:record-checklist-gate-changes",
+   "values": {
+    "title": "Record a checklist answer or run its checked steps (runs on your computer)",
+    "job": "Record a checklist answer or run a declared checker or gate, with the required folder change grant",
+    "description": "Uses the same checklist consumer as the read-only gate, but only after the person grants this tool permission to change one folder. It records the person's answer, imports a checker report under the reviewed checker pins, runs the schema's sweeps or gates, holds files only when requested, or writes the checklist generated from the person's text. The existing consumer still checks criteria definitions, BLAKE3 file pins, checker pins, scopes and stale rows; this tool adds no alternate answer or bypass.",
+    "status": "active",
+    "maker": "maker:gate-a-piece-against-a-checklist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "workflows"
    }
   },
   {
