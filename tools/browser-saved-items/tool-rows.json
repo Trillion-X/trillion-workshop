@@ -1,0 +1,66 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:browser-saved-items",
+        "id": "tool:organize-saved-browser-tabs",
+        "placements": ["placement:your-computer"],
+        "needs": { "expected_seconds": 20, "network_egress": false },
+        "label": "Sort my saved browser tabs into folders by my rules",
+        "job": "Sort the tabs a person pinned in their browser into folders by rules they wrote, keep every tab and a backup of the file, and undo it",
+        "description": "Works on the browser's sidebar file (the Arc layout) inside the folder the person granted for change; close the browser first, because it rewrites the file while it runs. Give file (the sidebar file's plain name) and rules: space (title of the space), root_folder (title of the pinned folder that holds the sorted tree), folders ({ top: [sub, ...] }, the tree to make; the root folder must already hold exactly one folder for each name, because the browser makes folders and this reuses them), fallback ([top, sub?] for a covered tab no rule places), and optionally skip_hosts, relevant_hosts, relevant_words (what covers a tab outside the root folder) and rules ([{ put_in: [top, sub?], hosts, words }], first match wins; words are matched anywhere in the tab's title, address and folder path, ignoring case). Tabs already in the root folder are always covered; a split view moves whole. Without apply: true it only reports every tab's decision and the counts, and writes nothing. With apply: true it first copies the file to a backup beside it, checks that every tab is still reachable and no item appeared or went, then replaces the file in one step. To undo, give file and restore_from (the backup's name): the file is put back and what it replaced is kept. Reads no history, cookies, passwords or page content. Returns the counts, each tab's decision and folder, whether it was applied, and the backup's name.",
+        "input_schema": {
+          "type": "object",
+          "required": ["file"],
+          "additionalProperties": false,
+          "properties": {
+            "file": { "type": "string", "minLength": 1, "description": "The sidebar file's plain name inside the granted folder" },
+            "rules": { "type": "object", "description": "space, root_folder, folders, fallback, and optionally skip_hosts, relevant_hosts, relevant_words, rules: all of it the person's own" },
+            "apply": { "type": "boolean", "description": "true writes the file after making a backup; otherwise only report" },
+            "restore_from": { "type": "string", "description": "A backup's name in the same folder: put it back instead of organizing" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "file": { "type": "string" },
+            "applied": { "type": "boolean" },
+            "backup": { "type": ["string", "null"] },
+            "tab_count": { "type": "integer" },
+            "organized_tab_count": { "type": "integer" },
+            "moved_from_outside_root": { "type": "integer" },
+            "kept_in_place_count": { "type": "integer" },
+            "category_counts": { "type": "object" },
+            "tabs": { "type": "array", "items": { "type": "object", "required": ["id", "decision"] } },
+            "restored_from": { "type": "string" },
+            "kept_current_as": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["change-a-folder"],
+          "workdir": "/opt/browser-saved-items",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "/opt/browser-saved-items/do-work/organize-saved-browser-items.py",
+            { "fill": { "from": "task", "field": "grants.change-a-folder.folder" } }
+          ],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": {
+              "package": "browser-saved-items",
+              "paths": ["do-work"],
+              "at": "/opt/browser-saved-items"
+            }
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
