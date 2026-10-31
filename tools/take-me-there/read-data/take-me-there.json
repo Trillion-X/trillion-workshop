@@ -1,0 +1,30 @@
+{
+  "_what": "Settings of tool:take-me-there. `link`: the names the address a notice carries gives the arrangement and the tour under (the page reads them from its address). `notice_kind`: the kind the notice is sent as. `category`: where the arrangement and tour are kept unless the caller names one. `focus_sizes`: the thing's pane against what is put beside it. `fallback_points_at`: where the walkthrough points when the waiting row names no control of its own; a request may bring its own for a host that marks its screens differently. `step_id`, `step_placement`: the walkthrough step made when the caller gives none. `trigger`: how the walkthrough is asked for by name and finished when the thing is done; its once key is `once_key` with the held key after it.",
+  "link": { "layout": "layout", "tour": "tour" },
+  "notice_kind": "take-me-there",
+  "category": "Opened for you",
+  "focus_sizes": [3, 2],
+  "fallback_points_at": "[data-opened-item]",
+  "step_id": "your-part",
+  "step_placement": { "prefer": "left" },
+  "trigger": {
+    "reason": "asked-by-name",
+    "start_event": "walkthrough-requested",
+    "once_key": "waiting-item:",
+    "done_event": "waiting-item-completed"
+  },
+  "words": {
+    "needs_thing": "Say which thing to take them to: thing, the id of one card from tool:what-is-waiting-on-me (or the key of a batch of them).",
+    "needs_waiting": "Give waiting: the answer of tool:what-is-waiting-on-me, as { sections: [{ cards }] } or { cards }.",
+    "needs_screens": "Give screens: a list of { path_prefix, tool_id, route_input_from_query? } rows, one for each address path that opens a screen.",
+    "bad_screen": "screens[{index}] is { path_prefix: a path that starts with /, tool_id, route_input_from_query?: [names] }.",
+    "bad_origin": "own_origins is a list of origins such as https://example.com; {origin} is not one.",
+    "not_waiting": "{thing} is not waiting on them now (it is not made yet, or it is already done), so nothing was opened: make it first, then take them to it with the id tool:what-is-waiting-on-me gives.",
+    "outside": "{thing} opens outside their own places ({address}), so nothing was opened; give them that address instead.",
+    "your_part": "Your part",
+    "tour_title": "{action}: {title}",
+    "ready": "{title} is ready to open as the main pane. The arrangement is returned to save and open; nothing was saved here.",
+    "tour": "A walkthrough points at {action} there.",
+    "notice": "A notice is ready to send with a link that opens it on any device; nothing was sent here."
+  }
+}

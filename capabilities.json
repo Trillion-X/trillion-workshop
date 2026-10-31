@@ -15,6 +15,18 @@
   ],
   "capabilities": [
     {
+      "capability": "take a person to the thing that needs them: from one card of what waits on them, give the screen to open, the arrangement that puts it beside what the caller names, the walkthrough that points at the thing's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places",
+      "owner": ["tools/take-me-there/"],
+      "entry": "tools/take-me-there/tool-rows.json",
+      "evidence": "README.md:3 turns one waiting card into the screen, arrangement, walkthrough and notice that take a person to it, returns them as data and saves and sends nothing",
+      "distinct_from": [
+        {"job": "show everything waiting on a person that only they can do, gathered from the places they keep it into one list of cards", "why": "that job gathers the cards; this one takes one card, found by id in that answer, and says how to open the person on it"},
+        {"job": "notify a person when their notification rules say so", "why": "that job decides whether and how to tell a person; this one only prepares the notice that carries the link and sends nothing"},
+        {"job": "run guided tours, spotlights and quizzes over an app's screens", "why": "that job runs a tour's steps once it exists; this one only makes the one tour, aimed at a waiting card's own control, and runs nothing"},
+        {"job": "open the route to a place in the person's maps apps with stops on the way, and find the nearest stores or places of a brand or name around a start", "why": "that job opens a route in the world outside; this one opens a person's own screen on a thing waiting on them"}
+      ]
+    },
+    {
       "capability": "check a public page the way search and answer engines read it (served HTML, no script run), score it against editable check rows and say how to fix each miss; add the language, address and dates a page leaves out; answer a page as Markdown when asked",
       "owner": ["tools/ai-readiness/"],
       "entry": "tools/ai-readiness/tool-rows.json",
