@@ -1,0 +1,61 @@
+{
+ "kind": "tool-rows",
+ "record_set": "reply-templates-tool-rows",
+ "what_this_is": "The Workshop row for the tool in tools/reply-templates: what it does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::reply-templates::tool::expand-a-reply-template",
+   "address": "package::reply-templates::tool::expand-a-reply-template",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:expand-a-reply-template",
+    "label": "Expand a canned reply template",
+    "status": "active",
+    "job": "Fill a canned reply template with the details of a request, such as a name or a button label, and give back the finished reply",
+    "description": "Give a template (any JSON in which a value to fill is written as {\"$kind\":\"binding\",\"select\":{\"from\":\"dataSource\",\"key\":\"caller_request\",\"path\":\"label\"},\"default\":...}) and the details to fill it from: caller_request, provider_record and data (each top-level entry of data can also be named as a key). If you give no template, the provider_record's template is used. Returns the template with every binding replaced; everything else is kept as it was, whatever its shape. A binding that finds nothing gives its default, else null (select.required changes nothing). An object key named itemTemplate is kept as written. A template that is present and null gives null. A binding that reads from another source or has a transform is refused by name. It sends nothing and keeps nothing; the caller delivers the reply.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "template": { "description": "The template to fill; wins over the provider record's" },
+      "provider_record": { "type": ["object", "null"], "description": "Whoever offers the reply; its template field is used when template is not given" },
+      "caller_request": { "description": "The details of what is being replied to" },
+      "data": { "description": "More details; each top-level entry is also a key a binding can name" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["reply"],
+     "properties": { "reply": { "description": "The template with every binding filled" } }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "reply-templates", "paths": ["do-work", "read-data"], "at": "/opt/reply-templates" } },
+     "workdir": "/opt/reply-templates",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/expand-a-reply-template.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:reply-templates",
+    "provenance": { "source": "bitfield-packages packages/reply-template" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "template": { "line": { "$kind": "binding", "select": { "from": "dataSource", "key": "caller_request", "path": "greeting" } } },
+       "caller_request": { "greeting": "Fresh bread at nine" }
+      },
+      "output_selector": "$.reply.line",
+      "contains": "Fresh bread at nine"
+     }
+    ]
+   }
+  }
+ ]
+}
