@@ -9,14 +9,18 @@
 // Non-negotiable invariants
 //   1. A model is DATA the caller hands in: `{ url, model }`, where url is the OpenAI-compatible base ending before
 //      `/embeddings` or `/chat/completions`. A caller that needs a key names the environment variable that holds it
-//      (`key_env`); the key itself never travels in a request.
+//      (`key_env`); the key itself never travels in a request. A writing model may name `body`, more request fields
+//      its server reads (for example `{ chat_template_kwargs: { enable_thinking: false } }`).
 //   2. Every vector leaves `embedder` cut to `dims` (Matryoshka models keep meaning in their leading dimensions) and
 //      scaled to unit length, so `cosine` of two of them is their dot product. Vectors made by different models, dims
 //      or forms are never compared: `sameMeaning` says whether two vector owners match.
 //   3. Texts are wrapped in the model's own form before embedding (`forms.query`, `forms.document`; `{text}` and
 //      `{title}` are the slots), because an embedding model reads a query and a document differently.
-//   4. `writer` asks for one JSON object shaped by a JSON Schema, at temperature 0 and a fixed seed, and returns it
-//      parsed. Text that does not parse is an error that says which model answered what.
+//   4. `writer` asks for one JSON object shaped by a JSON Schema, at temperature 0 and a fixed seed (none when the
+//      writing names `seed: null`, because a server that batches requests together batches only unseeded ones), and
+//      returns it parsed. A server that cannot hold the answer to the schema may wrap the object in a thinking block
+//      or a code fence; the object between them is read. Text with no object that parses is an error that says which
+//      model answered what.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
@@ -94,7 +98,8 @@ export function writer(writing) {
     const answer = await post(writing, '/chat/completions', {
       model: writing.model,
       temperature: 0,
-      seed: writing.seed ?? 7,
+      ...(writing.seed === null ? {} : { seed: writing.seed ?? 7 }),
+      ...(writing.body ?? {}),
       ...(writing.max_tokens ? { max_tokens: writing.max_tokens } : {}),
       response_format: { type: 'json_schema', json_schema: { name, strict: true, schema } },
       messages: [
@@ -104,8 +109,9 @@ export function writer(writing) {
       ],
     });
     const text = answer.choices?.[0]?.message?.content ?? '';
+    const bare = text.replace(/<think>[\s\S]*?<\/think>/g, '');
     try {
-      return JSON.parse(text);
+      return JSON.parse(bare.slice(bare.indexOf('{'), bare.lastIndexOf('}') + 1));
     } catch {
       throw new Error(`${writing.model} answered text that is not JSON: ${text.slice(0, 300)}`);
     }

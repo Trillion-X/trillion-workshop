@@ -64,7 +64,8 @@ class PassageTest(unittest.TestCase):
 
     def test_a_video_that_did_better_scores_higher(self):
         lines = ["you have to water the garden soil every single day without fail"] * 6
-        best = lambda x: c.passages(self.video(lines, x), self.craft, self.advice, self.title)[0]["score"]
+        def best(x):
+            return c.passages(self.video(lines, x), self.craft, self.advice, self.title)[0]["score"]
         self.assertAlmostEqual(best(8) - best(1), 0.7 * math.log2(8), places=1)
 
 

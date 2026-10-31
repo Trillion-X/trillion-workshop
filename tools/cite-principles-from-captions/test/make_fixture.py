@@ -32,6 +32,8 @@ for video, lines in LINES.items():
             "description": "made up", "chapters": []}
     if kind == "short":
         info["media_type"] = "short"
+    if channel == "Channel Alpha":
+        info["channel_url"] = "https://example.com/@alpha"
     with open(os.path.join(captions, video + ".info.json"), "w") as handle:
         json.dump(info, handle)
     events = [{"tStartMs": i * 5000, "segs": [{"utf8": line}]} for i, line in enumerate(lines)]
@@ -81,6 +83,28 @@ with open(os.path.join(work, "rows", "bad.jsonl"), "w") as handle:
     ]:
         handle.write(json.dumps(row) + "\n")
     handle.write("not json\n")
+# word-timed transcripts from another site, their info files in a folder of their own
+os.makedirs(os.path.join(work, "transcripts"))
+os.makedirs(os.path.join(work, "infos"))
+SPOKEN = {"xvid1": ("A broken habit", "I broke the habit by writing it down every night. Then I told a friend who checked on me weekly."),
+          "xvid2": ("Morning walks", "Walk for ten minutes after you wake up and leave the phone at home.")}
+for video, (title, said) in SPOKEN.items():
+    words, second = [], 0.0
+    for word in said.split():
+        words.append({"text": word, "start": round(second, 2), "end": round(second + 0.3, 2), "type": "word"})
+        if video == "xvid1":  # xvid2 leaves the spacing entries out, as some transcribers do
+            words.append({"text": " ", "start": round(second + 0.3, 2), "end": round(second + 0.4, 2), "type": "spacing"})
+        second += 0.5
+    with open(os.path.join(work, "transcripts", video + ".json"), "w") as handle:
+        json.dump({"words": words, "text": said}, handle)
+    with open(os.path.join(work, "infos", video + ".info.json"), "w") as handle:
+        json.dump({"id": video, "extractor_key": "Twitter", "uploader": "Channel Gamma", "channel": None, "title": title,
+                   "view_count": 300, "duration": second, "webpage_url": f"https://x.example/{video}"}, handle)
+with open(os.path.join(work, "asks.json"), "w") as handle:
+    json.dump({"name": "made-up asks", "chunk_words": 30, "rows_key": "rows", "part_field": "part", "quote_field": "quote",
+               "system": "Write rows.", "user": "{parts_count} parts:\n{parts}",
+               "part_header": "[part {part}] channel: {channel} | title: {title} | from second {from_second}",
+               "reply_schema": {"type": "object"}}, handle)
 with open(os.path.join(work, "lanes.json"), "w") as handle:
     json.dump({"stages": {"stage one": ["soil", "weeds"], "stage two": ["habit", "feeding"]}, "lane_names": {"care": "soil"}}, handle)
 with open(os.path.join(work, "merge.json"), "w") as handle:

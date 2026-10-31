@@ -4,8 +4,8 @@
 // Needs python3 only.
 import test, { before } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,8 +34,10 @@ test('the row runs on the person\'s computer and names the script that exists', 
 });
 
 test('the pure readers keep their promises', () => {
-  const out = run(join(folder, 'test', 'test_captions.py'));
-  assert.equal(out.status, 0, out.stderr);
+  for (const file of ['test_captions.py', 'test_extraction.py']) {
+    const out = run(join(folder, 'test', file));
+    assert.equal(out.status, 0, out.stderr);
+  }
 });
 
 test('corpus keeps each captioned video with how it did against its channel\'s usual and skips one with no captions', () => {
@@ -124,5 +126,93 @@ test('registry without a lanes or merge file keeps each row on its own with no s
   assert.equal(lastLine(out.stdout).principles, 4);
   assert.ok(lines(join(work, 'plain.jsonl')).every(p => p.stages.length === 0 && !p.merged_from));
 });
+
+test('corpus also reads word-timed transcripts from another site, with their info files kept elsewhere', () => {
+  const both = join(work, 'corpus-both.jsonl');
+  const out = tool('corpus', '--captions', join(work, 'captions'), '--transcripts', join(work, 'transcripts'), '--infos', join(work, 'infos'), '--out', both);
+  assert.equal(out.status, 0, out.stderr);
+  assert.equal(lastLine(out.stdout).videos, 7);
+  const videos = Object.fromEntries(lines(both).map(video => [video.id, video]));
+  assert.deepEqual([videos.xvid1.platform, videos.xvid1.channel, videos.xvid1.words], ['twitter', 'Channel Gamma', 20]);
+  assert.deepEqual(videos.xvid1.segs, [[0, 'I broke the habit by writing it down every night.'], [5, 'Then I told a friend who checked on me weekly.']]);
+  assert.deepEqual(videos.xvid2.segs, [[0, 'Walk for ten minutes after you wake up and leave the phone'], [6, 'at home.']], 'words with no spacing entries are still joined by spaces');
+  assert.equal(videos.vidA1.platform, null, 'an info file with no extractor and no page names no site');
+});
+
+test('corpus reads a harvester\'s caption lines as they are, and counts a video with no captions as without', () => {
+  const file = join(work, 'captions-lines.jsonl');
+  const entries = [
+    { video_id: 'hv1', url: 'https://www.youtube.com/watch?v=hv1', seed: '@made-up', status: 'ready', language: 'en', format: 'json3',
+      lines: [[0, 'Plant the seeds in rows.'], [3.5, ' '], [4.2, 'Water them at dusk.']],
+      info: { id: 'hv1', title: 'Rows of seeds', channel: 'Channel Delta', duration: 30, view_count: 10, webpage_url: 'https://www.youtube.com/watch?v=hv1', description: 'A made-up garden.' } },
+    { video_id: 'hv2', url: 'https://www.youtube.com/watch?v=hv2', seed: '@made-up', status: 'empty', lines: [], info: { id: 'hv2', channel: 'Channel Delta' } },
+  ];
+  writeFileSync(file, `${entries.map(entry => JSON.stringify(entry)).join('\n')}\n`);
+  const out = join(work, 'corpus-lines.jsonl');
+  const done = tool('corpus', '--caption-lines', file, '--out', out);
+  assert.equal(done.status, 0, done.stderr);
+  assert.deepEqual([lastLine(done.stdout).videos, lastLine(done.stdout).without_captions], [1, 1]);
+  const [video] = lines(out);
+  assert.deepEqual([video.id, video.platform, video.channel, video.title, video.words, video.capfile], ['hv1', 'youtube', 'Channel Delta', 'Rows of seeds', 9, 'captions-lines.jsonl']);
+  assert.deepEqual(video.segs, [[0, 'Plant the seeds in rows.'], [4.2, 'Water them at dusk.']], 'the lines are kept as said; a blank line is left out');
+});
+
+test('coverage counts videos, shorts and words per channel and the videos rows already cite', () => {
+  const out = tool('coverage', '--corpus', corpus, '--rows', join(work, 'rows', 'a.jsonl'), '--out', join(work, 'coverage.json'));
+  assert.equal(out.status, 0, out.stderr);
+  assert.deepEqual({ ...lastLine(out.stdout), out: undefined }, { channels: 2, videos: 5, shorts: 1, words: 174, mined_videos: 4, rows: 4, out: undefined });
+  const alpha = JSON.parse(readFileSync(join(work, 'coverage.json'), 'utf8')).channels.find(c => c.channel === 'Channel Alpha');
+  assert.deepEqual([alpha.videos, alpha.shorts, alpha.mined_videos], [3, 1, 2]);
+  const beta = JSON.parse(readFileSync(join(work, 'coverage.json'), 'utf8')).channels.find(c => c.channel === 'Channel Beta');
+  assert.deepEqual([alpha.channel_url, beta.channel_url], ['https://example.com/@alpha', null], 'a channel\'s address is kept when its videos give one');
+});
+
+test('extract asks the model about every part, keeps each quote as the caption words it came from, and a stop loses nothing', async () => {
+  const both = join(work, 'corpus-both.jsonl');
+  const server = spawn('python3', [join(folder, 'test', 'fake_chat.py')]);
+  const port = await new Promise(resolve => server.stdout.once('data', data => resolve(String(data).trim())));
+  try {
+    const model = join(work, 'model.json');
+    assert.equal(run(join(folder, 'test', 'write_json.py'), model, JSON.stringify({ url: `http://127.0.0.1:${port}/v1`, model: 'stand-in' })).status, 0);
+    const out = join(work, 'extracted');
+    const extract = (...more) => spawnAsync('python3', [script, 'extract', '--corpus', both, '--asks', join(work, 'asks.json'), '--model', model, '--out', out, '--retry-seconds', '0', ...more]);
+    const first = await extract('--attempts', '1', '--concurrency', '2');
+    assert.equal(first.status, 0, first.stderr);
+    const done = () => lines(join(out, 'done.jsonl'));
+    assert.equal(done().length, 7, 'every video has a line');
+    assert.deepEqual(done().filter(d => d.failed_parts).map(d => [d.video, d.rows]), [['xvid1', 0]], 'a video with a part that failed keeps no rows');
+    const second = await extract('--attempts', '1');
+    assert.equal(lastLine(second.stdout).videos, 1, 'the next run asks only for the video that failed');
+    const gamma = lines(join(out, 'Channel-Gamma.jsonl'));
+    assert.equal(gamma.filter(r => r.sources[0].video === 'xvid1').length, 2, 'its rows are written once');
+    const rows = ['Channel-Alpha', 'Channel-Beta', 'Channel-Gamma'].flatMap(name => lines(join(out, `${name}.jsonl`)));
+    assert.ok(rows.every(r => r.extracted_by === 'stand-in' && r.asks === 'made-up asks' && !('quote' in r) && !('part' in r)));
+    const exact = rows.find(r => r.id === 'xvid1@0#1');
+    assert.deepEqual(exact.sources, [{ video: 'xvid1', platform: 'twitter', channel: 'Channel Gamma', guest: null, title: 'A broken habit', t: 0, t_end: 5,
+      quote: 'I broke the habit by writing it down', quote_match: 1 }]);
+    const close = rows.find(r => r.statement === 'Idea two.' && r.sources[0].video === 'xvid1');
+    assert.deepEqual([close.sources[0].quote, close.sources[0].quote_match], ['the habit by writing it down every night', 0.875], 'the caption\'s own words replace a quote with one word wrong');
+    const verified = tool('verify', '--corpus', both, '--rows', join(out, 'Channel-*.jsonl'));
+    assert.equal(verified.status, 0, verified.stdout);
+    assert.equal(lastLine(verified.stdout).bad, 0);
+    const dropped = lines(join(out, 'dropped.jsonl'));
+    assert.ok(dropped.length >= 7 && dropped.every(d => d.why === 'quote not said in the part'));
+    const packed = rows.filter(r => ['vidA2', 'vidA3'].includes(r.sources[0].video));
+    assert.deepEqual(new Set(packed.map(r => r.sources[0].video)), new Set(['vidA2', 'vidA3']), 'short videos read together keep their own rows');
+  } finally {
+    server.kill();
+  }
+});
+
+function spawnAsync(command, argv) {
+  return new Promise(resolve => {
+    const child = spawn(command, argv);
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', data => { stdout += data; });
+    child.stderr.on('data', data => { stderr += data; });
+    child.on('close', status => resolve({ status, stdout, stderr }));
+  });
+}
 
 function round2(x) { return Math.round(x * 100) / 100; }
