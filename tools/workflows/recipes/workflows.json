@@ -15378,7 +15378,7 @@
         },
         "source": {
           "from": "a decision method",
-          "note": "Names tools that no tool in the Workshop offers yet: tool:run-price-experiments, tool:who-does-each-step."
+          "note": "Names a tool that no tool in the Workshop offers yet: tool:who-does-each-step."
         },
         "steps": [
           {
@@ -15440,7 +15440,7 @@
           {
             "id": "question",
             "title": "Question every requirement",
-            "do": "For the request in this run's input: List the demands this decision is working under. For each, who set it, and would dropping it make the change less reachable? Keep only the ones that survive.\n\nThen answer each check below in your own words, about this request only, as its good answer describes. A check that does not bear on this request says which fact of it shows that.\n- question-price-opens-the-door-and-funds-growth: Is the price low enough that most people who want this can get in, yet high enough to pay for the pursuit to grow, and are several prices tried to find where what people want meets what can be supplied? A good answer: Who is priced out at each candidate price, what each price funds, and the experiment that finds the price where demand meets supply (tool:run-price-experiments), with the result read from payments rather than guessed.",
+            "do": "For the request in this run's input: List the demands this decision is working under. For each, who set it, and would dropping it make the change less reachable? Keep only the ones that survive.\n\nThen answer each check below in your own words, about this request only, as its good answer describes. A check that does not bear on this request says which fact of it shows that.\n- question-price-opens-the-door-and-funds-growth: Is the price low enough that most people who want this can get in, yet high enough to pay for the pursuit to grow, and are several prices tried to find where what people want meets what can be supplied? A good answer: Who is priced out at each candidate price, what each price funds, and the experiment that finds the price where demand meets supply (tool:choose-what-a-visitor-sees keeps each person on one price; tool:read-experiment-results reads the winner), with the result read from payments rather than guessed.",
             "submit": {
               "type": "object",
               "required": [
@@ -25323,7 +25323,7 @@
         },
         "source": {
           "from": "a method a person repeated across their work",
-          "note": "Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps. Names tools that no tool in the Workshop offers yet: tool:run-price-experiments."
+          "note": "Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps. Every tool it names is in the Workshop."
         },
         "steps": [
           {
@@ -25399,7 +25399,7 @@
           {
             "id": "prices",
             "title": "Test several prices",
-            "do": "Choose two or more prices: one low enough that most people who want it can get in, others that would fund the pursuit faster. Start a price experiment on the offer (tool:run-price-experiments) so each person keeps seeing the same price and the winner is read from payments. When the offer does not exist yet, draft it for the person to approve first; nothing is charged or published without their approval.",
+            "do": "Choose two or more prices: one low enough that most people who want it can get in, others that would fund the pursuit faster. Start a price experiment on the offer: pick each person's price with tool:choose-what-a-visitor-sees so each person keeps seeing the same price, and read the winner from payments with tool:credit-outcomes-to-candidates and tool:read-experiment-results; the winner is read from payments. When the offer does not exist yet, draft it for the person to approve first; nothing is charged or published without their approval.",
             "submit": {
               "type": "object",
               "required": [
@@ -26436,6 +26436,323 @@
                 }
               }
             }
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:test-prices-and-change-a-page-for-each-visitor",
+        "label": "Test prices and change a page for each visitor",
+        "job": "Run price tests and A/B tests on a page for as long as the person wants, and change the page per visitor: write each part of the page that changes (a price card, a headline, an offer) as a set of versions with a rule that picks one, make a tracked link for every place the page is shared so each visit says where it came from, show each visitor one version and keep showing them the same one, credit sign-ups and payments to the version each person saw, and every week read which version did best by source. A price test may hold one price; adding a price or a version is adding one row. The person approves every price, every version's words and every change to what visitors see; the AI drafts and counts.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "page",
+            "parts"
+          ],
+          "properties": {
+            "page": {
+              "type": "string",
+              "minLength": 3,
+              "description": "The address of the page that changes"
+            },
+            "parts": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "part",
+                  "versions"
+                ],
+                "properties": {
+                  "part": {
+                    "type": "string",
+                    "minLength": 2,
+                    "description": "The part of the page that changes, for example the plan card or the headline"
+                  },
+                  "versions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "description": "The versions of that part: a price, an offer or words. One version is allowed"
+                  }
+                }
+              },
+              "description": "Each part of the page that changes, with its versions"
+            },
+            "channels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 2
+              },
+              "description": "The places the page is shared, for example a newsletter or an ad account"
+            },
+            "known_facts": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 2
+              },
+              "description": "What the person's tracking and enrichment tools record about a visitor that a rule may read, for example company size"
+            },
+            "outcomes": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 2
+              },
+              "description": "What counts as a result, for example signed up or paid"
+            }
+          }
+        },
+        "source": {
+          "from": "Workshop tools",
+          "name": "tools/run-experiments (choose what a visitor sees, read results, credit outcomes) and tools/traffic-attribution (tracked links, visits and sales by source)",
+          "note": "Built from the tools' own rows. NOT ADOPTED, with the reason: (1) showing two visitors different prices for the same thing at the same moment without saying the price is being tested, where a place's consumer rules forbid it, so the person names the places the test runs in and the page states the price each visitor will be charged before they pay; (2) reading facts about a visitor that the person has no right to, so a rule reads only facts the person's own tracking and enrichment tools recorded, under the trust names the person lists; (3) changing a live price or a live page without the person's yes, so every change is a draft until the person approves it."
+        },
+        "steps": [
+          {
+            "id": "write-the-versions",
+            "title": "Write each changing part as versions and a rule",
+            "do": "For each input part, write one selection-surface record (entity_type selection-surface, address = the input page plus # and the part, one candidate per version with a candidate_id and a material_ref naming the version's record) and one decider record, in the shapes of tools/run-experiments/data/one-price-test.example.json and personalize-by-where-they-came-from.example.json. A part with versions to test gets a sticky_hash split keyed by { fact_path: [observer, id] } with a weight per version. A rule that changes the part per visitor reads only the input known_facts and visit fields (utm_source, utm_campaign, referrer) under trust names the person lists, and falls back to the split. Show the person every version's words and every rule in plain words with tool:tell-the-person and keep only what they approve.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "surfaces",
+                "approved"
+              ],
+              "properties": {
+                "surfaces": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "address",
+                      "candidates",
+                      "decider_id"
+                    ],
+                    "properties": {
+                      "address": {
+                        "type": "string"
+                      },
+                      "candidates": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "decider_id": {
+                        "type": "string"
+                      },
+                      "reads_facts": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "approved": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "distinct-at-least",
+                "path": [
+                  "this",
+                  "surfaces"
+                ],
+                "count": 1,
+                "says": "At least one part of the page has versions"
+              }
+            ]
+          },
+          {
+            "id": "make-tracked-links",
+            "title": "Make a tracked link for every place the page is shared",
+            "do": "For each input channel call tool:make-tracked-link with { destination: the input page, source: the channel, medium, campaign } and give the person the links to use in that place. A visit through a link carries its source, so a rule and the weekly reading can split by it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "links"
+              ],
+              "properties": {
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "channel",
+                      "url"
+                    ],
+                    "properties": {
+                      "channel": {
+                        "type": "string"
+                      },
+                      "url": {
+                        "type": "string",
+                        "format": "uri"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "choose-per-visitor",
+            "title": "Show each visitor one version, the same one every time",
+            "do": "Where the page is drawn, for each visit and each surface call tool:choose-what-a-visitor-sees with { surface, decider, facts, visitor }: visitor is the visitor's stable mark, facts are the visit's signals as tools/traffic-attribution captured them, each as { path: [visit, key], value, trust_ref: trust:observer-supplied }, and the input known_facts the person's tools hold for that visitor, each with its trust_ref. Draw the chosen candidate's material. Keep each choice as an assignment record { visitor, surface address, candidate_id, at }; a visitor already assigned reads their assignment back. Report how many visitors each version was shown so far.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "shown"
+              ],
+              "properties": {
+                "shown": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "address",
+                      "candidate_id",
+                      "visitors"
+                    ],
+                    "properties": {
+                      "address": {
+                        "type": "string"
+                      },
+                      "candidate_id": {
+                        "type": "string"
+                      },
+                      "visitors": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "credit-and-read",
+            "title": "Every week, credit results to versions and read which did best",
+            "do": "Call tool:credit-outcomes-to-candidates with the assignment records, the outcome records for the input outcomes (sign-ups, and payments read from the person's payment records) and a join written as data. Then call tool:read-experiment-results for each surface with the credited facts and a rate per outcome over views, and tool:break-down-visits-and-sales with break_down_by utm_source. Write what each version got with its counts. A rate from fewer than 100 views per version is reported as too early, not as a winner.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "results",
+                "too_early"
+              ],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "address",
+                      "candidates"
+                    ],
+                    "properties": {
+                      "address": {
+                        "type": "string"
+                      },
+                      "candidates": {
+                        "type": "object"
+                      },
+                      "leader": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                },
+                "by_source": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "too_early": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "next-round",
+            "title": "Settle, add a version or keep going, with the person's yes",
+            "do": "Propose one change per surface: move all weight to a clear leader, add a new version (a new price or new words, as one more candidate and one more weight), take away a version that lost, or keep the test running. Tell the person with tool:tell-the-person, with the counts behind it. Change the surface and decider records only after the person says yes; a new price goes live only once the person's payment provider holds it. Then go back to choose-per-visitor.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "proposals",
+                "reason"
+              ],
+              "properties": {
+                "proposals": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "address",
+                      "change"
+                    ],
+                    "properties": {
+                      "address": {
+                        "type": "string"
+                      },
+                      "change": {
+                        "enum": [
+                          "settle",
+                          "add-version",
+                          "remove-version",
+                          "keep"
+                        ]
+                      },
+                      "candidate_id": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 5
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "excludes-words",
+                "path": [
+                  "this",
+                  "reason"
+                ],
+                "words": [
+                  "guaranteed",
+                  "will definitely",
+                  "proven winner"
+                ],
+                "says": "The proposal does not promise an outcome"
+              }
+            ]
           }
         ]
       }
