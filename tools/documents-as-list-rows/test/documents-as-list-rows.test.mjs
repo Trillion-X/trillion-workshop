@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { parseDocument, readFrontmatter, writeFrontmatter } from '../read-data/document-properties.mjs';
 import { changeDocumentRows, readDocumentRows, readNamespaceDocumentRows, splitIntoDocuments } from '../read-data/rows.mjs';
 import { splitDocuments } from '../read-data/split.mjs';
+import { contentRows } from '../read-data/content-rows.mjs';
 
 const command = fileURLToPath(new URL('../do-work/documents.mjs', import.meta.url));
 const scratch = () => mkdtemp(join(tmpdir(), 'documents-as-list-rows-'));
@@ -107,6 +108,43 @@ test('explicit UTF-8 source extensions do not change ordinary folder selection o
   await assert.rejects(readDocumentRows({ root, paths: ['/check.py'] }), /declared text extensions/);
   await writeFile(join(root, 'bad.py'), Buffer.from([0xff, 0xfe]));
   await assert.rejects(readDocumentRows({ root, paths: ['/bad.py'], text_extensions: ['py'], content: true }), /not a complete UTF-8/);
+});
+
+test('extensionless UTF-8 files require an explicit positive path and empty declared extension', async () => {
+  const root = await scratch();
+  await mkdir(join(root, 'nested'));
+  await writeFile(join(root, 'prompt'), 'Keep the full explanation.\n');
+  await writeFile(join(root, 'nested', 'LICENSE'), 'Example licence words.\n');
+  await writeFile(join(root, 'visible.md'), '# Normal document\n');
+  assert.deepEqual((await readDocumentRows({ root, text_extensions: [''] })).rows.map(row => row.id), ['/visible.md']);
+  await assert.rejects(readDocumentRows({ root, paths: ['/prompt'], content: true }), /declared text extensions/);
+  const page = await readDocumentRows({ root, paths: ['/prompt', '/nested/LICENSE'], text_extensions: [''], content: true });
+  assert.deepEqual(page.rows.map(row => row.id), ['/nested/LICENSE', '/prompt']);
+  assert.equal(page.rows[0].values['document.text'], 'Example licence words.\n');
+  assert.equal(page.rows[1].values['document.text'], 'Keep the full explanation.\n');
+  await writeFile(join(root, 'catalogue.json'), JSON.stringify(['/nested/LICENSE', '/prompt']));
+  assert.deepEqual((await readDocumentRows({ root, paths_file: '/catalogue.json', text_extensions: [''], content: true })).rows, page.rows);
+  await writeFile(join(root, 'not-text'), Buffer.from([0xff, 0xfe]));
+  await assert.rejects(readDocumentRows({ root, paths: ['/not-text'], text_extensions: [''], content: true }), /not a complete UTF-8/);
+});
+
+test('a resumed long-body cursor reads future text pieces without rereading earlier body ranges', async () => {
+  const bytes = Buffer.from('A long café 🙂 source.\n'.repeat(10000));
+  const row = { id: '/long.md', title: 'long', identity: 'one-stable-source', values: { 'file.size': bytes.length } };
+  const asked = [];
+  const files = { readSlice: async (identity, offset, length) => {
+    asked.push({ offset, length });
+    return { identity, bytes: bytes.subarray(offset, offset + length) };
+  } };
+  const read = async ({ row_ids, cursor }) => ({ rows: row_ids || !cursor ? [row] : [], next_cursor: null });
+  const input = { folder: '/', limit: 3, content: { part_bytes: 1000 } };
+  const first = await contentRows(files, read, input);
+  assert.deepEqual(first.rows.map(one => one.values['document.part']), [1, 2, 3]);
+  asked.length = 0;
+  const second = await contentRows(files, read, { ...input, after: first.next });
+  assert.deepEqual(second.rows.map(one => one.values['document.part']), [4, 5, 6]);
+  assert.equal(asked.length, 4, 'three returned pieces plus one bounded lookahead');
+  assert.ok(asked.every(one => one.offset >= 2997), 'none of the earlier body ranges is read again');
 });
 
 test('a granted filesystem root can read an exact positive catalogue without a recursive root listing', async () => {
