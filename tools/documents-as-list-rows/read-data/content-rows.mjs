@@ -3,7 +3,7 @@
 // exact UTF-8 bytes, including frontmatter. A cursor pins an unfinished document's identity so pieces of two edits
 // can never be combined. No document kind or corpus is named here.
 import data from './document-properties.json' with { type: 'json' };
-import { say } from './document-properties.mjs';
+import { readDocumentTypes, say } from './document-properties.mjs';
 import { splitDocuments } from './split.mjs';
 
 const CURSOR = 'document-content:';
@@ -123,13 +123,26 @@ export async function contentRows(files, read, { folder, match, exclude, paths, 
   if (!(Number.isSafeInteger(limit) && limit >= 1 && limit <= data.limits.page_rows_most)) throw say('bad_page', { most: data.limits.page_rows_most });
   if (most_bytes !== undefined && (!Number.isSafeInteger(most_bytes) || most_bytes < 1)) throw say('bad_input', { what: 'most_bytes must be a whole number of bytes from 1.' });
   const source = { of: folder, match, exclude, paths, paths_file, text_extensions };
+  const readParents = async cursor => {
+    let parentLimit = limit;
+    const budgeted = most_bytes === undefined ? limit : Math.min(limit, Math.ceil(most_bytes / options.part_bytes));
+    // A small answer cannot use thousands of nominal text pieces. Avoid materializing that many parents when the
+    // caller omitted page-resolved link caches and no formula can expose those caches through another field. Keep
+    // ordinary metadata/link/formula semantics, and defer even the sidecar read until following parents are needed.
+    const links = data.file_facts.filter(fact => fact.from === 'links' || fact.from === 'embeds')
+      .map(fact => `${data.namespaces.facts}.${fact.key}`);
+    if (budgeted < limit && !backlinks && links.every(field => options.omit_fields.includes(field)) &&
+        typeof files.entry === 'function' && typeof files.read === 'function' &&
+        !Object.keys((await readDocumentTypes(files, folder)).formulas).length) parentLimit = budgeted;
+    return read({ source, cursor, limit: parentLimit, backlinks });
+  };
   const continued = cursor.document ? (await read({ source, row_ids: [cursor.document], limit, backlinks })).rows : [];
   if (cursor.document && (!continued.length || continued[0].identity !== cursor.identity)) {
     throw say('document_changed', { document: cursor.document, expected: cursor.identity, current: continued[0]?.identity ?? 'missing' });
   }
   // An unfinished document can fill this whole answer. Do not read/hash the following metadata page until its
   // remaining pieces actually leave room; otherwise each small continuation rereads unrelated large files.
-  let page = cursor.document ? null : await read({ source, cursor: cursor.after, limit, backlinks });
+  let page = cursor.document ? null : await readParents(cursor.after);
   let parents = page ? page.rows : continued;
   const rows = [];
   let next = after ?? null;
@@ -162,7 +175,7 @@ export async function contentRows(files, read, { folder, match, exclude, paths, 
       }
     }
     if (page === null) {
-      page = await read({ source, cursor: cursor.document, limit, backlinks });
+      page = await readParents(cursor.document);
       parents = page.rows;
       continue;
     }

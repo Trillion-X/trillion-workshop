@@ -46,7 +46,7 @@ How the folder is read:
 - `exclude` is an array of globs relative to the source folder. It keeps a broader knowledge source from repeating documents another list already owns.
 - `paths` is an exact positive catalogue of file names under the granted root, read without walking unrelated folders. Every name still goes through the files owner's root and symlink checks. `text_extensions` explicitly declares UTF-8 source extensions such as `py` or `mjs` for that catalogue; ordinary folder scans still select only the document extensions. Source bytes are read as text and never executed.
 - An empty string in `text_extensions` explicitly admits extensionless UTF-8 files such as a named `LICENSE` or prompt. It only affects the positive `paths`/`paths_file` catalogue; a normal folder scan still excludes extensionless files.
-- `paths_file` names a JSON array positive catalogue under that same granted root instead of embedding `paths` in a bounded list record. Its identity is checked, its complete JSON must fit the existing per-document byte read bound, and each selected name still passes the normal root checks.
+- `paths_file` names a JSON positive catalogue under that same granted root instead of embedding `paths` in a bounded list record. It may be a JSON array of exact paths or `{ "prefixes": [{ "prefix": "/folder", "paths": ["name.md"] }] }` when many paths share directories. The grouped form expands each basename under its absolute prefix; prefixes cannot traverse up the tree and names cannot contain separators. Its identity is checked, its complete JSON must fit the existing per-document byte read bound, and each selected name still passes the normal root checks.
 - `most_bytes` bounds the answer's JSON: the page ends at the last row that fits, and `next` goes on from there. A caller whose answer travels in a bounded message names its room this way; a door answers a run within one MCP message of 65,536 bytes that carries the answer twice.
 - The documents of a page are read `reads_at_once` at a time (32).
 
@@ -73,6 +73,12 @@ The defaults are DATA in `document-properties.json` and can be overridden by a `
 The first piece keeps the original `/folder/name.md` ID. Later IDs are `/folder/name.md#text-part-00000002`, and so on. All current frontmatter and file facts are kept. Reconstruct a document only after checking that its identity, part count and every consecutive part number agree, then join the text in part order. A list refresh can remove obsolete trailing child rows through its existing exact-source removal scope when a document becomes shorter.
 
 With content enabled, `limit` and `most_bytes` bound the emitted rows and the complete answer, including child rows. Pass `next` back unchanged: an unfinished document uses an opaque cursor pinned to its identity. A document changed between pages is refused, so text from two edits is never joined. The Namespace source reads the same pieces through the existing files door by name and checks the identity on every byte page. Invalid UTF-8 and incomplete byte ranges are refused. No file-content reference or local path is substituted for missing text.
+
+For a byte-budgeted content answer that omits the page-resolved links and embeds caches, has no folder formulas,
+and does not ask for backlinks, parent metadata lookahead is at most `min(limit, ceil(most_bytes / part_bytes))`.
+Small documents can therefore make an earlier page boundary; following every `next` still returns all complete rows.
+The emitted-row limit and unbudgeted reads are unchanged. Requests retaining those caches or formulas retain their
+original metadata page, because changing its membership could change a resolved link or a formula's value.
 
 By hand, add `--content` (or `--content '<options JSON>'`) and optionally `--most-bytes N` to `rows`. Existing metadata-only callers are unchanged.
 

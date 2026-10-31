@@ -170,6 +170,74 @@ test('a resumed long-body cursor reads future text pieces without rereading earl
   assert.deepEqual(metadataReads, [{ row_ids: ['/long.md'], cursor: undefined }], 'an unfinished body never reads following parent documents');
 });
 
+test('budgeted content reads only useful parent metadata and all pages retain every complete row and UTF-8 byte', async () => {
+  const root = await scratch(), originals = new Map();
+  for (let index = 0; index < 11; index += 1) {
+    const name = `/doc-${String(index).padStart(2, '0')}.md`;
+    const body = index === 1 ? '\ufeffcafé 😀\n'.repeat(4000) : `# Document ${index}\n\nA small complete source.\n`;
+    originals.set(name, body);
+    await writeFile(join(root, name.slice(1)), body);
+  }
+  const files = await folderFiles(root), read = documentRowSources({ files }).sources.documents;
+  const content = { part_bytes: 6000, omit_fields: ['file.links', 'file.embeds'] };
+  const input = { folder: '/', paths: [...originals.keys()], limit: 2000, content };
+  const full = await contentRows(files, read, input);
+  assert.equal(full.next, null);
+  const calls = [], rows = [], cursors = new Set();
+  let after = null;
+  do {
+    const page = await contentRows(files, async input => {
+      const page = await read(input);
+      calls.push({ limit: input.limit, exact: Boolean(input.row_ids), parents: page.rows.length });
+      return page;
+    }, { ...input, most_bytes: 28000, after });
+    assert.ok(Buffer.byteLength(JSON.stringify(page)) <= 28000);
+    rows.push(...page.rows);
+    after = page.next;
+    if (after) { assert.ok(!cursors.has(after), 'each continuation advances'); cursors.add(after); }
+  } while (after);
+  assert.ok([...cursors].some(cursor => cursor.startsWith('document-content:')), 'the walk includes unfinished-body cursors');
+  assert.ok(calls.filter(call => !call.exact).every(call => call.limit === 5 && call.parents <= 5), '28,000-byte answers read at most five metadata parents');
+  assert.deepEqual(rows, full.rows, 'changing page boundaries retains identical complete records');
+  for (const [name, original] of originals) {
+    const text = rows.filter(row => row.values['document.parent'] === name).map(row => row.values['document.text']).join('');
+    assert.deepEqual(Buffer.from(text), Buffer.from(original), name);
+  }
+  const limits = [];
+  await contentRows(files, async input => { limits.push(input.limit); return read(input); }, { ...input, limit: 2, most_bytes: 28000 });
+  assert.deepEqual(limits, [2], 'parent lookahead never raises the caller row limit');
+  limits.length = 0;
+  await contentRows(files, async input => { limits.push(input.limit); return read(input); }, input);
+  assert.deepEqual(limits, [2000], 'unbudgeted metadata behavior is unchanged');
+  await assert.rejects(contentRows(files, read, { ...input, most_bytes: 10 }), /bigger than most_bytes/);
+});
+
+test('retained page-resolved links, embeds, backlinks and formulas keep their original metadata page', async () => {
+  const root = await scratch(), paths = [];
+  for (let index = 0; index < 8; index += 1) {
+    const path = `/doc-${index}.md`;
+    paths.push(path);
+    await writeFile(join(root, path.slice(1)), index === 0 ? '[[Final alias]] ![[Final alias]]\n' : index === 7 ? '---\naliases: [Final alias]\n---\nLast.\n' : `Document ${index}.\n`);
+  }
+  const files = await folderFiles(root);
+  const read = documentRowSources({ files, evaluateBinding: async (_binding, input) => input.file.links.join(',') }).sources.documents;
+  const input = { folder: '/', paths, limit: 2000, most_bytes: 28000 };
+  for (const omit_fields of [[], ['file.links'], ['file.embeds']]) {
+    const calls = [];
+    const page = await contentRows(files, async input => { calls.push(input.limit); return read(input); }, { ...input, content: { part_bytes: 6000, omit_fields } });
+    assert.deepEqual(calls, [2000], 'a visible page-dependent cache retains the original page');
+    for (const field of ['file.links', 'file.embeds'].filter(field => !omit_fields.includes(field))) assert.deepEqual(page.rows[0].values[field], ['/doc-7.md']);
+  }
+  const content = { part_bytes: 6000, omit_fields: ['file.links', 'file.embeds'] }, calls = [];
+  await contentRows(files, async input => { calls.push(input.limit); return read(input); }, { ...input, content, backlinks: true });
+  assert.deepEqual(calls, [2000], 'backlink reads retain their existing metadata behavior');
+  await writeFile(join(root, 'property-types.json'), JSON.stringify({ formulas: { reached: { kind: 'text', binding: {} } } }));
+  calls.length = 0;
+  const page = await contentRows(files, async input => { calls.push(input.limit); return read(input); }, { ...input, content });
+  assert.deepEqual(calls, [2000], 'an omitted cache can still affect a formula, so its metadata page is retained');
+  assert.equal(page.rows[0].values['formula.reached'], '/doc-7.md');
+});
+
 test('original BOM characters survive at the file start and at a bounded text-piece boundary', async () => {
   const root = await scratch();
   const text = '\ufeffA\ufeffB,C\n1,2\n';
@@ -201,6 +269,20 @@ test('a bounded paths_file keeps a large positive catalogue out of the list reco
   await assert.rejects(readDocumentRows({ root, paths_file: '/catalogue.json', paths: ['/chores/chore-1.md'] }), /instead of paths/);
   await writeFile(join(root, 'too-big.json'), ' '.repeat(262145));
   await assert.rejects(readDocumentRows({ root, paths_file: '/too-big.json' }), /existing .*byte document read bound/);
+});
+
+test('a prefix-grouped paths_file reads exact names while keeping a large catalogue compact', async () => {
+  const root = await chores();
+  await writeFile(join(root, 'prefix-catalogue.json'), JSON.stringify({ prefixes: [
+    { prefix: '/chores', paths: ['chore-1.md'] },
+    { prefix: '/chores/rooms', paths: ['kitchen.md'] },
+  ] }));
+  const page = await readDocumentRows({ root, paths_file: '/prefix-catalogue.json', content: true });
+  assert.deepEqual(page.rows.map(row => row.id), ['/chores/chore-1.md', '/chores/rooms/kitchen.md']);
+  await writeFile(join(root, 'bad-prefix-catalogue.json'), JSON.stringify({ prefixes: [
+    { prefix: '/chores/../outside', paths: ['secret.md'] },
+  ] }));
+  await assert.rejects(readDocumentRows({ root, paths_file: '/bad-prefix-catalogue.json' }), /invalid prefix group/);
 });
 
 test('optional content keeps the same parent id and all metadata, with the complete small document', async () => {
