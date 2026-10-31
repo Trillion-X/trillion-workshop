@@ -1,0 +1,495 @@
+{
+  "kind": "tool-rows",
+  "record_set": "form-groups-and-matches-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/form-groups-and-matches: keep groups of anything in a person's records, regroup a tree, and form matches and groups of people by grounded expected value with consent before any introduction.",
+  "records": [
+    {
+      "id": "package::form-groups-and-matches::tool::read-my-groups",
+      "address": "package::form-groups-and-matches::tool::read-my-groups",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-my-groups",
+        "label": "Read my groups and everything inside them",
+        "status": "active",
+        "read_only": true,
+        "job": "Show what is in my groups, lists or collections, with the groups inside them, in their order",
+        "description": "Give roots: the addresses of the groups to start from, each { family, parts: { name: text } }. Each group is read from the person's records (type group) and every member that is itself a group is followed, so the answer holds those groups and everything inside them at any depth. Returns groups (each { groupRef, memberOrder, members: { memberId: { memberId, nodeRef, role?, presentation? } } }, members in memberOrder), count, and skipped: the ids of records that were not a well-formed group or claimed another group's address. A root that is not a group yet is simply not in the answer. It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": ["roots"],
+          "additionalProperties": false,
+          "properties": {
+            "roots": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/address" }, "description": "The groups to start from" }
+          },
+          "$defs": {
+            "address": { "type": "object", "required": ["family", "parts"], "properties": { "family": { "type": "string" }, "parts": { "type": "object", "additionalProperties": { "type": "string" } } } }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["groups", "count", "skipped"],
+          "properties": {
+            "groups": { "type": "array", "items": { "type": "object" } },
+            "count": { "type": "integer" },
+            "skipped": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/form-groups-and-matches/do-work/my-groups.mjs", "readMyGroups"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "group", "operations": ["records:read"] }] }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 2, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": { "source": "ported from the group package (membership graph, its record fold and its reachable-groups read), to the records door" },
+        "verify": [
+          { "kind": "sample-run", "input": { "roots": [{ "family": "sample-shelf", "parts": { "id": "verify" } }] }, "output_selector": "$.count", "contains": "0" }
+        ]
+      }
+    },
+    {
+      "id": "package::form-groups-and-matches::tool::change-my-groups",
+      "address": "package::form-groups-and-matches::tool::change-my-groups",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:change-my-groups",
+        "label": "Change my groups: add, move, order, nest and remove",
+        "status": "active",
+        "job": "Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups",
+        "description": "A group is any list of addresses (records, pages, people, other groups) in an order; a member whose address is a group nests that group. changes is a list applied in order as one change: ensure-group, add-member (nodeRef, memberId, role?, presentation?, placement?), remove-member (memberId), reorder-member (memberId, placement), move-member (memberId, toGroupRef, placement?), set-member-fields (memberId, role and presentation, null clears), patch-member-presentation (memberId, presentation merged into what is there), group-members (memberIds, toGroupRef: the new group, wrapperMemberId), ungroup-members (wrapperMemberId), delete-group. Every change names groupRef { family, parts }; a placement is { index }, { before: memberId }, { after: memberId } or { at: start | end }. Member ids are yours: nothing is invented. tree (optional) is { family, records: [{ node_id, parent_id, ordinal, role, title, external_identity, attributes }] }: nodes with role group become groups and every node is placed in its parent by ordinal, its title and attributes kept as presentation. The groups touched are read first; a group can never end up inside itself, and a repeated member id is refused, so the whole change is refused and nothing is written. Only groups that changed are written; a group that is gone is removed. Returns groups (every group the change read or made, as it is now), written, removed (record ids) and unplaced (tree nodes not placed, with why).",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "changes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["kind", "groupRef"],
+                "properties": {
+                  "kind": { "type": "string", "enum": ["ensure-group", "add-member", "remove-member", "reorder-member", "move-member", "set-member-fields", "patch-member-presentation", "group-members", "ungroup-members", "delete-group"] },
+                  "groupRef": { "$ref": "#/$defs/address" },
+                  "nodeRef": { "$ref": "#/$defs/address" },
+                  "toGroupRef": { "$ref": "#/$defs/address" },
+                  "memberId": { "type": "string" },
+                  "memberIds": { "type": "array", "items": { "type": "string" } },
+                  "wrapperMemberId": { "type": "string" },
+                  "placement": { "type": "object" },
+                  "role": { "type": ["string", "null"] },
+                  "presentation": { "type": ["object", "null"] }
+                }
+              }
+            },
+            "tree": {
+              "type": "object",
+              "required": ["family", "records"],
+              "properties": { "family": { "type": "string" }, "records": { "type": "array", "items": { "type": "object", "required": ["node_id", "parent_id"] } } }
+            }
+          },
+          "$defs": {
+            "address": { "type": "object", "required": ["family", "parts"], "properties": { "family": { "type": "string" }, "parts": { "type": "object", "additionalProperties": { "type": "string" } } } }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["groups", "written", "removed", "unplaced"],
+          "properties": {
+            "groups": { "type": "array", "items": { "type": "object" } },
+            "written": { "type": "integer" },
+            "removed": { "type": "array", "items": { "type": "string" } },
+            "unplaced": { "type": "array", "items": { "type": "object" } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/form-groups-and-matches/do-work/my-groups.mjs", "changeMyGroups"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "group", "operations": ["records:read", "records:write"] }] }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 3, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": { "source": "ported from the group package (membership operations, the containment-tree bridge and the minimal write set), to the records door" },
+        "verify": [
+          { "kind": "sample-run", "input": { "changes": [{ "kind": "ensure-group", "groupRef": { "family": "sample-shelf", "parts": { "id": "verify" } } }] }, "output_selector": "$.groups[0].groupRef.parts.id", "contains": "verify" }
+        ]
+      }
+    },
+    {
+      "id": "package::form-groups-and-matches::tool::regroup-a-tree",
+      "address": "package::form-groups-and-matches::tool::regroup-a-tree",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:regroup-a-tree",
+        "label": "Regroup a folder tree the way I say, or turn it into groups",
+        "status": "active",
+        "read_only": true,
+        "job": "Move folders under other folders by their names, the way I describe it, or turn a tree of folders into groups",
+        "description": "records is the tree as flat records { node_id, parent_id (null for a root), ordinal, role, title, external_identity, attributes }; a node with role group holds others. operation nest-by-intent takes intent { nest: [{ parent_title, child_titles }], scope?: { root_node_id?, applies_to_role?, depth? }, materialize_missing_parents?: { kind } }: titles are matched without case or outer spaces, only the named nodes move, two nodes with one title are a refusal for that row and never a guess, a missing parent is made only when materialize_missing_parents is given (its id from new_parent_ids[title] when you give one), and a row that would put a group inside itself is refused; every other row still applies. Returns records (the tree after), moved, created, refusals ({ row, reason, detail }) and untouched. operation tree-to-groups takes family and returns groups, unplaced (with why), group_count and member_count. It writes nothing: tool:change-my-groups keeps a tree as groups.",
+        "input_schema": {
+          "type": "object",
+          "required": ["operation", "records"],
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "type": "string", "enum": ["nest-by-intent", "tree-to-groups"] },
+            "records": { "type": "array", "items": { "type": "object", "required": ["node_id", "parent_id"] } },
+            "intent": { "type": "object", "required": ["nest"], "properties": { "nest": { "type": "array", "items": { "type": "object", "required": ["parent_title", "child_titles"] } }, "scope": { "type": "object" }, "materialize_missing_parents": { "type": "object" } } },
+            "new_parent_ids": { "type": "object", "additionalProperties": { "type": "string" } },
+            "family": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "records": { "type": "array" }, "moved": { "type": "array" }, "created": { "type": "array" }, "refusals": { "type": "array" }, "untouched": { "type": "integer" },
+            "groups": { "type": "array" }, "unplaced": { "type": "array" }, "group_count": { "type": "integer" }, "member_count": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/form-groups-and-matches/do-work/regroup-a-tree.mjs", "regroupATree"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": { "source": "ported from the group package (grouping intent over a containment tree, and the tree-to-groups bridge)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "nest-by-intent",
+              "records": [
+                { "node_id": "root", "parent_id": null, "role": "container", "title": "" },
+                { "node_id": "bread", "parent_id": "root", "ordinal": 0, "role": "group", "title": "Bread" },
+                { "node_id": "cakes", "parent_id": "root", "ordinal": 1, "role": "group", "title": "Cakes" }
+              ],
+              "intent": { "nest": [{ "parent_title": "Baking", "child_titles": ["Bread", "Cakes"] }], "materialize_missing_parents": { "kind": "list" }, "scope": { "root_node_id": "root" } },
+              "new_parent_ids": { "Baking": "baking" }
+            },
+            "output_selector": "$.created[0]",
+            "contains": "baking"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::form-groups-and-matches::tool::form-matches",
+      "address": "package::form-groups-and-matches::tool::form-matches",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:form-matches",
+        "label": "Form matches and small groups by grounded expected value",
+        "status": "active",
+        "read_only": true,
+        "job": "Match people in a community, club, cohort or mentoring program into pairs or small groups who can actually help each other, and prepare introductions that wait for everyone's consent",
+        "description": "One matching cycle, all of it data: expected_value { factors, scope_fields, minimum_expected_value?, minimum_distinguishable_delta?, require_scope? } names what a match's value is the product of and what scope it is for. Give retrieval_results (one row per subject: { subject, shortlist: [candidates] }, cut to retrieval.shortlist_size each, so work is subjects x shortlist size) or scored candidates. Every candidate needs factor_evidence: a grounded bundle (tool:check-match-evidence) with a score in (0, 1], evidence and an inference for every factor; a candidate without it, or with a value that is not the exact product, forms no group. Similarity from a search only breaks ties. pairing sets group_size, minimum_group_size, include_subject, bipartite roles, exclusion of pairs already met (already_matched, or prior_items), exclusive_participation and names for group sizes. Each group carries a prepared introduction whose send gate is ready only when initiative.required_level is in initiative.pre_authorized_levels and every party's own consent value is in consent_policy.approved_values with no veto in veto_values; connections are given only for those. Returns connections (with relationship_kind), groups, introductions (ready and blocked), reasoning_requests for the chosen few only, configuration_requests, pair_keys, unmatched with details, and how much work was done. Nothing is sent or written.",
+        "input_schema": {
+          "type": "object",
+          "required": ["program_id", "cycle", "relationship_kind", "expected_value"],
+          "properties": {
+            "program_id": { "type": "string" },
+            "cycle": { "type": "string" },
+            "relationship_kind": { "type": "string" },
+            "expected_value": { "type": "object", "required": ["factors", "scope_fields"], "properties": { "factors": { "type": "array", "items": { "type": "string" }, "minItems": 1 }, "scope_fields": { "type": "array", "items": { "type": "string" }, "minItems": 1 }, "minimum_expected_value": { "type": "number" }, "minimum_distinguishable_delta": { "type": "number" }, "require_scope": { "type": "boolean" } } },
+            "retrieval_results": { "type": "array", "items": { "type": "object" } },
+            "retrieval": { "type": "object", "properties": { "shortlist_size": { "type": "integer", "minimum": 1 } } },
+            "candidates": { "type": "array", "items": { "type": "object" } },
+            "eligibility": { "type": "object", "properties": { "access_tiers": { "type": "array", "items": { "type": "string" } } } },
+            "pairing": { "type": "object" },
+            "participant_roles": { "type": "object", "additionalProperties": { "type": "string" } },
+            "already_matched": { "type": "array", "items": { "type": "string" } },
+            "prior_items": { "type": "array", "items": { "type": "object" } },
+            "initiative": { "type": "object", "properties": { "required_level": { "type": "string" }, "pre_authorized_levels": { "type": "array", "items": { "type": "string" } } } },
+            "consents": { "type": ["object", "array"] },
+            "consent_policy": { "type": "object", "properties": { "approved_values": { "type": "array" }, "veto_values": { "type": "array" } } },
+            "introduction": { "type": "object" },
+            "subject_context": { "type": "object" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["connections", "groups", "introductions", "unmatched", "instrumentation"],
+          "properties": {
+            "connections": { "type": "array" }, "groups": { "type": "array" }, "introductions": { "type": "array" },
+            "ready_introductions": { "type": "array" }, "blocked_introductions": { "type": "array" }, "reasoning_requests": { "type": "array" },
+            "configuration_requests": { "type": "array" }, "pair_keys": { "type": "array" }, "unmatched": { "type": "array" }, "unmatched_details": { "type": "array" },
+            "instrumentation": { "type": "object" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/form-groups-and-matches/do-work/form-matches.mjs", "formMatches"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 2, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": { "source": "ported from the interaction-program package (bounded shortlists, expected-value grouping, consent-gated introductions)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "program_id": "sample-bakers-circle",
+              "cycle": "week-1",
+              "relationship_kind": "practice-partner",
+              "expected_value": { "factors": ["fit"], "scope_fields": ["goal_ref"] },
+              "candidates": [
+                { "subject": "ana", "participant": "ben", "expected_value": 0.8, "factors": { "fit": 0.8 }, "scope": { "goal_ref": "goal:sourdough" }, "scope_key": "goal_ref:goal:sourdough",
+                  "factor_evidence": { "status": "grounded", "evidence_refs": ["answer:ana:1"], "factors": { "fit": { "status": "grounded", "score": 0.8, "evidence_refs": ["answer:ana:1"], "inference_ref": "inference:sample" } } } }
+              ],
+              "initiative": { "required_level": "prepare", "pre_authorized_levels": ["prepare"] },
+              "consents": { "ana": "yes", "ben": "yes" },
+              "consent_policy": { "approved_values": ["yes"], "veto_values": ["no"] }
+            },
+            "output_selector": "$.connections[0].id",
+            "contains": "sample-bakers-circle:week-1:ana-ben"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::form-groups-and-matches::tool::check-match-evidence",
+      "address": "package::form-groups-and-matches::tool::check-match-evidence",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-match-evidence",
+        "label": "Check that a match rests on what people actually said",
+        "status": "active",
+        "read_only": true,
+        "job": "Turn people's intake answers into scoped profiles and check that a proposed match's scores cite what both people actually said before anyone is matched",
+        "description": "Everything about the intake is the contract you give: factors, primitives, scope_fields, questions [{ question_id, claim_kinds, primitive_ids, scope_field? }], citation_requirements per factor [{ side: subject | candidate, any_of: [claim kinds] }], authority [{ name, claim_kind, list? }] and forbidden_interventions (the authority entry whose values block a proposal). operation build-profile takes participant_ref, answer_facts [{ question_id, answer_fact_ref, value, evidence_refs? }] and connected_source_facts (each must carry its consent, access lease, field scope, observation and expiry times and whether it can be revoked, or it is not evidence) and returns the profile: claims, the scope, coverage per primitive, authority, status grounded or partial, and problems. operation check-assessment takes subject_profile, candidate_profile, assessments (per factor: score in (0, 1], rationale, inference_ref, the claim refs it cites on each side and evidence_refs) and proposed_interventions, and returns per-factor evidence with status grounded or no_justified_match and the reasons; a proposal either person forbids blocks every factor. Nothing here scores: scores come from whoever assessed, and only cited ones pass.",
+        "input_schema": {
+          "type": "object",
+          "required": ["operation", "contract"],
+          "properties": {
+            "operation": { "type": "string", "enum": ["build-profile", "check-assessment"] },
+            "contract": { "type": "object", "required": ["factors", "primitives", "scope_fields", "questions", "citation_requirements", "authority", "forbidden_interventions"] },
+            "participant_ref": { "type": "string" },
+            "answer_facts": { "type": "array", "items": { "type": "object" } },
+            "connected_source_facts": { "type": "array", "items": { "type": "object" } },
+            "subject_profile": { "type": "object" },
+            "candidate_profile": { "type": "object" },
+            "assessments": { "type": ["object", "array"] },
+            "proposed_interventions": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["kind", "status"],
+          "properties": { "kind": { "type": "string" }, "status": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/form-groups-and-matches/do-work/check-match-evidence.mjs", "checkMatchEvidence"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": { "source": "ported from the interaction-program package (match intake evidence and grounded factor evidence), its question contract made an input" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "build-profile",
+              "contract": {
+                "factors": ["fit"], "primitives": ["goal"], "scope_fields": ["goal_ref"],
+                "questions": [{ "question_id": "goal", "claim_kinds": ["scope.goal"], "primitive_ids": ["goal"], "scope_field": "goal_ref" }],
+                "citation_requirements": { "fit": [{ "side": "subject", "any_of": ["scope.goal"] }] },
+                "authority": [{ "name": "forbidden", "claim_kind": "scope.goal", "list": true }],
+                "forbidden_interventions": "forbidden"
+              },
+              "participant_ref": "ana",
+              "answer_facts": [{ "question_id": "goal", "answer_fact_ref": "answer:ana:goal", "value": "goal:sourdough" }]
+            },
+            "output_selector": "$.status",
+            "contains": "grounded"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::form-groups-and-matches::tool::assign-helpers-under-capacity",
+      "address": "package::form-groups-and-matches::tool::assign-helpers-under-capacity",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:assign-helpers-under-capacity",
+        "label": "Assign helpers to the people who need them, within each helper's capacity",
+        "status": "active",
+        "read_only": true,
+        "job": "Assign mentors, volunteers or helpers to the people who asked for help when each helper can only take so many, best pairs first, and say who was left without one and why",
+        "description": "operation solve_capacity_constraints takes help_seekers [{ id, match_case_id?, demand? }], helper_candidates [{ id, capacity_ref?, session_ref?, mode? }], capacities (by helper id, or a list in helper id order), and your answers about pairs: eligibility [{ help_seeker_ref, helper_candidate_ref, eligible, reason? }] and ranking [{ help_seeker_ref, helper_candidate_ref, score, explanation? }]. The best-ranked eligible pairs are taken first; a helper is never booked past capacity and nobody is assigned to themself. operation solve_expected_value_capacity_constraints takes scored candidates (as for tool:form-matches) with expected_value, group_size, capacities and exclusive_participation, and needs a clear cut after each seeker's demand. propose_assignment turns a solved answer into proposals; record_outcome records outcome_fact_refs for one assignment_proposal. Returns assignments (state proposed), unmatched (with reason: capacity_exhausted, no_eligible_helper, indistinguishable_expected_value, ...), capacity_usage and how much work was done. Rounds that swap who helps and who is helped are two requests.",
+        "input_schema": {
+          "type": "object",
+          "required": ["operation"],
+          "properties": {
+            "operation": { "type": "string", "enum": ["solve_capacity_constraints", "solve_expected_value_capacity_constraints", "propose_assignment", "record_outcome"] },
+            "help_seekers": { "type": "array", "items": { "type": "object" } },
+            "helper_candidates": { "type": "array", "items": { "type": "object" } },
+            "capacities": { "type": ["object", "array"] },
+            "eligibility": { "type": "array", "items": { "type": "object" } },
+            "ranking": { "type": "array", "items": { "type": "object" } },
+            "candidates": { "type": "array", "items": { "type": "object" } },
+            "expected_value": { "type": "object" },
+            "group_size": { "type": "integer", "minimum": 2 },
+            "exclusive_participation": { "type": "boolean" },
+            "assignment_proposal": { "type": "object" },
+            "outcome_fact_refs": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["operation"],
+          "properties": { "operation": { "type": "string" }, "assignments": { "type": "array" }, "unmatched": { "type": "array" }, "capacity_usage": { "type": "array" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/form-groups-and-matches/read-data/capacity-assignment.mjs", "executeAssignmentOperation"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": { "source": "ported from the interaction-program package (capacity-constrained assignment), its predicate and ranking functions made pair answers" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "solve_capacity_constraints",
+              "help_seekers": [{ "id": "ana" }],
+              "helper_candidates": [{ "id": "ben" }],
+              "capacities": { "ben": 1 },
+              "eligibility": [{ "help_seeker_ref": "ana", "helper_candidate_ref": "ben", "eligible": true }],
+              "ranking": [{ "help_seeker_ref": "ana", "helper_candidate_ref": "ben", "score": 1 }]
+            },
+            "output_selector": "$.assignments[0].helper_candidate_ref",
+            "contains": "ben"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::form-groups-and-matches::tool::choose-configurations",
+      "address": "package::form-groups-and-matches::tool::choose-configurations",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:choose-configurations",
+        "label": "Choose which options go ahead together",
+        "status": "active",
+        "read_only": true,
+        "job": "Choose which of several options (a person, a workflow, a tool, a place) go ahead now: every worthwhile one that does not compete for the same thing, the best where they do",
+        "description": "configurations [{ id, configuration_kind (any word), expected_value, scope: { <field>: text }, required_resource_refs?, collision_refs? }] and scope_fields (the scope every configuration must name). Every configuration with a positive value and a complete scope goes ahead at the same time; two compete only when they share a collision ref, and then the higher value wins. Two that share a collision ref and are within minimum_distinguishable_delta of each other are both held back rather than picked between. Returns selected, rejected (with reason: non_positive_expected_value, scope_missing, resource_collision, indistinguishable_expected_value, ...), configuration_requests (state proposed) and counts.",
+        "input_schema": {
+          "type": "object",
+          "required": ["configurations", "scope_fields"],
+          "properties": {
+            "configurations": { "type": "array", "items": { "type": "object" } },
+            "scope_fields": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+            "minimum_distinguishable_delta": { "type": "number", "minimum": 0 }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["selected", "rejected", "configuration_requests"],
+          "properties": { "selected": { "type": "array" }, "rejected": { "type": "array" }, "configuration_requests": { "type": "array" }, "instrumentation": { "type": "object" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/form-groups-and-matches/read-data/select-configurations.mjs", "selectConfigurations"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": { "source": "ported from the interaction-program package (configuration selection above pairing)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "scope_fields": ["goal_ref"],
+              "configurations": [
+                { "id": "oven-class", "configuration_kind": "workshop", "expected_value": 0.6, "scope": { "goal_ref": "goal:sourdough" }, "collision_refs": ["room:kitchen"] },
+                { "id": "proofing-timer", "configuration_kind": "tool", "expected_value": 0.3, "scope": { "goal_ref": "goal:sourdough" } }
+              ]
+            },
+            "output_selector": "$.selected[1].id",
+            "contains": "proofing-timer"
+          }
+        ]
+      }
+    }
+  ]
+}
