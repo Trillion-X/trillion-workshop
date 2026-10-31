@@ -60,6 +60,8 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `person-list` | Find people by any field; rank people by the points their activity earns, handed in or read from their records | `tool:find-people`, `tool:rank-people-by-activity`, `tool:rank-people-by-recorded-activity` |
 | `person-profile` | Lays out one person's profile from a description of what to show | `tool:lay-out-a-profile` |
 | `print-here` | Prints a file from the person's files on a printer their Mac already has, and lists its printers (runs on the person's Mac with the print system they granted) | `tool:printers`, `tool:print` |
+| `person-list` | Find people by any field; rank people by the points their activity earns | `tool:find-people`, `tool:rank-people-by-activity` |
+| `person-profile` | Lays out one person's profile from a description of what to show; reads and saves a member's profile fields in their own records | `tool:lay-out-a-profile`, `tool:read-a-member-profile`, `tool:save-a-member-profile` |
 | `record-a-web-page` | Records a web page as a demo: plays steps in a headless browser and returns a video, a GIF and one marked picture per step | `tool:record-a-web-demo` |
 | `recently-deleted` | How long Recently Deleted and Archived keep files, with the person's own choice | `tool:read-deleted-files-keep-for` |
 | `records-door` | A library: the client for the person's records door and the one command that runs a tool written as a function, handing it the door | (none: packed by `saved-examples`, `tell-the-person`, `social-posts`, `recently-deleted` and `print-here`) |

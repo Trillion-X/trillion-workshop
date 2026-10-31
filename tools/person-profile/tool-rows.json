@@ -238,6 +238,294 @@
      }
     ]
    }
+  },
+  {
+   "id": "package::person-profile::tool::read-a-member-profile",
+   "address": "package::person-profile::tool::read-a-member-profile",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-a-member-profile",
+    "label": "Read a member's profile",
+    "status": "active",
+    "job": "Read the name, about text and email a member keeps in their profile",
+    "description": "Give who (the member's id). Returns profile: display_name, about and email when set, or null when the member has no profile yet.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "who"
+     ],
+     "properties": {
+      "who": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "description": "The member's id"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "profile"
+     ],
+     "properties": {
+      "profile": {
+       "type": [
+        "object",
+        "null"
+       ],
+       "properties": {
+        "display_name": {
+         "type": "string"
+        },
+        "about": {
+         "type": "string"
+        },
+        "email": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "person-profile",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/person-profile",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/person-profile",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/person-profile/do-work/save-member-profile.mjs",
+      "readMemberProfile"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "member-profile",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:person-profile",
+    "provenance": {
+     "source": "bitfield-packages packages/person-profile do-work/save-member-profile.ts, ported to the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "who": "member:sample"
+      },
+      "output_selector": "$.profile",
+      "contains": "null"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::person-profile::tool::save-a-member-profile",
+   "address": "package::person-profile::tool::save-a-member-profile",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:save-a-member-profile",
+    "label": "Save a member's profile fields",
+    "status": "active",
+    "job": "Save the name, about text or email of a member's profile, changing only the fields given and keeping the rest of the profile",
+    "description": "Give who (the member's id) and fields: any of display_name, about and email, as text. Writes the profile once, reads it back, and answers saved: true with the profile only when the fields read back as written. Fields not given, and anything else the profile holds, stay as they were.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "who",
+      "fields"
+     ],
+     "properties": {
+      "who": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "description": "The member's id"
+      },
+      "fields": {
+       "type": "object",
+       "additionalProperties": false,
+       "minProperties": 1,
+       "properties": {
+        "display_name": {
+         "type": "string"
+        },
+        "about": {
+         "type": "string"
+        },
+        "email": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "saved",
+      "profile"
+     ],
+     "properties": {
+      "saved": {
+       "type": "boolean"
+      },
+      "profile": {
+       "type": [
+        "object",
+        "null"
+       ],
+       "properties": {
+        "display_name": {
+         "type": "string"
+        },
+        "about": {
+         "type": "string"
+        },
+        "email": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "person-profile",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/person-profile",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/person-profile",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/person-profile/do-work/save-member-profile.mjs",
+      "saveMemberProfile"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "member-profile",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:person-profile",
+    "provenance": {
+     "source": "bitfield-packages packages/person-profile do-work/save-member-profile.ts, ported to the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "who": "member:sample",
+       "fields": {
+        "display_name": "Sam Example",
+        "about": "Makes things."
+       }
+      },
+      "output_selector": "$.saved",
+      "contains": "true"
+     }
+    ]
+   }
   }
  ]
 }
