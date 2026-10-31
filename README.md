@@ -66,6 +66,8 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `recently-deleted` | How long Recently Deleted and Archived keep files, with the person's own choice | `tool:read-deleted-files-keep-for` |
 | `records-door` | A library: the client for the person's records door and the one command that runs a tool written as a function, handing it the door | (none: packed by `saved-examples`, `tell-the-person`, `social-posts`, `recently-deleted` and `print-here`) |
 | `relationship-graph` | Who is connected to whom, from any records | `tool:map-who-is-connected` |
+| `records-door` | A library: the client for the person's records door and the one command that runs a tool written as a function, handing it the door | (none: packed by `saved-examples`, `tell-the-person`, `social-posts` and `recently-deleted`) |
+| `relationship-graph` | Who is connected to whom, from any records | `tool:map-who-is-connected`, `tool:keep-who-is-connected`, `tool:request-a-connection-action` |
 | `revenue-ledger` | Revenue, refunds, net revenue and recurring revenue from any provider's payment events | `tool:add-up-revenue` |
 | `running-programs` | The programs running on the person's Mac and how much memory each one uses, the largest first (runs on the person's Mac with the process list they granted) | `tool:list-running-programs` |
 | `saved-examples` | Lists the examples a person saved of posts, videos and pages that worked, and removes one, from their own records | `tool:list-saved-examples`, `tool:remove-a-saved-example` |

@@ -241,6 +241,358 @@
      }
     ]
    }
+  },
+  {
+   "id": "package::relationship-graph::tool::keep-who-is-connected",
+   "address": "package::relationship-graph::tool::keep-who-is-connected",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:relationship-graph",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": true,
+     "memory_mb": 256
+    },
+    "id": "tool:keep-who-is-connected",
+    "label": "Keep the map of who is connected to whom",
+    "job": "Keep a map of who is connected to whom, built from the connection records the person already has, as records of its own",
+    "description": "Give how.record_selectors: how to read connections from the person's connection records, each with match (which records are connections) and connection {identity, endpoints [{role, value}], attributes [{name, value}]}, where a value reads the record: {\"method\": \"json-path\", \"params\": {\"path\": [\"from\"]}}, {\"method\": \"literal\", \"params\": {\"value\": ...}}, {\"method\": \"record-address\"}; a match is {\"method\": \"json-field-equals\", \"params\": {\"path\": [\"type\"], \"value\": \"introduction\"}}, \"equals\", \"exists\", \"and\" or \"include-all\". Reads every record of kind connection, keeps one graph-node record (id graph-node:<id>) for each person or company and one graph-connection record (id graph-connection:<id>) for each connection, and returns how many it kept and any record that could not be read.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "how"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "how": {
+       "type": "object",
+       "required": [
+        "record_selectors"
+       ],
+       "description": "How to read connections from the connection records"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "node_count",
+      "connection_count",
+      "kept_count",
+      "issues"
+     ],
+     "properties": {
+      "node_count": {
+       "type": "number"
+      },
+      "connection_count": {
+       "type": "number"
+      },
+      "kept_count": {
+       "type": "number"
+      },
+      "issues": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "relationship-graph",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/relationship-graph",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/relationship-graph",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/relationship-graph/do-work/keep-who-is-connected.mjs",
+      "keepWhoIsConnected"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "connection",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "graph-node",
+        "prefix": "graph-node:",
+        "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "graph-connection",
+        "prefix": "graph-connection:",
+        "operations": [
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "bitfield-packages packages/relationship-graph: build-graph-query-request lowered the map into graph operations for the old runtime's graph slot; here the operations become records kept through the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "how": {
+        "record_selectors": [
+         {
+          "id": "introductions",
+          "match": {
+           "method": "json-field-equals",
+           "params": {
+            "path": [
+             "type"
+            ],
+            "value": "introduction"
+           }
+          },
+          "connection": {
+           "identity": {
+            "method": "json-path",
+            "params": {
+             "path": [
+              "id"
+             ]
+            }
+           },
+           "endpoints": [
+            {
+             "role": "introducer",
+             "value": {
+              "method": "json-path",
+              "params": {
+               "path": [
+                "by"
+               ]
+              }
+             }
+            },
+            {
+             "role": "introduced",
+             "value": {
+              "method": "json-path",
+              "params": {
+               "path": [
+                "to"
+               ]
+              }
+             }
+            }
+           ],
+           "attributes": [
+            {
+             "name": "at",
+             "value": {
+              "method": "json-path",
+              "params": {
+               "path": [
+                "at"
+               ]
+              }
+             }
+            }
+           ]
+          }
+         }
+        ]
+       }
+      },
+      "output_selector": "$.kept_count",
+      "contains": "0"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::relationship-graph::tool::request-a-connection-action",
+   "address": "package::relationship-graph::tool::request-a-connection-action",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:relationship-graph",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": true,
+     "memory_mb": 256
+    },
+    "id": "tool:request-a-connection-action",
+    "label": "Ask for an action on a connection",
+    "job": "Ask for an action on a connection (for example recording a status), kept as a request record for whatever owns the action to pick up",
+    "description": "Give action (id, target, and optionally operation, definition_id, input_mapping: for each name a selector that reads the input, and status_mapping), input (what the action is given) and optionally correlation_id. Returns the target and payload of the request and the request_id it was kept under (connection-action-request:<correlation_id>). An action with no id or no target comes back as available false with the reason, and nothing is kept.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "action"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "action": {
+       "type": "object",
+       "description": "The action: id and target, with the optional fields above"
+      },
+      "input": {
+       "type": "object",
+       "description": "What the action is given"
+      },
+      "correlation_id": {
+       "type": "string",
+       "description": "Ties the request to what asked for it; the request is kept under it"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "available"
+     ],
+     "properties": {
+      "available": {
+       "type": "boolean"
+      },
+      "reason": {
+       "type": "string"
+      },
+      "target": {
+       "type": "string"
+      },
+      "payload": {
+       "type": "object"
+      },
+      "request_id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "relationship-graph",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/relationship-graph",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/relationship-graph",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/relationship-graph/do-work/request-a-connection-action.mjs",
+      "requestAConnectionAction"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "connection-action-request",
+        "prefix": "connection-action-request:",
+        "operations": [
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "bitfield-packages packages/relationship-graph: request-connection-action prepared an owner request and sent it to a runtime target; here the prepared request is kept as a record through the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "action": {
+        "id": "record",
+        "target": "target:example"
+       },
+       "input": {
+        "note": "example"
+       },
+       "correlation_id": "check:1"
+      },
+      "output_selector": "$.request_id",
+      "contains": "connection-action-request:check:1"
+     }
+    ],
+    "result_selector": "$.result"
+   }
   }
  ]
 }
