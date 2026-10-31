@@ -1,0 +1,13 @@
+{
+  "_what": "Where a Chromium-family browser is looked for on this computer when a tool is not told one (a bare name such as chromium, or none). In order; the first file found that can run wins. `~` is the person's home folder; `*` in a folder name matches any characters and the highest match is taken.",
+  "places": [
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "~/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+    "~/Library/Caches/ms-playwright/chromium-*/chrome-mac*/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "/usr/bin/chromium",
+    "/usr/bin/google-chrome"
+  ]
+}

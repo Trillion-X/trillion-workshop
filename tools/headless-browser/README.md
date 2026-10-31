@@ -28,7 +28,7 @@ its files beside theirs at `/opt/headless-browser`.
 
 ## Dependencies
 
-**Depends on:** a Chromium executable (the tool's `--browser` or `BROWSER_EXECUTABLE`), Node 24.
+**Depends on:** a Chromium-family browser on the computer, Node 24. A tool is told one with `--browser` or `BROWSER_EXECUTABLE` (a path is used as given); a bare name such as `chromium`, or none, is looked for in `browser-places.json` (Chrome, Chromium, Edge, Brave and a Playwright cache, in that order) by `browserExecutable`, which every `openBrowser` call uses. No browser found ends with a BrowserProblem that says what to install.
 
 **Depended on by:** `tools/page-critic`, `tools/record-a-web-page` and `tools/copy-a-site` (their rows pack these files), `test-helpers/chromium.mjs` (`quiet-switches.json`).
 

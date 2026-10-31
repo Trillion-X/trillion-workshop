@@ -15,12 +15,47 @@
 //     otherwise go direct to them): Chromium does not read that setting itself, and the engine's sandbox lets the run
 //     reach nothing else. Which addresses are public is the engine's to judge, never this file's.
 import { spawn } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { accessSync, constants, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir, userInfo } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const quietSwitches = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'quiet-switches.json'), 'utf8')).switches;
+
+const places = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'browser-places.json'), 'utf8')).places;
+
+/** The files a place names: one file, or (with * in a folder name) every match, highest name first. */
+function expand(place, home) {
+  let paths = [place.startsWith('~/') ? join(home, place.slice(2)) : place];
+  while (paths.some(path => path.includes('*'))) {
+    paths = paths.flatMap(path => {
+      const star = path.indexOf('*');
+      if (star < 0) return [path];
+      const folder = path.slice(0, path.lastIndexOf('/', star));
+      const part = path.slice(folder.length + 1).split('/')[0];
+      const rest = path.slice(folder.length + 1 + part.length);
+      const pattern = new RegExp(`^${part.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')}$`);
+      let names = [];
+      try { names = readdirSync(folder).filter(name => pattern.test(name)).sort().reverse(); } catch { /* no such folder */ }
+      return names.map(name => join(folder, name) + rest);
+    });
+  }
+  return paths;
+}
+
+/**
+ * The browser program to start. A path (any name with a folder in it) is used as given; a bare name such as
+ * `chromium`, or none, is looked for in browser-places.json on this computer.
+ */
+export function browserExecutable(executable, home = userInfo().homedir) {
+  if (executable && executable.includes('/')) return executable;
+  for (const place of places) {
+    for (const path of expand(place, home)) {
+      try { if (existsSync(path)) { accessSync(path, constants.X_OK); return path; } } catch { /* not runnable */ }
+    }
+  }
+  throw new BrowserProblem('No browser was found on this computer. Install Chrome, Chromium, Edge or Brave, or name one with --browser or BROWSER_EXECUTABLE.');
+}
 
 /** A problem the person running the script can act on; its message is shown as it is. */
 export class BrowserProblem extends Error {}
@@ -50,6 +85,7 @@ export async function openBrowser(executable, { width, height, switches = [] } =
   let child;
   let killAtExit;
   try {
+  executable = browserExecutable(executable);
   profile = mkdtempSync(join(tmpdir(), 'headless-browser-'));
   const proxy = process.env.HTTPS_PROXY || process.env.https_proxy;
   child = spawn(executable, [
