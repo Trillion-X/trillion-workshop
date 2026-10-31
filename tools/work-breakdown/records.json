@@ -455,6 +455,195 @@
      }
     ]
    }
+  },
+  {
+   "type": "record",
+   "id": "package::work-breakdown::tool::list-tasks-and-what-blocks-them",
+   "address": "package::work-breakdown::tool::list-tasks-and-what-blocks-them",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:list-tasks-and-what-blocks-them",
+    "label": "List tasks and what blocks them",
+    "status": "active",
+    "job": "Read the facts kept about tasks into one entry per task, and see for each task what it blocks",
+    "description": "Takes the facts about tasks, one row per fact ({ subject_id, property_id, value }, the property named like prop:task:title). Returns one entry per task with its number, title, project, status (default pending), priority (default MEDIUM), objective, acceptance criteria, what blocks it, what it blocks (worked out from what blocks the others), attachments (opaque references, never followed) and dates.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "rows"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "rows": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "subject_id",
+         "property_id"
+        ],
+        "properties": {
+         "subject_id": {
+          "type": "string"
+         },
+         "property_id": {
+          "type": "string"
+         },
+         "value": {}
+        }
+       },
+       "description": "The facts about tasks, one row each. Several rows with one subject_id make one task."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "tasks"
+     ],
+     "properties": {
+      "tasks": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "status",
+         "priority",
+         "blockedBy",
+         "blocks",
+         "attachments"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "taskNumber": {
+          "type": "string"
+         },
+         "title": {
+          "type": "string"
+         },
+         "projectId": {
+          "type": "string"
+         },
+         "status": {
+          "type": "string"
+         },
+         "priority": {
+          "type": "string"
+         },
+         "objective": {
+          "type": "string"
+         },
+         "acceptanceCriteria": {
+          "type": "string"
+         },
+         "blockedBy": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "blocks": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "attachments": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "createdDate": {
+          "type": "string"
+         },
+         "updatedDate": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "work-breakdown",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/parts/work-breakdown"
+      }
+     },
+     "workdir": "/opt/parts/work-breakdown",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/list-tasks-and-what-blocks-them.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:work-breakdown",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/tasks"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "rows": [
+        {
+         "subject_id": "task:1",
+         "property_id": "prop:task:title",
+         "value": "Write the copy"
+        },
+        {
+         "subject_id": "task:1",
+         "property_id": "prop:task:status",
+         "value": "completed"
+        },
+        {
+         "subject_id": "task:2",
+         "property_id": "prop:task:title",
+         "value": "Publish the page"
+        },
+        {
+         "subject_id": "task:2",
+         "property_id": "prop:task:blocked_by",
+         "value": [
+          "task:1"
+         ]
+        }
+       ]
+      },
+      "output_selector": "$.tasks[0].blocks[0]",
+      "contains": "task:2"
+     }
+    ]
+   }
   }
  ]
 }

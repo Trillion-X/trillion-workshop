@@ -82,7 +82,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `where-a-person-stands` | Keeps whether a person agrees, disagrees or partly agrees with something made for them, in their own words, and reads it back with every earlier stand; owns the one identity of a judged thing (folded text or bytes, BLAKE3) | `tool:keep-where-you-stand`, `tool:read-where-you-stand`, `tool:plan-a-stance-reload` |
 | `wikimedia-commons` | Searches Wikimedia Commons files, reads one file's license metadata, and checks whether its license allows reuse and what credit it needs | `tool:search-wikimedia-commons-files`, `tool:read-wikimedia-commons-file-metadata`, `tool:assess-wikimedia-commons-file-reuse` |
 | `words-as-picture-vector` | Words as the vector a picture model gives pictures that show them | `tool:words-as-picture-vector` |
-| `work-breakdown` | A body of work as a tree: how much is really finished, new items, proof of finished work | `tool:roll-up-work-completion`, `tool:add-work-item`, `tool:check-proof-of-finished-work` |
+| `work-breakdown` | A body of work as a tree: how much is really finished, new items, proof of finished work, tasks and what blocks them | `tool:roll-up-work-completion`, `tool:add-work-item`, `tool:check-proof-of-finished-work`, `tool:list-tasks-and-what-blocks-them` |
 | `tools-from-github` | 20 open-source repositories (captions, transcription, background removal, 3D and video rendering and more) that run on the person's own computer | `tool:github:*` |
 
 ## Key Types / Functions
