@@ -1,0 +1,49 @@
+{
+  "_comment": "DATA provider table for find_media.mjs. One capability, providers as rows: the resolver dispatches by the request's provider id and has no provider branch. Adding a provider (for example a program that generates a clip from a description) is one row. Each provider's `run` is an argv template; {request.*} placeholders are filled from the request, and the argv runs from this tool's folder.",
+  "providers": [
+    {
+      "id": "bank",
+      "label": "My media",
+      "kind_support": ["still", "clip"],
+      "licenses": ["owned"],
+      "run": {
+        "argv": [
+          "node",
+          "do-work/bank-provider.mjs",
+          "--describe",
+          "{request.description}",
+          "--kind",
+          "{request.kind}",
+          "--bank",
+          "{request.bank_dir}",
+          "--out",
+          "{request.out}"
+        ],
+        "timeout_ms": 120000
+      },
+      "notes": "tagged lookup over the person's own media folder: sidecar <file>.tags.json files and file names, plain word overlap"
+    },
+    {
+      "id": "stock",
+      "label": "Stock",
+      "kind_support": ["still", "clip"],
+      "licenses": ["cc0"],
+      "run": {
+        "argv": [
+          "node",
+          "do-work/stock-provider.mjs",
+          "--describe",
+          "{request.description}",
+          "--kind",
+          "{request.kind}",
+          "--license",
+          "cc0",
+          "--out",
+          "{request.out}"
+        ],
+        "timeout_ms": 300000
+      },
+      "notes": "the free-licence libraries in stock-sources.json, tried in order (free licence only: no crawler)"
+    }
+  ]
+}
