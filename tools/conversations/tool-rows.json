@@ -1,0 +1,140 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:conversations",
+        "id": "tool:read-an-export-of-my-conversations",
+        "placements": ["placement:your-computer"],
+        "needs": { "expected_seconds": 30, "network_egress": false },
+        "label": "Read an export of my conversations",
+        "job": "Read an export of the person's conversations (a chat app's saved messages, a mailbox page or email file, the Messages database, an AI assistant's logs or a captured web chat) from a folder they chose, and give each conversation's messages in order, ready to be kept as the person's messages",
+        "description": "Runs on the person's computer over the folder they granted it to read, and reads only inside it. Give file (a path inside the folder). source names the kind of export (tool:list-the-kinds-of-conversation-export-i-can-read gives them); left out, the file is matched to a kind by what it looks like and a file two kinds could read is refused with their names. sources_file is a file in the folder holding the person's own kinds ({ sources: [row] }): a kind is a row of field names, so a new export is a new row, not new code. descriptor holds the run's own choices: mailbox_address (which address is the person's, for mail), expected_provider (for a captured web chat), source_ref (what to call this source), app (the name the conversations are kept under). mode all (the default) returns the whole export a page of atoms at a time (limit, cursor); threads returns the list of threads, newest first; page returns one thread's newest messages first from before_cursor, for a very large single log (session_id, limit). Returns threads and atoms (the canonical contract: each atom has a stable atom_ref that does not change when its words are edited), conversations ({ conversation_id, title, app, messages: [{ id, speaker, text, at }] }, speaker person, ai or the name the source showed, only what was said, a time only where the source gave one) in the shape the owner that keeps messages takes a chat read off its page, rejections (one structured entry for each thing the export could not give), next_cursor where there is more. Keeps nothing: hand conversations to the owner that keeps messages.",
+        "input_schema": {
+          "type": "object",
+          "required": ["file"],
+          "additionalProperties": false,
+          "properties": {
+            "file": { "type": "string", "minLength": 1, "description": "The export, a path inside the granted folder" },
+            "source": { "type": "string", "description": "The kind of export (an id from the list of kinds); left out, matched by what the file looks like" },
+            "sources_file": { "type": "string", "description": "A file in the folder holding the person's own kinds: { sources: [row] }" },
+            "descriptor": {
+              "type": "object",
+              "description": "The run's own choices",
+              "properties": {
+                "mailbox_address": { "type": "string", "description": "The person's own address, for mail: which words are theirs" },
+                "expected_provider": { "type": "string", "description": "For a captured web chat: the provider the capture must be from" },
+                "source_ref": { "type": "string", "description": "What to call this source" },
+                "app": { "type": "string", "description": "The name the conversations are kept under" }
+              }
+            },
+            "mode": { "type": "string", "enum": ["all", "threads", "page"] },
+            "cursor": { "type": ["integer", "string"], "description": "Where the next page starts: the next_cursor of the answer before" },
+            "limit": { "type": "integer", "minimum": 1, "maximum": 2000 },
+            "session_id": { "type": "string", "description": "mode page: which thread of the file" },
+            "before_cursor": { "type": ["integer", "string"], "description": "mode page: the next_cursor of the page after this one" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["source", "mode", "rejections"],
+          "properties": {
+            "source": { "type": "string" },
+            "source_ref": { "type": "string" },
+            "mode": { "type": "string" },
+            "threads": { "type": "array" },
+            "atoms": { "type": "array" },
+            "total_atoms": { "type": "integer" },
+            "total_threads": { "type": "integer" },
+            "conversations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["conversation_id", "app", "messages"],
+                "properties": {
+                  "conversation_id": { "type": "string" },
+                  "title": { "type": ["string", "null"] },
+                  "app": { "type": "string" },
+                  "messages": {
+                    "type": "array",
+                    "items": { "type": "object", "required": ["id", "speaker", "text"] }
+                  }
+                }
+              }
+            },
+            "rejections": { "type": "array" },
+            "next_cursor": { "type": ["integer", "string", "null"] },
+            "source_next_cursor": { "type": ["string", "null"] }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["read-a-folder"],
+          "workdir": "/opt/conversations",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "/opt/conversations/read-data/decode_source.py",
+            { "fill": { "from": "task", "field": "grants.read-a-folder.folder" } }
+          ],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": {
+              "package": "conversations",
+              "paths": ["read-data"],
+              "at": "/opt/conversations"
+            }
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:conversations",
+        "id": "tool:list-the-kinds-of-conversation-export-i-can-read",
+        "placements": ["placement:small-container"],
+        "needs": { "expected_seconds": 1, "network_egress": false },
+        "label": "Kinds of conversation export I can read",
+        "job": "List the kinds of conversation export that can be read (chat apps, email, the Messages database, AI assistant logs, captured web chats), what each one's files look like and what the run must say for it",
+        "description": "Returns said (the count and the ids, in a line) and sources: each { id, label, format, reader, needs, app, files_look_like }. id is what source takes in tool:read-an-export-of-my-conversations; needs lists the choices the run must make for that kind (mailbox_address for mail, expected_provider for a captured web chat); app is the name its conversations are kept under; files_look_like is what a file of that kind holds, which is how a file is matched to its kind when none is named. A kind not listed is a new row in a file of the person's own.",
+        "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
+        "output_schema": {
+          "type": "object",
+          "required": ["said", "sources"],
+          "properties": {
+            "said": { "type": "string" },
+            "sources": {
+              "type": "array",
+              "items": { "type": "object", "required": ["id", "label", "reader", "needs"] }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/conversations",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["python3", "/opt/conversations/read-data/decode_source.py", "--list"],
+          "files": {
+            "package_files": {
+              "package": "conversations",
+              "paths": ["read-data"],
+              "at": "/opt/conversations"
+            }
+          }
+        },
+        "verify": [
+          { "kind": "sample-run", "input": {}, "output_selector": "$.said", "contains": "slack-messages" }
+        ],
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
