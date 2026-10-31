@@ -66,6 +66,32 @@ test('a refresh writes each source row as a record of the list, its id <source>~
   assert.deepEqual(records.get('record:chore:documents~%2Fbread.md'), { 'note.chore': 'bake bread', 'note.minutes': 40 });
 });
 
+test('a scoped refresh fully reconciles only selected sources and refuses unknown or empty selections', async () => {
+  const { door, records, runs, writes, folder } = bakery({ sources: [
+    { source: 'documents', id: 'selected', of: '/selected' }, { source: 'documents', id: 'other', of: '/other' },
+  ] });
+  await refresh(door);
+  const unrelated = new Map([...records].filter(([id]) => id.startsWith('record:chore:other~')));
+  folder.pop();
+  folder[0].values['note.minutes'] = 99;
+  runs.length = writes.length = 0;
+  const listings = [];
+  const selectedDoor = { ...door, list: input => { listings.push(input); return door.list(input); } };
+  const result = await refresh(selectedDoor, { source_ids: ['selected'] });
+  assert.deepEqual(result.sources.map(source => source.source), ['selected']);
+  assert.equal(result.sources[0].written, 1);
+  assert.equal(result.sources[0].removed, 1, 'selected source deletion still requires its successful terminal page');
+  assert.ok(runs.every(run => run.input.folder === '/selected'));
+  assert.ok(listings.every(input => input.prefix === 'record:chore:selected~'));
+  for (const [id, value] of unrelated) assert.deepEqual(records.get(id), value);
+  assert.ok(writes.flatMap(write => write.rows).every(row => row.id.startsWith('record:chore:selected~')));
+  for (const source_ids of [[], ['missing'], ['selected', 'selected'], 'selected']) {
+    const before = writes.length;
+    await assert.rejects(refresh(door, { source_ids }), /source_ids/);
+    assert.equal(writes.length, before);
+  }
+});
+
 test('a read runs no tool and pages over own and source rows with nothing lost or repeated', async () => {
   const { door, runs } = bakery();
   await refresh(door);
