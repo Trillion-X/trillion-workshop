@@ -127,32 +127,45 @@ export async function contentRows(files, read, { folder, match, exclude, paths, 
   if (cursor.document && (!continued.length || continued[0].identity !== cursor.identity)) {
     throw say('document_changed', { document: cursor.document, expected: cursor.identity, current: continued[0]?.identity ?? 'missing' });
   }
-  const page = await read({ source, cursor: cursor.document ?? cursor.after, limit, backlinks });
-  const parents = [...continued, ...page.rows];
+  // An unfinished document can fill this whole answer. Do not read/hash the following metadata page until its
+  // remaining pieces actually leave room; otherwise each small continuation rereads unrelated large files.
+  let page = cursor.document ? null : await read({ source, cursor: cursor.after, limit, backlinks });
+  let parents = page ? page.rows : continued;
   const rows = [];
   let next = after ?? null;
-  for (const parent of parents) {
-    const firstPart = parent.id === cursor.document ? cursor.part : 0;
-    const start = options.sections ? 0 : firstPart;
-    const pieces = rowsOfParent(files, parent, options, start)[Symbol.asyncIterator]();
-    let piece = await pieces.next();
-    for (let part = start; !piece.done; part += 1) {
-      const row = piece.value;
-      piece = await pieces.next();
-      if (part < firstPart) continue;
-      const moreParts = !piece.done;
-      const following = moreParts ? cursorText({ document: parent.id, identity: parent.identity, part: part + 1 }) : parent.id;
-      const candidate = { rows: [...rows, row], next: following };
-      if (most_bytes !== undefined && encoder.encode(JSON.stringify(candidate)).length > most_bytes) {
-        if (!rows.length) throw say('bad_input', { what: `the first document content piece is bigger than most_bytes (${most_bytes}); use a smaller content.part_bytes.` });
-        return { rows, next };
-      }
-      rows.push(row); next = following;
-      if (rows.length === limit) {
-        const moreParents = parent !== parents.at(-1) || page.next_cursor;
-        return { rows, next: moreParts || moreParents ? next : null };
+  for (;;) {
+    for (const parent of parents) {
+      const firstPart = parent.id === cursor.document ? cursor.part : 0;
+      const start = options.sections ? 0 : firstPart;
+      const pieces = rowsOfParent(files, parent, options, start)[Symbol.asyncIterator]();
+      let piece = await pieces.next();
+      for (let part = start; !piece.done; part += 1) {
+        const row = piece.value;
+        piece = await pieces.next();
+        if (part < firstPart) continue;
+        const moreParts = !piece.done;
+        const following = moreParts ? cursorText({ document: parent.id, identity: parent.identity, part: part + 1 }) : parent.id;
+        const candidate = { rows: [...rows, row], next: following };
+        if (most_bytes !== undefined && encoder.encode(JSON.stringify(candidate)).length > most_bytes) {
+          if (!rows.length) throw say('bad_input', { what: `the first document content piece is bigger than most_bytes (${most_bytes}); use a smaller content.part_bytes.` });
+          return { rows, next };
+        }
+        rows.push(row); next = following;
+        if (rows.length === limit) {
+          let moreParents = parent !== parents.at(-1) || page?.next_cursor;
+          if (!moreParts && !moreParents && page === null) {
+            const followingParent = await read({ source, cursor: parent.id, limit: 1, backlinks });
+            moreParents = followingParent.rows.length > 0 || followingParent.next_cursor;
+          }
+          return { rows, next: moreParts || moreParents ? next : null };
+        }
       }
     }
+    if (page === null) {
+      page = await read({ source, cursor: cursor.document, limit, backlinks });
+      parents = page.rows;
+      continue;
+    }
+    return { rows, next: page.next_cursor ? next : null };
   }
-  return { rows, next: page.next_cursor ? next : null };
 }
