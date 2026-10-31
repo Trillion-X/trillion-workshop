@@ -14,6 +14,7 @@ signs a request with is ever in a record, a row or this code.
 | `tool:draft-a-post` | Keeps a draft: words, file, destinations, link, time; changing an approved or scheduled post makes it a draft again. Nothing is posted | read and write `post`, list `connection` |
 | `tool:check-a-post` | Whether the post is ready for each place: what each will refuse, and what could not be checked here | read `post`, list `connection` |
 | `tool:approve-a-post` | Approves only with the complete `approval_values` snapshot from review; changed values are refused. Approval uses the row's granted read and write `post` rights. | read and write `post` |
+| `tool:publish-a-post-now` | Queues an approved post for the current time through the existing post wake and each destination's send row. It returns `scheduled` until those rows record their outcomes; an unknown outcome is not retried automatically. | read and write `post`, list `connection` |
 | `tool:set-a-post-to-go-at-its-time` | An approved post with a time still ahead, ready for every place, becomes `scheduled`. Nothing is sent now | read and write `post`, list `connection` |
 | `tool:take-back-a-post` | A scheduled post nothing was sent for becomes a draft again, so its time sends nothing | read and write `post` |
 | `tool:check-the-instagram-connection` | Asks Instagram which account one of the person's Instagram connections (`account_id`) signs in as, with its held value placed only as the request leaves. Posts nothing | none (http) |

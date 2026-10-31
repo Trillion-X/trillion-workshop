@@ -9,6 +9,8 @@ import rows from '../tool-rows.json' with { type: 'json' };
 import places from '../read-data/post-places.json' with { type: 'json' };
 import { createHmac } from 'node:crypto';
 import { heldFetch, publisherFor, sendAPost, sendEachPostAtItsTime } from '../read-data/send-a-post.mjs';
+import { publishAPostNow } from '../read-data/posts.mjs';
+import { approvalValues } from '../read-data/post-shape.mjs';
 import { rowOf, runRow } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
 import settings from '../read-data/posts.json' with { type: 'json' };
 import { heldFields } from '../read-data/posts.mjs';
@@ -17,7 +19,7 @@ const VALUE = 'made-up-held-value-0123456789';
 const ACCOUNT = 'service_connection:x:second';
 const connection = { id: `connection:${encodeURIComponent(ACCOUNT)}`, type: 'connection', value: { connection_id: ACCOUNT, vendor: 'x', plain: { user_id: '1000000001' }, held: ['access_token'] } };
 const post = fields => ({ id: 'post:p1', type: 'post', value: { post_id: 'post:p1', status: 'scheduled', caption: 'A short post', destinations: [ACCOUNT], approved_at: '2026-01-01T00:00:00Z', created_at: '2026-01-01T00:00:00Z', updated_at: '2026-01-01T00:00:00Z', scheduled_for: '2026-01-02T00:00:00Z', ...fields } });
-const rights = [{ kind: 'post', operations: ['records:read', 'records:write'] }, { kind: 'connection', operations: ['records:read'] }];
+const rights = [{ kind: 'post', operations: ['records:read', 'records:write'] }, { kind: 'connection', operations: ['records:read', 'records:list'] }];
 
 // A stand-in for the place: answers a created post, and keeps every request it was sent.
 function place(answer = { data: { id: '9001', text: 'A short post' } }) {
@@ -51,6 +53,59 @@ test('a post whose time has come is sent once to its destination, the held value
     const again = await sendAPost({ post_id: 'post:p1', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE });
     assert.match(again.said, /already has the post/);
     assert.equal(stand.sent.length, 1);
+  });
+});
+
+test('publish now flows through the existing wake, destination sender and post readback', async () => {
+  const approved = post({ status: 'approved', scheduled_for: null });
+  const reviewed = approvalValues(approved.value);
+  const stand = place();
+  await withDoor([approved, connection], async (door, fake) => {
+    const queued = await publishAPostNow({ post_id: approved.id, expected_values: reviewed }, { door });
+    assert.equal(queued.status, 'scheduled');
+    assert.match(queued.said, /Queued for the send wake/);
+    assert.equal(stand.sent.length, 0, 'queueing performs no publish request');
+
+    const planned = await sendEachPostAtItsTime({ task: changes(approved.id) }, { door });
+    assert.deepEqual(planned.wake_effects.map(effect => [effect.wake.tool, effect.wake.input.account_id]), [['tool:send-a-post-to-x', ACCOUNT]]);
+    assert.ok(planned.wake_effects[0].wake.at_ms <= Date.now(), 'the wake is due now');
+
+    const sent = await sendAPost(planned.wake_effects[0].wake.input, { door, send: stand.send, held: () => VALUE });
+    assert.equal(sent.status, 'posted', sent.said);
+    assert.equal(stand.sent.length, 1);
+    const readback = await door.read('post', approved.id);
+    assert.equal(readback.status, 'posted');
+    assert.equal(readback.deliveries[ACCOUNT].status, 'posted');
+    assert.equal(readback.deliveries[ACCOUNT].platform_post_id, '9001');
+
+    const repeatWake = await sendEachPostAtItsTime({ task: changes(approved.id) }, { door });
+    assert.deepEqual(repeatWake.wake_effects, [], 'a posted result is not queued again');
+    assert.equal(stand.sent.length, 1);
+    assert.equal(fake.kept.get(approved.id).value.deliveries[ACCOUNT].status, 'posted');
+  });
+});
+
+test('publish now keeps an unknown destination outcome and the wake never resends it', async () => {
+  const approved = post({ status: 'approved', scheduled_for: null });
+  const reviewed = approvalValues(approved.value);
+  const stand = place({ data: {} });
+  await withDoor([approved, connection], async (door, fake) => {
+    const queued = await publishAPostNow({ post_id: approved.id, expected_values: reviewed }, { door });
+    const planned = await sendEachPostAtItsTime({ task: changes(approved.id) }, { door });
+    const sent = await sendAPost(planned.wake_effects[0].wake.input, { door, send: stand.send, held: () => VALUE });
+    assert.equal(sent.status, 'partial');
+    assert.match(sent.said, /not known/);
+    assert.equal(stand.sent.length, 1);
+
+    const readback = await door.read('post', approved.id);
+    assert.equal(readback.deliveries[ACCOUNT].status, 'not known');
+    const repeatWake = await sendEachPostAtItsTime({ task: changes(approved.id) }, { door });
+    assert.deepEqual(repeatWake.wake_effects, [], 'partial/unknown outcomes do not become automatic resend effects');
+    const repeatSend = await sendAPost(planned.wake_effects[0].wake.input, { door, send: stand.send, held: () => VALUE });
+    assert.match(repeatSend.said, /not known/);
+    assert.equal(stand.sent.length, 1, 'unknown outcome remains unresolved without a second request');
+    assert.equal(fake.kept.get(approved.id).value.deliveries[ACCOUNT].status, 'not known');
+    assert.equal(queued.post.approved_at, approved.value.approved_at);
   });
 });
 
