@@ -1,0 +1,2231 @@
+{
+  "kind": "tool-rows",
+  "record_set": "take-payments-tool-rows",
+  "what_this_is": "The Workshop rows for selling with Stripe from the person own Stripe account: pricing a sale from their offers, starting a hosted checkout, looking up and recovering checkouts, scheduling later payments, bounded installment plans, cancelling subscriptions, lasting payment links, checking a Stripe event before believing it, checking what a buyer paid against the offer, which offers a buyer may see, and paying people through Stripe Connect. The person own Stripe key arrives only on a private pipe under the held-value name the row names; no row moves money without it, and nothing in a request, an answer or an error carries it.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:price-a-sale",
+        "label": "Price a sale",
+        "job": "Work out what a buyer would pay for one of my offers and one of its prices: what is due today, what repeats and when, with a trial, a per-unit count, a code or an amount they choose",
+        "description": "Give offerId, priceOptionId, checkoutAttemptId and checkoutStartedAt, and optionally checkoutCode, unitCount, customerSelectedAmountCents or chargeDimensions. Your offers and code adjustments are read from your own records (or pass offers and adjustments). Nothing is charged; this only works out the quote.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "checkoutAttemptId": {
+              "type": "string"
+            },
+            "checkoutStartedAt": {
+              "type": "string"
+            },
+            "offerId": {
+              "type": "string"
+            },
+            "priceOptionId": {
+              "type": "string"
+            },
+            "checkoutCode": {
+              "type": "string"
+            },
+            "customerSelectedAmountCents": {
+              "type": "number"
+            },
+            "unitCount": {
+              "type": "number"
+            },
+            "chargeDimensions": {
+              "type": "array"
+            },
+            "offers": {
+              "type": "array"
+            },
+            "adjustments": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "checkoutAttemptId",
+            "checkoutStartedAt",
+            "offerId",
+            "priceOptionId"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "quote": {
+              "type": "object"
+            },
+            "material": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "quote",
+            "material"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "priceASale"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "checkout-code-adjustment",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "offers": [
+                {
+                  "kind": "commercial-offer",
+                  "id": "offer:bread-box",
+                  "label": "Bread box",
+                  "price_options": [
+                    {
+                      "id": "price:box:monthly",
+                      "label": "Monthly",
+                      "amount_cents": 1200,
+                      "currency": "usd",
+                      "payment_timing": "subscription",
+                      "interval": "month"
+                    }
+                  ]
+                }
+              ],
+              "offerId": "offer:bread-box",
+              "priceOptionId": "price:box:monthly",
+              "checkoutAttemptId": "attempt-000000000001",
+              "checkoutStartedAt": "2026-01-02T03:04:05Z",
+              "adjustments": []
+            },
+            "output_selector": "$.quote.amountDueTodayCents",
+            "contains": "1200"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:start-a-stripe-checkout",
+        "label": "Start a Stripe checkout",
+        "job": "Make the Stripe hosted checkout page a buyer is sent to, for one of my offers, with my own Stripe account",
+        "description": "Prices the sale as price-a-sale does, needs the buyer agreement in consent (billing and legal), and success_url and cancel_url for where the buyer lands afterwards (they only land the buyer; they never grant access). Returns the address to send the buyer to. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "checkoutAttemptId": {
+              "type": "string"
+            },
+            "checkoutStartedAt": {
+              "type": "string"
+            },
+            "offerId": {
+              "type": "string"
+            },
+            "priceOptionId": {
+              "type": "string"
+            },
+            "checkoutCode": {
+              "type": "string"
+            },
+            "customerSelectedAmountCents": {
+              "type": "number"
+            },
+            "unitCount": {
+              "type": "number"
+            },
+            "chargeDimensions": {
+              "type": "array"
+            },
+            "offers": {
+              "type": "array"
+            },
+            "adjustments": {
+              "type": "array"
+            },
+            "consent": {
+              "type": "object",
+              "properties": {
+                "billing": {
+                  "type": "boolean"
+                },
+                "legal": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "billing",
+                "legal"
+              ]
+            },
+            "customer": {
+              "type": "object"
+            },
+            "success_url": {
+              "type": "string"
+            },
+            "cancel_url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "checkoutAttemptId",
+            "checkoutStartedAt",
+            "offerId",
+            "priceOptionId",
+            "consent",
+            "success_url",
+            "cancel_url"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "redirectUrl": {
+              "type": "string"
+            },
+            "providerSessionId": {
+              "type": "string"
+            },
+            "amountDueTodayCents": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "redirectUrl",
+            "providerSessionId"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "startAStripeCheckout"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ],
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "checkout-code-adjustment",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:start-a-stripe-checkout-that-pays-someone-else",
+        "label": "Start a Stripe checkout that pays someone else",
+        "job": "Make a Stripe hosted checkout whose money goes to a person I pay, with my fee kept back",
+        "description": "Give offer_id, price_option_id, payer_ref, payee_account (their Stripe account id), fee ({ percent }), success_url and cancel_url. The platform fee is worked out in whole cents and never above the amount. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "offer_id": {
+              "type": "string"
+            },
+            "price_option_id": {
+              "type": "string"
+            },
+            "payer_ref": {
+              "type": "string"
+            },
+            "payee_account": {
+              "type": "string"
+            },
+            "fee": {
+              "type": "object"
+            },
+            "success_url": {
+              "type": "string"
+            },
+            "cancel_url": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "object"
+            },
+            "idempotency_key": {
+              "type": "string"
+            },
+            "offers": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "offer_id",
+            "price_option_id",
+            "payer_ref",
+            "success_url",
+            "cancel_url"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "redirectUrl": {
+              "type": "string"
+            },
+            "providerSessionId": {
+              "type": "string"
+            },
+            "platform_fee_cents": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "redirectUrl"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "startAPayeeCheckout"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ],
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:look-up-a-stripe-checkout",
+        "label": "Look up a Stripe checkout",
+        "job": "Read a Stripe checkout and the subscription it made: whether it was paid, who by, the metadata set when it began and the real recurring amount",
+        "description": "Give provider_session_id. The amounts and status come from Stripe, not from the buyer browser, so a success redirect cannot forge them. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "provider_session_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "provider_session_id"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "provider_session_id": {
+              "type": "string"
+            },
+            "payment_status": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "provider_session_id"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "lookUpAStripeCheckout"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-a-completed-stripe-checkout",
+        "label": "Find a completed Stripe checkout",
+        "job": "Find the completed Stripe checkout for one buyer and offer when the buyer browser never came back",
+        "description": "Give offer_id and the buyer customer_email, or a created_after_unix time to look from (then exactly one match is needed). Returns the session id if found, or why not. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "offer_id": {
+              "type": "string"
+            },
+            "customer_email": {
+              "type": "string"
+            },
+            "created_after_unix": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "offer_id"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "found": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "found"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "findACompletedStripeCheckout"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-completed-stripe-checkouts",
+        "label": "List completed Stripe checkouts",
+        "job": "List every completed Stripe checkout since a time, payment links included, so each buyer can be followed up once",
+        "description": "Give created_after_unix, and offer_id to keep one offer. Returns each checkout oldest first (session id, time, buyer email, offer and price option, amount, currency, subscription id), complete, and next_created_after_unix for the next read. The same checkout can come back in two reads: keep each one once by provider_session_id. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "created_after_unix": {
+              "type": "number"
+            },
+            "offer_id": {
+              "type": "string"
+            },
+            "max_pages": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "created_after_unix"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "checkouts": {
+              "type": "array"
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "next_created_after_unix": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "checkouts",
+            "complete"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "listCompletedStripeCheckouts"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-ended-stripe-subscriptions",
+        "label": "List ended Stripe subscriptions",
+        "job": "List every Stripe subscription that ended since a time, so each customer record can be marked ended once",
+        "description": "Give ended_after_unix. Returns each ended subscription oldest first (subscription id, when it ended, its metadata) and complete. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "ended_after_unix": {
+              "type": "number"
+            },
+            "max_pages": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "ended_after_unix"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "ended": {
+              "type": "array"
+            },
+            "complete": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "ended",
+            "complete"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "listEndedStripeSubscriptions"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:schedule-the-later-payments-in-stripe",
+        "label": "Schedule the later payments in Stripe",
+        "job": "After a buyer has paid at the door, set up the payments that come later (a week on, a month on, then every month) in Stripe",
+        "description": "Give payment_schedule (charges with amount_cents as text and days_after_signup, and an optional repeat), customer_ref, product_name and signed_up_at_unix_seconds. The first payment is taken by the checkout, not here. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "payment_schedule": {
+              "type": "object"
+            },
+            "customer_ref": {
+              "type": "string"
+            },
+            "product_name": {
+              "type": "string"
+            },
+            "signed_up_at_unix_seconds": {
+              "type": "number"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "idempotency_key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "payment_schedule",
+            "customer_ref",
+            "product_name",
+            "signed_up_at_unix_seconds"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "schedule_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "starts_at": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "schedule_id"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "scheduleLaterPayments"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:count-a-paid-installment-in-stripe",
+        "label": "Count a paid installment in Stripe",
+        "job": "When a pay-in-N plan invoice is paid, count it, and stop the plan after the last one so no extra invoice is ever made",
+        "description": "Give subscription_id and the paid invoice_id. A replayed invoice is counted once; the last installment keeps the buyer access and cancels the subscription. Plans that are not pay-in-N are left alone. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "subscription_id": {
+              "type": "string"
+            },
+            "invoice_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "subscription_id"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "handled": {
+              "type": "boolean"
+            },
+            "installments_paid": {
+              "type": "number"
+            },
+            "canceled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "handled"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "countAPaidInstallment"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:cancel-a-stripe-subscription",
+        "label": "Cancel a Stripe subscription",
+        "job": "Cancel a buyer Stripe subscription now, or at the end of what they have paid for",
+        "description": "Give subscription_id, and at_period_end: true to keep the paid period running and stop the next renewal. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "subscription_id": {
+              "type": "string"
+            },
+            "at_period_end": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "subscription_id"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "subscription_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "cancel_at_period_end": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "subscription_id"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "cancelAStripeSubscription"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:tag-a-stripe-subscription",
+        "label": "Tag a Stripe subscription",
+        "job": "Add notes (metadata) to a buyer Stripe subscription without changing the ones already there",
+        "description": "Give subscription_id and metadata (text values). Only keys you give are added or changed, and nothing is written when nothing changes. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "subscription_id": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "subscription_id",
+            "metadata"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "subscription_id": {
+              "type": "string"
+            },
+            "updated": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "subscription_id",
+            "updated"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "tagAStripeSubscription"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-up-stripe-payment-links",
+        "label": "Set up Stripe payment links",
+        "job": "Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my percent-off codes",
+        "description": "Give owner (a name that marks the Stripe objects as yours) and after_payment_url. Reads your offers and code adjustments from your records. Safe to run again: prices, links, codes and the plan page are found, not made twice; links for options you no longer sell stop taking payments. Webhook endpoints are not made here (Stripe shows a signing secret only once); add yours in the Stripe dashboard and keep its secret in your held values. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "owner": {
+              "type": "string"
+            },
+            "after_payment_url": {
+              "type": "string"
+            },
+            "retire_links_where": {
+              "type": "array"
+            },
+            "offers": {
+              "type": "array"
+            },
+            "adjustments": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "owner",
+            "after_payment_url"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "links": {
+              "type": "array"
+            },
+            "retired": {
+              "type": "array"
+            },
+            "codes": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "links"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "setUpStripePaymentLinks"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ],
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "checkout-code-adjustment",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-stripe-event",
+        "label": "Check a Stripe event",
+        "job": "Check a Stripe webhook before believing it (its age and its signature), and read it as a payment event to keep",
+        "description": "Give the raw payload exactly as received and the Stripe-Signature header as signature_header. The signature is checked with your webhook signing secret from your held values. Returns the payment event, or why it was not believed. Nothing unchecked is kept.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "payload": {
+              "type": "string"
+            },
+            "signature_header": {
+              "type": "string"
+            },
+            "tolerance_seconds": {
+              "type": "number"
+            },
+            "event_map": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "payload",
+            "signature_header"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "admitted": {
+              "type": "boolean"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "event_kind": {
+              "type": "string"
+            },
+            "payment_event": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "admitted"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "checkAStripeEvent"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-webhook-secret",
+              "fd": 5
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        },
+        "keeps_records": [
+          {
+            "output_selector": "$.payment_event",
+            "type_field": "kind",
+            "id_field": "id"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-what-a-buyer-paid",
+        "label": "Check what a buyer paid",
+        "job": "Check that the money a buyer actually paid is a price my offer declares, before giving them what they bought",
+        "description": "Give offer_id and paid ({ amountCents, currency }), and optionally quoted (the amount, currency, cadence and priceOptionId that were quoted). A per-unit price is accepted only for an amount some whole unit count produces.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "offer_id": {
+              "type": "string"
+            },
+            "paid": {
+              "type": "object"
+            },
+            "quoted": {
+              "type": "object"
+            },
+            "offers": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "offer_id",
+            "paid"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "matches": {
+              "type": "boolean"
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "matches"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "checkWhatWasPaid"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "offers": [
+                {
+                  "kind": "commercial-offer",
+                  "id": "offer:bread-box",
+                  "label": "Bread box",
+                  "price_options": [
+                    {
+                      "id": "price:box:monthly",
+                      "label": "Monthly",
+                      "amount_cents": 1200,
+                      "currency": "usd",
+                      "payment_timing": "subscription",
+                      "interval": "month"
+                    }
+                  ]
+                }
+              ],
+              "offer_id": "offer:bread-box",
+              "paid": {
+                "amountCents": 1200,
+                "currency": "USD"
+              }
+            },
+            "output_selector": "$.matches",
+            "contains": "true"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:show-which-offers-a-buyer-may-see",
+        "label": "Show which offers a buyer may see",
+        "job": "Work out which of my offers to show a buyer given what they already hold, with my upsell and already-owns rules",
+        "description": "Give held_access_refs (what the buyer holds now). Offers and eligibility rules come from your records (or pass offers and rules); an offer with no rule is always shown, and a refund that shrinks what is held reverses every decision.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "held_access_refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "offers": {
+              "type": "array"
+            },
+            "rules": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "held_access_refs"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "offers": {
+              "type": "array"
+            },
+            "decisions": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "offers",
+            "decisions"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "showOffersForABuyer"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "offer-eligibility-rule",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "offers": [
+                {
+                  "kind": "commercial-offer",
+                  "id": "offer:bread-box",
+                  "label": "Bread box",
+                  "price_options": [
+                    {
+                      "id": "price:box:monthly",
+                      "label": "Monthly",
+                      "amount_cents": 1200,
+                      "currency": "usd",
+                      "payment_timing": "subscription",
+                      "interval": "month"
+                    }
+                  ]
+                }
+              ],
+              "rules": [],
+              "held_access_refs": []
+            },
+            "output_selector": "$.offers[0].id",
+            "contains": "offer:bread-box"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-up-someone-i-pay-in-stripe",
+        "label": "Set up someone I pay in Stripe",
+        "job": "Make a Stripe account for a person I pay, or check one, and get their Stripe onboarding page and what Stripe still needs from them",
+        "description": "Give settings ({ country, controller, capabilities }), owner, payee_ref, refresh_url and return_url, or an existing account id. Returns the account, whether it can be paid and what is due, and the onboarding address. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "settings": {
+              "type": "object"
+            },
+            "email": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "string"
+            },
+            "payee_ref": {
+              "type": "string"
+            },
+            "refresh_url": {
+              "type": "string"
+            },
+            "return_url": {
+              "type": "string"
+            },
+            "idempotency_key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "refresh_url",
+            "return_url"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "readiness": {
+              "type": "object"
+            },
+            "onboarding_url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account",
+            "onboarding_url"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "setUpSomeoneIPay"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pay-someone-a-share-through-stripe",
+        "label": "Pay someone a share through Stripe",
+        "job": "Pay a share of what I took on to a person I pay, out of my own Stripe balance",
+        "description": "This pays real money out. Give amount_cents, currency, destination (their Stripe account id), optionally source_transaction, and confirm_moves_money: true in the same request, or nothing is sent. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "amount_cents": {
+              "type": "number"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "destination": {
+              "type": "string"
+            },
+            "source_transaction": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "object"
+            },
+            "idempotency_key": {
+              "type": "string"
+            },
+            "confirm_moves_money": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "amount_cents",
+            "currency",
+            "destination",
+            "confirm_moves_money"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "transfer": {
+              "type": "string"
+            },
+            "amount_cents": {
+              "type": "number"
+            },
+            "destination": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "transfer"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "paySomeoneAShare"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:rehearse-a-payment-schedule-in-stripe-test-mode",
+        "label": "Rehearse a payment schedule in Stripe test mode",
+        "job": "Build a payment schedule in Stripe test mode and see what Stripe says it will charge and when, before a real buyer meets it",
+        "description": "Give payment_schedule and product_name. Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it comes from your held values under a test-key name. Makes test objects only; no real money moves.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "payment_schedule": {
+              "type": "object"
+            },
+            "product_name": {
+              "type": "string"
+            },
+            "currency": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "payment_schedule",
+            "product_name"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "schedule_id": {
+              "type": "string"
+            },
+            "what_stripe_says": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "schedule_id",
+            "what_stripe_says"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "rehearseASchedule"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-test-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    }
+  ]
+}

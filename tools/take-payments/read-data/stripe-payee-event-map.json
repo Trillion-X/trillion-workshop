@@ -1,0 +1,136 @@
+{
+  "_comment": "Maps Stripe events about payee accounts (Connect) to generic payee events: whether a payee can be paid (account.updated) and when their money arrived (payout.*). These arrive on a webhook endpoint made with connect: true, and each event's top-level `account` names the payee. Read by the same decoder as the revenue map (process/map-stripe-webhook-event.mjs); a consumer that pays payees passes this map, a revenue projection never sees these events. Adding a payee event is one rule row.",
+  "kind": "stripe-webhook-event-map",
+  "id": "stripe.webhook-event-map.payees",
+  "rules": [
+    {
+      "stripe_event_type": "account.updated",
+      "target_event_kind": "payee.account-updated",
+      "attribute_map": {
+        "provider_object_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        },
+        "payee_ref": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "payee_ref"
+          ]
+        },
+        "details_submitted": {
+          "path": [
+            "data",
+            "object",
+            "details_submitted"
+          ]
+        },
+        "payouts_enabled": {
+          "path": [
+            "data",
+            "object",
+            "payouts_enabled"
+          ]
+        },
+        "transfers_capability": {
+          "path": [
+            "data",
+            "object",
+            "capabilities",
+            "transfers"
+          ]
+        },
+        "currently_due": {
+          "path": [
+            "data",
+            "object",
+            "requirements",
+            "currently_due"
+          ]
+        }
+      }
+    },
+    {
+      "stripe_event_type": "payout.paid",
+      "target_event_kind": "payee.payout-paid",
+      "attribute_map": {
+        "provider_object_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        },
+        "payee_account": {
+          "path": [
+            "account"
+          ]
+        },
+        "amount_cents": {
+          "path": [
+            "data",
+            "object",
+            "amount"
+          ]
+        },
+        "currency": {
+          "path": [
+            "data",
+            "object",
+            "currency"
+          ]
+        },
+        "arrival_date": {
+          "path": [
+            "data",
+            "object",
+            "arrival_date"
+          ]
+        }
+      }
+    },
+    {
+      "stripe_event_type": "payout.failed",
+      "target_event_kind": "payee.payout-failed",
+      "attribute_map": {
+        "provider_object_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        },
+        "payee_account": {
+          "path": [
+            "account"
+          ]
+        },
+        "amount_cents": {
+          "path": [
+            "data",
+            "object",
+            "amount"
+          ]
+        },
+        "currency": {
+          "path": [
+            "data",
+            "object",
+            "currency"
+          ]
+        },
+        "failure_message": {
+          "path": [
+            "data",
+            "object",
+            "failure_message"
+          ]
+        }
+      }
+    }
+  ]
+}

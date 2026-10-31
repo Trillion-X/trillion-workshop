@@ -1,0 +1,257 @@
+{
+  "description": "Stripe operation wire-shape map — DATA consumed by do-work/stripe-request-mapper.mjs. Each row tells the generic mapper how one operation_id becomes an HTTP request shape: method, the vendor's published endpoint as a template ({provider_object_ref} substituted from input_facts[object_ref_key]), and which input-fact key carries the request subject, and optionally `acts_for_account` ({input_fact, header}): the header that makes the request act for the account named by that input fact. Each row carries the WHOLE address the vendor answers on rather than a fragment composed onto a base, because the vendor serves more than one versioned namespace and a shared prefix could only ever be right for some of them. Adding a Stripe operation = adding ONE row here ; the mapper enumerates nothing (L090 / enum-dissolution).",
+  "current_api_version": "2026-05-27.dahlia",
+  "operations": [
+    {
+      "operation_id": "operation:create-session",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/checkout/sessions",
+      "hands_the_person_off": true,
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:read-session",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/checkout/sessions/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:create-subscription-schedule",
+      "comment": "A schedule says what a subscription costs in each of its phases, which is how an offer that charges one amount at first and another later is expressed with no discount that could land on the wrong invoice. Its first invoice is created as a draft and finalized about an hour later, so the charge due at the door is taken by the checkout instead and never by this.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/subscription_schedules",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-payment-intent",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/payment_intents",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-setup-intent",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/setup_intents",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-connect-account",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v2/core/accounts",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:observe-event",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/events",
+      "subject_key": "event_payload_ref",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-transfer",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/transfers",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-refund",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/refunds",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:find-prices",
+      "comment": "Search prices, e.g. by lookup_keys, so a price an offer row names is found again instead of created twice.",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/prices",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-product",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/products",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-price",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/prices",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:find-payment-links",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/payment_links",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-payment-link",
+      "comment": "A payment link is a lasting checkout address for one price. Its metadata is copied onto every checkout it starts, which is how the webhook learns which offer and price option was bought.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/payment_links",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:update-payment-link",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/payment_links/{provider_object_ref}",
+      "subject_key": "operation_subject",
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:find-promotion-codes",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/promotion_codes",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-coupon",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/coupons",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-promotion-code",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/promotion_codes",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:find-portal-configurations",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/billing_portal/configurations",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-portal-configuration",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/billing_portal/configurations",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-connected-account",
+      "comment": "A payee account on the v1 Accounts API, configured by controller properties (who pays fees, who covers losses, which dashboard, who collects requirements) instead of legacy account types. The v2 row above needs the platform enabled for Accounts v2 and a JSON body; a platform that refuses v2 fields still creates payees here.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/accounts",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:read-connected-account",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/accounts/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:create-account-link",
+      "comment": "A one-time Stripe-hosted onboarding page for a payee; it expires within minutes and is made again on each visit.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/account_links",
+      "hands_the_person_off": true,
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-login-link",
+      "comment": "A one-time sign-in to the payee's own Stripe dashboard, where they see balances and payouts.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/accounts/{provider_object_ref}/login_links",
+      "hands_the_person_off": true,
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:read-balance",
+      "comment": "The balance of the account named by the acting_account input fact, or of the platform when none is named.",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/balance",
+      "subject_key": null,
+      "object_ref_key": null,
+      "acts_for_account": {
+        "input_fact": "acting_account",
+        "header": "Stripe-Account"
+      }
+    },
+    {
+      "operation_id": "operation:find-payouts",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/payouts",
+      "subject_key": "operation_subject",
+      "object_ref_key": null,
+      "acts_for_account": {
+        "input_fact": "acting_account",
+        "header": "Stripe-Account"
+      }
+    },
+    {
+      "operation_id": "operation:read-payment-intent",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/payment_intents/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:read-subscription",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/subscriptions/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:update-subscription",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/subscriptions/{provider_object_ref}",
+      "subject_key": "operation_subject",
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:cancel-subscription",
+      "method": "DELETE",
+      "endpoint": "https://api.stripe.com/v1/subscriptions/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:list-sessions",
+      "comment": "Completed checkout sessions, newest first, searched by the query the caller names.",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/checkout/sessions",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:list-subscriptions",
+      "comment": "Subscriptions, newest first, searched by the query the caller names (status=canceled for the ones that ended).",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/subscriptions",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-customer",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/customers",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    }
+  ]
+}

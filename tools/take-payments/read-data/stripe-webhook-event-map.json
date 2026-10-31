@@ -1,0 +1,624 @@
+{
+  "_comment": "Maps Stripe webhook event types to the generic revenue PaymentEvent shape consumed by the selected revenue projection: event_kind plus amount_due_today_cents, currency, recurring_amount_cents, subscription_status, and offer_id. The decoder reads these rows without app-specific branches; amounts are integer cents from Stripe.",
+  "kind": "stripe-webhook-event-map",
+  "id": "stripe.webhook-event-map.default",
+  "rules": [
+    {
+      "stripe_event_type": "payment_intent.succeeded",
+      "target_event_kind": "payment.confirmed",
+      "attribute_map": {
+        "amount_due_today_cents": {
+          "path": [
+            "data",
+            "object",
+            "amount_received"
+          ]
+        },
+        "currency": {
+          "path": [
+            "data",
+            "object",
+            "currency"
+          ]
+        },
+        "offer_id": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "offer_id"
+          ]
+        },
+        "provider_object_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        }
+      }
+    },
+    {
+      "stripe_event_type": "checkout.session.completed",
+      "target_event_kind": "payment.confirmed",
+      "attribute_map": {
+        "amount_due_today_cents": {
+          "path": [
+            "data",
+            "object",
+            "amount_total"
+          ]
+        },
+        "currency": {
+          "path": [
+            "data",
+            "object",
+            "currency"
+          ]
+        },
+        "offer_id": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "offer_id"
+          ]
+        },
+        "subscription_status": {
+          "path": [
+            "data",
+            "object",
+            "subscription_status"
+          ]
+        },
+        "provider_object_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        },
+        "subscription_id": {
+          "path": [
+            "data",
+            "object",
+            "subscription"
+          ]
+        },
+        "customer_email": {
+          "path": [
+            "data",
+            "object",
+            "customer_details",
+            "email"
+          ]
+        },
+        "price_option_id": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "price_option_id"
+          ]
+        },
+        "validated_amount_cents": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "validated_amount_cents"
+          ]
+        },
+        "cadence": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "cadence"
+          ]
+        },
+        "checkout_attempt_id": {
+          "path": [
+            "data",
+            "object",
+            "client_reference_id"
+          ]
+        },
+        "payment_status": {
+          "path": [
+            "data",
+            "object",
+            "payment_status"
+          ]
+        },
+        "completion_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        },
+        "completion_created": {
+          "path": [
+            "data",
+            "object",
+            "created"
+          ]
+        },
+        "payment_intent_ref": {
+          "path": [
+            "data",
+            "object",
+            "payment_intent"
+          ]
+        },
+        "payee_account": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "payee_account"
+          ]
+        },
+        "payee_ref": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "payee_ref"
+          ]
+        },
+        "platform_fee_cents": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "platform_fee_cents"
+          ]
+        },
+        "referral_code": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "referral_code"
+          ]
+        }
+      }
+    },
+    {
+      "stripe_event_type": "checkout.session.async_payment_succeeded",
+      "target_event_kind": "payment.confirmed",
+      "attribute_map": {
+        "amount_due_today_cents": {
+          "path": [
+            "data",
+            "object",
+            "amount_total"
+          ]
+        },
+        "currency": {
+          "path": [
+            "data",
+            "object",
+            "currency"
+          ]
+        },
+        "offer_id": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "offer_id"
+          ]
+        },
+        "subscription_status": {
+          "path": [
+            "data",
+            "object",
+            "subscription_status"
+          ]
+        },
+        "provider_object_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        },
+        "subscription_id": {
+          "path": [
+            "data",
+            "object",
+            "subscription"
+          ]
+        },
+        "customer_email": {
+          "path": [
+            "data",
+            "object",
+            "customer_details",
+            "email"
+          ]
+        },
+        "price_option_id": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "price_option_id"
+          ]
+        },
+        "validated_amount_cents": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "validated_amount_cents"
+          ]
+        },
+        "cadence": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "cadence"
+          ]
+        },
+        "checkout_attempt_id": {
+          "path": [
+            "data",
+            "object",
+            "client_reference_id"
+          ]
+        },
+        "payment_status": {
+          "path": [
+            "data",
+            "object",
+            "payment_status"
+          ]
+        },
+        "completion_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        },
+        "completion_created": {
+          "path": [
+            "data",
+            "object",
+            "created"
+          ]
+        },
+        "payment_intent_ref": {
+          "path": [
+            "data",
+            "object",
+            "payment_intent"
+          ]
+        },
+        "payee_account": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "payee_account"
+          ]
+        },
+        "payee_ref": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "payee_ref"
+          ]
+        },
+        "platform_fee_cents": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "platform_fee_cents"
+          ]
+        },
+        "referral_code": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "referral_code"
+          ]
+        }
+      }
+    },
+    {
+      "stripe_event_type": "charge.refunded",
+      "target_event_kind": "payment.refunded",
+      "attribute_map": {
+        "amount_due_today_cents": {
+          "path": [
+            "data",
+            "object",
+            "amount_refunded"
+          ]
+        },
+        "currency": {
+          "path": [
+            "data",
+            "object",
+            "currency"
+          ]
+        },
+        "offer_id": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "offer_id"
+          ]
+        },
+        "provider_object_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        },
+        "customer_email": {
+          "path": [
+            "data",
+            "object",
+            "billing_details",
+            "email"
+          ]
+        },
+        "payment_intent_ref": {
+          "path": [
+            "data",
+            "object",
+            "payment_intent"
+          ]
+        }
+      }
+    },
+    {
+      "stripe_event_type": "charge.dispute.created",
+      "target_event_kind": "payment.refunded",
+      "attribute_map": {
+        "amount_due_today_cents": {
+          "path": [
+            "data",
+            "object",
+            "amount"
+          ]
+        },
+        "currency": {
+          "path": [
+            "data",
+            "object",
+            "currency"
+          ]
+        },
+        "provider_object_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        },
+        "customer_email": {
+          "path": [
+            "data",
+            "object",
+            "billing_details",
+            "email"
+          ]
+        },
+        "payment_intent_ref": {
+          "path": [
+            "data",
+            "object",
+            "payment_intent"
+          ]
+        }
+      }
+    },
+    {
+      "stripe_event_type": "invoice.paid",
+      "target_event_kind": "subscription.renewed",
+      "attribute_map": {
+        "amount_due_today_cents": {
+          "path": [
+            "data",
+            "object",
+            "amount_paid"
+          ]
+        },
+        "recurring_amount_cents": {
+          "path": [
+            "data",
+            "object",
+            "amount_paid"
+          ]
+        },
+        "currency": {
+          "path": [
+            "data",
+            "object",
+            "currency"
+          ]
+        },
+        "subscription_status": {
+          "literal": "active"
+        },
+        "offer_id": {
+          "path": [
+            "data",
+            "object",
+            "parent",
+            "subscription_details",
+            "metadata",
+            "offer_id"
+          ]
+        },
+        "provider_object_ref": {
+          "path": [
+            "data",
+            "object",
+            "parent",
+            "subscription_details",
+            "subscription"
+          ]
+        },
+        "invoice_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        },
+        "customer_email": {
+          "path": [
+            "data",
+            "object",
+            "customer_email"
+          ]
+        },
+        "installment_count": {
+          "path": [
+            "data",
+            "object",
+            "parent",
+            "subscription_details",
+            "metadata",
+            "installment_count"
+          ]
+        },
+        "entitlement_retained": {
+          "path": [
+            "data",
+            "object",
+            "parent",
+            "subscription_details",
+            "metadata",
+            "entitlement_retained"
+          ]
+        },
+        "payee_account": {
+          "path": [
+            "data",
+            "object",
+            "parent",
+            "subscription_details",
+            "metadata",
+            "payee_account"
+          ]
+        },
+        "payee_ref": {
+          "path": [
+            "data",
+            "object",
+            "parent",
+            "subscription_details",
+            "metadata",
+            "payee_ref"
+          ]
+        },
+        "referral_code": {
+          "path": [
+            "data",
+            "object",
+            "parent",
+            "subscription_details",
+            "metadata",
+            "referral_code"
+          ]
+        },
+        "price_option_id": {
+          "path": [
+            "data",
+            "object",
+            "parent",
+            "subscription_details",
+            "metadata",
+            "price_option_id"
+          ]
+        },
+        "checkout_attempt_id": {
+          "path": [
+            "data",
+            "object",
+            "parent",
+            "subscription_details",
+            "metadata",
+            "payer_ref"
+          ]
+        }
+      }
+    },
+    {
+      "stripe_event_type": "customer.subscription.deleted",
+      "target_event_kind": "subscription.ended",
+      "attribute_map": {
+        "amount_due_today_cents": {
+          "literal": 0
+        },
+        "recurring_amount_cents": {
+          "literal": 0
+        },
+        "currency": {
+          "path": [
+            "data",
+            "object",
+            "currency"
+          ]
+        },
+        "subscription_status": {
+          "literal": "canceled"
+        },
+        "offer_id": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "offer_id"
+          ]
+        },
+        "provider_object_ref": {
+          "path": [
+            "data",
+            "object",
+            "id"
+          ]
+        },
+        "customer_email": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "customer_email"
+          ]
+        },
+        "installment_count": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "installment_count"
+          ]
+        },
+        "entitlement_retained": {
+          "path": [
+            "data",
+            "object",
+            "metadata",
+            "entitlement_retained"
+          ]
+        }
+      }
+    }
+  ]
+}
