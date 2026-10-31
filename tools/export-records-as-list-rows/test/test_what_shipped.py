@@ -60,7 +60,7 @@ class FromARef(Repository):
         self.commit('Lemon tarts')
         second = self.commit('A second van')
         self.release()
-        self.assertEqual(self.read(), {'releases': 2, 'added': second[:12]})
+        self.assertEqual(self.read(), {'releases': 2, 'added': second[:12], 'added_count': 1})
         one, two = self.releases()
         self.assertEqual((one['previous'], one['subjects']), (None, ['Rye on Sundays']))
         self.assertEqual((two['previous'], two['subjects']), (first, ['A second van', 'Lemon tarts']))
@@ -70,7 +70,7 @@ class FromARef(Repository):
         self.release()
         self.read()
         before = self.staged.read_bytes()
-        self.assertEqual(self.read(), {'releases': 1, 'added': None})
+        self.assertEqual(self.read(), {'releases': 1, 'added': None, 'added_count': 0})
         self.assertEqual(self.staged.read_bytes(), before)
 
     def test_most_subjects_keeps_the_newest(self):
@@ -89,6 +89,53 @@ class FromARef(Repository):
         self.commit('one')
         with self.assertRaisesRegex(ValueError, 'no commit refs/heads/gone'):
             self.read({'mark': {'ref': 'refs/heads/gone'}})
+
+
+class EachCommit(Repository):
+    SETTINGS = {'mark': {'ref': 'refs/heads/main'}, 'each': 'commit', 'id_prefix': 'shop-', 'skip_subjects': ['^menu regenerated']}
+
+    def test_the_first_read_starts_after_the_named_commit_and_each_commit_is_an_entry_with_its_own_subject_and_time(self):
+        start = self.commit('Rye on Sundays')
+        lemon = self.commit('Lemon tarts')
+        van = self.commit('A second van')
+        result = self.read({**self.SETTINGS, 'after': start})
+        self.assertEqual(result, {'releases': 2, 'added': van[:12], 'added_count': 2})
+        one, two = self.releases()
+        self.assertEqual(one, {'id': f'shop-{lemon[:12]}', 'name': lemon[:12], 'commit': lemon, 'at': self.git('log', '-1', '--format=%cI', lemon),
+                               'previous': start, 'subject': 'Lemon tarts', 'subjects': ['Lemon tarts']})
+        self.assertEqual((two['previous'], two['subjects']), (lemon, ['A second van']))
+        self.assertEqual(json.loads(self.staged.read_text())['read_to'], van)
+
+    def test_a_skipped_subject_is_read_without_an_entry_and_the_next_read_starts_after_it(self):
+        start = self.commit('Rye on Sundays')
+        self.commit('Lemon tarts')
+        skipped = self.commit('menu regenerated on the pushed tip')
+        self.assertEqual(self.read({**self.SETTINGS, 'after': start})['added_count'], 1)
+        self.assertEqual(json.loads(self.staged.read_text())['read_to'], skipped)
+        before = self.staged.read_bytes()
+        self.assertEqual(self.read(self.SETTINGS), {'releases': 1, 'added': None, 'added_count': 0})
+        self.assertEqual(self.staged.read_bytes(), before)
+        pie = self.commit('Pie on Fridays')
+        self.assertEqual(self.read(self.SETTINGS), {'releases': 2, 'added': pie[:12], 'added_count': 1})
+        self.assertEqual(self.releases()[-1]['previous'], skipped)
+
+    def test_without_after_the_first_read_notes_the_newest_commit_only(self):
+        self.commit('Rye on Sundays')
+        newest = self.commit('Lemon tarts')
+        self.assertEqual(self.read(self.SETTINGS)['added'], newest[:12])
+        self.assertEqual([entry['subjects'] for entry in self.releases()], [['Lemon tarts']])
+
+    def test_a_tip_that_is_all_skipped_moves_read_to_and_adds_nothing(self):
+        start = self.commit('Rye on Sundays')
+        tip = self.commit('menu regenerated')
+        self.assertEqual(self.read({**self.SETTINGS, 'after': start}), {'releases': 0, 'added': None, 'added_count': 0})
+        self.assertEqual(json.loads(self.staged.read_text())['read_to'], tip)
+
+    def test_an_unknown_each_is_refused_before_anything_is_written(self):
+        self.commit('one')
+        with self.assertRaisesRegex(ValueError, 'each is "commit"'):
+            self.read({**self.SETTINGS, 'each': 'day'})
+        self.assertFalse(self.staged.exists())
 
 
 class FromACommand(Repository):

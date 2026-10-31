@@ -48,7 +48,7 @@
         "id": "tool:build-records-to-write",
         "label": "Prepare my records, with a basis for each value, to write into my lists (runs on your computer)",
         "job": "Take records I keep in files and prepare everything to put them into my lists as records, each value with where it came from and how sure we are, in batches I can send",
-        "description": "Reads a mapping file the person gives: the lists they have defined (fields, saved views) and, for each source, where its records are (a JSON file, or staged files in any of several shapes) and how each row and each value is worked out, with a basis (reasoning, sources, who made it, when) for the values that need one. Writes one file of counts, anything pending or diverted, and commands of at most 64 records each, in the order to send. It sends nothing. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
+        "description": "Reads a mapping file the person gives: the lists they have defined (fields, saved views) and, for each source, where its records are (a JSON file, staged files in several shapes, or existing records from a declared type and id prefix) and how each row and value is worked out, with a basis for values that need one. A records source names an existing sender config; the builder uses its credential handle to read those records and does not write through it. Writes one file of counts, anything pending or diverted, and commands of at most 64 records each, in the order to send. It sends nothing. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
         "status": "active",
         "input_schema": { "type": "object", "required": ["mapping", "out"], "properties": { "mapping": { "type": "string", "description": "The mapping file (the README describes it), put where {mapping} is in the command." }, "out": { "type": "string", "description": "The file to write the payload to, put where {out} is in the command." }, "roots": { "type": "string", "description": "Each folder the mapping names, as --root NAME=DIR, put where {roots} is in the command." } } },
         "output_schema": { "type": "object", "description": "The last JSON the script prints: { records, commands, lists, views, rows, breakdown }. The payload file holds the commands; exit status 2 with a reason on standard error when the mapping or a file could not be read." },
@@ -57,8 +57,8 @@
           "repository": "https://github.com/Trillion-X/trillion-workshop",
           "get_it": ["git clone https://github.com/Trillion-X/trillion-workshop.git"],
           "run": "python3 -I trillion-workshop/tools/export-records-as-list-rows/do-work/build_record_write.py --mapping {mapping} {roots} --out {out}",
-          "needs": ["python"],
-          "say": "This runs on the person's own computer, never on Trillion. Run `run`, read the counts and the pending list, and tell the person how many records and commands it made and what is pending or diverted. A refusal names the row and says what to fix. The script sends nothing; sending each command is a separate step they approve."
+          "needs": ["python", "node (only when the mapping uses the identity expression)"],
+          "say": "This runs on the person's own computer, never on Trillion. Run `run`, read the counts and the pending list, and tell the person how many records and commands it made and what is pending or diverted. A `kind: records` source uses the sender config and its keychain credential only to read the declared type and prefix; build sends no records. A mapping using identity also needs Node and the declared content-identity files. A refusal names the row and says what to fix. Sending each prepared command is a separate step."
         },
         "maker": "maker:trillion",
         "licence_class": "licence:maker-own",
@@ -128,29 +128,29 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:read-what-shipped",
-        "label": "Note each new release of my repository with what changed since the last one (runs on your computer)",
-        "job": "Each time I ship, note the release (its commit, name and time) and the subjects of the commits since the release before it, in a file my lists are filled from",
-        "description": "Reads settings the person gives: where their newest release is read (a program in the repository that prints JSON naming the released commit, such as a release script's read verb, or a git ref they move when they ship) and which keys of that JSON hold the commit, name and time. Adds the newest release to a staged file when it is new, with the commit subjects since the release before it (the released commit's own subject for the first one), and leaves the file as it is otherwise. The records builder turns the staged file into rows of the person's list, and the sender with keep_held writes only the rows the list lacks, so a row someone edited stays as they left it. It names no product, list or road.",
+        "label": "Note new releases or commits from a repository (runs on your computer)",
+        "job": "Read a person's release mark or commit branch, stage each new entry once with its source identity, and let their mapping make list rows",
+        "description": "Reads settings the person gives: a program in the repository that prints JSON naming a release, a git ref for the newest release, or a commit branch where each commit is one entry. In commit mode, each entry has the commit identity, date and its own subject; the first run may start after an explicit commit, and skip_subjects are filters in the settings. The staged file is what the person's mapping turns into rows. The sender with keep_held writes only rows the list lacks, so an existing row or a person's edits are preserved. The tool does not infer push boundaries or group commits by day, and knows no product, list or road.",
         "status": "active",
         "input_schema": {
           "type": "object",
           "required": ["settings", "repository", "staged"],
           "properties": {
-            "settings": { "type": "string", "description": "The settings file (mark, fields, most_subjects), put where {settings} is in the command." },
+            "settings": { "type": "string", "description": "The settings file (mark, fields, most_subjects, and optionally each, after and skip_subjects), put where {settings} is in the command." },
             "repository": { "type": "string", "description": "The repository folder, put where {repository} is in the command." },
             "staged": { "type": "string", "description": "The staged file of releases, put where {staged} is in the command." }
           }
         },
         "output_schema": {
           "type": "object",
-          "description": "What the script prints: { releases, added }, added being the new release's name or null. Exit 0, or 2 when the settings, the repository or the mark could not be read."
+          "description": "What the script prints: { releases, added, added_count }, added being the name of the newest entry added or null. Exit 0, or 2 when the settings, the repository or the mark could not be read."
         },
         "invoke": {
           "kind": "on-your-computer",
           "get_it": ["clone the Workshop repository (package.json repository.url)"],
           "run": "python3 -I tools/export-records-as-list-rows/do-work/read_what_shipped.py --settings {settings} --repository {repository} --staged {staged}",
-          "needs": ["python", "git"],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout, and only reads their repository. Say whether a new release was noted and its name."
+          "needs": ["python", "git", "the mark command's runtime, when the mark is a command"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, and only reads their repository. Say how many entries were added and the newest entry name. A mark command also needs its own runtime; a git ref does not. Entries are commits, not inferred pushes."
         },
         "maker": "maker:export-records-as-list-rows",
         "licence_class": "licence:maker-own",

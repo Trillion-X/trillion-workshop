@@ -10,6 +10,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 TOOL = Path(__file__).resolve().parents[1]
 FIXTURE = Path(__file__).resolve().parent / 'fixtures' / 'pantry'
@@ -194,6 +195,175 @@ class Refusals(Pantry):
             self.build()
 
 
+class RecordSources(Pantry):
+    def mapping_with_shared_source(self, **source_change):
+        source = {
+            'name': 'shared-inputs', 'list': 'goods', 'kind': 'records',
+            'records': {'type': 'shared', 'prefix': 'shared:'},
+            'id': {'path': 'value.identity'},
+            'values': {'name': {'path': 'value.title'}, 'blurb': {'path': 'value.note'}, 'source_record': {'path': 'raw.id'}},
+            **source_change,
+        }
+        return {**self.mapping, 'sources': [*self.mapping['sources'], source]}
+
+    @staticmethod
+    def shared_records():
+        return [
+            {'id': 'shared:first', 'type': 'shared', 'value': {'identity': 'idea-1', 'title': 'First', 'note': 'Keep this note'}},
+            {'id': 'shared:second', 'type': 'shared', 'value': {'identity': 'idea-2', 'title': 'Second'}},
+        ]
+
+    def test_reader_receives_only_the_source_and_each_read_maps_its_records(self):
+        calls = []
+        def reader(source):
+            calls.append(source['records'])
+            return self.shared_records()
+        payload = records_write.build(self.mapping_with_shared_source(), {'here': self.root, 'data': self.root}, AT, reader)
+        records = {r['id']: r for c in payload['commands'] for r in c['input']['records']}
+        self.assertEqual(records['record:goods:idea-1']['value'], {'name': 'First', 'blurb': 'Keep this note', 'source_record': 'shared:first'})
+        self.assertEqual(records['record:goods:idea-2']['value'], {'name': 'Second', 'source_record': 'shared:second'})
+        self.assertEqual(calls, [{'type': 'shared', 'prefix': 'shared:'}])
+        records_write.build(self.mapping_with_shared_source(), {'here': self.root, 'data': self.root}, AT, reader)
+        self.assertEqual(len(calls), 2, 'a new build reads the current account state again')
+
+    def test_shared_record_items_expand_and_same_url_identity_merges_with_the_staged_intake_row(self):
+        url = 'https://example.test/article'
+        identity = expressions.evaluate({'identity': url}, {}, expressions.Context({}))
+        self.save('local-input.json', {'rows': [{'id': f'input-{identity}', 'title': f'Shared input: {url}'}]})
+        local_source = {
+            'name': 'things-sent-intake', 'list': 'goods', 'kind': 'staged',
+            'inputs': [{'root': 'here', 'path': 'local-input.json'}], 'on_duplicate': 'fill',
+            'values': {'name': {'path': 'title'}},
+        }
+        shared_source = {
+            'name': 'shared-inputs', 'list': 'goods', 'kind': 'records',
+            'records': {'type': 'shared', 'prefix': 'shared:'}, 'each': 'value.items', 'on_duplicate': 'fill',
+            'keys': {'input_value': {'if': {'equals': [{'path': 'item.kind'}, 'selection']},
+                                     'then': {'path': 'item.text'}, 'else': {'path': 'item.url'}},
+                     'identity': {'identity': {'path': 'input_value'}}},
+            'id': {'text': 'input-{identity}'},
+            'values': {'name': {'text': 'Shared input: {input_value}'}},
+        }
+        mapping = {**self.mapping, 'sources': [*self.mapping['sources'], local_source, shared_source]}
+        record = {'id': 'shared:producer-request-key', 'type': 'shared', 'value': {'items': [
+            {'kind': 'link', 'url': url}, {'kind': 'selection', 'text': 'Selected words'}]}}
+        payload = records_write.build(mapping, {'here': self.root, 'data': self.root}, AT, lambda _: [record])
+        output = {r['id']: r for c in payload['commands'] for r in c['input']['records']}
+        self.assertIn(f'record:goods:input-{identity}', output)
+        self.assertEqual(output[f'record:goods:input-{identity}']['value']['name'], f'Shared input: {url}')
+        self.assertEqual(payload['counts']['rows']['goods'], 10, 'the identical URL is one row; distinct selection text is another')
+        self.assertEqual([entry['id'] for entry in payload['merged']], [f'input-{identity}'])
+        self.assertEqual(output[f'record:goods:input-{expressions.evaluate({"identity": "Selected words"}, {}, expressions.Context({}))}']['value']['name'],
+                         'Shared input: Selected words')
+
+    def test_other_record_kinds_are_rejected_even_if_the_reader_returns_them(self):
+        with self.assertRaisesRegex(ValueError, 'outside declared type shared'):
+            records_write.build(self.mapping_with_shared_source(), {'here': self.root, 'data': self.root}, AT,
+                                lambda _: [{'id': 'shared:first', 'type': 'private', 'value': {}}])
+        with self.assertRaisesRegex(ValueError, 'outside declared prefix shared:'):
+            records_write.build(self.mapping_with_shared_source(), {'here': self.root, 'data': self.root}, AT,
+                                lambda _: [{'id': 'other:first', 'type': 'shared', 'value': {}}])
+
+    def test_duplicate_records_use_the_declared_merge_policy_and_report_the_merge(self):
+        source = self.mapping_with_shared_source()['sources'][-1]
+        source['on_duplicate'] = 'fill'
+        records = self.shared_records()
+        records[1]['value'] = {'identity': 'idea-1', 'title': 'Ignored title', 'note': 'Later note'}
+        payload = records_write.build({**self.mapping, 'sources': [*self.mapping['sources'], source]},
+                                      {'here': self.root, 'data': self.root}, AT, lambda _: records)
+        output = {r['id']: r for c in payload['commands'] for r in c['input']['records']}
+        row = output['record:goods:idea-1']['value']
+        self.assertEqual(row['name'], 'First')
+        self.assertEqual(row['blurb'], 'Keep this note')
+        self.assertEqual(payload['merged'], [{'list': 'goods', 'id': 'idea-1', 'source': 'shared-inputs', 'kept': 'fill', 'filled': [],
+                                               'differing': {'blurb': 'Later note', 'name': 'Ignored title', 'source_record': 'shared:second'}}])
+
+    def test_records_source_requires_a_reader_and_a_declared_type(self):
+        with self.assertRaisesRegex(ValueError, 'needs a records reader'):
+            records_write.build(self.mapping_with_shared_source(), {'here': self.root, 'data': self.root}, AT)
+        source = self.mapping_with_shared_source()['sources'][-1]
+        source['records'].pop('type')
+        with self.assertRaisesRegex(ValueError, 'needs a non-empty type'):
+            records_write.build({**self.mapping, 'sources': [*self.mapping['sources'], source]},
+                                {'here': self.root, 'data': self.root}, AT, lambda _: [])
+
+    def test_explicit_empty_tag_arrays_stay_private_but_absent_flags_keep_the_mapping_default(self):
+        flags = {'if': {'equals': [{'path': 'value.flags'}, []]}, 'then': [],
+                 'else': {'first_set': [{'path': 'value.flags'}, {'list': ['public']}]}}
+        source = {'name': 'visibility', 'list': 'goods', 'kind': 'records',
+                  'records': {'type': 'test'}, 'keep_empty': ['flags'],
+                  'id': {'path': 'value.id'}, 'values': {'name': {'path': 'value.id'}, 'flags': flags}}
+        rows = [
+            {'id': 'test:absent', 'type': 'test', 'value': {'id': 'absent'}},
+            {'id': 'test:private', 'type': 'test', 'value': {'id': 'private', 'flags': []}},
+            {'id': 'test:public', 'type': 'test', 'value': {'id': 'public', 'flags': ['public']}},
+        ]
+        payload = records_write.build({**self.mapping, 'sources': [source]},
+                                      {'here': self.root, 'data': self.root}, AT, lambda _: rows)
+        output = {r['value']['name']: r['value'] for c in payload['commands'] for r in c['input']['records']
+                  if r['type'] == 'record:goods'}
+        self.assertEqual(output['absent']['flags'], ['public'])
+        self.assertEqual(output['private']['flags'], [])
+        self.assertEqual(output['public']['flags'], ['public'])
+
+    def test_latest_intake_disposition_keeps_not_adopted_dropped_until_later_handling(self):
+        ledger = self.root / 'intake-statuses.jsonl'
+        rows = [
+            {'thing': 'example-item', 'status': 'received', 'at': '2026-10-30T12:00:00-06:00'},
+            {'thing': 'example-item', 'status': 'not-adopted', 'where': ['A reason written by the person.'],
+             'at': '2026-10-30T12:01:00-06:00'},
+        ]
+        ledger.write_text(''.join(json.dumps(row) + '\n' for row in rows))
+        source = {
+            'name': 'intake', 'list': 'goods', 'kind': 'staged',
+            'inputs': [{'root': 'here', 'path': 'intake-statuses.jsonl'}], 'on_duplicate': 'over',
+            'compute': {'id': {'path': 'thing'}, 'reason': {'path': 'where.0'}},
+            'values': {'name': {'path': 'thing'},
+                       'stage': {'if': {'equals': [{'path': 'status'}, 'not-adopted']}, 'then': 'Dropped', 'else': 'Idea'},
+                       'blurb': {'if': {'equals': [{'path': 'status'}, 'not-adopted']},
+                                 'then': {'text': 'Deliberately not incorporated: {reason}'},
+                                 'else': 'A person shared this item for review.'}},
+        }
+        mapping = {**self.mapping, 'sources': [source]}
+        dropped = records_write.build(mapping, {'here': self.root, 'data': self.root}, AT)
+        records = {r['id']: r for c in dropped['commands'] for r in c['input']['records']}
+        self.assertEqual(dropped['counts']['rows']['goods'], 1)
+        self.assertEqual(records['record:goods:example-item']['value']['stage'], 'Dropped')
+        self.assertEqual(records['record:goods:example-item']['value']['blurb'],
+                         'Deliberately not incorporated: A reason written by the person.')
+        rows.append({'thing': 'example-item', 'status': 'placed', 'where': ['record:goods:example'],
+                     'at': '2026-10-30T12:02:00-06:00'})
+        ledger.write_text(''.join(json.dumps(row) + '\n' for row in rows))
+        superseded = records_write.build(mapping, {'here': self.root, 'data': self.root}, AT)
+        records = {r['id']: r for c in superseded['commands'] for r in c['input']['records']}
+        self.assertEqual(records['record:goods:example-item']['value']['stage'], 'Idea')
+        self.assertEqual(records['record:goods:example-item']['value']['blurb'], 'A person shared this item for review.')
+
+    def test_an_unauthorized_records_read_fails_the_build_without_a_fallback(self):
+        self.save('sender.json', {'transport': {'kind': 'mcp', 'url': 'http://127.0.0.1:8788/mcp',
+                                                'credential': {'keychain_item': 'test-handle'}}})
+        opened, reads = [], []
+
+        class RefusingDoor:
+            def __init__(self, config, work, base=None):
+                opened.append((config, work, base))
+
+            def read_type(self, record_type, prefix=None):
+                reads.append((record_type, prefix))
+                raise PermissionError('sender cannot read this record scope')
+
+        mapping = self.mapping_with_shared_source()
+        mapping['sources'][-1]['records']['config'] = {'root': 'here', 'path': 'sender.json'}
+        with patch.object(cli, 'Door', RefusingDoor):
+            reader = cli.records_reader({'here': self.root, 'data': self.root}, self.tmp / 'work')
+            with self.assertRaisesRegex(PermissionError, 'cannot read this record scope'):
+                records_write.build(mapping, {'here': self.root, 'data': self.root}, AT, reader)
+
+        self.assertEqual(len(opened), 1, 'only the declared sender config is opened')
+        self.assertEqual(reads, [('shared', 'shared:')], 'the refused read is limited to declared type and prefix')
+        self.assertEqual(opened[0][0]['transport']['credential'], {'keychain_item': 'test-handle'})
+
+
 class Expressions(unittest.TestCase):
     def ev(self, t, rec=None, **rows):
         ctx = expressions.Context({})
@@ -232,6 +402,14 @@ class Expressions(unittest.TestCase):
 
     def test_text_fills_missing_fields_as_empty_and_leaves_no_stripping(self):
         self.assertEqual(self.ev({'text': ' [{a}] {b}.'}, {'a': 'x'}), ' [x] .')
+
+    def test_identity_uses_the_declared_content_identity_owner_for_exact_utf8_bytes(self):
+        self.assertEqual(self.ev({'identity': {'path': 'text'}}, {'text': 'abc'}),
+                         '1f:6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85')
+        self.assertNotEqual(self.ev({'identity': {'path': 'text'}}, {'text': 'abc'}),
+                            self.ev({'identity': {'path': 'text'}}, {'text': 'ABC'}))
+        with self.assertRaisesRegex(ValueError, 'needs text or bytes'):
+            self.ev({'identity': {'path': 'number'}}, {'number': 3})
 
     def test_lookup_row_of_and_count_links_read_tables_rows_and_records(self):
         recs = {'stores': [{'id': 's1', 'overrides': {'g1': 'u'}}]}
@@ -272,6 +450,26 @@ class Command(Pantry):
         self.assertEqual(payload['commands'][0]['input']['records'][0]['id'], 'list:stores')
         self.assertIn('No folder was given for root data', err.getvalue())
 
+    def test_records_reader_uses_the_declared_sender_config_handle_and_applies_a_clone_url(self):
+        config = {'transport': {'kind': 'mcp', 'url': 'http://127.0.0.1:8788/mcp',
+                                'credential': {'keychain_item': 'test-handle'}}}
+        self.save('sender.json', config)
+        opened, reads = [], []
+        class FakeDoor:
+            def __init__(self, config, work, base=None):
+                opened.append((config, work, base))
+            def read_type(self, record_type, prefix=None):
+                reads.append((record_type, prefix))
+                return [{'id': 'shared:one', 'type': record_type, 'value': {}}]
+        source = {'name': 'shared', 'list': 'goods',
+                  'records': {'type': 'shared', 'prefix': 'shared:', 'config': {'root': 'here', 'path': 'sender.json'}}}
+        with patch.object(cli, 'Door', FakeDoor):
+            reader = cli.records_reader({'here': self.root}, self.tmp / 'work', 'http://127.0.0.1:29374/mcp')
+            self.assertEqual(reader(source), [{'id': 'shared:one', 'type': 'shared', 'value': {}}])
+        self.assertEqual(opened[0][0]['transport']['url'], 'http://127.0.0.1:29374/mcp')
+        self.assertEqual(opened[0][0]['transport']['credential'], {'keychain_item': 'test-handle'})
+        self.assertEqual(reads, [('shared', 'shared:')])
+        self.assertEqual(config['transport']['url'], 'http://127.0.0.1:8788/mcp', 'the source config on disk is not rewritten')
 
 if __name__ == '__main__':
     unittest.main()
