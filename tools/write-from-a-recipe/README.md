@@ -10,6 +10,7 @@ Ported from bitfield-packages `packages/content-generation` (its recipe composer
 |------|--------------|
 | `tool:compose-a-writing-instruction` | A recipe (kept, by `recipe_id`, or the caller's own) plus `work_item`, `grounding` and the person's own `blocks` becomes `instruction_text`, with the recipe's `output_schema`, `gate_policy` and `delivery_target`. |
 | `tool:check-writing-against-its-recipe` | The writing against the recipe: source checks, judge-words rules, required reviews, then `delivery: { tool_id, input }` (or null). Recipes may opt into `source-backed-claims/v1` to bind exact source editions, quotes, claim scope, the current draft and attributed semantic review. Attribution is explicitly unverified; rights metadata does not authorize publication. A refusal has `reject_code`, `reason` and no delivery. |
+| `tool:check-writing-file` | Reads a bounded request JSON file inside the person's granted folder, applies optional recipe overrides, and returns the same gate result without returning the source file. |
 | `tool:list-writing-recipes` | The kept recipes (with the answers each asks for) and instruction blocks, found by words or section. |
 
 ## Files
@@ -24,11 +25,14 @@ Ported from bitfield-packages `packages/content-generation` (its recipe composer
 | `read-data/instruction-blocks.json` | Generic starter blocks only: `plain-language`, `cite-sources`, `stay-on-task`, `show-your-work`, `ground-every-claim`, `remove-ai-writing-tells`. A person's own voice and sales rules are their own blocks, handed in through `blocks` (see `blocksWith`) and replacing a starter with the same id. |
 | `do-work/compose-a-writing-instruction.mjs` | The compose tool's command. |
 | `do-work/check-writing-against-its-recipe.mjs` | The check tool's command; packs `tools/judge-words` for rule rows. |
+| `do-work/check-writing-file.mjs` | Reads a request JSON file under the explicit folder grant, then calls the same `checkWritingAgainstItsRecipe` function. |
+| `read-data/write-file-limits.json` | The maximum request file size, in bytes. |
 | `do-work/list-writing-recipes.mjs` | The list tool's command. |
 | `tool-rows.json` | The three rows. |
 | `part.json` | The composer and the gate are public, so another tool may build or check writing the same way. |
 | `test/compose-a-writing-instruction.test.mjs` | Segments, blocks, input references, defaults and refusals. |
 | `test/check-writing-against-its-recipe.test.mjs` | Citations, judge-words rows, fail-closed check kinds, required verdicts, the handoff and the derived body. |
+| `test/check-writing-file.test.mjs` | File boundaries, byte limits, malformed JSON privacy and delegation to the existing gate. |
 | `test/rows-and-library.test.mjs` | Each row's sample as the container runs it; every kept recipe composes; the DATA names nobody. |
 
 ## Key Types / Functions

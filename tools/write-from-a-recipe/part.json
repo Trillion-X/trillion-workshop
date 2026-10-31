@@ -1,1 +1,1 @@
-{"public": ["read-data/compose-instruction.mjs", "read-data/check-writing.mjs", "read-data/evidence-contract.mjs"]}
+{"public": ["read-data/compose-instruction.mjs", "read-data/check-writing.mjs", "read-data/evidence-contract.mjs", "do-work/check-writing-file.mjs"]}

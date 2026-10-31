@@ -16,7 +16,7 @@ const at = (value, selector) => selector.replace(/^\$\.?/, '').split(/\.|\[(\d+)
 
 for (const row of rows) {
   test(`${row.id} answers its own sample on the last line`, () => {
-    for (const sample of row.verify.filter(item => item.kind === 'sample-run')) {
+    for (const sample of (row.verify ?? []).filter(item => item.kind === 'sample-run')) {
       const ran = spawnSync(process.execPath, row.invoke.argv.slice(1), { cwd: folder, input: JSON.stringify(sample.input), encoding: 'utf8' });
       assert.equal(ran.status, 0, ran.stderr);
       const answer = at(JSON.parse(ran.stdout.trim().split('\n').at(-1)), row.result_selector);
@@ -24,6 +24,14 @@ for (const row of rows) {
     }
   });
 }
+
+test('the file checker declares a computer run with only the explicit folder read capability', () => {
+  const row = rows.find(candidate => candidate.id === 'tool:check-writing-file');
+  assert.equal(row.invoke.kind, 'computer');
+  assert.deepEqual(row.invoke.capabilities, ['read-a-folder']);
+  assert.equal(row.invoke.argv.at(-1).fill.field, 'grants.read-a-folder.folder');
+  assert.equal(JSON.parse(readFileSync(resolve(folder, 'read-data/write-file-limits.json'), 'utf8')).max_bytes, 2 * 1024 * 1024);
+});
 
 test('a refused request answers { error } on the last line and exits 1', () => {
   const ran = spawnSync(process.execPath, ['do-work/compose-a-writing-instruction.mjs'], { cwd: folder, input: '{}', encoding: 'utf8' });
