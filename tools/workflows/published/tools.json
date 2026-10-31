@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:2b8714c345bb15943b0e3671a5341a20e804a2458df07c7fa49eb6f7a6baaa99"
+  "blake3": "1f:2edaa61d51f740063ec6d8a0f97967671c11aae04c25ce939736c27dfe04ddf9"
  },
  "fields": [
   {
@@ -291,7 +291,7 @@
    "values": {
     "title": "Approve a post",
     "job": "Approve a drafted post exactly as it was reviewed, so it may be set to go",
-    "description": "Give post_id and expected_values (the complete approval_values of the post as it was reviewed); approval is refused when its words, file, destinations or time changed since. A post going nowhere yet is refused. A post that reaches someone (its words name a @handle, or it lists people in reaches) is approved only by the person on their own screen: only a run their own page starts, which the engine marks in the run's task (origin page), approves it, and an AI's run is refused. approved_by names who approved it. Returns post and said.",
+    "description": "Give post_id and expected_values (the complete approval_values of the post as it was reviewed); expected_values is required, and approval is refused when its words, file, destinations or time changed since. A post going nowhere yet is refused. approved_by names who approved it. Returns post and said.",
     "status": "active",
     "maker": "maker:social-posts",
     "licence_class": "licence:maker-own",
@@ -4588,6 +4588,21 @@
      "placement:deployed-container"
     ],
     "folder": "calendar"
+   }
+  },
+  {
+   "id": "tool:read-how-ais-are-told",
+   "values": {
+    "title": "Read how AIs are told to act",
+    "job": "See the standing instructions every AI is given when it first connects, or read one of them whole",
+    "description": "Answers the rows an AI is told on first connecting: with no id, each row's id, order, whether it is on, where it reaches and its size; with an id, that row whole. It changes nothing; a person switches a row off or adds a rule of their own with their own setting records.",
+    "status": "active",
+    "maker": "maker:tell-ais-how-to-act",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "tell-ais-how-to-act"
    }
   },
   {
