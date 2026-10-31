@@ -1,0 +1,621 @@
+{
+ "kind": "tool-rows",
+ "record_set": "save-what-you-watch-and-read-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/save-what-you-watch-and-read: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::ai-tool-catalog::tool::read-my-saved-x-posts",
+   "address": "package::ai-tool-catalog::tool::read-my-saved-x-posts",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-my-saved-x-posts",
+    "label": "Read my saved X posts",
+    "job": "Read the posts I bookmarked or liked on X, newest first, with their full words, links and quoted posts",
+    "description": "Reads the posts the person bookmarked or liked on X through X's API with the access token of their connected X account, newest first: each post's full words, who wrote it, when, its pictures, every real link it carries (not the short t.co form) and the post it quotes. Give already_kept (post keys the person already has) to stop at the first posts they already have. It reads only: nothing is posted, liked, followed or changed on X, and the token is never shown. When X refuses (expired token, a plan or credits that do not allow the list, a limit), it says so and gives no empty list.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "which",
+      "account"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "account": {
+       "type": "string",
+       "description": "Which of the person's X connections to read with, by its id (service_connection:x, or service_connection:x:<account>)."
+      },
+      "which": {
+       "type": "string",
+       "enum": [
+        "bookmarks",
+        "likes"
+       ],
+       "description": "Which saved posts to read."
+      },
+      "already_kept": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Keys of posts the person already has; the read stops once several pages hold only those."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "which",
+      "read",
+      "posts"
+     ],
+     "properties": {
+      "which": {
+       "type": "string"
+      },
+      "via": {
+       "type": "string"
+      },
+      "pages": {
+       "type": "integer"
+      },
+      "read": {
+       "type": "integer"
+      },
+      "not_kept_yet": {
+       "type": "integer"
+      },
+      "posts": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "key",
+         "url",
+         "title"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "saved_from": {
+          "type": "string"
+         },
+         "saved_as": {
+          "type": "string"
+         },
+         "key": {
+          "type": "string"
+         },
+         "url": {
+          "type": "string"
+         },
+         "title": {
+          "type": "string"
+         },
+         "author": {
+          "type": "string"
+         },
+         "author_name": {
+          "type": "string"
+         },
+         "posted_at": {
+          "type": "string"
+         },
+         "media": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "links": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "quoted": {
+          "type": "object"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/opt/save-what-you-watch-and-read",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/save-what-you-watch-and-read/do-work/read-saved-x-posts.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": {
+       "package": "save-what-you-watch-and-read",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/save-what-you-watch-and-read"
+      }
+     },
+     "connection": {
+      "vendor": "x",
+      "from_input": "account"
+     },
+     "credential_mounts": [
+      {
+       "field_id": "access_token",
+       "fd": 3
+      }
+     ]
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "maker": "maker:save-what-you-watch-and-read",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ]
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:save-what-you-watch-and-read",
+    "id": "tool:read-my-saved-bookmarks-and-pins",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": false
+    },
+    "label": "Read my saved bookmarks and pins",
+    "job": "Read the bookmarks or pins a person saved on a social site (an export file of X bookmarks or Pinterest pins and boards) from a folder they chose, and give each saved item with its words, author and time, ready to be kept and found like anything else they read",
+    "description": "Runs on the person's computer over the folder they granted it to read, and reads only inside it. Give file (a path inside the folder). source is x-bookmarks or pinterest-saved; left out, the file is matched to a kind by what it looks like. sources_file is a file in the folder holding the person's own kinds of saved-items export ({ sources: [row] }): a kind is a row of field names, so a new site is a new row, not new code. descriptor holds the run's own choices (source_ref: what to call this source). mode all (the default) returns the whole export a page of atoms at a time (limit, cursor); threads returns the list of saved items, newest first. Each saved item is one thread with one atom: the atom has a stable atom_ref that does not change when its words are edited. Also returns rejections (one structured entry for each thing the export could not give) and next_cursor where there is more. Keeps nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "file"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "file": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The export, a path inside the granted folder"
+      },
+      "source": {
+       "type": "string",
+       "enum": [
+        "x-bookmarks",
+        "pinterest-saved"
+       ],
+       "description": "The kind of export; left out, matched by what the file looks like"
+      },
+      "sources_file": {
+       "type": "string",
+       "description": "A file in the folder holding the person's own kinds: { sources: [row] }"
+      },
+      "descriptor": {
+       "type": "object",
+       "description": "The run's own choices",
+       "properties": {
+        "source_ref": {
+         "type": "string",
+         "description": "What to call this source"
+        }
+       }
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "all",
+        "threads"
+       ]
+      },
+      "cursor": {
+       "type": [
+        "integer",
+        "string"
+       ],
+       "description": "Where the next page starts: the next_cursor of the answer before"
+      },
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 2000
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "source",
+      "mode",
+      "rejections"
+     ],
+     "properties": {
+      "source": {
+       "type": "string"
+      },
+      "source_ref": {
+       "type": "string"
+      },
+      "mode": {
+       "type": "string"
+      },
+      "threads": {
+       "type": "array"
+      },
+      "atoms": {
+       "type": "array"
+      },
+      "total_atoms": {
+       "type": "integer"
+      },
+      "total_threads": {
+       "type": "integer"
+      },
+      "rejections": {
+       "type": "array"
+      },
+      "next_cursor": {
+       "type": [
+        "integer",
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer",
+     "capabilities": [
+      "read-a-folder"
+     ],
+     "workdir": "/opt/save-what-you-watch-and-read",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "python3",
+      "/opt/conversations/read-data/decode_source.py",
+      {
+       "fill": {
+        "from": "task",
+        "field": "grants.read-a-folder.folder"
+       }
+      },
+      "--sources",
+      "/opt/save-what-you-watch-and-read/read-data/sources.json"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "conversations",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/conversations"
+       },
+       {
+        "package": "save-what-you-watch-and-read",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/save-what-you-watch-and-read"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:save-what-you-watch-and-read",
+    "id": "tool:observe-something-i-watched-or-read",
+    "placements": [
+     "placement:small-container"
+    ],
+    "needs": {
+     "expected_seconds": 1,
+     "network_egress": false
+    },
+    "label": "Observe something I watched or read",
+    "job": "Turn one thing a person watched, read, used or saved (a page they visited, words they selected, an app they spent a while in, a feed item) into one observation with a stable identity, so seeing the same thing again is recognised and a changed page is a new revision",
+    "description": "Give source_ref (what to call the source) and content (an object saying what was seen: url, text, title, app, window, whatever applies). Optional: native_ref (the item's own id; else its url, else the identity of its content), observed_at (ISO-8601 UTC; else now), metadata. Returns observation { id, source_ref, native_ref, observed_at, content_revision, payload } and said. A url adds its host and, where none was given, a title. content_revision is the BLAKE3 identity of the payload without the time, so the same words seen at another time are the same revision and the same id. Reads nothing and keeps nothing: hand the observation to whatever keeps the person's records.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "source_ref",
+      "content"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "source_ref": {
+       "type": "string",
+       "minLength": 1,
+       "description": "What to call this source"
+      },
+      "content": {
+       "type": "object",
+       "minProperties": 1,
+       "description": "What was seen: url, text, title, app, window, and so on"
+      },
+      "native_ref": {
+       "type": "string",
+       "description": "The item's own id"
+      },
+      "observed_at": {
+       "type": "string",
+       "description": "When it was seen, ISO-8601 UTC; left out, now"
+      },
+      "metadata": {
+       "description": "Anything to keep with the observation"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "observation",
+      "said"
+     ],
+     "properties": {
+      "said": {
+       "type": "string"
+      },
+      "observation": {
+       "type": "object",
+       "required": [
+        "id",
+        "source_ref",
+        "native_ref",
+        "observed_at",
+        "content_revision",
+        "payload"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "workdir": "/opt/save-what-you-watch-and-read",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "python3",
+      "/opt/save-what-you-watch-and-read/read-data/observe_activity.py"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "conversations",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/conversations"
+       },
+       {
+        "package": "save-what-you-watch-and-read",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/save-what-you-watch-and-read"
+       }
+      ]
+     }
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "source_ref": "source:pages",
+       "content": {
+        "url": "https://www.example.org/rye-bread",
+        "text": "Rye needs a long rise."
+       },
+       "observed_at": "2026-01-02T08:00:00Z"
+      },
+      "output_selector": "$.said",
+      "contains": "Observed https://www.example.org/rye-bread from source:pages"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:save-what-you-watch-and-read",
+    "id": "tool:find-new-or-changed-files",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": false
+    },
+    "label": "Find new or changed files",
+    "job": "Find the files under a folder the person chose that are new or have changed since the last look, matched by a pattern, without reading what they mean, so a folder of saved things can be followed",
+    "description": "Runs on the person's computer over the folder they granted it to read, and reads only inside it; a link that leads out of the folder is skipped and named in skipped, never followed. Give source_ref (what to call the source). glob is the pattern relative to the folder (default **/*); under narrows to a path inside it; account_prefix looks in each sub-folder whose name starts with it (under_account names a path inside each); include_kinds is file and/or directory. since is the next_since of the answer before: only entries whose state (modification time and size) changed are returned, so a re-run over an unchanged folder finds nothing. most (default 200, at most 5000) cuts newest first and more says there is more. with_hash true also gives each file its content identity (BLAKE3) up to hash_up_to_bytes. window (a number) instead returns the newest that-many files by name and size alone, opening no file. Returns observations { source_ref, native_ref (the path inside the folder), observed_at, state, content_hash, payload }, next_since, more and skipped. Writes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "source_ref"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "source_ref": {
+       "type": "string",
+       "minLength": 1,
+       "description": "What to call this source"
+      },
+      "glob": {
+       "type": "string",
+       "description": "A pattern inside the folder, like **/*.jsonl"
+      },
+      "under": {
+       "type": "string",
+       "description": "A path inside the folder to look in"
+      },
+      "account_prefix": {
+       "type": "string",
+       "description": "Look in each sub-folder whose name starts with this"
+      },
+      "under_account": {
+       "type": "string",
+       "description": "A path inside each account folder"
+      },
+      "include_kinds": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "enum": [
+         "file",
+         "directory"
+        ]
+       }
+      },
+      "since": {
+       "type": "object",
+       "description": "The next_since of the answer before"
+      },
+      "most": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 5000
+      },
+      "with_hash": {
+       "type": "boolean"
+      },
+      "hash_up_to_bytes": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "window": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 5000
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "source_ref",
+      "observations",
+      "more",
+      "skipped"
+     ],
+     "properties": {
+      "source_ref": {
+       "type": "string"
+      },
+      "observations": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "source_ref",
+         "native_ref",
+         "observed_at",
+         "state",
+         "payload"
+        ]
+       }
+      },
+      "next_since": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "more": {
+       "type": "boolean"
+      },
+      "skipped": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer",
+     "capabilities": [
+      "read-a-folder"
+     ],
+     "workdir": "/opt/save-what-you-watch-and-read",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "python3",
+      "/opt/save-what-you-watch-and-read/read-data/observe_files.py",
+      {
+       "fill": {
+        "from": "task",
+        "field": "grants.read-a-folder.folder"
+       }
+      }
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "conversations",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/conversations"
+       },
+       {
+        "package": "save-what-you-watch-and-read",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/save-what-you-watch-and-read"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}

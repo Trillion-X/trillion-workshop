@@ -1,0 +1,8 @@
+{
+  "public": [
+    "do-work/x-posts.mjs",
+    "read-data/observe_activity.py",
+    "read-data/observe_files.py",
+    "read-data/sources.json"
+  ]
+}
