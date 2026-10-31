@@ -363,6 +363,53 @@ export function globTest(glob) {
 }
 const unprefixed = (values, namespace) => Object.fromEntries(Object.entries(values).filter(([key]) => key.startsWith(`${namespace}.`)).map(([key, value]) => [key.slice(namespace.length + 1), value]));
 
+/** Resolve and validate the source's exact positive selection, without listing folders or reading document bodies.
+ * The metadata consumer may admit historical root-relative flat names explicitly; prefix groups always stay absolute.
+ */
+export async function documentSelection(files, source, { allow_relative_paths = false } = {}) {
+  const folder = sourceFolder(source);
+  if (source?.paths_file !== undefined) {
+    if (typeof source.paths_file !== 'string' || !source.paths_file.startsWith('/') || source.paths !== undefined) throw say('bad_input', { what: 'paths_file names one JSON positive catalogue under the granted root, instead of paths.' });
+    const entry = await files.entry(source.paths_file);
+    if (!entry || entry.folder) throw say('bad_input', { what: `The positive catalogue ${source.paths_file} is missing.` });
+    const read = await files.read(entry.identity, limits.bytes_per_document, source.paths_file);
+    if (!read.complete) throw say('bad_input', { what: `The positive catalogue ${source.paths_file} exceeds the existing ${limits.bytes_per_document}-byte document read bound.` });
+    if (read.identity !== entry.identity) throw say('document_changed', { document: source.paths_file, expected: entry.identity, current: read.identity });
+    let paths;
+    try { paths = JSON.parse(read.text); } catch { throw say('bad_input', { what: `The positive catalogue ${source.paths_file} is not JSON.` }); }
+    if (!Array.isArray(paths) && paths && typeof paths === 'object' && Array.isArray(paths.prefixes)) {
+      const expanded = [];
+      for (const group of paths.prefixes) {
+        const prefix = group?.prefix, names = group?.paths;
+        const segments = typeof prefix === 'string' ? prefix.slice(1).split('/') : [];
+        if (typeof prefix !== 'string' || !prefix.startsWith('/') || prefix === '/' || segments.some(part => !part || part === '.' || part === '..' || part.includes('\\')) ||
+            !Array.isArray(names) || names.some(name => typeof name !== 'string' || !name || name === '.' || name === '..' || name.includes('/') || name.includes('\\'))) {
+          throw say('bad_input', { what: `The positive catalogue ${source.paths_file} has an invalid prefix group.` });
+        }
+        expanded.push(...names.map(name => `${prefix}/${name}`));
+      }
+      paths = expanded;
+    }
+    source = { ...source, paths };
+  }
+  if (allow_relative_paths && Array.isArray(source?.paths)) {
+    source = { ...source, paths: source.paths.map(name => typeof name === 'string' && name && !name.startsWith('/') ? `/${name}` : name) };
+  }
+  const fits = globTest(source?.match);
+  if (source?.exclude !== undefined && (!Array.isArray(source.exclude) || source.exclude.some(pattern => typeof pattern !== 'string'))) throw say('bad_input', { what: 'exclude is an array of document-path glob strings.' });
+  const excluded = (source?.exclude ?? []).map(globTest);
+  if (source?.text_extensions !== undefined && (!Array.isArray(source.text_extensions) || source.text_extensions.some(extension => typeof extension !== 'string' || !/^[a-z0-9]*$/.test(extension)))) throw say('bad_input', { what: 'text_extensions is an array of lowercase text-file extensions for explicitly named paths; an empty string explicitly admits extensionless text files.' });
+  const explicitExtensions = new Set(source?.text_extensions ?? data.document_extensions);
+  if (source?.paths !== undefined && (!Array.isArray(source.paths) || source.paths.some(name => typeof name !== 'string' || !name.startsWith('/') ||
+      name.slice(1).split('/').some(part => !part || part === '.' || part === '..' || part.includes('\\')) ||
+      !explicitExtensions.has(extensionOf(name).toLowerCase()) || (folder !== '/' && !name.startsWith(`${folder}/`))))) throw say('bad_input', { what: 'paths is an array of exact document names under this source folder, with explicitly declared text extensions.' });
+  const paths = source?.paths?.filter(name => {
+    const relative = folder === '/' ? name.slice(1) : name.slice(folder.length + 1);
+    return fits(relative) && !excluded.some(test => test(relative));
+  });
+  return { ...source, of: folder, ...(paths !== undefined ? { paths: [...new Set(paths)].sort() } : {}) };
+}
+
 /**
  * The `documents` row source: rows read from the folder a list names (`of`), a page at a time, the kind of each value
  * it names (`fields`), and property changes written into the documents themselves (`write`).
@@ -370,39 +417,12 @@ const unprefixed = (values, namespace) => Object.fromEntries(Object.entries(valu
 export function documentRowSources({ files, evaluateBinding = null } = {}) {
   const read = async ({ source, limit = limits.page_rows, cursor = null, row_ids = null, backlinks = false }) => {
     if (!(Number.isInteger(limit) && limit >= 1 && limit <= limits.page_rows_most)) throw say('bad_page', { most: limits.page_rows_most });
+    source = await documentSelection(files, source);
     const folder = sourceFolder(source);
     const sidecar = await readDocumentTypes(files, folder);
-    if (source?.paths_file !== undefined) {
-      if (typeof source.paths_file !== 'string' || !source.paths_file.startsWith('/') || source.paths !== undefined) throw say('bad_input', { what: 'paths_file names one JSON positive catalogue under the granted root, instead of paths.' });
-      const entry = await files.entry(source.paths_file);
-      if (!entry || entry.folder) throw say('bad_input', { what: `The positive catalogue ${source.paths_file} is missing.` });
-      const read = await files.read(entry.identity, limits.bytes_per_document, source.paths_file);
-      if (!read.complete) throw say('bad_input', { what: `The positive catalogue ${source.paths_file} exceeds the existing ${limits.bytes_per_document}-byte document read bound.` });
-      if (read.identity !== entry.identity) throw say('document_changed', { document: source.paths_file, expected: entry.identity, current: read.identity });
-      let paths;
-      try { paths = JSON.parse(read.text); } catch { throw say('bad_input', { what: `The positive catalogue ${source.paths_file} is not JSON.` }); }
-      if (!Array.isArray(paths) && paths && typeof paths === 'object' && !Array.isArray(paths) && Array.isArray(paths.prefixes)) {
-        const expanded = [];
-        for (const group of paths.prefixes) {
-          const prefix = group?.prefix, names = group?.paths;
-          const segments = typeof prefix === 'string' ? prefix.slice(1).split('/') : [];
-          if (typeof prefix !== 'string' || !prefix.startsWith('/') || prefix === '/' || segments.some(part => !part || part === '.' || part === '..') ||
-              !Array.isArray(names) || names.some(name => typeof name !== 'string' || !name || name === '.' || name === '..' || name.includes('/') || name.includes('\\'))) {
-            throw say('bad_input', { what: `The positive catalogue ${source.paths_file} has an invalid prefix group.` });
-          }
-          expanded.push(...names.map(name => `${prefix}/${name}`));
-        }
-        paths = expanded;
-      }
-      source = { ...source, paths };
-    }
     // A source may keep only the documents whose path under its folder fits a glob (`match`, as */SKILL.md).
     const fits = globTest(source?.match);
-    if (source?.exclude !== undefined && (!Array.isArray(source.exclude) || source.exclude.some(pattern => typeof pattern !== 'string'))) throw say('bad_input', { what: 'exclude is an array of document-path glob strings.' });
     const excluded = (source?.exclude ?? []).map(globTest);
-    if (source?.text_extensions !== undefined && (!Array.isArray(source.text_extensions) || source.text_extensions.some(extension => typeof extension !== 'string' || !/^[a-z0-9]*$/.test(extension)))) throw say('bad_input', { what: 'text_extensions is an array of lowercase text-file extensions for explicitly named paths; an empty string explicitly admits extensionless text files.' });
-    const explicitExtensions = new Set(source?.text_extensions ?? data.document_extensions);
-    if (source?.paths !== undefined && (!Array.isArray(source.paths) || source.paths.some(name => typeof name !== 'string' || !name.startsWith('/') || !explicitExtensions.has(extensionOf(name).toLowerCase()) || (folder !== '/' && !name.startsWith(`${folder}/`))))) throw say('bad_input', { what: 'paths is an array of exact document names under this source folder, with explicitly declared text extensions.' });
     // An explicit catalogue reads only its named files, without walking unrelated folders. The files owner still
     // resolves and checks every name against the granted root, including symlinks.
     const everything = source?.paths ? [...new Set(source.paths)].sort().map(name => ({ name })) : await names(files, folder);

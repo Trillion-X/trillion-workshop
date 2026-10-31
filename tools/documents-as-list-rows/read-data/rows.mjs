@@ -16,7 +16,7 @@
 //   splitIntoDocuments({ root, mapping, out?, leftover?, check? }) → the split's report
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { documentRowSources, folderKey, say } from './document-properties.mjs';
+import { documentRowSources, documentSelection, folderKey, say } from './document-properties.mjs';
 import { folderFiles } from './folder-files.mjs';
 import { namespaceFiles } from './namespace-files.mjs';
 import { itemDocument, orderedIds, splitDocuments } from './split.mjs';
@@ -33,6 +33,13 @@ const needRoot = root => {
 // row bigger than the room is refused, never cut.
 export async function readDocumentRows({ root, ...page } = {}) {
   return pageOf(await folderFiles(needRoot(root)), page);
+}
+
+/** Resolve metadata selection through the same bounded catalogue parser as document rows. No folder listing or document body read. */
+export async function readDocumentSelection({ root, source = {}, allow_relative_paths = false } = {}) {
+  const selected = await documentSelection(await folderFiles(needRoot(root)), source, { allow_relative_paths });
+  return { folder: selected.of, match: selected.match ?? null, exclude: selected.exclude ?? [], paths: selected.paths ?? null,
+    paths_file: selected.paths_file ?? null };
 }
 
 // The same page over the person's Namespace files, through the run's records door (run-an-export.mjs hands `door`; the

@@ -23,7 +23,10 @@ Each row is one call of a function in `read-data/rows.mjs`. The granted folder i
 node do-work/documents.mjs rows  --root DIR [--folder SUB] [--match GLOB] [--after NAME] [--limit N] [--backlinks]
 node do-work/documents.mjs set   --root DIR --path /NAME --if-identity 1f:... [--set KEY=JSON ...] [--remove KEY ...]
 node do-work/documents.mjs split --root DIR --mapping FILE (--check | --out SUB --leftover SUB)
+node do-work/documents.mjs selection --root DIR --stdin < selection.json
 ```
+
+`selection` takes `{ "source": <documents row source> }` and returns its validated exact paths and metadata filters without listing a folder or reading any selected document body. It uses the same parser as row reads: flat `paths_file` arrays and `{ "prefixes": [{ "prefix": "/folder", "paths": ["name.md"] }] }` catalogues, the existing catalogue byte bound, root/folder and text-extension constraints, match and exclusion rules. Missing, malformed or changed catalogues refuse the operation. Metadata consumers of historical root-relative flat names can explicitly pass `allow_relative_paths: true`; row reads retain their absolute-path input contract.
 
 Each command prints one JSON answer. Exit codes:
 - 0: done
