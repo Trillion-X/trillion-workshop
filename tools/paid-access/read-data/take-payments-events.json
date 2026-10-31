@@ -1,0 +1,56 @@
+{
+  "what_this_is": "How the payment events tools/take-payments keeps (payment.confirmed, subscription.renewed, subscription.ended, payment.refunded) become effects and then access. Used when the person has written no access-effect-rule and no effect-lifecycle record of their own; a person's records replace it whole. It names the event kinds and attributes that tool writes, and no product, offer or price.",
+  "effect_rules": [
+    {
+      "rule_id": "payment-confirmed",
+      "relation": "payment.confirmed",
+      "required_attributes": ["provider_event_id"],
+      "effect_id_prefix": "payment-confirmed",
+      "effect_kind": "payment.confirmed",
+      "subject": { "from": "attribute", "key": "customer_email", "fallback": { "from": "attribute", "key": "provider_object_ref" } },
+      "object": { "from": "attribute", "key": "offer_id", "fallback": { "from": "attribute", "key": "provider_object_ref" } },
+      "material": { "include_attributes": true, "include_event_fields": ["event_id", "occurred_at"], "include_fact_fields": ["fact_id", "relation"] }
+    },
+    {
+      "rule_id": "subscription-renewed",
+      "relation": "subscription.renewed",
+      "required_attributes": ["provider_event_id"],
+      "effect_id_prefix": "subscription-renewed",
+      "effect_kind": "subscription.renewed",
+      "subject": { "from": "attribute", "key": "customer_email", "fallback": { "from": "attribute", "key": "provider_object_ref" } },
+      "object": { "from": "attribute", "key": "offer_id", "fallback": { "from": "attribute", "key": "provider_object_ref" } },
+      "material": { "include_attributes": true, "include_event_fields": ["event_id", "occurred_at"], "include_fact_fields": ["fact_id", "relation"] }
+    },
+    {
+      "rule_id": "subscription-ended",
+      "relation": "subscription.ended",
+      "required_attributes": ["provider_event_id"],
+      "effect_id_prefix": "subscription-ended",
+      "effect_kind": "subscription.ended",
+      "subject": { "from": "attribute", "key": "customer_email", "fallback": { "from": "attribute", "key": "provider_object_ref" } },
+      "object": { "from": "attribute", "key": "offer_id", "fallback": { "from": "attribute", "key": "provider_object_ref" } },
+      "material": { "include_attributes": true, "include_event_fields": ["event_id", "occurred_at"], "include_fact_fields": ["fact_id", "relation"] }
+    },
+    {
+      "rule_id": "payment-refunded",
+      "relation": "payment.refunded",
+      "required_attributes": ["provider_event_id"],
+      "effect_id_prefix": "payment-refunded",
+      "effect_kind": "payment.refunded",
+      "subject": { "from": "attribute", "key": "customer_email", "fallback": { "from": "attribute", "key": "provider_object_ref" } },
+      "object": { "from": "attribute", "key": "offer_id", "fallback": { "from": "attribute", "key": "provider_object_ref" } },
+      "material": { "include_attributes": true, "include_event_fields": ["event_id", "occurred_at"], "include_fact_fields": ["fact_id", "relation"] }
+    }
+  ],
+  "lifecycle": {
+    "id": "payment-events",
+    "comment": "One purchase is one episode, found by the first of episode_keys present on the effect; later effects on the same episode (a renewal, a cancellation, a refund) move that episode's state. Adding an effect kind is one transition row.",
+    "episode_keys": ["subscription_id", "payment_intent_ref", "episode_ref", "provider_object_ref"],
+    "transitions": [
+      { "effect_kind": "payment.confirmed", "to": "active", "when": { "attribute": "payment_status", "in": ["paid", "no_payment_required"] } },
+      { "effect_kind": "subscription.renewed", "to": "active" },
+      { "effect_kind": "subscription.ended", "to": "ended" },
+      { "effect_kind": "payment.refunded", "to": "ended" }
+    ]
+  }
+}
