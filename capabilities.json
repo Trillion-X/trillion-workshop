@@ -907,6 +907,19 @@
         {"job": "break a project into steps, owners and what blocks each", "why": "that job makes and tracks the steps of a project; this one takes steps that exist and says which doer covers each need, what it costs and whether the person must be asked"},
         {"job": "hand a request to the owner that answers it and keep the owner's receipt", "why": "that job routes one request to its owner and records the receipt; this one weighs every step of a plan against a list of doers before anything is asked of anyone"}
       ]
+    },
+    {
+      "capability": "show everything waiting on a person that only they can do, gathered from the places they keep it into one list of cards",
+      "owner": ["tools/what-is-waiting-on-me/"],
+      "entry": "tools/what-is-waiting-on-me/tool-rows.json",
+      "evidence": "README.md:3 merges the records that wait on one person, from the person's own list of sources, into cards newest first",
+      "distinct_from": [
+        {"job": "notify a person when their notification rules say so", "why": "that job decides whether and how to tell a person; this one only gathers what is waiting on them into a list and sends nothing"},
+        {"job": "read what the product told the person, in order", "why": "that job reads notices already sent; this one reads the records of each place that holds work for the person and keeps those whose tests say they still wait"},
+        {"job": "show everything a person's account runs on its own: each schedule and trigger, its last and next run, and a switch", "why": "that job lists what the account does by itself; this one lists what only the person can do, from records the person's own source rows name"},
+        {"job": "walk an app's user journeys in a real browser and keep evidence that people can still do what they came for", "why": "that job checks that an app works for its users and keeps pictures and video of each step; this one reads records and never opens an app"},
+        {"job": "hold a body of work as a tree: roll up what is really finished, add requested items, check the proof behind finished work", "why": "that job keeps one body of work's items; this one merges the waiting records of many unrelated places by rows the person writes"}
+      ]
     }
   ]
 }
