@@ -1,0 +1,211 @@
+{
+ "kind": "tool-rows",
+ "record_set": "take-me-there-tool-rows",
+ "what_this_is": "The Workshop row for the tool in tools/take-me-there: the screen, arrangement, walkthrough and notice that take a person to one thing waiting on them, returned as data.",
+ "records": [
+  {
+   "id": "package::take-me-there::tool::take-me-there",
+   "address": "package::take-me-there::tool::take-me-there",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:take-me-there",
+    "label": "Take me to the thing that needs me",
+    "status": "active",
+    "job": "Take a person to the thing that needs them: give the screen to open on one waiting card, the arrangement that puts it beside what the caller names, the walkthrough that points at the card's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places",
+    "description": "Give thing (a card id from the answer of tool:what-is-waiting-on-me, or a batch section's key, batch: and the section id), waiting (that answer: { sections: [{ cards }] } or { cards }, a card { id, source?, title?, action?, address?, points_at? }), screens (the caller's rows, { path_prefix, tool_id, route_input_from_query?: [names] }, one for each address path that opens a screen) and own_origins (the origins whose links open inside the person's own places). Answers { taken: false, said } when the thing is not waiting now or its link leads outside those origins or to no screen; otherwise { taken: true, screen: { tool_id, route_input }, arrangement (one pane, or a split with beside, its id the thing's key), tour (when steps are given: each step points at the card's own control, points_at filled with the item id, else a fallback selector; started by name, finished when the card's ids are completed), notice (when say is given), open (the address that opens the arrangement and tour), said }. It saves no arrangement or tour and sends no notice: whoever keeps those does that with what this returns.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "thing",
+      "waiting",
+      "screens"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "thing": {
+       "type": "string"
+      },
+      "waiting": {
+       "type": "object",
+       "description": "The answer of tool:what-is-waiting-on-me"
+      },
+      "screens": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "path_prefix",
+         "tool_id"
+        ],
+        "properties": {
+         "path_prefix": {
+          "type": "string"
+         },
+         "tool_id": {
+          "type": "string"
+         },
+         "route_input_from_query": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      },
+      "own_origins": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "beside": {
+       "type": "object",
+       "description": "An arrangement node to put next to the thing"
+      },
+      "name": {
+       "type": "string"
+      },
+      "category": {
+       "type": "string"
+      },
+      "say": {
+       "type": "object",
+       "required": [
+        "title"
+       ],
+       "properties": {
+        "title": {
+         "type": "string"
+        },
+        "body": {
+         "type": "string"
+        }
+       }
+      },
+      "steps": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "key": {
+       "type": "string"
+      },
+      "fallback_points_at": {
+       "type": "string"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "taken",
+      "said"
+     ],
+     "properties": {
+      "taken": {
+       "type": "boolean"
+      },
+      "screen": {
+       "type": "object"
+      },
+      "arrangement": {
+       "type": "object"
+      },
+      "tour": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "notice": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "open": {
+       "type": "string"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "take-me-there",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/take-me-there"
+      }
+     },
+     "workdir": "/opt/take-me-there",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/take-me-there.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:take-me-there",
+    "provenance": {
+     "source": "the app's take-me-there step, with the screens an address opens as the caller's own rows and the saving and sending left to their owners"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "thing": "sample-card",
+       "waiting": {
+        "cards": [
+         {
+          "id": "sample-card",
+          "title": "A made-up thing",
+          "address": "/sample/open?item=one"
+         }
+        ]
+       },
+       "screens": [
+        {
+         "path_prefix": "/sample",
+         "tool_id": "tool:sample-screen",
+         "route_input_from_query": [
+          "item"
+         ]
+        }
+       ]
+      },
+      "output_selector": "$.screen.tool_id",
+      "contains": "tool:sample-screen"
+     }
+    ]
+   }
+  }
+ ]
+}
