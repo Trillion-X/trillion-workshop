@@ -582,7 +582,8 @@ def fill(p, fills_doc, registry=None, root=None):
                 lead, _ = _edge_punct(run[0]["dims"][d])
                 _, trail = _edge_punct(run[-1]["dims"][d])
                 body = str(v) if v not in (None, "") else empty_text(p["slots"][sid])
-                text = lead + body + ("" if body.endswith(trail) else trail)
+                # A value that already carries the slot's edge punctuation ("$20,930" in a "$14,950" slot) keeps one copy.
+                text = ("" if body.startswith(lead) else lead) + body + ("" if body.endswith(trail) else trail)
             else:
                 text = v
             run[0]["dims"][d] = text
