@@ -96,8 +96,8 @@ function sourcesOf(list) {
     if (row.paths_file !== undefined && (typeof row.paths_file !== 'string' || !row.paths_file.trim())) {
       throw say('bad_list', 'Source paths_file must name a nonempty catalogue path.');
     }
-    if (row.text_extensions !== undefined && (!Array.isArray(row.text_extensions) || row.text_extensions.some(extension => typeof extension !== 'string' || !extension))) {
-      throw say('bad_list', 'Source text_extensions must be an array of nonempty extension strings.');
+    if (row.text_extensions !== undefined && (!Array.isArray(row.text_extensions) || row.text_extensions.some(extension => typeof extension !== 'string'))) {
+      throw say('bad_list', 'Source text_extensions must be an array of extension strings; an empty string explicitly names extensionless text files.');
     }
     return { ...row, id, served, values };
   });
