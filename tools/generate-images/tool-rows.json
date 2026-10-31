@@ -1,0 +1,55 @@
+{
+  "kind": "package-set-records",
+  "record_set": "generate-images-tool-rows",
+  "what_this_is": "The Workshop row for the generate-images folder: a script the person's AI runs on the person's own computer to make images from a prompt with a provider command the person names, and keep what it made.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:generate-images",
+        "label": "Make images from a prompt with a provider command (runs on your computer)",
+        "job": "Make a picture from a description in words, with the image model or program I choose, and keep the picture",
+        "description": "Takes a prompt and a provider command, which is any program that makes an image: a hosted model's caller (it keeps its own key in the person's environment) or a local model's program. The command reads the request and writes its answer, and the tool keeps each image it returns: an image returned inline is written to a file in the output folder, an image returned as a web address or a file path is named as it is. The result carries the prompt, the provider the command names, the format and every image's place. The provider and the model are the person's choice and are never in the code. With no provider command, or one that fails, is not found, times out or answers without an image, the result is an error that says which; nothing is ever made up. A small program that needs no account (placeholder_image_provider.py: one solid-colour picture per prompt) checks that the chain works before a real provider is wired in.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The request file on the person's computer, put where {input} is in the command: JSON with request_id, prompt, provider {argv with {request} and {output} where the file paths go, env_names, timeout_seconds}, options and requested_at."
+            },
+            "output": {
+              "type": "string",
+              "description": "The folder to keep the images in, put where {output} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": ...}. An image-generation.result {request_id, prompt, provider_ref, format, output_artifact_refs: [{path | url, media_type, byte_length}], src, completed_at}, or an image-generation.error {code, message, details}. Exit 0 for a result, 2 for an error."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 trillion-workshop/tools/generate-images/do-work/generate_images.py --request {input} --out {output}",
+          "needs": [
+            "python",
+            "a provider command: a program that makes an image from the request (a hosted model's caller with its key in the environment, or a local model's program)"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Ask which program makes their images (a hosted model's caller or a local model's program) and which environment variables it reads for its key; never ask for the key itself and never put a key in the request. Write the request file (request_id, prompt, provider.argv with {request} and {output} where the program reads the request and writes its answer, provider.env_names) and run `run` with that file in place of {input} and a new folder for {output}. Tell the person where each image is and what the result says. If the result is an error, say its code and message in plain words. To check the chain before a real provider is wired in, use provider.argv [\"python3\", \"trillion-workshop/tools/generate-images/do-work/placeholder_image_provider.py\", \"--request-json\", \"{request}\", \"--output-json\", \"{output}\"]: it makes one solid-colour picture and is not a real image model, so say so. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:generate-images",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages packages/image-generation: its provider-command contract and result and error shapes, with the old engine's records and content store left out"
+        }
+      }
+    }
+  ]
+}
