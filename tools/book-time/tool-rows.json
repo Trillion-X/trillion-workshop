@@ -1,0 +1,452 @@
+{
+  "kind": "tool-rows",
+  "record_set": "book-time-tool-rows",
+  "what_this_is": "The Workshop rows for tools/book-time: the times a person can be booked (their weekly windows minus what is already booked and what their calendar shows busy), booking one of those times as a record in their own records with a lifecycle, and putting, moving and cancelling the event on the person's own Google calendar with their own account, or making the invitation file for any mail client.",
+  "records": [
+    {
+      "id": "package::book-time::tool::find-open-times",
+      "address": "package::book-time::tool::find-open-times",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-open-times",
+        "label": "Find open times",
+        "status": "active",
+        "job": "Find the times someone can book with me, from my weekly hours, minus what is already booked and what my calendar shows busy",
+        "description": "Gives the open start times over one or more days, in the person's time zone. A time is open when it fits wholly inside a weekly window on that weekday, is not the start of a booking, does not overlap a busy interval (widened by the buffers before and after), and starts after the minimum notice. Bookings come from the list given and, when use_my_bookings is true, from the person's own booking records (a cancelled booking frees its time). Windows, lengths, buffers and notice are the person's own: nothing is assumed.",
+        "input_schema": {
+          "type": "object",
+          "required": ["timezone", "windows", "from_date", "duration_minutes"],
+          "additionalProperties": false,
+          "properties": {
+            "timezone": { "type": "string", "description": "The IANA zone the windows are written in, like \"America/Chicago\"" },
+            "windows": { "type": "array", "items": { "type": "object", "required": ["weekday", "start", "end"], "properties": { "weekday": { "type": "integer", "minimum": 0, "maximum": 6, "description": "0 is Sunday" }, "start": { "type": "string", "description": "HH:MM in the zone" }, "end": { "type": "string", "description": "HH:MM in the zone, up to 24:00" } } } },
+            "from_date": { "type": "string", "description": "The first day, YYYY-MM-DD in the zone" },
+            "days": { "type": "integer", "minimum": 1, "maximum": 62, "description": "How many days from from_date (1 when left out)" },
+            "duration_minutes": { "type": "integer", "minimum": 1 },
+            "step_minutes": { "type": "integer", "minimum": 1, "description": "Spacing between offered starts (the duration when left out)" },
+            "buffer_before_minutes": { "type": "integer", "minimum": 0 },
+            "buffer_after_minutes": { "type": "integer", "minimum": 0 },
+            "min_notice_minutes": { "type": "integer", "minimum": 0, "description": "A time must start this long after now" },
+            "taken": { "type": "array", "items": { "type": "string" }, "description": "Start instants already booked, like 2026-08-10T14:30:00Z" },
+            "busy": { "type": "array", "items": { "type": "object", "required": ["start", "end"], "properties": { "start": { "type": "string" }, "end": { "type": "string" } } }, "description": "Busy intervals (instants), like those tool:check-when-i-am-busy gives" },
+            "use_my_bookings": { "type": "boolean", "description": "Also treat the person's booking records as taken" },
+            "host_ref": { "type": "string", "description": "With use_my_bookings: only this host's bookings" },
+            "free_statuses": { "type": "array", "items": { "type": "string" }, "description": "Booking statuses that free their time (\"cancelled\" when left out)" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["timezone", "count", "slots"],
+          "properties": {
+            "timezone": { "type": "string" },
+            "count": { "type": "integer" },
+            "slots": { "type": "array", "items": { "type": "object", "required": ["start", "end", "date", "time"], "properties": { "start": { "type": "string" }, "end": { "type": "string" }, "date": { "type": "string" }, "time": { "type": "string" } } } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/book-time",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/book-time/do-work/book-time.mjs", "findOpenTimes"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "booking", "operations": ["records:list"] }] }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:book-time",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/derive-open-slots.ts" },
+        "verify": [{
+          "kind": "sample-run",
+          "input": { "timezone": "America/Chicago", "windows": [{ "weekday": 1, "start": "09:00", "end": "11:00" }], "from_date": "2026-08-10", "duration_minutes": 45, "step_minutes": 30 },
+          "output_selector": "$.slots[0].time",
+          "contains": "09:00"
+        }]
+      }
+    },
+    {
+      "id": "package::book-time::tool::request-a-booking",
+      "address": "package::book-time::tool::request-a-booking",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:request-a-booking",
+        "label": "Request a booking",
+        "status": "active",
+        "job": "Book someone into one of my open times and keep the booking",
+        "description": "Checks that the start asked for is an open time (same rules as tool:find-open-times, with the person's own booking records as taken), then keeps one booking record. It starts waiting for payment, waiting for the host to confirm, or booked, as the request says. The same idempotency_key answers the booking already kept and books nothing twice. A time that is not open is refused with the open times that day.",
+        "input_schema": {
+          "type": "object",
+          "required": ["idempotency_key", "start", "timezone", "windows", "duration_minutes"],
+          "additionalProperties": false,
+          "properties": {
+            "idempotency_key": { "type": "string" },
+            "start": { "type": "string", "description": "The start instant, like 2026-08-10T14:30:00Z" },
+            "timezone": { "type": "string" },
+            "windows": { "type": "array", "items": { "type": "object" }, "description": "The weekly windows, as in tool:find-open-times" },
+            "duration_minutes": { "type": "integer", "minimum": 1 },
+            "step_minutes": { "type": "integer", "minimum": 1 },
+            "buffer_before_minutes": { "type": "integer", "minimum": 0 },
+            "buffer_after_minutes": { "type": "integer", "minimum": 0 },
+            "min_notice_minutes": { "type": "integer", "minimum": 0 },
+            "busy": { "type": "array", "items": { "type": "object", "required": ["start", "end"] } },
+            "host_ref": { "type": "string" },
+            "booking_type": { "type": "string" },
+            "title": { "type": "string" },
+            "attendees": { "type": "array", "items": { "type": "object" }, "description": "Who is booked, like { name, email }" },
+            "needs_payment": { "type": "boolean", "description": "Start as waiting for payment" },
+            "needs_confirmation": { "type": "boolean", "description": "Start as waiting for the host to confirm" },
+            "free_statuses": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["already_requested", "booking"],
+          "properties": {
+            "already_requested": { "type": "boolean" },
+            "booking": { "type": "object", "required": ["id", "status", "scheduled_start", "scheduled_end"] }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/book-time",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/book-time/do-work/book-time.mjs", "requestABooking"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "booking", "operations": ["records:read", "records:list", "records:write"] }] }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:book-time",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/calendar-booker (request-booking action and booking-status contract), ported to the records door" },
+        "verify": [{ "kind": "output-number-within", "output_selector": "$.booking.attendees.length", "at_least": 0 }]
+      }
+    },
+    {
+      "id": "package::book-time::tool::change-a-booking-status",
+      "address": "package::book-time::tool::change-a-booking-status",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:change-a-booking-status",
+        "label": "Change a booking's status",
+        "status": "active",
+        "job": "Confirm, cancel, complete or mark a booking as a no-show, only in the ways a booking may move",
+        "description": "Moves one booking record to a new status: waiting bookings can be confirmed or cancelled, a confirmed one can be completed, marked no-show or cancelled, and a finished one never moves. A cancel keeps its time and reason. Asking for the status it already has changes nothing. A move that is not allowed is refused with the moves that are.",
+        "input_schema": {
+          "type": "object",
+          "required": ["booking_id", "to"],
+          "additionalProperties": false,
+          "properties": {
+            "booking_id": { "type": "string" },
+            "to": { "type": "string", "description": "The new status, like confirmed or cancelled" },
+            "reason": { "type": "string", "description": "Kept with a cancel" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["changed", "booking"],
+          "properties": {
+            "changed": { "type": "boolean" },
+            "booking": { "type": "object", "required": ["id", "status"] }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/book-time",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/book-time/do-work/book-time.mjs", "changeABookingStatus"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "booking", "operations": ["records:read", "records:write"] }] }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:book-time",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/calendar-booker booking-status state contract" },
+        "verify": [{ "kind": "output-contains-input", "output_selector": "$.booking.id", "input_field": "booking_id" }]
+      }
+    },
+    {
+      "id": "package::book-time::tool::check-when-i-am-busy",
+      "address": "package::book-time::tool::check-when-i-am-busy",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-when-i-am-busy",
+        "label": "Check when I am busy",
+        "status": "active",
+        "job": "Read when my own calendar shows me busy between two times",
+        "description": "Asks the person's own Google calendar when it is busy between two instants, with the person's own calendar account (the held value calendar-account). Answers the busy intervals, or unknown with the reason when the calendar cannot be read: unknown is never an empty free answer, so offer no times it guessed. Changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": ["from", "to"],
+          "additionalProperties": false,
+          "properties": {
+            "from": { "type": "string", "description": "Start instant, like 2026-08-10T00:00:00Z" },
+            "to": { "type": "string", "description": "End instant" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["status", "busy"],
+          "properties": {
+            "status": { "type": "string", "description": "read or unknown" },
+            "busy": { "type": "array", "items": { "type": "object", "required": ["start", "end"] } },
+            "error": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/book-time",
+          "internet": true,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/book-time/do-work/book-time.mjs", "checkWhenIAmBusy"],
+          "stdin": { "fill": { "from": "input" } },
+          "credential_mounts": [{ "secret_name": "calendar-account", "fd": 4 }]
+        },
+        "needs": { "expected_seconds": 10, "network_egress": true },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:book-time",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/external-calendar-busy-and-changes.ts" }
+      }
+    },
+    {
+      "id": "package::book-time::tool::put-a-booking-on-my-calendar",
+      "address": "package::book-time::tool::put-a-booking-on-my-calendar",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:put-a-booking-on-my-calendar",
+        "label": "Put a booking on my calendar",
+        "status": "active",
+        "job": "Make the event for a booking on my own calendar and invite the people booked",
+        "description": "Makes one event on the person's own Google calendar, with the person's own calendar account (the held value calendar-account), and has Google invite the attendees. A video call is made only when video_call_request_id is given, and is an error when Google made none. With booking_id, the event's id (and call link) is kept on that booking record. Answers created and the event's id and link, or error and why.",
+        "input_schema": {
+          "type": "object",
+          "required": ["title", "start_local", "end_local", "timezone"],
+          "additionalProperties": false,
+          "properties": {
+            "title": { "type": "string" },
+            "start_local": { "type": "string", "description": "Wall-clock start in the zone, like 2026-08-12T09:00" },
+            "end_local": { "type": "string" },
+            "timezone": { "type": "string" },
+            "attendees": { "type": "array", "items": { "type": "object", "required": ["email"], "properties": { "email": { "type": "string" }, "displayName": { "type": "string" } } } },
+            "description": { "type": "string" },
+            "location": { "type": "string" },
+            "reminder_minutes": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+            "video_call_request_id": { "type": "string", "description": "Ask for a video call; the same id asks for the same call" },
+            "booking_id": { "type": "string", "description": "Keep the event's id on this booking record" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": { "type": "string", "description": "created or error" },
+            "external_event_id": { "type": "string" },
+            "html_link": { "type": "string" },
+            "video_link": { "type": "string" },
+            "error": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/book-time",
+          "internet": true,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/book-time/do-work/book-time.mjs", "putABookingOnMyCalendar"],
+          "stdin": { "fill": { "from": "input" } },
+          "credential_mounts": [{ "secret_name": "calendar-account", "fd": 4 }],
+          "records": { "fd": 3, "rights": [{ "kind": "booking", "operations": ["records:read", "records:write"] }] }
+        },
+        "needs": { "expected_seconds": 10, "network_egress": true },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:book-time",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/create-external-calendar-event.ts" }
+      }
+    },
+    {
+      "id": "package::book-time::tool::move-a-booking-on-my-calendar",
+      "address": "package::book-time::tool::move-a-booking-on-my-calendar",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:move-a-booking-on-my-calendar",
+        "label": "Move a booking on my calendar",
+        "status": "active",
+        "job": "Move a booking's event on my own calendar to a new time",
+        "description": "Moves one event on the person's own Google calendar to a new start and end, with the person's own calendar account (the held value calendar-account); Google tells the attendees. Answers changed, or error and why.",
+        "input_schema": {
+          "type": "object",
+          "required": ["event_id", "start", "end"],
+          "additionalProperties": false,
+          "properties": {
+            "event_id": { "type": "string", "description": "The event's id, as tool:put-a-booking-on-my-calendar gave it" },
+            "start": { "type": "string", "description": "New start instant" },
+            "end": { "type": "string", "description": "New end instant" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["status"],
+          "properties": { "status": { "type": "string", "description": "changed or error" }, "error": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/book-time",
+          "internet": true,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/book-time/do-work/book-time.mjs", "moveABookingOnMyCalendar"],
+          "stdin": { "fill": { "from": "input" } },
+          "credential_mounts": [{ "secret_name": "calendar-account", "fd": 4 }]
+        },
+        "needs": { "expected_seconds": 10, "network_egress": true },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:book-time",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/external-calendar-busy-and-changes.ts" }
+      }
+    },
+    {
+      "id": "package::book-time::tool::cancel-a-booking-on-my-calendar",
+      "address": "package::book-time::tool::cancel-a-booking-on-my-calendar",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:cancel-a-booking-on-my-calendar",
+        "label": "Cancel a booking on my calendar",
+        "status": "active",
+        "job": "Remove a booking's event from my own calendar",
+        "description": "Deletes one event from the person's own Google calendar, with the person's own calendar account (the held value calendar-account); Google tells the attendees. An event already gone counts as cancelled. Answers changed, or error and why.",
+        "input_schema": {
+          "type": "object",
+          "required": ["event_id"],
+          "additionalProperties": false,
+          "properties": { "event_id": { "type": "string" } }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["status"],
+          "properties": { "status": { "type": "string", "description": "changed or error" }, "error": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/book-time",
+          "internet": true,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/book-time/do-work/book-time.mjs", "cancelABookingOnMyCalendar"],
+          "stdin": { "fill": { "from": "input" } },
+          "credential_mounts": [{ "secret_name": "calendar-account", "fd": 4 }]
+        },
+        "needs": { "expected_seconds": 10, "network_egress": true },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:book-time",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/external-calendar-busy-and-changes.ts" }
+      }
+    },
+    {
+      "id": "package::book-time::tool::make-a-calendar-invite",
+      "address": "package::book-time::tool::make-a-calendar-invite",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-calendar-invite",
+        "label": "Make a calendar invite",
+        "status": "active",
+        "job": "Make an invitation file that any mail client turns into a calendar event, or into a cancellation",
+        "description": "Writes a standard calendar file (.ics): a request that creates or updates an event, or a cancel that removes it. The host is the organizer, so the host's own calendar shows it, and everyone else is an attendee. The same uid with a higher sequence updates the event. Times are instants, written in UTC. It sends nothing: attach the text to a message.",
+        "input_schema": {
+          "type": "object",
+          "required": ["uid", "start", "end", "summary", "organizer"],
+          "additionalProperties": false,
+          "properties": {
+            "uid": { "type": "string", "description": "The event's own id; keep it for updates and the cancel" },
+            "start": { "type": "string", "description": "Start instant" },
+            "end": { "type": "string", "description": "End instant" },
+            "summary": { "type": "string" },
+            "description": { "type": "string" },
+            "location": { "type": "string" },
+            "organizer": { "type": "object", "required": ["email"], "properties": { "name": { "type": "string" }, "email": { "type": "string" } } },
+            "attendees": { "type": "array", "items": { "type": "object", "required": ["email"], "properties": { "name": { "type": "string" }, "email": { "type": "string" } } } },
+            "method": { "type": "string", "description": "REQUEST (the default) or CANCEL" },
+            "sequence": { "type": "integer", "minimum": 0, "description": "Raise it for every change to the same uid" },
+            "reminder_minutes": { "type": "array", "items": { "type": "integer", "minimum": 0 } }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["filename", "text"],
+          "properties": { "filename": { "type": "string" }, "text": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "book-time", "paths": ["do-work", "read-data"], "at": "/opt/book-time" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/book-time",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/book-time/do-work/book-time.mjs", "makeACalendarInvite"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:book-time",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/calendar-booker do-work/calendar-invite-file.ts" },
+        "verify": [{
+          "kind": "sample-run",
+          "input": { "uid": "booking-1", "start": "2026-08-12T15:00:00Z", "end": "2026-08-12T15:30:00Z", "summary": "Intro call", "organizer": { "email": "host@example.test" } },
+          "output_selector": "$.text",
+          "contains": "BEGIN:VCALENDAR"
+        }]
+      }
+    }
+  ]
+}
