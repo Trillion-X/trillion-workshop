@@ -1,0 +1,7 @@
+{
+  "schema": "trillion.markdown-conversion",
+  "about": "How a page this service draws becomes Markdown for an agent that asked for it: the element names dropped with everything inside, and the ones that end a paragraph.",
+  "drop": ["script", "style", "noscript", "template", "svg", "button", "form"],
+  "paragraph_breaks": ["p", "div", "section", "ul", "ol", "blockquote", "article", "aside", "header", "footer", "nav", "table", "tr", "br"],
+  "landmark": "main"
+}

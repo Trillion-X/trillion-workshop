@@ -1,0 +1,221 @@
+{
+  "about": "A workflow every account can find and run: read every page in a site's sitemap the way a search or answer engine does, fix what each page and the site leave out so the pages can be read and quoted, have the person approve and publish, then measure where the site shows up in Google, Google AI Mode, ChatGPT, Claude, Gemini and Perplexity answers. One workflow-recipe row in the shape of the shared recipe shelf (job, input_schema, ordered steps, each with do, submit and checks).",
+  "records": [
+    {
+      "id": "get-found-in-search-and-answer-engines",
+      "address": "workflow-recipe:get-found-in-search-and-answer-engines",
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:get-found-in-search-and-answer-engines",
+        "label": "Get found in search and answer engines",
+        "job": "For the person's own site: list every page in its sitemap, check each page with tool:check-a-page-for-search-and-answer-engines (readable text in the served HTML, one clear definition in the first words, structured data, a canonical address, published and updated dates, robots rules that let the answer-engine crawlers in, working links), fix what is missing on each page and across the site (a robots.txt that names the answer-engine crawlers, an llms.txt that lists every page and tool, Markdown when a reader asks for it), show the person the exact changes to approve and publish, check the changed pages again, then ask Google, Google AI Mode, ChatGPT, Claude, Gemini and Perplexity the questions the person's readers ask and record which answers name or cite the site. The AI never publishes by itself.",
+        "produces": "A dated before-and-after of every page's score and of which engines name the site for which questions, which can become a 'what changed and what it did' post.",
+        "source": {
+          "from": "the served-HTML check rows in tools/ai-readiness/read-data/ai-readiness-checks.json, each naming where it came from",
+          "name": "Answer engines read the HTML a page is served with; measure the result in the engines' own answers",
+          "note": "Not adopted: writing pages for engines instead of readers, or asking an engine the same question many times to push a page up. The check rows are the person's to change; the tool takes its own rows as input. tools/workflows/recipes/keep-pages-cited-by-answer-engines.json is the companion that keeps the facts on cited pages fresh."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["site", "questions", "engines"],
+          "properties": {
+            "site": {"type": "string", "minLength": 8, "description": "The address of the person's own site, for example the home page; its sitemap is read from /sitemap.xml or from the Sitemap line of its robots.txt"},
+            "questions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 5},
+              "description": "The questions a reader asks that the site should answer, in the reader's words"
+            },
+            "engines": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 2},
+              "description": "The engines to measure, for example Google, Google AI Mode, ChatGPT, Claude, Gemini and Perplexity"
+            },
+            "check_rows": {"type": "array", "items": {"type": "object"}, "description": "The person's own check rows, as tool:check-a-page-for-search-and-answer-engines takes them, if they want different checks from the shipped ones"}
+          }
+        },
+        "steps": [
+          {
+            "id": "list-pages",
+            "title": "List every page in the site's sitemap",
+            "do": "Call tool:read-public-web-page with { \"url\": <the input site's origin followed by /sitemap.xml> }. If it answers nothing readable, call it on <origin>/robots.txt, find the line that starts Sitemap:, and call it on that address. Follow a sitemap index to each sitemap it lists. List every page address on the site's own host, once each, and the sitemap address you read. If the site has no sitemap, list the home page and every page it links to on its own host, and say so.",
+            "submit": {
+              "type": "object",
+              "required": ["sitemap", "pages"],
+              "properties": {
+                "sitemap": {"type": "string", "description": "The sitemap address read, or none"},
+                "pages": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 8}}
+              }
+            },
+            "checks": [
+              {"kind": "distinct-at-least", "path": ["this", "pages"], "count": 1, "says": "At least one page was found"}
+            ]
+          },
+          {
+            "id": "check-pages",
+            "title": "Check every page the way an engine reads it",
+            "do": "For each page in the list-pages step call tool:check-a-page-for-search-and-answer-engines with { \"url\": <the page> }, and add \"checks\": <the input check_rows> when the person gave any. Keep, for each page, its score, the id and the fix of every missing check, its suggestions and what was not checked. A page that asks not to be indexed has no score: record it with indexable false and leave it out of the fixes. A page that answers an error is recorded with the error and no score.",
+            "submit": {
+              "type": "object",
+              "required": ["date", "results"],
+              "properties": {
+                "date": {"type": "string", "format": "date"},
+                "results": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["page"],
+                    "properties": {
+                      "page": {"type": "string"},
+                      "indexable": {"type": "boolean"},
+                      "score": {"type": ["integer", "null"]},
+                      "missing": {"type": "array", "items": {"type": "object", "required": ["id", "fix"], "properties": {"id": {"type": "string"}, "fix": {"type": "string"}}}},
+                      "suggestions": {"type": "array", "items": {"type": "object"}},
+                      "not_checked": {"type": "array", "items": {"type": "string"}},
+                      "error": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "results", "*", "page"], "of": ["steps", "list-pages", "pages", "*"], "says": "Every page in the sitemap was checked"},
+              {"kind": "subset-of", "path": ["this", "results", "*", "page"], "of": ["steps", "list-pages", "pages", "*"], "says": "Only pages of the site were checked"}
+            ]
+          },
+          {
+            "id": "fix-site",
+            "title": "Fix what the whole site leaves out",
+            "do": "Read the site's /robots.txt and /llms.txt with tool:read-public-web-page. Write, as exact file text for the person to publish: a robots.txt that keeps every rule the site already has and lets the answer-engine crawlers in by name where a check found them kept out; an llms.txt in the form the llmstxt.org proposal describes, with one line for the site, then every page in the list-pages step and every tool the site offers, each with its address and one plain sentence; and, when the site's server can answer a request that asks for text/markdown, the rule that makes it answer Markdown for HTML pages and add Vary: Accept (tools/ai-readiness/do-work/negotiate-markdown.mjs is the working code). Say for each file whether the site already has it and what changed. Never remove a rule the site already has.",
+            "submit": {
+              "type": "object",
+              "required": ["files"],
+              "properties": {
+                "files": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["path", "exists", "text"],
+                    "properties": {
+                      "path": {"type": "string", "enum": ["/robots.txt", "/llms.txt", "markdown-on-request"]},
+                      "exists": {"type": "boolean"},
+                      "text": {"type": "string", "minLength": 5}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "files", "*", "path"], "values": ["/robots.txt", "/llms.txt"], "says": "Both files are written"},
+              {"kind": "mentioned-in", "path": ["steps", "list-pages", "pages", "*"], "in": ["this", "files", "*", "text"], "says": "llms.txt lists every page"}
+            ]
+          },
+          {
+            "id": "fix-pages",
+            "title": "Fix each page's missing checks, worst page first",
+            "do": "Take the pages in the check-pages step from the lowest score up. For each missing check on each page write the exact change the check's fix asks for, in the page's own words: the sentence or heading to add or change and where it goes, the structured data to add, the canonical address, the dates as visible text and as machine-readable dates, the text a script would otherwise draw written into the served HTML. Put one clear definition of what the page is, and who it is for, in its first words. Never invent a fact, a date, a rating or a price: a change that needs a fact you do not have is listed as needing the person. List each change with the check it answers.",
+            "submit": {
+              "type": "object",
+              "required": ["changes"],
+              "properties": {
+                "changes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["page", "check", "change"],
+                    "properties": {
+                      "page": {"type": "string"},
+                      "check": {"type": "string"},
+                      "change": {"type": "string", "minLength": 5},
+                      "needs_person": {"type": "boolean"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "changes", "*", "page"], "of": ["steps", "check-pages", "results", "*", "page"], "says": "Only checked pages are changed"},
+              {"kind": "subset-of", "path": ["this", "changes", "*", "check"], "of": ["steps", "check-pages", "results", "*", "missing", "*", "id"], "says": "Every change answers a check that was found missing"}
+            ]
+          },
+          {
+            "id": "approve-and-publish",
+            "title": "The person approves the exact changes and publishes them",
+            "do": "Show the person, in the chat, each file from the fix-site step and each page's changes from the fix-pages step, with the changes that need their facts first. Ask for each page and file: \"Do you approve this exactly as shown?\" Wait; change only what they ask and show it again. Then tell them to publish the approved changes on their own site (the AI never publishes) and ask them to say when each is live. Check every changed page again with tool:check-a-page-for-search-and-answer-engines and record its score now next to its score before.",
+            "submit": {
+              "type": "object",
+              "required": ["published"],
+              "properties": {
+                "published": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["page", "approved", "live"],
+                    "properties": {
+                      "page": {"type": "string"},
+                      "approved": {"type": "boolean"},
+                      "live": {"type": "boolean"},
+                      "score_before": {"type": ["integer", "null"]},
+                      "score_now": {"type": ["integer", "null"]}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "published", "*", "page"], "of": ["steps", "check-pages", "results", "*", "page"], "says": "Only checked pages are published"}
+            ]
+          },
+          {
+            "id": "measure",
+            "title": "Measure where the site shows up in the engines' answers",
+            "do": "Use the search or AI-visibility service the person has connected to their account, if they have one: ask it, for each input question and each engine (the input engines, else Google, Google AI Mode, ChatGPT, Claude, Gemini and Perplexity), whether the answer names the site and which of the site's addresses it cites. Record the service you used. If they have none connected, say so and ask each engine directly with tool:read-a-page-in-my-browser on its own search address with the question in it, wait until the answer has finished writing, and copy the answer's cited addresses; an engine that cannot be read is recorded as not measured, never as absent. A site counts as cited only when a cited address is on its host; a mention of its name alone is recorded as named, not cited. Record today's date in the person's time zone.",
+            "submit": {
+              "type": "object",
+              "required": ["date", "service", "answers"],
+              "properties": {
+                "date": {"type": "string", "format": "date"},
+                "service": {"type": "string", "minLength": 2, "description": "The connected service used, or the engines' own pages"},
+                "answers": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["question", "engine", "measured"],
+                    "properties": {
+                      "question": {"type": "string"},
+                      "engine": {"type": "string"},
+                      "measured": {"type": "boolean"},
+                      "named": {"type": "boolean"},
+                      "cited": {"type": "boolean"},
+                      "cited_addresses": {"type": "array", "items": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "answers", "*", "question"], "of": ["input", "questions", "*"], "says": "Every question was asked"},
+              {"kind": "covers", "path": ["this", "answers", "*", "engine"], "of": ["input", "engines", "*"], "says": "Every engine the person named was asked"}
+            ]
+          },
+          {
+            "id": "record",
+            "title": "Record the scores and where the site shows up",
+            "do": "Write one record to the person's own records with their record write: { \"kind\": \"search-visibility\", \"date\": <the measure step's date>, \"scores\": <each page with its score before and now>, \"answers\": <the measure step's answers> }, so the next run can compare. If an earlier search-visibility record exists, read it first and list each page whose score and each question whose result changed since then. Call tool:tell-the-person with the pages fixed and their scores, the questions and engines where the site is named or cited now and before, what still needs the person's facts, and the date the person wants to run this again.",
+            "submit": {
+              "type": "object",
+              "required": ["record_id", "told"],
+              "properties": {
+                "record_id": {"type": "string", "minLength": 3},
+                "told": {"type": "boolean", "const": true}
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

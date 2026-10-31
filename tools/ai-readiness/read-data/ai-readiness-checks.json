@@ -1,0 +1,899 @@
+{
+  "schema": "trillion.ai-readiness-checks",
+  "about": "What an answer engine can read from a page's served HTML (no scripts run). Each row is one check; the engine in do-work/audit-served-html.mjs reads the rows and holds no check of its own. A row with `scored: false` is a suggestion that never changes the score. `from` names where the check came from: Rob Hoffman's 11 optimisations (@RobHoffman_) or the inboundengineer.io AI Search Checklist item. A row's `skip_when` names the pages it does not apply to: a page with a password field is a form to fill in, not an article.",
+  "limits": {
+    "most_examples": 3,
+    "most_links_asked": 25,
+    "example_characters": 90
+  },
+  "areas": {
+    "accessibility": "Reads without a picture or a script",
+    "facts": "Facts a reader can quote",
+    "structure": "Structure a machine can follow",
+    "freshness": "Dates and freshness",
+    "discovery": "Crawlers and links",
+    "trust": "Proof and people"
+  },
+  "checks": [
+    {
+      "id": "icon-buttons-named",
+      "area": "accessibility",
+      "from": [
+        "Rob Hoffman 1"
+      ],
+      "says": "Every button and link has a name",
+      "fix": "Give each icon button an aria-label or visible words.",
+      "check": {
+        "elements": [
+          {
+            "tags": [
+              "button"
+            ]
+          },
+          {
+            "tags": [
+              "a"
+            ],
+            "attr_present": [
+              "href"
+            ]
+          },
+          {
+            "attr_matches": {
+              "role": "^button$"
+            }
+          }
+        ],
+        "each": {
+          "named": true
+        }
+      }
+    },
+    {
+      "id": "fields-labelled",
+      "area": "accessibility",
+      "from": [
+        "Rob Hoffman 1"
+      ],
+      "says": "Every form field has a label",
+      "fix": "Put a label for the field, or an aria-label, on every input, select and textarea.",
+      "check": {
+        "elements": {
+          "tags": [
+            "input",
+            "select",
+            "textarea"
+          ],
+          "attr_absent_values": {
+            "type": "^(hidden|submit|button|reset|image)$"
+          }
+        },
+        "each": {
+          "labelled": true
+        }
+      }
+    },
+    {
+      "id": "images-have-alt",
+      "area": "accessibility",
+      "from": [
+        "Rob Hoffman 1",
+        "inboundengineer: Screenshots and/or unique images"
+      ],
+      "says": "Every image has real alt text (empty only when it is decoration)",
+      "fix": "Say what the picture shows in its alt text; use alt=\"\" only for decoration.",
+      "check": {
+        "elements": {
+          "tags": [
+            "img"
+          ]
+        },
+        "each": {
+          "attr_present": "alt",
+          "attr_not_matches": {
+            "alt": "(\\.(png|jpe?g|gif|svg|webp|avif)$)|^(image|img|photo|picture|screenshot)[ _-]?\\d*$"
+          }
+        }
+      }
+    },
+    {
+      "id": "context-not-only-in-images",
+      "area": "accessibility",
+      "from": [
+        "Rob Hoffman 1"
+      ],
+      "says": "Testimonials and key facts are not only in pictures",
+      "fix": "Write the quote or the fact as text beside the picture.",
+      "check": {
+        "elements": {
+          "tags": [
+            "img"
+          ],
+          "attr_matches": {
+            "alt|src": "testimonial|review|quote|pricing|price-table"
+          }
+        },
+        "count": {
+          "max": 0
+        }
+      }
+    },
+    {
+      "id": "facts-in-served-html",
+      "area": "facts",
+      "from": [
+        "Rob Hoffman 2"
+      ],
+      "says": "The page's words are in the HTML it is served with, not added by a script",
+      "fix": "Draw the page's text on the server; a script may add to it, never be the only source.",
+      "check": {
+        "words": {
+          "min": 40
+        }
+      }
+    },
+    {
+      "id": "first-h2-is-the-question",
+      "area": "structure",
+      "from": [
+        "Rob Hoffman 3",
+        "inboundengineer: Question-based headers"
+      ],
+      "says": "The first H2 is the reader's main question",
+      "fix": "Make the first H2 the question the reader came with, ending in a question mark.",
+      "applies_when": {
+        "words": {
+          "min": 150
+        }
+      },
+      "check": {
+        "elements": {
+          "tags": [
+            "h2"
+          ],
+          "within_main": true
+        },
+        "nth": 0,
+        "each": {
+          "text_pattern": "\\?\\s*$|^(what|why|how|when|where|who|which|can|do|does|is|are|should)\\b"
+        },
+        "count": {
+          "min": 1
+        }
+      },
+      "skip_when": {
+        "elements": {
+          "tags": [
+            "input"
+          ],
+          "attr_matches": {
+            "type": "^password$"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "short-answer-after-first-h2",
+      "area": "structure",
+      "from": [
+        "Rob Hoffman 4",
+        "inboundengineer: Direct answer within the first 100-150 words"
+      ],
+      "says": "The answer under the first H2 is 100 words or fewer",
+      "fix": "Open the first section with a plain answer, \"it depends\" included, in 100 words or fewer.",
+      "applies_when": {
+        "words": {
+          "min": 150
+        }
+      },
+      "check": {
+        "elements": {
+          "tags": [
+            "h2"
+          ],
+          "within_main": true
+        },
+        "nth": 0,
+        "each": {
+          "following_paragraph_words": {
+            "min": 1,
+            "max": 100
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      },
+      "skip_when": {
+        "elements": {
+          "tags": [
+            "input"
+          ],
+          "attr_matches": {
+            "type": "^password$"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "says-what-it-is",
+      "area": "facts",
+      "from": [
+        "Rob Hoffman 5",
+        "inboundengineer: Core topic defined in plain language"
+      ],
+      "says": "The page defines what the thing is",
+      "fix": "Write one sentence: \"<Name> is a <kind of thing> that <does what>.\"",
+      "applies_when": {
+        "words": {
+          "min": 150
+        }
+      },
+      "check": {
+        "text": {
+          "first_words": 200,
+          "pattern": "\\b[A-Z][\\w.-]*(?: [\\w.-]+){0,3} (?:is|are) (?:a|an|the|your|one)\\b",
+          "min_matches": 1
+        }
+      },
+      "skip_when": {
+        "elements": {
+          "tags": [
+            "input"
+          ],
+          "attr_matches": {
+            "type": "^password$"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "says-who-it-is-for",
+      "area": "facts",
+      "from": [
+        "Rob Hoffman 5",
+        "inboundengineer: Obvious who the page is for"
+      ],
+      "says": "The page says who it is for",
+      "fix": "Name the person it is for: \"for <people> who <need>\".",
+      "applies_when": {
+        "words": {
+          "min": 150
+        }
+      },
+      "check": {
+        "text": {
+          "first_words": 300,
+          "pattern": "\\b(?:for|built for|made for|designed for|helps?|lets?) (?:people|teams?|founders?|developers?|anyone|everyone|owners?|businesses|customers?|creators?|students?|you|your|[a-z]+s)\\b",
+          "flags": "i",
+          "min_matches": 1
+        }
+      },
+      "skip_when": {
+        "elements": {
+          "tags": [
+            "input"
+          ],
+          "attr_matches": {
+            "type": "^password$"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "testimonials-are-text",
+      "area": "trust",
+      "from": [
+        "Rob Hoffman 6",
+        "inboundengineer: Customer reviews (direct quotes)"
+      ],
+      "says": "A testimonial on the page is a quote in text",
+      "fix": "Put the customer's words in a blockquote with their name.",
+      "applies_when": {
+        "elements": {
+          "tags": [
+            "img",
+            "div",
+            "section"
+          ],
+          "attr_matches": {
+            "class|id|alt": "(?:^|[\\s_-])(?:testimonial|review)s?(?:$|[\\s_-])"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      },
+      "check": {
+        "elements": {
+          "tags": [
+            "blockquote",
+            "q"
+          ]
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "as-of-dates",
+      "area": "freshness",
+      "from": [
+        "Rob Hoffman 7",
+        "inboundengineer: Visible \"last updated\" date"
+      ],
+      "says": "Key facts say \"as of\" a date",
+      "fix": "Write \"as of <date>\" beside prices, counts and other facts that change.",
+      "applies_when": {
+        "words": {
+          "min": 150
+        }
+      },
+      "check": {
+        "text": {
+          "pattern": "\\b(?:as of|updated|last updated|reviewed|checked)\\b[^.]{0,30}\\b(?:20\\d\\d|jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\b",
+          "flags": "i",
+          "min_matches": 1
+        }
+      },
+      "skip_when": {
+        "elements": {
+          "tags": [
+            "input"
+          ],
+          "attr_matches": {
+            "type": "^password$"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "robots-allows-meta-webindexer",
+      "area": "discovery",
+      "from": [
+        "Rob Hoffman 8"
+      ],
+      "says": "robots.txt lets meta-webindexer in",
+      "fix": "Allow the meta-webindexer user agent in robots.txt.",
+      "check": {
+        "robots": {
+          "agent": "meta-webindexer",
+          "path": "/"
+        }
+      }
+    },
+    {
+      "id": "no-broken-links",
+      "area": "discovery",
+      "from": [
+        "Rob Hoffman 9"
+      ],
+      "says": "No link on the page is broken",
+      "fix": "Fix or remove each link that does not answer.",
+      "check": {
+        "links": {
+          "resolve": true
+        }
+      }
+    },
+    {
+      "id": "one-main",
+      "area": "structure",
+      "from": [
+        "Rob Hoffman 10"
+      ],
+      "says": "The page has one main landmark",
+      "fix": "Wrap the page's own content in one <main>.",
+      "check": {
+        "elements": {
+          "tags": [
+            "main"
+          ]
+        },
+        "count": {
+          "min": 1,
+          "max": 1
+        }
+      }
+    },
+    {
+      "id": "one-h1",
+      "area": "structure",
+      "from": [
+        "Rob Hoffman 10"
+      ],
+      "says": "The page has one H1",
+      "fix": "Use one <h1> for the page's name.",
+      "check": {
+        "elements": {
+          "tags": [
+            "h1"
+          ]
+        },
+        "count": {
+          "min": 1,
+          "max": 1
+        }
+      }
+    },
+    {
+      "id": "headings-in-order",
+      "area": "structure",
+      "from": [
+        "Rob Hoffman 10"
+      ],
+      "says": "Headings go down one level at a time",
+      "fix": "Do not jump from an H2 to an H4; step down one level.",
+      "check": {
+        "headings_in_order": true
+      }
+    },
+    {
+      "id": "real-elements-for-controls",
+      "area": "structure",
+      "from": [
+        "Rob Hoffman 10"
+      ],
+      "says": "Clicks are on buttons and links, not on divs",
+      "fix": "Use <button> or <a> instead of a div or span with onclick.",
+      "check": {
+        "elements": {
+          "tags": [
+            "div",
+            "span"
+          ],
+          "attr_present": [
+            "onclick"
+          ]
+        },
+        "count": {
+          "max": 0
+        }
+      }
+    },
+    {
+      "id": "page-has-title-and-description",
+      "area": "structure",
+      "from": [
+        "Rob Hoffman 10"
+      ],
+      "says": "The page has a title and a description",
+      "fix": "Write a <title> and a meta description that say what the page is.",
+      "check": {
+        "head": {
+          "title_min_characters": 10,
+          "meta_description_min_characters": 50
+        }
+      }
+    },
+    {
+      "id": "page-names-its-language-and-address",
+      "area": "structure",
+      "from": [
+        "Rob Hoffman 10"
+      ],
+      "says": "The page names its language and its own address",
+      "fix": "Set <html lang> and a canonical link.",
+      "check": {
+        "all_of": [
+          {
+            "elements": {
+              "tags": [
+                "html"
+              ],
+              "attr_present": [
+                "lang"
+              ]
+            },
+            "count": {
+              "min": 1
+            }
+          },
+          {
+            "elements": {
+              "tags": [
+                "link"
+              ],
+              "attr_matches": {
+                "rel": "^canonical$"
+              }
+            },
+            "count": {
+              "min": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "published-date",
+      "area": "freshness",
+      "from": [
+        "Rob Hoffman 11",
+        "inboundengineer: Visible \"last updated\" date"
+      ],
+      "says": "The page says when it was published",
+      "fix": "Add the published date as <time datetime> and in the page's structured data.",
+      "check": {
+        "dates": {
+          "role": "published"
+        }
+      },
+      "skip_when": {
+        "elements": {
+          "tags": [
+            "input"
+          ],
+          "attr_matches": {
+            "type": "^password$"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "updated-date",
+      "area": "freshness",
+      "from": [
+        "Rob Hoffman 11",
+        "inboundengineer: Updated within the last 30 days"
+      ],
+      "says": "The page says when it was last updated",
+      "fix": "Add the updated date as <time datetime> and in the page's structured data.",
+      "check": {
+        "dates": {
+          "role": "modified"
+        }
+      },
+      "skip_when": {
+        "elements": {
+          "tags": [
+            "input"
+          ],
+          "attr_matches": {
+            "type": "^password$"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "updated-date-is-recent",
+      "area": "freshness",
+      "from": [
+        "Rob Hoffman 11",
+        "inboundengineer: Updated within the last 30 days"
+      ],
+      "says": "The page was updated within the last year",
+      "fix": "Review the page and save its updated date.",
+      "scored": false,
+      "check": {
+        "dates": {
+          "role": "modified",
+          "within_days": 365
+        }
+      },
+      "skip_when": {
+        "elements": {
+          "tags": [
+            "input"
+          ],
+          "attr_matches": {
+            "type": "^password$"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "short-paragraphs",
+      "area": "structure",
+      "from": [
+        "inboundengineer: Short, easily digestible paragraphs"
+      ],
+      "says": "Paragraphs are short",
+      "fix": "Split any paragraph over 120 words.",
+      "scored": false,
+      "check": {
+        "elements": {
+          "tags": [
+            "p"
+          ]
+        },
+        "each": {
+          "text_words": {
+            "max": 120
+          }
+        }
+      }
+    },
+    {
+      "id": "structured-data",
+      "area": "structure",
+      "from": [
+        "inboundengineer: Entity-rich writing"
+      ],
+      "says": "The page carries structured data (JSON-LD)",
+      "fix": "Add a JSON-LD block that names the page, its publisher and its dates.",
+      "scored": false,
+      "check": {
+        "elements": {
+          "tags": [
+            "script"
+          ],
+          "attr_matches": {
+            "type": "ld\\+json"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "has-lists-or-tables",
+      "area": "structure",
+      "from": [
+        "inboundengineer: Bullet points",
+        "inboundengineer: Comparison tables"
+      ],
+      "says": "The page uses lists or tables for parallel facts",
+      "fix": "Put steps and comparisons in <ul>, <ol> or <table>.",
+      "scored": false,
+      "check": {
+        "elements": {
+          "tags": [
+            "ul",
+            "ol",
+            "table"
+          ]
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "has-faq",
+      "area": "structure",
+      "from": [
+        "inboundengineer: FAQ section"
+      ],
+      "says": "The page answers follow-up questions",
+      "fix": "Add an FAQ of the questions a reader asks next, each as a heading and an answer.",
+      "scored": false,
+      "check": {
+        "elements": {
+          "tags": [
+            "h2",
+            "h3",
+            "summary"
+          ],
+          "text_pattern": "\\?\\s*$"
+        },
+        "count": {
+          "min": 2
+        }
+      }
+    },
+    {
+      "id": "names-its-author-or-owner",
+      "area": "trust",
+      "from": [
+        "inboundengineer: Author profiles",
+        "inboundengineer: Shows author, reviewer, or company expertise"
+      ],
+      "says": "The page names who wrote or runs it",
+      "fix": "Name the author or company with a link to who they are.",
+      "scored": false,
+      "check": {
+        "any_of": [
+          {
+            "elements": {
+              "tags": [
+                "meta"
+              ],
+              "attr_matches": {
+                "name": "^author$"
+              }
+            },
+            "count": {
+              "min": 1
+            }
+          },
+          {
+            "elements": {
+              "tags": [
+                "a"
+              ],
+              "attr_matches": {
+                "rel": "author"
+              }
+            },
+            "count": {
+              "min": 1
+            }
+          },
+          {
+            "text": {
+              "pattern": "\"(?:author|publisher)\"\\s*:",
+              "source": "structured_data",
+              "min_matches": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "links-to-sources",
+      "area": "trust",
+      "from": [
+        "inboundengineer: Cites reputable sources where factual claims are made"
+      ],
+      "says": "The page links out to its sources",
+      "fix": "Link each cited fact to where it came from.",
+      "scored": false,
+      "check": {
+        "links": {
+          "external_min": 1
+        }
+      }
+    },
+    {
+      "id": "has-video",
+      "area": "trust",
+      "from": [
+        "inboundengineer: Video",
+        "inboundengineer: An embedded YouTube video is present",
+        "inboundengineer: Multimedia"
+      ],
+      "says": "The page has a video",
+      "fix": "Embed a video that shows the thing working, with a transcript beside it.",
+      "scored": false,
+      "check": {
+        "any_of": [
+          {
+            "elements": {
+              "tags": [
+                "video"
+              ]
+            },
+            "count": {
+              "min": 1
+            }
+          },
+          {
+            "elements": {
+              "tags": [
+                "iframe"
+              ],
+              "attr_matches": {
+                "src": "youtube|youtu\\.be|vimeo|loom"
+              }
+            },
+            "count": {
+              "min": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "links-to-social-profiles",
+      "area": "trust",
+      "from": [
+        "inboundengineer: Links to social profiles"
+      ],
+      "says": "The page links to the owner's social profiles",
+      "fix": "Link the profiles that show who is behind the page.",
+      "scored": false,
+      "check": {
+        "elements": {
+          "tags": [
+            "a",
+            "link"
+          ],
+          "attr_matches": {
+            "href": "(?:x|twitter|linkedin|facebook|instagram|youtube|github|tiktok)\\.com/"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "explains-cost",
+      "area": "facts",
+      "from": [
+        "inboundengineer: Explains cost, pricing, or budget"
+      ],
+      "says": "The page says what it costs",
+      "fix": "State the price or say it is free, in words beside the offer.",
+      "scored": false,
+      "applies_when": {
+        "words": {
+          "min": 150
+        }
+      },
+      "check": {
+        "text": {
+          "pattern": "[$€£]\\s?\\d|\\b(?:free|pricing|price|costs?|per month|per year|/month|/year)\\b",
+          "flags": "i",
+          "min_matches": 1
+        }
+      },
+      "skip_when": {
+        "elements": {
+          "tags": [
+            "input"
+          ],
+          "attr_matches": {
+            "type": "^password$"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    },
+    {
+      "id": "compares-alternatives",
+      "area": "facts",
+      "from": [
+        "inboundengineer: Compares the main option against relevant alternatives",
+        "inboundengineer: Names competitors, substitutes, or alternative approaches"
+      ],
+      "says": "The page compares its option with alternatives",
+      "fix": "Say how it differs from the alternatives a reader would also consider.",
+      "scored": false,
+      "applies_when": {
+        "words": {
+          "min": 150
+        }
+      },
+      "check": {
+        "text": {
+          "pattern": "\\b(?:vs\\.?|versus|compared (?:to|with)|alternatives?|instead of|rather than)\\b",
+          "flags": "i",
+          "min_matches": 1
+        }
+      },
+      "skip_when": {
+        "elements": {
+          "tags": [
+            "input"
+          ],
+          "attr_matches": {
+            "type": "^password$"
+          }
+        },
+        "count": {
+          "min": 1
+        }
+      }
+    }
+  ]
+}

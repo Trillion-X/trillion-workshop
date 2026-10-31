@@ -1,0 +1,7 @@
+{
+  "schema": "trillion.served-page-completion",
+  "about": "What the host adds to a published page when the page's own HTML leaves it out, so an answer engine reading the served bytes finds it. Nothing the owner wrote is changed.",
+  "language": "en",
+  "published_property": "article:published_time",
+  "modified_property": "article:modified_time"
+}

@@ -1,0 +1,10 @@
+{
+  "public": [
+    "do-work/audit-served-html.mjs",
+    "do-work/complete-served-html.mjs",
+    "read-data/ai-readiness-checks.json",
+    "read-data/served-page-completion.json",
+    "do-work/negotiate-markdown.mjs",
+    "read-data/markdown-conversion.json"
+  ]
+}
