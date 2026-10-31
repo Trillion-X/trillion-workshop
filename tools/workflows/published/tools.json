@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b3737d07ac200359ee8204520d93dea14ba0ec0ee7caddf394558456924bf06a"
+  "blake3": "1f:ba3d4e37e4cf202f7f65e72122d17c36400e2a10ea6102225d93d028bf02f91b"
  },
  "fields": [
   {
@@ -107,6 +107,36 @@
    }
   },
   {
+   "id": "tool:add-a-pooled-result",
+   "values": {
+    "title": "Add a private result to the pool",
+    "job": "Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id",
+    "description": "Runs in the account that holds the pool. Keeps one row of the pooled results list: { contributor, situation, worked, embedding, day }. The embedding is read from the shared situation's own row (list pooled-situations), never taken from the sender, so a result lands only on a situation that is shared and is linked to no shared text. contributor is the person's random id (64 lowercase hex), kept only in their own store; worked is the randomized bit tool:randomize-a-result gave. The row holds no account.",
+    "status": "active",
+    "maker": "maker:learn-from-everyones-results",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "learn-from-everyones-results"
+   }
+  },
+  {
+   "id": "tool:add-a-shared-situation",
+   "values": {
+    "title": "Add a shared situation to the pool",
+    "job": "Keep one situation a person made safe to show strangers, with its meaning, so others can learn how similar decisions turned out",
+    "description": "Runs in the account that holds the pool. Keeps one row of the pooled situations list: { entry, embedding, day }, under a new random id it answers. The entry is the rewrite the person's side already checked (tool:share-a-decision); the plain privacy pass runs on it again here with no private terms, and words that still carry an address, a handle, a long number, an amount of money, a key, the removed mark or a name inside a sentence are refused. embedding is the meaning of the entry's situation, at most 4096 numbers. The row holds no account and no contributor.",
+    "status": "active",
+    "maker": "maker:learn-from-everyones-results",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "learn-from-everyones-results"
+   }
+  },
+  {
    "id": "tool:add-captions",
    "values": {
     "title": "Add captions to a video from its transcript",
@@ -194,6 +224,21 @@
      "placement:small-container"
     ],
     "folder": "form-groups-and-matches"
+   }
+  },
+  {
+   "id": "tool:answer-a-decision-question",
+   "values": {
+    "title": "Answer a decision's question",
+    "job": "Answer the question my method is asking about a decision, with each of its checks",
+    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. Keeps the answer as its own step record and returns the next question.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
    }
   },
   {
@@ -408,6 +453,21 @@
      "placement:small-container"
     ],
     "folder": "triage-against-priorities"
+   }
+  },
+  {
+   "id": "tool:bring-back-similar-decisions",
+   "values": {
+    "title": "Bring back my similar decisions",
+    "job": "When I am about to decide something, show what I decided in similar decisions before, what came next and how each turned out",
+    "description": "Reads the person's own decision records. The newest ones are weighed by the words their goals share with the named decision's goal, plus a point for the same method (read-data/decide-with-a-method.json `similar`). The closest are kept, closest first, limit of them (10 when not given, never more than 50). Each comes back with its goal, its method, the option it chose, its next action, its status (from its own current evidence) and its observed and reported results. Only those few are read whole, and nothing leaves the person's account.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
    }
   },
   {
@@ -1393,6 +1453,24 @@
    }
   },
   {
+   "id": "tool:enrol-a-voice-or-face",
+   "values": {
+    "title": "Enrol someone's voice or face so they can be named",
+    "job": "Let the person's AI name this person later by their voice or face, after they agreed to be known that way",
+    "description": "Measures a recording of one person speaking, or a picture or video of one person's face, or takes a voice heard in a listening, and keeps it as that person's print so later recordings and pictures can name them. It refuses before it measures anything unless `consent` says who agreed to be known by their voice or face and how. Enrolling the same name again adds samples and the new consent words to the same print and keeps the earlier ones. The voice-print, face-print and voice-session record kinds are stays_on_this_device: true: the numbers of a print are kept only on the device they were made on and are never shared, exported, synced or sent to a model off it. The answer says how many samples the person has, never the numbers.",
+    "status": "active",
+    "maker": "maker:know-who-is-in-this",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "know-who-is-in-this",
+    "flags": [
+     "keeps-records"
+    ]
+   }
+  },
+  {
    "id": "tool:enroll-an-observer-in-challenges",
    "values": {
     "title": "Enroll someone in the challenges that fit them",
@@ -1630,6 +1708,21 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:find-faces",
+   "values": {
+    "title": "Find the faces in a picture or video and say who they are",
+    "job": "Find every face in a picture or video and name the ones that belong to people who agreed to be known",
+    "description": "Finds the faces in a picture, or in a picture taken from a video every few seconds, and answers each face's place (the second, the box in pixels) and who it is: the person's name when one enrolled face is clearly the closest, every person it could be when two are too close to tell, nobody otherwise. Changes no file. Thresholds are inputs; the starting values are not yet calibrated on the person's own consented pictures. The face-print record kind is stays_on_this_device: true: prints are read here and never leave the device they were made on.",
+    "status": "active",
+    "maker": "maker:know-who-is-in-this",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "know-who-is-in-this"
    }
   },
   {
@@ -2290,6 +2383,21 @@
    }
   },
   {
+   "id": "tool:how-similar-results-turned-out",
+   "values": {
+    "title": "How results like this turned out for everyone",
+    "job": "Say how often things worked for other people in situations like mine, without anyone's own result being readable",
+    "description": "Runs in the account that holds the pool, and is the only read of it: the pooled results whose situation is at least rules.min_similarity close in meaning (cosine) to the asked embedding, then one vote per contributor, nothing under rules.min_people distinct people, the median across rules.shards contributor shards, the randomized response undone, Laplace noise fixed by the question and by the rows of the shards that answer it (asking again gives the same answer; any join or withdrawal there draws new noise), and counts rounded to rules.people_bucket and rules.share_step. Returns { enough, people_at_least, worked_share? }, never a row or a contributor. rules are the pool's own settings (pooled_outcomes with search.min_similarity).",
+    "status": "active",
+    "maker": "maker:learn-from-everyones-results",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "learn-from-everyones-results"
+   }
+  },
+  {
    "id": "tool:join-a-waitlist",
    "values": {
     "title": "Join a waitlist",
@@ -2873,6 +2981,21 @@
    }
   },
   {
+   "id": "tool:make-the-decision",
+   "values": {
+    "title": "Make the decision",
+    "job": "Record what my AI decided, why, what to do next and how we will know it worked",
+    "description": "Once every question is answered: decision is { option_id (one of the options), reason, next_action, success_measure, evidence_refs, move?, and every decision field the decision asks for }. verdicts are your judge's on the decision fields. A decided decision changes only after a failed result: the earlier decision moves to decision_history. Returns what to do now and how to say it.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
    "id": "tool:make-tracked-link",
    "values": {
     "title": "Make a tracked link",
@@ -3166,6 +3289,21 @@
      "placement:your-computer"
     ],
     "folder": "connected-drives"
+   }
+  },
+  {
+   "id": "tool:next-decision-question",
+   "values": {
+    "title": "Read a decision's next question",
+    "job": "See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions",
+    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
    }
   },
   {
@@ -3710,6 +3848,21 @@
      "placement:your-computer"
     ],
     "folder": "export-records-as-list-rows"
+   }
+  },
+  {
+   "id": "tool:randomize-a-result",
+   "values": {
+    "title": "Make the private bit for a result",
+    "job": "Turn whether something worked into the one noisy yes or no that may leave my account to teach everyone, so nobody can tell my real result",
+    "description": "Randomized response in the person's own store: returns worked as the truth with probability e^epsilon/(1+e^epsilon) and the opposite otherwise, drawn from the platform's cryptographic random source. rules.epsilon is the pool's privacy loss (the pool's own settings). Keep the bit you got with the result it is for, so the same result is never sent with a new draw.",
+    "status": "active",
+    "maker": "maker:learn-from-everyones-results",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "learn-from-everyones-results"
    }
   },
   {
@@ -4777,6 +4930,21 @@
    }
   },
   {
+   "id": "tool:report-a-decision-result",
+   "values": {
+    "title": "Report how a decision turned out",
+    "job": "Tell Trillion how a decision actually turned out, in my words",
+    "description": "Keeps the person's result of a decided decision: result (met, failed or unknown), summary, answered_by \"person\" (ask them). A failed result opens the decision for a new one. The same words again are kept once; source_ref and supersedes correct an earlier report. A claim is kept as the caller's claim; nothing here marks it verified.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
    "id": "tool:request-a-booking",
    "values": {
     "title": "Request a booking",
@@ -4999,6 +5167,21 @@
      "placement:small-container"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:say-what-was-done",
+   "values": {
+    "title": "Say what was done about a decision",
+    "job": "Tell Trillion my AI did the next step of a decision, or the exact wall it reached",
+    "description": "Keeps, with the decision generation it carried out, that its next action was done (state done) or the exact wall reached (state wall: the file, field, refused command or missing credential), in what_happened.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
    }
   },
   {
@@ -5709,6 +5892,21 @@
    }
   },
   {
+   "id": "tool:share-a-decision",
+   "values": {
+    "title": "Make a decision safe to share",
+    "job": "Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words",
+    "description": "In three turns. With only decision_id: the decision's facts with every private term already redacted, and how to rewrite them in general terms. With rewrite: the plain privacy pass (tools/learn-from-everyones-results) runs on it with the person's own private terms (their never-publish list rows and the proper names in the decision) and must find nothing; then reidentification, the whole answer tool:ask-a-small-model-for-a-verdict gave for the rubric and content this tool names, must be accepted and bound to exactly this rewrite. Only then is the entry kept on the decision as shared and answered with the pool tool to send it to (tool:add-a-shared-situation). Nothing leaves the person's records here.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
    "id": "tool:show-which-offers-a-buyer-may-see",
    "values": {
     "title": "Show which offers a buyer may see",
@@ -5797,6 +5995,21 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "git-changes"
+   }
+  },
+  {
+   "id": "tool:start-a-decision",
+   "values": {
+    "title": "Start a decision with my method",
+    "job": "Start a decision my AI will make with my method: what is being decided, the facts, and the options",
+    "description": "Opens a decision in the person's own records from a source_id (the same source always opens the same decision; the same input again is that decision, different input is refused), its goal, its evidence ({ref, claim}, each ref unique) and at least two options ({id, label}), under the method named or the person's default (their Methods list). The decision keeps the exact method it was opened with. Returns case_id and the first question.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
    }
   },
   {
@@ -6193,6 +6406,24 @@
    }
   },
   {
+   "id": "tool:who-is-in-this",
+   "values": {
+    "title": "Say who said each part of a recording",
+    "job": "Name who said each stretch of a call or recording, from the voices of people who agreed to be known",
+    "description": "Takes a recording and its transcript (the timed stretches tools/audio-transcription gives) and answers each turn with who said it: the person's name when one enrolled person is clearly the closest voice; every person it could be when two are too close to tell, so a guess is never made silently; otherwise an unknown voice with a number that stays the same for the whole listening, across every recording of it. Stretches of one voice are judged together, a stretch too short to measure takes its neighbour's voice, and turns of one voice a couple of seconds apart are joined. Thresholds, the wording of the labels and the gap that joins turns are inputs; the starting values are not yet calibrated on the person's own consented clips. The voice-print and voice-session record kinds are stays_on_this_device: true: only the listening's voice-session record is kept, with the numbers of the unknown voices heard, on this device. It names no one who has not enrolled.",
+    "status": "active",
+    "maker": "maker:know-who-is-in-this",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "know-who-is-in-this",
+    "flags": [
+     "keeps-records"
+    ]
+   }
+  },
+  {
    "id": "tool:withdraw-a-referral-code",
    "values": {
     "title": "Withdraw a referral code",
@@ -6205,6 +6436,21 @@
      "placement:deployed-container"
     ],
     "folder": "referral-codes-and-rewards"
+   }
+  },
+  {
+   "id": "tool:withdraw-pooled-results",
+   "values": {
+    "title": "Take a person's results out of the pool",
+    "job": "Remove every noisy result one person ever gave the pool when they stop sharing",
+    "description": "Runs in the account that holds the pool. Removes every pooled results row whose id starts with the contributor's id, in writes of at most the engine's cap, and says how many were removed. The next answer is worked out from what is left, with new noise for the shards it changed.",
+    "status": "active",
+    "maker": "maker:learn-from-everyones-results",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "learn-from-everyones-results"
    }
   },
   {
