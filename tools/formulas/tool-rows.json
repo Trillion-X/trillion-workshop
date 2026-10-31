@@ -1,0 +1,717 @@
+{
+ "kind": "tool-rows",
+ "record_set": "formulas-tool-rows",
+ "what_this_is": "The Workshop rows for tools/formulas: keep the rows of a list that match a person's rule tree, evaluate a formula over rows, list the comparisons on offer, and give a record the label of the first of a person's rules that holds. Each row runs one function of do-work/requests.mjs on the request given; the records, fields, rules and formulas are the person's, none is built in.",
+ "records": [
+  {
+   "id": "package::formulas::tool::filter-rows-by-rules",
+   "address": "package::formulas::tool::filter-rows-by-rules",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:filter-rows-by-rules",
+    "label": "Keep the rows that match my rules",
+    "status": "active",
+    "job": "Keep the rows of a list that match my rules: a tree of comparisons (is any of, has all of, contains, is more than, is between, is empty, is known and more) joined by all-of and any-of groups, each group optionally negated",
+    "description": "Takes records, the fields the rules may read (an id, a kind and a path into each record) and a rule tree. Answers the positions and the records that match, the field ids the rules read and the rules left out because they are not finished (an unknown field or comparison, a comparison the field's kind does not offer, missing values), never guessing at them. A tree with no finished rule keeps every row. A value that is unknown never matches a comparison that cannot tell (contains, starts with, more than, less than, between and the like) nor its negation (does not contain, has none of), but an unknown value is simply not in a list and not equal to a word, so is none of and is not keep it. A group whose combinator is not one of the listed ones is refused with a sentence. A row whose value is of the wrong kind for a comparison is counted in error_rows and left out. The comparisons are rows of data: send operators to add or change them, or leave it out to use the ones list-comparisons shows.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "records",
+      "fields"
+     ],
+     "properties": {
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The list to filter"
+      },
+      "fields": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "kind"
+        ],
+        "properties": {
+         "id": {
+          "type": "string",
+          "description": "The name rules use for this field"
+         },
+         "kind": {
+          "type": "string",
+          "description": "Which comparisons the field offers (see list-comparisons)"
+         },
+         "path": {
+          "type": "array",
+          "items": {},
+          "description": "Keys and positions into a record; the id by default"
+         }
+        }
+       }
+      },
+      "tree": {
+       "type": "object",
+       "description": "A group { kind: group, combinator, negate, rules } or a rule { kind: rule, field, operator, params }; left out means every row"
+      },
+      "operators": {
+       "type": "object",
+       "description": "Comparisons and combinators as rows of data, replacing the built-in ones"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "total",
+      "matches",
+      "records",
+      "incomplete",
+      "error_rows"
+     ],
+     "properties": {
+      "total": {
+       "type": "integer"
+      },
+      "matches": {
+       "type": "array",
+       "items": {
+        "type": "integer"
+       }
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "reads": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "incomplete": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "error_rows": {
+       "type": "integer"
+      },
+      "first_error": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "formulas",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/formulas"
+      }
+     },
+     "workdir": "/opt/formulas",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "filterRecords"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:formulas",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "records": [
+        {
+         "id": "a",
+         "kind": "loaf",
+         "tags": [
+          "rye",
+          "seeded"
+         ],
+         "grams": 800
+        },
+        {
+         "id": "b",
+         "kind": "roll",
+         "tags": [
+          "white"
+         ],
+         "grams": 90
+        },
+        {
+         "id": "c",
+         "kind": "loaf",
+         "tags": [
+          "white"
+         ],
+         "grams": null
+        }
+       ],
+       "fields": [
+        {
+         "id": "kind",
+         "kind": "choice"
+        },
+        {
+         "id": "grams",
+         "kind": "number"
+        }
+       ],
+       "tree": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+         {
+          "kind": "rule",
+          "field": "kind",
+          "operator": "is_any_of",
+          "params": {
+           "values": [
+            "loaf"
+           ]
+          }
+         },
+         {
+          "kind": "rule",
+          "field": "grams",
+          "operator": "greater_than",
+          "params": {
+           "value": 500
+          }
+         }
+        ]
+       }
+      },
+      "output_selector": "$.records[0].id",
+      "contains": "a"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/formula-engine (rules: rule-operators, compile-rules; the row evaluator re-implemented for the operators the comparisons use)"
+    }
+   }
+  },
+  {
+   "id": "package::formulas::tool::evaluate-a-formula",
+   "address": "package::formulas::tool::evaluate-a-formula",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:evaluate-a-formula",
+    "label": "Evaluate a formula over rows",
+    "status": "active",
+    "job": "Evaluate a formula over each row of a list: read a value from the row, then run a pipeline of steps (and, or, not, equals, more than, less than, is in a list, position in a list, lower-case, contains, starts with, join, is empty, is unknown) over it",
+    "description": "Takes a binding (select from the row at a path, or a stated literal, then a transform list of { op, args }; an argument may itself be a binding evaluated over the value the step receives) and rows. Answers one value per row, in order, and the rows that could not be evaluated with the reason (a step given a value of the wrong kind, or a step that is not supported). Three-state logic: and, or and not answer true, false or unknown, and a comparison with an unknown side is unknown. Nothing outside the row is read.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "binding",
+      "rows"
+     ],
+     "properties": {
+      "binding": {
+       "type": "object",
+       "description": "{ $kind: binding, select: { from: self, path: [...] }, transform: [{ op, args }], default? }"
+      },
+      "rows": {
+       "type": "array",
+       "description": "The values to evaluate the binding over"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "values",
+      "errors"
+     ],
+     "properties": {
+      "values": {
+       "type": "array"
+      },
+      "errors": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "row",
+         "error"
+        ]
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "formulas",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/formulas"
+      }
+     },
+     "workdir": "/opt/formulas",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "evaluateFormula"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:formulas",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "binding": {
+        "$kind": "binding",
+        "select": {
+         "from": "self",
+         "path": [
+          "name"
+         ]
+        },
+        "transform": [
+         {
+          "op": "op:core.lower"
+         },
+         {
+          "op": "op:core.contains",
+          "args": {
+           "value": "rye"
+          }
+         }
+        ]
+       },
+       "rows": [
+        {
+         "name": "Dark RYE loaf"
+        },
+        {
+         "name": "Scone"
+        },
+        {
+         "name": null
+        }
+       ]
+      },
+      "output_selector": "$.values",
+      "contains": "true,false,"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/formula-engine (evaluate-over-rows: the binding evaluator for the operators the comparison rows use)"
+    }
+   }
+  },
+  {
+   "id": "package::formulas::tool::list-comparisons",
+   "address": "package::formulas::tool::list-comparisons",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:list-comparisons",
+    "label": "List the comparisons a rule can use",
+    "status": "active",
+    "job": "List the comparisons and the all-of and any-of groups a rule can use, for one kind of field or every kind",
+    "description": "Answers each comparison's id, its label, what it takes (nothing, one value, a list of values, words, text, a day or a range) and the field kinds that offer it, the group combinators, and the field kinds known. Send operators to list a person's own comparison rows instead of the built-in ones.",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "field_kind": {
+       "type": "string",
+       "description": "Only the comparisons this kind of field offers"
+      },
+      "operators": {
+       "type": "object",
+       "description": "Comparison rows to list instead of the built-in ones"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "combinators",
+      "comparisons",
+      "field_kinds"
+     ],
+     "properties": {
+      "combinators": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "comparisons": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "field_kinds": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "formulas",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/formulas"
+      }
+     },
+     "workdir": "/opt/formulas",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "listComparisons"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:formulas",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "field_kind": "tags"
+      },
+      "output_selector": "$.comparisons[0].id",
+      "contains": "has_any_of"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/formula-engine (rules/rule-operators.json)"
+    }
+   }
+  },
+  {
+   "id": "package::formulas::tool::classify-a-record",
+   "address": "package::formulas::tool::classify-a-record",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:classify-a-record",
+    "label": "Give a record the label of the first rule it meets",
+    "status": "active",
+    "job": "Give a record the label of the first of my rules that holds: each rule has clauses over facts read from the record (is present, is absent, at least, at most, equals), and I get the rule's key, label, tone and severity, or none",
+    "description": "Takes a record, the facts to read from it (a key, a path, and how to read it: present, as a number, as an age in seconds up to now_ms, or as it is) and rules in order (a key, a label, an optional tone and severity, and clauses over facts). Answers the first rule whose clauses all hold, with its key, label, tone and severity exactly as given (null where none was given), or no result when none holds. A request that is unfinished (a rule with no key, label or clause, a clause naming a fact that was not declared, an operator that is not listed, an age fact with no now_ms) is refused with a sentence. The tool names no label, tone or threshold; the clock is now_ms, never read.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "facts",
+      "rules",
+      "record"
+     ],
+     "properties": {
+      "facts": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "key",
+         "as"
+        ],
+        "properties": {
+         "key": {
+          "type": "string"
+         },
+         "path": {
+          "type": "array",
+          "items": {},
+          "description": "Names and list positions into the record"
+         },
+         "as": {
+          "type": "string",
+          "enum": [
+           "present",
+           "number",
+           "age-seconds",
+           "value"
+          ]
+         }
+        }
+       }
+      },
+      "rules": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "key",
+         "label",
+         "requires"
+        ],
+        "properties": {
+         "key": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "tone": {
+          "type": "string"
+         },
+         "severity": {
+          "type": "string"
+         },
+         "requires": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "fact",
+            "op"
+           ],
+           "properties": {
+            "fact": {
+             "type": "string"
+            },
+            "op": {
+             "type": "string",
+             "enum": [
+              "present",
+              "absent",
+              "gte",
+              "lte",
+              "eq"
+             ]
+            },
+            "value": {}
+           }
+          }
+         }
+        }
+       }
+      },
+      "record": {
+       "type": "object"
+      },
+      "now_ms": {
+       "type": "number",
+       "description": "The time an age-seconds fact is measured to; required when one is declared"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": [
+        "object",
+        "null"
+       ],
+       "properties": {
+        "key": {
+         "type": "string"
+        },
+        "label": {
+         "type": "string"
+        },
+        "tone": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "severity": {
+         "type": [
+          "string",
+          "null"
+         ]
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "formulas",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/formulas"
+      }
+     },
+     "workdir": "/opt/formulas",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "classifyRecord"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:formulas",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "facts": [
+        {
+         "key": "collected",
+         "path": [
+          "collected_at"
+         ],
+         "as": "present"
+        },
+        {
+         "key": "waiting",
+         "path": [
+          "ordered_at"
+         ],
+         "as": "age-seconds"
+        }
+       ],
+       "rules": [
+        {
+         "key": "forgotten",
+         "label": "Forgotten order",
+         "tone": "alarm",
+         "requires": [
+          {
+           "fact": "collected",
+           "op": "absent"
+          },
+          {
+           "fact": "waiting",
+           "op": "gte",
+           "value": 1800
+          }
+         ]
+        },
+        {
+         "key": "done",
+         "label": "Collected",
+         "requires": [
+          {
+           "fact": "collected",
+           "op": "present"
+          }
+         ]
+        }
+       ],
+       "record": {
+        "ordered_at": "2026-07-05T10:00:00Z"
+       },
+       "now_ms": 1783252800000
+      },
+      "output_selector": "$.result.label",
+      "contains": "Forgotten order"
+     }
+    ],
+    "provenance": {
+     "source": "bitfield-packages packages/formula-engine (source/src/slot_work/classify_by_rules.rs)"
+    }
+   }
+  }
+ ]
+}

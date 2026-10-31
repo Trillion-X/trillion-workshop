@@ -1,0 +1,942 @@
+{
+	"schema": "formulas.rule-operators",
+	"description": "Every comparison a person can put in a filter rule, as DATA. A rule names a field, one operator id from this file and its params; compile-rules.mjs turns it into a binding by filling the operator template, and evaluate-binding.mjs evaluates that binding. Adding a comparison is one row here, over the operators evaluate-binding.mjs runs. `applies_to` lists the field kinds (a field descriptor kind) that offer it, in menu order. `input` says what the person supplies: none, value (one), values (a list), words (a list of words), text, day or range (min and/or max). Template markers are objects: {\"$field\":\"path\"} is the field path, {\"$param\":\"name\"} is a param. `each` repeats `binding` once per entry of a list param (bound to `as`) and joins the copies with `combine`; `parts` keeps only the parts whose `when` param is present and joins them with `combine`. `negate` appends op:core.not. `param_case: lower` lower-cases text params, matching a template that lower-cases the field.",
+	"combinators": [
+		{
+			"id": "and",
+			"label": "All",
+			"sentence": "and",
+			"op": "op:core.and"
+		},
+		{
+			"id": "or",
+			"label": "Any",
+			"sentence": "or",
+			"op": "op:core.or"
+		}
+	],
+	"operators": [
+		{
+			"id": "is_any_of",
+			"label": "is any of",
+			"chip": "is",
+			"icon": "list-checks",
+			"input": "values",
+			"applies_to": [
+				"choice"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.in_list",
+						"args": {
+							"values": {
+								"$param": "values"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "is_none_of",
+			"label": "is none of",
+			"chip": "is not",
+			"icon": "list-x",
+			"input": "values",
+			"negate": true,
+			"applies_to": [
+				"choice"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.in_list",
+						"args": {
+							"values": {
+								"$param": "values"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "has_any_of",
+			"label": "has any of",
+			"chip": "has any of",
+			"icon": "tags",
+			"input": "values",
+			"applies_to": [
+				"tags"
+			],
+			"each": {
+				"param": "values",
+				"as": "value",
+				"combine": "op:core.or"
+			},
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.index_of",
+						"args": {
+							"value": {
+								"$param": "value"
+							}
+						}
+					},
+					{
+						"op": "op:core.ge",
+						"args": {
+							"value": 0
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "has_all_of",
+			"label": "has all of",
+			"chip": "has all of",
+			"icon": "list-checks",
+			"input": "values",
+			"applies_to": [
+				"tags"
+			],
+			"each": {
+				"param": "values",
+				"as": "value",
+				"combine": "op:core.and"
+			},
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.index_of",
+						"args": {
+							"value": {
+								"$param": "value"
+							}
+						}
+					},
+					{
+						"op": "op:core.ge",
+						"args": {
+							"value": 0
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "has_none_of",
+			"label": "has none of",
+			"chip": "has none of",
+			"icon": "tag",
+			"input": "values",
+			"negate": true,
+			"applies_to": [
+				"tags"
+			],
+			"each": {
+				"param": "values",
+				"as": "value",
+				"combine": "op:core.or"
+			},
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.index_of",
+						"args": {
+							"value": {
+								"$param": "value"
+							}
+						}
+					},
+					{
+						"op": "op:core.ge",
+						"args": {
+							"value": 0
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "contains",
+			"label": "contains",
+			"chip": "contains",
+			"icon": "text-search",
+			"input": "text",
+			"param_case": "lower",
+			"applies_to": [
+				"text"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.lower"
+					},
+					{
+						"op": "op:core.contains",
+						"args": {
+							"value": {
+								"$param": "text"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "does_not_contain",
+			"label": "does not contain",
+			"chip": "does not contain",
+			"icon": "search-x",
+			"input": "text",
+			"param_case": "lower",
+			"negate": true,
+			"applies_to": [
+				"text"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.lower"
+					},
+					{
+						"op": "op:core.contains",
+						"args": {
+							"value": {
+								"$param": "text"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "has_all_words",
+			"label": "has all of these words",
+			"chip": "has all of",
+			"icon": "list-checks",
+			"input": "words",
+			"param_case": "lower",
+			"applies_to": [
+				"text"
+			],
+			"each": {
+				"param": "values",
+				"as": "value",
+				"combine": "op:core.and"
+			},
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.lower"
+					},
+					{
+						"op": "op:core.contains",
+						"args": {
+							"value": {
+								"$param": "value"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "has_any_words",
+			"label": "has any of these words",
+			"chip": "has any of",
+			"icon": "list-plus",
+			"input": "words",
+			"param_case": "lower",
+			"applies_to": [
+				"text"
+			],
+			"each": {
+				"param": "values",
+				"as": "value",
+				"combine": "op:core.or"
+			},
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.lower"
+					},
+					{
+						"op": "op:core.contains",
+						"args": {
+							"value": {
+								"$param": "value"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "has_no_words",
+			"label": "has none of these words",
+			"chip": "has none of",
+			"icon": "list-x",
+			"input": "words",
+			"param_case": "lower",
+			"negate": true,
+			"applies_to": [
+				"text"
+			],
+			"each": {
+				"param": "values",
+				"as": "value",
+				"combine": "op:core.or"
+			},
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.lower"
+					},
+					{
+						"op": "op:core.contains",
+						"args": {
+							"value": {
+								"$param": "value"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "is_text",
+			"label": "is",
+			"chip": "is",
+			"icon": "equal",
+			"input": "text",
+			"param_case": "lower",
+			"applies_to": [
+				"text"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.lower"
+					},
+					{
+						"op": "op:core.eq",
+						"args": {
+							"value": {
+								"$param": "text"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "is_not_text",
+			"label": "is not",
+			"chip": "is not",
+			"icon": "equal-not",
+			"input": "text",
+			"param_case": "lower",
+			"negate": true,
+			"applies_to": [
+				"text"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.lower"
+					},
+					{
+						"op": "op:core.eq",
+						"args": {
+							"value": {
+								"$param": "text"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "starts_with",
+			"label": "starts with",
+			"chip": "starts with",
+			"icon": "text-cursor-input",
+			"input": "text",
+			"param_case": "lower",
+			"applies_to": [
+				"text"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.lower"
+					},
+					{
+						"op": "op:core.starts_with",
+						"args": {
+							"prefix": {
+								"$param": "text"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "has_one_containing",
+			"label": "has one containing",
+			"chip": "has one containing",
+			"icon": "text-search",
+			"input": "text",
+			"param_case": "lower",
+			"applies_to": [
+				"tags"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.join",
+						"args": {
+							"delimiter": "\n"
+						}
+					},
+					{
+						"op": "op:core.lower"
+					},
+					{
+						"op": "op:core.contains",
+						"args": {
+							"value": {
+								"$param": "text"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "has_none_containing",
+			"label": "has none containing",
+			"chip": "has none containing",
+			"icon": "search-x",
+			"input": "text",
+			"param_case": "lower",
+			"negate": true,
+			"applies_to": [
+				"tags"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.join",
+						"args": {
+							"delimiter": "\n"
+						}
+					},
+					{
+						"op": "op:core.lower"
+					},
+					{
+						"op": "op:core.contains",
+						"args": {
+							"value": {
+								"$param": "text"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "like",
+			"label": "like",
+			"chip": "",
+			"icon": "sparkles",
+			"input": "text",
+			"param_case": "lower",
+			"applies_to": [
+				"meaning"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.index_of",
+						"args": {
+							"value": {
+								"$param": "text"
+							}
+						}
+					},
+					{
+						"op": "op:core.ge",
+						"args": {
+							"value": 0
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "on_day",
+			"label": "is on",
+			"chip": "on",
+			"icon": "calendar-check",
+			"input": "day",
+			"applies_to": [
+				"date"
+			],
+			"combine": "op:core.and",
+			"parts": [
+				{
+					"when": "min",
+					"binding": {
+						"$kind": "binding",
+						"select": {
+							"from": "self",
+							"path": {
+								"$field": "path"
+							}
+						},
+						"transform": [
+							{
+								"op": "op:core.ge",
+								"args": {
+									"value": {
+										"$param": "min"
+									}
+								}
+							}
+						]
+					}
+				},
+				{
+					"when": "max",
+					"binding": {
+						"$kind": "binding",
+						"select": {
+							"from": "self",
+							"path": {
+								"$field": "path"
+							}
+						},
+						"transform": [
+							{
+								"op": "op:core.le",
+								"args": {
+									"value": {
+										"$param": "max"
+									}
+								}
+							}
+						]
+					}
+				}
+			]
+		},
+		{
+			"id": "between",
+			"label": "is between",
+			"chip": "between",
+			"icon": "move-horizontal",
+			"input": "range",
+			"applies_to": [
+				"duration",
+				"number",
+				"bytes",
+				"date"
+			],
+			"combine": "op:core.and",
+			"parts": [
+				{
+					"when": "min",
+					"binding": {
+						"$kind": "binding",
+						"select": {
+							"from": "self",
+							"path": {
+								"$field": "path"
+							}
+						},
+						"transform": [
+							{
+								"op": "op:core.ge",
+								"args": {
+									"value": {
+										"$param": "min"
+									}
+								}
+							}
+						]
+					}
+				},
+				{
+					"when": "max",
+					"binding": {
+						"$kind": "binding",
+						"select": {
+							"from": "self",
+							"path": {
+								"$field": "path"
+							}
+						},
+						"transform": [
+							{
+								"op": "op:core.le",
+								"args": {
+									"value": {
+										"$param": "max"
+									}
+								}
+							}
+						]
+					}
+				}
+			]
+		},
+		{
+			"id": "greater_than",
+			"label": "is more than",
+			"chip": ">",
+			"icon": "chevron-right",
+			"input": "value",
+			"applies_to": [
+				"duration",
+				"number",
+				"bytes"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.gt",
+						"args": {
+							"value": {
+								"$param": "value"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "less_than",
+			"label": "is less than",
+			"chip": "<",
+			"icon": "chevron-left",
+			"input": "value",
+			"applies_to": [
+				"duration",
+				"number",
+				"bytes"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.lt",
+						"args": {
+							"value": {
+								"$param": "value"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "after",
+			"label": "is after",
+			"chip": "after",
+			"icon": "calendar-arrow-up",
+			"input": "value",
+			"applies_to": [
+				"date"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.gt",
+						"args": {
+							"value": {
+								"$param": "value"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "before",
+			"label": "is before",
+			"chip": "before",
+			"icon": "calendar-arrow-down",
+			"input": "value",
+			"applies_to": [
+				"date"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.lt",
+						"args": {
+							"value": {
+								"$param": "value"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "is_known",
+			"label": "is known",
+			"chip": "is known",
+			"icon": "circle-dot",
+			"input": "none",
+			"negate": true,
+			"applies_to": [
+				"duration",
+				"number",
+				"bytes",
+				"date"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.is_null"
+					}
+				]
+			}
+		},
+		{
+			"id": "is_unknown",
+			"label": "is not measured",
+			"chip": "not measured",
+			"icon": "circle-dashed",
+			"input": "none",
+			"applies_to": [
+				"duration",
+				"number",
+				"bytes",
+				"date"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.is_null"
+					}
+				]
+			}
+		},
+		{
+			"id": "is_not_empty",
+			"label": "is not empty",
+			"chip": "is not empty",
+			"icon": "circle-dot",
+			"input": "none",
+			"negate": true,
+			"applies_to": [
+				"text",
+				"tags",
+				"choice"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.is_empty"
+					}
+				]
+			}
+		},
+		{
+			"id": "is_empty",
+			"label": "is empty",
+			"chip": "is empty",
+			"icon": "circle-dashed",
+			"input": "none",
+			"applies_to": [
+				"text",
+				"tags",
+				"choice"
+			],
+			"binding": {
+				"$kind": "binding",
+				"select": {
+					"from": "self",
+					"path": {
+						"$field": "path"
+					}
+				},
+				"transform": [
+					{
+						"op": "op:core.is_empty"
+					}
+				]
+			}
+		}
+	]
+}
