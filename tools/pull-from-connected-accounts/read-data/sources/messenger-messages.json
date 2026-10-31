@@ -1,0 +1,9 @@
+{
+  "extends": "instagram-messages",
+  "id": "messenger-messages",
+  "label": "Facebook Messenger",
+  "says": "the Messenger conversations of the Facebook Page the token belongs to",
+  "base": "https://graph.facebook.com/v21.0",
+  "vars": { "platform": "messenger" },
+  "identity": { "path": "/me", "query": { "fields": "id,name" }, "self_id": "/id" }
+}

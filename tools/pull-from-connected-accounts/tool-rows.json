@@ -1,0 +1,1312 @@
+{
+  "kind": "tool-rows",
+  "record_set": "pull-from-connected-accounts-tool-rows",
+  "what_this_is": "The Workshop rows for pulling a person's messages and saved items from the services they use into their own records, one row per service, all running one mechanism in tools/pull-from-connected-accounts; plus one row that reads back what was pulled. A service is one JSON description in read-data/sources/; the person's token reaches the one process on a private pipe and is never in the request.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pull-my-discord-messages",
+        "label": "Pull the messages from the Discord text channels my bot can read into my own records",
+        "job": "Pull the messages from the Discord text channels my bot can read into my own records",
+        "description": "Reads the text and announcement channels of every server the bot is in (only those the bot may view and read the history of), newest messages first, and keeps them in your records beside the ones already there: a message pulled twice is kept once, an edited message replaces the older copy, and a renamed channel takes its new title. The bot cannot read anyone's personal direct messages, and a message's text is empty unless the bot has the Message Content setting. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Discord bot token (name discord-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Discord did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "A name that tells this account from your other accounts on the same service (for example work). Default: default."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "description": "How many messages or items to ask for in one request."
+            },
+            "most_pages": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "How many pages of one conversation or list to read."
+            },
+            "most_threads": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "At most this many conversations are read in one pull."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "account",
+            "status",
+            "said"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "account": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pulled",
+                "partial",
+                "needs_login",
+                "unreachable"
+              ]
+            },
+            "self_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "threads": {
+              "type": "integer"
+            },
+            "items": {
+              "type": "integer"
+            },
+            "new_messages": {
+              "type": "integer"
+            },
+            "new_items": {
+              "type": "integer"
+            },
+            "cursor": {},
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/pull-from-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pull-from-connected-accounts/do-work/pull.mjs",
+            "pullDiscord"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "account-snapshot-part",
+                "prefix": "account-snapshot:",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "discord-bot-token",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "maker": "maker:pull-from-connected-accounts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pull-my-slack-messages",
+        "label": "Pull the messages from the Slack channels my bot is in into my own records",
+        "job": "Pull the messages from the Slack channels my bot is in into my own records",
+        "description": "Reads the public channels the bot is a member of, only the messages newer than the last pull (the cursor is the newest message time seen, and moves only when no request failed), and keeps them in your records: a message pulled twice is kept once and an edited message replaces the older copy. Channels the bot has not joined cannot be read. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Slack bot token (name slack-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Slack did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "A name that tells this account from your other accounts on the same service (for example work). Default: default."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "description": "How many messages or items to ask for in one request."
+            },
+            "most_pages": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "How many pages of one conversation or list to read."
+            },
+            "most_threads": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "At most this many conversations are read in one pull."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "account",
+            "status",
+            "said"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "account": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pulled",
+                "partial",
+                "needs_login",
+                "unreachable"
+              ]
+            },
+            "self_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "threads": {
+              "type": "integer"
+            },
+            "items": {
+              "type": "integer"
+            },
+            "new_messages": {
+              "type": "integer"
+            },
+            "new_items": {
+              "type": "integer"
+            },
+            "cursor": {},
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/pull-from-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pull-from-connected-accounts/do-work/pull.mjs",
+            "pullSlack"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "account-snapshot-part",
+                "prefix": "account-snapshot:",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "slack-bot-token",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "maker": "maker:pull-from-connected-accounts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pull-my-telegram-messages",
+        "label": "Pull the messages my Telegram bot was sent into my own records",
+        "job": "Pull the messages my Telegram bot was sent into my own records",
+        "description": "Reads the updates waiting for the bot (messages and edited messages in chats, groups and channels it is in), keeps each chat as a conversation in your records and moves the offset past what it read so Telegram does not send it again. A message pulled twice is kept once and an edit replaces the older copy. A bot cannot read your own private chats. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Telegram bot token (name telegram-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Telegram did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "A name that tells this account from your other accounts on the same service (for example work). Default: default."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "description": "How many messages or items to ask for in one request."
+            },
+            "most_pages": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "How many pages of one conversation or list to read."
+            },
+            "most_threads": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "At most this many conversations are read in one pull."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "account",
+            "status",
+            "said"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "account": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pulled",
+                "partial",
+                "needs_login",
+                "unreachable"
+              ]
+            },
+            "self_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "threads": {
+              "type": "integer"
+            },
+            "items": {
+              "type": "integer"
+            },
+            "new_messages": {
+              "type": "integer"
+            },
+            "new_items": {
+              "type": "integer"
+            },
+            "cursor": {},
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/pull-from-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pull-from-connected-accounts/do-work/pull.mjs",
+            "pullTelegram"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "account-snapshot-part",
+                "prefix": "account-snapshot:",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "telegram-bot-token",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "maker": "maker:pull-from-connected-accounts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pull-my-instagram-messages",
+        "label": "Pull the direct messages of my Instagram professional account into my own records",
+        "job": "Pull the direct messages of my Instagram professional account into my own records",
+        "description": "Reads the conversations of the Instagram professional account the token belongs to (through the Instagram messaging API, not by logging in as a person) and the newest messages of each, and keeps them in your records. Each conversation keeps the service's own description of it (its participants) in source. A message pulled twice is kept once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Instagram messaging access token (name instagram-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Instagram did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "A name that tells this account from your other accounts on the same service (for example work). Default: default."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "description": "How many messages or items to ask for in one request."
+            },
+            "most_pages": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "How many pages of one conversation or list to read."
+            },
+            "most_threads": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "At most this many conversations are read in one pull."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "account",
+            "status",
+            "said"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "account": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pulled",
+                "partial",
+                "needs_login",
+                "unreachable"
+              ]
+            },
+            "self_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "threads": {
+              "type": "integer"
+            },
+            "items": {
+              "type": "integer"
+            },
+            "new_messages": {
+              "type": "integer"
+            },
+            "new_items": {
+              "type": "integer"
+            },
+            "cursor": {},
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/pull-from-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pull-from-connected-accounts/do-work/pull.mjs",
+            "pullInstagramMessages"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "account-snapshot-part",
+                "prefix": "account-snapshot:",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "instagram-access-token",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "maker": "maker:pull-from-connected-accounts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pull-my-messenger-messages",
+        "label": "Pull the Messenger conversations of my Facebook Page into my own records",
+        "job": "Pull the Messenger conversations of my Facebook Page into my own records",
+        "description": "Reads the Messenger conversations of the Facebook Page the page access token belongs to and the newest messages of each, and keeps them in your records. Each conversation keeps the service's own description of it (its participants) in source. A message pulled twice is kept once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Facebook Page access token (name messenger-page-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Facebook Messenger did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "A name that tells this account from your other accounts on the same service (for example work). Default: default."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "description": "How many messages or items to ask for in one request."
+            },
+            "most_pages": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "How many pages of one conversation or list to read."
+            },
+            "most_threads": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "At most this many conversations are read in one pull."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "account",
+            "status",
+            "said"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "account": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pulled",
+                "partial",
+                "needs_login",
+                "unreachable"
+              ]
+            },
+            "self_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "threads": {
+              "type": "integer"
+            },
+            "items": {
+              "type": "integer"
+            },
+            "new_messages": {
+              "type": "integer"
+            },
+            "new_items": {
+              "type": "integer"
+            },
+            "cursor": {},
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/pull-from-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pull-from-connected-accounts/do-work/pull.mjs",
+            "pullMessengerMessages"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "account-snapshot-part",
+                "prefix": "account-snapshot:",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "messenger-page-access-token",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "maker": "maker:pull-from-connected-accounts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pull-my-x-bookmarks",
+        "label": "Pull the posts I bookmarked on X into my own records",
+        "job": "Pull the posts I bookmarked on X into my own records",
+        "description": "Reads your bookmarks (newest first; needs a token with the bookmark.read, tweet.read and users.read scopes) and keeps each in your records. It stops at the first page it already holds, so a pull after the first reads only what is new, and a bookmark pulled twice is kept once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages. The held X OAuth 2.0 user access token (name x-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when X did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "A name that tells this account from your other accounts on the same service (for example work). Default: default."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "description": "How many messages or items to ask for in one request."
+            },
+            "most_pages": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "How many pages of one conversation or list to read."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "account",
+            "status",
+            "said"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "account": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pulled",
+                "partial",
+                "needs_login",
+                "unreachable"
+              ]
+            },
+            "self_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "threads": {
+              "type": "integer"
+            },
+            "items": {
+              "type": "integer"
+            },
+            "new_messages": {
+              "type": "integer"
+            },
+            "new_items": {
+              "type": "integer"
+            },
+            "cursor": {},
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/pull-from-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pull-from-connected-accounts/do-work/pull.mjs",
+            "pullXBookmarks"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "account-snapshot-part",
+                "prefix": "account-snapshot:",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "x-access-token",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "maker": "maker:pull-from-connected-accounts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pull-my-pinterest-pins",
+        "label": "Pull my Pinterest pins and boards into my own records",
+        "job": "Pull my Pinterest pins and boards into my own records",
+        "description": "Reads the pins and boards of the account the token belongs to (needs a token with pins:read and boards:read) and keeps each in your records. It stops at the first page it already holds, so a pull after the first reads only what is new; a pin or board pulled again has its fields refreshed. Give account (a name for this account, default \"default\"), and optionally limit, most_pages. The held Pinterest access token (name pinterest-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Pinterest did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "A name that tells this account from your other accounts on the same service (for example work). Default: default."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "description": "How many messages or items to ask for in one request."
+            },
+            "most_pages": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "How many pages of one conversation or list to read."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "account",
+            "status",
+            "said"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "account": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pulled",
+                "partial",
+                "needs_login",
+                "unreachable"
+              ]
+            },
+            "self_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "threads": {
+              "type": "integer"
+            },
+            "items": {
+              "type": "integer"
+            },
+            "new_messages": {
+              "type": "integer"
+            },
+            "new_items": {
+              "type": "integer"
+            },
+            "cursor": {},
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/pull-from-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pull-from-connected-accounts/do-work/pull.mjs",
+            "pullPinterestPins"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "account-snapshot-part",
+                "prefix": "account-snapshot:",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "pinterest-access-token",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "maker": "maker:pull-from-connected-accounts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages connector for this service (snapshot fold, cursor, paging), merged into one source description and ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-what-i-pulled-from-an-account",
+        "label": "Read what I pulled from a connected account",
+        "job": "Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Instagram, Messenger, X bookmarks or Pinterest",
+        "description": "Give source (discord, slack, telegram, instagram-messages, messenger-messages, x-bookmarks or pinterest-pins) and optionally account (the name it was pulled under, default \"default\"). Without thread it answers the conversations (id, title, message count), the collections (name, count), who the account is, the cursor and when it was last pulled. With thread (a conversation id from that list) it answers that conversation's messages exactly as the service sent them, the last limit of them (default 100, at most 500). It reads your records and changes nothing; it never reaches the service.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source"
+          ],
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": [
+                "discord",
+                "instagram-messages",
+                "messenger-messages",
+                "pinterest-pins",
+                "slack",
+                "telegram",
+                "x-bookmarks"
+              ]
+            },
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "thread": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "account",
+            "said"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "account": {
+              "type": "string"
+            },
+            "self_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "cursor": {},
+            "pulled_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "threads": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "title",
+                  "messages"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "messages": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "collections": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer"
+              }
+            },
+            "thread": {
+              "type": "object"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/pull-from-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pull-from-connected-accounts/do-work/read.mjs",
+            "readPulledSnapshot"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "account-snapshot-part",
+                "prefix": "account-snapshot:",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:pull-from-connected-accounts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "new: reads back the parts the pull tools keep"
+        }
+      }
+    }
+  ]
+}
