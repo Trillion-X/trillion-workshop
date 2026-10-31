@@ -1,0 +1,182 @@
+{
+ "kind": "tool-rows",
+ "record_set": "office-files-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/office-files: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::office-files::tool::read-an-office-file",
+   "address": "package::office-files::tool::read-an-office-file",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-an-office-file",
+    "label": "Read a spreadsheet, document or presentation as data (runs on your computer)",
+    "status": "active",
+    "job": "Read a spreadsheet (xlsx), a Word document (docx) or a presentation (pptx) into plain data: the sheets with their rows and typed cells, the document's paragraphs and tables, or the slides' text in presentation order",
+    "description": "Reads one Office file without opening Excel, Word or PowerPoint. A workbook gives its sheets in their declared order, each with rows of cells (what is shown, and with --formulas also what was typed); a document gives its paragraphs, each with a selector like paragraph:3 that counts empty paragraphs too, and its tables; a presentation gives each slide's paragraphs in the order the deck declares, never file-name order. Which kind of file it is comes from the parts inside it, not the file name. The file is never changed. Flags: --formulas, --sheet NAME (other sheets come back as skipped), --max-rows N.",
+    "input_schema": {
+     "type": "object",
+     "required": ["file"],
+     "additionalProperties": false,
+     "properties": {
+      "file": { "type": "string", "description": "Path of the xlsx, docx or pptx file on the person's computer" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["kind"],
+     "properties": {
+      "kind": { "type": "string", "enum": ["workbook", "document", "presentation", "container"] },
+      "sheets": { "type": "array" },
+      "blocks": { "type": "array" },
+      "slides": { "type": "array" },
+      "parts": { "type": "array" }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)"],
+     "run": "python3 -I tools/office-files/do-work/decode-office-open-xml.py {file}",
+     "needs": ["python"],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run `run` with the file path; add --formulas to also see what was typed in each cell, --sheet NAME for one sheet, --max-rows N to stop early. It prints one JSON object. Tell the person what the file holds in their words; do not guess at what a sheet or a paragraph means. If you cannot run commands, give them these steps."
+    },
+    "result_selector": "$",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:office-files",
+    "provenance": { "source": "ported from bitfield-packages packages/office-open-xml-decoder (decode-office-open-xml)" }
+   }
+  },
+  {
+   "id": "package::office-files::tool::change-cells-or-words-in-an-office-file",
+   "address": "package::office-files::tool::change-cells-or-words-in-an-office-file",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:change-cells-or-words-in-an-office-file",
+    "label": "Change cells or words in a spreadsheet or document, keeping everything else (runs on your computer)",
+    "status": "active",
+    "job": "Change the cells of a spreadsheet or the words of a Word document by rules, and write a new file that keeps every other part, style and chart as it was",
+    "description": "Takes the file and a rules file (a JSON list). A rule is one of: kind cell (match by formula_contains, value_equals or text_contains, optionally on one sheet; set a formula, a formula_replace, a value or a text_replace), kind shared-string (match equals or contains; set text or replace), or kind document-text (match equals or contains; set text or replace). Cached values are written beside formulas so the next reader sees the intended value without a recalculation. Every part it does not change is copied byte for byte. The report gives how many places each rule changed; a rule that matched nothing is reported with a warning, never silently accepted. The input file is never changed; the new file is written to the output path.",
+    "input_schema": {
+     "type": "object",
+     "required": ["file", "rules", "output"],
+     "additionalProperties": false,
+     "properties": {
+      "file": { "type": "string", "description": "Path of the xlsx or docx file to read" },
+      "rules": { "type": "string", "description": "Path of the JSON rules file" },
+      "output": { "type": "string", "description": "Path of the new file to write" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["rules", "written"],
+     "properties": {
+      "rules": { "type": "array", "items": { "type": "object", "required": ["index", "kind", "matched"] } },
+      "written": { "type": "string" },
+      "warning": { "type": "string" }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)"],
+     "run": "python3 -I tools/office-files/do-work/rewrite-office-open-xml-cells.py {file} {rules} {output}",
+     "needs": ["python"],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the rules file from what the person asked, run `run`, then read the report: any rule with matched 0 changed nothing, so say so and fix the rule. Read the new file back with tool:read-an-office-file to confirm what it now holds before telling the person it is done. If you cannot run commands, give them these steps."
+    },
+    "result_selector": "$",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:office-files",
+    "provenance": { "source": "ported from bitfield-packages packages/office-open-xml-decoder (rewrite-office-open-xml-cells)" }
+   }
+  },
+  {
+   "id": "package::office-files::tool::edit-a-presentations-text",
+   "address": "package::office-files::tool::edit-a-presentations-text",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:edit-a-presentations-text",
+    "label": "Edit a presentation's text and slide order from a request, then read it back (runs on your computer)",
+    "status": "active",
+    "job": "Change the words on slides, rebuild a slide, change speaker notes, delete slides and reorder them in a presentation file, and read the new file back as proof",
+    "description": "Takes a request file naming a presentation runtime module (any module exporting FileBlob and PresentationFile with importPptx and exportPptx), the source and output paths, and per-slide edits by ORIGINAL slide number: replace_text (keeps every other shape), notes, or a whole rebuild (bg, text items, rectangles), plus delete and slide_order. slide_order is applied last and must list every surviving slide exactly once, or the whole request is refused. The report gives each slide's actions and how many shapes each replace_text rule matched (0 when none), then the new file's slide titles in final order and its notes: the readback, not the request, is the proof. The source is never changed. Fonts come from the request (fonts.regular, fonts.bold, or typeface on a text item); none are assumed.",
+    "input_schema": {
+     "type": "object",
+     "required": ["request"],
+     "additionalProperties": false,
+     "properties": {
+      "request": { "type": "string", "description": "Path of the JSON request: runtimeModule, source, output, slides, delete, slide_order, fonts" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["output", "slideCount", "edits", "readback"],
+     "properties": {
+      "output": { "type": "string" },
+      "slideCount": { "type": "number" },
+      "edits": { "type": "array" },
+      "readback": { "type": "array", "items": { "type": "object", "required": ["slide", "title", "notes"] } }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)", "a presentation runtime module that exports FileBlob and PresentationFile"],
+     "run": "node tools/office-files/do-work/apply-declared-presentation-text-edits.mjs --request {request}",
+     "needs": ["node", "a presentation runtime module"],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request file (see the README for its shape), run `run`, and read the last JSON it prints. If it exits 2 the slide_order was wrong; fix it. A replace_text rule with matched 0 changed nothing. Tell the person the readback titles in order. If the runtime's accessor names are not known, run tool:describe-a-presentation-runtime first. If you cannot run commands, give them these steps."
+    },
+    "result_selector": "$",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:office-files",
+    "provenance": { "source": "ported from bitfield-packages packages/apply-declared-presentation-text-edits (apply-declared-presentation-text-edits); the typeface is now a request field" }
+   }
+  },
+  {
+   "id": "package::office-files::tool::describe-a-presentation-runtime",
+   "address": "package::office-files::tool::describe-a-presentation-runtime",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:describe-a-presentation-runtime",
+    "label": "List what a presentation runtime exposes on a slide, a shape and the notes (runs on your computer)",
+    "status": "active",
+    "job": "Print the property names a presentation runtime exposes on one slide, one shape's text and the speaker notes, so an edit request is written against the real names",
+    "description": "Opens a presentation with the runtime module, takes its first slide and the first shape that has text, and prints the property names found on the slide, the shape's text object, the notes object and its text frame, plus the first shape's text and the notes text. Read-only.",
+    "input_schema": {
+     "type": "object",
+     "required": ["runtime_module", "deck"],
+     "additionalProperties": false,
+     "properties": {
+      "runtime_module": { "type": "string", "description": "Path of the presentation runtime module" },
+      "deck": { "type": "string", "description": "Path of a presentation file" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["slide", "speakerNotes"],
+     "properties": {
+      "slide": { "type": "array", "items": { "type": "string" } },
+      "shape": { "type": ["array", "null"] },
+      "shapeText": { "type": ["array", "null"] },
+      "speakerNotes": { "type": "array", "items": { "type": "string" } }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)", "a presentation runtime module that exports FileBlob and PresentationFile"],
+     "run": "node tools/office-files/do-work/describe-presentation-runtime-surface.mjs {runtime_module} {deck}",
+     "needs": ["node", "a presentation runtime module"],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run `run` and use the names it prints in the edit request; a runtime's real names can differ from its documentation. If you cannot run commands, give them these steps."
+    },
+    "result_selector": "$",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:office-files",
+    "provenance": { "source": "ported from bitfield-packages packages/apply-declared-presentation-text-edits (describe-presentation-runtime-surface)" }
+   }
+  }
+ ]
+}
