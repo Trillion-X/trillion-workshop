@@ -101,6 +101,8 @@ def record_answer(lib: Library, piece: Path, check_id: str, answer: str, evidenc
     check = lib.checks().get(check_id)
     if not check:
         raise ValueError(f'{check_id} is not a check in the checklist')
+    if answer == 'pass' and check.get('library_application', {}).get('disposition') == 'held':
+        raise ValueError(f'{check_id} is held: resolve its application before recording pass')
     if answer not in cfg['words'] and not (machine and answer == 'advisory'):
         raise ValueError(f'answer must be one of {", ".join(cfg["words"])}')
     if answer == 'advisory' and not check.get('advisory_passes_at'):       # only a gate's own row, on a check that names where advice passes
@@ -244,6 +246,7 @@ def gate(lib: Library, piece: Path, stages: list[str], options: list[str], at: s
     unanswered, failed, unanswered_optional, per_option_skipped, waits_for_person, advisory = [], [], [], [], [], []
     judgment = set(lib.section('items').get('judgment_rules', []))
     rule_checks_routed = 0
+    library_evaluated = set()
     for stage in doc['stages']:
         if stage['id'] not in stages:
             continue
@@ -257,6 +260,8 @@ def gate(lib: Library, piece: Path, stages: list[str], options: list[str], at: s
                 per_option_skipped.append(c['id'])
                 continue
             for opt in (routed if c.get('per_option') else [None]):
+                if c.get('library_application'):
+                    library_evaluated.add(c['id'])
                 key = (c['id'], opt)
                 if c['id'] in machine:
                     row = machine_rows.get(key)         # only the checker's own result, carrying the reviewed pin of the check that measured it, counts
@@ -264,8 +269,13 @@ def gate(lib: Library, piece: Path, stages: list[str], options: list[str], at: s
                     row = answers.get(key)
                 item = {'id': c['id'], 'option': opt, 'must': c['must'], 'check': c.get('rule') or c['check'],
                         'verify': c['verify'], 'answer_with': answer_command(lib, piece, c, opt)}
+                if c.get('library_application'):
+                    item['library_application'] = c['library_application']
                 if opt is None and options:
                     item['for_options'] = routed
+                if c.get('library_application', {}).get('disposition') == 'held':
+                    item['held_until'] = c['library_application']['held_until']
+                    row = None
                 why_stale = stale_reason(row, [opt] if opt else routed, files, pins, definition_pin(c)) if row is not None else None
                 if why_stale:
                     item['stale'] = why_stale
@@ -294,12 +304,29 @@ def gate(lib: Library, piece: Path, stages: list[str], options: list[str], at: s
     if any(s['id'] in stages for s in doc['stages'] if any(c.get('per_option') for c in s['checks'])) and rule_checks_routed == 0:
         problems.append('WARNING: 0 per-option rule checks are routed for this piece header, so none of the per-option rule checks would be asked. '
                         f'Header tags are {sorted(tags)}; fix the header (medium/source/flags) or the rule routes in the checklist.')
+    library_not_evaluated = []
+    for stage in doc['stages']:
+        for check in stage['checks']:
+            if not check.get('library_application') or check['id'] in library_evaluated:
+                continue
+            reason = ('stage not requested' if stage['id'] not in stages else
+                      'later phase' if check['id'] in later else
+                      'options not supplied' if check.get('per_option') and not options else 'route did not match')
+            library_not_evaluated.append({'id': check['id'], 'source_id': check['library_application']['source_id'], 'reason': reason})
+    expected_library_checks = lib.schema.get('library_checks', {}).get('required_checks', [])
+    missing_library_checks = sorted(set(expected_library_checks) - library_evaluated)
+    if missing_library_checks:
+        problems.append(f'Expected library application checks were not evaluated: {", ".join(missing_library_checks)}; check stage, routes and item scope.')
     must_scope_missing = [c for c in per_option_skipped if any(c == x['id'] and x['must'] for s in doc['stages'] if s['id'] in stages for x in s['checks'])]
     return {'all_passed': not (problems or unanswered or failed or must_scope_missing), 'per_option_rule_checks_routed': rule_checks_routed, 'piece': str(piece), 'stages': stages, 'options': options,
             'at': at, 'tags': sorted(tags), 'flags_unknown': flags_unknown, 'investigation_started': started, 'problems': problems,
             'unanswered_must': unanswered, 'failed_must': failed, 'waits_for_person_picked_design': waits_for_person, 'advisory': advisory,
             'unanswered_optional_count': len(unanswered_optional),
-            'per_option_checks_not_evaluated': per_option_skipped}
+            'per_option_checks_not_evaluated': per_option_skipped,
+            **({'library_evaluation': {'evaluated': sorted(library_evaluated), 'not_evaluated': library_not_evaluated, 'required_checks': expected_library_checks},
+                'library_coverage': {key: (len(value) if isinstance(value, list) else value)
+                                      for key, value in doc['library_coverage'].items()}}
+               if 'library_coverage' in doc else {})}
 
 
 def start_record(lib: Library, piece: Path) -> str | None:

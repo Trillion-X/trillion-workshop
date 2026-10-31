@@ -21,6 +21,19 @@ test('a .jsonl source holds one row per line, and its sidecar is named without t
   assert.deepEqual(rows.map(row => [row.id, row.text]), [['r1', 'statement: Plant one bed first.'], ['r2', 'statement: Water at dawn.']]);
 });
 
+test('edited source content cannot expose or settle crossing fields from an older source hash', async () => {
+  const folder = mkdtempSync(join(tmpdir(), 'stale-crossing-'));
+  const file = join(folder, 'source.jsonl');
+  const original = { id: 'r', statement: 'An earlier claim' };
+  const proposed = { mechanism: [], operates_on: [], needs: [], produces: [], from_medium: 'fixture' };
+  writeFileSync(file, JSON.stringify({ ...original, statement: 'A corrected claim' }));
+  writeFileSync(sidecarOf(file), JSON.stringify({ rows: [{ id: 'r', from_hash: hashOf(original), proposed,
+    settled_from: hashOf(proposed), mechanism: ['old inference'] }] }));
+  const request = { sources: [{ file }], vocabulary_file: join(folder, 'vocabulary.json') };
+  assert.deepEqual(await sayWhyForFiles({ ...request, step: 'rows' }), { rows: [] });
+  assert.equal((await sayWhyForFiles({ ...request, step: 'list' })).rows.length, 1);
+});
+
 test('a writer with seed null sends no seed, sends its body fields, and reads the object out of a thinking block and a fence', async () => {
   const seen = [];
   const server = createServer((request, response) => {

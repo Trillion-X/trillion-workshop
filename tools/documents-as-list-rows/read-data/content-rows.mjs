@@ -145,6 +145,7 @@ export async function contentRows(files, read, { folder, match, exclude, paths, 
   let page = cursor.document ? null : await readParents(cursor.after);
   let parents = page ? page.rows : continued;
   const rows = [];
+  let rowBytes = 0;
   let next = after ?? null;
   for (;;) {
     for (const parent of parents) {
@@ -158,12 +159,13 @@ export async function contentRows(files, read, { folder, match, exclude, paths, 
         if (part < firstPart) continue;
         const moreParts = !piece.done;
         const following = moreParts ? cursorText({ document: parent.id, identity: parent.identity, part: part + 1 }) : parent.id;
-        const candidate = { rows: [...rows, row], next: following };
-        if (most_bytes !== undefined && encoder.encode(JSON.stringify(candidate)).length > most_bytes) {
+        const nextRowBytes = encoder.encode(JSON.stringify(row)).length;
+        const envelopeBytes = encoder.encode(JSON.stringify({ rows: [], next: following })).length;
+        if (most_bytes !== undefined && rowBytes + nextRowBytes + rows.length + envelopeBytes > most_bytes) {
           if (!rows.length) throw say('bad_input', { what: `the first document content piece is bigger than most_bytes (${most_bytes}); use a smaller content.part_bytes.` });
           return { rows, next };
         }
-        rows.push(row); next = following;
+        rows.push(row); rowBytes += nextRowBytes; next = following;
         if (rows.length === limit) {
           let moreParents = parent !== parents.at(-1) || page?.next_cursor;
           if (!moreParts && !moreParents && page === null) {

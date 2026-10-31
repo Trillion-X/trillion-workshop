@@ -98,7 +98,8 @@ test('a fold gives two rows coining one idea one term, tags needs, and holds a r
 test('a recorded judgment settles the waiting row the next time the fold runs', async () => {
   const lexicon = fresh();
   const embed = tableEmbed({ 'two sides compared': at(50) });
-  const { judge } = recordedJudge([{ vocabulary: 'mechanism', term: 'fixture-contrast', chosen: '', among: ['fixture-loop'] }]);
+  const { judge } = recordedJudge([{ vocabulary: 'mechanism', term: 'fixture-contrast', chosen: '', among: ['fixture-loop'],
+    proposed_says: 'two sides compared', candidate_definitions: [{ term: 'fixture-loop', says: 'a question left open holds attention' }] }]);
   const result = await makeSettler({ lexicon, conventions, embed, judge })([{ id: 'c', proposed: { mechanism: [{ term: 'fixture-contrast', says: 'two sides compared' }], operates_on: [], needs: [], produces: [], from_medium: 'fixture' } }]);
   assert.deepEqual(result.rows[0].mechanism, ['fixture-contrast']);
   assert.equal(lexicon.vocabularies.mechanism.terms.length, 2);
@@ -107,11 +108,26 @@ test('a recorded judgment settles the waiting row the next time the fold runs', 
 test('"none of them" stops holding once a term it was not judged against becomes a candidate', async () => {
   const lexicon = fresh();
   lexicon.vocabularies.mechanism.terms.push({ term: 'fixture-pace', says: 'a steady beat', aliases: [], from: 'r0', vector: at(100) });
-  const recorded = recordedJudge([{ vocabulary: 'mechanism', term: 'fixture-rhythm', chosen: '', among: ['fixture-loop'] }]);
+  const recorded = recordedJudge([{ vocabulary: 'mechanism', term: 'fixture-rhythm', chosen: '', among: ['fixture-loop'],
+    proposed_says: 'a regular beat', candidate_definitions: [{ term: 'fixture-loop', says: 'a question left open holds attention' }] }]);
   const embed = tableEmbed({ 'a regular beat': at(55) });
   const result = await makeSettler({ lexicon, conventions, embed, judge: recorded.judge })([{ id: 'r', proposed: { mechanism: [{ term: 'fixture-rhythm', says: 'a regular beat' }], operates_on: [], needs: [], produces: [], from_medium: 'fixture' } }]);
   assert.deepEqual(result.waiting, ['r']);
   assert.deepEqual(recorded.waiting[0].candidates.map(item => item.term), ['fixture-pace', 'fixture-loop']);
+});
+
+test('recorded choices bind proposal and candidate meanings, and legacy unbound records remain waiting', async () => {
+  const proposal = { term: 'near', says: 'a withheld question' };
+  const candidates = [{ term: 'loop', says: 'an unanswered question' }];
+  const entry = { vocabulary: 'mechanism', term: 'near', chosen: 'loop', among: ['loop'],
+    proposed_says: proposal.says, candidate_definitions: candidates };
+  const run = (records, p = proposal, c = candidates) => recordedJudge(records).judge({ vocabulary: 'mechanism', proposal: p, candidates: c });
+  assert.equal(await run([entry]), 'loop');
+  assert.equal(await run([entry], { ...proposal, says: 'a repeating animation' }), undefined);
+  assert.equal(await run([entry], proposal, [{ term: 'loop', says: 'a repeating animation' }]), undefined);
+  assert.equal(await run([{ vocabulary: 'mechanism', term: 'near', chosen: 'loop', among: ['loop'] }]), undefined);
+  assert.equal(await run([{ ...entry, chosen: '' }]), '');
+  assert.equal(await run([{ ...entry, chosen: '' }], proposal, [{ term: 'loop', says: 'a changed meaning' }]), undefined);
 });
 
 test('a row that reuses another row\'s waiting term is held too, and the waiting term is judged once', async () => {

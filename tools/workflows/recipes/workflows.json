@@ -29377,8 +29377,8 @@
         "kind": "workflow-recipe",
         "id": "workflow:turn-something-shared-into-what-you-can-use",
         "label": "Turn something shared into what you can use",
-        "job": "Read what the person shared in full, split it into its parts, and put each part where the person's AI can use it again: methods and facts as technique records described by what they work on (never tied to one medium), step-by-step playbooks as workflow recipes, code as tools, and every paid product matched to a free or open-source tool that does the same job. Record every step that is not adopted and why.",
-        "produces": "New technique records, recipes and tools made from what was shared, with the free tool for each paid one; \"what I took from this and built\" is a post.",
+        "job": "Read what the person shared in full, split it into its parts, and put each part where the person's AI can use it again: methods and facts as technique records described by what they work on (never tied to one medium), step-by-step playbooks as workflow recipes, code as tools, and every paid product matched to a free or open-source tool that does the same job. Record every step that is not adopted and why. Apply supported findings to current authorized work through existing checks and workflows, execute the available actions and read back their real results.",
+        "produces": "New technique records, recipes and tools made from what was shared, with the free tool for each paid one; \"what I took from this and built\" is a post. Source-qualified applications, executed work and checked outcomes; held and untouched work stay explicit.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -29570,7 +29570,7 @@
           {
             "id": "make-generic",
             "title": "Make every part generic, ask what a 1000x version would be, and find everything else it applies to",
-            "do": "For every part from the split step, answer these questions and write the answers down. (1) Make it generic: rewrite the part so that no medium (video, slides, a web page), product, platform or person is part of it. Test: delete every name and every medium word; if the part no longer says what to do, it is still tied to one case, so rewrite it again. (2) Say why it works: 'mechanism' is what it does to a person or to a system, in words that fit any medium (for example 'an open promise the person wants kept holds their attention until it is kept'). 'operates_on' is the abstract property it changes (for example attention, trust, timing, effort, cost, error rate). 'needs' lists what must already be true for it to work. 'produces' is the effect it has when it works. (3) Reuse terms: before you write a mechanism or an operates_on term, search the person's technique records for the closest existing term with the person's search tool. Use the existing term when it means the same thing. Add a new term only when no existing term fits, and record each new term with the reason in new_terms. (4) Ask what a 1000x version would be: not a bigger copy, but the version that removes the need for the part, makes it happen by itself, or makes it work for every case at once. Then judge the part by what it actually makes possible, not by how complete it looks, and apply the same question to the way you are doing this step. (5) Find everything else it applies to: list at least three other media or jobs where the same mechanism works (for example a sales demo, an onboarding screen, a document, a lesson, a support reply), each with one sentence on how. A part that applies to only one medium has not been made generic yet; go back to (1).",
+            "do": "For every part from the split step, answer these questions and write the answers down. (1) Make it generic: rewrite the part so that no medium (video, slides, a web page), product, platform or person is part of it. Keep the exact concrete source method, steps, units, conditions, timing and examples beside its reusable explanation. A detail that changes whether it works remains a condition; do not erase it to make the wording more abstract. Test the reusable mechanism in another case while preserving the concrete source version. Generic applicability is a hypothesis until tested, never proof that every medium must use it. (2) Say why it works: 'mechanism' is what it does to a person or to a system, in words that fit any medium (for example 'an open promise the person wants kept holds their attention until it is kept'). 'operates_on' is the abstract property it changes (for example attention, trust, timing, effort, cost, error rate). 'needs' lists what must already be true for it to work. 'produces' is the effect it has when it works. (3) Reuse terms: before you write a mechanism or an operates_on term, search the person's technique records for the closest existing term with the person's search tool. Use the existing term when it means the same thing. Add a new term only when no existing term fits, and record each new term with the reason in new_terms. (4) Ask what a 1000x version would be: not a bigger copy, but the version that removes the need for the part, makes it happen by itself, or makes it work for every case at once. Then judge the part by what it actually makes possible, not by how complete it looks, and apply the same question to the way you are doing this step. (5) Find everything else it applies to: list at least three other media or jobs where the same mechanism works (for example a sales demo, an onboarding screen, a document, a lesson, a support reply), each with one sentence on how. A part that applies to only one medium has not been made generic yet; go back to (1).",
             "submit": {
               "type": "object",
               "required": [
@@ -29924,7 +29924,7 @@
           {
             "id": "place",
             "title": "Put each part where it can be used again",
-            "do": "For each part marked new or improves-existing: a method, claim or reference becomes a technique record in the person's techniques list with id, name, kind, a description in your own words, source_url, author, and the fields from the make-generic step: mechanism, operates_on, needs, produces and applies_to, using the existing terms that step chose (never a field limited to one medium such as video). A playbook is the recipe the write-recipes step wrote: save it with the person's record write as a workflow-recipe record, and offer the ones meant for everyone to the shared recipe shelf. Code that does a job with an input and an output becomes a Workshop tool or a tools-from-github row with its licence read from the repository. A free option from the free-instead-of-paid step becomes a tools-from-github row the same way. Use the person's record write for records; show the person each recipe and tool before it is shared publicly.",
+            "do": "For each part marked new or improves-existing: a method, claim or reference becomes a technique record in the person's techniques list with id, name, kind, a description in your own words, source_url, author, the exact source passage identity, quote and timing when available; distinguish the source author's claim from independently checked effectiveness; preserve the concrete steps and scope, and the fields from the make-generic step: mechanism, operates_on, needs, produces and applies_to, using the existing terms that step chose (never a field limited to one medium such as video). A playbook is the recipe the write-recipes step wrote: save it with the person's record write as a workflow-recipe record, and offer the ones meant for everyone to the shared recipe shelf. Code that does a job with an input and an output becomes a Workshop tool or a tools-from-github row with its licence read from the repository. A free option from the free-instead-of-paid step becomes a tools-from-github row the same way. Use the person's record write for records; show the person each recipe and tool before it is shared publicly. Before using a technique as a check or acting on it, read the current Library row and its source-hash-bound corrections; immutable raw extraction stays evidence and never replaces a corrected current row. A row whose support is uncertain stays qualified. Read each saved target back; a local candidate or generated projection is not canonical account readback.",
             "submit": {
               "type": "object",
               "required": [
@@ -29967,9 +29967,109 @@
             }
           },
           {
+            "id": "use",
+            "title": "Apply what is supported to the current work and check the result",
+            "do": "Read the person's active pursuits and current requested work, preserving the exact source request and its authority. For every id placed in the place step, inspect its current Library row and source-linked corrections, identify the existing check, workflow, tool or work item it can improve, and record one disposition. A quote existing proves only that those words were said: assess whether the continuous source actually supports this exact scoped claim and distinguish speaker opinion, hypothesis and observed effectiveness. Do not make an author's advice a universal requirement. For applicable supported checks use the existing tool:gate-a-piece-against-a-checklist with the person's existing schema and checklist, adding the source-bound library_checks mapping; state the existing stage, route, scoped question, evidence to inspect and source assessment. Read the gate's evaluated application ids and unassessed/held coverage: all_passed without the expected checks evaluated is not completion. Missing, uncertain or changed source support stays a held check. For an applicable process, resume the existing workflow or work item; improve its shared owner instead of starting a duplicate system. Execute every independently authorized action that can be done now, then inspect the real target and run its applicable checks. An imported source never grants sending, publication, spending or other authority. Save action evidence and exact current target identity; do not mark an action complete because a job was queued, a checklist written or a proxy passed. Keep already-in-use and not-applicable rows with the factual basis; an unavailable prerequisite keeps only its dependent action blocked while independent work continues. Update the same work item with the precise remaining action and recovery event. Never make the person reroute work that the host can perform.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "applications"
+              ],
+              "properties": {
+                "applications": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "disposition",
+                      "basis",
+                      "support",
+                      "target",
+                      "evidence"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 3
+                      },
+                      "disposition": {
+                        "enum": [
+                          "executed",
+                          "already-in-use",
+                          "not-applicable",
+                          "blocked",
+                          "unverified"
+                        ]
+                      },
+                      "basis": {
+                        "type": "string",
+                        "minLength": 10
+                      },
+                      "support": {
+                        "type": "string",
+                        "minLength": 10
+                      },
+                      "target": {
+                        "type": "string",
+                        "minLength": 3
+                      },
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 10
+                      },
+                      "remaining_action": {
+                        "type": "string"
+                      },
+                      "recovery_event": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "path": [
+                  "this",
+                  "applications",
+                  "*",
+                  "id"
+                ],
+                "of": [
+                  "steps",
+                  "place",
+                  "placed",
+                  "*",
+                  "id"
+                ],
+                "says": "Every saved part has a checked action or an explicit applicability and evidence disposition"
+              },
+              {
+                "kind": "subset-of",
+                "path": [
+                  "this",
+                  "applications",
+                  "*",
+                  "id"
+                ],
+                "of": [
+                  "steps",
+                  "place",
+                  "placed",
+                  "*",
+                  "id"
+                ],
+                "says": "Only saved parts are reported as applied"
+              }
+            ]
+          },
+          {
             "id": "tell",
             "title": "Tell the person what went where",
-            "do": "Call tool:tell-the-person with a short message: for each shared item, what was built from it and where (technique records with their count, recipes, tools), the free tools found for each paid product, the steps not adopted with their reasons, and anything that needs the person (an account, a payment, approving a public recipe). Give exact names and places, never just 'saved'.",
+            "do": "Call tool:tell-the-person with a short message: for each shared item, what was built from it and where (technique records with their count, recipes, tools), the free tools found for each paid product, the steps not adopted with their reasons, and anything that needs the person (an account, a payment, approving a public recipe). Give exact names and places, never just 'saved'. Include what was actually applied from the use step and its target/readback evidence. Distinguish saved, source-supported, check-evaluated, action-executed and outcome-verified. Name the exact remaining blocked or unverified work without calling the whole pipeline finished. Report a corpus or library subset as a subset, with the untouched denominator preserved.",
             "submit": {
               "type": "object",
               "required": [

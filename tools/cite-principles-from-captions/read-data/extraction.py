@@ -300,6 +300,7 @@ def rows_of_reply(asks, chunk, videos, captions_of, rows, base):
         fields = {k: v for k, v in row.items() if k not in (quote_field, part_field)}
         source = {"video": video["id"], "platform": video.get("platform"), "channel": video.get("channel"),
                   "guest": guest_of(asks.get("guest_from"), video), "title": video.get("title"),
+                  **({"url": video['url']} if video.get('url') else {}),
                   "t": placed["t"], "t_end": placed["t_end"], "quote": placed["quote"], "quote_match": placed["match"],
                   **({"requoted": True} if placed.get("requoted") else {})}
         kept.append({**fields, **base, "sources": [source]})

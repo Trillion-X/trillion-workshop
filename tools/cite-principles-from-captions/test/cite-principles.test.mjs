@@ -167,6 +167,21 @@ test('coverage counts videos, shorts and words per channel and the videos rows a
   assert.deepEqual([alpha.channel_url, beta.channel_url], ['https://example.com/@alpha', null], 'a channel\'s address is kept when its videos give one');
 });
 
+test('coverage separately counts completed videos with no rows and emits only cited source row files', () => {
+  const video = lines(corpus)[0];
+  const done = join(work, 'done-manifest.jsonl');
+  writeFileSync(done, `${JSON.stringify({ video: video.id, failed_parts: 0 })}\n${JSON.stringify({ video: 'not-in-corpus', failed_parts: 0 })}\n`);
+  const rejected = join(work, 'rejected-manifest.jsonl');
+  writeFileSync(rejected, `${JSON.stringify({ video: video.id, why: 'not supported', row: { statement: 'Not admitted' } })}\n`);
+  const outFile = join(work, 'coverage-manifest.json');
+  const out = tool('coverage', '--corpus', corpus, '--rows', join(work, 'rows', 'a.jsonl'), done, rejected, '--done', done, '--out', outFile);
+  assert.equal(out.status, 0, out.stderr);
+  const report = JSON.parse(readFileSync(outFile));
+  assert.equal(report.totals.completed_videos, 1);
+  assert.equal(report.totals.rows, 4, 'completed and rejected ledger entries cannot inflate kept rows');
+  assert.deepEqual(report.row_files, [{ path: 'rows/a.jsonl' }]);
+});
+
 test('extract asks the model about every part, keeps each quote as the caption words it came from, and a stop loses nothing', async () => {
   const both = join(work, 'corpus-both.jsonl');
   const server = spawn('python3', [join(folder, 'test', 'fake_chat.py')]);
@@ -176,19 +191,24 @@ test('extract asks the model about every part, keeps each quote as the caption w
     assert.equal(run(join(folder, 'test', 'write_json.py'), model, JSON.stringify({ url: `http://127.0.0.1:${port}/v1`, model: 'stand-in' })).status, 0);
     const out = join(work, 'extracted');
     const extract = (...more) => spawnAsync('python3', [script, 'extract', '--corpus', both, '--asks', join(work, 'asks.json'), '--model', model, '--out', out, '--retry-seconds', '0', ...more]);
-    const first = await extract('--attempts', '1', '--concurrency', '2');
+    const progress = join(work, 'extract-progress.json');
+    const first = await extract('--attempts', '1', '--concurrency', '2', '--coverage-out', progress, '--report-every', '1');
     assert.equal(first.status, 0, first.stderr);
     const done = () => lines(join(out, 'done.jsonl'));
     assert.equal(done().length, 7, 'every video has a line');
     assert.deepEqual(done().filter(d => d.failed_parts).map(d => [d.video, d.rows]), [['xvid1', 0]], 'a video with a part that failed keeps no rows');
-    const second = await extract('--attempts', '1');
+    assert.equal(JSON.parse(readFileSync(progress)).totals.completed_videos, 6, 'failed video does not count complete');
+    const second = await extract('--attempts', '1', '--coverage-out', progress);
     assert.equal(lastLine(second.stdout).videos, 1, 'the next run asks only for the video that failed');
+    const manifest = JSON.parse(readFileSync(progress));
+    assert.equal(manifest.totals.completed_videos, 7);
+    assert.equal(manifest.row_files.length, 3, 'every channel file is available for downstream use, with no extraction ledger');
     const gamma = lines(join(out, 'Channel-Gamma.jsonl'));
     assert.equal(gamma.filter(r => r.sources[0].video === 'xvid1').length, 2, 'its rows are written once');
     const rows = ['Channel-Alpha', 'Channel-Beta', 'Channel-Gamma'].flatMap(name => lines(join(out, `${name}.jsonl`)));
     assert.ok(rows.every(r => r.extracted_by === 'stand-in' && r.asks === 'made-up asks' && !('quote' in r) && !('part' in r)));
     const exact = rows.find(r => r.id === 'xvid1@0#1');
-    assert.deepEqual(exact.sources, [{ video: 'xvid1', platform: 'twitter', channel: 'Channel Gamma', guest: null, title: 'A broken habit', t: 0, t_end: 5,
+    assert.deepEqual(exact.sources, [{ video: 'xvid1', platform: 'twitter', channel: 'Channel Gamma', guest: null, title: 'A broken habit', url: 'https://x.example/xvid1', t: 0, t_end: 5,
       quote: 'I broke the habit by writing it down', quote_match: 1 }]);
     const close = rows.find(r => r.statement === 'Idea two.' && r.sources[0].video === 'xvid1');
     assert.deepEqual([close.sources[0].quote, close.sources[0].quote_match], ['the habit by writing it down every night', 0.875], 'the caption\'s own words replace a quote with one word wrong');
