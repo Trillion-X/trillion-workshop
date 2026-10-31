@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openRecordsDoor, RecordsDoorError } from '../read-data/records-door.mjs';
+import { wholeAnswer } from '../read-data/byte-pages.mjs';
 import { startFakeDoor } from './fake-door.mjs';
 
 const ALL = ['records:read', 'records:list', 'records:write'];
@@ -96,6 +97,29 @@ test('a write whose outcome is unknown is sent again with the same key and answe
     assert.deepEqual(await client.write([{ id: 'note:u', type: 'note', value: { n: 1 } }], { key: 'write-note-u' }), { changed: 1, write_count: 1 });
     assert.deepEqual(door.calls.map(call => call.key), ['write-note-u', 'write-note-u']);
   } finally { await door.close(); }
+});
+
+test('a record too big for one message is read as pages of its own bytes, joined and checked against its BLAKE3', async () => {
+  const long = { id: 'note:long', type: 'note', value: { words: 'flour, water, salt and time; '.repeat(40) } };
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], records: [long, { id: 'note:a', type: 'note', value: { words: 'a' } }], bytePage: 300 });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor });
+    assert.deepEqual(await client.read('note', 'note:long'), long.value);
+    const listed = [];
+    for await (const record of client.list({ type: 'note' })) listed.push(record.id);
+    assert.deepEqual(listed, ['note:long', 'note:a']);
+    const paged = door.calls.filter(call => call.method === 'records:read');
+    assert.ok(paged.length > 3 && paged.slice(1).every((call, at) => call.input.after_byte === (at + 1) * 300), 'each page reads on from the last');
+  } finally { await door.close(); }
+});
+
+test('byte pages that do not follow on, or whose joined bytes are not what the door hashed, are refused', async () => {
+  const bytes = new TextEncoder().encode(JSON.stringify({ value: 'kneaded' }));
+  const page = (offset, length, next, blake3 = 'a'.repeat(64)) => ({ byte_page: { total: bytes.length, blake3, offset, length,
+    base64: btoa(String.fromCharCode(...bytes.subarray(offset, offset + length))), next_after_byte: next } });
+  await assert.rejects(wholeAnswer(page(0, 5, 5), async () => page(6, 5, null)), /do not follow on/);
+  await assert.rejects(wholeAnswer(page(0, 5, 5), async () => page(5, bytes.length - 5, null)), /not the answer the door hashed/);
+  assert.deepEqual(await wholeAnswer({ records: [] }, async () => { throw new Error('never asked'); }), { records: [] });
 });
 
 test('a refusal carries the door\'s code and outcome with words of its own, and an ended run says its door closed', async () => {

@@ -21,6 +21,7 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { randomUUID } from 'node:crypto';
+import { wholeAnswer } from '../../records-door/read-data/byte-pages.mjs';
 
 const PROTOCOL = '2025-06-18';
 const BUSY_RETRIES = 5;
@@ -56,7 +57,7 @@ export async function openDoor(config, { keyOf = keychainKey } = {}) {
   let step = 0;
   // A busy door (HTTP 503 or selected_owner_unavailable) and a call whose outcome is unknown are sent again with the
   // same request key after a growing wait, never a new key, so a call that did happen answers its first answer.
-  const call = async (address, method, input, request_key = `read-a-list-view-${randomUUID()}`) => {
+  const callOnce = async (address, method, input, request_key) => {
     for (let attempt = 0; ; attempt += 1) {
       step += 1;
       const again = attempt < BUSY_RETRIES;
@@ -76,6 +77,14 @@ export async function openDoor(config, { keyOf = keychainKey } = {}) {
       if ((answer?.code === 'selected_owner_unavailable' || answer?.outcome === 'unknown') && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
       throw say(answer?.code ?? 'refused', `${method} was refused: ${JSON.stringify(answer).slice(0, 300)}`);
     }
+  };
+  // A record too big for one message comes as pages of its own bytes (tools/records-door byte-pages.mjs); the same
+  // call with after_byte reads on, and the joined answer is held to the same rule as any answer: it never holds the key.
+  const call = async (address, method, input, request_key = `read-a-list-view-${randomUUID()}`) => {
+    const first = await callOnce(address, method, input, request_key);
+    const whole = await wholeAnswer(first, after => callOnce(address, method, { ...input, after_byte: after }, `read-a-list-view-${randomUUID()}`));
+    if (whole !== first && JSON.stringify(whole).includes(key)) throw say('key_in_answer', `The door's answer to ${method} held the key; nothing of it is kept.`);
+    return whole;
   };
   const run = async (tool, input) => {
     const local = localTools[tool];

@@ -37,6 +37,12 @@ A row asks for the door in its invoke, with one rights item per record kind:
     The request key makes a write safe to send again.
   - A run that wake starts has every value it writes stamped with the wake's cause (`_wake_cause`), so its own
     change does not wake it again. Such a run may not remove records. A run an AI starts at the door has no cause.
+- The door answers within one bounded message. A list page holds as many rows as fit (fewer than `limit`, with a
+  `next`). A record too big to fit alone (or a list whose first row is) is answered as pages of its own bytes:
+  `{ byte_page: { total, blake3, offset, length, base64, next_after_byte } }`. The same call with `after_byte` set to
+  `next_after_byte` answers the next page, until it is null. The client joins the pages, checks their length and
+  BLAKE3, and answers what the call would have answered (`read-data/byte-pages.mjs` `wholeAnswer`, which other doors
+  use too).
 - `invoke.records` holds only `fd`, `rights` and `most_writes`; any other key refuses the row.
 - A refusal is `{ isError: true, structuredContent: { code, outcome: "not_started" | "unknown", request_key? } }`,
   with no words. The client gives each code its words:
@@ -55,16 +61,16 @@ A row asks for the door in its invoke, with one rights item per record kind:
 |------|---------|
 | `read-data/records-door.mjs` | `openRecordsDoor()`: `read(type, id)`, `list(query)` (every page, as an async iterator), `write(records, { key })`, `files(operation, input)`; `RecordsDoorError` with the door's code. |
 | `do-work/run-an-export.mjs` | `node run-an-export.mjs <module file> <export>`: calls `fn(input, { door })` with the run's input and prints `{ result }` or `{ error }`. The door opens on first use, so a function that reads no records needs none. |
-| `test/fake-door.mjs` | A stand-in door on loopback: records in memory, bearer and rights checks, cut pages, busy answers, event-stream answers, saved write receipts. |
+| `read-data/byte-pages.mjs` | `wholeAnswer(answer, again)`: an answer that came as byte pages, read on with `again(after_byte)`, joined, checked and parsed. Pure, so a page bundles it too. |
+| `test/fake-door.mjs` | A stand-in door on loopback: records in memory, bearer and rights checks, cut pages, byte pages, busy answers, event-stream answers, saved write receipts. |
 | `test/run-row.mjs` | `runRow(row, input, { records })`: runs a row's argv the way the container does (`/opt/<folder>` laid on `tools/<folder>`), with the fake door on the row's descriptor and exactly the row's rights. |
 | `test/records-door.test.mjs` | The client and the driver against the fake door. |
 
 ## Dependencies
 
-**Depends on:** nothing outside Node.
+**Depends on:** Node, and `tools/content-identity` (the BLAKE3 check of joined byte pages).
 
-**Depended on by:** `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`
-(their rows pack this folder, and their tests use `test/run-row.mjs`), and `tools/meaning-search` (its rows pack this
-folder and read the person's files with `door.files`).
-**Depended on by:** `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`, `tools/person-list`
-(their rows pack this folder, and their tests use `test/run-row.mjs`).
+**Depended on by:**
+- `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`, `tools/person-list`: their rows pack this folder, and their tests use `test/run-row.mjs`;
+- `tools/meaning-search` and `tools/documents-as-list-rows`: their rows pack this folder and read the person's files with `door.files`;
+- `tools/read-a-list-view`: its door joins byte pages with `read-data/byte-pages.mjs`.
