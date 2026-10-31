@@ -13,7 +13,7 @@
    "payload": {
     "kind": "tool-row-source",
     "id": "source:business-legal-document-tools",
-    "label": "Legal documents for a business: terms of service, privacy, refunds and waivers from its facts",
+    "label": "Legal documents and sales contracts for a business: terms of service, privacy, refunds and waivers from its facts, and a sales contract ready to give out",
     "list": {
      "records": {
       "package": "legal-document-builder",

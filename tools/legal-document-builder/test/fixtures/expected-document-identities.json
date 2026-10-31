@@ -1,0 +1,100 @@
+{
+ "kind": "expected-document-identities",
+ "source": "the made-up businesses in business-policy-instances.json assembled with data/policy-clause-library.json",
+ "documents": [
+  {
+   "business_id": "harbor-light-tennis",
+   "document_type": "terms",
+   "identity": "1f:8e50b736f36f36e97c86ef550481a429a8f8f4de514999f81dbfcf474daddd9d",
+   "customer_ready": false,
+   "clauses": 14,
+   "missing": [],
+   "unverified": []
+  },
+  {
+   "business_id": "harbor-light-tennis",
+   "document_type": "privacy",
+   "identity": "1f:e9c9f94dd1fa11dbec4da7e912b74a60b186562c7b36cbf306de1106ca23cbcd",
+   "customer_ready": false,
+   "clauses": 10,
+   "missing": [],
+   "unverified": []
+  },
+  {
+   "business_id": "harbor-light-tennis",
+   "document_type": "refunds",
+   "identity": "1f:94174d6f348b02d8bec8d6989735387450e873ba5add41c02568283bc22c3c8d",
+   "customer_ready": false,
+   "clauses": 4,
+   "missing": [],
+   "unverified": []
+  },
+  {
+   "business_id": "harbor-light-tennis",
+   "document_type": "waiver",
+   "identity": "1f:6e3eb06d430e43518ffdbdb5a16466083ea4fd4325d5c7fd30d070f33d55f82a",
+   "customer_ready": false,
+   "clauses": 4,
+   "missing": [],
+   "unverified": []
+  },
+  {
+   "business_id": "northwind-notes",
+   "document_type": "terms",
+   "identity": "1f:e24a9330aa7e239030906d4f2a151c43a40f82e76df189f2597c406bab1405d6",
+   "customer_ready": false,
+   "clauses": 17,
+   "missing": [],
+   "unverified": [
+    "business_legal_name"
+   ]
+  },
+  {
+   "business_id": "northwind-notes",
+   "document_type": "privacy",
+   "identity": "1f:6374051ef39c1a0f8a2c5f2aaaa689a18c3890a36f3afd585c680d7cd11e2dd0",
+   "customer_ready": false,
+   "clauses": 12,
+   "missing": [],
+   "unverified": [
+    "business_legal_name"
+   ]
+  },
+  {
+   "business_id": "northwind-notes",
+   "document_type": "refunds",
+   "identity": "1f:3c5293c0b0b3cbe80e0a9488ed124c53b525b34ee59cbd788f075271064e029d",
+   "customer_ready": false,
+   "clauses": 4,
+   "missing": [],
+   "unverified": []
+  },
+  {
+   "business_id": "quill-pottery-studio",
+   "document_type": "terms",
+   "identity": "1f:7b8ad8e5fe1442c6684556107b5094ad057c706e8ade5ee3ad12d733af3f298b",
+   "customer_ready": false,
+   "clauses": 12,
+   "missing": [],
+   "unverified": []
+  },
+  {
+   "business_id": "quill-pottery-studio",
+   "document_type": "privacy",
+   "identity": "1f:83d650b22afdfe5eb514a1aec8a3fb9632a4898289b14a5cf2a00140c53bfaf0",
+   "customer_ready": false,
+   "clauses": 10,
+   "missing": [],
+   "unverified": []
+  },
+  {
+   "business_id": "quill-pottery-studio",
+   "document_type": "refunds",
+   "identity": "1f:b5efaea331b8c418bd36710b6483ffc8a142dca4d49ea3c26e637d8dff1a9cfd",
+   "customer_ready": false,
+   "clauses": 1,
+   "missing": [],
+   "unverified": []
+  }
+ ]
+}

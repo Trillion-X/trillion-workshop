@@ -1,0 +1,11 @@
+{
+  "kind": "contract-output-targets",
+  "what_this_is": "The file forms a contract can be made in. A person adds or changes a form here; the code names none. format_id is the id the file maker (tool:export-documents-to-files, structured-file-output.request formats) knows the form by.",
+  "targets": [
+    { "id": "output-target:pdf", "label": "PDF", "short_label": "PDF", "description": "A PDF copy of the accepted contract.", "action_label": "Make PDF", "output_kind": "document-file", "file_extension": "pdf", "format_id": "pdf" },
+    { "id": "output-target:csv", "label": "CSV", "short_label": "CSV", "description": "The contract terms as rows.", "action_label": "Make CSV", "output_kind": "tabular-file", "file_extension": "csv", "format_id": "csv" },
+    { "id": "output-target:xlsx", "label": "Excel", "short_label": "Excel", "description": "A spreadsheet copy of the contract terms.", "action_label": "Make Excel", "output_kind": "workbook-file", "file_extension": "xlsx", "format_id": "xlsx" },
+    { "id": "output-target:markdown", "label": "Markdown", "short_label": "Markdown", "description": "A Markdown copy of the accepted contract.", "action_label": "Make Markdown", "output_kind": "document-file", "file_extension": "md", "format_id": "markdown" },
+    { "id": "output-target:txt", "label": "Plain Text", "short_label": "Text", "description": "A plain-text copy of the accepted contract.", "action_label": "Make Text", "output_kind": "document-file", "file_extension": "txt", "format_id": "txt" }
+  ]
+}
