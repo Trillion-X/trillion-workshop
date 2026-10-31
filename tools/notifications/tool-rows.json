@@ -1,0 +1,228 @@
+{
+ "kind": "tool-rows",
+ "record_set": "notifications-tool-rows",
+ "what_this_is": "The Workshop rows for a person's notification choices and the notices recorded for them, in tools/notifications, kept in their own records through the run's records door.",
+ "records": [
+  {
+   "id": "package::notifications::tool::my-notification-choice",
+   "address": "package::notifications::tool::my-notification-choice",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "read_only": true,
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:notifications",
+    "needs": { "expected_seconds": 1, "network_egress": false },
+    "id": "tool:my-notification-choice",
+    "listed_on": "2026-10-30T20:00:00Z",
+    "label": "How I chose to be notified",
+    "job": "Show the options a notification setting offers this person and which one they chose",
+    "description": "setting is the name of a setting the person described in their own records. Returns { setting, heading, explanation, options: [{ id, label, description, current }], current, status, said }. status is ready, empty (the setting describes no options), missing (the person has described no such setting; said tells how) or invalid (the saved choice is not one of the options; it is reported, not corrected). It changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": ["setting"],
+     "additionalProperties": false,
+     "properties": { "setting": { "type": "string", "minLength": 1, "description": "The setting's name" } }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["setting", "options", "status", "said"],
+     "properties": {
+      "setting": { "type": "string" },
+      "heading": { "type": "string" },
+      "explanation": { "type": "string" },
+      "options": { "type": "array", "items": { "type": "object", "required": ["id", "label", "current"], "properties": { "id": { "type": "string" }, "label": { "type": "string" }, "description": { "type": "string" }, "current": { "type": "boolean" } } } },
+      "current": { "type": ["string", "null"] },
+      "status": { "type": "string", "enum": ["ready", "empty", "missing", "invalid"] },
+      "said": { "type": "string" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "notifications", "paths": ["read-data"], "at": "/opt/notifications" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+      ]
+     },
+     "workdir": "/opt/notifications",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/notifications/read-data/notifications.mjs", "myNotificationChoice"],
+     "stdin": { "fill": { "from": "input" } },
+     "records": { "fd": 3, "rights": [
+      { "kind": "notification-setting", "operations": ["records:read"] },
+      { "kind": "notification-choice", "operations": ["records:read"] }
+     ] }
+    },
+    "provenance": { "source": "bitfield-packages notifications read-data/read-notifications-policy.ts (option list, current value, empty and invalid status), ported to the records door without its modes or its action route" },
+    "verify": [{ "kind": "output-contains-input", "output_selector": "$.setting", "input_field": "setting" }],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::notifications::tool::choose-my-notification-choice",
+   "address": "package::notifications::tool::choose-my-notification-choice",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:notifications",
+    "needs": { "expected_seconds": 1, "network_egress": false },
+    "id": "tool:choose-my-notification-choice",
+    "listed_on": "2026-10-30T20:00:00Z",
+    "label": "Choose how I am notified",
+    "job": "Keep one of a notification setting's options as this person's choice",
+    "description": "setting is the setting's name and choice one option id from tool:my-notification-choice. A choice that is not one of the options is refused with the options named. A setting that is not described, or describes no options, has nothing to choose from: it returns changed false and says so in said, and keeps nothing. Returns { setting, choice, previous, changed, said }; choosing what is already chosen changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": ["setting", "choice"],
+     "additionalProperties": false,
+     "properties": { "setting": { "type": "string", "minLength": 1 }, "choice": { "type": "string", "minLength": 1 } }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["setting", "choice", "changed", "said"],
+     "properties": { "setting": { "type": "string" }, "choice": { "type": "string" }, "previous": { "type": ["string", "null"] }, "changed": { "type": "boolean" }, "said": { "type": "string" } }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "notifications", "paths": ["read-data"], "at": "/opt/notifications" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+      ]
+     },
+     "workdir": "/opt/notifications",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/notifications/read-data/notifications.mjs", "chooseMyNotificationChoice"],
+     "stdin": { "fill": { "from": "input" } },
+     "records": { "fd": 3, "rights": [
+      { "kind": "notification-setting", "operations": ["records:read"] },
+      { "kind": "notification-choice", "operations": ["records:read", "records:write"] }
+     ] }
+    },
+    "provenance": { "source": "bitfield-packages notifications do-work/save-setting.ts (insert the chosen option id), ported to a records-door write of the choice after checking it is a described option" },
+    "verify": [{ "kind": "output-contains-input", "output_selector": "$.setting", "input_field": "setting" }],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::notifications::tool::record-a-notification",
+   "address": "package::notifications::tool::record-a-notification",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:notifications",
+    "needs": { "expected_seconds": 1, "network_egress": false },
+    "id": "tool:record-a-notification",
+    "listed_on": "2026-10-30T20:00:00Z",
+    "label": "Record a notice for someone",
+    "job": "Record one notification event for the audience the caller names, so it is kept and can be read back; nothing is delivered",
+    "description": "Pass the event: notification_id, kind, conversation_ref, privacy_class, title, body, occurred_at (words) and audience_refs, source_refs, proof_refs (each at least one reference). operationId, transitionId and idempotencyKey are optional. No audience is inferred and no field has a default. If the person saved a notification-event-rules record (kinds, privacy_classes), kind and privacy_class must be among those it lists; with none, any words are accepted. The same event again changes nothing; a different event under the same notification_id is refused. Returns { notification_id, recorded, said }.",
+    "input_schema": {
+     "type": "object",
+     "required": ["notification_id", "kind", "audience_refs", "conversation_ref", "privacy_class", "title", "body", "occurred_at", "source_refs", "proof_refs"],
+     "additionalProperties": false,
+     "properties": {
+      "notification_id": { "type": "string", "minLength": 1 },
+      "kind": { "type": "string", "minLength": 1 },
+      "audience_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+      "conversation_ref": { "type": "string", "minLength": 1 },
+      "privacy_class": { "type": "string", "minLength": 1 },
+      "title": { "type": "string", "minLength": 1 },
+      "body": { "type": "string", "minLength": 1 },
+      "occurred_at": { "type": "string", "minLength": 1 },
+      "source_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+      "proof_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+      "operationId": { "type": "string" },
+      "transitionId": { "type": "string" },
+      "idempotencyKey": { "type": "string" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["notification_id", "recorded", "said"],
+     "properties": { "notification_id": { "type": "string" }, "recorded": { "type": "boolean" }, "said": { "type": "string" } }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "notifications", "paths": ["read-data"], "at": "/opt/notifications" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+      ]
+     },
+     "workdir": "/opt/notifications",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/notifications/read-data/notifications.mjs", "recordANotification"],
+     "stdin": { "fill": { "from": "input" } },
+     "records": { "fd": 3, "rights": [
+      { "kind": "notification-event", "operations": ["records:read", "records:write"] },
+      { "kind": "notification-event-rules", "operations": ["records:read"] }
+     ] }
+    },
+    "provenance": { "source": "bitfield-packages notifications things-to-store-and-run.json action record-notification-event (its input schema and the record it wrote), ported to the records door" },
+    "verify": [{ "kind": "output-contains-input", "output_selector": "$.notification_id", "input_field": "notification_id" }],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::notifications::tool::my-notification-events",
+   "address": "package::notifications::tool::my-notification-events",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "read_only": true,
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:notifications",
+    "needs": { "expected_seconds": 1, "network_egress": false },
+    "id": "tool:my-notification-events",
+    "listed_on": "2026-10-30T20:00:00Z",
+    "label": "Notices recorded for me",
+    "job": "List the notification events recorded for one audience, newest first",
+    "description": "audience is the reference the events name in audience_refs; limit is optional (up to 100, default 20). Returns { audience, events, said }, each event exactly as it was recorded. It changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": ["audience"],
+     "additionalProperties": false,
+     "properties": { "audience": { "type": "string", "minLength": 1 }, "limit": { "type": "integer", "minimum": 1, "maximum": 100 } }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["audience", "events", "said"],
+     "properties": { "audience": { "type": "string" }, "events": { "type": "array", "items": { "type": "object" } }, "said": { "type": "string" } }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "notifications", "paths": ["read-data"], "at": "/opt/notifications" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+      ]
+     },
+     "workdir": "/opt/notifications",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/notifications/read-data/notifications.mjs", "myNotificationEvents"],
+     "stdin": { "fill": { "from": "input" } },
+     "records": { "fd": 3, "rights": [{ "kind": "notification-event", "operations": ["records:list"] }] }
+    },
+    "provenance": { "source": "bitfield-packages notifications notification-events feed, read back by audience through the records door" },
+    "verify": [{ "kind": "output-contains-input", "output_selector": "$.audience", "input_field": "audience" }],
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}
