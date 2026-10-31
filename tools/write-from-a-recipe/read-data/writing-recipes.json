@@ -1,0 +1,3338 @@
+{
+ "kind": "record-set",
+ "record_set": "writing-recipes",
+ "what_this_is": "Writing recipes kept in tools/write-from-a-recipe: each one instruction over the person's text (work_item.text) and the answers it asks for (work_item.fields, with choices and defaults), rendered by read-data/compose-instruction.mjs. Converted from bitfield-packages packages/content-actions action rows: the instruction template is one { line } segment, the typed text is work_item.text and each asked answer is the work item field of its id. Adding a recipe is adding a row.",
+ "records": [
+  {
+   "id": "writing-recipe:action-items",
+   "address": "writing-recipe:action-items",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:action-items",
+    "label": "Action items",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Extract concrete action items from the following as a checklist. Start each with a verb, make each independently doable, and drop anything that is not actionable.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:continue-writing",
+   "address": "writing-recipe:continue-writing",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:continue-writing",
+    "label": "Continue writing",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Continue the following naturally in the exact same voice, tense, and style, as if the same author kept typing. Do not summarize or restart.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:counterargument",
+   "address": "writing-recipe:counterargument",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:counterargument",
+    "label": "Counterargument",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Write the strongest, fair-minded counterargument to the following. Steelman the opposing view; no strawmen.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:critique",
+   "address": "writing-recipe:critique",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:critique",
+    "label": "Critique this",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Give a candid, specific critique of the following: what works, what is weak, and the top 3 concrete improvements. Be direct and useful, not flattering.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:to-email",
+   "address": "writing-recipe:to-email",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:to-email",
+    "label": "Draft an email",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following into a clear, polite, well-structured email. Include a subject line, a greeting, short paragraphs, and a sign-off.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:expand",
+   "address": "writing-recipe:expand",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:expand",
+    "label": "Expand",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Expand the following into a fuller, well-developed piece: add supporting detail, concrete examples, and connective tissue while staying on point.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:eli5",
+   "address": "writing-recipe:eli5",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:eli5",
+    "label": "Explain simply",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Explain the following simply, as if to a sharp 5-year-old, using plain words and a vivid analogy — without losing accuracy.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:fix-grammar",
+   "address": "writing-recipe:fix-grammar",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:fix-grammar",
+    "label": "Fix grammar",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Correct the spelling, grammar, and punctuation in the following. Change nothing else. Return only the corrected text.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:improve-writing",
+   "address": "writing-recipe:improve-writing",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:improve-writing",
+    "label": "Improve writing",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Rewrite the following to improve clarity, flow, rhythm, and impact while preserving the meaning and voice. Return only the improved text.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:key-points",
+   "address": "writing-recipe:key-points",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:key-points",
+    "label": "Key points",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Extract the key points from the following as a tight bulleted list. One idea per bullet, in the original meaning, no preamble.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:make-casual",
+   "address": "writing-recipe:make-casual",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:make-casual",
+    "label": "Make casual",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Rewrite the following in a warm, casual, conversational tone — like explaining it to a friend. Keep the meaning.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:make-formal",
+   "address": "writing-recipe:make-formal",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:make-formal",
+    "label": "Make formal",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Rewrite the following in a precise, professional, formal register without sounding stiff. Keep the meaning.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:shorten",
+   "address": "writing-recipe:shorten",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:shorten",
+    "label": "Make it shorter",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Tighten the following to roughly half its length with no loss of meaning. Cut redundancy and hedging; keep every real point.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:outline",
+   "address": "writing-recipe:outline",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:outline",
+    "label": "Outline",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following into a clear hierarchical outline using headings and nested bullets that mirror its structure. No new content — reorganize what is there.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:rewrite-with-options",
+   "address": "writing-recipe:rewrite-with-options",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:rewrite-with-options",
+    "label": "Rewrite (with options)",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Rewrite the following. Tone: ",
+        {
+         "slot": "work_item",
+         "path": "tone"
+        },
+        ". Length: ",
+        {
+         "slot": "work_item",
+         "path": "length"
+        },
+        ". Intended audience: ",
+        {
+         "slot": "work_item",
+         "path": "audience"
+        },
+        ". Return only the rewritten text.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": [
+      {
+       "id": "tone",
+       "label": "Tone",
+       "control": "select",
+       "options": [
+        {
+         "label": "Clear",
+         "value": "clear"
+        },
+        {
+         "label": "Formal",
+         "value": "formal"
+        },
+        {
+         "label": "Casual",
+         "value": "casual"
+        },
+        {
+         "label": "Persuasive",
+         "value": "persuasive"
+        },
+        {
+         "label": "Confident",
+         "value": "confident"
+        },
+        {
+         "label": "Playful",
+         "value": "playful"
+        },
+        {
+         "label": "Academic",
+         "value": "academic"
+        },
+        {
+         "label": "Empathetic",
+         "value": "empathetic"
+        }
+       ],
+       "default": "clear"
+      },
+      {
+       "id": "length",
+       "label": "Length",
+       "control": "select",
+       "options": [
+        {
+         "label": "Shorter",
+         "value": "shorter"
+        },
+        {
+         "label": "About the same",
+         "value": "same"
+        },
+        {
+         "label": "Longer",
+         "value": "longer"
+        }
+       ],
+       "default": "same"
+      },
+      {
+       "id": "audience",
+       "label": "Audience (optional)",
+       "control": "line",
+       "placeholder": "e.g. busy executives"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:summarize",
+   "address": "writing-recipe:summarize",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:summarize",
+    "label": "Summarize",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Summarize the following clearly and concisely. Preserve every key point and the original intent; cut filler. Return only the summary.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:title-options",
+   "address": "writing-recipe:title-options",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:title-options",
+    "label": "Title options",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Propose 8 strong, distinct title options for the following. Vary the angle (curiosity, benefit, bold claim, how-to). One per line, no numbering commentary.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:translate-spanish",
+   "address": "writing-recipe:translate-spanish",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:translate-spanish",
+    "label": "Translate to Spanish",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Translate the following into natural, fluent Latin American Spanish. Preserve tone and meaning; do not translate proper nouns or code.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:tweet-thread",
+   "address": "writing-recipe:tweet-thread",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:tweet-thread",
+    "label": "Tweet thread",
+    "section": "AI",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following into an engaging numbered tweet thread. Hook first tweet, one idea per tweet, tight and punchy, ending with a takeaway.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:critique-options",
+   "address": "writing-recipe:critique-options",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:critique-options",
+    "label": "Critique (with a lens)",
+    "section": "Analyze",
+    "icon": "Scale",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Critique the following through the lens of ",
+        {
+         "slot": "work_item",
+         "path": "lens"
+        },
+        ", being ",
+        {
+         "slot": "work_item",
+         "path": "candor"
+        },
+        ". Give what works, what is weak, and the top 3 concrete improvements.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text",
+      "lens"
+     ],
+     "fields": [
+      {
+       "id": "lens",
+       "label": "Focus",
+       "control": "select",
+       "required": true,
+       "options": [
+        {
+         "label": "clarity",
+         "value": "clarity"
+        },
+        {
+         "label": "logic",
+         "value": "logic"
+        },
+        {
+         "label": "persuasiveness",
+         "value": "persuasiveness"
+        },
+        {
+         "label": "completeness",
+         "value": "completeness"
+        },
+        {
+         "label": "tone",
+         "value": "tone"
+        },
+        {
+         "label": "originality",
+         "value": "originality"
+        }
+       ],
+       "default": "clarity"
+      },
+      {
+       "id": "candor",
+       "label": "Candor",
+       "control": "select",
+       "options": [
+        {
+         "label": "Gentle",
+         "value": "gentle and encouraging"
+        },
+        {
+         "label": "Balanced",
+         "value": "balanced"
+        },
+        {
+         "label": "Brutal",
+         "value": "brutally honest"
+        }
+       ],
+       "default": "balanced"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:devils-advocate",
+   "address": "writing-recipe:devils-advocate",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:devils-advocate",
+    "label": "Devil's advocate",
+    "section": "Analyze",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Play devil's advocate against the following. Give the most rigorous good-faith objections and where it is most likely to be wrong. No strawmen.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:risks",
+   "address": "writing-recipe:risks",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:risks",
+    "label": "Identify risks",
+    "section": "Analyze",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Identify the key risks in the following. For each: name the risk, why it matters, and a concrete mitigation. Bulleted, most severe first.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:pros-cons",
+   "address": "writing-recipe:pros-cons",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:pros-cons",
+    "label": "Pros & cons",
+    "section": "Analyze",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "List the pros and cons of the following as two clear bulleted sections (Pros, Cons). Be specific and balanced; no preamble.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:questions",
+   "address": "writing-recipe:questions",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:questions",
+    "label": "Questions to consider",
+    "section": "Analyze",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "List the sharpest open questions the following raises or leaves unanswered — the ones worth thinking about before acting. Bulleted, no filler.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:assumptions",
+   "address": "writing-recipe:assumptions",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:assumptions",
+    "label": "Surface assumptions",
+    "section": "Analyze",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Surface the unstated assumptions the following relies on. For each, state the assumption and what breaks if it is false. Bulleted.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:swot",
+   "address": "writing-recipe:swot",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:swot",
+    "label": "SWOT analysis",
+    "section": "Analyze",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Write a SWOT analysis of the text below as four labeled sections (what is strong, what is weak, what could help, what could hurt), each a short bulleted list.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:add-comments",
+   "address": "writing-recipe:add-comments",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:add-comments",
+    "label": "Add comments",
+    "section": "Code",
+    "icon": "MessageSquareCode",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Add clear, concise comments and docstrings to the following code, explaining intent (the WHY), not the obvious. Return the fully commented code, unchanged otherwise.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:explain-code",
+   "address": "writing-recipe:explain-code",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:explain-code",
+    "label": "Explain this code",
+    "section": "Code",
+    "icon": "Code2",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Explain what the following code does, step by step, in plain language: its purpose, the key logic, and any notable edge cases or gotchas. Do not rewrite it.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:find-bugs",
+   "address": "writing-recipe:find-bugs",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:find-bugs",
+    "label": "Find bugs",
+    "section": "Code",
+    "icon": "Bug",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Review the following code for bugs, edge cases, and correctness issues. For each: the problem, why it matters, and the fix. Most severe first. If none, say so.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:code-language",
+   "address": "writing-recipe:code-language",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:code-language",
+    "label": "Write code",
+    "section": "Code",
+    "icon": "Terminal",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Write ",
+        {
+         "slot": "work_item",
+         "path": "style"
+        },
+        " ",
+        {
+         "slot": "work_item",
+         "path": "language"
+        },
+        " code that does the following. Return only the code in a single block.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text",
+      "language"
+     ],
+     "fields": [
+      {
+       "id": "language",
+       "label": "Language",
+       "control": "select",
+       "required": true,
+       "options": [
+        {
+         "label": "Python",
+         "value": "Python"
+        },
+        {
+         "label": "JavaScript",
+         "value": "JavaScript"
+        },
+        {
+         "label": "TypeScript",
+         "value": "TypeScript"
+        },
+        {
+         "label": "Rust",
+         "value": "Rust"
+        },
+        {
+         "label": "Go",
+         "value": "Go"
+        },
+        {
+         "label": "Java",
+         "value": "Java"
+        },
+        {
+         "label": "C++",
+         "value": "C++"
+        },
+        {
+         "label": "SQL",
+         "value": "SQL"
+        },
+        {
+         "label": "Bash",
+         "value": "Bash"
+        },
+        {
+         "label": "Swift",
+         "value": "Swift"
+        }
+       ],
+       "default": "Python"
+      },
+      {
+       "id": "style",
+       "label": "Style",
+       "control": "select",
+       "options": [
+        {
+         "label": "Clean",
+         "value": "clean and idiomatic"
+        },
+        {
+         "label": "Minimal",
+         "value": "minimal"
+        },
+        {
+         "label": "Commented",
+         "value": "heavily commented"
+        },
+        {
+         "label": "Production",
+         "value": "production-grade with error handling"
+        }
+       ],
+       "default": "clean and idiomatic"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:write-tests",
+   "address": "writing-recipe:write-tests",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:write-tests",
+    "label": "Write tests",
+    "section": "Code",
+    "icon": "FlaskConical",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Write thorough unit tests for the following code: the happy path, edge cases, and error cases. Use the code’s own language/framework conventions. Return only the tests.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:clean-data",
+   "address": "writing-recipe:clean-data",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:clean-data",
+    "label": "Clean up data",
+    "section": "Data",
+    "icon": "Sparkle",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Clean the following data: fix inconsistent formatting, normalize casing and separators, remove duplicates, and align columns/fields. Return only the cleaned data in the same shape.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:convert-format",
+   "address": "writing-recipe:convert-format",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:convert-format",
+    "label": "Convert format",
+    "section": "Data",
+    "icon": "Repeat",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Convert the following into ",
+        {
+         "slot": "work_item",
+         "path": "target"
+        },
+        ". Preserve every data point; infer sensible keys/columns. Return only the converted output.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text",
+      "target"
+     ],
+     "fields": [
+      {
+       "id": "target",
+       "label": "Convert to",
+       "control": "select",
+       "required": true,
+       "options": [
+        {
+         "label": "Table",
+         "value": "a Markdown table"
+        },
+        {
+         "label": "JSON",
+         "value": "JSON"
+        },
+        {
+         "label": "YAML",
+         "value": "YAML"
+        },
+        {
+         "label": "CSV",
+         "value": "CSV"
+        },
+        {
+         "label": "Bullets",
+         "value": "a bulleted list"
+        },
+        {
+         "label": "XML",
+         "value": "XML"
+        }
+       ],
+       "default": "a Markdown table"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:extract-data",
+   "address": "writing-recipe:extract-data",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:extract-data",
+    "label": "Extract data",
+    "section": "Data",
+    "icon": "ScanText",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Extract all ",
+        {
+         "slot": "work_item",
+         "path": "what"
+        },
+        " from the following and return them as ",
+        {
+         "slot": "work_item",
+         "path": "format"
+        },
+        ". Include only what is actually present; no guesses.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text",
+      "what"
+     ],
+     "fields": [
+      {
+       "id": "what",
+       "label": "Extract what",
+       "control": "line",
+       "placeholder": "e.g. emails, dates, names, dollar amounts",
+       "required": true
+      },
+      {
+       "id": "format",
+       "label": "As",
+       "control": "select",
+       "options": [
+        {
+         "label": "List",
+         "value": "a bulleted list"
+        },
+        {
+         "label": "Table",
+         "value": "a Markdown table"
+        },
+        {
+         "label": "JSON",
+         "value": "JSON"
+        },
+        {
+         "label": "CSV line",
+         "value": "comma-separated"
+        }
+       ],
+       "default": "a bulleted list"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:alternatives",
+   "address": "writing-recipe:alternatives",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:alternatives",
+    "label": "Alternative approaches",
+    "section": "Ideate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Propose 3–5 genuinely different approaches to what the following describes, each with its core trade-off (what you gain, what you give up).\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:brainstorm-options",
+   "address": "writing-recipe:brainstorm-options",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:brainstorm-options",
+    "label": "Brainstorm (with options)",
+    "section": "Ideate",
+    "icon": "Lightbulb",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Brainstorm ",
+        {
+         "slot": "work_item",
+         "path": "count"
+        },
+        " distinct ideas building on the following, at a boldness of ",
+        {
+         "slot": "work_item",
+         "path": "boldness"
+        },
+        " out of 100 (higher = more unconventional). One concrete idea per line.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": [
+      {
+       "id": "count",
+       "label": "How many ideas",
+       "control": "number",
+       "default": 10,
+       "min": 3,
+       "max": 30
+      },
+      {
+       "id": "boldness",
+       "label": "Boldness",
+       "control": "scale",
+       "default": 50,
+       "min": 0,
+       "max": 100,
+       "min_label": "Safe",
+       "max_label": "Wild"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:brainstorm",
+   "address": "writing-recipe:brainstorm",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:brainstorm",
+    "label": "Brainstorm ideas",
+    "section": "Ideate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Brainstorm 10 distinct, non-obvious ideas building on the following. Range from safe to bold. One per line, each a concrete idea, not a category.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:headlines",
+   "address": "writing-recipe:headlines",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:headlines",
+    "label": "Headline variations",
+    "section": "Ideate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Write 8 distinct headline options for the following, varying the angle (benefit, curiosity, how-to, bold claim, number). One per line.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:next-steps",
+   "address": "writing-recipe:next-steps",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:next-steps",
+    "label": "Suggest next steps",
+    "section": "Ideate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Propose the concrete next steps to move the following forward. Ordered, each a specific action with the expected outcome. Bulleted.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:analogies",
+   "address": "writing-recipe:analogies",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:analogies",
+    "label": "Explain with analogies",
+    "section": "Learn",
+    "icon": "Lightbulb",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Explain the following using 2–3 vivid, accurate analogies that make the core idea click for a newcomer. Name each analogy, then map it to the concept. No loss of accuracy.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:study-guide",
+   "address": "writing-recipe:study-guide",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:study-guide",
+    "label": "Make a study guide",
+    "section": "Learn",
+    "icon": "BookOpen",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following material into ",
+        {
+         "slot": "work_item",
+         "path": "format"
+        },
+        ". Cover the most important, testable points; keep it accurate and well-organized.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text",
+      "format"
+     ],
+     "fields": [
+      {
+       "id": "format",
+       "label": "Format",
+       "control": "select",
+       "required": true,
+       "options": [
+        {
+         "label": "Study guide",
+         "value": "a structured study guide"
+        },
+        {
+         "label": "Flashcards",
+         "value": "flashcards (Q on one line, A on the next)"
+        },
+        {
+         "label": "Quiz",
+         "value": "a quiz with an answer key"
+        },
+        {
+         "label": "Glossary",
+         "value": "key terms with definitions"
+        }
+       ],
+       "default": "a structured study guide"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:break-down-task",
+   "address": "writing-recipe:break-down-task",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:break-down-task",
+    "label": "Break into subtasks",
+    "section": "Plan",
+    "icon": "GitBranch",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Break the following down into concrete, independently-doable subtasks. Each starts with a verb and is small enough to finish in one sitting. Note any dependencies. Bulleted.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:estimate-effort",
+   "address": "writing-recipe:estimate-effort",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:estimate-effort",
+    "label": "Estimate & sequence",
+    "section": "Plan",
+    "icon": "Gauge",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "For the following work, list the tasks with a rough relative effort (S/M/L) and the order to do them in given dependencies. Table: Task | Effort | Depends on. No time estimates.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:make-plan",
+   "address": "writing-recipe:make-plan",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:make-plan",
+    "label": "Make a plan",
+    "section": "Plan",
+    "icon": "ListTodo",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following goal into ",
+        {
+         "slot": "work_item",
+         "path": "horizon"
+        },
+        ". Each step is a concrete action with an owner-agnostic outcome; order them sensibly.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": [
+      {
+       "id": "horizon",
+       "label": "Horizon",
+       "control": "select",
+       "options": [
+        {
+         "label": "Quick",
+         "value": "a quick 3-step plan"
+        },
+        {
+         "label": "Standard",
+         "value": "a clear step-by-step plan"
+        },
+        {
+         "label": "Detailed",
+         "value": "a detailed plan with milestones"
+        },
+        {
+         "label": "30/60/90",
+         "value": "a 30/60/90-day plan"
+        }
+       ],
+       "default": "a clear step-by-step plan"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:abstract",
+   "address": "writing-recipe:abstract",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:abstract",
+    "label": "Abstract",
+    "section": "Summarize",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Write a formal abstract of the following as you would for a paper: purpose, approach, key findings, and implication. One paragraph.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:executive-summary",
+   "address": "writing-recipe:executive-summary",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:executive-summary",
+    "label": "Executive summary",
+    "section": "Summarize",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Write a crisp executive summary of the following for a busy leader: the situation, the key points, and the bottom line. 3–5 tight sentences, no fluff.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:one-sentence",
+   "address": "writing-recipe:one-sentence",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:one-sentence",
+    "label": "One-sentence summary",
+    "section": "Summarize",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Summarize the following in exactly one clear, complete sentence that captures its core. Return only the sentence.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:summarize-options",
+   "address": "writing-recipe:summarize-options",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:summarize-options",
+    "label": "Summarize (with options)",
+    "section": "Summarize",
+    "icon": "AlignLeft",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Summarize the following as ",
+        {
+         "slot": "work_item",
+         "path": "format"
+        },
+        ", ",
+        {
+         "slot": "work_item",
+         "path": "length"
+        },
+        " in length. Preserve every key point; cut filler. Return only the summary.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": [
+      {
+       "id": "length",
+       "label": "Length",
+       "control": "select",
+       "options": [
+        {
+         "label": "One line",
+         "value": "one line"
+        },
+        {
+         "label": "Short",
+         "value": "short"
+        },
+        {
+         "label": "Medium",
+         "value": "medium"
+        },
+        {
+         "label": "Detailed",
+         "value": "detailed"
+        }
+       ],
+       "default": "short"
+      },
+      {
+       "id": "format",
+       "label": "Format",
+       "control": "select",
+       "options": [
+        {
+         "label": "Paragraph",
+         "value": "a paragraph"
+        },
+        {
+         "label": "Bullets",
+         "value": "bullet points"
+        },
+        {
+         "label": "Numbered list",
+         "value": "a numbered list"
+        }
+       ],
+       "default": "paragraph"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:tldr",
+   "address": "writing-recipe:tldr",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:tldr",
+    "label": "TL;DR",
+    "section": "Summarize",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Write a one-line TL;DR of the following — the single most important takeaway in a sentence. No preamble.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:draft-email-options",
+   "address": "writing-recipe:draft-email-options",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:draft-email-options",
+    "label": "Draft an email (with options)",
+    "section": "Transform",
+    "icon": "Mail",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following into a ",
+        {
+         "slot": "work_item",
+         "path": "length"
+        },
+        ", ",
+        {
+         "slot": "work_item",
+         "path": "tone"
+        },
+        " email to ",
+        {
+         "slot": "work_item",
+         "path": "recipient"
+        },
+        ". Include a subject line, greeting, short paragraphs, and a sign-off.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": [
+      {
+       "id": "recipient",
+       "label": "Recipient / relationship",
+       "control": "line",
+       "placeholder": "e.g. a new client, my manager"
+      },
+      {
+       "id": "tone",
+       "label": "Tone",
+       "control": "select",
+       "options": [
+        {
+         "label": "professional",
+         "value": "professional"
+        },
+        {
+         "label": "friendly",
+         "value": "friendly"
+        },
+        {
+         "label": "formal",
+         "value": "formal"
+        },
+        {
+         "label": "warm",
+         "value": "warm"
+        },
+        {
+         "label": "direct",
+         "value": "direct"
+        }
+       ],
+       "default": "professional"
+      },
+      {
+       "id": "length",
+       "label": "Length",
+       "control": "select",
+       "options": [
+        {
+         "label": "Brief",
+         "value": "brief"
+        },
+        {
+         "label": "Standard",
+         "value": "standard"
+        },
+        {
+         "label": "Detailed",
+         "value": "detailed"
+        }
+       ],
+       "default": "standard"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:make-a-list",
+   "address": "writing-recipe:make-a-list",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:make-a-list",
+    "label": "Make a list",
+    "section": "Transform",
+    "icon": "ListChecks",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following into ",
+        {
+         "slot": "work_item",
+         "path": "type"
+        },
+        ". Be specific and complete; add nothing that is not supported by the source.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text",
+      "type"
+     ],
+     "fields": [
+      {
+       "id": "type",
+       "label": "List type",
+       "control": "select",
+       "required": true,
+       "options": [
+        {
+         "label": "Checklist",
+         "value": "a checklist"
+        },
+        {
+         "label": "Pros & cons",
+         "value": "pros and cons"
+        },
+        {
+         "label": "Steps",
+         "value": "step-by-step instructions"
+        },
+        {
+         "label": "Key points",
+         "value": "key points"
+        },
+        {
+         "label": "FAQ",
+         "value": "an FAQ"
+        }
+       ],
+       "default": "a checklist"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:rewrite-for-platform",
+   "address": "writing-recipe:rewrite-for-platform",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:rewrite-for-platform",
+    "label": "Rewrite for a platform",
+    "section": "Transform",
+    "icon": "Share2",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Rewrite the following as ",
+        {
+         "slot": "work_item",
+         "path": "platform"
+        },
+        " content in an ",
+        {
+         "slot": "work_item",
+         "path": "tone"
+        },
+        " tone, following that platform’s conventions (length, hook, formatting). Return only the rewritten content.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text",
+      "platform"
+     ],
+     "fields": [
+      {
+       "id": "platform",
+       "label": "Platform",
+       "control": "select",
+       "required": true,
+       "options": [
+        {
+         "label": "LinkedIn",
+         "value": "LinkedIn"
+        },
+        {
+         "label": "X (Twitter)",
+         "value": "X (Twitter)"
+        },
+        {
+         "label": "Instagram caption",
+         "value": "Instagram caption"
+        },
+        {
+         "label": "a blog post",
+         "value": "a blog post"
+        },
+        {
+         "label": "a Slack message",
+         "value": "a Slack message"
+        },
+        {
+         "label": "a newsletter",
+         "value": "a newsletter"
+        },
+        {
+         "label": "a press release",
+         "value": "a press release"
+        }
+       ],
+       "default": "LinkedIn"
+      },
+      {
+       "id": "tone",
+       "label": "Tone",
+       "control": "select",
+       "options": [
+        {
+         "label": "engaging",
+         "value": "engaging"
+        },
+        {
+         "label": "professional",
+         "value": "professional"
+        },
+        {
+         "label": "punchy",
+         "value": "punchy"
+        },
+        {
+         "label": "inspirational",
+         "value": "inspirational"
+        },
+        {
+         "label": "informative",
+         "value": "informative"
+        }
+       ],
+       "default": "engaging"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:to-checklist",
+   "address": "writing-recipe:to-checklist",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:to-checklist",
+    "label": "To checklist",
+    "section": "Transform",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following into an actionable checklist. Each item starts with a verb, is independently checkable, and is ordered sensibly. No commentary.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:to-faq",
+   "address": "writing-recipe:to-faq",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:to-faq",
+    "label": "To FAQ",
+    "section": "Transform",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following into a clear FAQ: 5–8 real questions a reader would ask, each with a concise, accurate answer. Format as Q/A pairs.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:to-linkedin",
+   "address": "writing-recipe:to-linkedin",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:to-linkedin",
+    "label": "To LinkedIn post",
+    "section": "Transform",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following into an engaging LinkedIn post: a strong first-line hook, short skimmable lines, one clear insight, and a light call to reflection. No hashtags spam.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:to-press-release",
+   "address": "writing-recipe:to-press-release",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:to-press-release",
+    "label": "To press release",
+    "section": "Transform",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following into a professional press release: headline, dateline, a strong lead paragraph answering who/what/when/where/why, supporting detail, and a boilerplate placeholder.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:to-slides",
+   "address": "writing-recipe:to-slides",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:to-slides",
+    "label": "To slide outline",
+    "section": "Transform",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Turn the following into a slide-deck outline: one slide per key idea, each with a short title and 2–4 bullet points. Number the slides.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:to-table",
+   "address": "writing-recipe:to-table",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:to-table",
+    "label": "To table",
+    "section": "Transform",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Reorganize the following into a clean Markdown table with sensible column headers. Include every data point; add nothing new.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:translate-options",
+   "address": "writing-recipe:translate-options",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:translate-options",
+    "label": "Translate (with options)",
+    "section": "Translate",
+    "icon": "Languages",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Translate the following into ",
+        {
+         "slot": "work_item",
+         "path": "register"
+        },
+        " ",
+        {
+         "slot": "work_item",
+         "path": "language"
+        },
+        ". Preserve meaning and tone; keep proper nouns and code untranslated. Return only the translation.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text",
+      "language"
+     ],
+     "fields": [
+      {
+       "id": "language",
+       "label": "Language",
+       "control": "select",
+       "required": true,
+       "options": [
+        {
+         "label": "Spanish",
+         "value": "Spanish"
+        },
+        {
+         "label": "French",
+         "value": "French"
+        },
+        {
+         "label": "German",
+         "value": "German"
+        },
+        {
+         "label": "Italian",
+         "value": "Italian"
+        },
+        {
+         "label": "Portuguese",
+         "value": "Portuguese"
+        },
+        {
+         "label": "Japanese",
+         "value": "Japanese"
+        },
+        {
+         "label": "Mandarin Chinese",
+         "value": "Mandarin Chinese"
+        },
+        {
+         "label": "Korean",
+         "value": "Korean"
+        },
+        {
+         "label": "Hindi",
+         "value": "Hindi"
+        },
+        {
+         "label": "Arabic",
+         "value": "Arabic"
+        },
+        {
+         "label": "Russian",
+         "value": "Russian"
+        },
+        {
+         "label": "Dutch",
+         "value": "Dutch"
+        }
+       ],
+       "default": "Spanish"
+      },
+      {
+       "id": "register",
+       "label": "Register",
+       "control": "select",
+       "options": [
+        {
+         "label": "Natural",
+         "value": "natural"
+        },
+        {
+         "label": "Formal",
+         "value": "formal"
+        },
+        {
+         "label": "Casual",
+         "value": "casual"
+        }
+       ],
+       "default": "natural"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:translate-arabic",
+   "address": "writing-recipe:translate-arabic",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:translate-arabic",
+    "label": "Translate to Arabic",
+    "section": "Translate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Translate the following into natural, fluent Modern Standard Arabic. Preserve meaning and tone; keep proper nouns and code untranslated. Return only the translation.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:translate-french",
+   "address": "writing-recipe:translate-french",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:translate-french",
+    "label": "Translate to French",
+    "section": "Translate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Translate the following into natural, fluent French. Preserve tone, register, and meaning; do not translate proper nouns or code. Return only the translation.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:translate-german",
+   "address": "writing-recipe:translate-german",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:translate-german",
+    "label": "Translate to German",
+    "section": "Translate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Translate the following into natural, fluent German. Preserve tone and meaning; keep proper nouns and code untranslated. Return only the translation.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:translate-hindi",
+   "address": "writing-recipe:translate-hindi",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:translate-hindi",
+    "label": "Translate to Hindi",
+    "section": "Translate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Translate the following into natural, fluent Hindi. Preserve meaning and tone; keep proper nouns and code untranslated. Return only the translation.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:translate-italian",
+   "address": "writing-recipe:translate-italian",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:translate-italian",
+    "label": "Translate to Italian",
+    "section": "Translate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Translate the following into natural, fluent Italian. Preserve tone and meaning; keep proper nouns and code untranslated. Return only the translation.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:translate-japanese",
+   "address": "writing-recipe:translate-japanese",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:translate-japanese",
+    "label": "Translate to Japanese",
+    "section": "Translate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Translate the following into natural, fluent Japanese with appropriate politeness level. Keep proper nouns and code untranslated. Return only the translation.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:translate-mandarin",
+   "address": "writing-recipe:translate-mandarin",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:translate-mandarin",
+    "label": "Translate to Mandarin",
+    "section": "Translate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Translate the following into natural, fluent Simplified Chinese (Mandarin). Preserve meaning and tone; keep proper nouns and code untranslated. Return only the translation.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:translate-portuguese",
+   "address": "writing-recipe:translate-portuguese",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:translate-portuguese",
+    "label": "Translate to Portuguese",
+    "section": "Translate",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Translate the following into natural, fluent Brazilian Portuguese. Preserve tone and meaning; keep proper nouns and code untranslated. Return only the translation.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:add-cta",
+   "address": "writing-recipe:add-cta",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:add-cta",
+    "label": "Add call to action",
+    "section": "Writing",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Add a clear, compelling call to action to the end of the following that tells the reader exactly what to do next and why it is worth it. Match the tone.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:add-examples",
+   "address": "writing-recipe:add-examples",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:add-examples",
+    "label": "Add examples",
+    "section": "Writing",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Enrich the following by adding concrete, relevant examples that make each abstract point tangible. Keep the original text and weave examples in naturally.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:change-tone",
+   "address": "writing-recipe:change-tone",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:change-tone",
+    "label": "Change tone",
+    "section": "Writing",
+    "icon": "Palette",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Rewrite the following in a ",
+        {
+         "slot": "work_item",
+         "path": "tone"
+        },
+        " tone. Preserve the meaning; change only the voice. Return only the rewritten text.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text",
+      "tone"
+     ],
+     "fields": [
+      {
+       "id": "tone",
+       "label": "Tone",
+       "control": "select",
+       "required": true,
+       "options": [
+        {
+         "label": "professional",
+         "value": "professional"
+        },
+        {
+         "label": "friendly",
+         "value": "friendly"
+        },
+        {
+         "label": "confident",
+         "value": "confident"
+        },
+        {
+         "label": "empathetic",
+         "value": "empathetic"
+        },
+        {
+         "label": "persuasive",
+         "value": "persuasive"
+        },
+        {
+         "label": "playful",
+         "value": "playful"
+        },
+        {
+         "label": "authoritative",
+         "value": "authoritative"
+        },
+        {
+         "label": "warm",
+         "value": "warm"
+        },
+        {
+         "label": "concise",
+         "value": "concise"
+        },
+        {
+         "label": "academic",
+         "value": "academic"
+        }
+       ],
+       "default": "professional"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:expand-options",
+   "address": "writing-recipe:expand-options",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:expand-options",
+    "label": "Expand (with options)",
+    "section": "Writing",
+    "icon": "Maximize2",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Expand the following ",
+        {
+         "slot": "work_item",
+         "path": "factor"
+        },
+        " its length, adding ",
+        {
+         "slot": "work_item",
+         "path": "add"
+        },
+        " while staying on point and keeping the voice.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": [
+      {
+       "id": "factor",
+       "label": "How much",
+       "control": "select",
+       "options": [
+        {
+         "label": "1.5×",
+         "value": "by about half again"
+        },
+        {
+         "label": "2×",
+         "value": "about twice"
+        },
+        {
+         "label": "3×",
+         "value": "to roughly three times"
+        }
+       ],
+       "default": "about twice"
+      },
+      {
+       "id": "add",
+       "label": "Add",
+       "control": "select",
+       "options": [
+        {
+         "label": "Examples",
+         "value": "concrete examples"
+        },
+        {
+         "label": "Data & detail",
+         "value": "supporting data and detail"
+        },
+        {
+         "label": "Context",
+         "value": "context and background"
+        },
+        {
+         "label": "Everything",
+         "value": "examples and detail"
+        }
+       ],
+       "default": "examples and detail"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:explain-options",
+   "address": "writing-recipe:explain-options",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:explain-options",
+    "label": "Explain (for an audience)",
+    "section": "Writing",
+    "icon": "GraduationCap",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Explain the following to ",
+        {
+         "slot": "work_item",
+         "path": "audience"
+        },
+        " as ",
+        {
+         "slot": "work_item",
+         "path": "depth"
+        },
+        ", using ",
+        {
+         "slot": "work_item",
+         "path": "device"
+        },
+        ". Keep it accurate.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text",
+      "audience"
+     ],
+     "fields": [
+      {
+       "id": "audience",
+       "label": "Audience",
+       "control": "line",
+       "placeholder": "e.g. a 10-year-old, a busy executive",
+       "required": true
+      },
+      {
+       "id": "depth",
+       "label": "Depth",
+       "control": "select",
+       "options": [
+        {
+         "label": "Gist",
+         "value": "a one-line gist"
+        },
+        {
+         "label": "Overview",
+         "value": "clear overview"
+        },
+        {
+         "label": "Deep dive",
+         "value": "a thorough deep-dive"
+        }
+       ],
+       "default": "clear overview"
+      },
+      {
+       "id": "device",
+       "label": "Style",
+       "control": "select",
+       "options": [
+        {
+         "label": "Plain language",
+         "value": "plain language"
+        },
+        {
+         "label": "Analogy",
+         "value": "a vivid analogy"
+        },
+        {
+         "label": "Step by step",
+         "value": "step by step"
+        }
+       ],
+       "default": "plain language"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:active-voice",
+   "address": "writing-recipe:active-voice",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:active-voice",
+    "label": "Make active voice",
+    "section": "Writing",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Rewrite the following to use active voice and strong verbs wherever it improves clarity and energy. Preserve meaning. Return only the rewritten text.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:remove-jargon",
+   "address": "writing-recipe:remove-jargon",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:remove-jargon",
+    "label": "Remove jargon",
+    "section": "Writing",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Rewrite the following to remove jargon and buzzwords, replacing them with plain, precise language a smart outsider would understand. Keep the meaning.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  },
+  {
+   "id": "writing-recipe:stronger-hook",
+   "address": "writing-recipe:stronger-hook",
+   "payload": {
+    "kind": "writing-recipe",
+    "id": "writing-recipe:stronger-hook",
+    "label": "Stronger hook",
+    "section": "Writing",
+    "instruction_plan": {
+     "prompt_template": [
+      {
+       "line": [
+        "Rewrite the opening of the following so the first line grabs attention immediately — curiosity, tension, or a bold specific. Keep the rest coherent with the new hook.\n\n",
+        {
+         "slot": "work_item",
+         "path": "text"
+        }
+       ]
+      }
+     ]
+    },
+    "ai_producer_target": {
+     "output_kind": "note"
+    },
+    "work_item": {
+     "required": [
+      "text"
+     ],
+     "fields": []
+    }
+   }
+  }
+ ]
+}

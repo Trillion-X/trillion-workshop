@@ -1,0 +1,201 @@
+{
+ "kind": "tool-rows",
+ "record_set": "write-from-a-recipe-tool-rows",
+ "what_this_is": "The Workshop rows for tools/write-from-a-recipe: the instruction a person's AI writes from, built from a writing recipe, the check of what it wrote against that recipe, and the list of kept recipes and instruction blocks.",
+ "records": [
+  {
+   "id": "package::write-from-a-recipe::tool::compose-a-writing-instruction",
+   "address": "package::write-from-a-recipe::tool::compose-a-writing-instruction",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:compose-a-writing-instruction",
+    "label": "Build the instruction to write from",
+    "status": "active",
+    "job": "Build the exact instruction to write something from a writing recipe and the person's material, before writing it",
+    "description": "Give recipe_id (from tool:list-writing-recipes) or your own recipe (instruction_plan.prompt_template: literal text, { block_ref }, { slot: work_item, path }, { slot: schema }, { slot: grounding, label } and conditional segments; optional output_contract, gate_policy, delivery_target, context_retrieval, work_item fields), work_item (the person's text and the answers the recipe asks for; missing answers take the recipe's defaults), grounding (source excerpts, each with its id) and blocks (your own instruction blocks, replacing kept ones of the same id). Returns instruction_text to write from, input_refs, output_kind, output_schema, and the recipe's gate_policy and delivery_target. Write from instruction_text yourself, then hand what you wrote to tool:check-writing-against-its-recipe. Nothing here writes or sends anything.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "recipe_id": { "type": "string", "description": "A kept recipe's id, like writing-recipe:summarize" },
+      "recipe": { "type": "object", "description": "Your own writing recipe instead of a kept one" },
+      "work_item": { "type": "object", "description": "The text to work on (text) and the answers the recipe asks for" },
+      "grounding": { "type": "array", "items": { "type": "object" }, "description": "Source excerpts the writing may cite, each with its id" },
+      "blocks": { "type": "array", "items": { "type": "object", "required": ["id", "body"], "properties": { "id": { "type": "string" }, "body": { "type": "string" }, "label": { "type": "string" } } }, "description": "Your own instruction blocks" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["instruction_text", "input_refs", "output_kind"],
+     "properties": {
+      "recipe_id": { "type": ["string", "null"] },
+      "instruction_text": { "type": "string" },
+      "input_refs": { "type": "array" },
+      "output_kind": { "type": "string" },
+      "output_schema": {},
+      "gate_policy": {},
+      "delivery_target": {}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "write-from-a-recipe", "paths": ["do-work", "read-data"], "at": "/opt/parts/write-from-a-recipe" }
+      ]
+     },
+     "workdir": "/opt/parts/write-from-a-recipe",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/compose-a-writing-instruction.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:write-from-a-recipe",
+    "provenance": { "source": "bitfield-packages packages/content-generation compose-run-request-lib.mjs (unchanged), with the recipes of packages/content-actions and the instruction blocks of packages/ai-instruction-blocks; the dispatch to an AI producer was not carried: the person's own AI writes" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "recipe_id": "writing-recipe:action-items", "work_item": { "text": "Book the hall. Maybe think about snacks someday. Send the invites by Friday." } },
+      "output_selector": "$.instruction_text",
+      "contains": "Send the invites by Friday."
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::write-from-a-recipe::tool::check-writing-against-its-recipe",
+   "address": "package::write-from-a-recipe::tool::check-writing-against-its-recipe",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-writing-against-its-recipe",
+    "label": "Check writing against its recipe",
+    "status": "active",
+    "job": "Check something written from a recipe before it goes anywhere: it cites only the sources given, it keeps the recipe's rules and reviews, and it is shaped for the next tool",
+    "description": "Give recipe_id or recipe (as tool:compose-a-writing-instruction took), writing (the JSON object you wrote in the recipe's output shape), grounding (the same excerpts), work_item, context and review ({ accepted, verdicts: [{ id, accepted }] } when the recipe requires verdicts). Checks in order and stops at the first refusal: the recipe's source checks (min-grounding-excerpts, cite-or-reject, required-citation-coverage; any other kind is refused, never passed), its rule rows (gate_policy.rules, judged by tool:judge-against-rules' judge over the writing's words and values; passed or held go on), its required verdicts, then builds delivery { tool_id, input } for the tool its delivery_target names (null when it names none). A refusal is { passed: false, reject_code, reason, findings? } and has no delivery: rewrite and check again.",
+    "input_schema": {
+     "type": "object",
+     "required": ["writing"],
+     "additionalProperties": false,
+     "properties": {
+      "recipe_id": { "type": "string" },
+      "recipe": { "type": "object" },
+      "writing": { "type": "object", "description": "What the AI wrote, as a JSON object" },
+      "grounding": { "type": "array", "items": { "type": "object" } },
+      "work_item": { "type": "object" },
+      "context": { "type": "object", "description": "Values the delivery input may take from context" },
+      "review": { "type": "object", "description": "{ accepted, verdicts: [{ id, accepted }] } from whoever judged the required verdicts" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["passed"],
+     "properties": {
+      "passed": { "type": "boolean" },
+      "delivery": { "type": ["object", "null"], "properties": { "tool_id": { "type": "string" }, "input": { "type": "object" } } },
+      "reject_code": { "type": "string" },
+      "reason": { "type": "string" },
+      "findings": { "type": "array" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "write-from-a-recipe", "paths": ["do-work", "read-data"], "at": "/opt/parts/write-from-a-recipe" },
+       { "package": "judge-words", "paths": ["do-work"], "at": "/opt/parts/judge-words" }
+      ]
+     },
+     "workdir": "/opt/parts/write-from-a-recipe",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/check-writing-against-its-recipe.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:write-from-a-recipe",
+    "provenance": { "source": "bitfield-packages packages/content-generation gate-and-build-owner-delivery-lib.mjs and its command (the source checks, the required verdicts and the handoff builder); its word checks are tools/judge-words rows" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "recipe": {
+        "gate_policy": { "grounding_id_field": "ref", "citation_specs": [{ "array": "sections", "ids_key": "refs" }], "checks": [{ "kind": "cite-or-reject", "params": {} }] },
+        "delivery_target": { "tool_id": "tool:draft-a-note", "input": { "title": { "from": "item", "field": "title" } } }
+       },
+       "writing": { "title": "Two steps", "sections": [{ "text": "The example has two steps.", "refs": ["source:one"] }] },
+       "grounding": [{ "ref": "source:one", "text": "The example has two steps." }]
+      },
+      "output_selector": "$.delivery.tool_id",
+      "contains": "tool:draft-a-note"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::write-from-a-recipe::tool::list-writing-recipes",
+   "address": "package::write-from-a-recipe::tool::list-writing-recipes",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:list-writing-recipes",
+    "label": "Writing recipes and instruction blocks",
+    "status": "active",
+    "job": "List the ready writing recipes (summarize, translate, rewrite, critique and more) and the instruction blocks a recipe can use",
+    "description": "Give words (every word must be in a recipe's or block's id or label) and section to narrow the list, or nothing for all. Returns recipes, each with id, label, section, needs (the work item fields it must have) and fields (the answers it asks for, with choices and defaults), blocks (id, label, body) and sections. Use a recipe's id as recipe_id in tool:compose-a-writing-instruction.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "words": { "type": "string" },
+      "section": { "type": "string" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["recipes", "blocks", "sections"],
+     "properties": {
+      "recipes": { "type": "array", "items": { "type": "object", "required": ["id", "label"] } },
+      "blocks": { "type": "array", "items": { "type": "object", "required": ["id", "body"] } },
+      "sections": { "type": "array", "items": { "type": "string" } }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "write-from-a-recipe", "paths": ["do-work", "read-data"], "at": "/opt/parts/write-from-a-recipe" }
+      ]
+     },
+     "workdir": "/opt/parts/write-from-a-recipe",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/list-writing-recipes.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:write-from-a-recipe",
+    "provenance": { "source": "the action rows of bitfield-packages packages/content-actions and the blocks of packages/ai-instruction-blocks, kept as DATA here" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "words": "translate spanish" },
+      "output_selector": "$.recipes[0].id",
+      "contains": "writing-recipe:translate-spanish"
+     }
+    ]
+   }
+  }
+ ]
+}

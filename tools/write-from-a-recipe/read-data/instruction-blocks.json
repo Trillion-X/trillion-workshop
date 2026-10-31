@@ -1,0 +1,13 @@
+{
+ "kind": "record-set",
+ "record_set": "instruction-blocks",
+ "what_this_is": "Reusable instruction blocks a writing recipe names in its prompt_template as { \"block_ref\": <id> }. read-data/compose-instruction.mjs puts a block's body where the recipe names it. A person's own blocks, handed in a request, replace a block here with the same id. Adding a block is adding a row.",
+ "records": [
+  { "id": "ai-instruction-block:plain-language", "address": "ai-instruction-block:plain-language", "payload": { "kind": "ai-instruction-block", "id": "ai-instruction-block:plain-language", "label": "Plain language", "body": "Write in plain language. Define any technical term the moment it appears." } },
+  { "id": "ai-instruction-block:cite-sources", "address": "ai-instruction-block:cite-sources", "payload": { "kind": "ai-instruction-block", "id": "ai-instruction-block:cite-sources", "label": "Cite sources", "body": "Quote sources verbatim and attach where each fact came from. Never paraphrase a quote." } },
+  { "id": "ai-instruction-block:stay-on-task", "address": "ai-instruction-block:stay-on-task", "payload": { "kind": "ai-instruction-block", "id": "ai-instruction-block:stay-on-task", "label": "Stay on task", "body": "Finish the current task completely before suggesting anything new." } },
+  { "id": "ai-instruction-block:show-your-work", "address": "ai-instruction-block:show-your-work", "payload": { "kind": "ai-instruction-block", "id": "ai-instruction-block:show-your-work", "label": "Show your work", "body": "List the steps you took and the evidence for each conclusion." } },
+  { "id": "ai-instruction-block:remove-ai-writing-tells", "address": "ai-instruction-block:remove-ai-writing-tells", "payload": { "kind": "ai-instruction-block", "id": "ai-instruction-block:remove-ai-writing-tells", "label": "Remove AI writing tells", "body": "Use no em dash, no filler profundity, no corporate puffery, and none of the banned AI words on the person's own list. Read the final copy aloud and rewrite any sentence a real person would not say." } },
+  { "id": "ai-instruction-block:ground-every-claim", "address": "ai-instruction-block:ground-every-claim", "payload": { "kind": "ai-instruction-block", "id": "ai-instruction-block:ground-every-claim", "label": "Ground every claim", "body": "Every claim about a result, product mechanic, price, guarantee, or proof must come from a real source. Never invent a testimonial, mechanism, urgency, absolute, or plausible-sounding detail." } }
+ ]
+}
