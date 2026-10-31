@@ -141,6 +141,10 @@ test('run-an-export opens no door for a function that never asks, and refuses an
   assert.match(missing.answer.error, /has no function nothing/);
 });
 
+test('run-an-export prints a woken function\'s wake_effects beside its result, where the engine reads them', () => {
+  assert.deepEqual(runExport('later', { at_ms: 1000 }), { status: 0, answer: { result: { said: 'later' }, wake_effects: [{ wake: { at_ms: 1000 } }] } });
+});
+
 test('a run with no door is told so', () => {
   const empty = join(mkdtempSync(join(tmpdir(), 'no-door-')), 'descriptor.json');
   writeFileSync(empty, '{}');

@@ -162,6 +162,19 @@
       "unreachable": "Your files could not hand {platform} the post's file right now ({code}), so nothing was sent. Send it again shortly."
     }
   },
+  "at_its_time": {
+    "_what": "How a post set to go at its time is sent then (read-data/send-a-post.mjs sendEachPostAtItsTime). The person switches on the wake of tool:send-each-post-at-its-time; each time their posts change, it answers one timed run of the place's send row (post-places.json send_tool) per destination still to be sent, at the post's scheduled_for, told the post's armed_at. That run sends only while the post still carries that armed_at and is in sends_while, so a post taken back, changed or set again sends nothing at the old time. child_budget is what each timed send is given: the engine's run cost and its reserved run time (the engine's wake settings run_cost and its tool runs deadline_ms). most_sends is the most timed sends one firing answers (the engine's wake settings max_effects); the rest are named in left_out. words are its plain answers.",
+    "child_budget": { "steps": 1, "wall_ms": 120000 },
+    "most_sends": 32,
+    "sends_while": ["scheduled", "partial", "failed", "posted"],
+    "words": {
+      "set": "{count} sends are set to go at their time.",
+      "none": "No changed post is set to go at its time, so nothing was set.",
+      "not_connected": "This account is no longer connected, so this send was not set. Connect it again, then take the post back and set it to go again.",
+      "too_many": "More sends were set at once than one firing takes ({most}), so this send was not set. Take the post back and set it to go again.",
+      "no_longer_set": "This post is no longer set to go at that time, so nothing was sent."
+    }
+  },
   "outcome_fallback": "{platform} did not publish it: {detail}",
   "not_known_words": "It is not known whether {platform} took the post. Look on {platform}; if it is not there, send it to this account again with resend: true."
 }

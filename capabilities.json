@@ -515,15 +515,14 @@
       "distinct_from": [
         {"job": "read a person's social posts and their posting calendar", "why": "that row reads posts onto a calendar; this one writes a post and moves it from draft to approved to scheduled"},
 
-        {"job": "write posts and publish them to chosen places, now or on a schedule", "why": "that row is the sending, still in its old packages and moving here; this one keeps the post and its approval and time, and sends nothing"}
+        {"job": "write posts and publish them to chosen places, now or on a schedule", "why": "that row is the sending, now or at the post's time; this one keeps the post and its approval and time, and sends nothing"}
       ]
     },
     {
       "capability": "write posts and publish them to chosen places, now or on a schedule",
-      "lives_at": ["bitfield-packages/packages/content-distribution/"],
-      "moves_to": "tools/social-posts/",
-      "entry": "bitfield-packages/packages/content-distribution/",
-      "evidence": "content-distribution README.md:1 scheduled, destination-bound delivery; publish-composer writes a draft and posts it to a chosen place"
+      "owner": ["tools/social-posts/"],
+      "entry": "tools/social-posts/tool-rows.json",
+      "evidence": "tools/social-posts/README.md: tool:send-a-post-to-<place> sends an approved post to one destination, and tool:send-each-post-at-its-time, the person's own wake on their post records, sets each one to be sent at its time"
     },
     {
       "capability": "plan a piece of content from source material and a format, check the plan is ready, choose a style and decide which audience questions go in",
