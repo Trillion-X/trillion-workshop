@@ -894,8 +894,8 @@
       "evidence": "product-access authorize-addressed-expiring-value-scope.ts; material-delivery authorize-private-object.ts; capability-effect-lifecycle; signed-event-effects projection"
     },
     {
-      "capability": "pull a person's messages and saved items from connected accounts (Discord, Slack, Telegram, Instagram, Messenger, X bookmarks, Pinterest) into snapshot records",
-      "lives_at": ["bitfield-packages/packages/discord-bot-connector/", "bitfield-packages/packages/slack-bot-connector/", "bitfield-packages/packages/telegram-bot-connector/", "bitfield-packages/packages/instagram-dm-connector/", "bitfield-packages/packages/x-bookmarks-connector/", "bitfield-packages/packages/pinterest-pins-connector/"],
+      "capability": "pull a person's messages and saved items from connected accounts (Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks, Pinterest) into snapshot records",
+      "lives_at": ["bitfield-packages/packages/discord-bot-connector/", "bitfield-packages/packages/slack-bot-connector/", "bitfield-packages/packages/telegram-bot-connector/", "bitfield-packages/packages/signal-bot-connector/", "bitfield-packages/packages/instagram-dm-connector/", "bitfield-packages/packages/x-bookmarks-connector/", "bitfield-packages/packages/pinterest-pins-connector/"],
       "moves_to": "tools/pull-from-connected-accounts/",
       "entry": "bitfield-packages/packages/discord-bot-connector/",
       "evidence": "the connector packages' pull scripts; per-service differences are DATA rows"

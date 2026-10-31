@@ -1,0 +1,31 @@
+{
+  "id": "signal",
+  "label": "Signal",
+  "says": "the conversations a Signal client on the person's own computer printed, handed in whole",
+  "handed_in": { "document": "conversations" },
+  "defaults": { "limit": 500, "most_pages": 1, "most_threads": 200 },
+  "cursor": { "start": "0", "advance": { "over": "records", "by": "/timestamp", "plus": 0 } },
+  "walks": [
+    {
+      "name": "conversations",
+      "levels": [
+        {
+          "path": "/conversations",
+          "items": "",
+          "bind": { "conversation": "/id", "conversation_name": { "first": ["/name", "/id", { "template": "conversation {position}" }] } }
+        },
+        {
+          "from": "parent",
+          "items": "/messages"
+        }
+      ],
+      "fold": {
+        "layout": "threads",
+        "thread": { "id": { "var": "conversation" }, "title": { "var": "conversation_name" } },
+        "key": ["/id", "/timestamp"],
+        "order": ["/timestamp"],
+        "conflict": { "newer": { "by": ["/editedTimestamp"], "strict": false } }
+      }
+    }
+  ]
+}

@@ -6,16 +6,17 @@ import { loadSource, problemsWith, sourceIds } from '../read-data/sources.mjs';
 
 const folder = join(import.meta.dirname, '..', 'read-data', 'sources');
 
-test('the sources shipped are the seven services and each can be pulled', () => {
-  assert.deepEqual(sourceIds(), ['discord', 'instagram-messages', 'messenger-messages', 'pinterest-pins', 'slack', 'telegram', 'x-bookmarks']);
+test('the sources shipped are the eight services and each can be pulled', () => {
+  assert.deepEqual(sourceIds(), ['discord', 'instagram-messages', 'messenger-messages', 'pinterest-pins', 'signal', 'slack', 'telegram', 'x-bookmarks']);
   for (const id of sourceIds()) assert.deepEqual(problemsWith(loadSource(id)), [], id);
 });
 
-test('every source reaches a public https address and no source holds a token, a person or a path on a computer', () => {
+test('every source asks a public https address or is handed its document, and no source holds a token, a person or a path on a computer', () => {
   for (const id of sourceIds()) {
     const text = readFileSync(join(folder, `${id}.json`), 'utf8');
     const source = loadSource(id);
-    assert.match(source.base, /^https:\/\/[a-z.]+(\/|$)/, id);
+    if (source.handed_in) assert.equal(source.base, undefined, id);
+    else assert.match(source.base, /^https:\/\/[a-z.]+(\/|$)/, id);
     assert.doesNotMatch(text, /\/Users\/|\/home\//, id);
     assert.doesNotMatch(text, /@[a-z0-9-]+\.[a-z]{2,}|bearer [a-z0-9]{8,}|xox[bp]-|bitfield|trillion/i, id);
   }
@@ -36,4 +37,13 @@ test('a description that cannot be pulled says what is missing, and an unknown s
   assert.deepEqual(problemsWith({ id: 'x', base: 'https://a.example', identity: { path: '/me', self_id: '/id' }, walks: [{ name: 'w', levels: [{ path: '/a' }], fold: { layout: 'items', into: 'things', key: ['/id'] } }] }), []);
   assert.throws(() => loadSource('nope'), /There is no source called nope; the sources are discord/);
   assert.throws(() => loadSource('../etc'), /There is no source called/);
+});
+
+test('a source handed its document names the input, asks no service, and a level may read from its parent only after the first', () => {
+  const walk = { name: 'w', levels: [{ path: '/a' }, { from: 'parent', items: '/m' }], fold: { layout: 'items', into: 'things', key: ['/id'] } };
+  assert.deepEqual(problemsWith({ id: 'x', handed_in: { document: 'conversations' }, walks: [walk] }), []);
+  assert.equal(loadSource('signal').handed_in.document, 'conversations');
+  assert.equal(problemsWith({ id: 'x', handed_in: {}, walks: [walk] }).length, 1);
+  assert.equal(problemsWith({ id: 'x', handed_in: { document: 'conversations' }, base: 'https://a.example', walks: [walk] }).length, 1);
+  assert.equal(problemsWith({ id: 'x', handed_in: { document: 'conversations' }, walks: [{ ...walk, levels: [{ from: 'parent' }] }] }).length, 1);
 });

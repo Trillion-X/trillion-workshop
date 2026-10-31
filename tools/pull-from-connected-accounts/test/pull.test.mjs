@@ -2,6 +2,7 @@
 // holding exactly the rights the pull rows declare. The people and places are made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { pullFromAnAccount } from '../do-work/pull.mjs';
 import { assemble, readParts, stateId, threadId, itemId } from '../read-data/snapshot.mjs';
 import { fakeService, openDoor, waits } from './service.mjs';
@@ -303,6 +304,142 @@ test('telegram: a token Telegram does not know is a login problem', async () => 
   const service = fakeService(() => ({ status: 401, body: { ok: false, error_code: 401, description: 'Unauthorized' } }));
   const done = await pull('telegram', {}, service, opened);
   assert.equal(done.status, 'needs_login');
+  assert.equal(opened.calls.length, 0);
+});
+
+// ---- Signal (handed the client's printed output, nothing is asked) -----------------------------------------------------
+
+const ME = 'acct-a';
+const sent = (id, timestamp, from, body, extra = {}) => ({ id, timestamp, from, type: 'normal', body, ...extra });
+const printed = (messages, extra = {}) => [{ id: 'thread-1', name: 'Bakers', type: 'group', messages, ...extra }];
+const handed = (opened, conversations, extra = {}) => {
+  const service = fakeService(() => new Error('nothing is asked of a service'));
+  return pullFromAnAccount('signal', { self_id: ME, conversations, ...extra }, { fetch: service.fetch, door: opened.door, now: () => NOW }).then(done => ({ done, service }));
+};
+
+test('signal: the printed conversations are kept as printed in time order, with the account\'s own messages named by self_id, and nothing is asked of any service', async () => {
+  const opened = await openDoor();
+  const messages = [sent('m2', 1700000001000, ME, 'On my way'), sent('m1', 1700000000000, 'acct-b', 'Rye is ready'), { id: 'm3', timestamp: 1700000002000, from: 'acct-b', type: 'call_started' }];
+  const { done, service } = await handed(opened, printed(messages));
+  assert.equal(done.status, 'pulled');
+  assert.equal(done.self_id, ME);
+  assert.equal(done.new_messages, 3);
+  assert.equal(done.cursor, 1700000002000);
+  assert.equal(service.calls.length, 0);
+  const snapshot = await snapshotOf(opened, 'signal');
+  assert.equal(snapshot.self_id, ME);
+  assert.deepEqual(snapshot.threads.map(thread => [thread.id, thread.title, thread.messages.map(message => message.id)]), [['thread-1', 'Bakers', ['m1', 'm2', 'm3']]]);
+  assert.deepEqual(snapshot.threads[0].messages[1], messages[0]);
+});
+
+test('signal: a conversation is titled by its name, else its id, and a message without an id is known by its time', async () => {
+  const opened = await openDoor();
+  const { done } = await handed(opened, [
+    { id: 'thread-1', messages: [{ timestamp: 1700000000000, from: 'acct-b', body: 'a' }] },
+    { id: 'thread-2', name: 'Orders', messages: [sent('x', 1, 'acct-b', 'b')] },
+  ]);
+  assert.equal(done.status, 'pulled');
+  const snapshot = await snapshotOf(opened, 'signal');
+  assert.deepEqual(snapshot.threads.map(thread => thread.title), ['thread-1', 'Orders']);
+  assert.equal(snapshot.threads[0].messages.length, 1);
+});
+
+test('signal: the same output handed again adds nothing and writes only the state; a later edit replaces the older copy and an older edit never replaces a later one', async () => {
+  const opened = await openDoor();
+  const first = printed([sent('m1', 1700000000000, 'acct-b', 'Rye is ready')]);
+  await handed(opened, first);
+  const writesBefore = opened.calls.filter(call => call.method === 'records:write').length;
+  const again = await handed(opened, first);
+  assert.equal(again.done.new_messages, 0);
+  const writes = opened.calls.filter(call => call.method === 'records:write').slice(writesBefore);
+  assert.deepEqual(writes.map(write => write.input.records.map(record => record.id)), [[stateId('signal', 'default')]]);
+
+  const edited = printed([sent('m1', 1700000000000, 'acct-b', 'Rye is ready at ten', { editedTimestamp: 1700000500000 })]);
+  const later = await handed(opened, edited);
+  assert.equal(later.done.new_messages, 0);
+  assert.equal((await snapshotOf(opened, 'signal')).threads[0].messages[0].body, 'Rye is ready at ten');
+  await handed(opened, printed([sent('m1', 1700000000000, 'acct-b', 'Rye is ready at nine', { editedTimestamp: 1700000100000 })]));
+  assert.equal((await snapshotOf(opened, 'signal')).threads[0].messages[0].body, 'Rye is ready at ten');
+});
+
+test('signal: the cursor is the greatest message time seen and never moves back, and history already kept is never lost', async () => {
+  const opened = await openDoor();
+  await handed(opened, printed([sent('m1', 1700000000000, 'acct-b', 'a'), sent('m2', 1700000003000, 'acct-b', 'b')]));
+  const older = await handed(opened, printed([sent('m0', 1699999999000, 'acct-b', 'earlier')], { name: 'Bakers and friends' }));
+  assert.equal(older.done.cursor, 1700000003000);
+  const snapshot = await snapshotOf(opened, 'signal');
+  assert.deepEqual(snapshot.threads[0].messages.map(message => message.id), ['m0', 'm1', 'm2']);
+  assert.equal(snapshot.threads[0].title, 'Bakers and friends');
+});
+
+test('signal: what cannot be kept is named in skipped with its conversation and why, and the others are kept', async () => {
+  const opened = await openDoor();
+  const { done } = await handed(opened, [
+    ...printed([{ from: 'acct-b', body: 'no id, no time' }, { from: 'acct-b', body: 'nor this' }, sent('m1', 1700000000000, 'acct-b', 'kept')]),
+    { name: 'Orders', messages: [sent('m9', 5, 'acct-b', 'lost'), sent('m10', 6, 'acct-b', 'lost too')] },
+    { messages: [sent('m11', 7, 'acct-b', 'lost')] },
+    { id: 'thread-3', name: 'empty', messages: [] },
+  ]);
+  assert.equal(done.status, 'pulled');
+  assert.equal(done.new_messages, 1);
+  assert.deepEqual(done.skipped, [
+    { conversation: 'Orders', reason: '2 messages left out: the conversation has no id' },
+    { conversation: 'conversation 3', reason: '1 message left out: the conversation has no id' },
+    { conversation: 'thread-1', reason: '2 messages left out: they have none of /id, /timestamp to tell them by' },
+  ]);
+  assert.match(done.said, /3 left out \(see skipped\)/);
+  assert.deepEqual((await snapshotOf(opened, 'signal')).threads.map(thread => thread.id), ['thread-1']);
+});
+
+test('a pull that leaves nothing out says skipped is empty', async () => {
+  const opened = await openDoor();
+  const { done } = await handed(opened, printed([sent('m1', 1, 'acct-b', 'a')]));
+  assert.deepEqual(done.skipped, []);
+  assert.doesNotMatch(done.said, /left out/);
+});
+
+// The contract the Signal client's row is built to match: test/fixtures/signal-client-output.json is a made-up output in
+// exactly that shape, and the README's "What the Signal client must hand in" table lists the same fields.
+const CONVERSATION_FIELDS = new Set(['id', 'name', 'type', 'messages']);
+const MESSAGE_FIELDS = new Set(['id', 'timestamp', 'from', 'body', 'editedTimestamp', 'type']);
+
+test('signal: the fixture of the client\'s output holds only the contract\'s fields, is pulled whole with nothing left out, and reads as the contract says', async () => {
+  const output = JSON.parse(readFileSync(new URL('./fixtures/signal-client-output.json', import.meta.url), 'utf8'));
+  for (const conversation of output) {
+    assert.ok(Object.keys(conversation).every(key => CONVERSATION_FIELDS.has(key)));
+    assert.ok(Array.isArray(conversation.messages));
+    for (const message of conversation.messages) {
+      assert.ok(Object.keys(message).every(key => MESSAGE_FIELDS.has(key)));
+      assert.ok(Number.isInteger(message.timestamp) && message.timestamp > 1e12, 'timestamp is epoch milliseconds');
+      assert.equal(typeof message.from, 'string');
+    }
+  }
+  const opened = await openDoor();
+  const { done } = await handed(opened, output);
+  assert.equal(done.status, 'pulled');
+  assert.deepEqual(done.skipped, []);
+  assert.equal(done.new_messages, 5);
+  assert.equal(done.cursor, 1700000004000);
+  const snapshot = await snapshotOf(opened, 'signal');
+  assert.deepEqual(snapshot.threads.map(thread => [thread.id, thread.title]), [['thread-1', 'Bakers'], ['thread-2', 'thread-2']]);
+  assert.deepEqual(snapshot.threads[1].messages, output[1].messages);
+  assert.deepEqual(snapshot.threads[0].messages, output[0].messages);
+});
+
+test('signal: the accounts are kept apart and at most most_threads conversations are read', async () => {
+  const opened = await openDoor();
+  const conversations = [1, 2, 3].map(number => ({ id: `thread-${number}`, messages: [sent('m', number, 'acct-b', 'x')] }));
+  const { done } = await handed(opened, conversations, { most_threads: 2 });
+  assert.equal(done.threads, 2);
+  await handed(opened, printed([sent('m1', 1700000000000, 'acct-b', 'work')]), { account: 'work' });
+  assert.equal((await snapshotOf(opened, 'signal', 'work')).threads.length, 1);
+  assert.equal((await snapshotOf(opened, 'signal')).threads.length, 2);
+});
+
+test('signal: a document that is not a list, or no self_id, is refused with what to give, and nothing is written', async () => {
+  const opened = await openDoor();
+  await assert.rejects(handed(opened, { threads: [] }), /conversations is the whole list of conversations that Signal printed/);
+  await assert.rejects(pullFromAnAccount('signal', { conversations: [] }, { door: opened.door }), /self_id is the identity of the account/);
   assert.equal(opened.calls.length, 0);
 });
 

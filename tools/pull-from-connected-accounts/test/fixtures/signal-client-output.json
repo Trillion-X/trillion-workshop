@@ -1,0 +1,20 @@
+[
+  {
+    "id": "thread-1",
+    "name": "Bakers",
+    "type": "group",
+    "messages": [
+      { "id": "m1", "timestamp": 1700000000000, "from": "acct-b", "type": "normal", "body": "Rye is ready" },
+      { "id": "m2", "timestamp": 1700000001000, "from": "acct-a", "type": "normal", "body": "On my way" },
+      { "id": "m3", "timestamp": 1700000002000, "from": "acct-b", "type": "normal", "body": "Ten loaves, sliced", "editedTimestamp": 1700000500000 },
+      { "id": "m4", "timestamp": 1700000003000, "from": "acct-b", "type": "call_started" }
+    ]
+  },
+  {
+    "id": "thread-2",
+    "type": "individual",
+    "messages": [
+      { "timestamp": 1700000004000, "from": "acct-c", "type": "normal", "body": "A message with no id is known by its time" }
+    ]
+  }
+]

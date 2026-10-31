@@ -83,3 +83,10 @@ test('folding changes neither the held list nor the arriving list', () => {
   assert.equal(JSON.stringify(held), heldBefore);
   assert.equal(JSON.stringify(arriving), arrivingBefore);
 });
+
+test('an arriving object with no identity is left out and counted, and what is not an object is ignored', () => {
+  const done = foldItems([], [m('1', 'a'), { text: 'no key, no signature' }, 'not an object', null], { key: ['/id'] });
+  assert.equal(done.added, 1);
+  assert.equal(done.skipped, 1);
+  assert.deepEqual(done.items.map(item => item.id), ['1']);
+});
