@@ -10,8 +10,8 @@
 // view's sort orders them).
 //
 // Non-Negotiable Invariants:
-//   1. readListView reads records only: it never runs a tool and never writes. A view's rules are decided by the
-//      door's `filter` (the rule filter of tools/formulas, called in the same process as the read).
+//   1. readListView reads records only: it never runs a tool and never writes. A view's rules are decided by the rule
+//      filter of tools/formulas (filterRecords), imported here and called in the same process as the read.
 //   2. No list, view, field, record type, source or tool is named here. The record names are the caller's (`names`),
 //      the sources and their tools are DATA (list-view.json `row_sources`), and so are the bounds (list-view.json
 //      `limits`), which a caller never passes.
@@ -27,12 +27,12 @@
 //
 //   readListView({ list | view, after?, limit?, names }, door)
 //     → { list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }
-//     door: { read(type, id) → value | null, list({ type, limit, after?, prefix? }) → { records, next },
-//             filter({ records, fields, tree }) → { matches, incomplete } (needed only for a view with rules) }
+//     door: { read(type, id) → value | null, list({ type, limit, after?, prefix? }) → { records, next } }
 //   refreshRowSources({ list, names, source_answer_bytes? }, door)
 //     → { list, sources: [{ source, rows, written, removed, unchanged, refused: [ids] }] }
 //     door: { read, list, run(tool, input) → its answer, write(records, { key }) → the door's answer }
 import data from './list-view.json' with { type: 'json' };
+import { filterRecords } from '../../formulas/do-work/requests.mjs';
 
 const say = (code, words) => Object.assign(new Error(words), { code });
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
@@ -113,12 +113,11 @@ function ruleFields(tree) {
   return new Set((tree.rules ?? []).flatMap(rule => [...ruleFields(rule)]));
 }
 
-// The positions of the rows a view's rules keep, as the person's rule filter decides; only the fields the rules read
-// are given to it.
-async function keptPositions(door, rows, fields, tree) {
-  if (typeof door.filter !== 'function') throw say('bad_input', 'A view with rules needs the door\'s filter, the person\'s rule filter (tools/formulas).');
+// The positions of the rows a view's rules keep, as the rule filter of tools/formulas decides; only the fields the
+// rules read are given to it.
+function keptPositions(rows, fields, tree) {
   const reads = ruleFields(tree);
-  const found = await door.filter({
+  const found = filterRecords({
     records: rows.map(row => ({ value: Object.fromEntries([...reads].filter(name => name in row.values).map(name => [name, row.values[name]])) })),
     fields: fields.filter(field => reads.has(field.id)).map(field => ({ id: field.id, kind: field.kind, path: ['value', field.id] })),
     tree,
@@ -170,7 +169,7 @@ export async function readListView(input = {}, door) {
   }
   const every = await rowsFrom(door, list, names, sources, null, limits.rows_per_read);
   let rows = every.rows;
-  if (view.rules) rows = (await keptPositions(door, rows, fields, view.rules)).map(position => rows[position]);
+  if (view.rules) rows = keptPositions(rows, fields, view.rules).map(position => rows[position]);
   rows = ordered(rows, view.sort);
   const from = input.after === undefined || input.after === null ? 0 : Number(input.after);
   if (!Number.isSafeInteger(from) || from < 0) throw say('bad_input', 'after is not a cursor of this view.');

@@ -1,19 +1,23 @@
 // tools/read-a-list-view/read-data/door.mjs
 //
-// Purpose: the person's own door, as readListView and refreshRowSources use it (read, list, run, write, filter),
-// reached from their own computer: one JSON-RPC `tools/call` of `run_resource_operation` per operation, POSTed to the
-// door's MCP address with the person's key as the Bearer token. The same transport as tools/export-records-as-list-rows' record_write_send.py.
+// Purpose: the person's own door, as readListView and refreshRowSources use it (read, list, run, write), reached
+// from their own computer: one JSON-RPC `tools/call` of `run_resource_operation` per operation, POSTed to the door's
+// MCP address with the person's key as the Bearer token (the same transport as tools/export-records-as-list-rows'
+// record_write_send.py). A tool the config lists in `local_tools` runs here, on the person's computer, instead.
 //
 // Non-Negotiable Invariants:
 //   1. The config names the key's keychain item, never the key. The key is read with the computer's `security`
 //      program when the door is opened, kept in memory, sent only in the Authorization header to the configured
 //      address, and never written, logged or printed. An answer that holds it is refused and nothing of it is kept.
 //   2. No address, operation or record kind is named here: the config's `records` ({ address, read_method,
-//      list_method, write_method? }), `tools` ({ address, run_method }) and `filter` ({ tool }, the rule-filter tool) are.
+//      list_method, write_method? }), `tools` ({ address, run_method }) and `local_tools` are.
 //   3. A refusal comes back as an Error with the door's code; a run whose tool failed is an Error with the tool's words.
 //   4. A call is sent again only with its own request key (the records door's contract, tools/records-door README).
 //
-//   openDoor({ transport: { url, credential: { keychain_item } }, records, tools, filter? }, { keyOf? }) → { read, list, run, write, filter }
+//   openDoor({ transport: { url, credential: { keychain_item } }, records, tools, local_tools? }, { keyOf? })
+//     → { read, list, run, write }
+//   local_tools: { <tool id>: { module, export, input? } }: the module's path under the Workshop's tools folder, the
+//   function it exports, and the input every run of it gets; its answer comes back as a run's `result`.
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { randomUUID } from 'node:crypto';
@@ -21,6 +25,8 @@ import { randomUUID } from 'node:crypto';
 const PROTOCOL = '2025-06-18';
 const BUSY_RETRIES = 5;
 const FIRST_WAIT_MS = 200;
+// The Workshop's tools folder, where a local tool's module is found.
+const TOOLS = new URL('../', new URL('../', import.meta.url));
 const wait = ms => new Promise(done => setTimeout(done, ms));
 const say = (code, words) => Object.assign(new Error(words), { code });
 
@@ -42,7 +48,7 @@ function replyOf(text, contentType) {
 }
 
 export async function openDoor(config, { keyOf = keychainKey } = {}) {
-  const { transport, records, tools, filter } = config ?? {};
+  const { transport, records, tools, local_tools: localTools = {} } = config ?? {};
   if (!transport?.url?.startsWith('http') || !records?.address || !records.read_method || !records.list_method || !tools?.address || !tools.run_method) {
     throw say('bad_config', 'The door config is { transport: { url, credential }, records: { address, read_method, list_method }, tools: { address, run_method } }.');
   }
@@ -72,6 +78,12 @@ export async function openDoor(config, { keyOf = keychainKey } = {}) {
     }
   };
   const run = async (tool, input) => {
+    const local = localTools[tool];
+    if (local) {
+      const ran = (await import(new URL(local.module, TOOLS)))[local.export];
+      if (typeof ran !== 'function') throw say('bad_config', `local_tools: ${local.module} exports no ${local.export}.`);
+      return { result: await ran({ ...(local.input ?? {}), ...input }) };
+    }
     const answer = await call(tools.address, tools.run_method, { tool, input });
     if (answer?.error !== undefined || (answer?.exit_code ?? 0) !== 0) throw say('tool_failed', `${tool}: ${String(answer?.error ?? `exit ${answer?.exit_code}`).slice(0, 300)}`);
     return answer;
@@ -84,12 +96,6 @@ export async function openDoor(config, { keyOf = keychainKey } = {}) {
     write: async (rows, { key }) => {
       if (!records.write_method) throw say('bad_config', 'Refreshing a list writes its rows: records needs write_method.');
       return call(records.address, records.write_method, { records: rows }, key);
-    },
-    // From a computer the person's rule filter is their rule-filter tool, run through the door.
-    filter: async request => {
-      if (!filter?.tool) throw say('bad_config', 'A view with rules needs filter: { tool }, the person\'s rule-filter tool.');
-      const answer = await run(filter.tool, request);
-      return answer?.result ?? answer;
     },
   };
 }
