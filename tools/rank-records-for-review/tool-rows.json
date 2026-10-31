@@ -1,0 +1,184 @@
+{
+ "kind": "tool-rows",
+ "record_set": "rank-records-for-review-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/rank-records-for-review: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::rank-records-for-review::tool::rank-records-for-review",
+   "address": "package::rank-records-for-review::tool::rank-records-for-review",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:rank-records-for-review",
+    "label": "Rank records for review",
+    "status": "active",
+    "job": "Put a list of suggestions, matches or any records in the order a person should review them, showing the fields they asked for on each row and whether they already accepted or passed on it",
+    "description": "Give a descriptor (which fields to show, which records to leave out, how rows relate to other records, which parts of a record name the suggestion a stand is on, and the actions on a row), the records, and optionally related records, the person's stands (their accept or pass records) and a list of upsert or delete events to apply over the records first. Returns the rows smallest rank first (then by record ref; a record with no rank has rank null and comes last), each with its shown values, relationship answers, status keys, actions and the person's newest stand on it (none if their newest version takes the stand back), plus counts. Every word about the domain is in the descriptor; a filter or relationship method the tool does not know is refused.",
+    "input_schema": {
+     "type": "object",
+     "required": ["descriptor", "records"],
+     "additionalProperties": false,
+     "properties": {
+      "descriptor": {
+       "type": "object",
+       "required": ["id", "source", "fields", "standView", "standKind"],
+       "description": "id; source {address}; fields [{id, path, role?, display?}]; standKind (one word, no slash); standView {key: path} naming the parts of a record a stand is on; optional recordIdPath, rankPath, statusKeyPaths {dimension: path}, filters/relationships [{id, method, params}] (methods: field.exists, field.equals, field.notEquals, refs.count) and actions [{id, label, stance, enabledWhen?, disabledReason?, copy?}]"
+      },
+      "records": { "type": "array", "items": { "type": "object" }, "description": "The records to rank" },
+      "related": { "type": "array", "items": { "type": "object" }, "description": "Other records the relationships read" },
+      "stands": { "type": "array", "items": { "type": "object" }, "description": "The person's stands, as the stand tool keeps them (kind, view, stance, why, at)" },
+      "events": { "type": "array", "items": { "type": "object" }, "description": "Changes applied over the records first: {op: upsert, record, cursor?} or {op: delete, record_ref, cursor?}" },
+      "cursor": { "type": "string", "description": "A cursor to carry on the answer" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["projectionId", "rows", "proof"],
+     "properties": {
+      "projectionId": { "type": "string" },
+      "source": { "type": "object" },
+      "cursor": { "type": "string" },
+      "rows": { "type": "array", "items": { "type": "object" } },
+      "proof": { "type": "object" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "rank-records-for-review",
+       "paths": ["do-work", "read-data"],
+       "at": "/opt/rank-records-for-review"
+      }
+     },
+     "workdir": "/opt/rank-records-for-review",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/rank-records-for-review.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:rank-records-for-review",
+    "provenance": { "source": "bitfield-packages packages/suggested-match" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "descriptor": {
+        "id": "sample.review",
+        "source": { "address": "sample.review.records" },
+        "standKind": "suggestion",
+        "standView": { "record": ["record_ref"] },
+        "fields": [{ "id": "primary", "path": ["display", "primary"] }]
+       },
+       "records": [
+        { "record_ref": "record.late", "rank": 2, "display": { "primary": "Second record" } },
+        { "record_ref": "record.early", "rank": 1, "display": { "primary": "First record" } }
+       ],
+       "stands": [{ "kind": "suggestion", "view": { "record": "record.early" }, "stance": "agree", "at": "2026-01-01T00:00:00Z" }]
+      },
+      "output_selector": "$.rows.0.recordId",
+      "contains": "record.early"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::rank-records-for-review::tool::accept-or-pass-on-a-ranked-record",
+   "address": "package::rank-records-for-review::tool::accept-or-pass-on-a-ranked-record",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:accept-or-pass-on-a-ranked-record",
+    "label": "Accept or pass on a ranked record",
+    "status": "active",
+    "job": "Turn a person's accept or pass on one suggestion in a review list into the request that keeps it as their stand, in their own words",
+    "description": "Give the same descriptor and the one record, the id of the action the person took (the descriptor says which stance each action keeps: accept is agree, pass is disagree) and what the person said. Returns the request for the keep-where-you-stand tool, with the stand on the row's own view and answered_by person. Writes nothing; run the returned tool with the returned input only (the other fields are for you): skip it if unchanged is true (the stands you gave already say this) or if you have already run this idempotency_ref, since running it twice makes two versions of the stance record. A record the descriptor leaves out, an unknown or disabled action, or a copy rule that sets anything but why, by or at is refused with the reason.",
+    "input_schema": {
+     "type": "object",
+     "required": ["descriptor", "record", "action_id"],
+     "additionalProperties": false,
+     "properties": {
+      "descriptor": { "type": "object", "description": "The same descriptor the ranking used" },
+      "record": { "type": "object", "description": "The one record the person acted on" },
+      "action_id": { "type": "string", "description": "The id of the descriptor action the person took" },
+      "input": { "type": "object", "description": "What the person said, such as {\"why\": \"...\"}, read by the action's copy rules" },
+      "related": { "type": "array", "items": { "type": "object" } },
+      "stands": { "type": "array", "items": { "type": "object" } }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["tool", "row_ref", "idempotency_ref", "request_ref", "unchanged", "input"],
+     "properties": {
+      "tool": { "type": "string" },
+      "row_ref": { "type": "string" },
+      "idempotency_ref": { "type": "string", "description": "The same row, action and words give the same ref" },
+      "request_ref": { "type": "string" },
+      "unchanged": { "type": "boolean", "description": "True when the stands given already say this stance with these words" },
+      "input": {
+       "type": "object",
+       "required": ["kind", "view", "stance", "answered_by"],
+       "properties": {
+        "kind": { "type": "string" },
+        "view": {},
+        "stance": { "type": "string" },
+        "answered_by": { "type": "string" },
+        "why": { "type": "string" },
+        "by": { "type": "string" },
+        "at": { "type": "string" }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "rank-records-for-review",
+       "paths": ["do-work", "read-data"],
+       "at": "/opt/rank-records-for-review"
+      }
+     },
+     "workdir": "/opt/rank-records-for-review",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/accept-or-pass.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:rank-records-for-review",
+    "provenance": { "source": "bitfield-packages packages/suggested-match" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "descriptor": {
+        "id": "sample.review",
+        "source": { "address": "sample.review.records" },
+        "standKind": "suggestion",
+        "standView": { "record": ["record_ref"] },
+        "fields": [{ "id": "primary", "path": ["display", "primary"] }],
+        "actions": [
+         { "id": "accept", "label": "Accept", "stance": "agree", "copy": [{ "key": "why", "from": "input.why" }] },
+         { "id": "pass", "label": "Pass", "stance": "disagree" }
+        ]
+       },
+       "record": { "record_ref": "record.early", "rank": 1, "display": { "primary": "First record" } },
+       "action_id": "accept",
+       "input": { "why": "These belong together." }
+      },
+      "output_selector": "$.input.stance",
+      "contains": "agree"
+     }
+    ]
+   }
+  }
+ ]
+}

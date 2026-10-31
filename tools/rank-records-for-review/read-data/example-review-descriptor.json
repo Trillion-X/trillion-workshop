@@ -1,0 +1,39 @@
+{
+  "what_this_is": "An example descriptor a person replaces with their own: which records to show for review, which fields, how they rank, what each is related to, the parts a stand is on, and the two actions (accept keeps an agree, pass keeps a disagree, through tool:keep-where-you-stand). Every label is the person's. The status words a row carries (statusKeyPaths) come out as the record's own words; what a screen calls them and how it colours them is the screen's to say, never the descriptor's.",
+  "projection": {
+    "id": "example.ranked-review",
+    "source": {
+      "address": "example.ranked-review.records",
+      "mode": "own-records"
+    },
+    "recordIdPath": ["record_ref"],
+    "rankPath": ["rank"],
+    "standKind": "suggestion",
+    "standView": {
+      "record": ["record_ref"],
+      "candidates": ["candidate_record_refs"]
+    },
+    "statusKeyPaths": {
+      "confidence": ["status_keys", "confidence"],
+      "action": ["status_keys", "action"]
+    },
+    "fields": [
+      { "id": "primary", "role": "primary-text", "path": ["display", "primary"], "display": { "empty": "Untitled" } },
+      { "id": "secondary", "role": "secondary-text", "path": ["display", "secondary"], "display": { "empty": "" } },
+      { "id": "score", "role": "rank-signal", "path": ["score"], "display": { "format": "number", "numberOptions": { "maximumFractionDigits": 2 }, "empty": "" } },
+      { "id": "reason", "role": "supporting-reason", "path": ["display", "reason"], "display": { "empty": "" } }
+    ],
+    "relationships": [
+      { "id": "evidence-count", "method": "refs.count", "params": { "field": ["evidence_refs"] } },
+      { "id": "source-count", "method": "refs.count", "params": { "field": ["source_record_refs"] } }
+    ],
+    "filters": [
+      { "id": "has-record-ref", "method": "field.exists", "params": { "field": ["record_ref"] } },
+      { "id": "not-suppressed", "method": "field.notEquals", "params": { "field": ["suppressed"], "value": true } }
+    ],
+    "actions": [
+      { "id": "primary-review-action", "label": "Use", "stance": "agree", "copy": [{ "key": "why", "from": "input.why" }] },
+      { "id": "secondary-review-action", "label": "Skip", "stance": "disagree", "copy": [{ "key": "why", "from": "input.why" }] }
+    ]
+  }
+}

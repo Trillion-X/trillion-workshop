@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/rank-records-for-review.mjs", "do-work/stand-request.mjs"]
+}
