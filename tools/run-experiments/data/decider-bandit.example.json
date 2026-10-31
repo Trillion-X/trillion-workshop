@@ -1,0 +1,35 @@
+{
+  "entity_type": "decider",
+  "decider_id": "bandit-outcome-shift",
+  "label": "Bandit decider: once results are in, the candidate with the best recorded rate; before that, a split by visitor",
+  "score": {
+    "op": "case",
+    "cases": [
+      {
+        "when": {
+          "op": "eq",
+          "left": { "fact_path": ["experiment", "has_results"] },
+          "right": { "const": true }
+        },
+        "then": {
+          "op": "outcome",
+          "metric": "conversion_rate"
+        }
+      }
+    ],
+    "default": {
+      "op": "sticky_hash",
+      "of": { "fact_path": ["observer", "id"] },
+      "split": {
+        "split": {
+          "a": 0.5,
+          "b": 0.5
+        }
+      }
+    }
+  },
+  "accepts_trust": [
+    "trust:observer-supplied",
+    "trust:derived"
+  ]
+}
