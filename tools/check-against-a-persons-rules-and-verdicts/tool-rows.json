@@ -331,22 +331,22 @@
         },
         "rows": [
          {
-          "id": "no-zorblax",
+          "id": "no-sampleword",
           "kinds": [
            "title"
           ],
           "words": [
-           "zorblax"
+           "sampleword"
           ],
-          "says": "Never zorblax."
+          "says": "Never sampleword."
          }
         ]
        },
        "stands": [
         {
          "kind": "title",
-         "artifact": "1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366",
-         "text": "Zorblax rising",
+         "artifact": "1f:fe4e18843a5222ff8c3c9ecc341c29d3506ffff4378b9e14febc0610010b1871",
+         "text": "Sampleword rising",
          "stance": "disagree",
          "why": "not a word I use",
          "at": "2026-01-01T00:00:00Z"
@@ -354,7 +354,7 @@
        ],
        "units": [
         {
-         "text": "Zorblax rising",
+         "text": "Sampleword rising",
          "kind": "title"
         }
        ]
@@ -590,7 +590,7 @@
           },
           "pairs": [
            {
-            "rejected": "1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366"
+            "rejected": "1f:fe4e18843a5222ff8c3c9ecc341c29d3506ffff4378b9e14febc0610010b1871"
            }
           ]
          }
@@ -599,8 +599,8 @@
        "stands": [
         {
          "kind": "title",
-         "artifact": "1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366",
-         "text": "Zorblax rising",
+         "artifact": "1f:fe4e18843a5222ff8c3c9ecc341c29d3506ffff4378b9e14febc0610010b1871",
+         "text": "Sampleword rising",
          "stance": "disagree",
          "why": "not a word I use",
          "at": "2026-01-01T00:00:00Z"

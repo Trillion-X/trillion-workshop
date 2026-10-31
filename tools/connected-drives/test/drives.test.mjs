@@ -48,7 +48,7 @@ test('lists the drives Finder shows, with their identity, and never a hidden vol
   assert.equal(shown[0].mount, mac.drive);
   assert.equal(shown[0].internal, false);
   assert.equal(shown[0].kind, 'External SSD');
-  assert.deepEqual(hiddenIn(`/dev/a on /Volumes/x (apfs, nobrowse)\n/dev/b on /Volumes/y (apfs, local)`), new Set(['/Volumes/x']));
+  assert.deepEqual(hiddenIn(`/dev/a on /Volumes/sample-one (apfs, nobrowse)\n/dev/b on /Volumes/sample-two (apfs, local)`), new Set(['/Volumes/sample-one']));
 });
 
 test('lists one folder on a drive, folders first and numbers in order, and refuses any path off the drives', async () => {
