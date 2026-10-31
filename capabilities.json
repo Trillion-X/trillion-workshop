@@ -656,10 +656,9 @@
     },
     {
       "capability": "form groups, tribes and matches among people",
-      "lives_at": ["bitfield-packages/packages/interaction-program/", "bitfield-packages/packages/group/"],
-      "moves_to": "tools/form-groups-and-matches/",
-      "entry": "bitfield-packages/packages/interaction-program/",
-      "evidence": "interaction-program README.md:1 a tribe, community or matchmaker as DATA over the group nucleus"
+      "owner": ["tools/form-groups-and-matches/"],
+      "entry": "tools/form-groups-and-matches/tool-rows.json",
+      "evidence": "README.md:3 keeps groups, forms matches by grounded expected value with introductions that wait for every person's consent, and runs a community's matchmaker on its cadence (its round of that same job); ported from bitfield-packages/packages/interaction-program and group, and from the Trillion app's src/community-matching.mjs"
     },
     {
       "capability": "ask a live source and fall back to its last good answer",

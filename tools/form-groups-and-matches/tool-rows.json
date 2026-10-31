@@ -490,6 +490,1063 @@
           }
         ]
       }
+    },
+    {
+      "id": "package::form-groups-and-matches::tool::advance-a-community-matchmaker",
+      "address": "package::form-groups-and-matches::tool::advance-a-community-matchmaker",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:advance-a-community-matchmaker",
+        "label": "Run a community's matchmaker clock: start or close a round, introduce, follow up",
+        "status": "active",
+        "job": "Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on",
+        "description": "The wake target of a community's matchmaker; a person declares it as their own wake (a wake-declaration record with tool tool:advance-a-community-matchmaker, a time repeat, and input { community_id }). Reads the community's settings (a match-community record, checked by tool:check-community-matching-settings), its members, rounds, matches and answers. When no round is open and the cadence (every_days after the last round) has come, it starts one: each opted-in member whose answers are incomplete gets a profile job for their own AI, and each complete member gets a bounded shortlist (an inverted index over categories and words, at most shortlist_size candidates, never every pair) and a score job asking their AI to score each candidate on the contract's factors with cited claims. Nothing here runs a model. At the deadline it forms groups from the grounded scores only (exact product of the factors, every factor cited), proposes each and hands each person's AI a consent job. It makes the one-to-one group of any match whose yeses all hold and hands topic jobs; it hands follow-up jobs at the community's follow_up_hours until the members talk. Jobs are ai-job records on the engine's job road, once per request key. Returns round (what started or closed, or null), next_at (when the clock next has something to do) and written; a community without usable settings returns ok false and its error.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "community_id"
+          ],
+          "properties": {
+            "community_id": {
+              "type": "string",
+              "description": "The community whose matchmaker runs: its settings are the match-community record of this id."
+            },
+            "now": {
+              "type": [
+                "number",
+                "string"
+              ],
+              "description": "The time to run at, in milliseconds or ISO words; left out, the time of the run."
+            },
+            "request_key": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "status": {
+              "type": "integer"
+            },
+            "written": {
+              "type": "integer"
+            },
+            "round": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "next_at": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "form-groups-and-matches",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/form-groups-and-matches"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/form-groups-and-matches/do-work/community-matchmaker.mjs",
+            "advanceCommunity"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "match-community",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "match-member",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match-round",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match-ask",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match-answer",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "ai-job",
+                "prefix": "ai-job:match:",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "group",
+                "prefix": "group:introduction:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": {
+          "source": "ported from the community matchmaker of the Trillion app (src/community-matching.mjs, its introduction states and consent fingerprint) onto the matching leaves of this folder and the records door"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "community_id": "sample-verify-community"
+            },
+            "output_selector": "$.error",
+            "contains": "No community sample-verify-community"
+          }
+        ]
+      }
+    }
+,
+    {
+      "id": "package::form-groups-and-matches::tool::answer-in-a-community",
+      "address": "package::form-groups-and-matches::tool::answer-in-a-community",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:answer-in-a-community",
+        "label": "Answer a community's matchmaker: profile, scores, yes or no, topics, wrote",
+        "status": "active",
+        "job": "Give a community's matchmaker what it asked for: a member's answers and on/off switch, an AI's cited scores for its shortlist, a person's yes or no to an introduction, first topics, or that they wrote in the one-to-one",
+        "description": "One answer from one person (person), then the community's clock. kind profile: { on?, answers: { question_id: answer }, categories? }, refused when a question is not one the community asks or an answer holds the community's contact pattern. kind scores: { round_id, scores: [{ candidate_ref, factors: { factor: { score in (0, 1], reason, you: [claim_ref], them: [claim_ref] } } }] }; answers which candidates were grounded and why not, and the round closes once every asked AI answered. kind answer: { match_id, yes, consent }: a yes counts only when the answer carries the community's person stamp (consent.yes_needs) and the consent the person was shown (read-my-community-matches gives it); an AI's yes is refused with the screen to open; a no, from the person or their AI, passes the match for everyone. Once every member's yes holds, the one-to-one group (group:introduction) is made and each AI is asked for first topics. kind topics: { match_id, topics: [line] }. kind wrote: { match_id }: once every member wrote, the match has talked. kind run-round: the community's owner closes the open round and starts the next. Returns outcome ({ ok: true, ... } or { ok: false, error, status, next_call?, changed?, consent? }), round, next_at and written.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "community_id",
+            "person",
+            "kind"
+          ],
+          "properties": {
+            "community_id": {
+              "type": "string",
+              "description": "The community whose matchmaker runs: its settings are the match-community record of this id."
+            },
+            "person": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "profile",
+                "scores",
+                "answer",
+                "topics",
+                "wrote",
+                "run-round"
+              ]
+            },
+            "now": {
+              "type": [
+                "number",
+                "string"
+              ],
+              "description": "The time to run at, in milliseconds or ISO words; left out, the time of the run."
+            },
+            "on": {
+              "type": "boolean"
+            },
+            "answers": {
+              "type": "object"
+            },
+            "categories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "round_id": {
+              "type": "string"
+            },
+            "scores": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "match_id": {
+              "type": "string"
+            },
+            "yes": {
+              "type": "boolean"
+            },
+            "consent": {
+              "type": "string"
+            },
+            "topics": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "request_key": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "status": {
+              "type": "integer"
+            },
+            "written": {
+              "type": "integer"
+            },
+            "outcome": {
+              "type": "object"
+            },
+            "round": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "next_at": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "form-groups-and-matches",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/form-groups-and-matches"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/form-groups-and-matches/do-work/community-matchmaker.mjs",
+            "answerInCommunity"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "match-community",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "match-member",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match-round",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match-ask",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match-answer",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "ai-job",
+                "prefix": "ai-job:match:",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "group",
+                "prefix": "group:introduction:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": {
+          "source": "ported from the community matchmaker of the Trillion app (src/community-matching.mjs, its introduction states and consent fingerprint) onto the matching leaves of this folder and the records door"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "community_id": "sample-verify-community",
+              "person": "sample-person",
+              "kind": "profile",
+              "answers": {}
+            },
+            "output_selector": "$.error",
+            "contains": "No community sample-verify-community"
+          }
+        ]
+      }
+    }
+,
+    {
+      "id": "package::form-groups-and-matches::tool::read-my-community-matches",
+      "address": "package::form-groups-and-matches::tool::read-my-community-matches",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-my-community-matches",
+        "label": "Read my matches in a community, my profile, and the score job I owe",
+        "status": "active",
+        "job": "See who a community's matchmaker proposed for me and where each introduction stands, what my profile still misses, the shortlist my AI still has to score, and fellow members who share my categories",
+        "description": "Reads one member's view (person): on (their switch), cadence_label, next_at, matches (each match_id, status and the community's words for it, answered, answer_by, consent: what to answer a yes with, with, why: the scoring AI's cited reasons, topics, space_id once they are in the one-to-one), profile (answers, categories, complete, missing questions), waiting_for_your_scores (the open round's shortlist with citable claims), discover (members sharing a category, with what they offer and seek), waiting_jobs (this person's own waiting jobs, for their AI to pull: nothing is ever written into another person's account), wake_at (when the community's clock next acts, so the member side wakes then and pulls once), and for the community's owner experiments (each arm's introduced and talked counts and the shown and converted events an experiment owner reads). Writes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "community_id",
+            "person"
+          ],
+          "properties": {
+            "community_id": {
+              "type": "string",
+              "description": "The community whose matchmaker runs: its settings are the match-community record of this id."
+            },
+            "person": {
+              "type": "string"
+            },
+            "now": {
+              "type": [
+                "number",
+                "string"
+              ],
+              "description": "The time to run at, in milliseconds or ISO words; left out, the time of the run."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "status": {
+              "type": "integer"
+            },
+            "written": {
+              "type": "integer"
+            },
+            "matches": {
+              "type": "array"
+            },
+            "profile": {
+              "type": "object"
+            },
+            "waiting_for_your_scores": {
+              "type": "array"
+            },
+            "discover": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "form-groups-and-matches",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/form-groups-and-matches"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/form-groups-and-matches/do-work/community-matchmaker.mjs",
+            "readCommunityMatches"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "match-community",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "match-member",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "match-round",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "match-ask",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "match",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "match-answer",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "ai-job",
+                "prefix": "ai-job:match:",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "group",
+                "prefix": "group:introduction:",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": {
+          "source": "ported from the community matchmaker of the Trillion app (src/community-matching.mjs, its introduction states and consent fingerprint) onto the matching leaves of this folder and the records door"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "community_id": "sample-verify-community",
+              "person": "sample-person"
+            },
+            "output_selector": "$.error",
+            "contains": "No community sample-verify-community"
+          }
+        ],
+        "read_only": true
+      }
+    }
+,
+    {
+      "id": "package::form-groups-and-matches::tool::forget-a-person-in-a-community",
+      "address": "package::form-groups-and-matches::tool::forget-a-person-in-a-community",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:forget-a-person-in-a-community",
+        "label": "Forget a person in a community's matchmaker",
+        "status": "active",
+        "job": "Erase a person from a community's matching: what they told it, every match naming them, their asks, answers and jobs, and their place and scores on other members' shortlists and score jobs",
+        "description": "Removes the member record, every match naming the person with its one-to-one group, answers and jobs, their own asks and jobs, and takes them and the scores of them out of other members' asks and waiting score jobs. Others keep their own asks and jobs. Returns forgotten and written.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "community_id",
+            "person"
+          ],
+          "properties": {
+            "community_id": {
+              "type": "string",
+              "description": "The community whose matchmaker runs: its settings are the match-community record of this id."
+            },
+            "person": {
+              "type": "string"
+            },
+            "now": {
+              "type": [
+                "number",
+                "string"
+              ],
+              "description": "The time to run at, in milliseconds or ISO words; left out, the time of the run."
+            },
+            "request_key": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "status": {
+              "type": "integer"
+            },
+            "written": {
+              "type": "integer"
+            },
+            "forgotten": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "form-groups-and-matches",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/form-groups-and-matches"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/form-groups-and-matches/do-work/community-matchmaker.mjs",
+            "forgetInCommunity"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "match-community",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "match-member",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match-round",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match-ask",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "match-answer",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "ai-job",
+                "prefix": "ai-job:match:",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "group",
+                "prefix": "group:introduction:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": {
+          "source": "ported from the community matchmaker of the Trillion app (src/community-matching.mjs, its introduction states and consent fingerprint) onto the matching leaves of this folder and the records door"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "community_id": "sample-verify-community",
+              "person": "sample-person"
+            },
+            "output_selector": "$.error",
+            "contains": "No community sample-verify-community"
+          }
+        ]
+      }
+    }
+,
+    {
+      "id": "package::form-groups-and-matches::tool::check-community-matching-settings",
+      "address": "package::form-groups-and-matches::tool::check-community-matching-settings",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-community-matching-settings",
+        "label": "Check a community's matchmaker settings before keeping them",
+        "status": "active",
+        "job": "Check that a community's matching settings can run: cadence, sizes, the evidence contract and the questions that cover every factor's citations, consent, follow-up hours, words for every job, refusal and state, contact pattern, limits and experiments",
+        "description": "community is the value of a match-community record: { title, owner, created_at, matching }. Returns usable and problems, each a plain sentence naming the field to fix. matching holds every_days, round_hours, shortlist_size, posting_cap, group_size, cadence_label, default_on, contract (the match-evidence contract: factors, primitives, scope_fields, questions, citation_requirements, authority, forbidden_interventions), questions (the contract questions this community asks, which must cover every claim kind a factor cites), expected_value? (minimum_expected_value, minimum_distinguishable_delta), initiative { required_level, pre_authorized_levels }, grouping?, consent { answer_hours, selection { approved_values, veto_values }, yes_needs { field, equals }, screen }, follow_up_hours, jobs (profile, score, consent, topics, follow_up: { said, job } with {name} fields), words, state_words, contact_pattern, limits, discover { offers, seeks } and experiments? ([{ id, arms: [{ id, weight, jobs }] }]). Nothing is written.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "community"
+          ],
+          "properties": {
+            "community": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "usable",
+            "problems"
+          ],
+          "properties": {
+            "usable": {
+              "type": "boolean"
+            },
+            "problems": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "form-groups-and-matches",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/form-groups-and-matches"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/form-groups-and-matches",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/form-groups-and-matches/do-work/community-matchmaker.mjs",
+            "checkCommunitySettings"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:form-groups-and-matches",
+        "provenance": {
+          "source": "ported from the community matchmaker of the Trillion app (src/community-matching.mjs, its introduction states and consent fingerprint) onto the matching leaves of this folder and the records door"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "community": {
+                "title": "Sample",
+                "owner": "sample-person",
+                "created_at": "2031-01-01T00:00:00.000Z",
+                "matching": {}
+              }
+            },
+            "output_selector": "$.problems[0]",
+            "contains": "every_days"
+          }
+        ],
+        "read_only": true
+      }
     }
   ]
 }
