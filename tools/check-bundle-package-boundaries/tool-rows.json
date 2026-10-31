@@ -1,0 +1,173 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-bundle-package-boundaries",
+        "id": "tool:check-a-bundle-against-package-boundaries",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "label": "Check my app's bundle only uses what each package made public",
+        "job": "Stop a build that takes a file from a package that did not declare it public: read the bundler's own list of what went into the finished bundle and report every import that reaches into a package's private files",
+        "description": "Give metafile_file (the bundler's metafile, esbuild's shape, a path inside the folder the person granted for reading), packages_root (the folder whose sub-folders are packages), declaration (how a package declares its public files: file, the name of the declaration file in each package folder; entries_at, the dotted path to the list in it; kind_at and kind, where each entry says what it is and the value that means public source; path_at, where it names the file or folder) and optionally bundle_root (what the metafile's relative paths are relative to; the granted folder when absent). The tool has no default declaration. Each import from outside a package to a file the package did not declare, and each use of a package whose declaration file cannot be read, is a finding in words. Imports inside one package, to files no package owns, to external modules and to virtual modules are not judged. Returns ok, edges_checked, packages_reached and findings.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "metafile_file",
+            "packages_root",
+            "declaration"
+          ],
+          "properties": {
+            "metafile_file": {
+              "type": "string",
+              "description": "A path inside the granted folder to the bundler's metafile (JSON)"
+            },
+            "packages_root": {
+              "type": "string",
+              "description": "A path inside the granted folder to the folder whose sub-folders are packages"
+            },
+            "bundle_root": {
+              "type": "string",
+              "description": "A path inside the granted folder that the metafile's relative paths are relative to"
+            },
+            "declaration": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "file",
+                "entries_at",
+                "kind_at",
+                "kind",
+                "path_at"
+              ],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "description": "The declaration file's name inside each package folder"
+                },
+                "entries_at": {
+                  "type": "string",
+                  "description": "Dotted path to the list of entries in it"
+                },
+                "kind_at": {
+                  "type": "string",
+                  "description": "Dotted path, inside an entry, to what the entry is"
+                },
+                "kind": {
+                  "type": "string",
+                  "description": "The value at kind_at that means the entry declares a public file or folder"
+                },
+                "path_at": {
+                  "type": "string",
+                  "description": "Dotted path, inside an entry, to the public file or folder, relative to the package"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "ok",
+            "edges_checked",
+            "packages_reached",
+            "findings"
+          ],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "edges_checked": {
+              "type": "integer"
+            },
+            "packages_reached": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rule",
+                  "importer",
+                  "package",
+                  "said"
+                ],
+                "properties": {
+                  "rule": {
+                    "type": "string"
+                  },
+                  "importer": {
+                    "type": "string"
+                  },
+                  "target": {
+                    "type": "string"
+                  },
+                  "package": {
+                    "type": "string"
+                  },
+                  "target_path": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "said": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/check-bundle-package-boundaries",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/check-bundle-package-boundaries/do-work/check-my-bundle.mjs",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-bundle-package-boundaries",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/check-bundle-package-boundaries"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
