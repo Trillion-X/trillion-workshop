@@ -33,7 +33,7 @@ export const MATCHING = {
   contract: CONTRACT, questions: CONTRACT.questions.map(question => question.question_id),
   initiative: { required_level: 'introduce', pre_authorized_levels: ['introduce'] },
   grouping: { modes: [{ type: 'pair', min_size: 2, max_size: 2 }] },
-  consent: { answer_hours: 72, selection: { approved_values: ['on'], veto_values: ['off'] }, yes_needs: { field: 'pressed_by', equals: 'person' }, screen: '/guild/{community_id}' },
+  consent: { answer_hours: 72, selection: { approved_values: ['on'], veto_values: ['off'] }, yes_needs: { field: 'origin', equals: 'page' }, screen: '/guild/{community_id}' },
   follow_up_hours: [48, 120, 240],
   jobs: {
     profile: { said: 'Tell {community} about {name}', job: 'Answer the questions of {community} ({community_id}) for {name}.' },
@@ -71,8 +71,10 @@ export function guild(people, { matching = {}, createdAt = START - 8 * 24 * HOUR
 
 /** The matchmaker over the book at `now`. */
 export const at = (book, now) => openCommunity({ communityId: C, book, now });
-/** One answer from `person` at `now`. */
-export const say = (book, now, person, kind, extra = {}) => at(book, now).apply({ person, kind, ...extra });
+/** One answer from `person` at `now`; `task` is the run's task as the engine wrote it. */
+export const say = (book, now, person, kind, extra = {}, task = {}) => at(book, now).apply({ person, kind, ...extra }, task);
+/** The task of a run the person started on their own page: the engine's stamp (tool-runs.json page_origin). */
+export const PAGE = Object.freeze({ origin: 'page' });
 export const jobs = book => book.list(ids.jobPrefix(C)).map(record => record.value);
 export const jobOf = (book, person, start) => jobs(book).find(job => job.for === person && job.request_key.startsWith(start));
 
@@ -85,7 +87,7 @@ export const scoresFrom = (job, value) => job.input.candidates.map(candidate => 
 /** The consent a person is shown for a match now, from their own view. */
 export const consentShown = (book, now, matchId, person) => at(book, now).myMatching(person).matches.find(match => match.match_id === matchId).consent;
 /** A person's own yes, pressed on their own screen, for the introduction as it shows it to them. */
-export const saysYes = (book, now, matchId, person) => say(book, now, person, 'answer', { match_id: matchId, yes: true, pressed_by: 'person', consent: consentShown(book, now, matchId, person) });
+export const saysYes = (book, now, matchId, person) => say(book, now, person, 'answer', { match_id: matchId, yes: true, consent: consentShown(book, now, matchId, person) }, PAGE);
 
 /** Ana and Ben with answers, a round, and both AIs' scores in: one proposed match. */
 export function proposedPair({ matching } = {}) {

@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ids } from '../read-data/matchmaker-records.mjs';
 import { formGroups, matchingProblems, shortlistsFor } from '../read-data/matchmaker.mjs';
-import { at, answersFor, C, consentShown, guild, HOUR, jobOf, jobs, MATCHING, proposedPair, say, saysYes, scoresFrom, START } from './community-fixtures.mjs';
+import { at, answersFor, C, consentShown, guild, HOUR, jobOf, jobs, MATCHING, PAGE, proposedPair, say, saysYes, scoresFrom, START } from './community-fixtures.mjs';
 
 const settingsOf = book => book.get(ids.community(C));
 const rename = (book, person, name) => book.put(ids.member(C, person), 'match-member', { ...book.get(ids.member(C, person)), name });
@@ -109,7 +109,7 @@ test('nobody shares a group until both say yes; one yes waits, and the second ma
   const { book, match } = proposedPair();
   assert.deepEqual([match.status, match.says], ['proposed', MATCHING.state_words.proposed]);
   assert.deepEqual(inGroup(book, matchRecord(book, match.match_id)), [], 'no group exists yet');
-  assert.match(say(book, START, 'keeper', 'answer', { match_id: match.match_id, yes: true, pressed_by: 'person' }).error, /No match with that id/);
+  assert.match(say(book, START, 'keeper', 'answer', { match_id: match.match_id, yes: true }, PAGE).error, /No match with that id/);
   assert.match(say(book, START, 'ana', 'answer', { match_id: match.match_id }).error, /yes is true/);
   assert.deepEqual(saysYes(book, START, match.match_id, 'ana'), { ok: true, match_id: match.match_id, status: 'one_yes', says: MATCHING.state_words.one_yes });
   assert.equal(saysYes(book, START, match.match_id, 'ana').status, 'one_yes', 'a retried yes changes nothing');
@@ -126,8 +126,13 @@ test('nobody shares a group until both say yes; one yes waits, and the second ma
 
 test('a yes without the person\'s own press is refused with their screen as the next call; their AI may say no', () => {
   const { book, match } = proposedPair();
-  const refused = say(book, START, 'ana', 'answer', { match_id: match.match_id, yes: true, consent: consentShown(book, START, match.match_id, 'ana') });
+  const shown = consentShown(book, START, match.match_id, 'ana');
+  const refused = say(book, START, 'ana', 'answer', { match_id: match.match_id, yes: true, consent: shown });
   assert.deepEqual([refused.ok, refused.status, refused.error, refused.next_call], [false, 403, MATCHING.words.yes_on_page, { screen: `/guild/${C}` }]);
+  for (const claimed of [{ origin: 'page' }, { pressed_by: 'person' }]) {
+    assert.equal(say(book, START, 'ana', 'answer', { match_id: match.match_id, yes: true, consent: shown, ...claimed }).status, 403, `an answer claiming ${JSON.stringify(claimed)} is still not the person's press`);
+  }
+  assert.equal(say(book, START, 'ana', 'answer', { match_id: match.match_id, yes: true, consent: shown }, { origin: 'an-ai' }).status, 403, 'a task of another origin is not the page');
   assert.equal(at(book, START).myMatching('ana').matches[0].status, 'proposed', 'nothing moved');
   assert.equal(saysYes(book, START, match.match_id, 'ana').status, 'one_yes');
   assert.equal(say(book, START, 'ben', 'answer', { match_id: match.match_id, yes: false }).status, 'passed', 'Ben\'s AI says no for him');
@@ -136,10 +141,10 @@ test('a yes without the person\'s own press is refused with their screen as the 
 test('a yes for an introduction that changed since it was shown is refused naming what changed, and an earlier yes is asked again', () => {
   const { book, match } = proposedPair();
   const anaSaw = consentShown(book, START, match.match_id, 'ana');
-  const blank = say(book, START, 'ana', 'answer', { match_id: match.match_id, yes: true, pressed_by: 'person' });
+  const blank = say(book, START, 'ana', 'answer', { match_id: match.match_id, yes: true }, PAGE);
   assert.deepEqual([blank.status, blank.changed.length], [409, 4], 'a yes with no consent is for nothing shown');
   rename(book, 'ben', 'Benjamin');
-  const stale = say(book, START, 'ana', 'answer', { match_id: match.match_id, yes: true, pressed_by: 'person', consent: anaSaw });
+  const stale = say(book, START, 'ana', 'answer', { match_id: match.match_id, yes: true, consent: anaSaw }, PAGE);
   assert.deepEqual([stale.status, stale.error, stale.changed], [409, MATCHING.words.changed, ['recipients']], 'the person she would meet is named differently now');
   assert.equal(stale.consent, consentShown(book, START, match.match_id, 'ana'));
   assert.equal(at(book, START).myMatching('ana').matches[0].status, 'proposed', 'nothing moved');
@@ -186,7 +191,7 @@ test('an introduction nobody finishes answering expires at its time, takes no an
   assert.equal(at(book, answerBy - 1000).myMatching('ben').matches[0].status, 'one_yes');
   const shown = at(book, answerBy).myMatching('ben').matches[0];
   assert.deepEqual([shown.status, shown.says, shown.space_id], ['expired', MATCHING.state_words.expired, null]);
-  const late = say(book, answerBy, 'ben', 'answer', { match_id: match.match_id, yes: true, pressed_by: 'person', consent: shown.consent });
+  const late = say(book, answerBy, 'ben', 'answer', { match_id: match.match_id, yes: true, consent: shown.consent }, PAGE);
   assert.deepEqual([late.status, late.error], [409, MATCHING.words.ended]);
   assert.equal(say(book, answerBy, 'ben', 'answer', { match_id: match.match_id, yes: false }).status, 'expired', 'a late no changes nothing');
   assert.equal(book.get(ids.answer(C, match.match_id, 'ben')), null);

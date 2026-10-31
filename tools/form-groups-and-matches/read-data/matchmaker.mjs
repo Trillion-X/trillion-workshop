@@ -122,7 +122,7 @@ export function matchingProblems(community) {
   const consent = matching.consent;
   if (!positive(consent?.answer_hours)) problems.push('matching.consent.answer_hours is how many hours people have to answer an introduction, above 0.');
   if (!names(consent?.selection?.approved_values) || !names(consent?.selection?.veto_values)) problems.push('matching.consent.selection is { approved_values, veto_values }: what a person\'s switch says to be paired, and to stay out.');
-  if (!text(consent?.yes_needs?.field) || consent?.yes_needs?.equals === undefined) problems.push('matching.consent.yes_needs is { field, equals }: the stamp an answer carries when the person pressed yes themselves.');
+  if (!text(consent?.yes_needs?.field) || consent?.yes_needs?.equals === undefined) problems.push('matching.consent.yes_needs is { field, equals }: the fact of the run\'s task, stamped by the engine and never by the input, that says the person pressed yes on their own page.');
   if (!text(consent?.screen)) problems.push('matching.consent.screen is where a person presses yes, with {community_id}.');
   const hours = matching.follow_up_hours;
   if (!(Array.isArray(hours) && hours.every((value, index) => positive(value) && (index === 0 || value > hours[index - 1])))) problems.push('matching.follow_up_hours lists hours above 0, each later than the one before.');
@@ -514,15 +514,15 @@ export function openCommunity({ communityId, book, now }) {
     };
   }
 
-  // A person's own answer to an introduction, kept in their own answer record. A yes needs the person stamp and the
-  // consent of what they are shown now; once every member's yes holds the one-to-one is made, and a member whose
+  // A person's own answer to an introduction, kept in their own answer record. A yes needs the run's task to carry the
+  // engine's person stamp (consent.yes_needs, which no input can set) and the consent of what they are shown now; once every member's yes holds the one-to-one is made, and a member whose
   // earlier yes no longer holds is asked again. A no, from the person or their AI, passes it for everyone and takes
   // the person out of the group. An ended introduction takes no yes; the same answer again changes nothing.
-  function answerMatch(person, answer) {
+  function answerMatch(person, answer, task) {
     const { match_id: matchId, yes, consent } = answer;
     if (typeof yes !== 'boolean') throw new MatchRefusal(say('yes_or_no'), { status: 400 });
     const match = ownMatch(person, matchId);
-    const byPerson = answer[matching.consent.yes_needs.field] === matching.consent.yes_needs.equals;
+    const byPerson = task?.[matching.consent.yes_needs.field] === matching.consent.yes_needs.equals;
     if (yes && !byPerson) throw new MatchRefusal(say('yes_on_page'), { status: 403, next_call: { screen: fill(matching.consent.screen, { community_id: c }) } });
     const state = stateOf(match);
     const mine = ownAnswer(match, person);
@@ -572,12 +572,13 @@ export function openCommunity({ communityId, book, now }) {
   }
 
   const ANSWERS = { profile: setMatching, scores: submitScores, answer: answerMatch, topics: suggestTopics, wrote, 'run-round': runRound };
-  /** One answer from `person`: { ok: true, ... } or { ok: false, error, status, ... } in the community's own words. */
-  function apply(answer) {
+  /** One answer from `person`: { ok: true, ... } or { ok: false, error, status, ... } in the community's own words.
+   *  `task` is the run's task as the engine wrote it, the only place a yes reads its person stamp from. */
+  function apply(answer, task = {}) {
     try {
       const handler = Object.hasOwn(ANSWERS, answer?.kind) ? ANSWERS[answer.kind] : null;
       if (!handler || !text(answer?.person)) throw new MatchRefusal(say('unknown_answer', { kinds: Object.keys(ANSWERS).join(', ') }), { status: 400 });
-      return { ok: true, ...handler(answer.person, answer) };
+      return { ok: true, ...handler(answer.person, answer, task) };
     } catch (error) {
       if (!(error instanceof MatchRefusal)) throw error;
       const { message, status, next_call: nextCall, changed, consent } = error;
