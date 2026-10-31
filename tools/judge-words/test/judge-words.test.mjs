@@ -123,11 +123,12 @@ test('findings carry because and at_most unchanged, and word and path rules read
 });
 
 test('a rule row with a wrong test value, an empty path or no selection is refused when compiled', () => {
-  assert.deepEqual(TEST_NAMES, ['required', 'count_at_least', 'count_at_most', 'value_at_least', 'value_at_most', 'equals']);
+  assert.deepEqual(TEST_NAMES, ['required', 'count_at_least', 'count_at_most', 'value_at_least', 'value_at_most', 'equals',
+    'includes_all', 'in_order', 'repeated_at_least', 'percent_found_at_least', 'together_at_least']);
   assert.throws(() => makeJudge([{ id: 'bad-count', pattern: 'x', count_at_most: '2' }]), /count_at_most/);
   assert.throws(() => makeJudge([{ id: 'bad-equals', path: 'a', equals: 'b' }]), /equals/);
   assert.throws(() => makeJudge([{ id: 'bad-path', path: 'a..b' }]), /dot path/);
-  assert.throws(() => makeJudge([{ id: 'bad-row', count_at_most: 1 }]), /words, pattern, exact, check or path/);
+  assert.throws(() => makeJudge([{ id: 'bad-row', count_at_most: 1 }]), /words, pattern, exact, check, groups, path or evidence/);
 });
 
 test('judge holds when every finding comes from a capped row, fails on any other, and needs rules', () => {

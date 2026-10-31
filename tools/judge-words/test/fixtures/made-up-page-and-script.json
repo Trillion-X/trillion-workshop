@@ -1,0 +1,42 @@
+{
+  "what_this_is": "A made-up sales page and a made-up video script, and the rule rows a person might keep for them. The page holds exactly six long dashes, three hedges ('hoping') and four weak intensifiers ('very'); the script has a hook, two authority lines and a credibility line, and no quote and no ask, so a script rule set that needs all five parts finds exactly those two missing.",
+  "page": {
+    "blocks": [
+      { "kind": "heading", "text": "Learn to throw a pot in one weekend" },
+      { "kind": "paragraph", "text": "You have watched the videos—and you are still hoping the clay will behave." },
+      { "kind": "paragraph", "text": "This class is very hands-on. You sit at a wheel from the first hour—not at a desk." },
+      { "kind": "checkout_label", "text": "Two days, one wheel—everything included" },
+      { "kind": "paragraph", "text": "Most beginners are hoping for one good bowl. Most leave with three, and a very full shelf." },
+      { "kind": "bullet", "text": "Small groups—six people at most" },
+      { "kind": "bullet", "text": "Glazes, tools and firing—all on us" },
+      { "kind": "paragraph", "text": "It is very simple: come curious, leave with clay on your sleeves. No more hoping." },
+      { "kind": "caption", "text": "A very first bowl, still wet—and already lopsided in the right way." },
+      { "kind": "paragraph", "text": "" }
+    ],
+    "rules": [
+      { "id": "no-long-dash", "pattern": "—", "suggest": "\" - \"", "says": "Long dashes are not used in page words." },
+      { "id": "no-short-dash", "pattern": "–", "at_most": "warn", "says": "A short dash: prefer a hyphen or rewrite." },
+      { "id": "no-hedge-hoping", "pattern": "hoping", "flags": "i", "at_most": "warn", "says": "Say it as a plain claim." },
+      { "id": "no-weak-very", "pattern": "\\bvery\\b", "flags": "i", "at_most": "warn", "says": "Cut it or use a stronger word." }
+    ]
+  },
+  "script": {
+    "blocks": [
+      { "kind": "hook", "text": "Nine out of ten people get these three things wrong when they first sit at a wheel." },
+      { "kind": "authority", "text": "Everyone talks about pressing harder. The first thing is, you do not press at all. You let the wheel do the work and keep your hands still." },
+      { "kind": "authority", "text": "The next thing is water. Too little and the clay drags; too much and it slumps. Keep it just wet enough to shine." },
+      { "kind": "credibility", "text": "Do both and look: the walls rise on their own, and the third thing, a slow wheel, keeps them true." }
+    ],
+    "rules": [
+      { "id": "script-parts", "path": "kind", "across": true, "weight": 3, "includes_all": ["hook", "authority", "credibility", "quote", "ask"],
+        "says": "A script has a hook, authority, credibility, a quote and an ask." },
+      { "id": "script-order", "path": "kind", "across": true, "weight": 2, "in_order": ["hook", "authority", "credibility", "quote", "ask"],
+        "says": "The parts come hook, authority, credibility, quote, ask." },
+      { "id": "hook-length", "kinds": ["hook"], "pattern": "\\S+", "across": true, "count_at_most": 25, "at_most": "warn",
+        "says": "The hook is long for a three-second open." },
+      { "id": "no-long-dash", "pattern": "—", "suggest": "\" - \"", "says": "Long dashes are not used in script words." },
+      { "id": "no-hedge-hoping", "pattern": "hoping", "flags": "i", "at_most": "warn", "says": "Say it as a plain claim." }
+    ],
+    "min_score": 70
+  }
+}
