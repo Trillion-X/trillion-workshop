@@ -40,6 +40,7 @@ import { call } from './build-stripe-http-request.mjs';
 import { admitStripeWebhook } from './compare-and-map-stripe-webhook.mjs';
 import { heldKey, makeStripeSender } from './stripe-send.mjs';
 import { assertTestKey, rehearseAPaymentSchedule } from './rehearse-a-payment-schedule.mjs';
+export { manageUsagePricing, priceResourceUsage, keepResourceUsageObservation, settleSharedResourceCost, correctResourceUsageSettlement, readResourceUsageSettlement } from './resource-usage.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const dataFile = name => JSON.parse(readFileSync(join(here, '..', 'read-data', name), 'utf8'));
