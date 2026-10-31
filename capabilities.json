@@ -80,6 +80,15 @@
       "evidence": "README.md:3 the one owner of internal content identities: BLAKE3-256 of exact bytes"
     },
     {
+      "capability": "write or check the pin file of a folder of DATA files: each file's byte count and BLAKE3, so a program that reads them can refuse one that changed after it was pinned",
+      "owner": ["tools/pin-files-by-content/"],
+      "entry": "tools/pin-files-by-content/tool-rows.json",
+      "evidence": "README.md:3 a pin file records each declared file's bytes and BLAKE3; check says what differs, write brings the pins up to the files",
+      "distinct_from": [
+        {"job": "give exact bytes their content identity", "why": "that owner hashes bytes it is handed; this tool keeps a whole folder's pin file in step with its files and says which pins are stale, missing or left over"}
+      ]
+    },
+    {
       "capability": "copy a live website into the files a public app is published from",
       "owner": ["tools/copy-a-site/"],
       "entry": "tools/copy-a-site/tool-rows.json",

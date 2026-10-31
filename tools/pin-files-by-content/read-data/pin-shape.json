@@ -1,0 +1,13 @@
+{
+  "what_this_is": "The shape of a pin file when the caller names none: the entries under `entries_at`, keyed by the file's path under the pinned folder (without its extension when strip_extension is true), each { <path_key>: path, <pin_key>: { <bytes_key>: byte count, <hash_key>: BLAKE3 } }. hash_form `hex` writes the bare 64 hex digits; `identity` writes the content-identity form (1f: and the hex). The file is written as JSON indented by `indent` spaces with a final newline.",
+  "shape": {
+    "entries_at": "files",
+    "path_key": "path",
+    "pin_key": "pin",
+    "bytes_key": "bytes",
+    "hash_key": "blake3",
+    "strip_extension": true,
+    "hash_form": "hex",
+    "indent": 2
+  }
+}

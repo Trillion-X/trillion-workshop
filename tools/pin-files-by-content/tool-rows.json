@@ -1,0 +1,40 @@
+{
+  "kind": "package-set-records",
+  "record_set": "pin-files-by-content-tool-rows",
+  "what_this_is": "The Workshop row for the tool in tools/pin-files-by-content: check or write the pin file that records each DATA file's byte count and BLAKE3.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pin-files-by-content",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:pin-files-by-content",
+        "placements": ["placement:your-computer"],
+        "label": "Check or update the pins of a folder of DATA files",
+        "job": "Check that a pin file records each DATA file's exact byte count and BLAKE3, or bring the pins up to the files, so a program that reads them can refuse a file that changed after it was pinned",
+        "description": "Reads every file under a folder (skipping folders whose names start with a dot, and the files named as never pinned), hashes each with BLAKE3 and compares it with its entry in the pin file. check answers which pins are added, changed or gone; write rewrites only the entries, keeping every other key of the pin file and the order of the entries it keeps. The pin file's shape is DATA (read-data/pin-shape.json or the caller's own).",
+        "input_schema": {
+          "type": "object",
+          "required": ["action", "root", "pin_file", "folder"],
+          "properties": {
+            "action": {"type": "string", "enum": ["check", "write"], "description": "check reports, write brings the pins up to the files."},
+            "root": {"type": "string", "description": "The repository or granted folder; the other paths are under it."},
+            "pin_file": {"type": "string", "description": "The pin file, under root."},
+            "folder": {"type": "string", "description": "The folder of pinned files, under root."},
+            "unpinned_ok": {"type": "string", "description": "A file under the folder that is never pinned; pass --unpinned-ok once per file."}
+          }
+        },
+        "output_schema": {"type": "object", "description": "{ ok, pinned, added, changed, gone, unchanged, written } as JSON; exit 1 when check found a difference, 2 with the reason on standard error."},
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "npm install   # for @noble/hashes"],
+          "run": "node tools/pin-files-by-content/do-work/pin-files.mjs {action} --root {root} --pin-file {pin_file} --folder {folder} --unpinned-ok {unpinned_ok}",
+          "needs": ["node"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run check first and show the person which pins differ. Run write only when they mean the files to be the new truth, and commit the pin file in the same change as the files."
+        },
+        "provenance": {"source": "Written for the Workshop: a content-addressed pin manifest of the kind a build checks before it trusts its inputs"}
+      }
+    }
+  ]
+}
