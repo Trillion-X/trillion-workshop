@@ -10,7 +10,7 @@
 //   draftAPost { post_id?, caption?, media?, ... }   keeps a draft (changing an approved or scheduled post makes it a
 //                                                    draft again)
 //   checkAPost { post_id }                           whether the post is ready for each place it is going
-//   approveAPost { post_id, expected_values? }       approves exactly the reviewed post
+//   approveAPost { post_id, expected_values }        approves exactly the reviewed post
 //   setAPostToGoAtItsTime { post_id }                an approved post with a time still ahead, ready everywhere, is
 //                                                    scheduled: it waits for its time and nothing is sent now
 //   takeBackAPost { post_id }                        a scheduled post nothing was sent for is a draft again
@@ -22,8 +22,8 @@
 //      tool, run at the post's time.
 //   3. A post is approved only as it was reviewed (expected_values), and changing anything that goes out makes it a
 //      draft again, so a scheduled post that changed sends nothing until it is approved and set again.
-//   4. A post that reaches someone (its words name a @handle, or it lists people in reaches) is approved only by the
-//      person on their own screen: a tool's approval is refused.
+//   4. Approval compares the complete reviewed values with the current post; the records door enforces each row's
+//      granted read and write rights.
 //   5. A check never claims what it did not check: a file this run cannot see is reported as not checked.
 //
 // Key Concepts: a post record { post_id, status, caption, media ({ identity, name?, media_type?, byte_length?,
@@ -133,13 +133,6 @@ function reachesOf(value, rules) {
     return handle && profile && URL.canParse(profile) && provenance.length ? { network: text(item.network, 40), handle, profile_url: profile, ...(sought ? { sought } : {}), provenance } : null;
   });
   return people.every(Boolean) ? people : null;
-}
-
-// Everyone a post reaches: the people it lists and every handle its words name, in any place's words.
-function reachedBy(post, rules) {
-  const names = new RegExp(rules.names, 'g');
-  const said = [post.caption ?? '', ...Object.values(post.caption_by_platform ?? {})].flatMap(words => [...String(words).matchAll(names)].map(found => found[1]));
-  return [...new Set([...(post.reaches ?? []).map(person => person.handle), ...said].map(handle => `@${handle}`))];
 }
 
 // The words one destination is sent with: its own caption or the post's, then the link tagged for it.
@@ -253,27 +246,26 @@ export async function checkAPost({ post_id: postId } = {}, { door }) {
   return { post_id: post.post_id, status: post.status, ...(await checksOf(door, post)) };
 }
 
-/** tool:approve-a-post: approves the post exactly as it was reviewed. `run_origin` is the run's own origin, filled by
- *  its row from the task the engine attests (a run the person's page starts carries posts.json
- *  first_contact.approved_from), never from the input: only such a run approves a post that reaches someone. */
-export async function approveAPost({ post_id: postId, expected_values: expected, approved_by: approvedBy, run_origin: runOrigin } = {}, { door, now = () => new Date() }) {
+/** tool:approve-a-post: approves the post exactly as it was reviewed. */
+export async function approveAPost({ post_id: postId, expected_values: expected, approved_by: approvedBy } = {}, { door, now = () => new Date() }) {
   const post = await readPost(door, postId);
   if (!post) throw new Error(`There is no post ${postId ?? ''}.`);
   // The reviewed snapshot is compared with the post as it is now, so newer words, destinations or timing are never
   // approved by accident, including by a retry.
-  if (expected !== undefined && (!object(expected) || Object.keys(expected).length !== APPROVAL_FIELDS.length
-    || APPROVAL_FIELDS.some(field => !Object.hasOwn(expected, field)) || contentOf(expected) !== contentOf(post))) {
+  if (expected === undefined) throw new Error('Give the complete approval_values from the review as expected_values.');
+  if (!object(expected) || Object.keys(expected).length !== APPROVAL_FIELDS.length
+    || APPROVAL_FIELDS.some(field => !Object.hasOwn(expected, field))) {
+    throw new Error('Give the complete approval_values from the review as expected_values.');
+  }
+  if (contentOf(expected) !== contentOf(post)) {
     throw new Error('The post changed after it was reviewed. Read and review its current approval_values before approving it.');
   }
   if (post.status === 'approved') return { post: shaped(post), said: 'The post was already approved.' };
   if (post.status !== 'draft') throw new Error(`${post.post_id} is ${post.status}, so there is nothing to approve.`);
   if (!post.destinations?.length) throw nowhere(post);
-  const reached = reachedBy(post, settings.first_contact);
-  const fromPage = runOrigin === settings.first_contact.approved_from;
-  if (reached.length && !fromPage) throw new Error(fillWords(settings.first_contact.words.person_only, { names: reached.join(', ') }));
   const at = now().toISOString();
   const by = text(approvedBy, 100);
-  const approved = await keep(door, { ...post, status: 'approved', approved_at: at, ...(by ? { approved_by: by } : {}), ...(fromPage ? { approved_from: runOrigin } : {}), updated_at: at }, 'approve');
+  const approved = await keep(door, { ...post, status: 'approved', approved_at: at, ...(by ? { approved_by: by } : {}), updated_at: at }, 'approve');
   return { post: shaped(approved), said: 'Approved. tool:set-a-post-to-go-at-its-time sets it to go at its scheduled time.' };
 }
 

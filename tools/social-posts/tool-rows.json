@@ -827,12 +827,13 @@
     "id": "tool:approve-a-post",
     "label": "Approve a post",
     "job": "Approve a drafted post exactly as it was reviewed, so it may be set to go",
-    "description": "Give post_id and expected_values (the complete approval_values of the post as it was reviewed); approval is refused when its words, file, destinations or time changed since. A post going nowhere yet is refused. A post that reaches someone (its words name a @handle, or it lists people in reaches) is approved only by the person on their own screen: only a run their own page starts, which the engine marks in the run's task (origin page), approves it, and an AI's run is refused. approved_by names who approved it. Returns post and said.",
+    "description": "Give post_id and expected_values (the complete approval_values of the post as it was reviewed); expected_values is required, and approval is refused when its words, file, destinations or time changed since. A post going nowhere yet is refused. approved_by names who approved it. Returns post and said.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
      "required": [
-      "post_id"
+     "post_id",
+     "expected_values"
      ],
      "properties": {
       "post_id": {
@@ -900,8 +901,7 @@
      "stdin": {
       "post_id": { "fill": { "from": "input", "field": "post_id" } },
       "expected_values": { "fill": { "from": "input", "field": "expected_values" } },
-      "approved_by": { "fill": { "from": "input", "field": "approved_by" } },
-      "run_origin": { "fill": { "from": "task", "field": "origin" } }
+      "approved_by": { "fill": { "from": "input", "field": "approved_by" } }
      },
      "records": {
       "fd": 3,
