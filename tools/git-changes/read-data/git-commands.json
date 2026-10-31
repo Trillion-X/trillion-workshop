@@ -1,0 +1,13 @@
+{
+  "what_this_is": "The git commands the git-changes tools run, as templates: a string is an argument as it is; {from: project|input, path, spread} is a value from the granted project or from the tool's input (spread: a list becomes many arguments). Every command runs in the one folder the person granted, with the arguments given and never through a shell.",
+  "env": { "GIT_TERMINAL_PROMPT": "0", "GIT_OPTIONAL_LOCKS": "0", "LC_ALL": "C" },
+  "drop_env": ["GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_COMMON_DIR", "GIT_NAMESPACE", "GIT_PREFIX"],
+  "timeout_ms": 300000,
+  "most_bytes": 4000000,
+  "most_message": 8192,
+  "status": { "argv": ["git", "-C", { "from": "project", "path": "path" }, "status", "--porcelain", "--branch"] },
+  "diff": { "argv": ["git", "-C", { "from": "project", "path": "path" }, "diff", "HEAD", "--", { "from": "input", "path": "file_path" }] },
+  "stage": { "argv": ["git", "-C", { "from": "project", "path": "path" }, "add", "--", { "from": "input", "path": "paths", "spread": true }] },
+  "unstage": { "argv": ["git", "-C", { "from": "project", "path": "path" }, "restore", "--staged", "--", { "from": "input", "path": "paths", "spread": true }] },
+  "commit": { "argv": ["git", "-C", { "from": "project", "path": "path" }, "commit", "-m", { "from": "input", "path": "message" }] }
+}
