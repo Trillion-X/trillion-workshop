@@ -381,6 +381,19 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
       if (read.identity !== entry.identity) throw say('document_changed', { document: source.paths_file, expected: entry.identity, current: read.identity });
       let paths;
       try { paths = JSON.parse(read.text); } catch { throw say('bad_input', { what: `The positive catalogue ${source.paths_file} is not JSON.` }); }
+      if (!Array.isArray(paths) && paths && typeof paths === 'object' && !Array.isArray(paths) && Array.isArray(paths.prefixes)) {
+        const expanded = [];
+        for (const group of paths.prefixes) {
+          const prefix = group?.prefix, names = group?.paths;
+          const segments = typeof prefix === 'string' ? prefix.slice(1).split('/') : [];
+          if (typeof prefix !== 'string' || !prefix.startsWith('/') || prefix === '/' || segments.some(part => !part || part === '.' || part === '..') ||
+              !Array.isArray(names) || names.some(name => typeof name !== 'string' || !name || name === '.' || name === '..' || name.includes('/') || name.includes('\\'))) {
+            throw say('bad_input', { what: `The positive catalogue ${source.paths_file} has an invalid prefix group.` });
+          }
+          expanded.push(...names.map(name => `${prefix}/${name}`));
+        }
+        paths = expanded;
+      }
       source = { ...source, paths };
     }
     // A source may keep only the documents whose path under its folder fits a glob (`match`, as */SKILL.md).
