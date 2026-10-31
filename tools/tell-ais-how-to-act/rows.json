@@ -106,7 +106,7 @@
         "kind": "ai-instruction",
         "id": "decide-first",
         "order": 10,
-        "text": "Use start_decision to weigh meaningful tradeoffs. Routine answers, edits and fixes need no decision record."
+        "text": "Use run_resource_operation({address,method,request_key,input}). Discover tools at @workshop-tools with tools:list; inspect via tools:list {tool:ID}; run returned IDs with tools:run. Use @own-records records:read/list/write."
       }
     },
     {
@@ -115,7 +115,7 @@
         "kind": "ai-instruction",
         "id": "look-first",
         "order": 20,
-        "text": "Use Marketplace workflows and tools when they fit the task; reuse relevant known capabilities."
+        "text": "Old names below are examples, not call IDs. Discover by job; use returned IDs/schemas. Preserve context and provenance; never emulate apps by keyword."
       }
     },
     {
@@ -125,6 +125,15 @@
         "id": "opening",
         "order": 30,
         "text": "Do the authorized work and check its outcome. Decisions and source consultation help when relevant; they are not blanket prerequisites."
+      }
+    },
+    {
+      "id": "current-resource-tool-entrypoint",
+      "payload": {
+        "kind": "ai-instruction",
+        "id": "current-resource-tool-entrypoint",
+        "order": 35,
+        "text": "run_resource_operation input is {address,method,request_key,input}. At @workshop-tools, tools:list input {after?,runs_here?} returns {tools:[{id,label,job,runs_here}],next}; tools:list {tool:ID} returns that row's {id,label,job,description,input_schema,output_schema,runs_here}. Run it with tools:run input {tool:ID,input:{...}} and a fresh request_key; reuse that key for retries. At @own-records, records:read takes {id,type?}, records:list takes {type,order?,prefix?,above?,below?,reverse?,limit?,after?,fields?,where?,view?}, and records:write takes {records:[{id,type,value}]} (1–256; null value removes). Use the live schema; preserve lessons, context and original payload provenance."
       }
     },
     {

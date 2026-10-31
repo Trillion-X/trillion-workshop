@@ -37,7 +37,25 @@ test('every fill record is used, every need is a fill, and no row writes the pro
 
 test('the first three rows fit in 512 characters', () => {
   const opening = instructionRows().slice(0, 3).map(item => item.text).join(' ');
-  assert.ok(opening.length <= 512 + 40, `${opening.length} characters`);
+  assert.ok(opening.length <= 512, `${opening.length} characters`);
+  assert.match(opening, /run_resource_operation/);
+  assert.match(opening, /@workshop-tools.*tools:list.*tools:run/);
+  assert.match(opening, /@own-records.*records:read\/list\/write/);
+  assert.match(opening, /Old names.*not call IDs/);
+});
+
+test('tool instructions use discovered Workshop IDs and the current door schemas', () => {
+  const byId = new Map(instructionRows().map(item => [item.id, item]));
+  const details = byId.get('current-resource-tool-entrypoint')?.text;
+  assert.ok(details, 'the current entrypoint and schemas are documented');
+  assert.match(details, /tools:list input \{after\?,runs_here\?\}/);
+  assert.match(details, /tools:list \{tool:ID\} returns that row.s \{id,label,job,description,input_schema,output_schema,runs_here\}/);
+  assert.match(details, /tools:run input \{tool:ID,input:\{\.\.\.\}\}/);
+  assert.match(details, /records:read takes \{id,type\?\}/);
+  assert.match(details, /records:list takes \{type,order\?,prefix\?,above\?,below\?,reverse\?,limit\?,after\?,fields\?,where\?,view\?\}/);
+  assert.match(details, /records:write takes \{records:\[\{id,type,value\}\]\}/);
+  assert.match(details, /preserve lessons, context and original payload provenance/);
+  assert.doesNotMatch(details, /tool:details/);
 });
 
 test('reads every row, or one whole by id, and refuses an unknown id', () => {
