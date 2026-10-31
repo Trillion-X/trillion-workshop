@@ -5,11 +5,13 @@
 // Each question's type is looked up in the question-type rows (data/question-types.json); its rules, with the
 // question's own overrides laid over them, decide whether the answer is valid. Prints one JSON line: each question's
 // verdict and message, whether every answer is valid, and the first one that is not.
+// `registry` (the question-type rows, indexed) and `checkAnswers` are the form checker other tools import, so a
+// form's shape and the checking of its answers live here and nowhere else.
 import { readFileSync } from 'node:fs';
 import { buildFillScreenModel } from '../read-data/fill-screen-model.ts';
 import { indexCapabilities } from '../read-data/question-descriptor.ts';
 
-const registry = indexCapabilities(JSON.parse(readFileSync(new URL('../data/question-types.json', import.meta.url), 'utf8')).rows);
+export const registry = indexCapabilities(JSON.parse(readFileSync(new URL('../data/question-types.json', import.meta.url), 'utf8')).rows);
 
 export function checkAnswers(input) {
   const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);

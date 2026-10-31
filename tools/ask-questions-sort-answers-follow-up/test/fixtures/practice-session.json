@@ -1,0 +1,37 @@
+{
+  "_note": "A synthetic before-and-after practice-session form, as one question-sequence record: fifteen questions of the three shipped types (text, choice, rating). The focus rating is a rating with its own bounds laid over the type's.",
+  "sequence": {
+    "kind": "question-sequence",
+    "formId": "practice-session",
+    "title": "Practice session, before and after",
+    "questions": [
+      { "questionId": "pre-goals", "questionTypeId": "text", "label": "What are your goals for this session?", "required": true, "placeholder": "e.g. a cleaner first bar, stay calm" },
+      { "questionId": "pre-focus-skills", "questionTypeId": "choice", "label": "Which skill is your main focus today?", "required": true, "options": [
+        { "value": "skill-a", "label": "Skill A" },
+        { "value": "skill-b", "label": "Skill B" },
+        { "value": "skill-c", "label": "Skill C" },
+        { "value": "skill-d", "label": "Skill D" },
+        { "value": "mental", "label": "Mental / focus" }
+      ] },
+      { "questionId": "pre-actions", "questionTypeId": "text", "label": "What specific actions will you take to work on that?", "placeholder": "e.g. twenty slow repetitions" },
+      { "questionId": "pre-focus-plan", "questionTypeId": "text", "label": "What is your focus plan when things go wrong?", "placeholder": "e.g. breathe, reset, one step at a time" },
+      { "questionId": "pre-success-metric", "questionTypeId": "text", "label": "How will you know this session was a success?", "placeholder": "e.g. three clean runs in a row" },
+
+      { "questionId": "post-goals-met", "questionTypeId": "choice", "label": "Did you meet your goals?", "required": true, "options": [
+        { "value": "yes", "label": "Yes" },
+        { "value": "partially", "label": "Partially" },
+        { "value": "no", "label": "No" }
+      ] },
+      { "questionId": "post-goals-why", "questionTypeId": "text", "label": "Why / why not?", "placeholder": "What helped or got in the way?" },
+      { "questionId": "post-happiest", "questionTypeId": "text", "label": "What were you happiest about today?" },
+      { "questionId": "post-upset", "questionTypeId": "text", "label": "What upset or frustrated you today?" },
+      { "questionId": "post-learnings", "questionTypeId": "text", "label": "What did you learn?" },
+      { "questionId": "post-challenges", "questionTypeId": "text", "label": "What challenged you the most?" },
+      { "questionId": "post-improvements", "questionTypeId": "text", "label": "What will you improve next time?" },
+      { "questionId": "focus-rating", "questionTypeId": "rating", "label": "Rate your focus this session (1-10)", "required": true, "validation": { "min": 1, "max": 10 } },
+      { "questionId": "post-next-time", "questionTypeId": "text", "label": "What is your one priority for next time?" },
+
+      { "questionId": "todays-lesson", "questionTypeId": "text", "label": "Today's lesson (one line you want to remember)", "placeholder": "The single takeaway from today" }
+    ]
+  }
+}
