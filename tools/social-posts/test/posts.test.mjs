@@ -129,7 +129,7 @@ test('an AI can approve a named post exactly as reviewed under its row grant, wi
   assert.deepEqual(approve.input_schema.required, ['post_id', 'expected_values']);
   assert.deepEqual(approve.invoke.records.rights, [{ kind: 'post', operations: ['records:read', 'records:write'] }]);
 
-  const approved = await runRow(approve, { post_id: postId, expected_values: reviewed, approved_by: 'Sample AI', origin: 'page' }, { records: draft.records });
+  const approved = await runRow(approve, { post_id: postId, expected_values: reviewed, approved_by: 'Sample AI' }, { records: draft.records });
   assert.equal(approved.status, 0, approved.error);
   assert.equal(approved.result.post.status, 'approved');
   assert.equal(approved.result.post.approved_by, 'Sample AI');
