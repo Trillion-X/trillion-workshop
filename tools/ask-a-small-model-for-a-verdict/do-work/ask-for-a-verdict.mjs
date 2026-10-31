@@ -75,7 +75,8 @@
 //     [--passes 2] [--sure-at 0.8]
 
 import {readFile} from 'node:fs/promises'
-import {readFileSync, writeFileSync, mkdirSync, readdirSync, openSync, closeSync, fsyncSync, renameSync, unlinkSync, lstatSync, fstatSync, readSync, constants} from 'node:fs'
+import {readFileSync, writeFileSync, writeSync, ftruncateSync, mkdirSync, readdirSync, openSync, closeSync, fsyncSync, renameSync, unlinkSync, lstatSync, fstatSync, readSync, constants} from 'node:fs'
+import {spawnSync} from 'node:child_process'
 import {randomUUID} from 'node:crypto'
 import {isDeepStrictEqual} from 'node:util'
 import {resolve, dirname, relative, sep} from 'node:path'
@@ -698,32 +699,70 @@ export function describeScoreboard(scoreboard) {
 }
 
 // Darwin open(2) flag Node does not export. The kernel releases this lock when
-// its descriptor closes. The earlier wx protocol instead held the pathname by
-// existence; its empty sentinel must never be mistaken for a kernel-lock file.
+// its descriptor closes, so a holder that dies holds nothing. The earlier wx
+// protocol instead held the pathname by existence: its empty sentinel is busy
+// while a process may still be writing, and is reclaimed only when no process
+// has it open and it is older than any write could take.
 const O_EXLOCK = 0x20
 const CACHE_LOCK_MARKER = Buffer.from('trillion.judge-cache-kernel-lock/v1\n', 'utf8')
+// After the marker, the holder: one JSON line {pid, started}, rewritten by each holder, so anyone can see who holds it.
+const CACHE_LOCK_HOLDER_BYTES = 256
+// One read-modify-write of a cache bounded at 64 MiB takes seconds; an empty legacy lock older than this, with no
+// process holding it open, was left by a writer that died (2026-10-30: two such files refused every write for 9 hours).
+const LEGACY_LOCK_STALE_MS = 10 * 60 * 1000
+// Fixed once, so the same holder always writes the same bytes.
+const PROCESS_STARTED = new Date(Math.round(Date.now() - process.uptime() * 1000)).toISOString()
 
 function cacheLockStat(path, descriptor) {
   const held = fstatSync(descriptor, {bigint: true}), named = lstatSync(`${path}.lock`, {bigint: true})
   if (!held.isFile() || !named.isFile() || held.dev !== named.dev || held.ino !== named.ino
       || held.uid !== BigInt(process.getuid()) || (held.mode & 0o777n) !== 0o600n || held.nlink !== 1n
-      || held.size < 0n || held.size > BigInt(CACHE_LOCK_MARKER.length))
+      || held.size < 0n || held.size > BigInt(CACHE_LOCK_MARKER.length + CACHE_LOCK_HOLDER_BYTES))
     throw new Error('cache lock is not a private bound regular file')
   return held
 }
 
 function verifyCacheLock(path, descriptor) {
   const before = cacheLockStat(path, descriptor)
-  // Preserve every legacy sentinel, including one whose creator is unknown or
-  // no longer running. Existence remains busy under that earlier protocol.
+  // A legacy sentinel holdCacheLock did not reclaim is still busy under that earlier protocol.
   if (before.size === 0n) throw Object.assign(new Error('legacy cache lock remains held by existence'), {code: 'EAGAIN'})
-  if (before.size !== BigInt(CACHE_LOCK_MARKER.length)) throw new Error('cache lock protocol is unavailable')
-  const bytes = Buffer.alloc(CACHE_LOCK_MARKER.length)
-  if (readSync(descriptor, bytes, 0, bytes.length, 0) !== bytes.length || !bytes.equals(CACHE_LOCK_MARKER))
+  if (before.size < BigInt(CACHE_LOCK_MARKER.length)) throw new Error('cache lock protocol is unavailable')
+  const bytes = Buffer.alloc(Number(before.size))
+  if (readSync(descriptor, bytes, 0, bytes.length, 0) !== bytes.length
+      || !bytes.subarray(0, CACHE_LOCK_MARKER.length).equals(CACHE_LOCK_MARKER) || !holderLineIsValid(bytes.subarray(CACHE_LOCK_MARKER.length)))
     throw new Error('cache lock protocol is unavailable')
   const after = cacheLockStat(path, descriptor)
   if (['dev', 'ino', 'size', 'mtimeNs', 'ctimeNs', 'mode', 'uid', 'nlink'].some(key => before[key] !== after[key]))
     throw new Error('cache lock changed during validation')
+}
+
+/** The holder line after the marker: none (a lock written before holders were named), or {pid, started} and a newline. */
+function holderLineIsValid(bytes) {
+  if (bytes.length === 0) return true
+  if (bytes[bytes.length - 1] !== 0x0a) return false
+  try {
+    const holder = JSON.parse(new TextDecoder('utf-8', {fatal: true}).decode(bytes.subarray(0, -1)))
+    return Number.isSafeInteger(holder?.pid) && holder.pid > 0 && typeof holder.started === 'string'
+      && Number.isFinite(Date.parse(holder.started)) && Object.keys(holder).length === 2
+  } catch { return false }
+}
+
+/** Name this process as the holder, after the marker. Only the kernel lock's holder writes here. */
+function nameHolder(descriptor) {
+  const line = Buffer.from(`${JSON.stringify({pid: process.pid, started: PROCESS_STARTED})}\n`, 'utf8')
+  ftruncateSync(descriptor, CACHE_LOCK_MARKER.length)
+  writeSync(descriptor, line, 0, line.length, CACHE_LOCK_MARKER.length)
+  fsyncSync(descriptor)
+}
+
+/** Whether an empty legacy lock, now open here, was left by a writer that died: older than any write could take and
+ * open in no other process. A check that cannot be made keeps it busy. */
+function legacyLockIsAbandoned(path, descriptor) {
+  const held = fstatSync(descriptor)
+  if (held.size !== 0 || Date.now() - held.mtimeMs < LEGACY_LOCK_STALE_MS) return false
+  const open = spawnSync('lsof', ['-t', '--', `${path}.lock`], {encoding: 'utf8', timeout: 5000})
+  if (open.error || ![0, 1].includes(open.status)) return false
+  return open.stdout.split('\n').filter(pid => pid && Number(pid) !== process.pid).length === 0
 }
 
 /** The cache's exclusive writer lock as an open descriptor (close it to release); throws EAGAIN while another holds it. */
@@ -738,10 +777,17 @@ export function holdCacheLock(path) {
       if (error.code !== 'EEXIST') throw error
       descriptor = openSync(`${path}.lock`, flags)
     }
-    if (created) {
+    const abandoned = !created && legacyLockIsAbandoned(path, descriptor)
+    if (created || abandoned) {
       if (cacheLockStat(path, descriptor).size !== 0n) throw new Error('new cache lock changed before initialization')
       writeFileSync(descriptor, CACHE_LOCK_MARKER); fsyncSync(descriptor)
+      if (abandoned) {
+        process.stderr.write(`ask-for-a-verdict: reclaimed ${path}.lock, an empty lock of the earlier protocol that no ` +
+          `process held, left ${Math.round((Date.now() - fstatSync(descriptor).birthtimeMs) / 60000)} min ago\n`)
+      }
     }
+    verifyCacheLock(path, descriptor)
+    nameHolder(descriptor)
     verifyCacheLock(path, descriptor)
     return descriptor
   } catch (error) {
