@@ -12,6 +12,7 @@ Works out a business's unit economics (ARPU, gross margin, CAC, LTV, LTV:CAC, pa
 | `records.json` | The tool's row, listed into the Workshop by `tool-rows.json`. |
 | `part.json` | No public files: only the container runs this code. |
 | `tool-rows.json` | Lists `records.json` into the Workshop (`source:business-unit-economics-tools`). |
+| `test/compute-unit-economics.test.ts` | The package's 8 formula and honesty cases (unknown inputs give null, never a made-up number). |
 
 ## Key Types / Functions
 
