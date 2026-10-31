@@ -1,0 +1,55 @@
+{
+  "kind": "package-set-records",
+  "record_set": "generate-speech-tool-rows",
+  "what_this_is": "The Workshop row for the generate-speech folder: a script the person's AI runs on the person's own computer to make speech from text with a provider command the person names, and keep what it made.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:generate-speech",
+        "label": "Make speech from text with a provider command (runs on your computer)",
+        "job": "Turn text into spoken audio, in the voice and with the voice program or service I choose, and keep the audio",
+        "description": "Takes text and a provider command, which is any program that makes speech: a hosted voice service's caller (it keeps its own key in the person's environment) or a voice program on the computer. The command reads the request (the text, the voice and language in options, the person's own name for the voice) and writes its answer, and the tool keeps each audio file it returns: audio returned inline is written to a file in the output folder, audio returned as a web address or a file path is named as it is. The result carries the voice name, language, format, length and every file's place. The voice and the service are the person's choice and are never in the code. With no text, no provider command, or one that fails, is not found, times out or answers without audio, the result is an error that says which; nothing is ever made up. A small provider that needs no account (local_voice_provider.py: the voice program already on the computer, say or espeak-ng, writing a WAV) checks that the chain works and speaks for real where such a program exists.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The request file on the person's computer, put where {input} is in the command: JSON with request_id, text, voice_profile_ref (the person's own name for the voice, kept as it is), provider {argv with {request} and {output} where the file paths go, env_names, timeout_seconds}, options (voice, language, format) and requested_at."
+            },
+            "output": {
+              "type": "string",
+              "description": "The folder to keep the audio in, put where {output} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": ...}. A speech-generation.result {request_id, voice_profile_ref, provider_ref, language, format, duration_ms, output_artifact_refs: [{path | url, media_type, byte_length}], src, completed_at}, or a speech-generation.error {code, message, details}. Exit 0 for a result, 2 for an error."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 trillion-workshop/tools/generate-speech/do-work/generate_speech.py --request {input} --out {output}",
+          "needs": [
+            "python",
+            "a provider command: a program that makes speech from the request (a hosted voice service's caller with its key in the environment, or a voice program on the computer)"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Ask which program or service makes their speech and which environment variables it reads for its key; never ask for the key itself and never put a key in the request. Write the request file (request_id, text, provider.argv with {request} and {output} where the program reads the request and writes its answer, provider.env_names, options for the voice and language) and run `run` with that file in place of {input} and a new folder for {output}. Tell the person where each audio file is and what the result says. If the result is an error, say its code and message in plain words. To use the voice program already on the computer, use provider.argv [\"python3\", \"trillion-workshop/tools/generate-speech/do-work/local_voice_provider.py\", \"--request-json\", \"{request}\", \"--output-json\", \"{output}\"] and options.voice for the voice name: it needs no account, writes a WAV, and sounds like the computer's own voice. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:generate-speech",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages packages/speech-generation: its provider-command contract and result and error shapes, and its local voice provider, with the old engine's records, content store and process descriptors left out"
+        }
+      }
+    }
+  ]
+}
