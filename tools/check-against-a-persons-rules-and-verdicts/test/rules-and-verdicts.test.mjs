@@ -81,6 +81,16 @@ test('a stated row fails, an inferred row only holds, and an inferred required r
   assert.equal(verdictFindings({ text: 'An old box', kind: 'title' }, { compiled, stands: STANDS, stage: 'final' }).findings.find(finding => finding.rule === 'has-a-verb').outcome, 'fail');
 });
 
+test('a stated row on the part they named fails a thing that keeps their required structure, at review and at final', () => {
+  // The stand named a part ("zorblax"), not a whole thing: a new thing in an accepted structure that keeps that part still fails.
+  for (const stage of ['review', 'final']) {
+    const found = verdictFindings({ text: 'Start with zorblax', kind: 'title' }, { compiled, stands: STANDS, stage }).findings;
+    assert.equal(found.find(finding => finding.rule === 'has-a-verb'), undefined, `${stage}: the structure row is met`);
+    assert.equal(found.find(finding => finding.rule === 'no-zorblax').outcome, 'fail', `${stage}: the part fails it`);
+    assert.equal(one({ text: 'Start with zorblax', kind: 'title' }, { stage }).verdict, 'fail');
+  }
+});
+
 test('a row takes its strength from the newest stand it names, and holds once every stand it names is gone', () => {
   const plum = verdictFindings({ text: 'Find plum jam', kind: 'title' }, { compiled, stands: STANDS, stage: 'review' }).findings.find(finding => finding.rule === 'plum-basis');
   assert.equal(plum.outcome, 'uncertain');
