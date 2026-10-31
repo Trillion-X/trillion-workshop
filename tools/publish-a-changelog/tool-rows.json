@@ -1,0 +1,137 @@
+{
+ "kind": "tool-rows",
+ "record_set": "publish-a-changelog-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/publish-a-changelog: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::publish-a-changelog::tool::see-what-work-is-ready-to-publish",
+   "address": "package::publish-a-changelog::tool::see-what-work-is-ready-to-publish",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:see-what-work-is-ready-to-publish",
+    "label": "See what finished work is ready to publish",
+    "status": "active",
+    "job": "See the finished work waiting to be published as a changelog: which group each piece is in, what can be done with it, what stops it (for example no proof yet) and what was already sent",
+    "description": "Give graph: the queue described as data. Its groups ({ id, label, empty_copy, order }), fields, relationships, views ({ selected, density_threshold }), rules ({ id, message, requires_relationship or requires_field, blocks_actions }), actions ({ id, label, method, target }) and surface_copy are the person's own words and rules; this tool knows none. Records come in graph.records or in recordAtoms ({ id, title, group_id, fields, relationships, action_ids, receipt_ids, issue }), receipts in graph.receipts or receiptAtoms. Optional selectedRecordId, status and issues. Returns status (empty, sparse, dense, loading, error or blocked, with where it came from), each group with its records, the selected record with its actions, the rules that block it and its receipts, and the ids the data names that the queue does not declare. A record with no proof is shown with the rule that asks for it; nothing is sent.",
+    "input_schema": {
+     "type": "object",
+     "required": ["graph"],
+     "additionalProperties": false,
+     "properties": {
+      "graph": { "type": "object", "description": "The queue as data: groups, fields, relationships, views, rules, actions, surface_copy, and optionally records and receipts" },
+      "recordAtoms": { "type": "array", "items": { "type": "object" }, "description": "Records beside the graph" },
+      "receiptAtoms": { "type": "array", "items": { "type": "object" }, "description": "Receipts beside the graph" },
+      "selectedRecordId": { "type": "string", "description": "The record to open; the first when left out" },
+      "status": { "type": "string", "enum": ["empty", "sparse", "dense", "loading", "error", "blocked"], "description": "Force a state, for example loading" },
+      "issues": { "type": "array", "items": { "type": "string" }, "description": "Problems already known; any makes the status error" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["status", "groups", "selectedRecord", "diagnostics"],
+     "properties": {
+      "status": { "type": "string" },
+      "copy": { "type": "object" },
+      "groups": { "type": "array", "items": { "type": "object", "required": ["id", "label", "records"] } },
+      "selectedRecord": { "type": ["object", "null"] },
+      "receipts": { "type": "array" },
+      "diagnostics": { "type": "object", "required": ["descriptorCounts", "missingDescriptorIds", "stateSource"] }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": { "package": "publish-a-changelog", "paths": ["do-work", "read-data"], "at": "/opt/publish-a-changelog" }
+     },
+     "workdir": "/opt/publish-a-changelog",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/see-what-is-ready.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:publish-a-changelog",
+    "provenance": { "source": "the changelog-publisher package's queue reader, with the package's own descriptor data left out" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "graph": {
+        "groups": [{ "id": "group:ready", "label": "Ready", "order": 1 }],
+        "rules": [{ "id": "rule:proof", "message": "Add proof first.", "requires_relationship": "relationship:proof", "blocks_actions": ["action:publish"] }],
+        "actions": [{ "id": "action:publish", "label": "Publish", "method": "invoke", "target": "owner:any" }]
+       },
+       "recordAtoms": [{ "id": "record:1", "title": "New loaf on Fridays", "group_id": "group:ready" }]
+      },
+      "output_selector": "$.selectedRecord.blockers[0].message",
+      "contains": "Add proof first."
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::publish-a-changelog::tool::record-a-publishing-step",
+   "address": "package::publish-a-changelog::tool::record-a-publishing-step",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:record-a-publishing-step",
+    "label": "Record a step on the work waiting to be published",
+    "status": "active",
+    "job": "Record a step on the finished work waiting to be published: change a field, link its proof, add a receipt that it was sent, correct it, or hand an action to whatever tool does it",
+    "description": "Give graph (the queue as data; its actions are the person's own) and steps. Each step is { operationId, descriptorId (an action of the graph) or method (update-field, create-record, link-record, unlink-record, append-receipt, correct-record, archive-record or restore-record), recordId, fieldPatch, relationshipPatch, receipt, correction, expectedBasis, actor, observedAt, sources }. An action's patch, params and bindings apply; the record the step is about is offered to its bindings as the source named selected. A step on a local method becomes an operation and is folded into the queue: records get their fields and relationships added to, receipts and corrections are only ever added. A step whose action names a target or a definition is not done here: it comes back in handoffs with its inputs bound, for whichever tool does that job (for example the one that posts). A step that cannot be recorded (no operationId, an action the graph lacks, a method nobody declared) comes back in refused with a code and what was wrong; the other steps are still recorded. Returns operations, handoffs, refused and the queue as it now stands. The queue keeps no state of its own: read it with the tool that sees what is ready.",
+    "input_schema": {
+     "type": "object",
+     "required": ["graph", "steps"],
+     "additionalProperties": false,
+     "properties": {
+      "graph": { "type": "object", "description": "The queue as data, with its records and receipts so far" },
+      "steps": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["operationId"] }, "description": "The steps to record, in order" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["operations", "handoffs", "refused", "graph"],
+     "properties": {
+      "operations": { "type": "array" },
+      "handoffs": { "type": "array", "items": { "type": "object", "required": ["actionId", "method", "input"] } },
+      "refused": { "type": "array", "items": { "type": "object", "required": ["operationId", "errors"] } },
+      "graph": { "type": "object" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": { "package": "publish-a-changelog", "paths": ["do-work", "read-data"], "at": "/opt/publish-a-changelog" }
+     },
+     "workdir": "/opt/publish-a-changelog",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/record-a-step.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:publish-a-changelog",
+    "provenance": { "source": "the changelog-publisher package's step writer, without the requests it sent to the old runtime" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "graph": { "records": [{ "id": "record:1", "title": "New loaf on Fridays", "fields": {}, "relationships": {} }] },
+       "steps": [{ "operationId": "step-1", "method": "update-field", "recordId": "record:1", "fieldPatch": { "summary": "Fresh loaves" } }]
+      },
+      "output_selector": "$.graph.records[0].fields.summary",
+      "contains": "Fresh loaves"
+     }
+    ]
+   }
+  }
+ ]
+}
