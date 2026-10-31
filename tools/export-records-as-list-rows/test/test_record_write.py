@@ -46,6 +46,43 @@ class Pantry(unittest.TestCase):
 
 
 class Records(Pantry):
+    def test_a_schema_snapshot_can_emit_only_rows_with_identical_values_and_honest_counts(self):
+        default = self.build()
+        self.assertEqual(default['commands'], self.build(emit_definitions=True)['commands'])
+        self.assertEqual((default['counts']['lists'], default['counts']['views']), (2, 1))
+        only_rows = self.build(emit_definitions=False)
+        expected = {rid: record for rid, record in self.records(default).items() if record['type'].startswith('record:')}
+        self.assertEqual(self.records(only_rows), expected)
+        self.assertEqual((only_rows['counts']['records'], only_rows['counts']['lists'], only_rows['counts']['views']), (11, 0, 0))
+        self.assertEqual(only_rows['counts']['rows'], default['counts']['rows'])
+        self.assertEqual(only_rows['counts']['breakdown'], default['counts']['breakdown'])
+
+    def test_rows_only_mode_still_uses_the_schema_and_refuses_missing_links_and_overlong_fields(self):
+        definitions = self.load('shelf-lists.json')
+        definitions['lists'][1]['value']['row_type'] = 'renamed-goods'
+        self.save('shelf-lists.json', definitions)
+        only_rows = self.records(self.build(emit_definitions=False))
+        self.assertIn('record:renamed-goods:market:flour', only_rows)
+        extras = self.load('extras.json')
+        extras['rows'][1]['id'] = 'extra-3'
+        self.save('extras.json', extras)
+        with self.assertRaisesRegex(ValueError, 'extra-1 pairs with extra-2'):
+            self.build(emit_definitions=False)
+        extras['rows'][1]['id'] = 'extra-2'
+        self.save('extras.json', extras)
+        found = self.root / 'staged' / 'market-stock.json'
+        found.write_text(found.read_text().replace('Rolled oats.', 'o' * 130))
+        with self.assertRaisesRegex(ValueError, 'market:oats blurb is longer than 120 characters'):
+            self.build(emit_definitions=False)
+        (self.root / 'shelf-lists.json').unlink()
+        with self.assertRaises(OSError):
+            self.build(emit_definitions=False)
+
+    def test_definition_emission_is_a_strict_boolean(self):
+        for flag in (None, 'false', 0, 1, [], {}):
+            with self.subTest(flag=flag), self.assertRaisesRegex(ValueError, 'emit_definitions must be a boolean'):
+                self.build(emit_definitions=flag)
+
     def test_lists_views_and_rows_become_records_in_the_declared_order_in_commands_of_the_limit(self):
         payload = self.build()
         batches = [[r['id'] for r in c['input']['records']] for c in payload['commands']]
