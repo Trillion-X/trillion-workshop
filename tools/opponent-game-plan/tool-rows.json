@@ -1,0 +1,146 @@
+{
+  "kind": "tool-rows",
+  "record_set": "opponent-game-plan-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/opponent-game-plan: what each tool does, what it takes and gives back, and how it runs.",
+  "records": [
+    {
+      "id": "package::opponent-game-plan::tool::scout-an-opponent",
+      "address": "package::opponent-game-plan::tool::scout-an-opponent",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:scout-an-opponent",
+        "label": "Scout an opponent from the notes on file",
+        "status": "active",
+        "job": "Look up an opponent: list the people scouted, and pull together everything on file about one (what they are good and weak at, what worked and failed against them, their style and ratings) and which notes are trusted enough to plan from",
+        "description": "Give the person's records and an operation. search lists every subject that is not the person themself, with how many reports and profiles are on file and how many tactics worked and failed against them. profile (with subject_id) joins the subject's reports (player-report evidence), profiles (profile-projection) and tactic outcomes into one view: strengths, weaknesses, strategies that worked and failed, style labels, ratings (any name, numbers 0 to 100; a value outside that is left out, not guessed), public and private reports apart, and the outcomes of tactics from earlier plans. It also says which reports a plan may use: the confidence policy is { minimumConfidence, missingConfidenceIsUsable }, given as confidence_policy or as an evidence-confidence-policy record in the rows, and with none no report is usable (every one waits for review). A report's confidence is its source's, else its own. Nothing here names a sport: the words for ratings, styles and facts are the ones in the records.",
+        "input_schema": {
+          "type": "object",
+          "required": ["operation", "rows"],
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "type": "string", "enum": ["search", "profile"], "description": "What to do" },
+            "rows": { "type": "array", "items": { "type": "object" }, "description": "The records (subject, evidence, profile-projection, result, evidence-confidence-policy), each as { payload } or the record itself" },
+            "subject_id": { "type": "string", "description": "profile: the subject to pull together" },
+            "confidence_policy": { "type": "object", "description": "{ minimumConfidence: number, missingConfidenceIsUsable: true or false }; replaces a policy record in the rows", "additionalProperties": true },
+            "subject_kind": { "type": "string", "description": "Keep only subjects of this subjectKind" },
+            "profile_kind": { "type": "string", "description": "Keep only profiles of this projectionKind" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "opponents": { "type": "array", "items": { "type": "object" }, "description": "search: { subjectId, name, facts, styleLabels, reportCount, profileCount, workedCount, failedCount }" },
+            "profile": { "type": "object", "description": "profile: the joined view" },
+            "evidence": { "type": "object", "description": "profile: { usable: [report ids], needsReview: [report ids] }" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "opponent-game-plan", "paths": ["do-work", "read-data"], "at": "/opt/opponent-game-plan" } },
+          "workdir": "/opt/opponent-game-plan",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/scout-an-opponent.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:opponent-game-plan",
+        "provenance": { "source": "ported from the opponent-game-plan package (the profile join, the search list and the confidence split)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "search",
+              "rows": [
+                { "payload": { "kind": "subject", "subjectId": "p:1", "subjectKind": "player", "label": "Alder", "payload": { "isSelf": true }, "createdAt": "2026-01-01T09:00:00.000Z" } },
+                { "payload": { "kind": "subject", "subjectId": "p:2", "subjectKind": "player", "label": "Birch", "payload": {}, "createdAt": "2026-01-01T09:00:00.000Z" } }
+              ]
+            },
+            "output_selector": "$.opponents[0].name",
+            "contains": "Birch"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::opponent-game-plan::tool::prepare-a-match-plan",
+      "address": "package::opponent-game-plan::tool::prepare-a-match-plan",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:prepare-a-match-plan",
+        "label": "Prepare the notes a match plan is made from, and record the plan",
+        "status": "active",
+        "job": "Plan a match against an opponent: gather what the trusted notes say about both sides into the brief a plan is written from, then check and record the plan that was written",
+        "description": "Calls no model: the AI that reads the brief writes the plan. context takes the person's records, who is self and who is the opponent, who asked, and plan_shape { strategies, tactics_per_strategy } (how many of each the person wants; both required). It returns a plan-request record whose promptText asks for exactly that shape and then lists what only the usable evidence says of each side, one line per fact: names, facts, style, strongest, weakest, strategies that worked and did not work (earlier tactic outcomes included), ratings out of 100 and any other fact in the profile. Missing facts are left out, never written as unknown. It also lists the ids of the public, private and to-be-reviewed reports, the profiles and the tactic results behind the brief. A report is usable only if the confidence policy allows it (confidence_policy, or an evidence-confidence-policy record in the rows); with no policy none is, and every report is listed for review. record-plan takes the written strategies (each { strategyId, name, tactics: [{ tacticId, label, reason? }] }) and returns the match-plan result record only if it has exactly the strategies and tactics asked for. Records come back for the caller to write; nothing is kept here.",
+        "input_schema": {
+          "type": "object",
+          "required": ["operation", "plan_shape"],
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "type": "string", "enum": ["context", "record-plan"], "description": "What to do" },
+            "plan_shape": { "type": "object", "required": ["strategies", "tactics_per_strategy"], "properties": { "strategies": { "type": "integer", "minimum": 1 }, "tactics_per_strategy": { "type": "integer", "minimum": 1 } }, "description": "How many strategies, and how many tactics in each, the plan has" },
+            "rows": { "type": "array", "items": { "type": "object" }, "description": "context: the records, each as { payload } or the record itself" },
+            "self_id": { "type": "string", "description": "The subject id of the person's own side" },
+            "opponent_id": { "type": "string", "description": "The subject id of the opponent" },
+            "requester_id": { "type": "string", "description": "context: who asked for the plan" },
+            "confidence_policy": { "type": "object", "description": "context: { minimumConfidence, missingConfidenceIsUsable }; replaces a policy record in the rows", "additionalProperties": true },
+            "request_id": { "type": "string", "description": "context: an id for the request (made when absent). record-plan: the request the plan answers" },
+            "plan_id": { "type": "string", "description": "record-plan: an id for the plan" },
+            "strategies": { "type": "array", "items": { "type": "object" }, "description": "record-plan: the written strategies" },
+            "evidence_refs": { "type": "array", "items": { "type": "string" }, "description": "record-plan: the report ids the plan rests on" },
+            "subject_kind": { "type": "string" },
+            "profile_kind": { "type": "string" },
+            "now": { "type": "string", "description": "An ISO time for the record (the clock when absent)" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "request_record": { "type": "object", "description": "context: the plan-request record, with promptText" },
+            "plan_record": { "type": "object", "description": "record-plan: the match-plan result record" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "opponent-game-plan", "paths": ["do-work", "read-data"], "at": "/opt/opponent-game-plan" } },
+          "workdir": "/opt/opponent-game-plan",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/prepare-a-match-plan.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:opponent-game-plan",
+        "provenance": { "source": "ported from the opponent-game-plan package (the match-plan request context and the plan shape check)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "context",
+              "plan_shape": { "strategies": 2, "tactics_per_strategy": 3 },
+              "self_id": "p:1",
+              "opponent_id": "p:2",
+              "requester_id": "p:1",
+              "request_id": "plan-request:sample",
+              "now": "2026-01-01T09:00:00Z",
+              "rows": [
+                { "payload": { "kind": "subject", "subjectId": "p:1", "subjectKind": "player", "label": "Alder", "payload": { "isSelf": true }, "createdAt": "2026-01-01T09:00:00.000Z" } },
+                { "payload": { "kind": "subject", "subjectId": "p:2", "subjectKind": "player", "label": "Birch", "payload": {}, "createdAt": "2026-01-01T09:00:00.000Z" } }
+              ]
+            },
+            "output_selector": "$.request_record.promptText",
+            "contains": "Create exactly 2 strategies with exactly 3 tactics each."
+          }
+        ]
+      }
+    }
+  ]
+}
