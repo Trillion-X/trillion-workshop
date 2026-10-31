@@ -1,0 +1,903 @@
+{
+ "kind": "tool-rows",
+ "record_set": "lessons-and-learning-paths-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/lessons-and-learning-paths: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::lessons-and-learning-paths::tool::work-out-where-a-learner-stands",
+   "address": "package::lessons-and-learning-paths::tool::work-out-where-a-learner-stands",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:work-out-where-a-learner-stands",
+    "label": "Work out where a learner stands on a track",
+    "status": "active",
+    "job": "See how far a learner is along a course, lesson plan or learning path, which step comes next, and what they last showed",
+    "description": "Give the tracks, their ordered steps and the learner's progress states, evaluation receipts, evidence and label rows, and (to look at one person) the learner. Returns, per track, the steps in order, the percent finished counted from the steps (a stored percent or a \"mastered\" label never counts), the step to do next, the latest evaluation the learner's state names, the three newest pieces of evidence, the label for the latest decision and the path: each step complete, active or locked.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "tracks"
+     ],
+     "properties": {
+      "learner_id": {
+       "type": "string",
+       "description": "Look at this learner only; leave out to look at every learner's records"
+      },
+      "tracks": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "trackId",
+         "label"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-track"
+         },
+         "trackId": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "summary": {
+          "type": "string"
+         }
+        }
+       },
+       "description": "The tracks"
+      },
+      "steps": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "stepId",
+         "trackId",
+         "label",
+         "sortOrder"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-step"
+         },
+         "stepId": {
+          "type": "string"
+         },
+         "trackId": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "cue": {
+          "type": "string"
+         },
+         "sortOrder": {
+          "type": "number"
+         }
+        }
+       },
+       "description": "Every step of every track"
+      },
+      "states": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "kind",
+         "learnerId",
+         "trackId",
+         "revision",
+         "completedStepIds",
+         "evaluationReceiptRefs"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-state"
+         },
+         "stateId": {
+          "type": "string"
+         },
+         "learnerId": {
+          "type": "string"
+         },
+         "trackId": {
+          "type": "string"
+         },
+         "revision": {
+          "type": "integer",
+          "minimum": 0
+         },
+         "currentStepId": {
+          "type": "string"
+         },
+         "completedStepIds": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "evaluationReceiptRefs": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "updatedAt": {
+          "type": "string",
+          "description": "ISO time"
+         }
+        }
+       },
+       "description": "The learner's progress states"
+      },
+      "evaluationReceipts": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "kind",
+         "evaluationId",
+         "learnerId",
+         "trackId",
+         "evidenceRefs",
+         "measureFactRef",
+         "measureDefinitionRef",
+         "decisionKey",
+         "decision",
+         "score",
+         "confidence",
+         "provenance",
+         "evaluatedAt"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-evaluation-receipt"
+         },
+         "evaluationId": {
+          "type": "string",
+          "description": "This evaluation's own id"
+         },
+         "learnerId": {
+          "type": "string"
+         },
+         "trackId": {
+          "type": "string"
+         },
+         "stepId": {
+          "type": "string",
+          "description": "The step evaluated (required when the decision finishes it)"
+         },
+         "evidenceRefs": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          },
+          "description": "What was evaluated; at least one"
+         },
+         "measureFactRef": {
+          "type": "string"
+         },
+         "measureDefinitionRef": {
+          "type": "string"
+         },
+         "decisionKey": {
+          "type": "string",
+          "description": "The decision's own key"
+         },
+         "decision": {
+          "type": "object",
+          "required": [
+           "completed"
+          ],
+          "properties": {
+           "completed": {
+            "type": "boolean",
+            "description": "True only if the step is finished"
+           },
+           "nextStepId": {
+            "type": "string",
+            "description": "The step to do next"
+           }
+          }
+         },
+         "score": {
+          "type": "number"
+         },
+         "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "provenance": {
+          "type": "object",
+          "description": "Who or what judged it"
+         },
+         "evaluatedAt": {
+          "type": "string",
+          "description": "ISO time"
+         }
+        }
+       },
+       "description": "The accepted evaluation receipts"
+      },
+      "evidence": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "learnerId",
+         "trackId",
+         "label",
+         "createdAt"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-evidence"
+         },
+         "evidenceId": {
+          "type": "string"
+         },
+         "learnerId": {
+          "type": "string"
+         },
+         "trackId": {
+          "type": "string"
+         },
+         "stepId": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "summary": {
+          "type": "string"
+         },
+         "createdAt": {
+          "type": "string",
+          "description": "ISO time"
+         }
+        }
+       },
+       "description": "What the learner has shown"
+      },
+      "presentations": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "key",
+         "label"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-presentation"
+         },
+         "key": {
+          "type": "string",
+          "description": "A decision key"
+         },
+         "label": {
+          "type": "string",
+          "description": "The words shown for it"
+         }
+        }
+       },
+       "description": "The words to show for each decision key"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "views"
+     ],
+     "properties": {
+      "views": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "track",
+         "percent",
+         "path",
+         "statusLabel"
+        ],
+        "properties": {
+         "track": {
+          "type": "object",
+          "description": "The track"
+         },
+         "steps": {
+          "type": "array",
+          "items": {
+           "type": "object"
+          },
+          "description": "Its steps in order"
+         },
+         "state": {
+          "type": [
+           "object",
+           "null"
+          ]
+         },
+         "latestEvaluation": {
+          "type": [
+           "object",
+           "null"
+          ]
+         },
+         "currentStep": {
+          "type": [
+           "object",
+           "null"
+          ]
+         },
+         "completedCount": {
+          "type": "integer"
+         },
+         "totalSteps": {
+          "type": "integer"
+         },
+         "percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+         },
+         "statusLabel": {
+          "type": "string"
+         },
+         "recentEvidence": {
+          "type": "array",
+          "items": {
+           "type": "object"
+          }
+         },
+         "path": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "id",
+            "label",
+            "status"
+           ],
+           "properties": {
+            "id": {
+             "type": "string"
+            },
+            "label": {
+             "type": "string"
+            },
+            "status": {
+             "enum": [
+              "complete",
+              "active",
+              "locked"
+             ]
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "lessons-and-learning-paths",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/lessons-and-learning-paths",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/lessons-and-learning-paths",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/work-out-where-a-learner-stands.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "provenance": {
+     "source": "bitfield-packages packages/learning-progress and packages/learning-path"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "learner_id": "learner:1",
+       "tracks": [
+        {
+         "kind": "progress-track",
+         "trackId": "track:bread",
+         "label": "Baking bread"
+        }
+       ],
+       "steps": [
+        {
+         "kind": "progress-step",
+         "stepId": "step:knead",
+         "trackId": "track:bread",
+         "label": "Knead the dough",
+         "sortOrder": 1
+        },
+        {
+         "kind": "progress-step",
+         "stepId": "step:proof",
+         "trackId": "track:bread",
+         "label": "Proof the loaf",
+         "sortOrder": 2
+        },
+        {
+         "kind": "progress-step",
+         "stepId": "step:bake",
+         "trackId": "track:bread",
+         "label": "Bake",
+         "sortOrder": 3
+        }
+       ],
+       "states": [
+        {
+         "kind": "progress-state",
+         "stateId": "state:1",
+         "learnerId": "learner:1",
+         "trackId": "track:bread",
+         "revision": 1,
+         "currentStepId": "step:proof",
+         "completedStepIds": [
+          "step:knead"
+         ],
+         "evaluationReceiptRefs": [
+          "evaluation::evaluation%3A1"
+         ],
+         "updatedAt": "2026-01-01T12:00:00Z"
+        }
+       ],
+       "evaluationReceipts": [
+        {
+         "kind": "progress-evaluation-receipt",
+         "evaluationId": "evaluation:1",
+         "learnerId": "learner:1",
+         "trackId": "track:bread",
+         "stepId": "step:knead",
+         "evidenceRefs": [
+          "evidence:1"
+         ],
+         "measureFactRef": "measure-fact:1",
+         "measureDefinitionRef": "measure-definition:1",
+         "decisionKey": "continue",
+         "decision": {
+          "completed": true,
+          "nextStepId": "step:proof"
+         },
+         "score": 0.8,
+         "confidence": 0.9,
+         "provenance": {
+          "evaluator": "evaluator:1"
+         },
+         "evaluatedAt": "2026-01-01T12:00:00Z"
+        }
+       ],
+       "presentations": [
+        {
+         "kind": "progress-presentation",
+         "key": "continue",
+         "label": "Keep building"
+        }
+       ]
+      },
+      "output_selector": "$.views[0].statusLabel",
+      "contains": "Keep building"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::lessons-and-learning-paths::tool::plan-an-evaluation-write",
+   "address": "package::lessons-and-learning-paths::tool::plan-an-evaluation-write",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:plan-an-evaluation-write",
+    "label": "Plan the write that accepts an evaluation of a learner's step",
+    "status": "active",
+    "job": "Accept the result of judging a learner's work on a step: the receipt to keep and the learner's next progress state, without applying one twice",
+    "description": "Give the evaluation receipt, the learner's current progress state (leave out if none) and the revision you expect it to be at, and the receipt already stored under that evaluation id if there is one. Returns the writes to make through the records door, each with what it expects to find (the receipt not yet stored; the state at the revision you gave), then you read both back. The step is finished only if the receipt's decision says so. The same receipt again returns idempotent with no writes; a different receipt under the same id, a stale revision, a state that belongs to another learner or track, or an unsound receipt is refused with the reason.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "receipt"
+     ],
+     "properties": {
+      "receipt": {
+       "type": "object",
+       "required": [
+        "kind",
+        "evaluationId",
+        "learnerId",
+        "trackId",
+        "evidenceRefs",
+        "measureFactRef",
+        "measureDefinitionRef",
+        "decisionKey",
+        "decision",
+        "score",
+        "confidence",
+        "provenance",
+        "evaluatedAt"
+       ],
+       "properties": {
+        "kind": {
+         "const": "progress-evaluation-receipt"
+        },
+        "evaluationId": {
+         "type": "string",
+         "description": "This evaluation's own id"
+        },
+        "learnerId": {
+         "type": "string"
+        },
+        "trackId": {
+         "type": "string"
+        },
+        "stepId": {
+         "type": "string",
+         "description": "The step evaluated (required when the decision finishes it)"
+        },
+        "evidenceRefs": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "description": "What was evaluated; at least one"
+        },
+        "measureFactRef": {
+         "type": "string"
+        },
+        "measureDefinitionRef": {
+         "type": "string"
+        },
+        "decisionKey": {
+         "type": "string",
+         "description": "The decision's own key"
+        },
+        "decision": {
+         "type": "object",
+         "required": [
+          "completed"
+         ],
+         "properties": {
+          "completed": {
+           "type": "boolean",
+           "description": "True only if the step is finished"
+          },
+          "nextStepId": {
+           "type": "string",
+           "description": "The step to do next"
+          }
+         }
+        },
+        "score": {
+         "type": "number"
+        },
+        "confidence": {
+         "type": "number",
+         "minimum": 0,
+         "maximum": 1
+        },
+        "provenance": {
+         "type": "object",
+         "description": "Who or what judged it"
+        },
+        "evaluatedAt": {
+         "type": "string",
+         "description": "ISO time"
+        }
+       }
+      },
+      "current_state": {
+       "type": "object",
+       "required": [
+        "kind",
+        "learnerId",
+        "trackId",
+        "revision",
+        "completedStepIds",
+        "evaluationReceiptRefs"
+       ],
+       "properties": {
+        "kind": {
+         "const": "progress-state"
+        },
+        "stateId": {
+         "type": "string"
+        },
+        "learnerId": {
+         "type": "string"
+        },
+        "trackId": {
+         "type": "string"
+        },
+        "revision": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "currentStepId": {
+         "type": "string"
+        },
+        "completedStepIds": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "evaluationReceiptRefs": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "updatedAt": {
+         "type": "string",
+         "description": "ISO time"
+        }
+       },
+       "description": "The learner's progress state stored now; leave out if there is none"
+      },
+      "expected_state_revision": {
+       "type": "integer",
+       "minimum": 0,
+       "description": "The revision you read the state at (0 when there is none)"
+      },
+      "stored_receipt": {
+       "type": "object",
+       "required": [
+        "kind",
+        "evaluationId",
+        "learnerId",
+        "trackId",
+        "evidenceRefs",
+        "measureFactRef",
+        "measureDefinitionRef",
+        "decisionKey",
+        "decision",
+        "score",
+        "confidence",
+        "provenance",
+        "evaluatedAt"
+       ],
+       "properties": {
+        "kind": {
+         "const": "progress-evaluation-receipt"
+        },
+        "evaluationId": {
+         "type": "string",
+         "description": "This evaluation's own id"
+        },
+        "learnerId": {
+         "type": "string"
+        },
+        "trackId": {
+         "type": "string"
+        },
+        "stepId": {
+         "type": "string",
+         "description": "The step evaluated (required when the decision finishes it)"
+        },
+        "evidenceRefs": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "description": "What was evaluated; at least one"
+        },
+        "measureFactRef": {
+         "type": "string"
+        },
+        "measureDefinitionRef": {
+         "type": "string"
+        },
+        "decisionKey": {
+         "type": "string",
+         "description": "The decision's own key"
+        },
+        "decision": {
+         "type": "object",
+         "required": [
+          "completed"
+         ],
+         "properties": {
+          "completed": {
+           "type": "boolean",
+           "description": "True only if the step is finished"
+          },
+          "nextStepId": {
+           "type": "string",
+           "description": "The step to do next"
+          }
+         }
+        },
+        "score": {
+         "type": "number"
+        },
+        "confidence": {
+         "type": "number",
+         "minimum": 0,
+         "maximum": 1
+        },
+        "provenance": {
+         "type": "object",
+         "description": "Who or what judged it"
+        },
+        "evaluatedAt": {
+         "type": "string",
+         "description": "ISO time"
+        }
+       },
+       "description": "The receipt stored now under this evaluation id, if any"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "idempotent",
+      "receipt_ref",
+      "state_ref",
+      "revision",
+      "writes"
+     ],
+     "properties": {
+      "idempotent": {
+       "type": "boolean"
+      },
+      "receipt_ref": {
+       "type": "string"
+      },
+      "state_ref": {
+       "type": "string"
+      },
+      "revision": {
+       "type": "integer"
+      },
+      "decision_key": {
+       "type": "string"
+      },
+      "writes": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "ref",
+         "record",
+         "expect"
+        ],
+        "properties": {
+         "ref": {
+          "type": "string"
+         },
+         "record": {
+          "type": "object"
+         },
+         "expect": {
+          "type": "object",
+          "description": "{stored: false} for the receipt, {revision: n} for the state"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "lessons-and-learning-paths",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/lessons-and-learning-paths",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/lessons-and-learning-paths",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/plan-an-evaluation-write.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "provenance": {
+     "source": "bitfield-packages packages/learning-progress and packages/learning-path"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "receipt": {
+        "kind": "progress-evaluation-receipt",
+        "evaluationId": "evaluation:1",
+        "learnerId": "learner:1",
+        "trackId": "track:bread",
+        "stepId": "step:knead",
+        "evidenceRefs": [
+         "evidence:1"
+        ],
+        "measureFactRef": "measure-fact:1",
+        "measureDefinitionRef": "measure-definition:1",
+        "decisionKey": "continue",
+        "decision": {
+         "completed": true,
+         "nextStepId": "step:proof"
+        },
+        "score": 0.8,
+        "confidence": 0.9,
+        "provenance": {
+         "evaluator": "evaluator:1"
+        },
+        "evaluatedAt": "2026-01-01T12:00:00Z"
+       },
+       "expected_state_revision": 0
+      },
+      "output_selector": "$.writes[1].ref",
+      "contains": "progress-state::learner%3A1"
+     }
+    ]
+   }
+  }
+ ]
+}
