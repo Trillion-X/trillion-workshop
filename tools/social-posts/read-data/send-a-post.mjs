@@ -20,6 +20,10 @@
 //   5. Nothing here names a place, a vendor or a person.
 //   6. A post's file comes only from the person's own files through the run's door: a place is handed a share of it
 //      (a signed link that expires) or its bytes streamed a page at a time. No copy of the file is kept here.
+//   7. A post goes at its time only through the person's own wake (tool:send-each-post-at-its-time, which they
+//      switch on): a change to their posts answers one timed send per destination at the post's scheduled_for, and
+//      that send goes only while the post still carries the armed_at it was set with. Nothing here polls, and the
+//      wake's run sends nothing itself.
 //
 import { readFileSync } from 'node:fs';
 import { connectedAccountRef, createSocial } from '@opencoredev/social-sdk';
@@ -199,10 +203,15 @@ async function mediaFor(post, place, door) {
   return { kind, mimeType: shared.media_type ?? mediaType, byteSize: shared.byte_length, source: { kind: 'https-url', url: shared.url } };
 }
 
-/** tool:send-a-post-to-<place>: sends the post to one destination once its time has come, and keeps the outcome. */
-export async function sendAPost({ post_id: postId, account_id: accountId, resend = false } = {}, { door, now = () => new Date(), send = fetch, held = null, publishers = PUBLISHERS }) {
+/** tool:send-a-post-to-<place>: sends the post to one destination once its time has come, and keeps the outcome. Run
+ *  at the post's time by its wake, it is told the armed_at the post was set with, and sends nothing once the post no
+ *  longer carries it (taken back, changed, set again or gone). */
+export async function sendAPost({ post_id: postId, account_id: accountId, resend = false, armed_at: armedAt } = {}, { door, now = () => new Date(), send = fetch, held = null, publishers = PUBLISHERS }) {
   if (typeof postId !== 'string' || !postId.trim() || typeof accountId !== 'string' || !accountId.trim()) throw new Error('Give post_id and account_id (one of the post\'s destinations).');
   let post = await door.read(TYPE, postId.trim());
+  if (armedAt !== undefined && (!post || post.armed_at !== armedAt || !settings.at_its_time.sends_while.includes(post.status))) {
+    return { post_id: postId.trim(), status: post?.status ?? 'gone', said: settings.at_its_time.words.no_longer_set };
+  }
   if (!post) throw new Error(`There is no post ${postId}.`);
   if (!['approved', 'scheduled', 'partial', 'failed', 'posted'].includes(post.status)) throw new Error(`${post.post_id} is ${post.status}. Only an approved post is sent.`);
   if (!post.approved_at) throw new Error(`${post.post_id} was never approved, so nothing was sent.`);
@@ -253,4 +262,37 @@ export async function sendAPost({ post_id: postId, account_id: accountId, resend
   const shown = shaped(post);
   const mine = shown.destinations.find(item => item.account_id === accountId);
   return { post_id: post.post_id, status: post.status, post: shown, said: mine.status === 'posted' ? `Posted to ${place.label}.` : mine.error ?? `${place.label}: ${mine.status}.` };
+}
+
+/** tool:send-each-post-at-its-time: woken when the person's posts change (the wake they switched on; its cause names
+ *  the changed records). For each changed post set to go at its time, it answers one timed run of the place's send
+ *  row per destination still to be sent, at the post's scheduled_for, told the post's armed_at (invariant 7). A post
+ *  taken back, changed, set again or removed answers nothing new, and the runs set for it before send nothing. */
+export async function sendEachPostAtItsTime({ task = {} } = {}, { door }) {
+  const plan = settings.at_its_time;
+  const changed = [...new Set((task.cause?.detail?.changes ?? []).filter(change => change && !change.deleted && typeof change.id === 'string').map(change => change.id))];
+  const set = [];
+  const leftOut = [];
+  const wakes = [];
+  for (const postId of changed) {
+    const post = await door.read(TYPE, postId);
+    const at = Date.parse(post?.scheduled_for ?? '');
+    if (!post || post.status !== 'scheduled' || !post.approved_at || !post.armed_at || !Number.isFinite(at)) continue;
+    for (const accountId of post.destinations ?? []) {
+      if (!settings.resend_states.includes(post.deliveries?.[accountId]?.status ?? 'not sent')) continue;
+      const connection = await door.read(settings.connection_type, `${settings.connection_prefix}${encodeURIComponent(accountId)}`);
+      const place = connection ? PLACES.find(item => item.connection_vendor === connection.vendor) ?? null : null;
+      if (!place?.send_tool) {
+        leftOut.push({ post_id: post.post_id, account_id: accountId, said: plan.words.not_connected });
+        continue;
+      }
+      if (wakes.length >= plan.most_sends) {
+        leftOut.push({ post_id: post.post_id, account_id: accountId, said: fillWords(plan.words.too_many, { most: String(plan.most_sends) }) });
+        continue;
+      }
+      set.push({ post_id: post.post_id, account_id: accountId, tool: place.send_tool, at: post.scheduled_for });
+      wakes.push({ wake: { tool: place.send_tool, at_ms: at, input: { post_id: post.post_id, account_id: accountId, armed_at: post.armed_at }, budget: plan.child_budget } });
+    }
+  }
+  return { set, left_out: leftOut, said: set.length ? fillWords(plan.words.set, { count: String(set.length) }) : plan.words.none, wake_effects: wakes };
 }

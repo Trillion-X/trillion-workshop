@@ -7,10 +7,14 @@
 //
 // The function is called as fn(input, { door }). `door` is the person's records door (read-data/records-door.mjs),
 // opened on first use from descriptor 3, so a function that never reads records never needs one.
+//
+// A function a wake started may answer `wake_effects` (the engine's wake.json `effects_field`: timed runs, writes,
+// events). The engine reads them from the top of the last line, so they are printed beside the result, not in it.
 import { text } from 'node:stream/consumers';
 import { pathToFileURL } from 'node:url';
 import { openRecordsDoor } from '../read-data/records-door.mjs';
 
+const EFFECTS = 'wake_effects';
 const [file, name] = process.argv.slice(2);
 try {
   if (!file || !name) throw new Error('usage: run-an-export.mjs <module file> <export name> < input.json');
@@ -19,7 +23,13 @@ try {
   let door;
   const context = { get door() { return (door ??= openRecordsDoor()); } };
   const input = JSON.parse((await text(process.stdin)) || '{}');
-  console.log(JSON.stringify({ result: await fn(input, context) }));
+  const result = await fn(input, context);
+  if (result && typeof result === 'object' && !Array.isArray(result) && EFFECTS in result) {
+    const { [EFFECTS]: effects, ...shown } = result;
+    console.log(JSON.stringify({ result: shown, [EFFECTS]: effects }));
+  } else {
+    console.log(JSON.stringify({ result }));
+  }
 } catch (error) {
   console.log(JSON.stringify({ error: error.message }));
   process.exitCode = 1;

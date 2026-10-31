@@ -1,8 +1,9 @@
 {
-  "_what": "The places a person posts to, one row per place: which kind of connection reaches the account (connection_vendor: a connection record of that vendor, `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), how a publisher is filled from it (options and account: {held: field} is a value held in the person's vault, read only as the request leaves; {plain: field} is a readable field of their connection record; {value} is fixed), which hosts a held value may go to, how a post's file reaches the place (media_from: stream, its bytes streamed to the place; whole, its bytes handed as one piece to a place whose uploader takes a file only so; address, a share of it the place fetches), the settings sent unless the post names its own (default_settings), and what the place takes (format: read by read-data/post-ready.mjs). Read by read-data/posts.mjs. A new place is a row; nothing in the code names a place.",
+  "_what": "The places a person posts to, one row per place: which kind of connection reaches the account (connection_vendor: a connection record of that vendor, `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), how a publisher is filled from it (options and account: {held: field} is a value held in the person's vault, read only as the request leaves; {plain: field} is a readable field of their connection record; {value} is fixed), which hosts a held value may go to, how a post's file reaches the place (media_from: stream, its bytes streamed to the place; whole, its bytes handed as one piece to a place whose uploader takes a file only so; address, a share of it the place fetches), the settings sent unless the post names its own (default_settings), and what the place takes (format: read by read-data/post-ready.mjs), and which tool row sends to it (send_tool, run at a post's time by tool:send-each-post-at-its-time). Read by read-data/posts.mjs. A new place is a row; nothing in the code names a place.",
   "places": [
     {
       "id": "post-place:youtube",
+      "send_tool": "tool:send-a-post-to-youtube",
       "platform": "youtube",
       "label": "YouTube",
       "adapter": "youtube",
@@ -53,6 +54,7 @@
     },
     {
       "id": "post-place:tiktok",
+      "send_tool": "tool:send-a-post-to-tiktok",
       "platform": "tiktok",
       "label": "TikTok",
       "adapter": "tiktok",
@@ -103,6 +105,7 @@
     },
     {
       "id": "post-place:instagram",
+      "send_tool": "tool:send-a-post-to-instagram",
       "platform": "instagram",
       "label": "Instagram",
       "adapter": "instagram",
@@ -156,6 +159,7 @@
     },
     {
       "id": "post-place:facebook",
+      "send_tool": "tool:send-a-post-to-facebook",
       "platform": "facebook",
       "label": "Facebook Page",
       "adapter": "facebook-page",
@@ -195,6 +199,7 @@
     },
     {
       "id": "post-place:instagram-facebook",
+      "send_tool": "tool:send-a-post-to-instagram-facebook",
       "platform": "instagram",
       "label": "Instagram through Facebook",
       "adapter": "instagram",
@@ -250,6 +255,7 @@
     },
     {
       "id": "post-place:threads",
+      "send_tool": "tool:send-a-post-to-threads",
       "platform": "threads",
       "label": "Threads",
       "adapter": "threads",
@@ -289,6 +295,7 @@
     },
     {
       "id": "post-place:linkedin",
+      "send_tool": "tool:send-a-post-to-linkedin",
       "platform": "linkedin",
       "label": "LinkedIn",
       "adapter": "linkedin",
@@ -333,6 +340,7 @@
     },
     {
       "id": "post-place:substack",
+      "send_tool": "tool:send-a-post-to-substack",
       "platform": "substack",
       "label": "Substack",
       "adapter": "substack",
@@ -386,6 +394,7 @@
     },
     {
       "id": "post-place:x",
+      "send_tool": "tool:send-a-post-to-x",
       "platform": "x",
       "label": "X",
       "adapter": "x",

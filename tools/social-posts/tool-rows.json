@@ -1372,6 +1372,10 @@
       "resend": {
        "type": "boolean",
        "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      },
+      "armed_at": {
+       "type": "string",
+       "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
       }
      }
     },
@@ -1536,6 +1540,10 @@
       "resend": {
        "type": "boolean",
        "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      },
+      "armed_at": {
+       "type": "string",
+       "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
       }
      }
     },
@@ -1700,6 +1708,10 @@
       "resend": {
        "type": "boolean",
        "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      },
+      "armed_at": {
+       "type": "string",
+       "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
       }
      }
     },
@@ -1864,6 +1876,10 @@
       "resend": {
        "type": "boolean",
        "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      },
+      "armed_at": {
+       "type": "string",
+       "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
       }
      }
     },
@@ -2028,6 +2044,10 @@
       "resend": {
        "type": "boolean",
        "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      },
+      "armed_at": {
+       "type": "string",
+       "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
       }
      }
     },
@@ -2192,6 +2212,10 @@
       "resend": {
        "type": "boolean",
        "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      },
+      "armed_at": {
+       "type": "string",
+       "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
       }
      }
     },
@@ -2356,6 +2380,10 @@
       "resend": {
        "type": "boolean",
        "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      },
+      "armed_at": {
+       "type": "string",
+       "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
       }
      }
     },
@@ -2520,6 +2548,10 @@
       "resend": {
        "type": "boolean",
        "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      },
+      "armed_at": {
+       "type": "string",
+       "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
       }
      }
     },
@@ -2684,6 +2716,10 @@
       "resend": {
        "type": "boolean",
        "description": "Send again to a destination whose outcome is not known, after looking on the place"
+      },
+      "armed_at": {
+       "type": "string",
+       "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
       }
      }
     },
@@ -2801,6 +2837,165 @@
       },
       "output_selector": "$",
       "contains": "There is no post"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "address": "package::social-posts::tool::send-each-post-at-its-time",
+   "id": "package::social-posts::tool::send-each-post-at-its-time",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:send-each-post-at-its-time",
+    "label": "Send each post at its time",
+    "job": "When the person's posts change, set each post that is set to go at its time to be sent then, to each of its destinations, by that place's send row",
+    "description": "Runs on its own once the person switches on its wake (at-its-time): each time their posts change, it reads the changed posts, and for each one set to go at its time (tool:set-a-post-to-go-at-its-time) it sets one run of the place's send row (tool:send-a-post-to-<place>) per destination still to be sent, at the post's scheduled_for. That run sends only while the post is still set to go as it was then, so a post taken back, changed or set again sends nothing at the old time. It sends nothing itself, polls nothing and keeps nothing. Its rights are the ones the sends it sets need (the person's posts, their connections and their files), because each send reaches only what this wake was granted. Returns set (each post, destination, send row and time), left_out (each send not set, with why) and said.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "set",
+      "left_out",
+      "said"
+     ],
+     "properties": {
+      "set": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "left_out": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "wakes": [
+     {
+      "id": "at-its-time",
+      "on": {
+       "record": {
+        "resource": "own-records",
+        "kind": "post"
+       }
+      },
+      "budget": {
+       "steps": 33,
+       "wall_ms": 3960000
+      }
+     }
+    ],
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "module": "@opencoredev/social-sdk",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/@opencoredev/social-sdk"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/send-a-post.mjs",
+      "sendEachPostAtItsTime"
+     ],
+     "stdin": {
+      "input": {
+       "fill": {
+        "from": "input"
+       }
+      },
+      "task": {
+       "fill": {
+        "from": "task"
+       }
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "connection",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "the engine's wake primitive (a record wake answering timed runs, each paid from the firing's budget under its grant), used for the person's posts in place of a self-hosted scheduler or a repeat that polls"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "output_selector": "$",
+      "contains": "nothing was set"
      }
     ],
     "result_selector": "$.result"

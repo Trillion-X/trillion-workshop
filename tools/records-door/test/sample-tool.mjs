@@ -6,3 +6,5 @@ export async function countNotes({ prefix }, { door }) {
 }
 
 export const echo = input => ({ echoed: input });
+
+export const later = ({ at_ms }) => ({ said: 'later', wake_effects: [{ wake: { at_ms } }] });

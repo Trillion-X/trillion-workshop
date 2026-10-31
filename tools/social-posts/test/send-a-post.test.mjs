@@ -7,7 +7,9 @@ import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-do
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import places from '../read-data/post-places.json' with { type: 'json' };
-import { heldFetch, sendAPost } from '../read-data/send-a-post.mjs';
+import { heldFetch, sendAPost, sendEachPostAtItsTime } from '../read-data/send-a-post.mjs';
+import { rowOf, runRow } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import settings from '../read-data/posts.json' with { type: 'json' };
 import { heldFields } from '../read-data/posts.mjs';
 
 const VALUE = 'made-up-held-value-0123456789';
@@ -164,3 +166,84 @@ test('each place\'s send row mounts the held fields its place signs with, in the
     assert.equal(row.invoke.internet, true);
   }
 });
+
+// A post set to go at its time is sent then through the person's own wake: a change to their posts answers one timed
+// run of the place's send row per destination, and that run sends only while the post carries the armed_at it was
+// set with. The wake's cause is made up the way the engine hands one (task.cause.detail.changes).
+const ARMED = '2026-01-01T00:00:05.000Z';
+const armed = fields => post({ armed_at: ARMED, ...fields });
+const changes = (...ids) => ({ cause: { kind: 'record', detail: { resource: 'own-records', changes: ids.map((id, at) => ({ id, sequence: at + 1, version: 1, deleted: false })) } } });
+const timed = rowOf(rows, 'tool:send-each-post-at-its-time');
+
+test('a post set to go at its time answers one timed send at that time, through the place\'s send row', async () => {
+  const ran = await runRow(timed, { input: {}, task: changes('post:p1') }, { records: [armed(), connection] });
+  assert.equal(ran.status, 0, JSON.stringify(ran));
+  assert.deepEqual(ran.wake_effects, [{ wake: { tool: 'tool:send-a-post-to-x', at_ms: Date.parse('2026-01-02T00:00:00Z'), input: { post_id: 'post:p1', account_id: ACCOUNT, armed_at: ARMED }, budget: settings.at_its_time.child_budget } }]);
+  assert.equal(ran.result.set.length, 1);
+  assert.ok(!('wake_effects' in ran.result), 'the effects go to the engine, not into the answer');
+  assert.deepEqual(ran.kept.find(record => record.id === 'post:p1').value, armed().value, 'the wake\'s run writes nothing');
+});
+
+test('a post going to two places answers two timed sends, one by each place\'s send row', async () => {
+  const linkedin = 'service_connection:linkedin:second';
+  const record = { id: `connection:${encodeURIComponent(linkedin)}`, type: 'connection', value: { connection_id: linkedin, vendor: 'linkedin', plain: { person_urn: 'urn:li:person:made-up' }, held: ['access_token'] } };
+  const both = await sendEachPostAtItsTime({ task: changes('post:p1') }, { door: await doorOf([armed({ destinations: [ACCOUNT, linkedin] }), connection, record]) });
+  assert.deepEqual(both.wake_effects.map(effect => [effect.wake.tool, effect.wake.input.account_id]), [['tool:send-a-post-to-x', ACCOUNT], ['tool:send-a-post-to-linkedin', linkedin]]);
+});
+
+test('a post not set to go, removed, or already sent to a destination answers no timed send there', async () => {
+  for (const [label, records, task] of [
+    ['a draft', [armed({ status: 'draft' }), connection], changes('post:p1')],
+    ['approved but not set', [armed({ status: 'approved' }), connection], changes('post:p1')],
+    ['removed', [connection], { cause: { detail: { changes: [{ id: 'post:p1', sequence: 1, version: 2, deleted: true }] } } }],
+    ['already posted there', [armed({ deliveries: { [ACCOUNT]: { status: 'posted' } } }), connection], changes('post:p1')],
+    ['not a record cause', [armed(), connection], {}],
+  ]) {
+    const answer = await sendEachPostAtItsTime({ task }, { door: await doorOf(records) });
+    assert.deepEqual(answer.wake_effects, [], label);
+    assert.equal(answer.said, settings.at_its_time.words.none, label);
+  }
+  const gone = await sendEachPostAtItsTime({ task: changes('post:p1') }, { door: await doorOf([armed()]) });
+  assert.deepEqual(gone.left_out.map(item => item.said), [settings.at_its_time.words.not_connected], 'a destination no longer connected is named, not set');
+});
+
+test('a timed send set before the post was taken back, changed or set again sends nothing; one for its time sends', async () => {
+  const stand = place();
+  for (const [label, record] of [['set again', armed({ armed_at: '2026-01-01T09:00:00.000Z' })], ['taken back', armed({ status: 'draft' })], ['changed and approved again', armed({ status: 'approved' })]]) {
+    await withDoor([record, connection], async (door, fake) => {
+      const sent = await sendAPost({ post_id: 'post:p1', account_id: ACCOUNT, armed_at: ARMED }, { door, send: stand.send, held: () => VALUE });
+      assert.equal(sent.said, settings.at_its_time.words.no_longer_set, label);
+      assert.deepEqual(fake.kept.get('post:p1').value, record.value, `${label}: nothing was written`);
+    });
+  }
+  await withDoor([connection], async door => {
+    const sent = await sendAPost({ post_id: 'post:p1', account_id: ACCOUNT, armed_at: ARMED }, { door, send: stand.send, held: () => VALUE });
+    assert.equal(sent.status, 'gone');
+  });
+  assert.equal(stand.sent.length, 0);
+  await withDoor([armed(), connection], async door => {
+    const sent = await sendAPost({ post_id: 'post:p1', account_id: ACCOUNT, armed_at: ARMED }, { door, send: stand.send, held: () => VALUE });
+    assert.equal(sent.status, 'posted', sent.said);
+  });
+  assert.equal(stand.sent.length, 1);
+});
+
+test('the wake is the person\'s to switch on, on their posts, and grants exactly what the sends it sets need', () => {
+  assert.deepEqual(timed.wakes.map(wake => [wake.id, wake.on]), [['at-its-time', { record: { resource: 'own-records', kind: 'post' } }]]);
+  const plan = settings.at_its_time;
+  assert.ok(timed.wakes[0].budget.steps >= 1 + plan.most_sends * plan.child_budget.steps && timed.wakes[0].budget.wall_ms >= (1 + plan.most_sends) * plan.child_budget.wall_ms, 'one firing pays for itself and every send it may set');
+  assert.equal(timed.invoke.internet, false);
+  assert.equal(timed.invoke.credential_mounts, undefined, 'the wake\'s run holds no account\'s values');
+  const sendRows = rows.records.map(record => record.payload).filter(payload => payload.id.startsWith('tool:send-a-post-to-'));
+  for (const row of sendRows) assert.deepEqual(timed.invoke.records.rights, row.invoke.records.rights, `${row.id}: a timed send reaches only what the wake was granted`);
+  assert.deepEqual(places.places.map(item => item.send_tool).sort(), sendRows.map(row => row.id).sort(), 'every place is sent to by its own send row');
+  for (const row of sendRows) assert.equal(row.input_schema.properties.armed_at.type, 'string', row.id);
+});
+
+const opened = [];
+async function doorOf(records) {
+  const fake = await startFakeDoor({ rights, records });
+  opened.push(fake);
+  return openRecordsDoor({ descriptor: fake.descriptor });
+}
+test.after(async () => { for (const fake of opened) await fake.close(); });
