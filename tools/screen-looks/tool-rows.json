@@ -1,0 +1,48 @@
+{
+  "kind": "package-set-records",
+  "record_set": "screen-looks-tool-rows",
+  "what_this_is": "The Workshop row for the screen-looks folder: one command the person's AI runs on the person's own computer to turn a look's tokens into concrete values and the stylesheet a page, an email or a slide carries.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:resolve-a-look",
+        "label": "Resolve a look",
+        "status": "active",
+        "job": "Turn a look's colour, size and font tokens into concrete values and the stylesheet a document carries, with the person's own font faces",
+        "description": "Give a request file: look (the look record as its owner keeps it: tokens of {key, value, css_variable?}) and faces (the person's own font files: family, weight, style, file, relative to the request). Answers the look's concrete values by variable name (--accent-primary, --font-display and the rest), the font families the look names, which faces were written and which files were missing; with --css it writes one stylesheet: a @font-face for each named face, then the look's variables. Nothing about a colour or a font is in the tool: the look and the faces decide.",
+        "input_schema": {
+          "type": "object",
+          "required": ["request"],
+          "additionalProperties": false,
+          "properties": {
+            "request": {"type": "string", "description": "The request JSON file: {look, faces?}, put where {request} is in the command."},
+            "css": {"type": "string", "description": "Where to write the stylesheet, put where {css} is in the command."}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["palette", "families", "faces_written", "faces_missing", "css_bytes"],
+          "properties": {
+            "palette": {"type": "object"},
+            "families": {"type": "array", "items": {"type": "string"}},
+            "faces_written": {"type": "array", "items": {"type": "string"}},
+            "faces_missing": {"type": "array", "items": {"type": "string"}},
+            "css_bytes": {"type": "number"}
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "node tools/screen-looks/do-work/resolve-a-look.mjs {request} --css {css}",
+          "needs": ["node"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request with the look record and the person's own font files, run `run`, then tell the person the look's main colours and fonts and any face file that was missing. If the command exits 2, its standard error says what to change. If you cannot run commands, give them these steps."
+        },
+        "placements": ["placement:your-computer"],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:screen-looks",
+        "provenance": {"source": "The look resolver the account screens wear: one token-to-value resolver for every surface, plus the stylesheet a document carries itself"}
+      }
+    }
+  ]
+}

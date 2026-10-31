@@ -1,0 +1,47 @@
+{
+  "kind": "package-set-records",
+  "record_set": "turn-frames-into-slides-tool-rows",
+  "what_this_is": "The Workshop row for the turn-frames-into-slides folder: one command the person's AI runs on the person's own computer to turn a board's presentation frames into slides, a printable document, a PDF and a picture of every page.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:turn-frames-into-slides",
+        "label": "Turn frames into slides",
+        "status": "active",
+        "job": "Turn a board's presentation frames into slides in story order, one page each, as SVG, printable HTML, a PDF and a picture of every page",
+        "description": "Give a request file: board (its items: a presentation frame is an item with extra.presentationFrame.order, and every item centred inside it is on that slide), title, look_values and look_css (from tool:resolve-a-look, so any colour or font written as a variable name such as --accent-primary is the look's own), assets (name to file or https address; an item with src asset:<name> draws it, a file carried as its bytes), frames (the frame memberIds to make, in order; absent: every frame) and words_from (a filled word template from tool:fill-a-word-template: its tokens name the item they belong to, and that item's words become the filled ones). Text may show a look value as {{--name}} (a swatch label), so the value is never copied. An item may carry its own type: extra.fontSize, fontWeight, fontFamily, lineHeight, textInset and charWidth, and extra.imageFit contain for a logo. Every frame is one page of the frame's size. Writes slides/NN.svg and deck.html (which keeps the slide words as inert records a word template can be made from); with --pdf the PDF, with --pictures pages/NN.png. A variable the look lacks, an unknown asset or a frame of another size stops the run and says which.",
+        "input_schema": {
+          "type": "object",
+          "required": ["request", "out"],
+          "additionalProperties": false,
+          "properties": {
+            "request": {"type": "string", "description": "The request JSON file, put where {request} is in the command."},
+            "out": {"type": "string", "description": "The folder to write the slides, the document, the PDF and the pictures into, put where {out} is in the command."}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["slides", "html"],
+          "properties": {
+            "slides": {"type": "array", "items": {"type": "object", "required": ["order", "label", "items", "svg"]}},
+            "html": {"type": "string"},
+            "pdf": {"type": "string"},
+            "pictures": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "a Chromium for the PDF and the pictures: npx playwright install chromium, or name one with --browser"],
+          "run": "node tools/turn-frames-into-slides/do-work/make-slides.mjs {request} --out {out} --pdf --pictures",
+          "needs": ["node", "chromium"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request, run `run`, then open the pictures and look at every page before you say it is done: text cut short ends in an ellipsis, so give that item more room. If the command exits 2, its standard error says what to change. If you cannot run commands, give them these steps."
+        },
+        "placements": ["placement:your-computer"],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:turn-frames-into-slides",
+        "provenance": {"source": "The group board's deck export: presentation frames in story order through the board's own SVG exporter"}
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "kind": "package-set-records",
+  "record_set": "brand-kit-tool-rows",
+  "what_this_is": "The Workshop row for the brand-kit folder: one command the person's AI runs on the person's own computer to pick the logo variants a light or a dark page draws from a brand's list rows.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:resolve-a-brand",
+        "label": "Resolve a brand",
+        "status": "active",
+        "job": "Pick the logo variant (wordmark or mark, SVG or PNG) a light or a dark page draws, from a brand kept as list rows",
+        "description": "A brand is the rows of the person's brand list: one row per logo variant (name, brand, family, role wordmark or mark, format svg or png, background such as \"black on transparent\", url) and one selection row (role selection) naming the family in use. Give a request file: rows (as the list or the record store answers them), tone (light or dark) and, optionally, files_at (a folder with a copy of each asset under its address's file name). Answers the family in use and, for both tones, each role and format's variant (url, row id, and the local file when a copy is there). Making or changing a brand is writing those rows in the person's list; this tool only reads them.",
+        "input_schema": {
+          "type": "object",
+          "required": ["request"],
+          "additionalProperties": false,
+          "properties": {
+            "request": {"type": "string", "description": "The request JSON file: {rows, tone?, files_at?}, put where {request} is in the command."}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["family", "tone", "variants", "chosen"],
+          "properties": {
+            "family": {"type": "string"},
+            "tone": {"type": "string", "enum": ["light", "dark"]},
+            "variants": {"type": "object"},
+            "chosen": {"type": "object"}
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "node tools/brand-kit/do-work/resolve-a-brand.mjs {request}",
+          "needs": ["node"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Read the person's brand list rows, write them with the page's tone into the request, run `run`, and tell the person which family is in use and which variant each page draws. A null variant means the brand has no row for it: say which row to add. If the command exits 2, its standard error says what to change. If you cannot run commands, give them these steps."
+        },
+        "placements": ["placement:your-computer"],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:brand-kit",
+        "provenance": {"source": "The brand kit the account's share pages and emails read: a brand as list rows and one selection row"}
+      }
+    }
+  ]
+}

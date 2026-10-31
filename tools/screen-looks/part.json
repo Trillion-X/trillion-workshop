@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/resolve-screen-look-palette.js", "read-data/look-document-css.js"]
+}
