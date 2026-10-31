@@ -33,6 +33,38 @@
         {
           "job": "read what the product told the person, in order",
           "why": "that owner reads notices already told to the person; this package holds default standing instructions to connected AIs, never the person notice history"
+        },
+        {
+          "job": "keep and read where a person stands on one thing made for them: agree, disagree or partly, with their own words why",
+          "why": "That owner keeps a person’s response to an individual artifact; instruction defaults have no customer stance or response data."
+        },
+        {
+          "job": "rank a person's records in the order they should review them, and keep their accept or pass as their stand",
+          "why": "This package does not rank records or collect reviews; it supplies ordered default instruction paragraphs to the existing door."
+        },
+        {
+          "job": "keep a piece's own words as a template, fill only its slots, and catch changed words in a rewrite",
+          "why": "That generic template mechanism can fill content; this package owns the product’s default instruction records and read-only metadata, and implements no competing template engine."
+        },
+        {
+          "job": "keep shared step-by-step playbooks any person's AI can follow",
+          "why": "Workflows own executable or followable job recipes; these default connection instructions describe how to discover and use those existing jobs."
+        },
+        {
+          "job": "build word-level content templates, fill slots and detect drift",
+          "why": "The existing template owner implements filling and drift checks; this package is default instruction DATA and its reader, with no new template algorithm."
+        },
+        {
+          "job": "bring a person's conversations from every app (chat apps, email, AI chats) into one place to read and reply",
+          "why": "This package reads public product defaults and contains no conversation ingestion, private messages, transcript mapping or reply transport."
+        },
+        {
+          "job": "generate format-by-capability fill scripts",
+          "why": "This package generates no scripts; the current Rust door reads its instruction records and fill declarations."
+        },
+        {
+          "job": "write from a recipe: compose the exact instruction, gate what was written before it goes on, and run the person's content actions and instruction blocks",
+          "why": "That owner executes content recipes and gates their outputs; this package supplies standing connection defaults and a read-only reader, with no content job executor."
         }
       ]
     },
