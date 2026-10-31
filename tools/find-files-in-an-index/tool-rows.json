@@ -1,0 +1,175 @@
+{
+ "records": [
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:find-files-in-an-index",
+    "listed_on": "2026-10-30T12:00:00Z",
+    "id": "tool:find-files-in-an-index",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "label": "Find my files in my index",
+    "job": "Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer",
+    "description": "Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for). The index is a JSON-lines file with one row per file (index_file, default assets.jsonl) and an optional types file (types_file, default content-types.json) whose type_keywords turn a word such as a kind of file into a type and whose stop_words are ignored. A search matches file names, folder paths, tags and the words spoken in or written in the file, ranks name above tag above folder above text, boosts adjacent words and files that hold every word, and never returns another type than the one asked for (type, or a type word in the query). Returns each hit's path, display_path, root, type, identity and size with its score, and how many candidates each root held, so an absence can be told from a thin index. fields names the row field for each of path, display_path, name, root, type, tags, text, identity and size when the index uses other names; weights changes the ranking weights; other_lanes holds hits a caller already has from a meaning or picture search (rows with scores) to be merged with the word hits. It never builds or changes an index, and it reads nothing outside index_dir.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "index_dir",
+      "query"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "index_dir": {
+       "type": "string",
+       "minLength": 1
+      },
+      "query": {
+       "type": "string",
+       "minLength": 1
+      },
+      "index_file": {
+       "type": "string"
+      },
+      "types_file": {
+       "type": "string"
+      },
+      "type": {
+       "type": "string"
+      },
+      "root": {
+       "type": "string"
+      },
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 500
+      },
+      "fields": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "string"
+       }
+      },
+      "weights": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "number"
+       }
+      },
+      "other_lanes": {
+       "type": "object",
+       "properties": {
+        "meaning": {
+         "type": "array"
+        },
+        "picture": {
+         "type": "array"
+        }
+       }
+      },
+      "lane_weights": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "number"
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "query",
+      "terms",
+      "candidates_per_root",
+      "matched",
+      "hits"
+     ],
+     "properties": {
+      "query": {
+       "type": "string"
+      },
+      "terms": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "intent_type": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "candidates_per_root": {
+       "type": "object"
+      },
+      "matched": {
+       "type": "integer"
+      },
+      "hits": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "path",
+         "display_path",
+         "score",
+         "found_by"
+        ]
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer",
+     "capabilities": [
+      "read-a-folder"
+     ],
+     "workdir": "/opt/find-files-in-an-index",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/find-files-in-an-index/read-data/find-files-in-an-index.mjs",
+      "findFilesInAnIndex"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "find-files-in-an-index",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/find-files-in-an-index"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result.result",
+    "provenance": {
+     "source": "bitfield-packages packages/find-files-in-an-index"
+    }
+   }
+  }
+ ]
+}
