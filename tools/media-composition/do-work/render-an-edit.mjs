@@ -11,12 +11,13 @@
  * 2. What is reported is MEASURED from the written file (ffprobe), never copied from the edit.
  * 3. Failures carry video-compose's own words and exit non-zero.
  *
- * Usage: node render-an-edit.mjs --edl JSON --output FILE
+ * Usage: node render-an-edit.mjs --edl JSON --output FILE [--workdir DIR]
+ * --workdir names an existing folder video-compose makes its pieces in (kept after the render); without it a new temporary folder.
  * Output (stdout, JSON, last line): { duration_seconds, width, height, has_audio, bytes, segments }
  */
 import { execFileSync } from 'node:child_process';
 import { statSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const COMPOSE = join(dirname(fileURLToPath(import.meta.url)), 'video-compose.mjs');
@@ -48,10 +49,10 @@ export function editWithItsOwnSize(edl) {
   return { ...edl, encode: { ...encode, resolution: 'source' } };
 }
 
-/** Render `edl` to `output` with video-compose and return the measured result. */
-export function renderEdl(edl, output) {
+/** Render `edl` to `output` with video-compose (its pieces made in `workdir` when given) and return the measured result. */
+export function renderEdl(edl, output, { workdir } = {}) {
   try {
-    execFileSync(process.execPath, [COMPOSE, '--edl', JSON.stringify(editWithItsOwnSize(edl)), '--out', output], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
+    execFileSync(process.execPath, [COMPOSE, '--edl', JSON.stringify(editWithItsOwnSize(edl)), '--out', output, ...(workdir ? ['--workdir', resolve(workdir)] : [])], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
   } catch (error) {
     // Node's stack trace and version line close every crash, so the words kept are the lines that say what failed.
     const said = String(error.stderr || error.message).split('\n').filter(line => line.trim() && !/^\s+at |^Node\.js v|^\s*\^+\s*$/.test(line));
@@ -64,10 +65,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {
-    if (!args.get('edl') || !args.get('output')) throw new Error('usage: render-an-edit.mjs --edl JSON --output FILE');
+    if (!args.get('edl') || !args.get('output')) throw new Error('usage: render-an-edit.mjs --edl JSON --output FILE [--workdir DIR]');
     let edl;
     try { edl = JSON.parse(args.get('edl')); } catch { throw new Error('The edit is not JSON.'); }
-    process.stdout.write(`${JSON.stringify(renderEdl(edl, args.get('output')))}\n`);
+    process.stdout.write(`${JSON.stringify(renderEdl(edl, args.get('output'), { workdir: args.get('workdir') }))}\n`);
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exit(1);

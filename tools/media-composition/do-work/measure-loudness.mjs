@@ -11,8 +11,18 @@ import { spawn, spawnSync } from 'node:child_process';
 
 const lastMatch = (text, re) => { let m, last = null; while ((m = re.exec(text)) !== null) last = m[1]; return last; };
 
-/** The ffmpeg arguments that measure one file's loudness (ebur128 with true peak, no output file). */
-export const loudnessArgs = (file) => ['-hide_banner', '-nostats', '-i', file, '-vn', '-af', 'ebur128=peak=true', '-f', 'null', '-'];
+/**
+ * The ffmpeg arguments that measure one file's loudness (ebur128 with true peak, no output file). `from` and `seconds`
+ * measure one stretch of it; `channels` measures it as heard at that channel count (a mono voice heard in stereo is
+ * 3 LU louder than its one channel).
+ */
+export const loudnessArgs = (file, { from, seconds, channels } = {}) => [
+  '-hide_banner', '-nostats',
+  ...(Number.isFinite(from) && from > 0 ? ['-ss', String(from)] : []),
+  ...(Number.isFinite(seconds) && seconds > 0 ? ['-t', String(seconds)] : []),
+  '-i', file, '-vn', ...(Number.isInteger(channels) && channels > 0 ? ['-ac', String(channels)] : []),
+  '-af', 'ebur128=peak=true', '-f', 'null', '-',
+];
 
 /**
  * PURE: read ffmpeg's ebur128 SUMMARY (the last I:/LRA:/Peak: lines) into `{ integrated_lufs, lra_lu,
@@ -27,9 +37,9 @@ export function readLoudnessSummary(text) {
   };
 }
 
-/** Measure a file's loudness, blocking. Returns the `readLoudnessSummary` shape. */
-export function measureLoudness(file) {
-  const r = spawnSync('ffmpeg', loudnessArgs(file), { encoding: 'utf8', maxBuffer: 1 << 26 });
+/** Measure a file's loudness (or one stretch of it, see loudnessArgs), blocking. Returns the `readLoudnessSummary` shape. */
+export function measureLoudness(file, stretch = {}) {
+  const r = spawnSync('ffmpeg', loudnessArgs(file, stretch), { encoding: 'utf8', maxBuffer: 1 << 26 });
   return readLoudnessSummary(`${r.stdout || ''}${r.stderr || ''}`);
 }
 

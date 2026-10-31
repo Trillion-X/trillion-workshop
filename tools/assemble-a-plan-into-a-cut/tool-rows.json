@@ -1,0 +1,150 @@
+{
+ "kind": "tool-rows",
+ "record_set": "assemble-a-plan-into-a-cut-tool-rows",
+ "what_this_is": "The Workshop rows for tools/assemble-a-plan-into-a-cut: a script the person's AI runs on the person's own computer that cuts a plan of recordings, voiced lines and slides into a video (or slides and a PDF), with the steps around it. Every format, look, graphic, renderer and check comes in the person's request; the script holds only the mechanism.",
+ "records": [
+  {
+   "id": "package::assemble-a-plan-into-a-cut::tool::assemble-a-plan-into-a-cut",
+   "address": "package::assemble-a-plan-into-a-cut::tool::assemble-a-plan-into-a-cut",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:assemble-a-plan-into-a-cut",
+    "label": "Cut my recordings into a video from a plan (runs on your computer)",
+    "status": "active",
+    "job": "Cut my recordings into a video following my plan: which stretch of which recording goes where, lines a voice reads over a held frame, my look on every shot, my graphics laid over it, and only show me the cut once every check I name passes",
+    "description": "Reads a plan (segments in order, each a stretch of a recording from-to, a voiced line or a slide) and a piece table that says, per format, what each segment kind becomes. Cuts each recording frame-exact at the plan's own aspect, with edges that never catch the word before or after and a crossfade where two recordings meet; holds an open-eyed frame under each voiced line; plays a sound-only recording over a borrowed still with its words as captions; colours every shot with the person's look and shot-matches them to one another; places every sound at the exact start of its picture, with one loudness pass. The whole cut is one edit of the Workshop tool media-composition, rendered by its render-an-edit. Graphics are the person's own device templates, laid out clear of the face and drawn once over the whole cut by the overlay renderer the person names. The cut is made in a work folder and moved to the folder the person sees only when it is whole and every check row in the request passes; otherwise it stays in the work folder and the answer names what failed. A plan of slides becomes one picture per slide and a PDF. Steps: timeline (lengths only, nothing made), lay-out (the timeline, the overlay spec and the edit, nothing rendered for the person), build (one plan), run (every plan of a folder, each first through the person's plan checks). It runs on the person's own computer.",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {"type": "string", "description": "The request file (JSON) on the person's computer, put where {input} is in the command: pieces (the piece table), plans {folder, skip} or plan_file, clips {words_folder}, looks, grades, voice {folder, word_timer, say}, face_reader {argv}, overlay_renderer, devices, checks, plan_checks, folders {work, seen, specs, holds_log}, refs, rules. README: The request."},
+      "step": {"type": "string", "enum": ["timeline", "lay-out", "build", "run"], "description": "Put where {step} is in the command."},
+      "slug": {"type": "string", "description": "The plan to cut, by its file name in plans.folder, put where {slug} is (run takes any number, or none for every plan)."}
+     },
+     "required": ["input", "step"]
+    },
+    "output_schema": {"type": "object", "description": "The last line printed: {\"result\": ...} or {\"error\": what is wrong and what to change}. build gives {slug, cut, seconds, seconds_made, timeline, spec, edit (the media-composition edit it rendered), holds, crossfades, graphics, checks: [{id, passed, advisory, exit, fail_lines, report}]} or for slides {slug, pdf, slides, aspect}; timeline gives {slug, seconds, timeline, crossfades, compared?}; run gives {voice_lines, plans: [{slug, status, ...}], all_made}."},
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)", "python3 -m pip install -U numpy soundfile pillow blake3", "brew install ffmpeg node"],
+     "run": "python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py {step} --request {input} {slug}",
+     "needs": ["python", "ffmpeg", "node 22 or later and the Workshop tool media-composition (tools/media-composition, render-an-edit.mjs), which renders the cut", "an overlay renderer command (overlay_renderer)", "a face reader command (face_reader) when the plan cuts recordings", "the check commands the person requires before a cut is shown, for example tool:check-a-rendered-video"],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Build the request from the person's own records (their piece table, looks, device templates, renderer and checks; README: The request) and write it to a file; run `timeline` first to show what goes where and how long, then `build` for one plan or `run` for all. Read the last line: tell the person where the cut is and how long it is, each check and whether it passed, and each held frame that is not open-eyed. When a check failed, the cut is still in the work folder: say which check and its lines, and change nothing they chose (their look, their graphics) to make a check pass; the check's owner fixes a false failure."
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:assemble-a-plan-into-a-cut",
+    "provenance": {"source": "Written for cutting any plan of recordings into a rough cut; the shot match is Reinhard et al. 2001 (Color Transfer between Images) in CIE L*a*b*"}
+   }
+  },
+  {
+   "id": "package::assemble-a-plan-into-a-cut::tool::voice-the-lines-of-my-plans",
+   "address": "package::assemble-a-plan-into-a-cut::tool::voice-the-lines-of-my-plans",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:voice-the-lines-of-my-plans",
+    "label": "Record a voice take of every line my plans have a voice read (runs on your computer)",
+    "status": "active",
+    "job": "Make a voice recording of every line in my plans that a voice reads aloud, with the voice I choose, and keep each one so it is made only once",
+    "description": "Finds every segment whose piece is a voiced line in the person's piece table, and for each line with no take yet runs the person's speaker commands (voice.say: any text-to-speech and finishing chain, each command filled with the line, a file of it, a folder of its own and the take to write). Each take is kept as <name>.wav beside <name>.txt holding its exact words, named by the BLAKE3 of the words, so a line is found by what it says. Comes with a Kokoro speaker (do-work/say_line_kokoro.py: mlx-audio on Apple Silicon, trimmed to the words, a soft end and a little room tone).",
+    "input_schema": {"type": "object", "properties": {"input": {"type": "string", "description": "The request file (pieces, plans {folder}, voice {folder, say}), put where {input} is."}}, "required": ["input"]},
+    "output_schema": {"type": "object", "description": "{\"result\": {\"lines\", \"had\", \"made\": [{\"text\", \"take\"}]}}"},
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)", "python3 -m pip install -U numpy soundfile pillow blake3 mlx-audio"],
+     "run": "python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py voice-lines --request {input}",
+     "needs": ["python", "a speaker command (voice.say), for example do-work/say_line_kokoro.py"],
+     "say": "Run it before tool:assemble-a-plan-into-a-cut when a plan has voiced lines. Tell the person how many lines were already voiced and which ones were made, and offer to play a made take before it goes into a cut."
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:assemble-a-plan-into-a-cut",
+    "provenance": {"source": "The cutter's voice step; Kokoro-82M (Apache-2.0) through mlx-audio (MIT)"}
+   }
+  },
+  {
+   "id": "package::assemble-a-plan-into-a-cut::tool::regroup-a-plans-segments",
+   "address": "package::assemble-a-plan-into-a-cut::tool::regroup-a-plans-segments",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:regroup-a-plans-segments",
+    "label": "Regroup the segments of my plans (runs on your computer)",
+    "status": "active",
+    "job": "Rearrange the pieces of my video plans into groups: a new line to open each group, then the recordings I pick for it in the order I pick, each with an on-screen label if I want one",
+    "description": "For each plan the person names, builds new segments from a shape: head segments kept as they are, then each group's lead segment (given whole, such as a voiced line) followed by existing segments in the order given, each taking the group's segment kind and its label, then tail segments. Indices are the plan's current segment positions (the outline step prints them). Every segment with a recording must be used exactly once, so no recording is dropped by accident. Writes the plans back and returns the seconds of recording in each group. Also: outline, each plan as a numbered list of its segments.",
+    "input_schema": {"type": "object", "properties": {"input": {"type": "string", "description": "The request file: plans_folder, shapes {slug: {head, groups: [{lead, members, member_kind, labels}], tail}}, label_key, structure; or plan_files for the outline step. Put where {input} is."}, "step": {"type": "string", "enum": ["regroup", "outline"]}}, "required": ["input", "step"]},
+    "output_schema": {"type": "object", "description": "{\"result\": {\"plans\": [{\"slug\", \"groups\", \"group_seconds\", \"segments\"}]}} for regroup; {\"result\": {\"plans\": [{\"slug\", \"recorded_seconds\", \"segments\"}]}} for outline"},
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)"],
+     "run": "python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py {step} --request {input}",
+     "needs": ["python"],
+     "say": "Run outline first and show the person the numbered segments; build the shape with them, then run regroup and show each plan's groups and their seconds."
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:assemble-a-plan-into-a-cut",
+    "provenance": {"source": "The cutter's plan step"}
+   }
+  },
+  {
+   "id": "package::assemble-a-plan-into-a-cut::tool::apply-new-titles-to-my-plans",
+   "address": "package::assemble-a-plan-into-a-cut::tool::apply-new-titles-to-my-plans",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:apply-new-titles-to-my-plans",
+    "label": "Put new titles into my video plans and the cards that name them (runs on your computer)",
+    "status": "active",
+    "job": "Change the titles of my video plans to the ones in my titles list, and fix every card that points to an old title",
+    "description": "Reads the person's titles list (one row per plan id, with its new title and any fields to copy) and applies it to every plan in a folder: the new title, the fields the request names, and every card segment whose text is an old title or a prefix the request names plus an old title. A title that is one of the request's placeholder words keeps the withdrawn title under its own field and leaves its cards as they are. A row may name the old title of a plan that is gone, so cards pointing at it are renamed too.",
+    "input_schema": {"type": "object", "properties": {"input": {"type": "string", "description": "The request file: plans_folder, titles {titles: [{id, title, old_title?}]}, untitled, card_kind, card_prefixes, copy_from_row, copy_from_doc, fields. Put where {input} is."}}, "required": ["input"]},
+    "output_schema": {"type": "object", "description": "{\"result\": {\"plans\": [{\"id\", \"title\", ...copied fields}]}}"},
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)"],
+     "run": "python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py retitle --request {input}",
+     "needs": ["python"],
+     "say": "Show the person each plan's id and its title after the change, and which ones are still placeholders."
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:assemble-a-plan-into-a-cut",
+    "provenance": {"source": "The cutter's plan step"}
+   }
+  },
+  {
+   "id": "package::assemble-a-plan-into-a-cut::tool::string-my-cuts-into-one-reel",
+   "address": "package::assemble-a-plan-into-a-cut::tool::string-my-cuts-into-one-reel",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:string-my-cuts-into-one-reel",
+    "label": "Put my finished cuts one after another into one reel to watch (runs on your computer)",
+    "status": "active",
+    "job": "Put all my finished cuts into one video to watch in a row, with a short card naming each one before it, and tell me where each starts",
+    "description": "Strings the cuts the person lists, in their order, into one reel without re-encoding them, with a plain text card of the seconds and words the person gives between each two, made at the first cut's frame size and rate. Returns where each cut starts in the reel (and writes it as text when asked); a listed file that does not exist is named and left out.",
+    "input_schema": {"type": "object", "properties": {"input": {"type": "string", "description": "The request file: films [{file, label, card_text}], card {seconds, size, wrap_chars, line_step, colour, text_colour, border_px, noise_amplitude, font?}, work, out, index. Put where {input} is."}}, "required": ["input"]},
+    "output_schema": {"type": "object", "description": "{\"result\": {\"reel\", \"seconds\", \"films\": [{\"start\", \"clock\", \"label\", \"seconds\"}], \"missing\"}}"},
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)", "brew install ffmpeg node"],
+     "run": "python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py string-together --request {input}",
+     "needs": ["python", "ffmpeg", "node 22 or later and the Workshop tool media-composition (tools/media-composition, render-an-edit.mjs), which renders the reel"],
+     "say": "Give the person the reel and the start time of each cut in it, and name any cut that was missing."
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:assemble-a-plan-into-a-cut",
+    "provenance": {"source": "The cutter's review step"}
+   }
+  }
+ ]
+}

@@ -1,0 +1,43 @@
+{
+ "what_this_is": "The cutter's default numbers: common editing and online-video norms, and the measuring steps of the cutter itself. A request's \"rules\" are laid over these key by key, so a cut changes one number without restating the rest. Nothing here is a look or a style: those come in the request's looks and devices.",
+ "frame": {"fps": [24000, 1001], "why": "every picture piece is cut at this rate with frame-exact counts; the frame size is the plan's own aspect"},
+ "audio": {
+  "piece_lufs": -16.0,
+  "piece_gain_db": [-12.0, 14.0],
+  "limit": 0.89,
+  "loudnorm": {"I": -16, "TP": -1.5, "LRA": 11},
+  "edge_fade_s": {"head": 0.04, "tail": 0.06},
+  "why": "-16 LUFS and -1.5 dBTP are the common online-video loudness; each spoken span is brought to piece_lufs (gain held to piece_gain_db, measured on the span as heard) and limited at limit, the whole mix gets one two-pass linear loudnorm, and an edge with no crossfade fades over edge_fade_s so it does not click"
+ },
+ "edges": {
+  "handle_s": 0.15,
+  "safety_s": 0.05,
+  "word_slack_s": 0.02,
+  "crossfade_frames": 5,
+  "crossfade_min_s": 0.04,
+  "speech_lead_s": 0.09,
+  "why": "an edge takes at most handle_s beyond from/to, and less when the neighbouring word is closer (kept safety_s clear), so no cut catches the word before or after; two recorded spans that follow each other cross-fade over crossfade_frames (never under crossfade_min_s) and the picture cuts halfway; a span after a held frame starts speech_lead_s before its first word"
+ },
+ "voiced_line": {"room_after_s": 0.3},
+ "shot_match": {"samples": 5, "strength": 1.0, "edge_s": 0.25, "min_span_s": 0.5, "why": "each video span is measured on samples frames (edge_s in from its ends; one middle frame when shorter than min_span_s) and moved to the cut's pooled L*a*b* statistics by strength"},
+ "hold": {
+  "eyes_open": 0.32,
+  "mouth_max": 0.35,
+  "search_s": 0.5,
+  "widen": [1, 2, 4, 8, 16],
+  "match_diff": 6.0,
+  "probe_fps": 24,
+  "probe_width": 960,
+  "dissolve_frames": 8,
+  "why": "eye and mouth openness are height/width ratios of the face reader's landmarks: a held frame has open eyes and a closed mouth, near the next span's first frame, the window widening by these multiples of search_s while the best one still differs from that frame by more than match_diff (mean grey, 0-255, at 240x135); a held frame from another moment dissolves into its span over dissolve_frames so the picture does not jump"
+ },
+ "placement": {
+  "face_pad_px": 40,
+  "face_frames": 8,
+  "calm_probe": {"width": 480, "height": 270, "fps": 6, "x_px": 520, "tag_sizes_tall": 4},
+  "why": "graphics keep face_pad_px clear of the face (read on face_frames frames); when both sides are clear the calmer one wins: least motion in a box x_px wide at each side, from the tag's height down tag_sizes_tall tag sizes, read at width x height and fps"
+ },
+ "graphics": {"measure_at": [0.35, 0.6, 0.9], "measure_tail_s": 2.5, "alpha_threshold": 128, "why": "the columns a plan graphic covers are measured on transparent stills at these shares of its own time"},
+ "encode": {"crf": 18, "preset": "veryfast", "audio_bitrate": "192k"},
+ "complete": {"duration_tolerance_s": 0.1}
+}
