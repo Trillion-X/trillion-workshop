@@ -32,7 +32,7 @@ test('every row that reads or keeps a print kind says in its description that th
   assert.deepEqual(rows.map(row => row.id).sort(), ['tool:enrol-a-voice-or-face', 'tool:find-faces', 'tool:who-is-in-this']);
   for (const row of rows) {
     const text = JSON.stringify(row);
-    for (const kind of ['voice-print', 'face-print', 'voice-session']) {
+    for (const kind of ['voice-print', 'face-print', 'listening-voices']) {
       if (text.includes(`"${kind}"`)) assert.match(row.description, new RegExp(`${kind}[^.]*stays_on_this_device: true`), `${row.id}: ${kind} is declared stays_on_this_device: true`);
     }
   }

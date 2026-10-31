@@ -992,6 +992,16 @@
         {"job": "turn a recording into words with word times", "why": "tools/audio-transcription answers what was said and when, with no speaker; this one takes those timed words and answers who said each stretch"},
         {"job": "find things by meaning, picture or words across a person's files", "why": "tools/meaning-search finds the files nearest a phrase or a picture; this one never searches, it answers who a voice or a face is among the people who agreed to be known"}
       ]
+    },
+    {
+      "capability": "listen to the microphone for a while: record it in pieces until an end time, hear each piece, name who said each turn from the prints people enrolled, and write each turn as a heard row as it is said",
+      "owner": ["tools/listen-for-a-while/"],
+      "entry": "tools/listen-for-a-while/tool-rows.json",
+      "evidence": "the old app's listener recorded the microphone in pieces, heard each, named each stretch and sent one message per speaker's turn as it was said; this is that one loop as a Workshop tool whose run lasts until the person's end time",
+      "distinct_from": [
+        {"job": "tell who is in a recording or a picture: keep a person's voice or face print only with the consent words that say who agreed and how, name the voices of a transcript against those prints, and find and name faces in a picture or video", "why": "tools/know-who-is-in-this names a recording that already exists; this one captures the microphone live and calls that tool's naming on each piece, adding no recognizer"},
+        {"job": "turn a recording into words with word times", "why": "tools/audio-transcription transcribes one finished recording; this one records, then calls that tool's transcribe on each piece as it finishes"}
+      ]
     }
   ]
 }

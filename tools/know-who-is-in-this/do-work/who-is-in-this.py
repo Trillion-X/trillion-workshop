@@ -5,11 +5,11 @@ Reads one JSON object on stdin:
   file             the recording (audio or video), as the local path the container was given
   segments         the transcript's timed stretches [{ start, end, text }], seconds (tools/audio-transcription answers them)
   voice_prints     the person's voice-print records (filled from their records)
-  voice_sessions   the person's voice-session records (filled from their records)
+  voice_sessions   the person's listening-voices records (filled from their records)
   listening        the listening this recording belongs to; unknown voices keep their number across its recordings
   rules, words, join_within_seconds, max_seconds   optional; see read-data/who_is_in.py
 Prints one JSON line: { speakers: [{ start, end, who, me, voice, score, unsure?, text }], voices_heard, records }.
-`records` holds the listening's voice-session record, which the tool keeps (kind voice-session, stays on this device).
+`records` holds the listening's listening-voices record, which the tool keeps (kind listening-voices, stays on this device).
 """
 
 import json
@@ -43,7 +43,7 @@ def main():
     vectors = measure.voice_vectors(request["file"], segments, min(3600, max(30, int(request.get("max_seconds") or 3600))))
     answers, session = who_is_in.name_spans(segments, vectors, prints, sessions.get(listening), request.get("rules"))
     speakers = who_is_in.speakers_of(segments, answers, float(request.get("join_within_seconds") or 2.0), request.get("words"))
-    record = {"kind": "voice-session", "id": f"voice-session:{who_is_in.slug(listening)}", "listening": listening, **session}
+    record = {"kind": "listening-voices", "id": f"listening-voices:{who_is_in.slug(listening)}", "listening": listening, **session}
     print(json.dumps({"speakers": speakers, "voices_heard": [v["id"] for v in session["unknown"]], "records": [record],
                       "method": "CAM++ voice vectors of the transcript's stretches, cosine similarity to the enrolled prints",
                       "warning": "A name is given only when one enrolled person is clearly the closest; otherwise the people it could be are listed."},
