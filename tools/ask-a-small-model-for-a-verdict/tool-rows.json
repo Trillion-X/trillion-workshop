@@ -1,0 +1,347 @@
+{
+  "kind": "tool-rows",
+  "record_set": "ask-a-small-model-for-a-verdict-tool-rows",
+  "what_this_is": "The Workshop rows for asking a small model a declared question and trusting the answer only after it got known cases right: asking, routing to an owner, scoring the models on offer, keeping that calibration, measuring a confidence line, adding a wrong verdict as a known case, recognising a repeat, and answering typed questions about a state. Rubrics, owners, models and keys are the person's own; the tool carries none.",
+  "records": [
+    {
+      "id": "package::ask-a-small-model-for-a-verdict::tool::ask-a-small-model-for-a-verdict",
+      "address": "package::ask-a-small-model-for-a-verdict::tool::ask-a-small-model-for-a-verdict",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:ask-a-small-model-for-a-verdict",
+        "label": "Ask a small model a question about some text, and trust it only if it got my known cases right (runs on your computer)",
+        "status": "active",
+        "job": "Ask a small model one question about some text (yes or no, which of a list, or how much on a scale) and get its answer with how sure it is, but only after that model got my already-answered cases right",
+        "description": "Give rubric (your question, answer_shape {kind: true-or-false | one-of with options | score with levels, and for a score score_tolerance: how many levels away still counts as right}, calibration cases [{content, expect}] with at least two different answers, optional confidence_bands [{at_least, then}], accept_when_answer_in) or rubrics_file plus rubric_id, the content, and providers (the models you can ask: {via: locally-served, endpoint} for a model server on your computer, or {via: hosted-classifier, endpoint, model, key_file} for a hosted classifier whose key is in a file you name). A rubric with no cases, or whose cases all expect the same answer, is refused, and so is a model that gets a case wrong, so a yes-man never becomes your judge. Returns the answer, accepted (does your rubric accept it), confidence, the whole spread, the band your rubric drew for that confidence, who answered and the scoreboard of who was tried. Content longer than a provider row's accepts_characters is refused, never cut; a row that declares no limit is sent the whole content, so declare one for any model with a smaller reading window. remember_file keeps the calibration so later questions are one call; log_file (with excerpt_characters, how much text to keep) keeps each verdict with an excerpt so a wrong one can be turned into a known case with tool:tell-it-when-it-was-wrong.",
+        "input_schema": {
+          "type": "object",
+          "required": ["content"],
+          "additionalProperties": false,
+          "properties": {
+            "rubric": {"type": "object", "description": "The question, its answer_shape, its calibration cases and accept_when_answer_in"},
+            "rubrics_file": {"type": "string", "description": "A file {providers?, rubrics: [...]} on your computer, instead of rubric"},
+            "rubric_id": {"type": "string", "description": "Which rubric in rubrics_file"},
+            "content": {"type": "string", "minLength": 1, "description": "The text the question is about"},
+            "content_parts": {"type": "array", "description": "Extra addressed parts of the content, for models that read them"},
+            "providers": {"type": "array", "minItems": 1, "items": {"type": "object"}, "description": "The models you can ask, in the order to try them. A row is {via: locally-served, endpoint, timeout_seconds} or {via: hosted-classifier, endpoint, model, samples, key_file or needs_no_key}; every one of those fields is required, none has a default. Optional on either: accepts_characters (the most text that model reads), calibration_timeout_seconds, label"},
+            "passes": {"type": "integer", "minimum": 1, "description": "How many times each calibration case is asked (default 2)"},
+            "sure_at": {"type": "number", "description": "Report whether confidence is at least this"},
+            "remember_file": {"type": "string", "description": "Where to keep what calibration settled"},
+            "calibrate": {"type": "boolean", "description": "false: only read the kept calibration, never calibrate now"},
+            "log_file": {"type": "string", "description": "A file to append each verdict to, with an excerpt of the text; needs excerpt_characters"},
+            "excerpt_characters": {"type": "integer", "minimum": 1, "description": "With log_file: how many characters of the text to keep in the log (enough to recognise it later, not a transcript)"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["accepted", "answer", "answered_by", "calibration"],
+          "properties": {
+            "accepted": {"type": "boolean"},
+            "reason": {"type": ["string", "null"]},
+            "answer": {},
+            "confidence": {"type": ["number", "null"]},
+            "agreement": {"type": ["number", "null"]},
+            "distribution": {"type": ["array", "null"]},
+            "band": {"type": ["string", "null"]},
+            "sure": {"type": ["boolean", "null"]},
+            "answered_by": {"type": "string"},
+            "calibration": {"type": "object"}
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "run npm install in the checkout (BLAKE3, which keys what calibration settled)"],
+          "run": "node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs ask < {input}",
+          "needs": ["node", "a model server on your computer (for example Ollama) or a hosted classifier with its key in a file"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } or { error } saying what to change. Tell the person the answer, how sure it was and which model gave it; if band is set, do what their rubric says that band means."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:ask-a-small-model-for-a-verdict",
+        "provenance": {"source": "bitfield-packages ask-a-small-model-for-a-verdict, ported without its turn-hook, model-server launchers or engine adapter"}
+      }
+    },
+    {
+      "id": "package::ask-a-small-model-for-a-verdict::tool::route-to-the-owner-that-answers",
+      "address": "package::ask-a-small-model-for-a-verdict::tool::route-to-the-owner-that-answers",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:route-to-the-owner-that-answers",
+        "label": "Pick which of my places holds the answer to what I am looking for (runs on your computer)",
+        "status": "active",
+        "job": "Given something I am looking for and a list of places an answer could live, say which place most likely holds it, how sure that is, and which to try next",
+        "description": "Give looking_for (the text), owners ([{id, holds (what that place keeps), ask (how to look there), for_example: [texts that belong there]}]) providers (the models you can ask) and your three settings: pass_when_share_correct (the share of the owners' own examples a model must file back under the right owner before it is used, above 0 and at most 1; below 1 lets that share of mis-filed examples through), confidence_bands ([{at_least, then}], what to do at which confidence) and band_when_confidence_unknown (what to do when a model gives an answer with no probability). None has a default. The examples are the calibration: a model that files fewer of them back under their own owner than your share is refused, and one that meets it is used even if it mis-files a few. Returns go_to, confidence, what_to_do (the then of the band that confidence falls in), how to look there and then_try, the close seconds, so a near tie is looked at in both places. The model only chooses among the owners you listed, so its worst mistake is the second-best place to look.",
+        "input_schema": {
+          "type": "object",
+          "required": ["looking_for", "owners", "providers", "pass_when_share_correct", "confidence_bands", "band_when_confidence_unknown"],
+          "additionalProperties": false,
+          "properties": {
+            "looking_for": {"type": "string", "minLength": 1},
+            "pass_when_share_correct": {"type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "The share of the owners' own examples a model must file back under the right owner"},
+            "confidence_bands": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["at_least", "then"], "properties": {"at_least": {"type": "number"}, "then": {"type": "string", "minLength": 1}}}, "description": "What to do at which confidence"},
+            "band_when_confidence_unknown": {"type": "string", "minLength": 1, "description": "What to do when a model answers with no probability"},
+            "owners": {"type": "array", "minItems": 2, "items": {"type": "object", "required": ["id", "holds"], "properties": {"id": {"type": "string"}, "holds": {"type": "string"}, "ask": {"type": "string"}, "for_example": {"type": "array", "items": {"type": "string"}}}}},
+            "providers": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+            "remember_file": {"type": "string"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["looking_for", "go_to", "what_to_do", "then_try"],
+          "properties": {
+            "looking_for": {"type": "string"},
+            "go_to": {"type": "string"},
+            "confidence": {"type": ["number", "null"]},
+            "what_to_do": {"type": ["string", "null"]},
+            "how": {"type": ["string", "null"]},
+            "then_try": {"type": "array"}
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "run npm install in the checkout (BLAKE3, which keys what calibration settled)"],
+          "run": "node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs route < {input}",
+          "needs": ["node", "a model server on your computer (for example Ollama) or a hosted classifier with its key in a file"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } or { error } saying what to change. Say which place to look first and how, and the next one when the band you set for that confidence says to look further."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:ask-a-small-model-for-a-verdict",
+        "provenance": {"source": "bitfield-packages ask-a-small-model-for-a-verdict (route-to-the-owner-that-answers)"}
+      }
+    },
+    {
+      "id": "package::ask-a-small-model-for-a-verdict::tool::see-which-models-can-judge",
+      "address": "package::ask-a-small-model-for-a-verdict::tool::see-which-models-can-judge",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-which-models-can-judge",
+        "label": "See which of my models can judge each of my questions (runs on your computer)",
+        "status": "active",
+        "job": "Score every model I can ask against every question in my rubrics file and show who agrees with the answers I already know, how long it took and who did not answer",
+        "description": "Give rubrics_file ({providers: [...], rubrics: [...]} on your computer) and optionally passes (default 2). Every model on offer is asked every calibration case of every rubric. Returns, per rubric, one row per model: cases right out of cases asked, time, wrong answers, cases with no answer (a connection or time-limit problem, not a wrong answer) and whether it can judge that question. A model that is excellent at one job can be a coin flip at another; this is how you find out which. It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": ["rubrics_file"],
+          "additionalProperties": false,
+          "properties": {
+            "rubrics_file": {"type": "string"},
+            "providers": {"type": "array", "items": {"type": "object"}, "description": "Overrides the providers in the file"},
+            "passes": {"type": "integer", "minimum": 1}
+          }
+        },
+        "output_schema": {"type": "array", "items": {"type": "object", "required": ["rubric", "cases", "rows"]}},
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "run npm install in the checkout (BLAKE3, which keys what calibration settled)"],
+          "run": "node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs scoreboard < {input}",
+          "needs": ["node", "a model server on your computer (for example Ollama) or a hosted classifier with its key in a file"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } or { error } saying what to change. Tell the person, per question, which models can judge it and which cannot."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:ask-a-small-model-for-a-verdict",
+        "provenance": {"source": "bitfield-packages ask-a-small-model-for-a-verdict (see-which-models-can-judge)"}
+      }
+    },
+    {
+      "id": "package::ask-a-small-model-for-a-verdict::tool::get-the-judges-ready",
+      "address": "package::ask-a-small-model-for-a-verdict::tool::get-the-judges-ready",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:get-the-judges-ready",
+        "label": "Test my models on my questions ahead of time and keep who passed (runs on your computer)",
+        "status": "active",
+        "job": "Calibrate every question in my rubrics file against the models I can ask, once and away from the moment of asking, and keep which model passed each so a later question is one fast call",
+        "description": "Give rubrics_file and remember_file (where to keep the result), optionally passes (default 1). Calibration is the slow part, a model call per known case, so doing it inside a quick question is cut off and starts again. Returns per rubric the model chosen and the scoreboard, or why none was (nothing passed, or nothing could be reached). A model that could not be reached is tried again next time; one that answered and was wrong, or answered too slowly, stays lost for six hours. Changing a rubric's question, cases or bar, or the set of models, calibrates again.",
+        "input_schema": {
+          "type": "object",
+          "required": ["rubrics_file", "remember_file"],
+          "additionalProperties": false,
+          "properties": {
+            "rubrics_file": {"type": "string"},
+            "remember_file": {"type": "string"},
+            "providers": {"type": "array", "items": {"type": "object"}},
+            "passes": {"type": "integer", "minimum": 1}
+          }
+        },
+        "output_schema": {"type": "object", "required": ["outcomes"], "properties": {"outcomes": {"type": "array", "items": {"type": "object", "required": ["rubric"]}}}},
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "run npm install in the checkout (BLAKE3, which keys what calibration settled)"],
+          "run": "node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs calibrate < {input}",
+          "needs": ["node", "a model server on your computer (for example Ollama) or a hosted classifier with its key in a file"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } or { error } saying what to change. Tell the person which questions are ready and, for any that are not, the reason given."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:ask-a-small-model-for-a-verdict",
+        "provenance": {"source": "bitfield-packages ask-a-small-model-for-a-verdict (get-the-judges-ready, without the model-server launcher or lock file)"}
+      }
+    },
+    {
+      "id": "package::ask-a-small-model-for-a-verdict::tool::find-where-the-line-should-go",
+      "address": "package::ask-a-small-model-for-a-verdict::tool::find-where-the-line-should-go",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-where-the-line-should-go",
+        "label": "Measure where my confidence line belongs instead of guessing a round number (runs on your computer)",
+        "status": "active",
+        "job": "Work out, from my rubric's known cases, how sure a model has to be before I act, by measuring how sure it is on known-true and known-false cases",
+        "description": "Give rubrics_file, optionally rubric_id (one rubric) and band (the name of the confidence band whose at_least is the line, to show where it is now). A model that passes the rubric is asked every case and its confidence on the cases it got right is kept by label; the line goes where the two groups separate, ties to the higher line. If true and false cases overlap it says so and does not lower the line to make a check talk; if the cases are one-sided it asks for cases that expect the opposite answer. Needs a model that returns a probability (a hosted classifier); a model that only writes text has no confidence to measure.",
+        "input_schema": {
+          "type": "object",
+          "required": ["rubrics_file"],
+          "additionalProperties": false,
+          "properties": {
+            "rubrics_file": {"type": "string"},
+            "rubric_id": {"type": "string"},
+            "band": {"type": "string"},
+            "providers": {"type": "array", "items": {"type": "object"}}
+          }
+        },
+        "output_schema": {"type": "object", "required": ["lines"], "properties": {"lines": {"type": "array", "items": {"type": "object", "required": ["rubric"]}}}},
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "run npm install in the checkout (BLAKE3, which keys what calibration settled)"],
+          "run": "node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs find-lines < {input}",
+          "needs": ["node", "a hosted classifier with its key in a file, or a model server that gives probabilities"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } or { error } saying what to change. Tell the person the measured line, how many cases fall on the wrong side, and whether it is a clean split."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:ask-a-small-model-for-a-verdict",
+        "provenance": {"source": "bitfield-packages ask-a-small-model-for-a-verdict (find-where-the-line-should-go)"}
+      }
+    },
+    {
+      "id": "package::ask-a-small-model-for-a-verdict::tool::tell-it-when-it-was-wrong",
+      "address": "package::ask-a-small-model-for-a-verdict::tool::tell-it-when-it-was-wrong",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:tell-it-when-it-was-wrong",
+        "label": "Tell a judge it was wrong, so it is tested on that case from now on (runs on your computer)",
+        "status": "active",
+        "job": "Turn a verdict that was wrong into a known case in my rubrics file, so every model is tested against it from the next calibration on",
+        "description": "Give rubrics_file, rubric_id, should_have_been (true, false, a number or one of the options), and either about (the text) or log_file (a verdict log written by tool:ask-a-small-model-for-a-verdict, the last verdict for that rubric is used), and optionally because. Adds one labelled case and stops: it does not change the question, the line or the model. The same text twice is not added twice (a different label corrects the earlier one). Adding cases makes a rubric harder to pass, which is the point: a model that cannot handle the new case stops being chosen for the question.",
+        "input_schema": {
+          "type": "object",
+          "required": ["rubrics_file", "rubric_id", "should_have_been"],
+          "additionalProperties": false,
+          "properties": {
+            "rubrics_file": {"type": "string"},
+            "rubric_id": {"type": "string"},
+            "should_have_been": {"description": "The answer it should have given"},
+            "about": {"type": "string", "description": "The text the wrong verdict was about"},
+            "log_file": {"type": "string", "description": "A verdict log to take the text from"},
+            "because": {"type": "string", "description": "Why the first answer was wrong"}
+          }
+        },
+        "output_schema": {"type": "object", "required": ["rubric", "outcome", "cases_now"], "properties": {"rubric": {"type": "string"}, "outcome": {"type": "string"}, "cases_now": {"type": "integer"}, "what_happens_next": {"type": "string"}}},
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "run npm install in the checkout (BLAKE3, which keys what calibration settled)"],
+          "run": "node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs record-wrong < {input}",
+          "needs": ["node"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } or { error } saying what to change. It edits the person's rubrics file; say so, and that calibration runs again."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:ask-a-small-model-for-a-verdict",
+        "provenance": {"source": "bitfield-packages ask-a-small-model-for-a-verdict (tell-it-when-it-was-wrong)"}
+      }
+    },
+    {
+      "id": "package::ask-a-small-model-for-a-verdict::tool::recognise-a-repeat",
+      "address": "package::ask-a-small-model-for-a-verdict::tool::recognise-a-repeat",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:recognise-a-repeat",
+        "label": "Count how often the same kind of thing has been flagged, even in different words (runs on your computer)",
+        "status": "active",
+        "job": "When something is flagged again, file it under the earlier flag it repeats, or as a new kind, and say how many times and in how many sessions it has come up",
+        "description": "Give memory_file (where the flagged shapes are kept), rubric_id (which question it was flagged under), excerpt (the flagged text), keep_characters (how much of a new flagged text to store) and optionally session and providers. Once an earlier flag exists you also give plainly_the_same_at (the word overlap, above 0 and at most 1, at which two texts are the same without asking anyone); with providers you also give pass_when_share_correct (the share of the earlier flags a model must file back under themselves before it is trusted) and same_at_least (the confidence at which a model's pick counts as the same kind). None has a default. The same kind in different words is a closed choice over the earlier flags put to a small model, which cannot invent a kind that is not on the list; at most 40 earlier flags, each shown as its first 300 characters, are offered in one question, because that is what fits a small model's reading window. With no providers only text at or above your overlap is a repeat, so shapes are overcounted rather than a repeat count inflated. Returns the shape, times, sessions, first_seen and repeat. The count, not louder wording, is what to tell the person.",
+        "input_schema": {
+          "type": "object",
+          "required": ["memory_file", "rubric_id", "excerpt", "keep_characters"],
+          "additionalProperties": false,
+          "properties": {
+            "memory_file": {"type": "string"},
+            "rubric_id": {"type": "string"},
+            "excerpt": {"type": "string", "minLength": 1},
+            "keep_characters": {"type": "integer", "minimum": 1, "description": "How many characters of a new flagged text to store"},
+            "plainly_the_same_at": {"type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "Word overlap at which two texts are the same without asking a model; needed once an earlier flag exists"},
+            "pass_when_share_correct": {"type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "With providers: the share of earlier flags a model must file back under themselves"},
+            "same_at_least": {"type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "With providers: the confidence at which a model's pick counts as the same kind"},
+            "session": {"type": "string"},
+            "providers": {"type": "array", "items": {"type": "object"}}
+          }
+        },
+        "output_schema": {"type": "object", "required": ["shape", "times", "sessions", "first_seen", "repeat"], "properties": {"shape": {"type": "string"}, "times": {"type": "integer"}, "sessions": {"type": "integer"}, "first_seen": {"type": "string"}, "repeat": {"type": "boolean"}}},
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "run npm install in the checkout (BLAKE3, which keys what calibration settled)"],
+          "run": "node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs note-repeat < {input}",
+          "needs": ["node", "optionally a model server on your computer or a hosted classifier"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } or { error } saying what to change. Tell the person how many times this has come up and in how many sessions."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:ask-a-small-model-for-a-verdict",
+        "provenance": {"source": "bitfield-packages ask-a-small-model-for-a-verdict (remember-what-was-already-said)"}
+      }
+    },
+    {
+      "id": "package::ask-a-small-model-for-a-verdict::tool::answer-questions-about-a-state",
+      "address": "package::ask-a-small-model-for-a-verdict::tool::answer-questions-about-a-state",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:answer-questions-about-a-state",
+        "label": "Answer several typed questions about one thing in one request (runs on your computer)",
+        "status": "active",
+        "job": "Ask a model several questions about one piece of state at once and get one answer for each, in the type I asked for, or a refusal if any is missing or the wrong type",
+        "description": "Give state (any JSON), questions ({<id>: {type: choice | score | noul, instructions, criteria?}}: choice answers with one of the names in criteria, or any text without criteria; score answers with a number; noul is yes or no answered as the likelihood of yes, 0 to 1), endpoint (a model server on your computer), model and timeout_seconds (no default). The state and the questions are written into the prompt and the answer schema names every question id, so the reply cannot use keys of its own. Returns answers keyed by question id. A server that answers with an error status, is unreachable or too slow, or sends a body that is not JSON, and a model reply that is not JSON, leaves a question out, or answers one in the wrong type, are each refused with a sentence saying which, rather than repaired. A noul answer is the likelihood of yes, a number from 0 to 1, checked as such (the old package accepted any text for it). This is an uncalibrated read of the state; for a decision, use tool:ask-a-small-model-for-a-verdict.",
+        "input_schema": {
+          "type": "object",
+          "required": ["state", "questions", "endpoint", "model", "timeout_seconds"],
+          "additionalProperties": false,
+          "properties": {
+            "state": {"description": "What the questions are about"},
+            "questions": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "object", "required": ["type", "instructions"], "properties": {"type": {"enum": ["choice", "score", "noul"]}, "instructions": {"type": "string"}, "criteria": {"type": "object"}}}},
+            "endpoint": {"type": "string", "description": "Where the model server is, for example the address Ollama listens on"},
+            "model": {"type": "string"},
+            "timeout_seconds": {"type": "number", "exclusiveMinimum": 0, "description": "How many seconds the model server may take; a value that is not a number above zero is refused"}
+          }
+        },
+        "output_schema": {"type": "object", "required": ["model", "answers"], "properties": {"model": {"type": "string"}, "answers": {"type": "object"}}},
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "run npm install in the checkout (BLAKE3, which keys what calibration settled)"],
+          "run": "node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs answer-state-questions < {input}",
+          "needs": ["node", "a model server on your computer (for example Ollama) with a chat model"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } or { error } saying what to change. Report each answer under its question."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:ask-a-small-model-for-a-verdict",
+        "provenance": {"source": "bitfield-packages answer-state-questions, ported onto a model server on the person's computer"}
+      }
+    }
+  ]
+}
