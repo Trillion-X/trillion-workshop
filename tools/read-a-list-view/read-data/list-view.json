@@ -1,0 +1,25 @@
+{
+  "what_this_is": "The row sources a list may declare (row_sources: [{ source, of, match }]) and the tool that serves each: which tool runs, the input it is given (`{of}` and `{match}` are the row source's own; an empty one is left as no value; the page's `limit` and `after` are added), and where its answer keeps the rows and the next cursor. A new source is one row here.",
+  "limits": {
+    "read_page_rows": 50,
+    "rows_per_read": 2000,
+    "row_sources_per_list": 4,
+    "why": "The bounds of a list read, kept by the list reader because reading a list is this tool's job (the engine stores and lists records; it reads no list). read_page_rows: rows a page holds when the caller names no limit, and the most one records:list or source page asks for (the door refuses a page of 2,000). rows_per_read: the most rows one read gathers, a view with rules or a sort included. row_sources_per_list: the most row sources one list may declare."
+  },
+  "row_sources": {
+    "documents": {
+      "tool": "tool:read-documents-as-list-rows",
+      "input": {"folder": "{of}", "match": "{match}"},
+      "rows_at": "result.rows",
+      "next_at": "result.next",
+      "about": "the markdown documents in a folder the person granted; each document a row, its frontmatter its fields (tools/documents-as-list-rows)"
+    },
+    "namespace-documents": {
+      "tool": "tool:read-namespace-documents-as-list-rows",
+      "input": {"folder": "{of}", "match": "{match}"},
+      "rows_at": "result.rows",
+      "next_at": "result.next",
+      "about": "the markdown documents in a folder of the person's Namespace files, read through the files door; each document a row, its frontmatter its fields (tools/documents-as-list-rows)"
+    }
+  }
+}
