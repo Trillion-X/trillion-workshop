@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:20059c867c036a8dba2072fc452d27a7405d28b7d4f09c3716d2eff4005bbf3b"
+  "blake3": "1f:a83e9159d488027ca09244699804c87759141d68982a826219733ab1b9a23222"
  },
  "fields": [
   {
@@ -490,7 +490,7 @@
    "values": {
     "title": "Prepare my records, with a basis for each value, to write into my lists (runs on your computer)",
     "job": "Take records I keep in files and prepare everything to put them into my lists as records, each value with where it came from and how sure we are, in batches I can send",
-    "description": "Reads a mapping file the person gives: the lists they have defined (fields, saved views) and, for each source, where its records are (a JSON file, or staged files in any of several shapes) and how each row and each value is worked out, with a basis (reasoning, sources, who made it, when) for the values that need one. Writes one file of counts, anything pending or diverted, and commands of at most 64 records each, in the order to send. It sends nothing. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
+    "description": "Reads a mapping file the person gives: the lists they have defined (fields, saved views) and, for each source, where its records are (a JSON file, staged files in several shapes, or existing records from a declared type and id prefix) and how each row and value is worked out, with a basis for values that need one. A records source names an existing sender config; the builder uses its credential handle to read those records and does not write through it. Writes one file of counts, anything pending or diverted, and commands of at most 64 records each, in the order to send. It sends nothing. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -4973,9 +4973,9 @@
   {
    "id": "tool:read-what-shipped",
    "values": {
-    "title": "Note each new release of my repository with what changed since the last one (runs on your computer)",
-    "job": "Each time I ship, note the release (its commit, name and time) and the subjects of the commits since the release before it, in a file my lists are filled from",
-    "description": "Reads settings the person gives: where their newest release is read (a program in the repository that prints JSON naming the released commit, such as a release script's read verb, or a git ref they move when they ship) and which keys of that JSON hold the commit, name and time. Adds the newest release to a staged file when it is new, with the commit subjects since the release before it (the released commit's own subject for the first one), and leaves the file as it is otherwise. The records builder turns the staged file into rows of the person's list, and the sender with keep_held writes only the rows the list lacks, so a row someone edited stays as they left it. It names no product, list or road.",
+    "title": "Note new releases or commits from a repository (runs on your computer)",
+    "job": "Read a person's release mark or commit branch, stage each new entry once with its source identity, and let their mapping make list rows",
+    "description": "Reads settings the person gives: a program in the repository that prints JSON naming a release, a git ref for the newest release, or a commit branch where each commit is one entry. In commit mode, each entry has the commit identity, date and its own subject; the first run may start after an explicit commit, and skip_subjects are filters in the settings. The staged file is what the person's mapping turns into rows. The sender with keep_held writes only rows the list lacks, so an existing row or a person's edits are preserved. The tool does not infer push boundaries or group commits by day, and knows no product, list or road.",
     "status": "active",
     "maker": "maker:export-records-as-list-rows",
     "licence_class": "licence:maker-own",
