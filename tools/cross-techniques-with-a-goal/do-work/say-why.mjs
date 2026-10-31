@@ -160,7 +160,7 @@ export function makeProposer({ lexicon, conventions, write, embed }) {
 }
 
 // Settling: a fold of proposals into the lexicon. Vectors for every proposed term and need are made once per call.
-export function makeSettler({ lexicon, conventions, embed, judge }) {
+export function makeSettler({ lexicon, conventions, embed, judge, requireJudgment = false }) {
   const { bound } = conventions;
   const fieldsOf = boundFields(bound).map(({ field, vocabulary }) => [field, vocabulary]);
   const tagMin = conventions.needs_tags.tag_min;
@@ -198,7 +198,7 @@ export function makeSettler({ lexicon, conventions, embed, judge }) {
         const vocabulary = lexicon.vocabularies[proposal.vocabulary];
         // A term this row's own earlier proposals added has no vector yet: embed it now (rare: two coinages in one row).
         const vector = vectorOf.get(proposal) ?? (findTerm(vocabulary, proposal.term) ? null : (await embed.texts([termText(proposal)], 'document', [{ title: proposal.term }]))[0]);
-        const outcome = await admit(vocabulary, proposal, vector, ({ proposal: asked, candidates }) => judge({ vocabulary: proposal.vocabulary, proposal: asked, candidates }));
+        const outcome = await admit(vocabulary, proposal, vector, ({ proposal: asked, candidates }) => judge({ vocabulary: proposal.vocabulary, proposal: asked, candidates }), { requireJudgment });
         // A row touching a provisional term (its own waiting proposal, or another's) is held whole (invariant 2).
         if (outcome.provisional) {
           held = true;

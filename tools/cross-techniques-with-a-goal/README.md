@@ -22,6 +22,10 @@ Nothing about any person's techniques ships here: their rows, vocabulary and row
 
 ## The vocabulary rule (code-enforced)
 
+For a reviewed subset, `settle` accepts `row_ids` and leaves other sidecar rows unchanged. Each source can name `exclude_rows: [{ id, from_hash }]` to withhold an exact source version from every operation and remove its stale sidecar inference on checkpoint. `from_hash` is the existing 32-digit BLAKE3 of the source row's JavaScript JSON serialization; changing the source makes the old exclusion inapplicable. Source files remain read-only.
+
+`require_judgment: true` requires a current judgment before adding or merging any unfamiliar meaning, including pairs above the automatic reuse line or below the new-term line. A matching term or alias with a different or missing definition also waits for judgment. Both definitions must be present and exact to reuse a known term directly. Use bound recorded judgments to keep missing definitions and unreviewed pairs held.
+
 A vocabulary (`{ says, reuse_at, new_below, terms: [{ term, says, aliases, from, vector }] }`) grows by itself; no term is in code. Every proposed term goes through `admit` (`do-work/vocabulary.mjs`):
 
 1. The same words as a term or one of its aliases: that term.

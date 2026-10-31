@@ -53,12 +53,18 @@ const alias = (entry, words) => {
 // One proposal { term, says, from } with its vector (null when its words already match a term). `judge` is
 // async ({ proposal, candidates: [{ term, says, closeness }] }) -> an existing term, '' for none, or undefined for
 // "not judged yet".
-export async function admit(vocabulary, proposal, vector, judge) {
+export async function admit(vocabulary, proposal, vector, judge, { requireJudgment = false } = {}) {
   const held = entry => (entry.provisional ? { provisional: true } : {});
   const same = findTerm(vocabulary, proposal.term);
-  if (same) return { term: same.term, how: 'same-words', ...held(same) };
+  if (same) {
+    if (requireJudgment && (!proposal.says?.trim() || !same.says?.trim() || proposal.says !== same.says)) {
+      const chosen = await judge({ proposal, candidates: [{ term: same.term, says: same.says, closeness: 1 }] });
+      if (chosen !== same.term) return { term: same.term, how: 'waiting', provisional: true, proposed: proposal.term };
+    }
+    return { term: same.term, how: 'same-words', ...held(same) };
+  }
   const close = nearest(vocabulary, vector, 5).filter(item => item.closeness >= vocabulary.new_below);
-  if (close[0] && close[0].closeness >= vocabulary.reuse_at) {
+  if (!requireJudgment && close[0] && close[0].closeness >= vocabulary.reuse_at) {
     alias(close[0].entry, proposal.term);
     return { term: close[0].entry.term, how: 'same-meaning', closeness: rounded(close[0].closeness), proposed: proposal.term, ...held(close[0].entry) };
   }
@@ -67,7 +73,7 @@ export async function admit(vocabulary, proposal, vector, judge) {
     vocabulary.terms.push({ term, says: proposal.says ?? '', aliases: [], from: proposal.from, vector: kept(vector), ...extra });
     return term;
   };
-  if (close.length) {
+  if (close.length || requireJudgment) {
     const chosen = await judge({ proposal, candidates: close.map(({ entry, closeness }) => ({ term: entry.term, says: entry.says, closeness: rounded(closeness) })) });
     // Invariant 5: a proposal waiting on a judgment is a provisional term, so the proposals after it are judged against it.
     if (chosen === undefined) return { term: coin({ provisional: true }), how: 'waiting', provisional: true, proposed: proposal.term };

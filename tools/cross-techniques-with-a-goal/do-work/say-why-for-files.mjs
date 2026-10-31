@@ -95,7 +95,12 @@ export async function judgeWaiting(request, write, system, log = () => {}) {
 function openLibrary(request) {
   return request.sources.map(source => {
     const sidecarFile = source.sidecar ?? sidecarOf(source.file);
-    const rows = rowsOfFile(source.file);
+    // Exclude only the exact reviewed source version. An edit cannot silently inherit an old exclusion.
+    const excluded = source.exclude_rows ?? [];
+    if (!Array.isArray(excluded) || excluded.some(row => !row || typeof row.id !== 'string' || !/^[a-f0-9]{32}$/.test(row.from_hash))) {
+      throw new Error('source.exclude_rows must contain { id, from_hash } with a 32-digit BLAKE3 source hash.');
+    }
+    const rows = rowsOfFile(source.file).filter(row => !excluded.some(item => item.id === String(row.id) && item.from_hash === hashOf(row)));
     const sidecar = existsSync(sidecarFile) ? json(sidecarFile) : {
       kind: 'technique-crossing-fields',
       what_this_is: 'The crossing fields of every row in the source file, by row id: why it works (mechanism), what it changes (operates_on), what it needs (each need tagged with its property) and produces, and the medium it came from. Terms are from the vocabulary file. `proposed` is the writer\'s own answer, kept as evidence; the source rows are unchanged.',
@@ -208,12 +213,19 @@ export async function sayWhyForFiles(request, log = () => {}) {
   }
 
   if (request.step === 'settle') {
+    if (request.require_judgment !== undefined && typeof request.require_judgment !== 'boolean') {
+      throw new Error('require_judgment must be a boolean.');
+    }
+    if (request.row_ids !== undefined && (!Array.isArray(request.row_ids) || request.row_ids.some(id => typeof id !== 'string'))) {
+      throw new Error('row_ids must be an array of source row IDs.');
+    }
     const lexicon = openLexicon(request, conventions, embed.meaning, request.fresh === true);
     const recorded = recordedJudge(request.judgments_file && existsSync(request.judgments_file) ? json(request.judgments_file) : []);
     const judge = request.judge === 'ask' ? askingJudge(writer(request.models.writing), conventions) : recorded.judge;
-    const settle = makeSettler({ lexicon, conventions, embed, judge });
+    const settle = makeSettler({ lexicon, conventions, embed, judge, requireJudgment: request.require_judgment === true });
     const items = library.flatMap(entry => entry.rows.map(row => entry.kept.get(String(row.id)))
-      .filter(kept => kept?.proposed && kept.from_hash === entry.hashes.get(kept.id) && (request.fresh === true || kept.settled_from !== hashOf(kept.proposed)))
+      .filter(kept => kept?.proposed && (request.row_ids === undefined || request.row_ids.includes(kept.id))
+        && kept.from_hash === entry.hashes.get(kept.id) && (request.fresh === true || kept.settled_from !== hashOf(kept.proposed)))
       .map(kept => ({ id: kept.id, proposed: kept.proposed, entry })));
     log(`settling ${items.length} rows${request.fresh === true ? ' from an empty vocabulary' : ''}`);
     const entryOf = new Map(items.map(item => [item.id, item.entry]));

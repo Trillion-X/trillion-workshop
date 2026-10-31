@@ -34,6 +34,49 @@ test('edited source content cannot expose or settle crossing fields from an olde
   assert.equal((await sayWhyForFiles({ ...request, step: 'list' })).rows.length, 1);
 });
 
+test('reviewed exclusions hide only the exact source version and remove its stale inference on checkpoint', async () => {
+  const folder = mkdtempSync(join(tmpdir(), 'excluded-crossing-'));
+  const file = join(folder, 'source.jsonl');
+  const original = { id: 'r', statement: 'Unsupported earlier claim' };
+  const kept = { id: 'keep', statement: 'Independent supported row' };
+  const proposed = { mechanism: [], operates_on: [], needs: [], produces: [], from_medium: 'fixture' };
+  const rows = [original, kept];
+  writeFileSync(file, rows.map(row => JSON.stringify(row)).join('\n'));
+  writeFileSync(sidecarOf(file), JSON.stringify({ rows: rows.map(row => ({ id: row.id, from_hash: hashOf(row),
+    proposed, settled_from: hashOf(proposed), mechanism: ['old inference'] })) }));
+  const conventions = JSON.parse(readFileSync(fileURLToPath(new URL('../do-work/technique-conventions.json', import.meta.url)), 'utf8'));
+  const request = { sources: [{ file, exclude_rows: [{ id: 'r', from_hash: hashOf(original) }] }],
+    vocabulary_file: join(folder, 'vocabulary.json'), models: { meaning: { ...conventions.vocabulary_lines.meaning, url: 'http://127.0.0.1:1/v1' } } };
+  assert.deepEqual((await sayWhyForFiles({ ...request, step: 'rows' })).rows.map(row => row.id), ['keep']);
+  await sayWhyForFiles({ ...request, step: 'settle', judge: 'recorded' });
+  assert.deepEqual(JSON.parse(readFileSync(sidecarOf(file), 'utf8')).rows.map(row => row.id), ['keep']);
+  assert.equal(readFileSync(file, 'utf8'), rows.map(row => JSON.stringify(row)).join('\n'));
+  writeFileSync(file, JSON.stringify({ ...original, statement: 'Corrected claim' }));
+  assert.deepEqual((await sayWhyForFiles({ ...request, step: 'list' })).rows.map(row => row.id), ['r']);
+});
+
+test('a subset fold preserves unselected proposals without admitting their terms', async () => {
+  const folder = mkdtempSync(join(tmpdir(), 'subset-crossing-'));
+  const file = join(folder, 'source.jsonl');
+  const source = [{ id: 'selected' }, { id: 'held' }];
+  writeFileSync(file, source.map(row => JSON.stringify(row)).join('\n'));
+  const proposed = { mechanism: [], operates_on: [], needs: [], produces: [], from_medium: 'fixture' };
+  const held = { id: 'held', from_hash: hashOf(source[1]), proposed: { ...proposed, mechanism: [{ term: 'unreviewed', says: 'Unreviewed meaning' }] } };
+  writeFileSync(sidecarOf(file), JSON.stringify({ rows: [{ id: 'selected', from_hash: hashOf(source[0]), proposed }, held] }));
+  const conventions = JSON.parse(readFileSync(fileURLToPath(new URL('../do-work/technique-conventions.json', import.meta.url)), 'utf8'));
+  const result = await sayWhyForFiles({ step: 'settle', row_ids: ['selected'], sources: [{ file }],
+    vocabulary_file: join(folder, 'vocabulary.json'), models: { meaning: { ...conventions.vocabulary_lines.meaning, url: 'http://127.0.0.1:1/v1' } } });
+  assert.equal(result.settled, 1);
+  assert.deepEqual(JSON.parse(readFileSync(sidecarOf(file), 'utf8')).rows.find(row => row.id === 'held'), held);
+  assert.deepEqual(result.admitted, {});
+});
+
+test('a misspelled judgment mode value cannot silently enable heuristic admission', async () => {
+  const conventions = JSON.parse(readFileSync(fileURLToPath(new URL('../do-work/technique-conventions.json', import.meta.url)), 'utf8'));
+  await assert.rejects(() => sayWhyForFiles({ step: 'settle', sources: [], require_judgment: 'true',
+    models: { meaning: { ...conventions.vocabulary_lines.meaning, url: 'http://127.0.0.1:1/v1' } } }), /require_judgment must be a boolean/);
+});
+
 test('a writer with seed null sends no seed, sends its body fields, and reads the object out of a thinking block and a fence', async () => {
   const seen = [];
   const server = createServer((request, response) => {
