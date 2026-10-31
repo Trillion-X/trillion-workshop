@@ -76,7 +76,7 @@ test('it lists each seed\'s newest videos and keeps the captions, description an
   assert.equal(answer.again, null);
   assert.equal(answer.requests, 4);
   assert.deepEqual(answer.captions, { ready: 1, empty: 1, failed: [{ video_id: 'vid-ccc', reason: 'ERROR: [site] Video unavailable' }] });
-  assert.deepEqual(answer.seeds, [{ seed: LOAVES, listing_url: `${LOAVES}/videos`, source: 'Loaf Lab', listed: 3, kept: 3, comments_kept: 0, finished: true }]);
+  assert.deepEqual(answer.seeds, [{ seed: LOAVES, listing_url: `${LOAVES}/videos`, source: 'Loaf Lab', listed: 3, kept: 3, comments_kept: 0, ready: 1, empty: 1, failed: 1, finished: true, stopped: 'finished' }]);
   const calls = made.calls();
   assert.deepEqual(calls[0].slice(-3), ['--playlist-end', '3', `${LOAVES}/videos`]);
   assert.deepEqual(calls.slice(1).map(call => call.at(-1)), ['vid-aaa', 'vid-bbb', 'vid-ccc'].map(id => `${WATCH}${id}`));
@@ -255,6 +255,50 @@ test('a seed can carry the id of the row it updates and its own newest, and rows
   } finally { await door.close(); }
 });
 
+// A row's text chosen by how its seed ended: the words are the request's, never the tool's.
+const statusRows = {
+  one_per: 'seed',
+  fields: {
+    status: { choose: { fact: 'stopped', texts: { finished: 'DONE: {kept} of {listed}' }, otherwise: 'STOPPED AT {kept} OF {listed}: {stopped}, trying again after {wait_minutes} min' } },
+  },
+};
+
+test('a seed stopped by a refusal gets the stopped text, and the again run that finishes it writes the finished text over it', async () => {
+  const door = await startFakeDoor({
+    rights: row.invoke.records.rights,
+    mostWrites: row.invoke.records.most_writes,
+    records: [{ id: 'record:sources:outlet-p01', type: 'record:sources', value: { note: 'kept by hand', status: 'NOT CAPTURED' } }],
+  });
+  try {
+    const seeds = [{ seed: LOAVES, id: 'outlet-p01' }];
+    const refused = site({ [`${WATCH}vid-bbb`]: { refuse: 'Sign in to confirm you’re not a bot' } });
+    const first = await keep({ seeds, newest: 3, caption_languages: ['en.*'], rows: statusRows }, { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: refused.out });
+    assert.equal(first.stopped, 'refusal');
+    assert.deepEqual(first.seeds.map(seed => [seed.stopped, seed.finished, seed.kept, seed.listed, seed.wait_minutes]), [['refusal', false, 1, 3, shipped.pause_after_refusal.first_minutes]]);
+    const held = door.kept.get('record:sources:outlet-p01').value;
+    assert.equal(held.status, `STOPPED AT 1 OF 3: refusal, trying again after ${shipped.pause_after_refusal.first_minutes} min`);
+    assert.equal(held.note, 'kept by hand');
+
+    const answered = site();
+    const again = await keep(first.again, { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: answered.out });
+    assert.equal(again.stopped, 'finished');
+    assert.equal(again.again, null);
+    assert.deepEqual(again.seeds.map(seed => [seed.stopped, seed.finished, seed.wait_minutes]), [['finished', true, undefined]]);
+    assert.equal(door.kept.get('record:sources:outlet-p01').value.status, 'DONE: 3 of 3');
+  } finally { await door.close(); }
+});
+
+test('a finished seed with no captions kept gets the finished text, not the stopped one', async () => {
+  const door = await startFakeDoor({ rights: row.invoke.records.rights, mostWrites: row.invoke.records.most_writes });
+  try {
+    const made = site({ [`${LOAVES}/videos`]: { videos: [{ id: 'vid-ccc', title: 'Proofing' }] } });
+    const answer = await keep({ seeds: [{ seed: LOAVES, id: 'outlet-p03' }], newest: 1, caption_languages: ['en.*'], rows: statusRows }, { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: made.out });
+    assert.equal(answer.stopped, 'finished');
+    assert.deepEqual(answer.seeds.map(seed => [seed.ready, seed.failed]), [[0, 1]]);
+    assert.equal(door.kept.get('record:sources:outlet-p03').value.status, 'DONE: 1 of 1');
+  } finally { await door.close(); }
+});
+
 test('days and eras choose from the listing: the newest inside the days, or an even share of each span', async () => {
   const inWindow = datedSite();
   await keep({ seeds: [DATED], newest: 3, between: { from: '2026-01-01', to: '2026-05-31' }, caption_languages: ['en.*'] }, {}, { settings: settingsWith(), out: inWindow.out });
@@ -314,6 +358,8 @@ test('the input is checked whole before any request', () => {
   refused({ ...asking, rows: { one_per: 'channel', id: { fact: 'seed' }, fields: { a: { fact: 'seed' } } } }, /one_per/);
   refused({ ...asking, rows: { one_per: 'seed', id: { fact: 'seed', text: 'x' }, fields: { a: { fact: 'seed' } } } }, /rows.id is one of/);
   refused({ ...asking, rows: { one_per: 'seed', id: { fact: 'seed' }, fields: {} } }, /names at least one field/);
+  refused({ ...asking, rows: { one_per: 'seed', id: { fact: 'seed' }, fields: { a: { choose: { fact: 'stopped', texts: { finished: 'done' } } } } } }, /rows.fields.a.choose is \{ fact, texts/);
+  refused({ ...asking, rows: { one_per: 'seed', id: { fact: 'seed' }, fields: { a: { choose: { fact: 'stopped', texts: {}, otherwise: 'x' } } } } }, /rows.fields.a.choose is \{ fact, texts/);
   refused({ ...asking, newest: undefined }, /newest is needed: .* has none of its own/);
   refused({ ...asking, seeds: [{ seed: LOAVES, colour: 'red' }] }, /Each seed is words/);
   refused({ ...asking, seeds: [{ seed: LOAVES, id: 'a/b' }] }, /id is a word without a \//);
