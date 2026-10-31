@@ -6,6 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { builtinModules } from 'node:module';
 import { join, posix, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
@@ -90,21 +91,35 @@ function packedFiles(specs) {
 }
 
 // The modules a file asks for: static imports and re-exports, imports for effect, and dynamic imports of a literal.
-// Comments are left out, so an example in a header is not taken for an import.
+// Comments are left out, so an example in a header is not taken for an import; a static import or re-export starts its
+// line, and `import` must be a word of its own (not `x.import`).
 function importsOf(text) {
   const code = text.replace(/\/\*[\s\S]*?\*\//g, '').split('\n').filter(line => !/^\s*\/\//.test(line)).join('\n');
-  const asked = [...code.matchAll(/\b(?:import|export)\s[^'"`;]*?\bfrom\s*['"]([^'"]+)['"]/g),
-    ...code.matchAll(/\bimport\s*['"]([^'"]+)['"]/g), ...code.matchAll(/\bimport\(\s*['"]([^'"]+)['"]\s*\)/g)];
+  const asked = [...code.matchAll(/^\s*(?:import|export)\s[^'"`;()]*?\bfrom\s*['"]([^'"]+)['"]/gm),
+    ...code.matchAll(/^\s*import\s*['"]([^'"]+)['"]/gm), ...code.matchAll(/(?<![.\w$])import\(\s*['"]([^'"]+)['"]\s*\)/g)];
   return [...new Set(asked.map(match => match[1]))];
 }
 
-// The packages rows pack into a run's node_modules themselves (`module` files), so a run that imports one must pack it.
-const packedModules = new Set(rows.flatMap(({ payload }) => [payload.invoke?.files?.package_files ?? []].flat()
-  .filter(spec => spec.module !== undefined).map(spec => spec.module)));
 // The package a bare import names: `@scope/name/file.js` → `@scope/name`, `name/file.js` → `name`.
 const packageOf = name => name.split('/').slice(0, name.startsWith('@') ? 2 : 1).join('/');
 
-test('every import a row\'s run loads is packed by that row: its relative imports, and the modules rows pack', () => {
+// The file a subpath of a module names: through its package.json `exports` (`./x` → its import or default target),
+// else the subpath itself. A checkout without the install cannot read the map, so there the package.json stands in.
+function moduleFile(owner, subpath) {
+  const manifest = join(root, 'node_modules', owner, 'package.json');
+  if (!existsSync(manifest)) return 'package.json';
+  const target = json(manifest).exports?.[`./${subpath}`];
+  const chosen = typeof target === 'string' ? target : target?.import ?? target?.default;
+  return typeof chosen === 'string' ? posix.normalize(chosen) : subpath;
+}
+
+// Whether a run has `place`: packed itself, or under a module folder a row packs whole.
+function packedAt(placed, place) {
+  for (let at = place; at !== '/' && at !== '.'; at = posix.dirname(at)) if (placed.has(at) && (at === place || placed.get(at) === null)) return true;
+  return false;
+}
+
+test('every import a row\'s run loads is packed by that row: its relative imports and its modules', () => {
   const missing = [];
   for (const { payload } of rows) {
     const specs = [payload.invoke?.files?.package_files ?? []].flat();
@@ -117,11 +132,14 @@ test('every import a row\'s run loads is packed by that row: its relative import
       loaded.add(there);
       for (const name of importsOf(readFileSync(placed.get(there), 'utf8'))) {
         if (!name.startsWith('.')) {
-          // Node finds a bare import in a node_modules folder beside the importing file or in a folder above it.
+          // A run has only what its row packs: Node finds a bare import in a node_modules folder beside the importing file
+          // or in a folder above it, as the file the import names (a subpath) or the package's package.json.
+          if (name.startsWith('node:') || builtinModules.includes(name)) continue;
           const owner = packageOf(name);
-          const above = place => posix.dirname(there).startsWith(place.slice(0, place.indexOf(`/node_modules/${owner}/`)) || '/');
-          if (packedModules.has(owner) && ![...placed.keys()].some(place => place.includes(`/node_modules/${owner}/`) && above(place))) {
-            missing.push(`${payload.id}: ${there} imports ${name}, and no node_modules above it holds ${owner}`);
+          const file = name === owner ? 'package.json' : moduleFile(owner, name.slice(owner.length + 1));
+          const folders = posix.dirname(there).split('/').map((_, at, parts) => parts.slice(0, at + 1).join('/') || '/');
+          if (!folders.some(folder => packedAt(placed, posix.join(folder, 'node_modules', owner, file)))) {
+            missing.push(`${payload.id}: ${there} imports ${name}, and no node_modules above it holds ${owner}/${file}`);
           }
           continue;
         }
