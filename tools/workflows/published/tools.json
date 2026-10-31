@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:ac36cfdea4f72c2ca19a943f5fe8b09d90e6259824ca56f31a18d126c03bd105"
+  "blake3": "1f:b3737d07ac200359ee8204520d93dea14ba0ec0ee7caddf394558456924bf06a"
  },
  "fields": [
   {
@@ -2275,6 +2275,21 @@
    }
   },
   {
+   "id": "tool:hold-to-it",
+   "values": {
+    "title": "Hold a group to what it agreed",
+    "job": "Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline), work out when to remind and check, mark who kept it and keep the scorecard",
+    "description": "keep { group, what, agreed_by, cadence?, ... } keeps the agreement as a record and, when it says a time, answers its next meeting and the reminder and the check as something to arm (a repeat or one time); with no time it answers needs_time and arms nothing. retime { group, agreement_id, at, ... } gives or moves its time. agreements lists the group's. remind answers the sentence. check { group, agreement_id, arranged, evidence } works out who came to the last meeting from the evidence handed in (speakers heard, members who wrote), marks each person from the group's policy, keeps one mark per person, day and rule, and answers who missed and any run of misses. mark records one mark with its evidence (a newer mark for the same day replaces the older). scorecard answers each person's points. Nothing is sent or booked: whoever runs it arms the wake, books the calendar and tells the group. The marks and their points, the meeting length, the time zone and the reminder and check minutes are the group's policy, a record or handed in; there is no default. Reading who was heard in a call needs a listening owner; until one exists the caller hands in the names it has.",
+    "status": "active",
+    "maker": "maker:hold-to-it",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "hold-to-it"
+   }
+  },
+  {
    "id": "tool:join-a-waitlist",
    "values": {
     "title": "Join a waitlist",
@@ -3439,6 +3454,21 @@
      "placement:small-container"
     ],
     "folder": "practice-and-review"
+   }
+  },
+  {
+   "id": "tool:predict-viewer-response-to-a-video",
+   "values": {
+    "title": "Predict how a viewer's brain responds to a video, second by second (runs on your computer)",
+    "job": "See, second by second, where a video should hold a viewer's attention and where it goes flat, by predicting the brain's response to it",
+    "description": "Runs a published brain-response model (TRIBE v2 by Meta FAIR) on one video on the person's own computer and writes curve.json and curve.png: the mean predicted cortical response for each second of the video, scored against the video's own average (z), the seconds where it spikes and the stretches where it stays flat. It is a prediction for an average viewer, not a measured view count or retention: use it to compare two cuts of the same video, never two different videos. Every model name, which of picture, sound and words to use, the device, and the spike and flat thresholds are fields of the request. The model's weights are licensed for non-commercial use only (CC-BY-NC-4.0); the person must be using it that way. The video is only read: the script works on a copy. Nothing leaves the computer.",
+    "status": "active",
+    "maker": "maker:predict-viewer-response-to-a-video",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "predict-viewer-response-to-a-video"
    }
   },
   {
