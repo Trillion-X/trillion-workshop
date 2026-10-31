@@ -134,6 +134,16 @@ python3 -I do-work/publish_view_file.py --read READ --config FILE --out FILE
 
 Prints `{ file, rows, of, blake3, media: { copied, kept, not_public }, written }`. Exit 0 published or already current, 2 when the config or the read could not be used, the read holds only part of the view, or a media file is missing.
 
+## Freezing a root and what it needs into one bundle
+
+`do-work/freeze_a_bundle.py` freezes a root and every record and file it needs into one bundle file whose BLAKE3 is its identity, so what a person shares is an immutable snapshot that anyone can check and nothing changes under a link. The caller reads the parts from the person's account and hands in the refs the root needs (`{ kind, id }`) and what each resolves to (a file by its hash, a record's value, `public_readable`, and the refs it depends on in turn). The tool follows the refs through every depth (a ref once, so a cycle or a diamond ends), sorts what it found, and refuses to make a bundle when a ref resolves to nothing, a file has no hash, or a tier that requires a public closure (`public_tiers`, default `["public"]`, the caller's DATA) would hold a part that is not `public_readable`, a record as much as a file. A refused closure writes nothing. The root is carried through verbatim and never read.
+
+```
+python3 -I do-work/freeze_a_bundle.py --spec FILE --out FILE
+```
+
+Prints `{ ok, bundle_id, file, written, reference_issues, tier_issues }`. The file holds the bundle as canonical JSON (sorted keys, no spaces), so the same closure in any order gives the same bytes and the same `bundle_id` (`1f:` and the BLAKE3). Exit 0 frozen or already frozen, 3 when a gate refused the closure, 2 when the spec could not be read. Serving the file at a link is the Namespace files job; this tool only makes the frozen, checked bundle. It was `public-scene-share`'s capsule core (the closure builder, the two publish gates and the canonical bytes); what is specific to a scene (its pruning, its reader, its share buttons) is not carried.
+
 ## More files
 
 | File | Purpose |
@@ -152,4 +162,7 @@ Prints `{ file, rows, of, blake3, media: { copied, kept, not_public }, written }
 | `do-work/read_what_shipped.py` | The release reader's command line. |
 | `read-data/what_shipped.py` | Reading the newest release from a program or a git ref, the commit subjects since the one before, the staged file. |
 | `test/test_what_shipped.py` | The release reader on a made-up bakery repository (a ref and a program mark), and the sender's keep_held. |
+| `do-work/freeze_a_bundle.py` | The bundle freezer's command line. |
+| `read-data/frozen_bundle.py` | The closure walk, the two gates and the canonical bytes. Its header lists the invariants. |
+| `test/test_frozen_bundle.py` | The freezer on made-up refs: a complete closure, a cycle and a diamond, an unresolved ref, a file with no hash, a private part in a public bundle, identical bytes in any order, and the command's exit codes. |
 | `test/test_view_publish.py` | The view publisher against the made-up door: what the filter is sent, the order, an unchanged publish, refusals. |
