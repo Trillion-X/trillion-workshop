@@ -12,6 +12,33 @@ const PIN = /^1f:[a-f0-9]{64}$/;
 export const CHECK_VOCABULARY = JSON.parse(readFileSync(new URL('../recipe-check-kinds.json', import.meta.url), 'utf8'));
 const STEP_ID = /^[a-z0-9][a-z0-9_-]*$/;
 
+// The tools the host itself offers a person's AI, as DATA (host-tools.json): a recipe may name them though no tool row
+// of the Workshop does. Everything else a recipe names must be a Workshop tool, or it is reported as a gap.
+export const HOST_TOOLS = new Set(JSON.parse(readFileSync(new URL('../host-tools.json', import.meta.url), 'utf8')).tools.map(row => row.tool));
+const TOOL_ID = /tool:[a-z0-9][a-z0-9.:-]*[a-z0-9]/g;
+
+// Every tool id a recipe names, sorted: the tool of a step's run_tool and each `tool:<id>` in the words of its steps
+// (or of a written definition), including the words of the schemas it hands back.
+export function recipeToolIds(recipe) {
+  const found = new Set();
+  const visit = (value, key) => {
+    if (typeof value === 'string') {
+      for (const match of value.matchAll(TOOL_ID)) found.add(match[0]);
+      if (key === 'tool_id' && value.startsWith('tool:')) found.add(value);
+    } else if (Array.isArray(value)) value.forEach(item => visit(item));
+    else if (object(value)) Object.entries(value).forEach(([name, item]) => visit(item, name));
+  };
+  visit(recipe?.steps ?? recipe?.definition);
+  return [...found].sort();
+}
+
+// The tool ids a recipe names that no Workshop tool and no host tool offers. `known` holds the Workshop's tool ids
+// (workshop-tool-ids.mjs reads them from the tool rows). A gap is a warning, never a refusal: the recipe is valid and
+// says what it needs, and the list is what to build or port next.
+export function recipeToolGaps(recipe, { known, host = HOST_TOOLS }) {
+  return recipeToolIds(recipe).filter(id => !known.has(id) && !host.has(id));
+}
+
 // Every problem with a pin a caller sent; none for a step with no pin.
 function pinProblems(pinned, name) {
   if (pinned === undefined) return [];

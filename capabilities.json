@@ -379,7 +379,7 @@
       "capability": "keep shared step-by-step playbooks any person's AI can follow",
       "owner": ["tools/workflows/"],
       "entry": "tools/workflows/tool-rows.json",
-      "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, one recipe file each"
+      "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, each a row of the person's list of workflows"
     },
     {
       "capability": "draw ink marks on any page or picture and erase them",

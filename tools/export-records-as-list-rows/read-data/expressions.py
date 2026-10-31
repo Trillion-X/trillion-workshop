@@ -23,6 +23,8 @@ list_rows.py works here too. These are added; `T` is any expression:
                                          one text per key and value of an object
   {"cut": {"of": T, "max": 300}}      a text cut to at most that many characters
   {"joined": {"of": T, "sep": ", "}}   a list joined into one text
+  {"json": T}                            the value as compact JSON text, keys in the order they come (a row value holds no nested
+                                         object, so a nested one is kept as text and read back by parsing it); nothing for nothing
   {"slug": {"of": T, "max": 80}}         lower-case letters and digits joined by single hyphens, at most `max` characters
   {"file_text": {"file": T, "note": T}}  the words of a file ({root, path}), under a quoted note when there is one
   {"ref_label": {"of": T, "templates": {root: "text with {path}"}, "default": "{root} {path}"}}
@@ -161,6 +163,9 @@ def evaluate(t: Any, rec: dict, ctx: Context):
     if 'joined' in t:
         value = evaluate(t['joined']['of'], rec, ctx)
         return t['joined'].get('sep', ', ').join(str(v) for v in value) if isinstance(value, list) else None
+    if 'json' in t:
+        value = evaluate(t['json'], rec, ctx)
+        return None if value in EMPTY else json.dumps(value, ensure_ascii=False, separators=(',', ':'))
     if 'pairs' in t:
         spec = t['pairs']
         return [list_rows.fill(spec['template'], {'key': k, 'value': v}) for k, v in (evaluate(spec['of'], rec, ctx) or {}).items()]

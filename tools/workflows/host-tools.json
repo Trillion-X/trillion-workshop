@@ -1,0 +1,7 @@
+{
+  "about": "The tools the host itself offers a person's AI. A recipe may name them although no tool row of the Workshop does; every other tool a recipe names must be a Workshop tool, or recipeToolGaps reports it. Adding a host tool is adding a row here; no code edit.",
+  "tools": [
+    { "tool": "tool:tell-the-person", "meaning": "Say something to the person in the place they already are, with links they can open." },
+    { "tool": "tool:read-a-page-in-my-browser", "meaning": "Open a page in the person's own browser, signed in as they are, and read what it shows." }
+  ]
+}
