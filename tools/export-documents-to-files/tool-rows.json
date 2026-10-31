@@ -1,0 +1,94 @@
+{
+ "kind": "tool-rows",
+ "record_set": "export-documents-to-files-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/export-documents-to-files: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::export-documents-to-files::tool::export-a-document-to-a-file",
+   "address": "package::export-documents-to-files::tool::export-a-document-to-a-file",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:export-a-document-to-a-file",
+    "label": "Save a document as a Word file, a PDF, Markdown or plain text (runs on your computer)",
+    "status": "active",
+    "job": "Turn a document written as a tree of text blocks into a Word (docx) file, a PDF, a Markdown file or a plain text file, with headings, paragraphs and tables kept in order",
+    "description": "Takes a job file and a rules file. The job holds the title, the tree (each node has props with its text, a heading level if it is one, and children; a node with children that all hold two or more short texts is read as a table row, two or more such rows as a table) and a descriptor: format_id, destination_dir (a full path) and file_stem (a plain name, no folder). The rules file is a JSON list of rows of kind structured-file-projection-rules; each names which props carry text, where a heading level is, and per format how the body is built (Markdown and text by templates, Word by heading, body and table styles, PDF by a TrueType font file name and heading sizes). A starter rules file is in read-data/starter-projection-rules.json. Word is written with the standard library only. PDF needs the reportlab library and the named font; an unreadable font or a character the font cannot draw stops the export with a message, never a substituted character. The file is read back and compared to what was meant before the result is printed. Add --project-only to see the sections the tree would give without writing a file.",
+    "input_schema": {
+     "type": "object",
+     "required": ["job", "rules"],
+     "additionalProperties": false,
+     "properties": {
+      "job": { "type": "string", "description": "Path of the JSON job file: title, tree, descriptor" },
+      "rules": { "type": "string", "description": "Path of the JSON rules file (a list of structured-file-projection-rules rows)" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["kind"],
+     "properties": {
+      "kind": { "type": "string", "enum": ["structured-file-export-result"] },
+      "path": { "type": "string" },
+      "byte_length": { "type": "number" },
+      "format_id": { "type": "string" }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)", "for PDF only: python3 with the reportlab library"],
+     "run": "python3 tools/export-documents-to-files/do-work/render-structured-file-export.py --job-file {job} --rules-rows-file {rules}",
+     "needs": ["python"],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the job file from the document the person means and, unless they gave rules, start from read-data/starter-projection-rules.json. Run `run`; the last line is the JSON result with the path of the new file. A message with an error key says what to fix (a format the rules do not have, a destination that is not a full path, a font or a character the PDF cannot use). Tell the person where the file is. If you cannot run commands, give them these steps."
+    },
+    "result_selector": "$",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:export-documents-to-files",
+    "provenance": { "source": "ported from bitfield-packages packages/structured-file-output (render-structured-file-export); the content hash is no longer printed, hash the file with tools/content-identity" }
+   }
+  },
+  {
+   "id": "package::export-documents-to-files::tool::write-a-web-page-from-a-record",
+   "address": "package::export-documents-to-files::tool::write-a-web-page-from-a-record",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:write-a-web-page-from-a-record",
+    "label": "Write a web page from one record and a description of how to publish it (runs on your computer)",
+    "status": "active",
+    "job": "Turn one record and a publication descriptor into a finished web page: its words, its address, its search and sharing tags, its structured data and a proof of what it was made from",
+    "description": "Takes an envelope file: publication_descriptor, source_record, optional materialized_values and correlation_id. The descriptor says which record fields become the title, description, language and page sections (heading, paragraph, prose, list, quote, code, image, group; any other operation still shows its text), where the page will live (scheme, domain and path pieces, each a literal or a value read from the record), the colours and font (tokens), extra sharing tags, and a list of structured-data nodes whose values are read from the record, with empty values dropped. Words from the record are escaped; a prose section is written as given, so its owner must have made it safe. The new page is written to the output path. The answer gives the address, tags, byte count and a proof naming the descriptor, record and revision it came from.",
+    "input_schema": {
+     "type": "object",
+     "required": ["envelope", "output"],
+     "additionalProperties": false,
+     "properties": {
+      "envelope": { "type": "string", "description": "Path of the JSON envelope file" },
+      "output": { "type": "string", "description": "Path of the HTML file to write" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["artifact", "proof", "written"],
+     "properties": {
+      "artifact": { "type": "object", "required": ["kind", "mime_type", "canonical_url", "metadata", "byte_length"] },
+      "proof": { "type": "object", "required": ["descriptor_ref", "source_ref", "source_revision_ref"] },
+      "written": { "type": "string" }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": ["clone the Workshop repository (package.json repository.url)"],
+     "run": "node tools/export-documents-to-files/do-work/render-public-page.mjs {envelope} {output}",
+     "needs": ["node"],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the envelope from the record the person means and the way they want it published, run `run`, and read the last JSON line. This only writes the file; putting it on a site is a separate step the person must ask for. Tell them the address it was written for and where the file is. If you cannot run commands, give them these steps."
+    },
+    "result_selector": "$",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:export-documents-to-files",
+    "provenance": { "source": "ported from bitfield-packages packages/public-document-renderer (render-public-document, RecordPublicationProjection); the default typeface is now the system one" }
+   }
+  }
+ ]
+}
