@@ -127,6 +127,33 @@ class ChecklistCommand(GateCase):
 
 
 class GateAndAnswers(GateCase):
+    def test_unknown_or_empty_option_selection_is_refused_before_pinning(self):
+        code, _, err = self.gate('missing-item')
+        self.assertEqual(code, 2)
+        self.assertIn('unknown option missing-item', err)
+        code, _, err = self.gate('m2', 'missing-item')
+        self.assertEqual(code, 2)
+        self.assertIn('unknown option missing-item', err)
+        code, _, err = self.answer('B1.R1', option='missing-item')
+        self.assertEqual(code, 2)
+        self.assertIn('unknown option missing-item', err)
+        self.assertEqual(self.rows(), [])
+
+    def test_missing_option_scope_cannot_pass_required_per_item_checks(self):
+        code, out, _ = self.gate()
+        self.assertEqual(code, 1)
+        self.assertFalse(out['all_passed'])
+        self.assertIn('B1.G1', out['per_option_checks_not_evaluated'])
+
+    def test_gate_refuses_selected_stage_with_no_checks(self):
+        path = self.lib / 'checklist.json'
+        doc = json.loads(path.read_text())
+        doc['stages'][0]['checks'] = []
+        path.write_text(json.dumps(doc))
+        code, _, err = self.gate('m2', stage='B1')
+        self.assertEqual(code, 2)
+        self.assertIn('selected stage(s) have no checks', err)
+
     def test_a_piece_with_no_header_cannot_be_routed(self):
         (self.piece / 'BATCH.md').unlink()
         code, out, _ = self.gate('m2')
