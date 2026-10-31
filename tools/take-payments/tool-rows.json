@@ -2262,6 +2262,1954 @@
           "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
         }
       }
+    },
+    {
+      "payload": {
+        "status": "active",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "manageUsagePricing"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "usage-pricing-rule",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "usage-pricing-rule-version",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-observation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-version",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-receipt",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-allocation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-evidence",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "Existing take-payments charge dimensions and records-door, extended with exact supplier settlement and versioned resource pricing; no embedded provider tariff or commercial price."
+        },
+        "id": "tool:manage-usage-pricing",
+        "label": "Manage usage pricing",
+        "job": "Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms",
+        "description": "Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "enum": [
+                "read",
+                "list",
+                "save",
+                "retire",
+                "delete"
+              ]
+            },
+            "rule_id": {
+              "type": "string"
+            },
+            "expected_version": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "rule": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "effective_at": {
+                  "type": "string"
+                },
+                "ends_at": {
+                  "type": "string"
+                },
+                "scope": {
+                  "type": "object",
+                  "properties": {
+                    "resource_id": {
+                      "type": "string"
+                    },
+                    "plan_id": {
+                      "type": "string"
+                    },
+                    "client_id": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "markup_bps": {
+                  "type": [
+                    "string",
+                    "integer"
+                  ]
+                },
+                "state": {
+                  "type": "string"
+                },
+                "markup_percent": {
+                  "type": [
+                    "string",
+                    "number"
+                  ],
+                  "description": "Human-facing surcharge percentage, such as 30 or 12.5, at most two decimal places."
+                },
+                "label": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "effective_at"
+              ],
+              "anyOf": [
+                {
+                  "required": [
+                    "markup_bps"
+                  ]
+                },
+                {
+                  "required": [
+                    "markup_percent"
+                  ]
+                }
+              ]
+            },
+            "request_key": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "after": {
+              "type": "string"
+            },
+            "effective_at": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "action"
+          ],
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "rule": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "next": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "record_id",
+                "rule"
+              ]
+            },
+            {
+              "required": [
+                "rules",
+                "next"
+              ]
+            }
+          ]
+        },
+        "verify": [],
+        "kind": "ai-tool-descriptor"
+      }
+    },
+    {
+      "payload": {
+        "status": "active",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "priceResourceUsage"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "usage-pricing-rule",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "usage-pricing-rule-version",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-observation",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-version",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-receipt",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-allocation",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-evidence",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "Existing take-payments charge dimensions and records-door, extended with exact supplier settlement and versioned resource pricing; no embedded provider tariff or commercial price."
+        },
+        "id": "tool:price-resource-usage",
+        "label": "Price resource usage",
+        "job": "Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice",
+        "description": "Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "effective_at": {
+                    "type": "string"
+                  },
+                  "ends_at": {
+                    "type": "string"
+                  },
+                  "scope": {
+                    "type": "object",
+                    "properties": {
+                      "resource_id": {
+                        "type": "string"
+                      },
+                      "plan_id": {
+                        "type": "string"
+                      },
+                      "client_id": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "markup_bps": {
+                    "type": [
+                      "string",
+                      "integer"
+                    ]
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "markup_percent": {
+                    "type": [
+                      "string",
+                      "number"
+                    ],
+                    "description": "Human-facing surcharge percentage, such as 30 or 12.5, at most two decimal places."
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "effective_at"
+                ],
+                "anyOf": [
+                  {
+                    "required": [
+                      "markup_bps"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "markup_percent"
+                    ]
+                  }
+                ]
+              },
+              "maxItems": 10000
+            },
+            "at": {
+              "type": "string"
+            },
+            "resource_id": {
+              "type": "string"
+            },
+            "resource_path": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "plan_id": {
+              "type": "string"
+            },
+            "client_id": {
+              "type": "string"
+            },
+            "pinned_terms": {
+              "type": "object"
+            },
+            "tree": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "at"
+          ],
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "tree": {
+              "type": "object"
+            },
+            "terms": {
+              "type": "object"
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "tree"
+              ]
+            },
+            {
+              "required": [
+                "terms"
+              ]
+            }
+          ]
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "at": "2026-10-31T00:00:00Z",
+              "resource_id": "resource:bytes",
+              "rules": [
+                {
+                  "id": "rule:sample",
+                  "scope": {},
+                  "effective_at": "2026-01-01T00:00:00Z",
+                  "markup_bps": "3000"
+                }
+              ]
+            },
+            "output_selector": "$.terms.markup_bps",
+            "contains": "3000"
+          }
+        ],
+        "kind": "ai-tool-descriptor"
+      }
+    },
+    {
+      "payload": {
+        "status": "active",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "keepResourceUsageObservation"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "usage-pricing-rule",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "usage-pricing-rule-version",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-observation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-version",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-receipt",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-allocation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-evidence",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "Existing take-payments charge dimensions and records-door, extended with exact supplier settlement and versioned resource pricing; no embedded provider tariff or commercial price."
+        },
+        "id": "tool:keep-resource-usage-observation",
+        "label": "Keep a resource usage observation",
+        "job": "Keep an attributed measured source attempt once, or preserve its unknown outcome, with a correcting event instead of rewriting history",
+        "description": "Keep an attributed measured source attempt once, or preserve its unknown outcome, with a correcting event instead of rewriting history",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "request_key": {
+              "type": "string"
+            },
+            "observation": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "request_key",
+            "observation"
+          ],
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "observation": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "record_id",
+            "observation"
+          ]
+        },
+        "verify": [],
+        "kind": "ai-tool-descriptor"
+      }
+    },
+    {
+      "payload": {
+        "status": "active",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "settleSharedResourceCost"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "usage-pricing-rule",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "usage-pricing-rule-version",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-observation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-version",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-receipt",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-allocation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-evidence",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "Existing take-payments charge dimensions and records-door, extended with exact supplier settlement and versioned resource pricing; no embedded provider tariff or commercial price."
+        },
+        "id": "tool:settle-shared-resource-cost",
+        "label": "Settle shared resource cost",
+        "job": "Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; nothing is sent to a payment provider",
+        "description": "Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; nothing is sent to a payment provider",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "settlement_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "request_key": {
+              "type": "string",
+              "minLength": 1
+            },
+            "settlement_key": {
+              "type": "object",
+              "properties": {
+                "supplier_pool": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tariff_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "cost_class": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "invoice_period": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "currency": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resource_id": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "supplier_pool",
+                "tariff_version",
+                "cost_class",
+                "invoice_period",
+                "currency",
+                "resource_id"
+              ],
+              "additionalProperties": false
+            },
+            "invoice": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "const": "confirmed"
+                },
+                "amount": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "n": {
+                          "type": "string"
+                        },
+                        "d": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "n",
+                        "d"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                },
+                "evidence_ref": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "status",
+                "amount",
+                "evidence_ref"
+              ]
+            },
+            "payers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "payer_id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "customer",
+                      "platform"
+                    ]
+                  },
+                  "excess_units": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "n": {
+                            "type": "string"
+                          },
+                          "d": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "n",
+                          "d"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "max_unit_cost": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "n": {
+                            "type": "string"
+                          },
+                          "d": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "n",
+                          "d"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "authorized_total": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "n": {
+                            "type": "string"
+                          },
+                          "d": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "n",
+                          "d"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "terms": {
+                    "type": "object",
+                    "properties": {
+                      "resource_id": {
+                        "type": "string"
+                      },
+                      "rule_ref": {
+                        "type": "string"
+                      },
+                      "markup_bps": {
+                        "type": [
+                          "integer",
+                          "string"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "resource_id",
+                      "rule_ref",
+                      "markup_bps"
+                    ]
+                  },
+                  "settlement_key": {
+                    "type": "object",
+                    "properties": {
+                      "supplier_pool": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "tariff_version": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "cost_class": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "invoice_period": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "currency": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "resource_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "supplier_pool",
+                      "tariff_version",
+                      "cost_class",
+                      "invoice_period",
+                      "currency",
+                      "resource_id"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "payer_id",
+                  "kind",
+                  "excess_units"
+                ]
+              },
+              "maxItems": 10000
+            },
+            "observation_refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 10000
+            },
+            "company_funding": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "n": {
+                      "type": "string"
+                    },
+                    "d": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "n",
+                    "d"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          "required": [
+            "settlement_id",
+            "request_key",
+            "settlement_key",
+            "invoice",
+            "payers"
+          ],
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "settlement": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "record_id",
+            "settlement"
+          ]
+        },
+        "verify": [],
+        "kind": "ai-tool-descriptor"
+      }
+    },
+    {
+      "payload": {
+        "status": "active",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "correctResourceUsageSettlement"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "usage-pricing-rule",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "usage-pricing-rule-version",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-observation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-version",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-receipt",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-allocation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-evidence",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "Existing take-payments charge dimensions and records-door, extended with exact supplier settlement and versioned resource pricing; no embedded provider tariff or commercial price."
+        },
+        "id": "tool:correct-resource-usage-settlement",
+        "label": "Correct a resource usage settlement",
+        "job": "Append a corrected supplier-cost settlement under the original purchased terms, retaining the old version and the exact customer refund, credit or additional-authority obligations",
+        "description": "Append a corrected supplier-cost settlement under the original purchased terms, retaining the old version and the exact customer refund, credit or additional-authority obligations",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "settlement_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "request_key": {
+              "type": "string",
+              "minLength": 1
+            },
+            "settlement_key": {
+              "type": "object",
+              "properties": {
+                "supplier_pool": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tariff_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "cost_class": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "invoice_period": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "currency": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resource_id": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "supplier_pool",
+                "tariff_version",
+                "cost_class",
+                "invoice_period",
+                "currency",
+                "resource_id"
+              ],
+              "additionalProperties": false
+            },
+            "invoice": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "const": "confirmed"
+                },
+                "amount": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "n": {
+                          "type": "string"
+                        },
+                        "d": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "n",
+                        "d"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                },
+                "evidence_ref": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "status",
+                "amount",
+                "evidence_ref"
+              ]
+            },
+            "payers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "payer_id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "customer",
+                      "platform"
+                    ]
+                  },
+                  "excess_units": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "n": {
+                            "type": "string"
+                          },
+                          "d": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "n",
+                          "d"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "max_unit_cost": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "n": {
+                            "type": "string"
+                          },
+                          "d": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "n",
+                          "d"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "authorized_total": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "n": {
+                            "type": "string"
+                          },
+                          "d": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "n",
+                          "d"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "terms": {
+                    "type": "object",
+                    "properties": {
+                      "resource_id": {
+                        "type": "string"
+                      },
+                      "rule_ref": {
+                        "type": "string"
+                      },
+                      "markup_bps": {
+                        "type": [
+                          "integer",
+                          "string"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "resource_id",
+                      "rule_ref",
+                      "markup_bps"
+                    ]
+                  },
+                  "settlement_key": {
+                    "type": "object",
+                    "properties": {
+                      "supplier_pool": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "tariff_version": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "cost_class": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "invoice_period": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "currency": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "resource_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "supplier_pool",
+                      "tariff_version",
+                      "cost_class",
+                      "invoice_period",
+                      "currency",
+                      "resource_id"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "payer_id",
+                  "kind",
+                  "excess_units"
+                ]
+              },
+              "maxItems": 10000
+            },
+            "observation_refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 10000
+            },
+            "company_funding": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "n": {
+                      "type": "string"
+                    },
+                    "d": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "n",
+                    "d"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "expected_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "settlement_id",
+            "request_key",
+            "settlement_key",
+            "invoice",
+            "payers",
+            "expected_version",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "settlement": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "record_id",
+            "settlement"
+          ]
+        },
+        "verify": [],
+        "kind": "ai-tool-descriptor"
+      }
+    },
+    {
+      "payload": {
+        "status": "active",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "readResourceUsageSettlement"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "usage-pricing-rule",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "usage-pricing-rule-version",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-observation",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-version",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-receipt",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-allocation",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-evidence",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "Existing take-payments charge dimensions and records-door, extended with exact supplier settlement and versioned resource pricing; no embedded provider tariff or commercial price."
+        },
+        "id": "tool:read-resource-usage-settlement",
+        "label": "Read a resource usage settlement",
+        "job": "Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
+        "description": "Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "settlement_id": {
+              "type": "string"
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "after": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "required": [
+            "settlement_id"
+          ],
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "settlement": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "allocations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "next": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "record_id",
+            "settlement",
+            "allocations",
+            "next"
+          ]
+        },
+        "verify": [],
+        "kind": "ai-tool-descriptor"
+      }
     }
   ]
 }
