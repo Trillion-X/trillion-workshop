@@ -1,15 +1,10 @@
-// tools/export-documents-to-files: write a web page from one record and one descriptor.
+// Pure projection from one record and one page descriptor; the CLI lives in render-public-page-cli.mjs.
 //
 // The record and a descriptor of how to publish it become the page's bytes, its address and a replay proof.
 // Which fields are shown, the page's words, colours and structured-data nodes all live in the descriptor,
 // never in this code. A section whose operation is unknown still renders through the generic block.
 //
-// Command: node render-public-page.mjs ENVELOPE.json [OUTPUT.html]
 // The envelope is { publication_descriptor, source_record, materialized_values?, correlation_id? }.
-// The last line printed is JSON: the artifact's facts (without its bytes when OUTPUT is given) and the proof.
-
-import { readFileSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 
 const DEFAULT_THEME_TOKENS = {
   backgroundColor: '#111827',
@@ -80,7 +75,6 @@ export function renderRecordPublicationProjection(input) {
     },
   };
 }
-
 function objectOrEmpty(value) {
   return value && typeof value === 'object' ? value : {};
 }
@@ -375,25 +369,4 @@ function renderDocumentShell(input) {
   </article>
 </body>
 </html>`;
-}
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const [envelopePath, outputPath] = process.argv.slice(2);
-  if (!envelopePath) {
-    console.error('Give the path of the envelope file: node render-public-page.mjs ENVELOPE.json [OUTPUT.html]');
-    process.exit(1);
-  }
-  try {
-    const output = renderRecordPublicationProjection(JSON.parse(readFileSync(envelopePath, 'utf8')));
-    if (outputPath) {
-      writeFileSync(outputPath, output.artifact.bytes);
-      const { bytes, ...facts } = output.artifact;
-      console.log(JSON.stringify({ artifact: { ...facts, byte_length: Buffer.byteLength(bytes) }, proof: output.proof, written: outputPath }));
-    } else {
-      console.log(JSON.stringify(output));
-    }
-  } catch (error) {
-    console.error(`The page could not be written: ${error.message}. Check that the envelope is JSON with publication_descriptor and source_record.`);
-    process.exit(1);
-  }
 }

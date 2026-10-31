@@ -15,6 +15,18 @@
   ],
   "capabilities": [
     {
+      "capability": "project an authorized public document collection into consistent routes, rendered pages, Markdown, structured data and discovery feeds, and serve those projections against current source visibility",
+      "owner": ["tools/publish-content-for-discovery/"],
+      "entry": "tools/publish-content-for-discovery/tool-rows.json",
+      "evidence": "tools/publish-content-for-discovery/README.md: shared bounded collection preparation and read-only serving; account source rights and destination mutations remain with their existing owners",
+      "distinct_from": [
+        {"job": "check a public page the way search and answer engines read it (served HTML, no script run), score it against editable check rows and say how to fix each miss; add the language, address and dates a page leaves out; answer a page as Markdown when asked", "why": "The existing readiness owner audits served pages and supplies reused metadata helpers. This owner binds a paged document collection to routes and feeds, and rechecks its public source when serving."},
+        {"job": "export a document tree to Word, PDF or other file formats", "why": "The existing export owner renders one document tree and is reused here. This owner adds collection, canonical-route, source-version and visibility contracts without another renderer."},
+        {"job": "show the destinations an owner publishes", "why": "That owner lists published destinations. This owner prepares and serves public content bytes; it neither discovers destination permissions nor publishes a destination."},
+        {"job": "publish a changelog backed by evidence", "why": "That owner selects and publishes change evidence. This owner is a content-neutral projection over already selected public documents, with no topic selection or publication lifecycle."}
+      ]
+    },
+    {
       "capability": "keep and read the standing instruction rows an AI receives when it connects, with their fill declarations and default order",
       "owner": [
         "tools/tell-ais-how-to-act/"

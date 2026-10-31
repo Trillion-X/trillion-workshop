@@ -22,7 +22,8 @@
 //   5. Exit codes: 0 passed, 1 a rule failed or the set has a problem, 3 held (a unit is uncertain or unqualified and not advisory).
 //
 // Input (all optional except that some words must arrive):
-//   rules, kind, text, texts, value/fields/skip_keys/paths, units[{ kind, text, where, facts }],
+//   rules, kind, text, texts, markdown[{ text, where, kind, document_heading_level, document_heading_is_metadata, quote_kind, fields, context_requires_review_rules }],
+//   value/fields/skip_keys/paths, units[{ kind, text, where, facts }],
 //   sources[{ where, json, skip_keys, kind }], alt_keys, html[{ where, html, kind }], decks[{ where, html }],
 //   pictures[{ path, blake3 }] with readings{ <blake3>: { text } }, kind_aliases{ kind: [kinds] }, not_for_kinds{ row id: [kinds] },
 //   required{ locked_lines[{ id, alternatives }], entries[{ id, name, lines, port_gap }], baseline_ids[], approvals[{ id, words, source_text }] },
@@ -32,7 +33,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { wordsIn } from '../../judge-words/do-work/judge-words.mjs';
 import { check, compileVerdictRules, linesOf } from './rules-and-verdicts.mjs';
-import { distinctUnits, proseIn, wordsOfDeck, wordsOfHtml } from './read-words.mjs';
+import { distinctUnits, proseIn, wordsOfDeck, wordsOfHtml, wordsOfMarkdown } from './read-words.mjs';
 import GRAMMAR from '../read-data/copy-grammar-rules.json' with { type: 'json' };
 import WORDS from '../read-data/copy-words.json' with { type: 'json' };
 
@@ -42,7 +43,7 @@ const fold = text => text.normalize('NFKC').replace(/[‘’‛]/g, "'").replace
 
 export class CheckCopyRefusal extends Error {}
 
-function gather(input) {
+function gather(input, coverageProblems = []) {
   const found = [];
   const base = input.kind ?? 'copy';
   if (typeof input.text === 'string') found.push({ text: input.text, where: 'text', kind: base });
@@ -61,6 +62,20 @@ function gather(input) {
   }
   for (const page of input.html ?? []) for (const line of wordsOfHtml(page.html)) found.push({ text: line, where: page.where, kind: page.kind ?? base });
   for (const deck of input.decks ?? []) for (const piece of wordsOfDeck(deck.html, deck.where)) found.push({ ...piece, kind: 'deck' });
+  for (const document of input.markdown ?? []) {
+    const read = wordsOfMarkdown(document.text, document.where ?? 'markdown', {
+      kind: document.kind ?? base,
+      heading_kind: document.heading_kind ?? document.kind ?? base,
+      display_kind: document.display_kind ?? document.kind ?? base,
+      document_heading_level: document.document_heading_level ?? null,
+      document_heading_is_metadata: document.document_heading_is_metadata ?? false,
+      quote_kind: document.quote_kind ?? null,
+      fields: document.fields ?? {},
+      context_requires_review_rules: document.context_requires_review_rules ?? [],
+    });
+    found.push(...read.units);
+    coverageProblems.push(...read.issues.map(issue => `${document.where ?? 'markdown'}${issue.line ? `:${issue.line}` : ''}: ${issue.kind}`));
+  }
   return found;
 }
 
@@ -131,8 +146,8 @@ function rowFor(row, kinds, input) {
 /** The whole answer: { status, passed, exit, results, questions, problems, lines }. Refuses with CheckCopyRefusal when nothing can be checked. */
 export function checkCopy(input = {}) {
   if (input.rules !== undefined && (!Array.isArray(input.rules) || !input.rules.length)) throw new CheckCopyRefusal(WORDS.refused.bad_rules);
-  const pictures = pictureProblems(input);
-  const found = [...gather(input), ...pictures.found];
+  const pictures = pictureProblems(input), coverageProblems = [];
+  const found = [...gather(input, coverageProblems), ...pictures.found];
   if (!found.length) throw new CheckCopyRefusal(WORDS.refused.no_units);
   const units = distinctUnits(found, { facts: input.facts ?? {} });
   const required = requiredRows(input.required);
@@ -145,7 +160,7 @@ export function checkCopy(input = {}) {
     outcome = check([...units, ...whole], rules, { answers: input.answers ?? {}, stands: input.stands ?? [], verdictRules,
       stage: input.stage, fieldsByKind: input.fields_by_kind ?? {}, asOf: input.stands_as_of ?? null });
   } catch (error) { throw new CheckCopyRefusal(fill(WORDS.refused.no_checker, { why: error.message })); }
-  const problems = [...required.problems, ...pictures.problems, ...audienceProblems(input.audience), ...offerProblems(input.offers), ...countProblems(input)];
+  const problems = [...coverageProblems, ...required.problems, ...pictures.problems, ...audienceProblems(input.audience), ...offerProblems(input.offers), ...countProblems(input)];
   const failing = outcome.results.filter(result => result.verdict === 'fail');
   const uncertain = outcome.results.filter(result => result.verdict === 'uncertain');
   const held = uncertain.filter(result => !result.advisory);

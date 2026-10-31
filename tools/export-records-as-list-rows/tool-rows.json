@@ -46,20 +46,35 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:build-records-to-write",
-        "label": "Prepare my records, with a basis for each value, to write into my lists (runs on your computer)",
+        "label": "Prepare records for my lists with their sources and basis (runs on your computer)",
         "job": "Take records I keep in files and prepare everything to put them into my lists as records, each value with where it came from and how sure we are, in batches I can send",
-        "description": "Reads a mapping file the person gives: the lists they have defined (fields, saved views) and, for each source, where its records are (a JSON file, staged files in several shapes, or existing records from a declared type and id prefix) and how each row and value is worked out, with a basis for values that need one. A records source names an existing sender config; the builder uses its credential handle to read those records and does not write through it. Writes one file of counts, anything pending or diverted, and commands of at most 64 records each, in the order to send. It sends nothing. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
+        "description": "Reads the mapping and source files from the one folder the person granted this tool. A declared records source reads only its type and id prefix through this run's scoped records capability; its sender config and Keychain credential are not used. Maps each source by the person's rules, then returns counts, pending or diverted items and the records:write commands as result data. It writes no local file and sends no records. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
         "status": "active",
-        "input_schema": { "type": "object", "required": ["mapping", "out"], "properties": { "mapping": { "type": "string", "description": "The mapping file (the README describes it), put where {mapping} is in the command." }, "out": { "type": "string", "description": "The file to write the payload to, put where {out} is in the command." }, "roots": { "type": "string", "description": "Each folder the mapping names, as --root NAME=DIR, put where {roots} is in the command." } } },
-        "output_schema": { "type": "object", "description": "The last JSON the script prints: { records, commands, lists, views, rows, breakdown }. The payload file holds the commands; exit status 2 with a reason on standard error when the mapping or a file could not be read." },
+        "input_schema": { "type": "object", "required": ["mapping", "source_type", "source_prefix"], "properties": { "mapping": { "type": "string", "description": "The mapping file inside the folder granted to this tool." }, "roots": { "type": "string", "description": "The mapping's other folders as quoted --root NAME=DIR pairs. They must also be inside the granted folder." }, "source_type": { "type": "string", "description": "The one source record type this run is granted to list; the run right is filled from this field." }, "source_prefix": { "type": "string", "description": "The source id prefix this run is granted to list; the run right is filled from this field." } } },
+        "output_schema": { "type": "object", "required": ["counts", "pending", "commands"], "properties": { "counts": { "type": "object" }, "pending": { "type": "array" }, "commands": { "type": "array", "items": { "type": "object" } }, "merged": { "type": "array" }, "extra_links": { "type": "array" } } },
+        "needs": { "expected_seconds": 10, "network_egress": false },
         "invoke": {
-          "kind": "on-your-computer",
-          "repository": "https://github.com/Trillion-X/trillion-workshop",
-          "get_it": ["git clone https://github.com/Trillion-X/trillion-workshop.git"],
-          "run": "python3 -I trillion-workshop/tools/export-records-as-list-rows/do-work/build_record_write.py --mapping {mapping} {roots} --out {out}",
-          "needs": ["python", "node (only when the mapping uses the identity expression)"],
-          "say": "This runs on the person's own computer, never on Trillion. Run `run`, read the counts and the pending list, and tell the person how many records and commands it made and what is pending or diverted. A `kind: records` source uses the sender config and its keychain credential only to read the declared type and prefix; build sends no records. A mapping using identity also needs Node and the declared content-identity files. A refusal names the row and says what to fix. Sending each prepared command is a separate step."
+          "kind": "computer",
+          "capabilities": ["read-a-folder"],
+          "workdir": "/opt/tools/export-records-as-list-rows",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/tools/export-records-as-list-rows/do-work/build_record_write.mjs", "buildRecordWrite"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{
+            "kind": { "fill": { "from": "input", "field": "source_type" } },
+            "prefix": { "fill": { "from": "input", "field": "source_prefix" } },
+            "operations": ["records:list"]
+          }] },
+          "files": { "package_files": [
+            { "package": "export-records-as-list-rows", "paths": ["do-work", "read-data"], "at": "/opt/tools/export-records-as-list-rows" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            { "package": "content-identity", "paths": ["do-work", "read-data"], "at": "/opt/tools/content-identity" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] }
         },
+        "result_selector": "$.result",
         "maker": "maker:trillion",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
@@ -164,29 +179,47 @@
         "id": "tool:put-records-into-my-account",
         "label": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer)",
         "job": "Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
-        "description": "Reads a config the person gives: how to reach their door (an MCP address and a keychain handle for the key, or a program that plays a plan), the list and write operations, page size and command limits, which refusals mean send the halves or send again under the same key, and keep_held (a record the account already holds is never written again). Writes the payload build-records-to-write made, logs each command with the local time, writes a status file and stops at the first refusal. readback counts the records held and those holding the payload's value.",
+        "description": "Takes the result of tool:build-records-to-write directly. Through this run's separately scoped records door, it reads only the target record kinds declared on this row, skips records already held when keep_held is true, writes bounded commands with fresh per-run request keys, reconciles unknown write outcomes and returns readback counts. It reads no host payload file, config, keychain item or sender credential. The standalone send_record_write.py command remains available for a person who chooses the manual computer workflow.",
         "status": "active",
         "input_schema": {
           "type": "object",
-          "required": ["config", "work", "payload", "status"],
+          "required": ["payload", "target_type", "target_prefix"],
           "properties": {
-            "config": { "type": "string", "description": "The door config, put where {config} is in the command." },
-            "work": { "type": "string", "description": "A folder for each call's plan and result files, put where {work} is in the command." },
-            "payload": { "type": "string", "description": "The payload build-records-to-write made, put where {payload} is in the command." },
-            "status": { "type": "string", "description": "The status file, put where {status} is in the command." }
+            "payload": { "type": "object", "description": "The whole result object returned by tool:build-records-to-write, including commands." },
+            "target_type": { "type": "string", "description": "The one target record type this run is granted to read and write; the run right is filled from this field." },
+            "target_prefix": { "type": "string", "description": "The target record id prefix this run is granted to read and write; the run right is filled from this field." },
+            "keep_held": { "type": "boolean", "description": "When true, leave every target record already held as it is, including rows edited since they were first written." }
           }
         },
         "output_schema": {
-          "type": "object",
-          "description": "The last line the script prints: { state: all_written | stopped_on_refusal, to_write, commands, written, last_refusal? }. Exit 0 all written, 1 refused, 2 unreadable config, payload or door."
+          "type": "object", "required": ["state", "to_write", "commands", "written", "out_of_scope", "readback"],
+          "properties": {
+            "state": { "type": "string", "enum": ["all_written", "stopped_on_refusal"] },
+            "to_write": { "type": "integer", "minimum": 0 },
+            "commands": { "type": "integer", "minimum": 0 },
+            "written": { "type": "integer", "minimum": 0 },
+            "out_of_scope": { "type": "integer", "minimum": 0 },
+            "last_refusal": { "type": "object" },
+            "readback": { "type": "object" }
+          }
         },
         "invoke": {
-          "kind": "on-your-computer",
-          "get_it": ["clone the Workshop repository (package.json repository.url)", "python3 -m pip install -U blake3   # or have the b3sum command"],
-          "run": "python3 -I tools/export-records-as-list-rows/do-work/send_record_write.py --config {config} --work {work} send --payload {payload} --status {status}",
-          "needs": ["python", "blake3 (the python module) or the b3sum command"],
-          "say": "This writes into the person's account, so run it only when they asked for this load or a recipe they switched on runs it. Say how many records were written, and if it stopped, which command and why; a re-run resumes and writes nothing twice."
+          "kind": "computer", "capabilities": [], "workdir": "/opt/tools/export-records-as-list-rows", "internet": false, "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/tools/export-records-as-list-rows/do-work/send_built_record_write.mjs", "sendBuiltRecordWrite"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{
+            "kind": { "fill": { "from": "input", "field": "target_type" } },
+            "prefix": { "fill": { "from": "input", "field": "target_prefix" } },
+            "operations": ["records:list", "records:write"]
+          }] },
+          "files": { "package_files": [
+            { "package": "export-records-as-list-rows", "paths": ["do-work", "read-data"], "at": "/opt/tools/export-records-as-list-rows" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] }
         },
+        "result_selector": "$.result",
         "maker": "maker:export-records-as-list-rows",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],

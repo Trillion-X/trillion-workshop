@@ -6,11 +6,12 @@
 // loopback address with the capability as its bearer. The capability is never printed, logged or returned.
 //
 //   const door = openRecordsDoor();                       reads descriptor 3
+//   await door.readRecord('post', 'post:abc')              -> { type, value }, or null
 //   await door.read('post', 'post:abc')                   -> the value, or null
 //   for await (const record of door.list({ type: 'post' })) ...   every record of a kind, page after page
 //                                                          (`fields: [..]` narrows each value to those top-level fields;
 //                                                          `where: { field: value }` keeps the rows whose fields equal it)
-//   await door.write([{ id, type, value }], { key })      -> { changed, write_count }; value null removes
+//   await door.write([{ id, type, value, expected? }], { key }) -> receipt; value null removes, expected checks prior
 //   await door.files('list_files', { folder: '/notes/' })   -> the files door's answer, at `files_resource`, which the
 //                                                          descriptor holds when the row declares a `files` right
 //
@@ -34,6 +35,7 @@ const WORDS = {
   selected_owner_unavailable: 'The person\'s records stayed busy; try again shortly.',
   capability_gone: 'This run\'s records door has closed.',
   no_files: 'This run was not handed the person\'s files: its row declares no files right.',
+  original_command_conflict: 'The records changed while this tool was running. Read them again before continuing.',
   refused: 'The records door refused the call.',
 };
 
@@ -87,9 +89,15 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
     }
   }
 
+  async function readRecord(type, id) {
+    const record = await call('records:read', { id, type });
+    return record.value === null || record.value === undefined ? null : { type: record.type, value: record.value };
+  }
+
   return {
+    readRecord,
     async read(type, id) {
-      return (await call('records:read', { id, type })).value ?? null;
+      return (await readRecord(type, id))?.value ?? null;
     },
     // Every record the query names, in the door's order. A short page that names a next page is not the end.
     async *list({ type, order, prefix, above, below, reverse, fields, where, limit = PAGE } = {}) {

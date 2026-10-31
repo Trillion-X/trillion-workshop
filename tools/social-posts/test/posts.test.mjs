@@ -3,6 +3,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
+import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
+import { approveAPost, publishAPostNow } from '../read-data/posts.mjs';
+import { approvalValues } from '../read-data/post-shape.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const row = id => rowOf(rows, `tool:${id}`);
@@ -209,6 +213,93 @@ test('approval requires the complete reviewed values and refuses a named post af
   assert.equal(stale.status, 1);
   assert.match(stale.error, /changed after it was reviewed/);
   assert.equal(stale.records.find(record => record.id === postId).value.status, 'draft');
+});
+
+test('approval refuses a concurrent caption edit without overwriting or approving the newer record', async () => {
+  const postId = 'post:race';
+  const reviewedPost = {
+    post_id: postId, status: 'draft', caption: 'Reviewed words', destinations: ['service_connection:x:second'],
+    created_at: '2026-01-01T00:00:00.000Z', updated_at: '2026-01-01T00:00:00.000Z', scheduled_for: null,
+  };
+  const concurrentEdit = { ...reviewedPost, caption: 'Newer words from another run', updated_at: '2026-01-02T00:00:00.000Z' };
+  const fake = await startFakeDoor({
+    rights: [{ kind: 'post', operations: ['records:read', 'records:write'] }],
+    records: [{ id: postId, type: 'post', value: reviewedPost }],
+  });
+  let interleaved = false;
+  const fetchImpl = async (url, init) => {
+    const call = JSON.parse(init.body).params.arguments;
+    if (call.method === 'records:write' && !interleaved) {
+      // Another tool run commits its edit after approveAPost's read and before this unconditional write arrives.
+      fake.kept.set(postId, { id: postId, type: 'post', value: concurrentEdit });
+      interleaved = true;
+    }
+    return fetch(url, init);
+  };
+  try {
+    const door = openRecordsDoor({ descriptor: fake.descriptor, fetchImpl });
+    await assert.rejects(approveAPost(
+      { post_id: postId, expected_values: approvalValues(reviewedPost) },
+      { door, now: () => new Date('2026-01-03T00:00:00.000Z') },
+    ), error => {
+      assert.equal(error.code, 'original_command_conflict');
+      assert.match(error.message, /changed while this tool was running/);
+      assert.ok(!error.message.includes('Reviewed words') && !error.message.includes('Newer words'));
+      return true;
+    });
+    const readback = await door.read('post', postId);
+    assert.equal(interleaved, true);
+    assert.equal(readback.caption, 'Newer words from another run', 'the concurrent edit remains intact');
+    assert.equal(readback.status, 'draft', 'the stale review was not approved');
+    assert.equal(readback.updated_at, concurrentEdit.updated_at);
+    assert.equal(fake.calls.filter(call => call.method === 'records:write').length, 1);
+  } finally {
+    await fake.close();
+  }
+});
+
+test('publish now refuses a concurrent caption edit without scheduling the stale post', async () => {
+  const postId = 'post:publish-race';
+  const reviewedPost = {
+    post_id: postId, status: 'approved', caption: 'Reviewed words', destinations: [shortText.value.connection_id],
+    approved_at: '2026-01-01T00:00:00.000Z', created_at: '2026-01-01T00:00:00.000Z',
+    updated_at: '2026-01-01T00:00:00.000Z', scheduled_for: null,
+  };
+  const concurrentEdit = { ...reviewedPost, status: 'draft', caption: 'Newer words from another run', updated_at: '2026-01-02T00:00:00.000Z' };
+  const fake = await startFakeDoor({
+    rights: [
+      { kind: 'post', operations: ['records:read', 'records:write'] },
+      { kind: 'connection', operations: ['records:list'] },
+    ],
+    records: [
+      { id: postId, type: 'post', value: reviewedPost },
+      shortText,
+    ],
+  });
+  let interleaved = false;
+  const fetchImpl = async (url, init) => {
+    const call = JSON.parse(init.body).params.arguments;
+    if (call.method === 'records:write' && !interleaved) {
+      fake.kept.set(postId, { id: postId, type: 'post', value: concurrentEdit });
+      interleaved = true;
+    }
+    return fetch(url, init);
+  };
+  try {
+    const door = openRecordsDoor({ descriptor: fake.descriptor, fetchImpl });
+    await assert.rejects(publishAPostNow(
+      { post_id: postId, expected_values: approvalValues(reviewedPost) },
+      { door, now: () => new Date('2026-01-03T00:00:00.000Z') },
+    ), { code: 'original_command_conflict' });
+    const readback = await door.read('post', postId);
+    assert.equal(interleaved, true);
+    assert.equal(readback.caption, 'Newer words from another run');
+    assert.equal(readback.status, 'draft');
+    assert.equal(readback.scheduled_for, null);
+    assert.equal(readback.armed_at, undefined);
+  } finally {
+    await fake.close();
+  }
 });
 
 test('a check reports what it could not see as not checked, and a missing post as missing', async () => {

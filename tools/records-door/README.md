@@ -34,10 +34,13 @@ A row asks for the door in its invoke, with one rights item per record kind:
     most 64 top-level names) narrows each value to those fields; `[]` gives ids and types only. `where` (at most 64
     top-level names, each with a value) keeps only the rows whose fields equal those values as JSON; `limit` then
     bounds the rows read, so a page may show fewer rows, or none, and still name a next page.
-  - `records:write { records: [{ id, type, value | null }] }` gives `{ changed, write_count }`. Every record carries
-    its type, and every id must be inside a rights item, or the whole write is refused. One write carries 1 to
-    `invoke.records.most_writes` records. Left out, that is the engine cap of 256; declaring more refuses the run.
-    The request key makes a write safe to send again.
+  - `records:write { records: [{ id, type, value | null, expected? }] }` gives `{ changed, write_count }`. Every
+    record carries its type, and every id must be inside a rights item, or the whole write is refused. When present,
+    `expected` is `null` to require the id to be absent, or `{ type, value }` to require the exact current kind and
+    whole value. A mismatch refuses the complete write before any item changes; the condition is not stored with the
+    record. When omitted, the write remains unconditional. One write carries 1 to `invoke.records.most_writes` records.
+    Left out, that is the engine cap of 256; declaring more refuses the run. The request key makes a write safe to
+    send again.
   - A run that wake starts has every value it writes stamped with the wake's cause (`_wake_cause`), so its own
     change does not wake it again. Such a run may not remove records. A run an AI starts at the door has no cause.
 - The door answers within one bounded message. A list page holds as many rows as fit (fewer than `limit`, with a
@@ -62,7 +65,7 @@ A row asks for the door in its invoke, with one rights item per record kind:
 
 | File | Purpose |
 |------|---------|
-| `read-data/records-door.mjs` | `openRecordsDoor()`: `read(type, id)`, `list(query)` (every page, as an async iterator), `write(records, { key })`, `files(operation, input)`; `RecordsDoorError` with the door's code. |
+| `read-data/records-door.mjs` | `openRecordsDoor()`: `readRecord(type, id)` returns the exact `{ type, value }` snapshot or `null`; `read(type, id)` remains value-only; `list(query)` (every page, as an async iterator), `write(records, { key })`, `files(operation, input)`; `RecordsDoorError` with the door's code. |
 | `do-work/run-an-export.mjs` | `node run-an-export.mjs <module file> <export>`: calls `fn(input, { door })` with the run's input and prints `{ result }` or `{ error }`. The door opens on first use, so a function that reads no records needs none. |
 | `read-data/byte-pages.mjs` | `wholeAnswer(answer, again)`: an answer that came as byte pages, read on with `again(after_byte)`, joined, checked and parsed. Pure, so a page bundles it too. |
 | `read-data/write-batches.mjs` | `writeBatches(records, { rows, bytes })`: records in order as writes that each fit one door message (at most `rows` records and `bytes` bytes of JSON; a larger record alone), since a write over the 64 KiB message is refused whole. Pure, so a page bundles it too. |

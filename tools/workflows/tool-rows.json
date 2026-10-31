@@ -145,5 +145,27 @@
         }
       }
     }
+  ,
+    {
+      "id": "package::workflows::tool::measure-page-citation-coverage",
+      "address": "package::workflows::tool::measure-page-citation-coverage",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:measure-page-citation-coverage",
+        "label": "Measure exact page citations across planned questions and answer engines",
+        "job": "Compare every planned page × question × answer engine cell against recorded answer observations, keeping exact page citations, unavailable answers and unasked cells distinct",
+        "description": "Builds the complete page × question × engine matrix from a plan and supplied observations. A citation counts only when its parsed HTTP(S) URL exactly matches the page URL, its supplied checked canonical URL, or an explicitly supplied verified redirect URL; a path prefix is never enough. Query strings remain significant and fragments are ignored. Original answers and citation links are preserved. Missing/not-run and unavailable cells stay unknown; only an observed answer with an explicit citations array can be cited or not cited. This tool measures supplied observations and does not query engines, establish who observed them, or prove why an engine cited a page.",
+        "status": "active",
+        "input_schema": {"type":"object","required":["pages","engines"],"properties":{"pages":{"type":"array","minItems":1,"items":{"type":"object","required":["url"],"properties":{"url":{"type":"string","format":"uri"},"questions":{"type":"array","minItems":1,"items":{"type":"string"},"description":"Questions this exact page answers; otherwise shared questions must be supplied."},"canonical_url":{"type":"string","format":"uri","description":"Canonical address observed from the page; include only when checked."},"verified_redirects":{"type":"array","items":{"type":"string","format":"uri"},"description":"Redirect addresses actually observed while reaching this page."}}}},"questions":{"type":"array","minItems":1,"items":{"type":"string"},"description":"Shared questions planned for every page that does not provide its own questions."},"engines":{"type":"array","minItems":1,"items":{"oneOf":[{"type":"string"},{"type":"object","required":["id"],"properties":{"id":{"type":"string"},"address":{"type":"string","format":"uri"}}}]}},"observations":{"type":"array","items":{"type":"object","required":["page_url","question","engine","status"],"properties":{"page_url":{"type":"string","format":"uri"},"question":{"type":"string"},"engine":{"type":"string"},"status":{"enum":["observed","unavailable","not-run"]},"observed_at":{"type":"string"},"locale":{"type":["string","null"]},"mode":{"type":["string","null"]},"source":{"type":["string","null"]},"answer":{"type":"string"},"citations":{"type":"array","items":{"type":"string"}},"reason":{"type":"string"}}}}}},
+        "output_schema": {"type":"object","required":["planned","measured","cited","not_cited","unknown","citation_rate","cells"],"properties":{"planned":{"type":"object","required":["pages","questions","engines","cells"],"properties":{"pages":{"type":"integer"},"questions":{"type":"integer"},"engines":{"type":"integer"},"cells":{"type":"integer"}}},"measured":{"type":"integer"},"cited":{"type":"integer"},"not_cited":{"type":"integer"},"unknown":{"type":"integer"},"citation_rate":{"type":["number","null"]},"cells":{"type":"array","items":{"type":"object","required":["cell_id","page_url","question","engine","status","citation"],"properties":{"cell_id":{"type":"string"},"page_url":{"type":"string"},"question":{"type":"string"},"engine":{"type":"string"},"status":{"enum":["observed","unavailable","not-run"]},"citation":{"type":["boolean","null"]},"observed_at":{"type":"string"},"locale":{"type":["string","null"]},"mode":{"type":["string","null"]},"source":{"type":["string","null"]},"answer":{"type":"string"},"citations":{"type":"array","items":{"type":"string"}},"reason":{"type":["string","null"]}}}}}},
+        "invoke": {"kind":"container","workdir":"/work","stdout":"json","argv":["/usr/local/bin/node","/opt/workflows/do-work/measure-citation-coverage.mjs"],"stdin":{"fill":{"from":"input"}},"files":{"package_files":{"package":"workflows","paths":["do-work/measure-citation-coverage.mjs","read-data/citation-coverage.mjs"],"at":"/opt/workflows"}}},
+        "needs":{"expected_seconds":5,"network_egress":false,"memory_mb":128},
+        "licence_class":"licence:permissive",
+        "placements":["placement:small-container"],
+        "maker":"maker:workflows",
+        "provenance":{"source":"tools/workflows/read-data/citation-coverage.mjs: complete planned matrix and exact checked page URL identities"}
+      }
+    }
   ]
 }

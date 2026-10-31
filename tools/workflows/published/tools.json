@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:5e5e8804e554b10ea306d54210b9eb04b0ccbe30d2ee7c00dbbd83b92b654bda"
+  "blake3": "1f:3fd0f47e3d462af2997462b3439ea4568a00f914b775b7993c8f3fc21084d76e"
  },
  "fields": [
   {
@@ -488,9 +488,9 @@
   {
    "id": "tool:build-records-to-write",
    "values": {
-    "title": "Prepare my records, with a basis for each value, to write into my lists (runs on your computer)",
+    "title": "Prepare records for my lists with their sources and basis (runs on your computer)",
     "job": "Take records I keep in files and prepare everything to put them into my lists as records, each value with where it came from and how sure we are, in batches I can send",
-    "description": "Reads a mapping file the person gives: the lists they have defined (fields, saved views) and, for each source, where its records are (a JSON file, staged files in several shapes, or existing records from a declared type and id prefix) and how each row and value is worked out, with a basis for values that need one. A records source names an existing sender config; the builder uses its credential handle to read those records and does not write through it. Writes one file of counts, anything pending or diverted, and commands of at most 64 records each, in the order to send. It sends nothing. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
+    "description": "Reads the mapping and source files from the one folder the person granted this tool. A declared records source reads only its type and id prefix through this run's scoped records capability; its sender config and Keychain credential are not used. Maps each source by the person's rules, then returns counts, pending or diverted items and the records:write commands as result data. It writes no local file and sends no records. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -900,8 +900,8 @@
    "id": "tool:check-copy",
    "values": {
     "title": "Check copy before a person reads it",
-    "job": "Check text, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
-    "description": "Give words as text, texts, value (any JSON; fields names which keys hold words, or \"strings\" for every string), units, sources (JSON with its place), html (pages), decks (a rendered deck's HTML) or pictures with their readings. Give rules (one row each: words, pattern, exact or a named grammar check) or leave them out to use mechanical grammar rows. Optionally give required (locked lines, features, baseline ids, approvals with the person's own words and the text they sit in), audience, offers and counts, and the person's verdict_rules and stands. Nothing about any person is kept here; their rules are input. A source with no words, a required line gone, a row for the wrong audience, a count that is not a published list view, an offer listing fewer lines than the others and a picture with no reading are problems, never passes. Model questions come back as questions; send answers on a second run.",
+    "job": "Check text, Markdown, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
+    "description": "Give words as text, texts, Markdown, value (any JSON; fields names which keys hold words, or \"strings\" for every string), units, sources (JSON with its place), html (pages), decks (a rendered deck's HTML) or pictures with their readings. Markdown reads headings, paragraphs, list items, table cells and fenced display text; unresolved quotes, preamble before a declared document title and unsupported blocks stay coverage problems. It retains each block's role and field; for findings whose context is not established, name the matching rule ids or grammar check names for review, which keeps those findings uncertain and leaves other findings in force. Give rules (one row each: words, pattern, exact or a named grammar check) or leave them out to use mechanical grammar rows. Optionally give required (locked lines, features, baseline ids, approvals with the person's own words and the text they sit in), audience, offers and counts, and the person's verdict_rules and stands. Nothing about any person is kept here; their rules are input. A source with no words, a required line gone, a row for the wrong audience, a count that is not a published list view, an offer listing fewer lines than the others and a picture with no reading are problems, never passes. Model questions come back as questions; send answers on a second run.",
     "status": "active",
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
     "licence_class": "licence:maker-own",
@@ -1150,7 +1150,7 @@
    "values": {
     "title": "Check writing against its recipe",
     "job": "Check something written from a recipe before it goes anywhere: it cites only the sources given, it keeps the recipe's rules and reviews, and it is shaped for the next tool",
-    "description": "Give recipe_id or recipe (as tool:compose-a-writing-instruction took), writing (the JSON object you wrote in the recipe's output shape), grounding (the same excerpts), work_item, context and review ({ accepted, verdicts: [{ id, accepted }] } when the recipe requires verdicts). Checks in order and stops at the first refusal: the recipe's source checks (min-grounding-excerpts, cite-or-reject, required-citation-coverage; any other kind is refused, never passed), its rule rows (gate_policy.rules, judged by tool:judge-against-rules' judge over the writing's words and values; passed or held go on), its required verdicts, then builds delivery { tool_id, input } for the tool its delivery_target names (null when it names none). A refusal is { passed: false, reject_code, reason, findings? } and has no delivery: rewrite and check again.",
+    "description": "Give recipe_id or recipe (as tool:compose-a-writing-instruction took), writing (the JSON object you wrote in the recipe output shape), grounding, work_item, context and review. For ordinary recipes, review is { accepted, verdicts: [{ id, accepted }] }. For an opt-in gate_policy.evidence_contract of source-backed-claims/v1, also give evidence_packet with exact source editions, claims, scopes and UTF-8 quote spans; writing must include exact draft_text and matching claim refs/version/text/scope/source_refs. Semantic review then binds each required verdict to the exact draft, claim version and scope, and source edition set. Reviewer attribution is caller-supplied and is reported unverified; it is not authenticated. Rights metadata is preserved but does not authorize publication. Checks stop at first refusal, then build one delivery request for the named owner tool. A refusal has no delivery.",
     "status": "active",
     "maker": "maker:write-from-a-recipe",
     "licence_class": "licence:maker-own",
@@ -3492,6 +3492,21 @@
    }
   },
   {
+   "id": "tool:measure-page-citation-coverage",
+   "values": {
+    "title": "Measure exact page citations across planned questions and answer engines",
+    "job": "Compare every planned page × question × answer engine cell against recorded answer observations, keeping exact page citations, unavailable answers and unasked cells distinct",
+    "description": "Builds the complete page × question × engine matrix from a plan and supplied observations. A citation counts only when its parsed HTTP(S) URL exactly matches the page URL, its supplied checked canonical URL, or an explicitly supplied verified redirect URL; a path prefix is never enough. Query strings remain significant and fragments are ignored. Original answers and citation links are preserved. Missing/not-run and unavailable cells stay unknown; only an observed answer with an explicit citations array can be cited or not cited. This tool measures supplied observations and does not query engines, establish who observed them, or prove why an engine cited a page.",
+    "status": "active",
+    "maker": "maker:workflows",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "workflows"
+   }
+  },
+  {
    "id": "tool:media-analysis",
    "values": {
     "title": "Find the moments in my videos, pictures and talks that match a phrase (runs on your computer)",
@@ -3997,6 +4012,21 @@
    }
   },
   {
+   "id": "tool:prepare-public-content-for-discovery",
+   "values": {
+    "title": "Prepare public content for people and discovery tools",
+    "job": "Prepare one explicitly authorized public source page as consistent HTML, Markdown, structured data and discovery-feed data, with exact source versions and continuation state.",
+    "description": "Takes a site identity, one bounded page from the existing current-public-view owner, its real source version and observation time, public document citations and one origin-relative route per document. A customer’s existing public List/share read enforces current visibility; this pure projector does not authenticate caller strings or create rights. Imported or model-written text is parsed as safe blocks and rendered through the existing structured page renderer. The complete flag, requestedCursor and nextCursor must match the owner’s actual paged result. Preparation never publishes or caches content.",
+    "status": "active",
+    "maker": "maker:publish-content-for-discovery",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "publish-content-for-discovery"
+   }
+  },
+  {
    "id": "tool:price-a-sale",
    "values": {
     "title": "Price a sale",
@@ -4227,7 +4257,7 @@
    "values": {
     "title": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer)",
     "job": "Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
-    "description": "Reads a config the person gives: how to reach their door (an MCP address and a keychain handle for the key, or a program that plays a plan), the list and write operations, page size and command limits, which refusals mean send the halves or send again under the same key, and keep_held (a record the account already holds is never written again). Writes the payload build-records-to-write made, logs each command with the local time, writes a status file and stops at the first refusal. readback counts the records held and those holding the payload's value.",
+    "description": "Takes the result of tool:build-records-to-write directly. Through this run's separately scoped records door, it reads only the target record kinds declared on this row, skips records already held when keep_held is true, writes bounded commands with fresh per-run request keys, reconciles unknown write outcomes and returns readback counts. It reads no host payload file, config, keychain item or sender credential. The standalone send_record_write.py command remains available for a person who chooses the manual computer workflow.",
     "status": "active",
     "maker": "maker:export-records-as-list-rows",
     "licence_class": "licence:maker-own",

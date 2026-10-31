@@ -17,6 +17,34 @@ const JSON_FIELDS = {
 
 const valuesOf = row => row?.values ?? row?.value ?? {};
 
+/** Apply a checked local patch to exact editable list rows, preserving their row order. */
+export function applyWorkflowRowUpdates(workflowsView, stepsView, updateData) {
+  if (updateData?.account_row_sync?.status !== 'pending' || updateData.account_row_sync.canonical_rows_readback !== false) {
+    throw new Error('Local workflow row updates require explicit pending account synchronization and no canonical row readback.');
+  }
+  const apply = (view, updates, label) => {
+    if (!Array.isArray(view?.rows) || !Array.isArray(updates)) throw new Error(`${label} view and updates must be arrays of rows.`);
+    const rows = view.rows.map(row => ({ ...row, values: { ...valuesOf(row) } }));
+    for (const update of updates) {
+      if (!update || typeof update.id !== 'string' || !update.values || typeof update.values !== 'object' || Array.isArray(update.values)) {
+        throw new Error(`Every ${label} row update needs an id and values object.`);
+      }
+      const target = rows.find(row => row.id === update.id);
+      if (target) target.values = { ...target.values, ...update.values };
+      else {
+        if (update.values.recipe === undefined) throw new Error(`New ${label} row ${update.id} must include its recipe link.`);
+        rows.push({ id: update.id, values: { ...update.values } });
+      }
+    }
+    return { ...view, rows };
+  };
+  return {
+    workflows: apply(workflowsView, updateData.workflow_rows, 'workflow'),
+    steps: apply(stepsView, updateData.step_rows, 'workflow step'),
+    account_row_sync: updateData.account_row_sync,
+  };
+}
+
 function parsed(text, where) {
   try { return JSON.parse(text); } catch { throw new Error(`${where} holds text that is not JSON.`); }
 }

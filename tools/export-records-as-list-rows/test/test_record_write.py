@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import shutil
 import sys
 import tempfile
@@ -404,8 +405,11 @@ class Expressions(unittest.TestCase):
         self.assertEqual(self.ev({'text': ' [{a}] {b}.'}, {'a': 'x'}), ' [x] .')
 
     def test_identity_uses_the_declared_content_identity_owner_for_exact_utf8_bytes(self):
-        self.assertEqual(self.ev({'identity': {'path': 'text'}}, {'text': 'abc'}),
-                         '1f:6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85')
+        node = shutil.which('node')
+        self.assertIsNotNone(node)
+        with patch.dict(os.environ, {'TRILLION_NODE': node, 'PATH': ''}):
+            self.assertEqual(self.ev({'identity': {'path': 'text'}}, {'text': 'abc'}),
+                             '1f:6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85')
         self.assertNotEqual(self.ev({'identity': {'path': 'text'}}, {'text': 'abc'}),
                             self.ev({'identity': {'path': 'text'}}, {'text': 'ABC'}))
         with self.assertRaisesRegex(ValueError, 'needs text or bytes'):

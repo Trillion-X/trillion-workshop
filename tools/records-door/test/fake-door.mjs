@@ -5,6 +5,7 @@ import { createServer } from 'node:http';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 // Engine-wide cap on the records one write carries (own-record-writes.json maxItems); a row may declare fewer.
@@ -46,13 +47,29 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
     'records:write': ({ records: items }, key) => {
       if (receipts.has(key)) return { structuredContent: receipts.get(key) };
       if (!Array.isArray(items) || items.length < 1 || items.length > Math.min(mostWrites, WRITE_CAP)) return refuse('original_input_refused');
+      const before = new Map(kept);
       for (const item of items) {
         const holds = kept.get(item.id)?.type;
         if (!item.type || item.id.includes('/') || !may(item.type, 'records:write', { id: item.id }) || (holds && !may(holds, 'records:write', { id: item.id }))) {
           return refuse(OUTSIDE);
         }
+        if (Object.hasOwn(item, 'expected')) {
+          const expected = item.expected;
+          const current = before.get(item.id) ?? null;
+          if (expected === null) {
+            if (current) return refuse('original_command_conflict');
+          } else if (!expected || typeof expected !== 'object' || Array.isArray(expected)
+            || typeof expected.type !== 'string' || !expected.value || typeof expected.value !== 'object' || Array.isArray(expected.value)) {
+            return refuse('original_input_refused');
+          } else if (!current || current.type !== expected.type || !isDeepStrictEqual(current.value, expected.value)) {
+            return refuse('original_command_conflict');
+          }
+        }
       }
-      for (const item of items) item.value === null ? kept.delete(item.id) : kept.set(item.id, item);
+      for (const item of items) {
+        const { expected: _expected, ...record } = item;
+        item.value === null ? kept.delete(item.id) : kept.set(item.id, record);
+      }
       const receipt = { changed: items.length, write_count: items.length };
       receipts.set(key, receipt);
       // The write took effect, but the answer says its outcome is unknown: only the same key learns the receipt.

@@ -28,6 +28,40 @@ test('read, list and write go through the door with the bearer capability and th
   } finally { await door.close(); }
 });
 
+test('a whole-record expected snapshot makes conditional writes atomic and leaves ordinary writes unconditional', async () => {
+  const original = { words: 'before', nested: { count: 1 } };
+  const second = { words: 'second before' };
+  const door = await startFakeDoor({
+    rights: [{ kind: 'note', operations: ALL }],
+    records: [
+      { id: 'note:1', type: 'note', value: original },
+      { id: 'note:2', type: 'note', value: second },
+    ],
+  });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor });
+    const firstSnapshot = await client.readRecord('note', 'note:1');
+    assert.deepEqual(firstSnapshot, { type: 'note', value: original });
+    assert.deepEqual(await client.read('note', 'note:1'), original, 'read keeps its value-only result');
+
+    await assert.rejects(client.write([
+      { id: 'note:1', type: 'note', value: { words: 'must not land' }, expected: firstSnapshot },
+      { id: 'note:2', type: 'note', value: { words: 'also must not land' }, expected: { type: 'note', value: { words: 'stale second snapshot' } } },
+    ], { key: 'atomic-conditional-write' }), { code: 'original_command_conflict' });
+    assert.deepEqual(await client.readRecord('note', 'note:1'), firstSnapshot, 'the matching first item was not partially applied');
+    assert.deepEqual(await client.readRecord('note', 'note:2'), { type: 'note', value: second });
+
+    await assert.rejects(client.write([
+      { id: 'note:1', type: 'note', value: { words: 'must still not land' }, expected: null },
+    ], { key: 'expected-absence-conflict' }), { code: 'original_command_conflict' });
+    assert.deepEqual(await client.readRecord('note', 'note:1'), firstSnapshot);
+
+    await client.write([{ id: 'note:1', type: 'note', value: { words: 'ordinary write' } }], { key: 'ordinary-write' });
+    assert.deepEqual(await client.readRecord('note', 'note:1'), { type: 'note', value: { words: 'ordinary write' } });
+    assert.equal(door.kept.get('note:1').expected, undefined, 'the condition is not stored as part of the record');
+  } finally { await door.close(); }
+});
+
 test('a list keeps paging while the door names a next page, short pages included', async () => {
   const records = Array.from({ length: 7 }, (_, at) => ({ id: `note:${at}`, type: 'note', value: { at } }));
   const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], records, pageCut: 2 });

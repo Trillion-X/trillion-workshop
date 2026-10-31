@@ -201,6 +201,36 @@ test('findings the caller already has count, and a unit needing context review n
   assert.deepEqual(rules(context), ['context-policy-unqualified', 'no-sparkle']);
 });
 
+test('context review can hold selected rule or grammar findings while a different planted violation still fails', () => {
+  const rows = [
+    { id: 'no-vibe-nouns', words: ['rhythm', 'vibe'], says: 'This noun only violates the rule when it means nothing.' },
+    { id: 'sentence-ends-with-stop', check: 'ends-with-stop', says: 'A sentence ends with punctuation.' },
+    { id: 'no-sparkle', words: ['sparkle'], says: 'No sparkle.' },
+  ];
+  const text = 'A concrete six-step rhythm with one sparkle';
+  const planted = check([{ text, kind: 'paragraph' }], rows).results[0];
+  assert.equal(planted.verdict, 'fail');
+  assert.deepEqual(planted.breaks.map(finding => finding.rule).sort(), ['no-sparkle', 'no-vibe-nouns', 'sentence-ends-with-stop']);
+
+  const reviewed = check([{ text, kind: 'paragraph', context_requires_review_rules: ['no-vibe-nouns'],
+    context_requires_review_checks: ['ends-with-stop'] }], rows).results[0];
+  assert.equal(reviewed.verdict, 'fail');
+  assert.deepEqual(reviewed.breaks.map(finding => finding.rule), ['no-sparkle']);
+  assert.deepEqual(reviewed.uncertain.map(finding => finding.rule).sort(), ['context-policy-unqualified', 'no-vibe-nouns', 'sentence-ends-with-stop']);
+
+  const stated = check([{ text: 'zorb', kind: 'line', context_requires_review_rules: ['no-zorb'],
+    also_found: [{ rule: 'no-zorb', outcome: 'fail', found: 'a stated rejection', says: 'A stated rejection.' }] }],
+  [{ id: 'no-zorb', words: ['zorb'], says: 'A generic word match.' }]).results[0];
+  assert.equal(stated.verdict, 'fail');
+  assert.deepEqual(stated.breaks.map(finding => finding.says), ["A stated rejection."]);
+  assert.ok(stated.uncertain.some(finding => finding.says === 'A generic word match.'));
+});
+
+test('context review refuses unknown rule ids and grammar check names', () => {
+  assert.throws(() => check([{ text: 'Quiet', kind: 'line', context_requires_review_rules: ['missing-row'] }], GENERIC), /Unknown rule ids: missing-row/);
+  assert.throws(() => check([{ text: 'Quiet', kind: 'line', context_requires_review_checks: ['not-a-check'] }], GENERIC), /Unknown grammar checks: not-a-check/);
+});
+
 test('the lines say each unit that did not pass and each finding', () => {
   const lines = linesOf(check([{ text: 'Sparkle', kind: 'line', where: 'a.txt:1' }, { text: 'Quiet', kind: 'line' }], GENERIC).results);
   assert.equal(lines[0], '2 units: 1 fail, 0 uncertain, 1 pass');

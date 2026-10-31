@@ -14,6 +14,7 @@
 import { text } from 'node:stream/consumers';
 import { judge } from '../../judge-words/do-work/judge-words.mjs';
 import { buildOwnerDelivery, evaluateGate, plainObject, requiredVerdictsMet } from '../read-data/check-writing.mjs';
+import { checkEvidenceContract, evidenceProvenanceForDelivery, evidenceReviewBinding } from '../read-data/evidence-contract.mjs';
 import { recipeOf } from '../read-data/library.mjs';
 
 const refused = (reject_code, reason, extra = {}) => ({ passed: false, reject_code, reason, ...extra });
@@ -41,13 +42,32 @@ export function checkWritingAgainstItsRecipe(input = {}) {
   if (judged && !['passed', 'held'].includes(judged.status)) {
     return refused(`rules_not_met:${judged.status}`, [judged.said, ...judged.lines].join(' '), { findings: judged.findings });
   }
-  if (!requiredVerdictsMet(policy, input.review)) return refused('semantic_review_failed', 'required calibrated review did not accept the draft');
+  let evidenceReview = null;
+  if (policy.evidence_contract !== undefined) {
+    if (policy.evidence_contract !== 'source-backed-claims/v1') return refused('unknown_evidence_contract', 'unsupported evidence contract; refusing delivery');
+    evidenceReview = checkEvidenceContract({
+      evidence_packet: input.evidence_packet,
+      writing: input.writing,
+      review: input.review,
+      required_verdicts: policy.required_verdicts,
+    });
+    if (!evidenceReview.passed) {
+      const binding = evidenceReviewBinding({ evidence_packet: input.evidence_packet, writing: input.writing });
+      return refused('evidence_contract_failed', evidenceReview.reason, { ...(binding ? { review_binding: binding } : {}) });
+    }
+  }
+  if (!evidenceReview && !requiredVerdictsMet(policy, input.review)) return refused('semantic_review_failed', 'required calibrated review did not accept the draft');
   const workItem = plainObject(input.work_item) ? input.work_item : {};
-  const context = plainObject(input.context) ? input.context : {};
-  if (recipe.delivery_target === undefined) return { passed: true, delivery: null, ...(judged?.findings.length ? { findings: judged.findings } : {}) };
+  const context = plainObject(input.context) ? { ...input.context } : {};
+  if (evidenceReview) context.evidence_provenance = evidenceProvenanceForDelivery(input.evidence_packet, evidenceReview.binding);
+  if (recipe.delivery_target === undefined) return { passed: true, delivery: null, ...(evidenceReview ? { evidence_review: { binding: evidenceReview.binding, assurance: evidenceReview.review_assurance, rights: evidenceReview.rights_assurance } } : {}), ...(judged?.findings.length ? { findings: judged.findings } : {}) };
+  if (evidenceReview && (recipe.delivery_target?.input?.evidence_provenance?.from !== 'context'
+    || recipe.delivery_target?.input?.evidence_provenance?.field !== 'evidence_provenance')) {
+    return refused('evidence_provenance_handoff_missing', 'strict evidence delivery must carry rights/provenance metadata to the named owner as evidence_provenance');
+  }
   const [delivered, delivery, deliveryError] = buildOwnerDelivery(input.writing, workItem, context, recipe.delivery_target);
   if (!delivered) return refused('invalid_delivery_target', deliveryError);
-  return { passed: true, delivery, ...(judged?.findings.length ? { findings: judged.findings } : {}) };
+  return { passed: true, delivery, ...(evidenceReview ? { evidence_review: { binding: evidenceReview.binding, assurance: evidenceReview.review_assurance, rights: evidenceReview.rights_assurance } } : {}), ...(judged?.findings.length ? { findings: judged.findings } : {}) };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

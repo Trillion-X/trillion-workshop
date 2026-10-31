@@ -77,7 +77,7 @@
     "label": "Check writing against its recipe",
     "status": "active",
     "job": "Check something written from a recipe before it goes anywhere: it cites only the sources given, it keeps the recipe's rules and reviews, and it is shaped for the next tool",
-    "description": "Give recipe_id or recipe (as tool:compose-a-writing-instruction took), writing (the JSON object you wrote in the recipe's output shape), grounding (the same excerpts), work_item, context and review ({ accepted, verdicts: [{ id, accepted }] } when the recipe requires verdicts). Checks in order and stops at the first refusal: the recipe's source checks (min-grounding-excerpts, cite-or-reject, required-citation-coverage; any other kind is refused, never passed), its rule rows (gate_policy.rules, judged by tool:judge-against-rules' judge over the writing's words and values; passed or held go on), its required verdicts, then builds delivery { tool_id, input } for the tool its delivery_target names (null when it names none). A refusal is { passed: false, reject_code, reason, findings? } and has no delivery: rewrite and check again.",
+    "description": "Give recipe_id or recipe (as tool:compose-a-writing-instruction took), writing (the JSON object you wrote in the recipe output shape), grounding, work_item, context and review. For ordinary recipes, review is { accepted, verdicts: [{ id, accepted }] }. For an opt-in gate_policy.evidence_contract of source-backed-claims/v1, also give evidence_packet with exact source editions, claims, scopes and UTF-8 quote spans; writing must include exact draft_text and matching claim refs/version/text/scope/source_refs. Semantic review then binds each required verdict to the exact draft, claim version and scope, and source edition set. Reviewer attribution is caller-supplied and is reported unverified; it is not authenticated. Rights metadata is preserved but does not authorize publication. Checks stop at first refusal, then build one delivery request for the named owner tool. A refusal has no delivery.",
     "input_schema": {
      "type": "object",
      "required": ["writing"],
@@ -87,9 +87,10 @@
       "recipe": { "type": "object" },
       "writing": { "type": "object", "description": "What the AI wrote, as a JSON object" },
       "grounding": { "type": "array", "items": { "type": "object" } },
+      "evidence_packet": { "type": "object", "description": "For source-backed-claims/v1 recipes: schema, sources [{ref, edition_id, origin_ref, source_text, content_identity, rights}], and claims [{ref, version_id, text, scope, evidence_refs [{source_ref, edition_id, content_identity, relation, quote}]]}. Source rights are metadata only." },
       "work_item": { "type": "object" },
       "context": { "type": "object", "description": "Values the delivery input may take from context" },
-      "review": { "type": "object", "description": "{ accepted, verdicts: [{ id, accepted }] } from whoever judged the required verdicts" }
+      "review": { "type": "object", "description": "Ordinary: {accepted, verdicts}. Strict evidence review: {accepted, attribution:{reviewer_ref, method}, binding:{draft_identity,claim_set_identity,source_set_identity,claims:[{claim_ref,claim_version_id,claim_identity,scope_identity}]}, verdicts:[{id,accepted,claim_ref,claim_version_id,claim_identity,scope_identity,draft_identity,claim_set_identity,source_set_identity,rationale}]}. Attribution remains caller-provided and unauthenticated." }
      }
     },
     "output_schema": {
@@ -100,6 +101,8 @@
       "delivery": { "type": ["object", "null"], "properties": { "tool_id": { "type": "string" }, "input": { "type": "object" } } },
       "reject_code": { "type": "string" },
       "reason": { "type": "string" },
+      "review_binding": { "type": "object", "description": "When a strict semantic review is missing or stale, the exact draft, claim set and source edition identities to review." },
+      "evidence_review": { "type": "object", "description": "Successful strict checks mark reviewer attribution caller_attributed_unverified and rights metadata_preserved_not_authorized." },
       "findings": { "type": "array" }
      }
     },
@@ -108,7 +111,9 @@
      "files": {
       "package_files": [
        { "package": "write-from-a-recipe", "paths": ["do-work", "read-data"], "at": "/opt/parts/write-from-a-recipe" },
-       { "package": "judge-words", "paths": ["do-work"], "at": "/opt/parts/judge-words" }
+       { "package": "judge-words", "paths": ["do-work"], "at": "/opt/parts/judge-words" },
+       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/parts/content-identity" },
+       { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
       ]
      },
      "workdir": "/opt/parts/write-from-a-recipe",

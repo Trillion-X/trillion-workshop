@@ -232,7 +232,9 @@ async function mediaFor(post, place, door) {
  *  longer carries it (taken back, changed, set again or gone). */
 export async function sendAPost({ post_id: postId, account_id: accountId, resend = false, armed_at: armedAt } = {}, { door, now = () => new Date(), send = fetch, held = null, publishers = PUBLISHERS }) {
   if (typeof postId !== 'string' || !postId.trim() || typeof accountId !== 'string' || !accountId.trim()) throw new Error('Give post_id and account_id (one of the post\'s destinations).');
-  let post = await door.read(TYPE, postId.trim());
+  const original = await door.readRecord(TYPE, postId.trim());
+  let post = original?.value ?? null;
+  let expected = original;
   if (armedAt !== undefined && (!post || post.armed_at !== armedAt || !settings.at_its_time.sends_while.includes(post.status))) {
     return { post_id: postId.trim(), status: post?.status ?? 'gone', said: settings.at_its_time.words.no_longer_set };
   }
@@ -253,7 +255,8 @@ export async function sendAPost({ post_id: postId, account_id: accountId, resend
     const at = now().toISOString();
     const next = { ...post, sent_at: post.sent_at ?? at, deliveries: { ...deliveries }, updated_at: at };
     post = { ...next, status: overall(next) };
-    await door.write([{ id: post.post_id, type: TYPE, value: post }], { key: `${verb}:${post.post_id}:${accountId}:${at}` });
+    await door.write([{ id: post.post_id, type: TYPE, value: post, expected }], { key: `${verb}:${post.post_id}:${accountId}:${at}` });
+    expected = { type: TYPE, value: post };
   };
   // The attempt moves on after each send, so a later retry is a new request to the place.
   const attempt = (earlier.attempt ?? 0) + (earlier.status && earlier.status !== 'not sent' ? 1 : 0);
@@ -276,6 +279,9 @@ export async function sendAPost({ post_id: postId, account_id: accountId, resend
     });
     deliveries[accountId] = fromOutcome(place, result.outcomes?.[0], attempt);
   } catch (error) {
+    // A conditional-write conflict means another run changed the post before this request was sent; do not turn it
+    // into a place failure or attempt another write using the stale snapshot.
+    if (error?.code === 'original_command_conflict') throw error;
     // Refused here before anything left: it failed. Anything else after the send began may have reached the place, so
     // it stays not known (invariant 3).
     const refusedHere = ours(error);
