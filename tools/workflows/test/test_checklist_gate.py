@@ -186,9 +186,46 @@ class GateAndAnswers(GateCase):
         row = self.rows()[-1]
         self.assertEqual(set(row['file_pins']), {'m2'})
         self.assertEqual(len(row['file_pins']['m2']), 64)
+        self.assertEqual(len(row['definition_pin']), 64)
         _, out, _ = self.gate('m2')
         self.assertNotIn('B1.1', [i['id'] for i in out['unanswered_must']])
         self.assertNotIn('B1.R1', [i['id'] for i in out['unanswered_must']])
+
+    def test_same_file_and_same_criterion_keep_a_manual_answer_current(self):
+        self.answer('B1.R1', option='m2')
+        _, out, _ = self.gate('m2')
+        self.assertNotIn(('B1.R1', 'm2'), self.ids(out))
+
+    def test_a_changed_criterion_stales_its_existing_manual_answer(self):
+        self.answer('B1.R1', option='m2')
+        checklist = self.lib / 'checklist.json'
+        doc = json.loads(checklist.read_text())
+        check = next(c for s in doc['stages'] for c in s['checks'] if c['id'] == 'B1.R1')
+        check['rule'] += ' A newly added clause.'
+        checklist.write_text(json.dumps(doc))
+        _, out, _ = self.gate('m2')
+        stale = next(i for i in out['unanswered_must'] if i['id'] == 'B1.R1')
+        self.assertIn('different check-definition pin', stale['stale'])
+
+    def test_changing_another_criterion_does_not_stale_an_unrelated_manual_answer(self):
+        self.answer('B1.R1', option='m2')
+        checklist = self.lib / 'checklist.json'
+        doc = json.loads(checklist.read_text())
+        check = next(c for s in doc['stages'] for c in s['checks'] if c['id'] == 'B1.R2')
+        check['rule'] += ' A change only to this other check.'
+        checklist.write_text(json.dumps(doc))
+        _, out, _ = self.gate('m2')
+        self.assertNotIn(('B1.R1', 'm2'), self.ids(out))
+
+    def test_a_legacy_manual_answer_without_definition_pin_must_be_re_reviewed(self):
+        self.answer('B1.R1', option='m2')
+        path = self.piece / 'answers.jsonl'
+        rows = self.rows()
+        del rows[-1]['definition_pin']
+        path.write_text('\n'.join(json.dumps(r) for r in rows) + '\n')
+        _, out, _ = self.gate('m2')
+        stale = next(i for i in out['unanswered_must'] if i['id'] == 'B1.R1')
+        self.assertIn('no check-definition pin', stale['stale'])
 
     def test_a_row_on_other_bytes_is_stale_and_the_newest_row_stands(self):
         self.answer('B1.R1', option='m2')
