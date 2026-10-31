@@ -13,7 +13,10 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `tools/tools-from-github/` | Other people's open-source repositories offered as tools that run on the person's own computer, read from GitHub by `index-github-tools.mjs`. |
 | `licence-classes.json` | The licence classes a row may name, which licences each covers and where each lets a tool run. |
 | `test/every-tool-row.test.mjs` | Checks every folder's rows the way Trillion reads them: files named exist, licence classes are listed, ids are unique. |
+| `test/lockfile-licences.test.mjs` | Checks every package in `package-lock.json` has a licence `licence-classes.json` lists, in a class that lets it run wherever this repository's tools run. |
 | `test-helpers/vitest-shim.mjs` | The part of vitest's API the `.test.ts` files use, on `node:test`. |
+| `test-helpers/tool-rows.mjs` | Reads every folder's rows; both root tests use it. |
+| `test-helpers/lockfile-licences.mjs` | Judges a lock's licences against the licence classes. |
 | `package.json` | `npm test` runs every test here. |
 | `CONTRIBUTING.md` | How to add or change a tool. |
 | `LICENSE` | Apache License 2.0. |

@@ -10,7 +10,7 @@ Thank you for making a tool. Every merged tool is offered to every Trillion user
 4. **Say what it takes and gives back.** `input_schema` and `output_schema` are JSON Schemas; every answer is checked against `output_schema`.
 5. **Prove it with a sample run.** `verify` holds a sample input and text the output must contain. Trillion runs it before offering the tool.
 6. **No secrets, no personal data.** Never put a key, token, password, email address or a real person's details in code, rows, tests or examples. A tool that needs an account takes it from the person at run time.
-7. **Name its licence class.** `licence_class` is one of the ids in `licence-classes.json`, and `placements` must be places that class allows.
+7. **Name its licence class.** `licence_class` is one of the ids in `licence-classes.json`, and `placements` must be places that class allows. A package the tool adds to `package-lock.json` must have a licence some class lists, in a class that allows every place this repository's tools run (`test/lockfile-licences.test.mjs`).
 8. **No internet unless needed.** Set `"internet": true` in `invoke` only when the job is reading the web; such tools refuse private and local addresses.
 9. **Refusals say what to do.** An error tells the caller what was wrong and how to fix the request.
 
