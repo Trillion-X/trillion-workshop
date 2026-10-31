@@ -1,0 +1,25 @@
+{
+  "stages": [
+    { "key": "pending", "label": "Asked for, nothing decided yet" },
+    { "key": "pending_payment", "label": "Waiting for payment" },
+    { "key": "pending_confirmation", "label": "Waiting for the host to confirm" },
+    { "key": "confirmed", "label": "Booked" },
+    { "key": "completed", "label": "Done", "terminal": true },
+    { "key": "no_show", "label": "Nobody came", "terminal": true },
+    { "key": "cancelled", "label": "Cancelled", "terminal": true }
+  ],
+  "transitions": [
+    { "from": "pending", "to": "pending_payment" },
+    { "from": "pending", "to": "pending_confirmation" },
+    { "from": "pending", "to": "confirmed" },
+    { "from": "pending_payment", "to": "confirmed" },
+    { "from": "pending_confirmation", "to": "confirmed" },
+    { "from": "confirmed", "to": "completed" },
+    { "from": "confirmed", "to": "no_show" },
+    { "from": "pending", "to": "cancelled" },
+    { "from": "pending_payment", "to": "cancelled" },
+    { "from": "pending_confirmation", "to": "cancelled" },
+    { "from": "confirmed", "to": "cancelled" }
+  ],
+  "start": "pending"
+}
