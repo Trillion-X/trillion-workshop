@@ -528,6 +528,20 @@ class MakeFillDrift(unittest.TestCase):
         self.assertIn("like what **[NUMBER]** **[UNIT]**, a lot of cafes.", md)
         self.assertEqual(len([l for l in self.p["lines"] if l["dim"] == "speech.word"]), 2)
 
+    def test_a_value_that_carries_the_slot_edge_punctuation_keeps_one_copy(self):
+        html = self.fx.write("deck.html", '<script type="application/json" id="w">'
+                             '[{"id": "total", "fields": {"text": "A month costs $14,950 (before usage)."}}]</script>')
+        p = ops.tokenize({"piece": {"id": "deck", "medium": "carousel"}, "sources": {"html_json_records": {"path": str(html), "script_id": "w"}},
+                          "slots": [{"id": "monthly", "type": "NUMBER", "note": "the total", "match": [{"dim": "onscreen.word", "phrase": "$14,950"}]},
+                                    {"id": "kind", "type": "NAME", "note": "the kind", "match": [{"dim": "onscreen.word", "phrase": "(before usage)."}]}]}, REG)
+        facts = self.fx.write("total.txt", "$20,930 a month\n(after usage).\n")
+        f = ops.fill(p, {"fills": {"monthly": {"value": "$20,930", "sources": [f"{facts}:1"]},
+                                   "kind": {"value": "(after usage).", "sources": [f"{facts}:2"]}}}, REG)
+        words = [t["dims"]["onscreen.word"] for t in f["tokens"] if t.get("slot")]
+        self.assertEqual(words, ["$20,930", "(after usage)."])
+        report = ops.drift(p, f, REG)["notes"]["drift"]
+        self.assertTrue(report["check"]["pass"], report["check"])
+
     def test_fill_cannot_edit_keep(self):
         with self.assertRaises(WTError) as c:
             ops.fill(self.p, {"fills": {"w0": {"value": "Hi", "sources": ["https://x.y"]}}}, REG)
