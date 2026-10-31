@@ -44,7 +44,8 @@
             "package_files": [
               { "package": "meaning-search", "paths": ["read-data", "do-work"], "at": "/opt/meaning-search" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
             ]
           },
           "records": {
@@ -102,7 +103,8 @@
             "package_files": [
               { "package": "meaning-search", "paths": ["read-data", "do-work"], "at": "/opt/meaning-search" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
             ]
           },
           "records": {
