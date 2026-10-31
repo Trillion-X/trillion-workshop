@@ -1,11 +1,13 @@
 // tools/headless-browser/devtools.mjs
 //
-// Starts a headless Chromium and speaks to its first page over the DevTools protocol through Node's own WebSocket,
-// with no browser library, so a script can run the same way on a person's computer and in a Workshop container.
+// Starts a headless Chromium and speaks to its first page over the DevTools protocol through a pipe (--remote-debugging-pipe:
+// the browser reads descriptor 3 and writes descriptor 4, one JSON message ended by a NUL byte each), with no browser
+// library and no TCP port, so a script can run the same way on a person's computer and in a Workshop container or a
+// sandbox that lets a browser listen on nothing.
 //
 // Invariants:
 //   - Every Chromium starts with this part's quiet switches first (quiet-switches.json).
-//   - A browser that does not start in 30 s, or a DevTools call with no answer in 60 s, ends with a BrowserProblem
+//   - A browser that does not answer its first call in 30 s, or a DevTools call with no answer in 60 s, ends with a BrowserProblem
 //     naming what stopped, instead of leaving the run waiting for hours.
 //   - However the calling run ends, the browser process ends with it and its throwaway profile folder is removed.
 //   - How many browsers may run at once on a computer is the runner's to decide, not this file's: a tool opens one
@@ -89,54 +91,70 @@ export async function openBrowser(executable, { width, height, switches = [] } =
   profile = mkdtempSync(join(tmpdir(), 'headless-browser-'));
   const proxy = process.env.HTTPS_PROXY || process.env.https_proxy;
   child = spawn(executable, [
-    ...quietSwitches, ...switches, ...(proxy ? [`--proxy-server=${proxy}`, '--proxy-bypass-list=<-loopback>'] : []), '--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run',
+    ...quietSwitches, ...switches, ...(proxy ? [`--proxy-server=${proxy}`, '--proxy-bypass-list=<-loopback>'] : []), '--headless=new', '--remote-debugging-pipe', `--user-data-dir=${profile}`, '--no-first-run',
     '--no-default-browser-check', '--no-sandbox', '--disable-gpu', '--hide-scrollbars', '--mute-audio',
     '--disable-dev-shm-usage', '--force-color-profile=srgb', `--window-size=${width},${height}`, 'about:blank',
-  ], { stdio: ['ignore', 'ignore', 'pipe'] });
+  ], { stdio: ['ignore', 'ignore', 'pipe', 'pipe', 'pipe'] });
   // However this run ends, even before the browser answered, the browser ends with it.
   killAtExit = () => { try { child.kill('SIGKILL'); } catch { /* process already exited */ } };
   process.once('exit', killAtExit);
   child.once('exit', () => {
     if (killAtExit) process.removeListener('exit', killAtExit);
   });
-  const address = await new Promise((found, failed) => {
-    let said = '';
-    const timer = setTimeout(() => failed(new BrowserProblem(`The browser did not start: ${said.slice(-400)}`)), 30000);
-    child.stderr.on('data', chunk => {
-      said += chunk;
-      const match = /DevTools listening on (ws:\/\/\S+)/.exec(said);
-      if (match) { clearTimeout(timer); found(match[1]); }
-    });
-    child.on('error', error => { clearTimeout(timer); failed(new BrowserProblem(`The browser ${executable} could not start: ${error.message}`)); });
-    child.on('exit', code => { clearTimeout(timer); failed(new BrowserProblem(`The browser stopped at start (exit ${code}): ${said.slice(-400)}`)); });
-  });
-  const socket = new WebSocket(address);
-  await new Promise((opened, failed) => { socket.onopen = opened; socket.onerror = () => failed(new BrowserProblem('The browser refused its own control connection.')); });
+  // What the browser said on its error output before it answered, for the words of a start that failed.
+  let said = '';
+  child.stderr.on('data', chunk => { said = (said + chunk).slice(-4000); });
   let next = 0;
   const waiting = new Map();
   const listeners = [];
-  socket.onmessage = message => {
-    const data = JSON.parse(message.data);
-    if (data.id !== undefined && waiting.has(data.id)) {
-      const { answer, fail } = waiting.get(data.id);
-      waiting.delete(data.id);
-      if (data.error) fail(new Error(`${data.error.message} (${data.error.code})`)); else answer(data.result);
-    } else if (data.method) for (const listen of listeners) listen(data);
+  const toBrowser = child.stdio[3];
+  const fromBrowser = child.stdio[4];
+  let ended = null;
+  const failAll = problem => {
+    ended ??= problem;
+    for (const { fail } of waiting.values()) fail(problem);
+    waiting.clear();
   };
+  // The browser's messages arrive in pieces; each ends at a NUL byte.
+  let heard = '';
+  fromBrowser.setEncoding('utf8');
+  fromBrowser.on('data', chunk => {
+    heard += chunk;
+    for (let end = heard.indexOf('\0'); end >= 0; end = heard.indexOf('\0')) {
+      const text = heard.slice(0, end);
+      heard = heard.slice(end + 1);
+      if (!text) continue;
+      const data = JSON.parse(text);
+      if (data.id !== undefined && waiting.has(data.id)) {
+        const { answer, fail } = waiting.get(data.id);
+        waiting.delete(data.id);
+        if (data.error) fail(new Error(`${data.error.message} (${data.error.code})`)); else answer(data.result);
+      } else if (data.method) for (const listen of listeners) listen(data);
+    }
+  });
+  fromBrowser.on('error', () => { /* the browser ended; its exit says why */ });
+  toBrowser.on('error', () => { /* the browser ended; its exit says why */ });
+  child.once('error', error => failAll(new BrowserProblem(`The browser ${executable} could not start: ${error.message}`)));
+  child.once('exit', code => failAll(new BrowserProblem(`The browser stopped (exit ${code}): ${said.slice(-400)}`)));
   // A browser that stops answering ends the run (and the caller's finally closes it) instead of leaving it open for hours.
-  const send = (method, params = {}, sessionId) => new Promise((answer, fail) => {
+  // Its first call may wait for the browser to start, so it is given 30 s.
+  const send = (method, params = {}, sessionId, seconds = 60) => new Promise((answer, fail) => {
+    if (ended) { fail(ended); return; }
     next += 1;
     const id = next;
-    const timer = setTimeout(() => { waiting.delete(id); fail(new BrowserProblem(`The browser stopped answering (${method}).`)); }, 60000);
+    const timer = setTimeout(() => {
+      waiting.delete(id);
+      fail(new BrowserProblem(seconds === 30 ? `The browser did not start: ${said.slice(-400)}` : `The browser stopped answering (${method}).`));
+    }, seconds * 1000);
     waiting.set(id, { answer: value => { clearTimeout(timer); answer(value); }, fail: error => { clearTimeout(timer); fail(error); } });
-    socket.send(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }));
+    toBrowser.write(`${JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) })}\0`);
   });
-  const { sessionId } = await attachPageTarget(send);
+  const { sessionId } = await attachPageTarget((method, params) => send(method, params, undefined, method === 'Target.getTargets' ? 30 : 60));
   let closed = false;
   const close = () => {
     if (closed) return;
     closed = true;
-    try { socket.close(); } catch { /* already closed */ }
+    try { toBrowser.destroy(); fromBrowser.destroy(); } catch { /* already closed */ }
     child.kill('SIGKILL');
     // The killed browser may still be writing its profile for a moment, so removing it retries briefly.
     rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
