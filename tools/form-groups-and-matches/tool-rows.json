@@ -735,7 +735,7 @@
         "label": "Answer a community's matchmaker: profile, scores, yes or no, topics, wrote",
         "status": "active",
         "job": "Give a community's matchmaker what it asked for: a member's answers and on/off switch, an AI's cited scores for its shortlist, a person's yes or no to an introduction, first topics, or that they wrote in the one-to-one",
-        "description": "One answer from one person (person), then the community's clock. kind profile: { on?, answers: { question_id: answer }, categories? }, refused when a question is not one the community asks or an answer holds the community's contact pattern. kind scores: { round_id, scores: [{ candidate_ref, factors: { factor: { score in (0, 1], reason, you: [claim_ref], them: [claim_ref] } } }] }; answers which candidates were grounded and why not, and the round closes once every asked AI answered. kind answer: { match_id, yes, consent }: a yes counts only when the answer carries the community's person stamp (consent.yes_needs) and the consent the person was shown (read-my-community-matches gives it); an AI's yes is refused with the screen to open; a no, from the person or their AI, passes the match for everyone. Once every member's yes holds, the one-to-one group (group:introduction) is made and each AI is asked for first topics. kind topics: { match_id, topics: [line] }. kind wrote: { match_id }: once every member wrote, the match has talked. kind run-round: the community's owner closes the open round and starts the next. Returns outcome ({ ok: true, ... } or { ok: false, error, status, next_call?, changed?, consent? }), round, next_at and written.",
+        "description": "One answer from one person (person), then the community's clock. kind profile: { on?, answers: { question_id: answer }, categories? }, refused when a question is not one the community asks or an answer holds the community's contact pattern. kind scores: { round_id, scores: [{ candidate_ref, factors: { factor: { score in (0, 1], reason, you: [claim_ref], them: [claim_ref] } } }] }; answers which candidates were grounded and why not, and the round closes once every asked AI answered. kind answer: { match_id, yes, consent }: a yes counts only when the run's task carries the community's person stamp (consent.yes_needs, a task fact the engine sets on a run the person started on their own page, which no input can set) and the consent the person was shown (read-my-community-matches gives it); an AI's yes is refused with the screen to open; a no, from the person or their AI, passes the match for everyone. Once every member's yes holds, the one-to-one group (group:introduction) is made and each AI is asked for first topics. kind topics: { match_id, topics: [line] }. kind wrote: { match_id }: once every member wrote, the match has talked. kind run-round: the community's owner closes the open round and starts the next. Returns outcome ({ ok: true, ... } or { ok: false, error, status, next_call?, changed?, consent? }), round, next_at and written.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -807,6 +807,10 @@
             },
             "request_key": {
               "type": "string"
+            },
+            "grant_person": {
+              "type": "string",
+              "description": "Set by the engine, never by the caller: the person a member calling through the community's grant is. When it is there, person must equal it."
             }
           }
         },
@@ -893,8 +897,15 @@
             "answerInCommunity"
           ],
           "stdin": {
-            "fill": {
-              "from": "input"
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
             }
           },
           "records": {
@@ -1031,6 +1042,10 @@
                 "string"
               ],
               "description": "The time to run at, in milliseconds or ISO words; left out, the time of the run."
+            },
+            "grant_person": {
+              "type": "string",
+              "description": "Set by the engine, never by the caller: the person a member calling through the community's grant is. When it is there, person must equal it."
             }
           }
         },

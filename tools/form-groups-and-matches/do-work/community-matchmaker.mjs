@@ -86,6 +86,12 @@ async function run(input, door, work, options) {
   return { ...result, written };
 }
 
+// A member calling through a grant at the holder's door is named by the engine: with identity self it sets
+// input.grant_person to the grant's principal for them (overriding any value sent), so that person may answer and read
+// only as themselves. A run of the holder's own (no grant) carries no grant_person.
+const NOT_THE_CALLER = { ok: false, error: 'A member may answer and read only as themselves: person must be the grant\'s person.', status: 403 };
+const notTheCaller = (input, person) => input.grant_person !== undefined && input.grant_person !== person;
+
 // A refusal is an answer the caller reads, in the community's own words: { ok: false, error, status }.
 const refusal = error => {
   if (error instanceof MatchRefusal) return { ok: false, error: error.message, status: error.status };
@@ -97,13 +103,15 @@ export function advanceCommunity(input, { door }) {
   return run(input, door, community => community.tick()).catch(refusal);
 }
 
-/** One person's answer (profile, scores, answer, topics, wrote, run-round), applied now; then the clock. */
-export function answerInCommunity(input, { door }) {
+/** One person's answer (profile, scores, answer, topics, wrote, run-round), applied now; then the clock. The row hands
+ *  { input, task }: the run's task is the engine's, so a yes reads the person stamp there, never from the input. */
+export function answerInCommunity({ input = {}, task = {} } = {}, { door }) {
   const person = need(input, 'person', 'who answers');
+  if (notTheCaller(input, person)) return Promise.resolve(NOT_THE_CALLER);
   need(input, 'kind', 'which answer: profile, scores, answer, topics, wrote or run-round');
   return run(input, door, community => {
-    const { community_id: _community, now: _now, request_key: _key, ...answer } = input;
-    const outcome = community.apply({ ...answer, person });
+    const { community_id: _community, now: _now, request_key: _key, grant_person: _caller, ...answer } = input;
+    const outcome = community.apply({ ...answer, person }, task);
     return { outcome, ...community.tick() };
   }).catch(refusal);
 }
@@ -111,6 +119,7 @@ export function answerInCommunity(input, { door }) {
 /** What one member reads: their matches, profile, owed score job and who shares a category with them. */
 export function readCommunityMatches(input, { door }) {
   const person = need(input, 'person', 'the member reading');
+  if (notTheCaller(input, person)) return Promise.resolve(NOT_THE_CALLER);
   return run(input, door, community => community.myMatching(person), { everything: true }).catch(refusal);
 }
 
