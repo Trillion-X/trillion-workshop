@@ -1,6 +1,6 @@
 {
   "schema": "trillion.page-conventions",
-  "about": "How a public page describes itself, as the web agreed it (read by ./page-facts.mjs). Each list names the <meta property|name> keys that carry one fact, in order: the first key a page states wins for a single fact (title, description, site), and every key is read for a list (pictures, videos), deduplicated in the order found. icon_rels are <link rel> words that name the page's icon. structured_data reads the page's <script type=\"application/ld+json\"> blocks (schema.org): at most max_blocks objects (each object of a block's @graph counts as one), at most max_characters of them in all, walked no deeper than max_depth; picture_keys and video_keys are the keys whose values (a web address, an { url } object, or a list of them) add to pictures and videos. direct_files says which list a link that is itself a file adds to, by the start of its media type. max_pictures and max_videos cap each list. A new convention is one more key here, never a change to the reader.",
+  "about": "How a public page describes itself, as the web agreed it (read by ./page-facts.mjs). Each list names the <meta property|name> keys that carry one fact, in order: the first key a page states wins for a single fact (title, description, site), and every key is read for a list (pictures, videos), deduplicated in the order found. icon_rels are <link rel> words that name the page's icon. structured_data reads the page's <script type=\"application/ld+json\"> blocks (schema.org): at most max_blocks objects (each object of a block's @graph counts as one), at most max_characters of them in all, walked no deeper than max_depth; picture_keys and video_keys are the keys whose values (a web address, an { url } object, or a list of them) add to pictures and videos. direct_files says which list a link that is itself a file adds to, by the start of its media type. max_pictures and max_videos cap each list. archive says how an outlet's archive is walked (read by ./archive-facts.mjs and ./walk-archive.mjs): pagination_rels and pagination_words name the <a> and <link> rel values and the link words (case and punctuation ignored) that mean the next, older page of a listing; date_meta and date_keys name the page tags and structured-data keys that carry the day a page was published; month_names are matched by their first three letters; skipped_extensions are links that are never archive entries; wayback says how the Wayback Machine is asked for dated snapshots of one page (the walk source wayback): its public CDX index at host and cdx_path, only snapshots answered with status and media type mimetype, at most max_rows of them, one per period (collapse maps year, month, day to the leading digits of the 14-digit timestamp that must differ), and each read raw (raw_flag) at snapshot_path; the walk's own limits are the default_, max_ and min_ values. A new convention is one more key here, never a change to the reader.",
   "title": ["og:title", "twitter:title"],
   "description": ["og:description", "twitter:description", "description"],
   "site": ["og:site_name", "application-name"],
@@ -19,5 +19,33 @@
     { "media_type_starts": "video/", "adds_to": "videos" }
   ],
   "max_pictures": 40,
-  "max_videos": 20
+  "max_videos": 20,
+  "archive": {
+    "pagination_rels": ["next"],
+    "pagination_words": ["older", "older posts", "older entries", "older issues", "older articles", "older stories", "next", "next page", "next posts", "next issues", "load more", "more posts", "view more"],
+    "date_meta": ["article:published_time", "og:article:published_time", "datepublished", "date", "dc.date", "dcterms.date", "pubdate", "publish-date"],
+    "date_keys": ["datePublished", "dateCreated"],
+    "month_names": ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"],
+    "skipped_extensions": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".pdf", ".css", ".js", ".json", ".xml", ".rss", ".zip", ".mp3", ".mp4"],
+    "eras": ["early", "middle", "recent"],
+    "wayback": {
+      "host": "web.archive.org",
+      "cdx_path": "/cdx/search/cdx",
+      "snapshot_path": "/web",
+      "raw_flag": "id_",
+      "status": "200",
+      "mimetype": "text/html",
+      "max_rows": 5000,
+      "collapse": { "year": 4, "month": 6, "day": 8 },
+      "default_collapse": "month"
+    },
+    "robots_agent": "TrillionPublicPageReader",
+    "default_listing_pages": 10,
+    "max_listing_pages": 50,
+    "default_count": 10,
+    "max_count": 200,
+    "min_delay_seconds": 2,
+    "default_delay_seconds": 2,
+    "max_delay_seconds": 30
+  }
 }
