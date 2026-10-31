@@ -326,14 +326,21 @@ def videos_cited(row):
 
 def command_coverage(args):
     mined = defaultdict(int)
+    row_files = []
     for pattern in args.rows:
-        for _, _, line in read_lines(pattern):
+        for file, _, line in read_lines(pattern):
             try:
                 row = json.loads(line)
             except ValueError:
                 continue
+            # Extract outcomes and rejected model answers also name videos. They are not kept knowledge rows.
+            if 'failed_parts' in row or ('why' in row and 'row' in row) or ('error' in row and 'attempt' in row):
+                continue
             for video in videos_cited(row):
                 mined[video] += 1
+            if row.get('sources') and file not in row_files:
+                row_files.append(file)
+    completed = {video for video, entry in read_done(args.done).items() if not entry.get('failed_parts')} if args.done else set()
     groups = defaultdict(lambda: dict(channel_url=None, videos=0, words=0, shorts=0, mined_videos=0, rows=0))
     with open(args.corpus, encoding="utf-8") as handle:
         for line in handle:
@@ -345,14 +352,22 @@ def command_coverage(args):
             group["shorts"] += video.get("kind") == "short"
             group["mined_videos"] += video["id"] in mined
             group["rows"] += mined.get(video["id"], 0)
+            if args.done:
+                group['completed_videos'] = group.get('completed_videos', 0) + (video['id'] in completed)
     table = sorted(({"platform": p, "channel": ch, **g} for (p, ch), g in groups.items()), key=lambda g: -g["words"])
     print("platform", "channel", "videos", "shorts", "words", "mined_videos", sep="\t")
     for g in table:
         print(g["platform"], g["channel"], g["videos"], g["shorts"], g["words"], g["mined_videos"], sep="\t")
-    totals = {k: sum(g[k] for g in table) for k in ("videos", "shorts", "words", "mined_videos", "rows")}
+    keys = ("videos", "shorts", "words", "mined_videos", "rows") + (('completed_videos',) if args.done else ())
+    totals = {k: sum(g[k] for g in table) for k in keys}
     if args.out:
-        with open(args.out, "w", encoding="utf-8") as handle:
-            json.dump({"totals": totals, "channels": table}, handle, ensure_ascii=False, indent=1)
+        with open(args.out + '.part', "w", encoding="utf-8") as handle:
+            json.dump({"totals": totals, "channels": table,
+                       "row_files": [dict(path=os.path.relpath(os.path.abspath(file), os.path.dirname(os.path.abspath(args.out))),
+                                          **({'sidecar': os.path.relpath(os.path.splitext(os.path.abspath(file))[0] + '.nxn.json', os.path.dirname(os.path.abspath(args.out)))}
+                                             if os.path.exists(os.path.splitext(file)[0] + '.nxn.json') else {})) for file in row_files]},
+                      handle, ensure_ascii=False, indent=1)
+        os.replace(args.out + '.part', args.out)
     return {"channels": len(table), **totals, "out": args.out}
 
 
@@ -476,6 +491,13 @@ def command_extract(args):
     totals = dict(videos=0, rows=0, dropped=0, failed_parts=0, prompt_tokens=0, completion_tokens=0)
     began = time.time()
 
+    def write_coverage():
+        if not args.coverage_out:
+            return
+        files = sorted({os.path.join(args.out, file_name(video['channel']) + '.jsonl') for video in corpus.values()})
+        command_coverage(argparse.Namespace(corpus=args.corpus, rows=[file for file in files if os.path.exists(file)],
+                                            done=done_path, out=args.coverage_out))
+
     def finish(video_id):
         entry = held.pop(video_id)
         rows = [{"id": f"{video_id}@{row['sources'][0]['t']}#{k}", **row}
@@ -496,6 +518,7 @@ def command_extract(args):
             spent = time.time() - began
             print(f"{totals['videos']} videos, {totals['rows']} rows, {totals['completion_tokens']} tokens written in {spent:.0f} s "
                   f"({totals['completion_tokens'] / max(spent, 1):.1f} tokens/s)", flush=True)
+            write_coverage()
 
     with ThreadPoolExecutor(max_workers=args.concurrency) as pool, \
             open(os.path.join(args.out, "dropped.jsonl"), "a", encoding="utf-8") as dropped_file, \
@@ -526,6 +549,7 @@ def command_extract(args):
                     if remaining[part["video"]] == 0:
                         finish(part["video"])
     spent = time.time() - began
+    write_coverage()
     print(f"{totals['videos']} videos, {totals['rows']} rows kept, {totals['dropped']} dropped, {totals['failed_parts']} parts failed, "
           f"{spent:.0f} s", flush=True)
     return {**totals, "chunks": len(chunks), "seconds": round(spent), "out": args.out}
@@ -545,6 +569,7 @@ def build_parser():
     s = sub.add_parser("coverage", help="videos, shorts and words per platform and channel, and how many videos the rows already cite")
     s.add_argument("--corpus", required=True)
     s.add_argument("--rows", nargs="*", default=[], help="globs of JSONL rows naming video, sources[].video or demonstrated_in[].video")
+    s.add_argument("--done", help="extraction's done.jsonl: count fully read videos separately, including those that yielded zero rows")
     s.add_argument("--out", help="where to write the table as JSON")
     s.set_defaults(run=command_coverage)
     s = sub.add_parser("extract", help="ask a chat model for rows from every part of every video, each quote placed on the exact caption words")
@@ -563,6 +588,7 @@ def build_parser():
     s.add_argument("--retry-seconds", type=float, default=10, help="wait this many seconds times the attempt number before asking again")
     s.add_argument("--wait-for-model", type=float, default=1800, help="seconds to keep waiting for a model server that cannot be reached")
     s.add_argument("--report-every", type=int, default=10, help="print throughput every this many videos")
+    s.add_argument("--coverage-out", help="atomically refresh coverage and source-row manifest after each progress report and at the end")
     s.set_defaults(run=command_extract)
     s = sub.add_parser("candidates", help="the passages worth reading for principles, per channel, and each channel's best openings")
     s.add_argument("--corpus", required=True)

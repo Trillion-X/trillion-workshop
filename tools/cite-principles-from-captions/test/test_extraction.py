@@ -110,12 +110,12 @@ class ReplyTest(unittest.TestCase):
 
     def test_rows_name_their_part_and_carry_the_persons_fields(self):
         asks = {"rows_key": "rows", "part_field": "part", "quote_field": "quote"}
-        videos = {"a": {"id": "a", "channel": "C", "title": "T", "platform": "p", "segs": SEGS}}
+        videos = {"a": {"id": "a", "channel": "C", "title": "T", "platform": "p", "url": "https://example.org/source-a", "segs": SEGS}}
         chunk = [{"video": "a", "first_line": 0, "end_line": 4, "words": 20}]
         reply = {"rows": [{"part": 1, "idea": "Price high first.", "quote": "price it high"}, {"part": 3, "quote": "x"}, "nonsense"]}
         kept, dropped = x.rows_of_reply(asks, chunk, videos, lambda v: x.Captions(SEGS, 20), reply["rows"], {"by": "m"})
         self.assertEqual(kept, [{"idea": "Price high first.", "by": "m", "sources": [
-            {"video": "a", "platform": "p", "channel": "C", "guest": None, "title": "T", "t": 4, "t_end": 10, "quote": "price it high", "quote_match": 1.0}]}])
+            {"video": "a", "platform": "p", "channel": "C", "guest": None, "title": "T", "url": "https://example.org/source-a", "t": 4, "t_end": 10, "quote": "price it high", "quote_match": 1.0}]}])
         self.assertEqual([d["why"] for d in dropped], ["names no part it read", "not an object"])
 
     def test_a_row_whose_field_holds_a_value_the_asks_drop_is_set_aside_with_the_reason(self):

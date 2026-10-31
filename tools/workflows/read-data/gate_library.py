@@ -127,7 +127,13 @@ class Library:
     # -- the checklist ------------------------------------------------------------------------------------------------
     @property
     def checklist(self) -> dict:
-        return self.file(self.schema['checklist'])
+        base = self.file(self.schema['checklist'])
+        if 'library_checks' not in self.schema:
+            return base
+        if not hasattr(self, '_composed_checklist'):
+            from library_checks import with_library_checks
+            self._composed_checklist = with_library_checks(self, base)
+        return self._composed_checklist
 
     def checks(self) -> dict[str, dict]:
         return {c['id']: c for s in self.checklist['stages'] for c in s['checks']}

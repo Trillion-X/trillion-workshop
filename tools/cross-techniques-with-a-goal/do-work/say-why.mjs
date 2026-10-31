@@ -97,10 +97,14 @@ export function recordedJudge(judgments) {
   }
   const waiting = [];
   const judge = async ({ vocabulary, proposal, candidates }) => {
-    const judged = byKey.get(`${vocabulary}\u0000${proposal.term.toLowerCase()}`) ?? [];
-    const chose = judged.find(item => item.chosen && candidates.some(candidate => candidate.term === item.chosen));
+    // Names alone cannot bind meaning: editing a definition under an old label invalidates its earlier judgment.
+    // Legacy records without definitions remain evidence to review; they cannot decide a fresh fold.
+    const judged = (byKey.get(`${vocabulary}\u0000${proposal.term.toLowerCase()}`) ?? [])
+      .filter(item => !item.unresolved && typeof item.proposed_says === 'string' && item.proposed_says.trim() && item.proposed_says === (proposal.says ?? '') && Array.isArray(item.candidate_definitions));
+    const wasJudged = (item, candidate) => item.candidate_definitions.some(previous => previous.term === candidate.term && previous.says?.trim() && previous.says === (candidate.says ?? ''));
+    const chose = judged.find(item => item.chosen && candidates.some(candidate => candidate.term === item.chosen && wasJudged(item, candidate)));
     if (chose) return chose.chosen;
-    if (judged.some(item => item.chosen === '' && candidates.every(candidate => item.among.includes(candidate.term)))) return '';
+    if (judged.some(item => item.chosen === '' && candidates.every(candidate => item.among.includes(candidate.term) && wasJudged(item, candidate)))) return '';
     waiting.push({ vocabulary, term: proposal.term, says: proposal.says, candidates });
     return undefined;
   };

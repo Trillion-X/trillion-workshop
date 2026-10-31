@@ -326,7 +326,7 @@ test('a declared path catalogue is forwarded as a path and invalid catalogue val
 });
 
 test('the reader\'s own bounds hold: too many or unknown sources are refused, no listing asks for more than the door\'s page', async () => {
-  const many = bakery({ sources: ['/a', '/b', '/c', '/d', '/e'].map(of => ({ source: 'documents', of })) });
+  const many = bakery({ sources: Array.from({ length: limits.row_sources_per_list + 1 }, (_, index) => ({ source: 'documents', id: `source-${index}`, of: `/document-${index}` })) });
   await assert.rejects(read(many.door, { list: 'chores' }), new RegExp(`at most ${limits.row_sources_per_list} row sources`));
   const unknown = bakery({ sources: [{ source: 'weather' }] });
   await assert.rejects(refresh(unknown.door), /No tool serves the row source "weather"/);

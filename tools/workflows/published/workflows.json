@@ -3,12 +3,12 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "29f57c85c8e599d97cda24f83db5190b2b42fd2f98198b9e83d93dc9c3033afb",
+  "blake3": "692ecba9dbc252837548025fdab11e9b90a5377bd0923f2f6547b39338c9e0be",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
    "canonical_rows_readback": false,
-   "reason": "The selected native Trillion app route was unavailable; do not represent these local row updates as account writes.",
+   "reason": "Other named local workflow updates remain pending account sync; the intake workflow row and four updated steps were saved and read back with full-value equality in this run.",
    "target_lists": [
     "workflows",
     "workflow-steps"
@@ -16,7 +16,14 @@
    "workflow_ids": [
     "get-found-in-search-and-answer-engines",
     "keep-pages-cited-by-answer-engines"
-   ]
+   ],
+   "verified_workflow_ids": [
+    "turn-something-shared-into-what-you-can-use"
+   ],
+   "verified_account_rows": [
+    "record:workflow-recipe:turn-something-shared-into-what-you-can-use"
+   ],
+   "verified_readback_blake3": "2a0ef0272e6b375a9b0bc337dbef0791b45fff25080a411d988168156565c96e"
   }
  },
  "fields": [
@@ -265,7 +272,7 @@
      "public"
     ],
     "input_schema": "{\"type\":\"object\",\"required\":[\"site\",\"questions\",\"engines\"],\"properties\":{\"site\":{\"type\":\"string\",\"minLength\":8,\"description\":\"The address of the person's own site, for example the home page; its sitemap is read from /sitemap.xml or from the Sitemap line of its robots.txt\"},\"questions\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":5},\"description\":\"The questions a reader asks that the site should answer, in the reader's words\"},\"engines\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The engines to measure, for example Google, Google AI Mode, ChatGPT, Claude, Gemini and Perplexity\"},\"check_rows\":{\"type\":\"array\",\"items\":{\"type\":\"object\"},\"description\":\"The person's own check rows, as tool:check-a-page-for-search-and-answer-engines takes them, if they want different checks from the shipped ones\"}}}",
-    "job": "For the person's own site: list its pages, check the served pages, prepare changes grounded in the existing page and verified facts, then use only the destination's currently available declared tools to save a draft, preview it, publish under that destination's existing authority and read the live result back. If a required write, preview, publish or readback operation or grant is unavailable, name that exact gap and stop before claiming publication; do not tell the person to publish manually. Ask reader questions of the named answer engines and measure every planned page × question × engine cell, keeping unavailable and unasked results unknown.",
+    "job": "For the person's own site: list its pages, check the served pages, prepare changes grounded in the existing page and verified facts, then use only the destination's currently available declared tools to save a draft, preview it, publish under that destination's existing authority and read the live result back. If a required write, preview, publish or readback operation or grant is unavailable, name that exact gap and stop before claiming publication; do not tell the person to publish manually. Ask reader questions of the named answer engines and measure every planned page \u00d7 question \u00d7 engine cell, keeping unavailable and unasked results unknown.",
     "produces": "A dated before-and-after of every page's score and of which engines name the site for which questions, which can become a 'what changed and what it did' post.",
     "recipe": "workflow:get-found-in-search-and-answer-engines",
     "source": "{\"from\":\"the served-HTML check rows in tools/ai-readiness/read-data/ai-readiness-checks.json, each naming where it came from\",\"name\":\"Answer engines read the HTML a page is served with; measure the result in the engines' own answers\",\"note\":\"Not adopted: writing pages for engines instead of readers, or asking an engine the same question many times to push a page up. The check rows are the person's to change; the tool takes its own rows as input. tools/workflows/recipes/keep-pages-cited-by-answer-engines.json is the companion that keeps the facts on cited pages fresh.\"}",
@@ -346,7 +353,7 @@
      "public"
     ],
     "input_schema": "{\"type\":\"object\",\"required\":[\"pages\",\"answer_engines\",\"freshness_days\",\"rules\"],\"properties\":{\"pages\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"url\",\"questions\"],\"properties\":{\"url\":{\"type\":\"string\",\"minLength\":8},\"questions\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":5},\"description\":\"The questions a reader asks that this page answers, in the reader's words\"}}},\"description\":\"The person's own pages\"},\"answer_engines\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":8,\"description\":\"The search address of an answer engine with {question} where the question goes\"},\"description\":\"The answer engines the person wants to be cited by\"},\"freshness_days\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"A fact dated longer ago than this many days is refreshed\"},\"rules\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\"},\"description\":\"The person's own word rules, as tool:check-against-a-persons-rules-and-verdicts takes them\"},\"message\":{\"type\":\"string\",\"description\":\"The one message the person keeps at every touchpoint, if they wrote one\"}}}",
-    "job": "Every 90 days, measure every planned page × question × answer engine cell, preserve the complete answers and their exact links and context, find stale facts on those pages, refresh only facts confirmed by current sources, and run changed words through the person's rules. Save changes only through a destination's currently available declared draft, preview, publish and live-readback tools under the authority they already provide. If a required operation or grant is missing, report the exact gap and leave the live destination unchanged; never direct the person to publish manually.",
+    "job": "Every 90 days, measure every planned page \u00d7 question \u00d7 answer engine cell, preserve the complete answers and their exact links and context, find stale facts on those pages, refresh only facts confirmed by current sources, and run changed words through the person's rules. Save changes only through a destination's currently available declared draft, preview, publish and live-readback tools under the authority they already provide. If a required operation or grant is missing, report the exact gap and leave the live destination unchanged; never direct the person to publish manually.",
     "produces": "A dated before-and-after of which pages each answer engine cites and which facts were refreshed, which can become a 'what changed in 90 days' post.",
     "recipe": "workflow:keep-pages-cited-by-answer-engines",
     "source": "{\"from\":\"principles mined from video captions\",\"name\":\"Content has a half-life for answer engines; keep one message at every touchpoint\",\"principles\":[\"P-025\",\"P-047\"],\"note\":\"The half-life numbers the sources give (weeks before a new page is cited, citations decaying in about three months) are their claims, not checked here; the 90-day wake is the person's to change. Not adopted: asking an answer engine many times to push a page up, or writing pages for engines instead of readers.\"}",
@@ -1016,8 +1023,8 @@
      "public"
     ],
     "input_schema": "{\"type\":\"object\",\"properties\":{\"shared\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":3},\"description\":\"What the person shared: each item is a link, or the pasted text of a post or article. Left out when the run was woken by a shared record: the gather step reads it from the record.\"},\"why\":{\"type\":\"string\",\"description\":\"Anything the person said about it, in their own words (for example 'must do 100%')\"}}}",
-    "job": "Read what the person shared in full, split it into its parts, and put each part where the person's AI can use it again: methods and facts as technique records described by what they work on (never tied to one medium), step-by-step playbooks as workflow recipes, code as tools, and every paid product matched to a free or open-source tool that does the same job. Record every step that is not adopted and why.",
-    "produces": "New technique records, recipes and tools made from what was shared, with the free tool for each paid one; \"what I took from this and built\" is a post.",
+    "job": "Read what the person shared in full, split it into its parts, and put each part where the person's AI can use it again: methods and facts as technique records described by what they work on (never tied to one medium), step-by-step playbooks as workflow recipes, code as tools, and every paid product matched to a free or open-source tool that does the same job. Record every step that is not adopted and why. Apply supported findings to current authorized work through existing checks and workflows, execute the available actions and read back their real results.",
+    "produces": "New technique records, recipes and tools made from what was shared, with the free tool for each paid one; \"what I took from this and built\" is a post. Source-qualified applications, executed work and checked outcomes; held and untouched work stay explicit.",
     "recipe": "workflow:turn-something-shared-into-what-you-can-use",
     "source": "{\"from\":\"a person's standing rule\",\"name\":\"Anything shared means incorporate it, not acknowledge it\",\"note\":\"Written from the way one person's AI handled 30 shared posts, repositories and product pages on 2026-10-30: each was split into parts and each part went to the owner of its kind. Steps that deceive people or evade a platform's checks are recorded as not adopted with the reason, never silently dropped.\"}",
     "title": "Turn something shared into what you can use",

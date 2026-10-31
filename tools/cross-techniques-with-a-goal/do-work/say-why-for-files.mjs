@@ -53,6 +53,44 @@ export const rowsOfFile = file => (file.endsWith('.jsonl')
   : rowsOf(json(file)));
 export const sidecarOf = file => join(dirname(file), `${basename(file, file.endsWith('.jsonl') ? '.jsonl' : '.json')}.nxn.json`);
 
+// Judge a saved waiting set in batches, preserving each exact candidate set. The recorded judge still decides
+// whether a saved answer applies when the vocabulary grows; a batch never admits a term itself.
+export async function judgeWaiting(request, write, system, log = () => {}) {
+  const judgments = existsSync(request.judgments_file) ? json(request.judgments_file) : [];
+  const recorded = recordedJudge(judgments);
+  const todo = [];
+  for (const item of json(request.waiting_file)) {
+    if (await recorded.judge({ vocabulary: item.vocabulary, proposal: item, candidates: item.candidates }) === undefined) todo.push(item);
+  }
+  const limited = todo.slice(0, request.limit ?? Infinity);
+  const size = request.batch_size ?? 24;
+  if (!Number.isInteger(size) || size < 1) throw new Error('batch_size must be a positive integer');
+  let judged = 0;
+  for (let start = 0; start < limited.length; start += size) {
+    const batch = limited.slice(start, start + size);
+    const properties = Object.fromEntries(batch.map((item, i) => [`j${i}`, { type: 'object', additionalProperties: false, required: ['why', 'choice'], properties: {
+      why: { type: 'string' }, choice: { type: 'integer', enum: Array.from({ length: item.candidates.length + 1 }, (_, n) => n) },
+    } }]));
+    const answer = await write({ name: 'same_meaning_batch',
+      system: `${system}\nJudge each case independently. Return one JSON object. Each jN has why (a short explanation of the meaning and differences), then choice (0 for none, or the 1-based index of an interchangeable existing term). Do not choose the closest or most related: choose 0 unless substituting it preserves the same causal operation or measured property. Shared outcomes, shared words, broad categories, examples of a category and overlapping ideas are insufficient. For example, answering an objection reduces fear; preventing misattribution corrects which cause is blamed. They are different: choose 0. Authentic speech inspiring trust is different from matching an audience's vocabulary to aid comprehension: choose 0. When a genuinely interchangeable term is present, reuse it.`,
+      user: Object.fromEntries(batch.map((item, i) => [`j${i}`, { proposed: { term: item.term, says: item.says }, existing: item.candidates.map(({ term, says }) => ({ term, says })) }])),
+      schema: { type: 'object', additionalProperties: false, required: Object.keys(properties), properties } });
+    // Validate every answer before saving any of this batch, including when a server ignores its schema.
+    for (let i = 0; i < batch.length; i += 1) {
+      const { choice, why } = answer[`j${i}`] ?? {};
+      if (!Number.isInteger(choice) || choice < 0 || choice > batch[i].candidates.length || typeof why !== 'string' || !why.trim()) throw new Error(`Invalid judgment j${i}: ${JSON.stringify(answer[`j${i}`])}`);
+    }
+    judgments.push(...batch.map((item, i) => ({ vocabulary: item.vocabulary, term: item.term,
+      proposed_says: item.says ?? '', candidate_definitions: item.candidates.map(({ term, says }) => ({ term, says: says ?? '' })),
+      chosen: answer[`j${i}`].choice ? item.candidates[answer[`j${i}`].choice - 1].term : '', why: answer[`j${i}`].why,
+      among: item.candidates.map(candidate => candidate.term), judged_by: request.models.writing.model })));
+    save(request.judgments_file, judgments);
+    judged += batch.length;
+    log(`judged ${judged} of ${limited.length} waiting terms`);
+  }
+  return { judged, remaining: todo.length - judged, saved: judgments.length };
+}
+
 // Every source with its rows, hashes and sidecar (made empty when there is none yet).
 function openLibrary(request) {
   return request.sources.map(source => {
@@ -103,6 +141,7 @@ const vocabularySizes = lexicon => Object.fromEntries(Object.entries(lexicon.voc
 
 export async function sayWhyForFiles(request, log = () => {}) {
   const conventions = forRows(json(conventionsFile), request);
+  if (request.step === 'judge') return judgeWaiting(request, writer(request.models.writing), conventions.same_meaning.system, log);
   const library = openLibrary(request);
 
   if (request.step === 'list') {
@@ -113,7 +152,7 @@ export async function sayWhyForFiles(request, log = () => {}) {
   if (request.step === 'rows') {
     return { rows: library.flatMap(entry => entry.rows.flatMap(row => {
       const kept = entry.kept.get(String(row.id));
-      if (!kept?.settled_from) return [];
+      if (!kept?.settled_from || kept.from_hash !== entry.hashes.get(String(row.id)) || kept.settled_from !== hashOf(kept.proposed)) return [];
       const carried = Object.fromEntries(conventions.carry.filter(key => row[key] !== undefined).map(key => [key, row[key]]));
       const settled = Object.fromEntries(settledFields().map(key => [key, kept[key]]));
       return [{ id: kept.id, ...carried, ...settled }];
@@ -174,7 +213,7 @@ export async function sayWhyForFiles(request, log = () => {}) {
     const judge = request.judge === 'ask' ? askingJudge(writer(request.models.writing), conventions) : recorded.judge;
     const settle = makeSettler({ lexicon, conventions, embed, judge });
     const items = library.flatMap(entry => entry.rows.map(row => entry.kept.get(String(row.id)))
-      .filter(kept => kept?.proposed && (request.fresh === true || kept.settled_from !== hashOf(kept.proposed)))
+      .filter(kept => kept?.proposed && kept.from_hash === entry.hashes.get(kept.id) && (request.fresh === true || kept.settled_from !== hashOf(kept.proposed)))
       .map(kept => ({ id: kept.id, proposed: kept.proposed, entry })));
     log(`settling ${items.length} rows${request.fresh === true ? ' from an empty vocabulary' : ''}`);
     const entryOf = new Map(items.map(item => [item.id, item.entry]));

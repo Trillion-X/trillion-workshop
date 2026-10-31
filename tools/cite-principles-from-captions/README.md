@@ -55,6 +55,8 @@ The person's files:
 
 `extract` options: `--channels` (only these, in this order), `--videos FILE` (ids in reading order), `--limit N` (videos this run), `--chunk-words`, `--concurrency N` (requests in flight; a server with several slots or batching answers them together), `--max-load L` (wait before each request while the one-minute load average is above L), `--attempts` (answers that cannot be read, or that the server refuses, before the video is left for the next run), `--retry-seconds`, `--wait-for-model` (seconds to keep waiting, without spending an attempt, for a server that cannot be reached, default 1800), `--report-every`.
 
+`extract --coverage-out FILE` atomically refreshes coverage after each progress report and at the end, including a `row_files` manifest (`{path, sidecar?}`, relative to that coverage file). Downstream importers can consume each channel without naming channels in code or reading extraction ledgers as knowledge. `coverage --done FILE` separately counts completed videos, including videos that yielded no kept rows; `mined_videos` counts videos cited by kept rows. Completed, rejected and failed extraction outcomes do not inflate kept-row coverage. A source's original URL is retained when the corpus supplies one, including other platforms.
+
 Options: `candidates --caps FILE` (`{channel: most passages to keep}`), `--window-seconds`, `--per-video`, `--opening-seconds`, `--openings-per-channel`, `--openings-per-large-channel`; `verify --caption-files GLOB` (json3 files for videos not in the corpus; `{video}` is the video id); `registry --id-map FILE`, `--url-template`.
 
 ## What it does

@@ -99,10 +99,12 @@ A model in a request is `{ url, model, key_env? }`; a writing model may also nam
 - **`list`**: the rows with no current proposal (`{ source, id, text }`).
 - **`propose`**: asks `models.writing` for proposals, a few rows per call.
 - **`take`**: puts proposals written elsewhere onto their rows (`{ proposed_by, rows }` files).
+- **`judge`**: judges `waiting_file` cases in batches (`batch_size`, default 24; optional `limit`) through `models.writing`, saving `judgments_file` after every batch. Answers carry a reason and a validated candidate index. This saves model calls; model choices still require semantic quality checks before a fold. Recorded choices retain `proposed_says` and `candidate_definitions`; a changed definition or an old record without these bindings cannot decide a fresh fold. Missing definitions remain waiting rather than proving a new term.
 - **`settle`**: folds proposals into the lexicon. Use `fresh: true` for every row from an empty lexicon, otherwise only changed rows are folded. Rows are folded `checkpoint_every` at a time (100 by default) and the sidecars and lexicon are saved after each part, so a settle that stops keeps what it finished and the next run folds only the rest. With `judge: "ask"`, an answer that is not JSON leaves that term undecided (provisional) rather than ending the settle. `judge: "ask"` judges now; `"recorded"` reads `judgments_file` and writes what is still to judge to `waiting_file`.
 - **`rows`**: the joined rows (`carry` fields plus crossing fields) ready for crossing.
 
 A sidecar row carries `from_hash` (BLAKE3 of the source row) and `settled_from` (BLAKE3 of its proposal), so every step only touches what changed.
+Joined rows and settling reject a proposal whose source hash is stale. A corrected source must receive a current proposal before its old inferred crossing fields can reappear.
 
 ## Dependencies
 
