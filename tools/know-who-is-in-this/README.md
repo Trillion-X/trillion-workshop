@@ -9,7 +9,7 @@ Tells who is in a recording or a picture, from voices and faces the person enrol
 | `read-data/who_is_in.py` | Pure, standard library only: the consent check, the print record, who a voice or face is (named only when one enrolled person is clearly the closest, else every person it could be, else nobody), naming the voices of a recording with unknown voices that keep their number through a listening, joining stretches into turns, naming faces. |
 | `do-work/measure.py` | Loads media-composition's `find-recurring-voices.py` (CAM++ voice vectors, speech windows) and `blur-faces-not-agreed.py` (YuNet, SFace) and calls them. |
 | `do-work/enrol-a-print.py` | `tool:enrol-a-voice-or-face`. Refuses without consent words or a known kind before it measures anything. |
-| `do-work/who-is-in-this.py` | `tool:who-is-in-this`. A transcript's timed stretches in, who said each turn out, plus the listening's voice-session record. |
+| `do-work/who-is-in-this.py` | `tool:who-is-in-this`. A transcript's timed stretches in, who said each turn out, plus the listening's listening-voices record. |
 | `do-work/find-faces.py` | `tool:find-faces`. Faces of a picture or video with their place and who they are. Changes no file. |
 | `tool-rows.json` | The three rows. |
 | `test/test_who_is_in.py` | The pure readers on made-up voices and faces (each "person" is one axis of the vector space plus noise). |
@@ -19,7 +19,7 @@ Tells who is in a recording or a picture, from voices and faces the person enrol
 ## How it works
 
 - A print is one record per person and kind (`voice-print`, `face-print`): the name, `me`, the sample vectors and the consent words with the day they were said. Enrolling the same name again adds samples and consent words; nothing is replaced.
-- Prints and the `voice-session` record (the unknown voices heard in one listening, with their numbers) are kinds that are `stays_on_this_device: true`. They are never shared, exported, synced or sent to a model off the device. Tool descriptions say so; the engine enforces it once the kind flag is wired (see Not yet).
+- Prints and the `listening-voices` record (the unknown voices heard in one listening, with their numbers) are kinds that are `stays_on_this_device: true`. They are never shared, exported, synced or sent to a model off the device. Tool descriptions say so; the engine enforces it once the kind flag is wired (see Not yet).
 - Unknown voices are `voice-1`, `voice-2` and so on, the same for the same voice across every recording of one `listening`. Two unknown voices that grow alike become one and list both labels, so what was kept under either label can be named together later.
 - A voice heard in a listening can be enrolled (`heard_voice`): every label it was heard under is returned in `heard_as`, so the caller names what was already kept under each.
 - Stretches of one voice in a recording are judged together, a stretch too short to measure takes its neighbour's voice, and turns of one voice a couple of seconds apart are joined.

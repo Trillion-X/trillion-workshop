@@ -1,0 +1,84 @@
+{
+  "kind": "tool-rows",
+  "record_set": "listen-for-a-while-tool-rows",
+  "what_this_is": "The Workshop row for tools/listen-for-a-while: a run that listens to the microphone until the person's end time and writes each turn as a heard row as it is said.",
+  "records": [
+    {
+      "id": "package::listen-for-a-while::tool::listen-for-a-while",
+      "address": "package::listen-for-a-while::tool::listen-for-a-while",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:listen-for-a-while",
+        "status": "active",
+        "label": "Listen to the microphone until a time, and keep who said what",
+        "job": "Listen in on a meeting or a room until a time I give, and keep each person's turn as it is said",
+        "description": "Records the microphone on this computer until `until`, hears each short piece of it on this computer with the Whisper model the person names, names each turn from the voices people enrolled (tool:enrol-a-voice-or-face; unknown voices keep the same number for the whole listening), and writes one heard row per turn as soon as its piece has been heard: the listening, the device, when it began and ended, the words, who said it, whether it is the person, the voice and how sure the match was. The sound never leaves this computer: pieces are kept in the run's own folder and deleted once heard, and only the words and the names are written. It stops at `until` by itself; the person's AI cancels the run to turn listening off, and what was heard before then is kept. The run lasts as long as `until` is from now, up to the row's longest run. The voice-print and listening-voices record kinds are stays_on_this_device: true.",
+        "input_schema": {
+          "type": "object",
+          "required": ["until", "model_path"],
+          "additionalProperties": false,
+          "properties": {
+            "until": {"type": "string", "maxLength": 40, "description": "When to stop listening, as a time (for example 2026-10-31T15:30:00-06:00)"},
+            "model_path": {"type": "string", "maxLength": 400, "description": "The ggml Whisper model file on this computer", "x-free-text-because": "A file path on this computer."},
+            "listening": {"type": "string", "maxLength": 120, "description": "Name this listening; the same name continues an earlier one so unknown voices keep their numbers", "x-free-text-because": "The name of this listening, kept on every row it writes."},
+            "device": {"type": "string", "maxLength": 80, "description": "What to call this computer on the rows", "x-free-text-because": "The device name written on the rows."},
+            "device_index": {"type": "string", "maxLength": 12, "description": "The microphone's number in ffmpeg's list (default: the system default)"},
+            "finish_seconds": {"type": "integer", "minimum": 0, "maximum": 600, "description": "Recording stops this long before until, so the last piece is heard and written before the engine ends the run (default 60)"},
+            "piece_seconds": {"type": "integer", "minimum": 5, "maximum": 120, "description": "How long each piece of sound is (default 30)"},
+            "rules": {"type": "object", "description": "Naming thresholds; see tool:who-is-in-this"},
+            "words": {"type": "object", "description": "Wording of the speaker labels; see tool:who-is-in-this"},
+            "join_within_seconds": {"type": "number", "minimum": 0, "maximum": 30, "description": "Turns of one voice this close are joined (default 2)"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["listening", "pieces", "turns", "rows_written"],
+          "properties": {
+            "listening": {"type": "string"},
+            "pieces": {"type": "integer", "minimum": 0},
+            "turns": {"type": "integer", "minimum": 0},
+            "rows_written": {"type": "integer", "minimum": 0},
+            "left_out": {"type": "integer", "minimum": 0}
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["use-the-microphone"],
+          "max_run_ms": 14400000,
+          "workdir": "/opt/listen-for-a-while",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/listen-for-a-while/read-data/listen-for-a-while.mjs", "listenForAWhile"],
+          "stdin": {"fill": {"from": "input"}},
+          "records": {
+            "fd": 3,
+            "rights": [
+              {"kind": "heard", "operations": ["records:write"]},
+              {"kind": "listening-voices", "operations": ["records:list", "records:write"]},
+              {"kind": "voice-print", "operations": ["records:list"]}
+            ]
+          },
+          "files": {
+            "package_files": [
+              {"package": "listen-for-a-while", "paths": ["read-data"], "at": "/opt/listen-for-a-while"},
+              {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"},
+              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"},
+              {"package": "audio-transcription", "paths": ["do-work", "read-data"], "at": "/opt/audio-transcription"},
+              {"package": "know-who-is-in-this", "paths": ["do-work", "read-data"], "at": "/opt/know-who-is-in-this"},
+              {"package": "media-composition", "paths": ["do-work"], "at": "/opt/media-composition"}
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {"expected_seconds": 3600, "network_egress": false, "memory_mb": 4096},
+        "licence_class": "licence:permissive",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:listen-for-a-while",
+        "provenance": {
+          "source": "listen-for-a-while/read-data/listen-for-a-while.mjs"
+        }
+      }
+    }
+  ]
+}
