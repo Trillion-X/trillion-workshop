@@ -1,0 +1,151 @@
+{
+  "kind": "tool-rows",
+  "record_set": "challenges-tool-rows",
+  "what_this_is": "The Workshop rows for tools/challenges: check time-boxed challenge definitions, and decide which challenges an observer joins from their scores. Each row runs one function of do-work/requests.mjs on the request given; the definitions, scores and words are the person's, none is built in.",
+  "records": [
+    {
+      "id": "package::challenges::tool::check-challenge-definitions",
+      "address": "package::challenges::tool::check-challenge-definitions",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-challenge-definitions",
+        "label": "Check my challenge definitions",
+        "status": "active",
+        "job": "Check my time-boxed challenge definitions are complete before I enroll anyone in them",
+        "description": "Takes a list of challenge definitions and checks each one: its kind, id and label, the window it runs (a unit and a positive length, any unit), the reference to the rule that scores who fits, the reference to the content it walks through, the lowest score that joins, and an optional objective reference. Answers one result per definition: its id, whether it is valid and every problem found. It does not follow the references; the records they name are checked by their own owners. A window is an overlay on engagement, never a reason to take content away.",
+        "input_schema": {
+          "type": "object",
+          "required": ["definitions"],
+          "properties": {
+            "definitions": { "type": "array", "items": { "type": "object" }, "description": "The challenge definition records to check" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["results"],
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "valid", "errors"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "valid": { "type": "boolean" },
+                  "errors": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "challenges", "paths": ["do-work", "read-data"], "at": "/opt/challenges" } },
+          "workdir": "/opt/challenges",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-request.mjs", "checkChallengeDefinitions"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:challenges",
+        "result_selector": "$.result",
+        "billing": null,
+        "price_ref": null,
+        "provenance": { "source": "bitfield-packages packages/challenge (read-data: challenge-definition-schema)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "definitions": [
+                { "kind": "challenge-definition", "id": "bake-week", "label": "Bake week", "engagement_window": { "unit": "day", "length": 7 }, "audience_decider_ref": "rule:everyone", "feed_ref": "feed:bake-week", "enrollment_policy": { "min_score": 0.5 } },
+                { "kind": "challenge-definition", "id": "broken", "label": "", "engagement_window": { "unit": "day", "length": 0 }, "audience_decider_ref": "", "feed_ref": "feed:x", "enrollment_policy": {} }
+              ]
+            },
+            "output_selector": "$.results[1].errors",
+            "contains": "engagement_window.length must be a positive number"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::challenges::tool::enroll-an-observer-in-challenges",
+      "address": "package::challenges::tool::enroll-an-observer-in-challenges",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:enroll-an-observer-in-challenges",
+        "label": "Enroll someone in the challenges that fit them",
+        "status": "active",
+        "job": "Decide which time-boxed challenges one person joins from their scores, and build their enrollment records",
+        "description": "Takes the challenge definitions, the observer's score for each challenge (scored beforehand, for example with the tool that scores candidates for an observer), who the observer is, when they start and the status word a new member starts in. A challenge joins the observer when its definition is valid and the score reaches that challenge's own min_score; a person may join many. Answers `enrollments`, each with its record address and the record to store (the window is copied from the definition now), and `skipped`, each with the reason: an invalid definition, no score given, or a score below min_score. Re-running for the same pair gives the same address, so storing it twice keeps one record. The tool holds no clock and no status words: started_at and status_key are required.",
+        "input_schema": {
+          "type": "object",
+          "required": ["definitions", "scores", "observer_id", "started_at", "status_key"],
+          "properties": {
+            "definitions": { "type": "array", "items": { "type": "object" }, "description": "The challenge definition records to consider" },
+            "scores": { "type": "object", "description": "Challenge id to the observer's score for it (a number)" },
+            "observer_id": { "type": "string" },
+            "started_at": { "type": "string", "description": "When the observer starts, as a date and time" },
+            "status_key": { "type": "string", "description": "The status word a new member starts in" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["enrollments", "skipped"],
+          "properties": {
+            "enrollments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["address", "record"],
+                "properties": { "address": { "type": "string" }, "record": { "type": "object" } }
+              }
+            },
+            "skipped": {
+              "type": "array",
+              "items": { "type": "object", "required": ["challenge_id", "reason"], "properties": { "challenge_id": { "type": "string" }, "reason": { "type": "string" } } }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "challenges", "paths": ["do-work", "read-data"], "at": "/opt/challenges" } },
+          "workdir": "/opt/challenges",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-request.mjs", "enrollInChallenges"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:challenges",
+        "result_selector": "$.result",
+        "billing": null,
+        "price_ref": null,
+        "provenance": { "source": "bitfield-packages packages/challenge (do-work: enroll-observer; read-data: challenge-enrollment-schema)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "definitions": [
+                { "kind": "challenge-definition", "id": "bake-week", "label": "Bake week", "engagement_window": { "unit": "day", "length": 7 }, "audience_decider_ref": "rule:everyone", "feed_ref": "feed:bake-week", "enrollment_policy": { "min_score": 0.5 } },
+                { "kind": "challenge-definition", "id": "rye-month", "label": "Rye month", "engagement_window": { "unit": "week", "length": 4 }, "audience_decider_ref": "rule:rye-fans", "feed_ref": "feed:rye-month", "enrollment_policy": { "min_score": 0.5 } }
+              ],
+              "scores": { "bake-week": 1, "rye-month": 0.2 },
+              "observer_id": "observer-1",
+              "started_at": "2026-01-01T09:00:00Z",
+              "status_key": "started"
+            },
+            "output_selector": "$.enrollments[0].address",
+            "contains": "challenge::bake-week::enrollment::observer-1"
+          }
+        ]
+      }
+    }
+  ]
+}
