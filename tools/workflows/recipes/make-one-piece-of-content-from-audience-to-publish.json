@@ -1,0 +1,831 @@
+{
+  "about": "A workflow every account can run to make one piece of content, from the people it is for to what its numbers taught: audience research, an idea crossed from all of the person's library rows, a format chosen from measured references, hook variants to test against each other, a script built first from what the person already said on camera, a shoot sheet for only what is missing, the edit through the Workshop's tools, the checks before anything reaches the person, publishing and learning. Every step names the tool it calls and the person's own records it reads; the recipe holds none of anyone's audience, voice, rules, library or footage. One workflow-recipe row in the shape of the shared recipe shelf (job, input_schema, ordered steps, each with do, submit and checks).",
+  "records": [
+    {
+      "id": "make-one-piece-of-content-from-audience-to-publish",
+      "address": "workflow-recipe:make-one-piece-of-content-from-audience-to-publish",
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:make-one-piece-of-content-from-audience-to-publish",
+        "label": "Make one piece of content from audience to publish",
+        "job": "Make one piece of content (a video, a talk, a carousel, a post or an article) the way a careful studio would, in this order and never skipping ahead to the edit: read the person's own records, their purpose record first; describe any library row that has no crossing fields yet; find what the audience is really asking, in their own words and with where they said it, and whether they would want this; cross ALL of the person's technique, principle and format rows with that goal to get cited ideas; find what the person has already said or written that answers it; choose a format by that material and by measured references; write packages (title, cover, opening) with at least 3 hook variants to test against each other, and show them to people from the audience before making anything; build the script from those filmed points first; check every word against the person's rules and verdicts; write a shoot sheet for only what is still missing; after the person films, grade the sound, colour and cut the piece through the Workshop's tools; run every check before the person sees anything; publish; and read the numbers back to learn. Plan-time rules: every beat, title, hook and edit cites the library rows it was drawn from, and a cite that is not one of the person's rows read in this run fails the step; and every idea list, title and hook list, script and edit plan answers each test of the person's own purpose record and cites it, so audience demand only ranks ideas that already passed the person's purpose.",
+        "source": {
+          "from": "the common stages of producing one piece of content (audience, idea, format, packaging, script, filming, sound, edit, review, publishing, readback), in the order that puts the audience and the idea before any editing",
+          "note": "The order and the rules are generic: research before the idea, the person's own recorded words before new lines, a source for every line, opening variants tested against each other, one decision per speech passage (use as recorded, remaster, or re-voice the same words), checks before the person is shown anything, readback at 1, 7 and 28 days with a written lesson. Purpose comes first because work judged only by demand numbers drifts away from what the person set out to do; so the person's purpose record is the first input, its tests are answered by every plan step, and demand ranks only what passed. Everything specific to a person (audience frameworks and bucket names, rubrics, pass marks, word lists, edit rules, title structures, formats, channels, tool settings) is an input read from their records at run time, never part of this recipe. A person's own checklist runs through the workflows checklist gate."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["purpose", "goal", "destinations", "records"],
+          "properties": {
+            "purpose": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The id of the person's own purpose record: their mission statement, kept verbatim in their words, and the tests that statement names, each a question a piece must answer (for example what it questions, what it tests and where it could be wrong, what others can use from it). Every plan, title list, hook list, script and edit plan answers these tests and cites this record. Purpose is a test applied to the work, never a line the piece must recite"
+            },
+            "goal": {
+              "type": "string",
+              "minLength": 10,
+              "description": "The goal of the piece, in the person's words"
+            },
+            "lead": {
+              "type": "string",
+              "description": "The person's working idea, if any; it is checked against the audience, never taken as demand"
+            },
+            "destinations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["platform", "account"],
+                "properties": {
+                  "platform": { "type": "string", "minLength": 2 },
+                  "account": { "type": "string", "minLength": 1, "description": "The person's own account on that platform" }
+                }
+              },
+              "description": "Platform and account pairs to post to"
+            },
+            "records": {
+              "type": "object",
+              "required": ["library_kinds", "audience_kinds"],
+              "description": "Which of the person's own records the run reads, by record kind or list id. Nothing here is a value; every value is read from the records at run time",
+              "properties": {
+                "library_kinds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string", "minLength": 2 },
+                  "description": "Every record kind or list that holds the person's library rows: techniques, principles, formats, title templates, devices. All of them are read and crossed"
+                },
+                "audience_kinds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string", "minLength": 2 },
+                  "description": "Record kinds or lists that hold the person's audience: who they are, their questions with where each was said, and the person's own buckets for what is in their minds"
+                },
+                "offer_kinds": { "type": "array", "items": { "type": "string" }, "description": "Record kinds or lists of the person's offers, if the goal sells something" },
+                "voice_kinds": { "type": "array", "items": { "type": "string" }, "description": "Record kinds or lists of the person's voice and style: copy rules, word lists, writing samples" },
+                "rules_and_verdicts": {
+                  "type": "object",
+                  "description": "The person's rule rows and rule document for tool:check-against-a-persons-rules-and-verdicts, and the kinds of thing they keep stances on",
+                  "properties": {
+                    "rule_kinds": { "type": "array", "items": { "type": "string" } },
+                    "rule_document": { "type": "string" }
+                  }
+                },
+                "footage_index_ids": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 },
+                  "description": "index_id of each of the person's semantic-index-descriptor records over their recordings (spoken lines, frames)"
+                },
+                "material_kinds": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 2 },
+                  "description": "Every other record kind holding material the person might use in a piece, searched the same way as footage: notes, chats, emails, meetings, books, posts, and posts of other people they have permission to use. Each passage used becomes or updates one of the person's source passage records (where it came from, its original words, who owns it, what use is allowed, whether it is private, what was done to it, which pieces reuse it)"
+                },
+                "research_kinds": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 2 },
+                  "description": "Record kinds of the person's research aids, each read if they keep it: audience guesses (competing ideas of who a piece is for, each with what would disprove it), audience cases (one real person's situation from a source), research methods (job, output, failure to avoid), a viewer worksheet or other companion asset with fill-in fields, a terms record (their words with how each was sourced), and a conflicts record (two sources that disagree and how it was treated)"
+                },
+                "limits": {
+                  "type": "object",
+                  "description": "Record ids or files of the person's settings for each tool that needs them: render-check limits, the motion bar, speech grading settings, the camera's log profile, the look and graphics templates, the checklist schema",
+                  "additionalProperties": { "type": "string" }
+                }
+              }
+            },
+            "outlier_multiple": {
+              "type": "number",
+              "minimum": 1,
+              "description": "How many times its channel's usual views a reference must have to count as demand evidence. If left out, read it from the person's records; if they have none, ask with tool:tell-the-person"
+            },
+            "stale_after_days": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Evidence checked longer ago than this is not fresh: it is checked again before it supports a decision. If left out, read it from the person's records"
+            },
+            "spend_limit": {
+              "type": "string",
+              "description": "The most the run may spend, and which actions that cannot be undone need the person's yes first. If left out, the run spends nothing and asks before any such action"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "read-records",
+            "title": "Read the person's own records this run uses",
+            "do": "Read, from the person's own records and only from them, every record of the kinds the input names: (0) the purpose record named by input purpose, its statement word for word and every test it names, each test with an id and its question; a purpose record with no tests is reported in missing and the run stops with tool:tell-the-person asking the person which questions their statement asks of a piece (never write the tests for them); (1) every library row of every kind in input records.library_kinds, keeping each row's id, kind and whether it already has crossing fields (mechanism and operates_on); (2) the audience records in records.audience_kinds; (3) offers, voice and style records if named; (4) their rule rows and rule document, and their current stands on titles, hooks, scripts, plans and cuts with tool:read-where-you-stand; (5) each semantic-index-descriptor named in records.footage_index_ids; (6) every limits record or file named in records.limits; (7) the records of every kind in records.research_kinds the person keeps, and the source passage records of records.material_kinds. Do not read a library kind partly: a kind with more rows than one read returns is read page by page until the count matches, and rows are read from where each kind is kept, never from a summary or index of it (an index can lag behind the rows it lists). Write what could not be read in missing, each with the reason (not found, not allowed, the service is down). A record that is missing is never filled in from memory or from another person's data.",
+            "submit": {
+              "type": "object",
+              "required": ["purpose", "library_rows", "audience_records", "footage_indexes", "stances_read", "missing"],
+              "properties": {
+                "purpose": {
+                  "type": "object",
+                  "required": ["record", "statement", "tests"],
+                  "properties": {
+                    "record": { "type": "string", "minLength": 1 },
+                    "statement": { "type": "string", "minLength": 1, "description": "Word for word from the record" },
+                    "tests": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": { "type": "object", "required": ["id", "asks"], "properties": { "id": { "type": "string" }, "asks": { "type": "string", "minLength": 5 } } }
+                    }
+                  }
+                },
+                "library_rows": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "kind", "has_crossing_fields"],
+                    "properties": {
+                      "id": { "type": "string", "minLength": 1 },
+                      "kind": { "type": "string", "minLength": 1 },
+                      "has_crossing_fields": { "type": "boolean" }
+                    }
+                  }
+                },
+                "library_counts": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 }, "description": "Rows read per library kind" },
+                "audience_records": { "type": "array", "items": { "type": "string" }, "description": "Ids of the audience records read" },
+                "footage_indexes": { "type": "array", "items": { "type": "string" }, "description": "index_id of each descriptor read" },
+                "stances_read": { "type": "integer", "minimum": 0 },
+                "missing": { "type": "array", "items": { "type": "object", "required": ["what", "why"], "properties": { "what": { "type": "string" }, "why": { "type": "string" } } } }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "The purpose record read is the one the person named", "path": ["this", "purpose", "record"], "of": ["input", "purpose"] },
+              { "kind": "distinct-at-least", "says": "The purpose record names at least one test", "path": ["this", "purpose", "tests", "*", "id"], "count": 1 },
+              { "kind": "distinct-at-least", "says": "At least one library row was read", "path": ["this", "library_rows", "*", "id"], "count": 1 },
+              { "kind": "covers", "says": "Every library kind the person named was read", "path": ["this", "library_rows", "*", "kind"], "of": ["input", "records", "library_kinds", "*"] },
+              { "kind": "subset-of", "says": "Only the footage indexes the person named were read", "path": ["this", "footage_indexes", "*"], "of": ["input", "records", "footage_index_ids", "*"] }
+            ]
+          },
+          {
+            "id": "describe-library",
+            "title": "Give every library row its crossing fields",
+            "do": "Take every library row from read-records whose has_crossing_fields is false. Read the person's crossing vocabulary (their mechanism and property terms with says and aliases). Call tool:say-why-a-technique-works with { rows: those rows, vocabulary: that lexicon, models: the person's chat and embedding models }, a batch at a time, and write the returned mechanism, operates_on, needs, produces and from_medium back onto each row in the person's records (new terms as new vocabulary rows). A principle or a format is described the same way as a technique: what it does to a person's mind, what it changes and what it needs. If the tool leaves rows unread, call it again with only those. A row that still cannot be described goes in not_described with why; the crossing in the next step then names those rows as not crossed.",
+            "submit": {
+              "type": "object",
+              "required": ["described", "not_described"],
+              "properties": {
+                "described": { "type": "array", "items": { "type": "string" }, "description": "Ids of rows given crossing fields in this run" },
+                "terms_added": { "type": "integer", "minimum": 0 },
+                "not_described": { "type": "array", "items": { "type": "object", "required": ["id", "why"], "properties": { "id": { "type": "string" }, "why": { "type": "string" } } } }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "Only rows read in this run were described", "path": ["this", "described", "*"], "of": ["steps", "read-records", "library_rows", "*", "id"] },
+              { "kind": "subset-of", "says": "Only rows read in this run are listed as not described", "path": ["this", "not_described", "*", "id"], "of": ["steps", "read-records", "library_rows", "*", "id"] }
+            ]
+          },
+          {
+            "id": "audience",
+            "title": "Find what the audience is really asking, and whether they would want this",
+            "do": "Start from the person's audience records, then research outside them. Read real people's words where they say them: comments under videos on the same problem (metadata and comments only, with tool:github:yt-dlp-yt-dlp, never downloading the video), forum and Reddit threads and search pages (tool:read-public-web-page, or tool:read-a-page-in-my-browser for a page that needs the person's sign-in). Keep each question in the asker's exact words with its address, the context it was said in, the question it implies kept apart from the words, the research method row that found it (when the person keeps methods), and the date it was checked; mark it observed (a real person wrote or said it) or inferred (you or a model worded it, including a paraphrase and a question the person's records label a hypothesis or a guess); an inferred question never counts as demand on its own, and is kept only as a search query for the person's material. Compare at least two of the person's audience guesses (who the piece could be for): for each, what people of that kind were seen doing and not only saying, what fits, what would disprove it, and its status after this research; never treat one guess as fixed. Where a source shows one real person's situation (what they did, want, avoid, what is known and unknown), keep it as an audience case record. If the person keeps a viewer worksheet or another companion record with fill-in fields, fill it from this research. For every source, record the date it was reached, what was read and what blocked the rest (sign-in, a paid wall, a limit, not allowed). File each question under the person's own buckets for what is in their audience's minds, using the bucket names in their records; when they have none, name the buckets the questions fall into and say they are new. Then find demand evidence: pieces on the same question whose views are at least input outlier_multiple times their own channel's usual (median of that channel's recent pieces of the same kind, at least 3 of them), each with its address, views, the channel's usual and the multiple. If the input has a lead, test it here like any other candidate. Answer would_watch yes only with that evidence, and say what the demand is for: the question itself (pieces on the same question did well in many packagings), a packaging (one title or structure did well, whatever the question), or both. When it is for the question only, the later steps promise the answer to the question and keep any structure (a count, a list) inside the piece rather than in the title. Evidence checked longer ago than input stale_after_days is checked again before it counts. The verdict is yes, no, or need-more when the evidence is too thin or too old to say: need-more names the missing evidence and the run goes back to research, never on to the idea. A no ends the run here, with tool:tell-the-person saying what research would change it.",
+            "submit": {
+              "type": "object",
+              "required": ["questions", "buckets", "audience_guesses", "demand", "access", "would_watch"],
+              "properties": {
+                "questions": {
+                  "type": "array",
+                  "minItems": 3,
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "words", "source", "evidence", "bucket"],
+                    "properties": {
+                      "id": { "type": "string", "minLength": 1 },
+                      "words": { "type": "string", "minLength": 5, "description": "Exactly as the asker wrote or said it" },
+                      "source": { "type": "string", "minLength": 5, "description": "The address or record it was said at" },
+                      "context": { "type": "string", "description": "What it was said under or in reply to" },
+                      "implied_question": { "type": "string", "description": "The question it implies, kept apart from the asker's words" },
+                      "evidence": { "enum": ["observed", "inferred"] },
+                      "method": { "type": "string", "description": "The person's research method row that found it" },
+                      "checked_on": { "type": "string" },
+                      "bucket": { "type": "string", "minLength": 1 }
+                    }
+                  }
+                },
+                "audience_guesses": {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "who", "seen_doing", "would_disprove", "status"],
+                    "properties": {
+                      "id": { "type": "string" },
+                      "who": { "type": "string", "minLength": 5 },
+                      "seen_doing": { "type": "string", "minLength": 5 },
+                      "would_disprove": { "type": "string", "minLength": 5 },
+                      "status": { "enum": ["supported", "weakened", "open"] }
+                    }
+                  }
+                },
+                "cases": { "type": "array", "items": { "type": "object", "required": ["source", "situation"], "properties": { "source": { "type": "string" }, "situation": { "type": "string" }, "did": { "type": "string" }, "wants": { "type": "string" }, "avoids": { "type": "string" }, "unknown": { "type": "string" } } } },
+                "access": {
+                  "type": "array",
+                  "items": { "type": "object", "required": ["source", "reached_on", "read", "blocked_by"], "properties": { "source": { "type": "string" }, "reached_on": { "type": "string" }, "read": { "type": "string" }, "blocked_by": { "type": ["string", "null"] } } }
+                },
+                "companion_filled": { "type": "array", "items": { "type": "string" }, "description": "Ids of the companion records (a viewer worksheet) filled from this research" },
+                "buckets": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["name", "from_records"],
+                    "properties": { "name": { "type": "string" }, "from_records": { "type": "boolean", "description": "true when the bucket is one of the person's own; false when named in this run" } }
+                  }
+                },
+                "demand": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["url", "title", "views", "channel_usual", "multiple", "question_ids"],
+                    "properties": {
+                      "url": { "type": "string" },
+                      "title": { "type": "string" },
+                      "views": { "type": "integer", "minimum": 0 },
+                      "channel_usual": { "type": "number", "minimum": 0 },
+                      "multiple": { "type": "number", "minimum": 0 },
+                      "question_ids": { "type": "array", "items": { "type": "string" } }
+                    }
+                  }
+                },
+                "would_watch": {
+                  "type": "object",
+                  "required": ["verdict", "demand_for", "because"],
+                  "properties": {
+                    "verdict": { "enum": ["yes", "no", "need-more"] },
+                    "demand_for": { "enum": ["question", "packaging", "both"] },
+                    "because": { "type": "string", "minLength": 10 },
+                    "missing_evidence": { "type": "array", "items": { "type": "string" }, "description": "With need-more: what evidence would settle it" }
+                  }
+                }
+              }
+            },
+            "checks": [
+              { "kind": "distinct-at-least", "says": "Questions come from at least 3 different places", "path": ["this", "questions", "*", "source"], "count": 3 },
+              { "kind": "subset-of", "says": "Every question is filed under a bucket this step lists", "path": ["this", "questions", "*", "bucket"], "of": ["this", "buckets", "*", "name"] },
+              { "kind": "subset-of", "says": "Demand evidence answers the questions found", "path": ["this", "demand", "*", "question_ids", "*"], "of": ["this", "questions", "*", "id"] },
+              { "kind": "distinct-at-least", "says": "At least two guesses about who the piece is for were compared", "path": ["this", "audience_guesses", "*", "id"], "count": 2 }
+            ]
+          },
+          {
+            "id": "idea",
+            "title": "Cross ALL the person's library rows with the goal to get cited ideas",
+            "do": "One call returns only a handful of techniques, so call tool:cross-techniques-with-a-goal once for the whole piece and again for each part whose want differs (at least the opening), and list every call in crossing_calls. Each call is { goal: the input goal plus the audience questions it answers, in the askers' words, constraints: what the person's records rule out, rows: EVERY library row read in read-records with its crossing fields (techniques, principles, formats, title templates, devices together, never one kind alone and never a sample), vocabulary: the person's crossing lexicon, models: the person's chat model }. List every row id you sent in crossed_rows. From its techniques, pairs and lines, write at least 3 candidate ideas. Each idea names the audience question ids it answers, the angle in plain words, what must be shown, demonstrated or investigated before its promise can be kept (proof_needed), its strongest alternative, what would change the person's mind about it, which of its parts are known from experience and which are assumed, and cites: the library row ids it was drawn from (only ids the tool returned or that you sent it). Then answer every test of the person's purpose record (read-records purpose.tests) for every idea, each answer in plain words about this idea, and say whether the idea passes. An idea fails when an answer shows it questions nothing, tests nothing, leaves nothing others can use, or when its reach would not serve what it discovers; a failed idea is kept in the list with its answers, never chosen. Only then rank the ideas that passed, by the audience's demand evidence for the questions each answers, and choose one; say why it beats the others for this audience and goal. Demand ranks only ideas that passed the purpose tests; it never stands in for them. An idea that cannot cite a row is not an idea from the library; leave it out.",
+            "submit": {
+              "type": "object",
+              "required": ["crossing_calls", "crossed_rows", "ideas", "chosen", "why_chosen"],
+              "properties": {
+                "crossing_calls": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["goal"], "properties": { "goal": { "type": "string" }, "file": { "type": "string" } } } },
+                "crossed_rows": { "type": "array", "items": { "type": "string" } },
+                "unknown": { "type": "array", "items": { "type": "string" }, "description": "What the tool listed in unknown" },
+                "ideas": {
+                  "type": "array",
+                  "minItems": 3,
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "angle", "question_ids", "cites", "proof_needed", "strongest_alternative", "purpose_answers", "passes_purpose"],
+                    "properties": {
+                      "id": { "type": "string", "minLength": 1 },
+                      "angle": { "type": "string", "minLength": 10 },
+                      "proof_needed": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+                      "strongest_alternative": { "type": "string", "minLength": 10 },
+                      "would_change_mind": { "type": "string" },
+                      "known_vs_assumed": { "type": "string" },
+                      "question_ids": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+                      "cites": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+                      "purpose_answers": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["test", "answer"], "properties": { "test": { "type": "string" }, "answer": { "type": "string", "minLength": 10 } } } },
+                      "passes_purpose": { "type": "boolean" }
+                    }
+                  }
+                },
+                "passed_purpose": { "type": "array", "items": { "type": "string" }, "description": "Ids of the ideas whose purpose answers pass" },
+                "purpose_record": { "type": "string" },
+                "chosen_purpose_answers": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["test", "answer"], "properties": { "test": { "type": "string" }, "answer": { "type": "string", "minLength": 10 } } } },
+                "chosen": { "type": "string" },
+                "why_chosen": { "type": "string", "minLength": 20 }
+              }
+            },
+            "checks": [
+              { "kind": "covers", "says": "Every library row read was sent to the crossing, not a sample", "path": ["this", "crossed_rows", "*"], "of": ["steps", "read-records", "library_rows", "*", "id"] },
+              { "kind": "subset-of", "says": "Every idea cites only the person's library rows read in this run", "path": ["this", "ideas", "*", "cites", "*"], "of": ["steps", "read-records", "library_rows", "*", "id"] },
+              { "kind": "subset-of", "says": "Every idea answers an audience question found in this run", "path": ["this", "ideas", "*", "question_ids", "*"], "of": ["steps", "audience", "questions", "*", "id"] },
+              { "kind": "subset-of", "says": "The ideas that passed are ideas of this step", "path": ["this", "passed_purpose", "*"], "of": ["this", "ideas", "*", "id"] },
+              { "kind": "subset-of", "says": "The chosen idea passed the purpose tests", "path": ["this", "chosen"], "of": ["this", "passed_purpose", "*"] },
+              { "kind": "subset-of", "says": "The idea cites the person's own purpose record", "path": ["this", "purpose_record"], "of": ["steps", "read-records", "purpose", "record"] },
+              { "kind": "covers", "says": "The chosen idea answers every test of the purpose record; a plan with no purpose answers is refused", "path": ["this", "chosen_purpose_answers", "*", "test"], "of": ["steps", "read-records", "purpose", "tests", "*", "id"] }
+            ]
+          },
+          {
+            "id": "filmed-points",
+            "title": "Find what the person has already said on camera that answers it",
+            "do": "Before a format is chosen or any new line is written, search the person's own recordings. For each audience question the chosen idea answers, call tool:find-similar-by-meaning with { index_id, query_text: the question in the asker's words } on each footage index from read-records (or tool:find-similar-to-a-vector with a query vector made by the model the descriptor names, when the descriptor's model is not reachable by text). When the index cannot be reached (its host is down), use matches already recorded against that same index in the person's records and mark each one recorded in how_found; never fill the gap from memory. Widen with an exact word search of the transcripts for the question's own words. Search every other material kind in input records.material_kinds the same way (notes, chats, emails, meetings, books, posts): a written passage is a point too, with its material kind, and it is used as written, rewritten in the person's style and labelled new, read by a voice the person allows, or shown as text. For every point, write or update its source passage record: where it came from, the original words, who owns it, what use is allowed, whether it is private, and that this piece uses it. Where two sources disagree, read or add the conflict to the person's conflicts record. Read each item's file, start, end and text, and read the lines around it in the same recording. Keep a match only when its own words answer the question when heard alone; write the quote exactly as the transcript has it, with the file, start and end, the score, time_basis (word when the transcript has word times, estimated when its times were scaled from a text-only transcript; an estimated span is re-timed on the real file before it is cut) and media_location (where the recording is now, and whether it can be read today). Note the date of the recording: a point recorded before the person's purpose record was last changed is tested against it in the script step. Moments not yet filed under the person's topic buckets can be filed with tool:file-spoken-moments-into-topic-buckets first. A question with no match that answers it goes in gaps; gaps are what the shoot sheet films. Never pick the idea from what the footage happens to contain: the footage only supplies moments for the idea already chosen, and one recording that answers many questions is found after the idea, never the reason for it.",
+            "submit": {
+              "type": "object",
+              "required": ["points", "gaps"],
+              "properties": {
+                "points": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "question_id", "file", "start", "end", "quote", "score", "time_basis", "media_location", "material_kind"],
+                    "properties": {
+                      "id": { "type": "string" },
+                      "question_id": { "type": "string" },
+                      "file": { "type": "string" },
+                      "start": { "type": ["number", "null"] },
+                      "end": { "type": ["number", "null"] },
+                      "quote": { "type": "string", "minLength": 5 },
+                      "score": { "type": "number" },
+                      "time_basis": { "enum": ["word", "estimated", "none"] },
+                      "media_location": { "type": "string", "description": "Where the recording is, and whether it can be read today" },
+                      "recorded_on": { "type": ["string", "null"] },
+                      "how_found": { "enum": ["searched", "recorded", "word-search"] },
+                      "material_kind": { "type": "string", "description": "recording, note, chat, email, meeting, book, post" },
+                      "allowed_use": { "type": "string" },
+                      "private": { "type": "boolean" },
+                      "source_record": { "type": "string", "description": "The source passage record written or updated" },
+                      "index_id": { "type": "string", "description": "The footage index searched, on recording points" }
+                    }
+                  }
+                },
+                "gaps": { "type": "array", "items": { "type": "string" }, "description": "Question ids with no filmed answer" }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "Every filmed point answers a question found in this run", "path": ["this", "points", "*", "question_id"], "of": ["steps", "audience", "questions", "*", "id"] },
+              { "kind": "subset-of", "says": "Every point comes from a footage index read in this run", "path": ["this", "points", "*", "index_id"], "of": ["steps", "read-records", "footage_indexes", "*"] },
+              { "kind": "subset-of", "says": "Every gap is a question found in this run", "path": ["this", "gaps", "*"], "of": ["steps", "audience", "questions", "*", "id"] }
+            ]
+          },
+          {
+            "id": "format",
+            "title": "Choose the format from measured references and the material there is",
+            "do": "The format is one of many in the person's library, chosen for this idea; it is never a default. List at least 3 of the person's format rows that could carry the chosen idea in the medium of the destinations, read from the format rows themselves. For each: (1) material fit first: which filmed points from the previous step it can use as they are, which of those cannot be read today (their media_location says so), and what it would need filmed or made that does not exist; (2) its reference's measured numbers from the row (length, aspect, cuts per minute, median shot, longest hold, moving share, words per minute, slide count, slot table); (3) how the reference did: its views over its own channel's usual, naming the usual it was divided by (that channel's median for the same kind of piece, from at least 3 of them). A format row with no measurements is measured now when it has a reference: open the reference's metadata with tool:github:yt-dlp-yt-dlp, and measure the downloaded reference (only where its terms allow) with tool:find-scene-changes, tool:find-beats, tool:measure-loudness and tool:check-a-videos-motion-against-a-reference (the reference against itself gives its own motion numbers); write the numbers back onto the row. A format row that is the person's own structure with no reference piece at all (a script frame they wrote) is weighed too: its reference is null, and borrowed_from names the measured rows it takes pacing, length or slot timing from. Rank by material fit first, then by how the references did; a high multiple never carries a format the person's material cannot fill. Choose one, give the reason, and name the derived pieces: for each destination whose medium differs (a short cut from a long piece, a carousel), the format row it follows and what it takes from the chosen piece; a short cut from a longer piece must stand alone as one complete idea. Copy the chosen format's slots into slots, each with its role, its time or, when nothing measured gives a time, its position (for example after the setup), and what fills it. If the format has a word template, name it; if it should have one and does not, make it with tool:make-a-word-template from the reference's transcript and save it with the format row.",
+            "submit": {
+              "type": "object",
+              "required": ["candidates", "chosen_format", "why_chosen", "slots", "derived"],
+              "properties": {
+                "candidates": {
+                  "type": "array",
+                  "minItems": 3,
+                  "items": {
+                    "type": "object",
+                    "required": ["format_row", "reference", "measured", "material_fit", "fits_because"],
+                    "properties": {
+                      "format_row": { "type": "string" },
+                      "reference": { "type": ["string", "null"], "description": "The reference's address, or null for the person's own structure with no reference piece" },
+                      "borrowed_from": { "type": "array", "items": { "type": "string" }, "description": "For a format with no reference: the measured format rows it takes numbers from" },
+                      "measured": { "type": "object", "description": "The reference's measured numbers, each with the tool or row that measured it" },
+                      "reference_multiple": { "type": ["number", "null"], "description": "Views over its channel's usual, or null with the reason in fits_because" },
+                      "usual_from": { "type": ["string", "null"], "description": "What the multiple was divided by: whose median, of which kind, over how many pieces" },
+                      "material_fit": {
+                        "type": "object",
+                        "required": ["uses_points", "needs_made"],
+                        "properties": {
+                          "uses_points": { "type": "array", "items": { "type": "string" } },
+                          "not_reachable_today": { "type": "array", "items": { "type": "string" }, "description": "Points it uses whose recordings cannot be read today, and what makes them readable" },
+                          "needs_made": { "type": "array", "items": { "type": "string" } }
+                        }
+                      },
+                      "fits_because": { "type": "string", "minLength": 10 }
+                    }
+                  }
+                },
+                "chosen_format": { "type": "string" },
+                "why_chosen": { "type": "string", "minLength": 20 },
+                "derived": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["destination", "format_row", "takes"],
+                    "properties": { "destination": { "type": "string" }, "format_row": { "type": "string" }, "takes": { "type": "string" } }
+                  }
+                },
+                "word_template": { "type": ["string", "null"] },
+                "slots": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["slot", "role"],
+                    "properties": { "slot": { "type": "string" }, "role": { "type": "string" }, "at": { "type": "string", "description": "A time, or a position when nothing measured gives a time" }, "filled_by": { "type": "string" } }
+                  }
+                }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "Every format considered is one of the person's library rows", "path": ["this", "candidates", "*", "format_row"], "of": ["steps", "read-records", "library_rows", "*", "id"] },
+              { "kind": "subset-of", "says": "Every borrowed number comes from one of the person's format rows", "path": ["this", "candidates", "*", "borrowed_from", "*"], "of": ["steps", "read-records", "library_rows", "*", "id"] },
+              { "kind": "distinct-at-least", "says": "At least 3 formats were weighed", "path": ["this", "candidates", "*", "format_row"], "count": 3 },
+              { "kind": "subset-of", "says": "Material fit names only filmed points found in this run", "path": ["this", "candidates", "*", "material_fit", "uses_points", "*"], "of": ["steps", "filmed-points", "points", "*", "id"] },
+              { "kind": "subset-of", "says": "The chosen format is one of the candidates", "path": ["this", "chosen_format"], "of": ["this", "candidates", "*", "format_row"] },
+              { "kind": "subset-of", "says": "Every derived piece follows one of the person's format rows", "path": ["this", "derived", "*", "format_row"], "of": ["steps", "read-records", "library_rows", "*", "id"] },
+              { "kind": "subset-of", "says": "Derived pieces go only to the person's destinations", "path": ["this", "derived", "*", "destination"], "of": ["input", "destinations", "*", "platform"] }
+            ]
+          },
+          {
+            "id": "titles-and-hooks",
+            "title": "Write titles and at least 3 hook variants to test against each other",
+            "do": "Write titles from the person's own title template rows, or from the structure of a title the person already agreed with (their stand on it names it): fill the slots, never invent a structure; a title with neither is marked needs-title, not invented. A title the person agreed with, used word for word, keeps that stand; a reworded one is checked in full. Read the person's verdicts on earlier titles first (their stands, the latest verdict on a title governs); every new title stays a candidate until they judge it. For each title write a cover (the picture and any words on it) so a package is a title, a cover and an opening, tested together. Write at least 3 hook variants for the opening, each a different technique row from the crossing (a question hook in the audience's own words answered by the person's filmed points is one; a result shown first while the reason is held back is another), each with the audience question id it opens, the filmed point it uses if any, who says it (the person on camera, an asking voice, or words on screen) and the library rows it cites. The hook must deliver on the title's size. Then say how the variants will be tested: which platform feature or posting plan shows each to comparable viewers (an A/B title or thumbnail test where the platform has one, otherwise the same piece posted with each opening in comparable slots), the one number that decides the winner, and the least number of viewers each variant needs before a winner may be named (below it the result is inconclusive). Send every title and hook to tool:check-against-a-persons-rules-and-verdicts with the person's rule rows, rule document and stands at stage review; rewrite any that fail and send them again. Ask rows the tool returns as questions are answered by the caller's model and sent back; a row that stays uncertain is listed, not passed. Answer every test of the purpose record for the title and hook list as a whole (does each promise point at what the piece really questions and tests, and does the reach it seeks serve that discovery), and drop a title or hook whose promise the piece would not keep for that purpose. Purpose is applied as a test; no title or hook has to say it.",
+            "submit": {
+              "type": "object",
+              "required": ["titles", "hooks", "test", "purpose_record", "purpose_answers"],
+              "properties": {
+                "purpose_record": { "type": "string" },
+                "purpose_answers": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["test", "answer"], "properties": { "test": { "type": "string" }, "answer": { "type": "string", "minLength": 10 } } } },
+                "titles": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "text", "template_row", "cover", "cites", "check_status"],
+                    "properties": {
+                      "id": { "type": "string" },
+                      "text": { "type": "string", "minLength": 3 },
+                      "template_row": { "type": ["string", "null"], "description": "null only when from_stance names the agreed title it follows, or with text needs-title" },
+                      "from_stance": { "type": "string", "description": "The title the person agreed with whose structure this one fills" },
+                      "cover": { "type": "string", "minLength": 5, "description": "The picture and any words on it" },
+                      "cites": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+                      "check_status": { "enum": ["passed", "held", "failed", "uncertain"] }
+                    }
+                  }
+                },
+                "hooks": {
+                  "type": "array",
+                  "minItems": 3,
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "words", "said_by", "question_id", "technique_row", "cites", "check_status"],
+                    "properties": {
+                      "id": { "type": "string" },
+                      "words": { "type": "string", "minLength": 3 },
+                      "said_by": { "enum": ["person-filmed", "person-to-film", "asking-voice", "on-screen"] },
+                      "question_id": { "type": "string" },
+                      "filmed_point": { "type": "string", "description": "Only when the hook uses one" },
+                      "technique_row": { "type": "string" },
+                      "cites": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+                      "check_status": { "enum": ["passed", "held", "failed", "uncertain"] }
+                    }
+                  }
+                },
+                "test": {
+                  "type": "object",
+                  "required": ["variants", "how", "decided_by", "min_viewers"],
+                  "properties": {
+                    "variants": { "type": "array", "minItems": 2, "items": { "type": "string" } },
+                    "how": { "type": "string", "minLength": 10 },
+                    "decided_by": { "type": "string", "minLength": 3, "description": "The one number that picks the winner, and after how long" },
+                    "min_viewers": { "type": "integer", "minimum": 1, "description": "Below this many viewers per variant the result is inconclusive" }
+                  }
+                }
+              }
+            },
+            "checks": [
+              { "kind": "distinct-at-least", "says": "At least 3 different hook variants", "path": ["this", "hooks", "*", "id"], "count": 3 },
+              { "kind": "distinct-at-least", "says": "The hooks use at least 2 different techniques", "path": ["this", "hooks", "*", "technique_row"], "count": 2 },
+              { "kind": "subset-of", "says": "Every hook and title cites only the person's library rows", "path": [["this", "hooks", "*", "cites", "*"], ["this", "titles", "*", "cites", "*"]], "of": ["steps", "read-records", "library_rows", "*", "id"] },
+              { "kind": "subset-of", "says": "Every hook technique is one of the person's library rows", "path": ["this", "hooks", "*", "technique_row"], "of": ["steps", "read-records", "library_rows", "*", "id"] },
+              { "kind": "subset-of", "says": "Every hook opens an audience question found in this run", "path": ["this", "hooks", "*", "question_id"], "of": ["steps", "audience", "questions", "*", "id"] },
+              { "kind": "subset-of", "says": "A hook's filmed point is one found in this run", "path": ["this", "hooks", "*", "filmed_point"], "of": ["steps", "filmed-points", "points", "*", "id"] },
+              { "kind": "subset-of", "says": "The variants under test are hooks written here", "path": ["this", "test", "variants", "*"], "of": ["this", "hooks", "*", "id"] },
+              { "kind": "subset-of", "says": "The titles and hooks cite the person's own purpose record", "path": ["this", "purpose_record"], "of": ["steps", "read-records", "purpose", "record"] },
+              { "kind": "covers", "says": "The titles and hooks answer every test of the purpose record", "path": ["this", "purpose_answers", "*", "test"], "of": ["steps", "read-records", "purpose", "tests", "*", "id"] }
+            ]
+          },
+          {
+            "id": "pretest",
+            "title": "Show the packages to people from the audience before making the piece",
+            "do": "Before anything is scripted or filmed, show the packages (each title with its cover and opening) to people from the audience the audience step found, where the person has a way to reach them (their own community, a poll on their own account, people who asked the questions). Do not explain the person's purpose or the idea first. Record each test as an experiment: the guess it tests, the method, what to watch for, the limits of what it can show, and its status. For each person: which package they would open, what they expected it to give them, what they would watch instead, and what they want next. Report a small sample as small, and never name a winner from it alone. When there is no way to reach the audience, the status is not-run with the reason, and the published test in titles-and-hooks is the first test.",
+            "submit": {
+              "type": "object",
+              "required": ["experiment", "status"],
+              "properties": {
+                "experiment": {
+                  "type": "object",
+                  "required": ["guess", "method", "watch_for", "limits"],
+                  "properties": { "guess": { "type": "string" }, "method": { "type": "string" }, "watch_for": { "type": "string" }, "limits": { "type": "string" } }
+                },
+                "status": { "enum": ["done", "not-run"] },
+                "reason_not_run": { "type": "string" },
+                "responses": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["chose", "expected"],
+                    "properties": { "chose": { "type": "string" }, "expected": { "type": "string" }, "would_watch_instead": { "type": "string" }, "wants_next": { "type": "string" } }
+                  }
+                },
+                "sample_size": { "type": "integer", "minimum": 0 }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "People chose only packages written in this run", "path": ["this", "responses", "*", "chose"], "of": ["steps", "titles-and-hooks", "titles", "*", "id"] }
+            ]
+          },
+          {
+            "id": "script",
+            "title": "Build the script from filmed points first",
+            "do": "First ask whether the material can keep the chosen title's promise and the idea's proof_needed: for each thing the promise needs, the filmed point that delivers it, or how it will be got (investigate, test, write, record, film). A promise the material cannot keep is cut back to what it can keep, never stated as kept. Lay the chosen format's slots out as beats in order. Include a beat that says who the piece is not for, tied to the purpose test about where it could be wrong. Give the opening, each point and the ending a hook of its own, and track every open loop: the beat that opens a question and the later beat that answers it. Before using a filmed point, hold it against the purpose record: a point the person said before their purpose record took its current words can contradict it (for example a rule that makes worth depend on what a person likes, where the purpose says liking does not settle worth). A point that contradicts the purpose is not used as a claim; it is used only where the piece shows the earlier view and what changed it, or it is left out, and each such decision is listed in points_against_purpose. Fill each beat first with a filmed point (its exact quote, file, start and end); only a beat no point fills gets a new line, marked to-film (the person says it on camera), voice (read in the person's own voice from words they wrote or said elsewhere, with that source) or on-screen. Every beat says what the viewer sees (the original footage, other footage, a graphic, text, or nothing) and whether it is new in this piece: any new question, transition or narration is labelled new in the piece and its description, and a rebuilt exchange is never shown as a live one. Every beat names the slot it fills and cites the library rows that decided it (the format row always; the technique or principle rows that shaped its words or order). Where the format has a word template, fill it with tool:fill-a-word-template from sourced values only and run tool:check-words-against-a-word-template; every changed template word is listed as an exception with its reason. No line states a number, name, quote or result without its source. List the ids of every to-film beat in to_film. Answer every test of the purpose record for the script as a whole, pointing at the beats that carry each answer (where the piece questions, where it tests and admits where it could be wrong, what the viewer can use or build on); a test no beat answers is a missing beat, written as one.",
+            "submit": {
+              "type": "object",
+              "required": ["promise_check", "beats", "to_film", "loops", "purpose_record", "purpose_answers"],
+              "properties": {
+                "promise_check": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["needs", "delivered_by"],
+                    "properties": { "needs": { "type": "string" }, "delivered_by": { "type": "string", "description": "A filmed point id, or investigate, test, write, record or film" } }
+                  }
+                },
+                "loops": {
+                  "type": "array",
+                  "items": { "type": "object", "required": ["opens_at", "answered_at"], "properties": { "opens_at": { "type": "string" }, "answered_at": { "type": "string" } } }
+                },
+                "purpose_record": { "type": "string" },
+                "purpose_answers": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["test", "answer", "beats"], "properties": { "test": { "type": "string" }, "answer": { "type": "string", "minLength": 10 }, "beats": { "type": "array", "minItems": 1, "items": { "type": "string" } } } } },
+                "beats": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "slot", "words", "source", "picture", "new_in_piece", "cites"],
+                    "properties": {
+                      "id": { "type": "string" },
+                      "slot": { "type": "string" },
+                      "words": { "type": "string", "minLength": 1 },
+                      "source": { "enum": ["filmed-point", "to-film", "voice", "on-screen"] },
+                      "picture": { "enum": ["original-footage", "other-footage", "graphic", "text", "none"] },
+                      "new_in_piece": { "type": "boolean", "description": "true for a question, transition or narration written for this piece; it is labelled new" },
+                      "hook": { "type": "boolean", "description": "true for the hook of the opening, a point or the ending" },
+                      "filmed_point": { "type": "string", "description": "Only on a beat whose source is filmed-point" },
+                      "from": { "type": "string", "description": "Only on voice and on-screen lines: where the words come from" },
+                      "cites": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+                    }
+                  }
+                },
+                "to_film": { "type": "array", "items": { "type": "string" } },
+                "points_against_purpose": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["point", "consistent", "how_used"],
+                    "properties": { "point": { "type": "string" }, "consistent": { "type": "boolean" }, "how_used": { "type": "string", "minLength": 5 } }
+                  }
+                },
+                "drift_exceptions": { "type": "array", "items": { "type": "object" } }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "Every beat cites only the person's library rows", "path": ["this", "beats", "*", "cites", "*"], "of": ["steps", "read-records", "library_rows", "*", "id"] },
+              { "kind": "subset-of", "says": "Every loop opens and closes on beats of this script", "path": [["this", "loops", "*", "opens_at"], ["this", "loops", "*", "answered_at"]], "of": ["this", "beats", "*", "id"] },
+              { "kind": "subset-of", "says": "Every beat fills a slot of the chosen format", "path": ["this", "beats", "*", "slot"], "of": ["steps", "format", "slots", "*", "slot"] },
+              { "kind": "subset-of", "says": "Every filmed beat uses a point found in this run", "path": ["this", "beats", "*", "filmed_point"], "of": ["steps", "filmed-points", "points", "*", "id"] },
+              { "kind": "subset-of", "says": "Only beats of this script are listed to film", "path": ["this", "to_film", "*"], "of": ["this", "beats", "*", "id"] },
+              { "kind": "subset-of", "says": "The script cites the person's own purpose record", "path": ["this", "purpose_record"], "of": ["steps", "read-records", "purpose", "record"] },
+              { "kind": "covers", "says": "The script answers every test of the purpose record", "path": ["this", "purpose_answers", "*", "test"], "of": ["steps", "read-records", "purpose", "tests", "*", "id"] },
+              { "kind": "subset-of", "says": "Each purpose answer points at beats of this script", "path": ["this", "purpose_answers", "*", "beats", "*"], "of": ["this", "beats", "*", "id"] },
+              { "kind": "covers", "says": "Every filmed point the script uses was held against the purpose record", "path": ["this", "points_against_purpose", "*", "point"], "of": ["this", "beats", "*", "filmed_point"] }
+            ]
+          },
+          {
+            "id": "check-words",
+            "title": "Check every word against the person's rules and verdicts",
+            "do": "Send every title, hook and beat's words to tool:check-against-a-persons-rules-and-verdicts with the person's rule rows, rule document and stands, stage review, each unit with its kind (title, hook, script line) so the person's rows for that kind apply. Also send the whole script as one plan unit so rows about order, length and structure apply. Answer the ask rows it returns with the caller's model and send them back. Where the person keeps a terms record, every term they defined is used in their own wording, and a wording the record marks as derived for review is never used as theirs. Rewrite every failing line, in the same slot and from the same sources, and check again until none fails. Record each unit's final status. A line held as uncertain is shown to the person as uncertain, never as passed.",
+            "submit": {
+              "type": "object",
+              "required": ["checked", "rewrites"],
+              "properties": {
+                "checked": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "kind", "status"],
+                    "properties": { "id": { "type": "string" }, "kind": { "type": "string" }, "status": { "enum": ["passed", "held", "failed", "uncertain", "unqualified", "novel"] }, "findings": { "type": "array" } }
+                  }
+                },
+                "rewrites": { "type": "array", "items": { "type": "object", "required": ["id", "before", "after", "rule"], "properties": { "id": { "type": "string" }, "before": { "type": "string" }, "after": { "type": "string" }, "rule": { "type": "string" } } } }
+              }
+            },
+            "checks": [
+              { "kind": "covers", "says": "Every beat was checked", "path": ["this", "checked", "*", "id"], "of": ["steps", "script", "beats", "*", "id"] },
+              { "kind": "covers", "says": "Every hook was checked", "path": ["this", "checked", "*", "id"], "of": ["steps", "titles-and-hooks", "hooks", "*", "id"] },
+              { "kind": "covers", "says": "Every title was checked", "path": ["this", "checked", "*", "id"], "of": ["steps", "titles-and-hooks", "titles", "*", "id"] }
+            ]
+          },
+          {
+            "id": "shoot-sheet",
+            "title": "Write a shoot sheet for only what is still missing",
+            "do": "Write one card for each to-film beat and for each hook whose said_by is person-to-film, grouped by place so one session films everything at a place. Each card: the beat or hook id; the place (the kind of place); orientation and aspect for every destination; framing and lens; support and camera move; the action and where to look; the line to say, marked draft, with its slot and the filmed point it must match in tone if one exists; length plus 1 second of handle each side; light; wardrobe and props; and, where the format has a reference, the reference frame it copies. Add what to film for b-roll the format's slots need, and the room tone to record. End with the count of cards and the total filming time. Show the sheet to the person with tool:tell-the-person.",
+            "submit": {
+              "type": "object",
+              "required": ["cards", "total_minutes"],
+              "properties": {
+                "cards": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["for", "place", "framing", "move", "action", "line", "seconds"],
+                    "properties": {
+                      "for": { "type": "string", "description": "The beat or hook id" },
+                      "place": { "type": "string" },
+                      "aspects": { "type": "array", "items": { "type": "string" } },
+                      "framing": { "type": "string" },
+                      "move": { "type": "string" },
+                      "action": { "type": "string" },
+                      "line": { "type": "string" },
+                      "seconds": { "type": "number", "minimum": 0 },
+                      "light": { "type": "string" },
+                      "props": { "type": "string" },
+                      "reference_frame": { "type": ["string", "null"] }
+                    }
+                  }
+                },
+                "broll": { "type": "array", "items": { "type": "string" } },
+                "total_minutes": { "type": "number", "minimum": 0 }
+              }
+            },
+            "checks": [
+              { "kind": "covers", "says": "Every to-film beat has a card", "path": ["this", "cards", "*", "for"], "of": ["steps", "script", "to_film", "*"] }
+            ]
+          },
+          {
+            "id": "film",
+            "title": "The person films the cards",
+            "do": "Wait for the person to film. When they say it is done, list each new recording against the card it answers, read from where they saved it (tool:list-a-drive-folder or the folder they name). A card not filmed stays open; ask with tool:tell-the-person whether to film it, cut its beat, or replace it with another filmed point.",
+            "submit": {
+              "type": "object",
+              "required": ["recordings", "open_cards"],
+              "properties": {
+                "recordings": { "type": "array", "items": { "type": "object", "required": ["for", "file"], "properties": { "for": { "type": "string" }, "file": { "type": "string" } } } },
+                "open_cards": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "Every recording answers a card", "path": ["this", "recordings", "*", "for"], "of": ["steps", "shoot-sheet", "cards", "*", "for"] }
+            ]
+          },
+          {
+            "id": "sound",
+            "title": "Transcribe, then decide each speech passage: as recorded, remastered or re-voiced",
+            "do": "Transcribe every new recording with word times (tool:transcribe-audio-and-repair-whisper-loops). For every speech passage the script uses, filmed earlier or now, run tool:grade-and-repair-speech-audio with the person's speech settings record: a passage graded good is used as recorded; one graded remaster is remastered and graded again; only one still graded clone is re-voiced with tool:clone-speech-that-repair-could-not-fix in the speaker's own voice saying exactly the recorded words (the reference voice chosen with tool:pick-the-cleanest-speech-to-clone-from), and only when the speaker has agreed to their voice being cloned. Read every remastered or re-voiced passage back with tool:read-back-repaired-speech; a passage whose words changed is not used.",
+            "submit": {
+              "type": "object",
+              "required": ["grades_file", "passages"],
+              "properties": {
+                "grades_file": { "type": "string" },
+                "passages": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["beat", "treatment", "words_match"],
+                    "properties": { "beat": { "type": "string" }, "treatment": { "enum": ["as-recorded", "remastered", "re-voiced-same-words"] }, "words_match": { "type": "boolean" } }
+                  }
+                }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "Every graded passage is a beat of the script", "path": ["this", "passages", "*", "beat"], "of": ["steps", "script", "beats", "*", "id"] }
+            ]
+          },
+          {
+            "id": "edit",
+            "title": "Cut the piece through the Workshop's tools",
+            "do": "If the footage is log, make the look's colour table first with tool:make-a-lut-for-log-footage from the person's camera profile record; otherwise use the person's look record as it is. Write the edit plan from the script's beats in order: each beat's recording span (file, start, end), voiced line or on-screen card, the look, the graphics templates from the person's devices record, and the sound grades from the sound step. Cut it with tool:assemble-a-plan-into-a-cut (it renders through the media-composition tools), with the person's checks rows in the request so the cut only moves when they pass. Reframe for each destination's aspect with tool:reframe-video and caption with tool:add-captions in the person's caption style. Every edit decision (a cut point, a held frame, a graphic, a speed change, a sound) names the beat it serves and cites the library rows that decided it. Never render into a folder the person keeps for their own picks; write to the run's own output folder. Answer every test of the purpose record for the cut (does the edit keep what the piece tests and where it could be wrong, or did cutting for pace remove it), citing the record.",
+            "submit": {
+              "type": "object",
+              "required": ["plan_file", "cuts", "edits", "purpose_record", "purpose_answers"],
+              "properties": {
+                "purpose_record": { "type": "string" },
+                "purpose_answers": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["test", "answer"], "properties": { "test": { "type": "string" }, "answer": { "type": "string", "minLength": 10 } } } },
+                "plan_file": { "type": "string" },
+                "lut_file": { "type": ["string", "null"] },
+                "cuts": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["aspect", "file"], "properties": { "aspect": { "type": "string" }, "file": { "type": "string" } } } },
+                "edits": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["beat", "decision", "cites"],
+                    "properties": { "beat": { "type": "string" }, "decision": { "type": "string" }, "cites": { "type": "array", "minItems": 1, "items": { "type": "string" } } }
+                  }
+                }
+              }
+            },
+            "checks": [
+              { "kind": "covers", "says": "Every beat of the script is in the edit", "path": ["this", "edits", "*", "beat"], "of": ["steps", "script", "beats", "*", "id"] },
+              { "kind": "subset-of", "says": "Every edit decision cites only the person's library rows", "path": ["this", "edits", "*", "cites", "*"], "of": ["steps", "read-records", "library_rows", "*", "id"] },
+              { "kind": "subset-of", "says": "The edit plan cites the person's own purpose record", "path": ["this", "purpose_record"], "of": ["steps", "read-records", "purpose", "record"] },
+              { "kind": "covers", "says": "The edit plan answers every test of the purpose record", "path": ["this", "purpose_answers", "*", "test"], "of": ["steps", "read-records", "purpose", "tests", "*", "id"] }
+            ]
+          },
+          {
+            "id": "checks",
+            "title": "Run every check before the person sees anything",
+            "do": "For each cut: run tool:check-a-rendered-video with the person's limits record and the edit's spec; tool:check-a-videos-motion-against-a-reference against the chosen format's reference with the person's motion bar record; tool:measure-loudness against the person's loudness rows; transcribe the cut (tool:transcribe-audio-and-repair-whisper-loops) and compare its words with the script's beats; and tool:check-against-a-persons-rules-and-verdicts at stage final on the plan and every line on screen or spoken. Then hold the piece to the person's own checklist. If they have a written checklist but no checklist file yet, make it first with tool:generate-a-checklist-from-my-text from their text. Then call tool:gate-a-piece-against-a-checklist with { library: the folder their schema's files are relative to, schema: their checklist schema file, command: the gate command for this piece at the stages their checklist names, at delivery stage final }; every required check it lists as unanswered, stale or failed is a failure here. Then three reviews, each a result row: rights and privacy (no private detail, no third-party material without permission, no index or archive of the person's made public, every speaker allowed the use); claim against result (the cut delivers what the title and cover promise, a hoped-for result is never stated as achieved, no made-up footage of a result or event, every quote matches the recording and not only its transcript, and where a voice was converted its lip sync and speaker match were checked); links and companions (every link and companion the piece points to, such as a worksheet, a handout, the next piece or an offer, exists, opens and is useful, and a call to action appears only when its destination exists). A person listens to the cut before this step passes. A check whose limits the person has not set is reported as not run with the missing rows named, never as passed. Any failure goes back to the step that made it (words to script, cuts to edit, sound to sound) and this step runs again. Only a cut with every check passed moves on.",
+            "submit": {
+              "type": "object",
+              "required": ["results", "ready"],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["cut", "check", "status", "evidence"],
+                    "properties": { "cut": { "type": "string" }, "check": { "type": "string" }, "status": { "enum": ["passed", "failed", "not-run"] }, "evidence": { "type": "string", "minLength": 3 } }
+                  }
+                },
+                "ready": { "type": "array", "items": { "type": "string" }, "description": "Cut files with every check passed" }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "Only cuts made in this run are checked", "path": ["this", "results", "*", "cut"], "of": ["steps", "edit", "cuts", "*", "file"] },
+              { "kind": "subset-of", "says": "Only checked cuts are ready", "path": ["this", "ready", "*"], "of": ["this", "results", "*", "cut"] }
+            ]
+          },
+          {
+            "id": "person-sees",
+            "title": "Show the person the cut and keep where they stand",
+            "do": "Show the ready cuts to the person with tool:tell-the-person, with the titles and hooks, each with the library rows it came from and the checks it passed. Keep each stand they take, in their own words, with tool:keep-where-you-stand (kind title, hook or cut). A disagree goes back to the step that made the thing, with their words as the reason.",
+            "submit": {
+              "type": "object",
+              "required": ["shown", "stands"],
+              "properties": {
+                "shown": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "The cut files shown" },
+                "stands": { "type": "array", "items": { "type": "object", "required": ["thing", "kind", "stand", "words"], "properties": { "thing": { "type": "string" }, "kind": { "type": "string" }, "stand": { "enum": ["agree", "disagree", "partly"] }, "words": { "type": "string" } } } }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "Only cuts that passed every check are shown", "path": ["this", "shown", "*"], "of": ["steps", "checks", "ready", "*"] }
+            ]
+          },
+          {
+            "id": "publish",
+            "title": "Publish once per destination, with each hook variant in its test",
+            "do": "For each destination: say what is kept, added or removed for that place (aspect, length, caption, description, cover); pick the cover frame with tool:pick-cover-frame; make a tracked link with tool:make-tracked-link for any link to the person's offer; post the agreed cut once on the person's own accounts through their own post records, placing each hook variant as the test step said: list their accounts with tool:list-post-destinations, keep the post with tool:draft-a-post (the cut as media with its media_facts, each place's own words in caption_by_platform and settings in settings_by_platform, the tracked link, the destinations, scheduled_for and time_zone, and source naming the release record), run tool:check-a-post until every destination is ready, approve it with tool:approve-a-post passing the approval_values that were reviewed, and set it with tool:set-a-post-to-go-at-its-time; it is sent at its time by tool:send-a-post-to-<place> for each destination, on a wake the person switched on, or now only with the person's yes for that post. Posting changes nothing else on their accounts. Before posting, store the person's approval of the exact cut and words (posting their own content to their own accounts needs only what their records say it needs), check the account and its privacy setting, and stay inside input spend_limit: a paid or irreversible action outside it waits for their yes, and a blocked paid action is reported, not retried. If approval is withheld, the run ends on hold with the editable version kept. Open each live post's address with tool:read-public-web-page and record it as published only when the post is there. Keep a release record: each post's id and package, the source passage records it used, the edits, every cost, and every test result, negative and inconclusive ones too.",
+            "submit": {
+              "type": "object",
+              "required": ["approval", "posts", "release_record"],
+              "properties": {
+                "approval": {
+                  "type": "object",
+                  "required": ["status", "by", "at"],
+                  "properties": { "status": { "enum": ["approved", "withheld", "not-needed"] }, "by": { "type": "string" }, "at": { "type": "string" }, "kept_editable": { "type": "string" } }
+                },
+                "spent": { "type": "array", "items": { "type": "object", "required": ["what", "cost"], "properties": { "what": { "type": "string" }, "cost": { "type": "string" } } } },
+                "release_record": { "type": "string", "description": "The id of the release record kept" },
+                "posts": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["destination", "url", "posted_at", "hook_variant", "seen_live"],
+                    "properties": { "destination": { "type": "string" }, "url": { "type": "string" }, "posted_at": { "type": "string" }, "hook_variant": { "type": "string" }, "seen_live": { "type": "boolean" } }
+                  }
+                }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "Every post carries a hook variant under test", "path": ["this", "posts", "*", "hook_variant"], "of": ["steps", "titles-and-hooks", "test", "variants", "*"] },
+              { "kind": "subset-of", "says": "Posts go only to the person's destinations", "path": ["this", "posts", "*", "destination"], "of": ["input", "destinations", "*", "platform"] }
+            ]
+          },
+          {
+            "id": "learn",
+            "title": "Read the numbers back and keep what they taught",
+            "do": "At 1, 7 and 28 days read each post's numbers: views and retention from the platform (tool:github:yt-dlp-yt-dlp metadata for public counts, or the person's own analytics), and the business result with tool:break-down-visits-and-sales over the tracked links. Compare each with the person's usual for that channel and kind (a median of at least 3 comparable posts, else say so), and name the winning hook variant by the test's deciding number, only when every variant reached the test's min_viewers; otherwise the result is inconclusive and no winner is named. Keep each measure apart: views, returning viewers, people who used what the piece gave them, enquiries and business results. Write one learning: what was observed (kept apart from any explanation), what was assumed, the explanations that fit and the other explanations that also fit, the deepest cause, what changed and what did not, what needs correcting, what others could use, the lesson, and the next action and why now. Keep it in the person's records: the winning hook's technique row gains this run as evidence, a new technique becomes a new library row, a question the results raised becomes a new audience question record, audience guesses are marked supported or weakened, and a pass mark that the numbers disagree with is changed in the person's rows, not here. End with a completion ledger: every step with its status (done, partly, not done), what was finished and what remains, keeping written, tested, approved and published apart.",
+            "submit": {
+              "type": "object",
+              "required": ["readbacks", "winner", "learning", "ledger"],
+              "properties": {
+                "readbacks": { "type": "array", "items": { "type": "object", "required": ["url", "day", "numbers"], "properties": { "url": { "type": "string" }, "day": { "enum": [1, 7, 28] }, "numbers": { "type": "object", "description": "Each measure apart: views, returning viewers, people who used it, enquiries, business results" }, "against_usual": { "type": ["number", "null"] } } } },
+                "winner": { "type": ["string", "null"], "description": "null when the test was inconclusive" },
+                "learning": {
+                  "type": "object",
+                  "required": ["observed", "assumed", "explanations", "other_explanations", "cause", "changed", "unchanged", "to_correct", "others_can_use", "lesson", "next_action"],
+                  "properties": {
+                    "observed": { "type": "string" }, "assumed": { "type": "string" }, "explanations": { "type": "string" }, "other_explanations": { "type": "string" },
+                    "cause": { "type": "string" }, "changed": { "type": "string" }, "unchanged": { "type": "string" }, "to_correct": { "type": "string" },
+                    "others_can_use": { "type": "string" }, "lesson": { "type": "string" }, "next_action": { "type": "string" }
+                  }
+                },
+                "rows_updated": { "type": "array", "items": { "type": "string" } },
+                "ledger": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "object", "required": ["step", "status"], "properties": { "step": { "type": "string" }, "status": { "enum": ["done", "partly", "not-done"] }, "finished": { "type": "string" }, "remains": { "type": "string" } } }
+                }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "Only published posts are read back", "path": ["this", "readbacks", "*", "url"], "of": ["steps", "publish", "posts", "*", "url"] },
+              { "kind": "subset-of", "says": "The winner is a variant that was tested", "path": ["this", "winner"], "of": ["steps", "titles-and-hooks", "test", "variants", "*"] }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

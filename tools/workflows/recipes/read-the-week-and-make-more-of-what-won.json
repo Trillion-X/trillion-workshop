@@ -1,0 +1,263 @@
+{
+  "about": "A workflow every account can find and run: every week, read the numbers of everything the person published, rank each piece against the person's own median, write 'more of this' briefs for the angles that won, keep every format running until its declared minimum run is done, and list the organic winners the person may choose to put paid spend behind. One workflow-recipe row in the shape of the shared recipe shelf (job, input_schema, ordered steps, each with do, submit and checks).",
+  "records": [
+    {
+      "id": "read-the-week-and-make-more-of-what-won",
+      "address": "workflow-recipe:read-the-week-and-make-more-of-what-won",
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:read-the-week-and-make-more-of-what-won",
+        "label": "Read the week and make more of what won",
+        "job": "Once a week, read the real numbers of every piece the person published in the window, rank each against the person's own median for its platform and kind, name the angle behind each piece, write a 'more of this' brief for each of the top 3 angles, retire only angles that failed 3 times and only formats past their declared minimum run, and list the organic winners above the person's outlier multiple as paid candidates for the person to approve. Every number comes from a tool call or the person's own analytics; where there is none, the answer is \"no data\". The AI reads, ranks and writes briefs; it never spends money, boosts, posts or deletes anything.",
+        "produces": "A weekly 'what won and why' ranking with 3 follow-up briefs, which can become a 'what worked this week' post or the next pieces themselves.",
+        "source": {
+          "from": "a cited principles registry mined from video captions",
+          "name": "Treat performance as the market's verdict; run a weekly loop that feeds results back at the angle level; commit to a minimum run before judging a format; use organic content as the ad test",
+          "principles": ["P-026", "P-052", "P-048", "P-017"],
+          "note": "Adopted: weekly ranking against the creator's own median, briefs for the top 3, kill an angle after 3 failures, no kill before the declared minimum run, organic winners above a multiple become paid candidates. Not adopted: any automatic spend or boost; paid spend is the person's own decision on each candidate, in their own ad account."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["platforms", "measure"],
+          "properties": {
+            "platforms": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["platform", "profile_url"],
+                "properties": {
+                  "platform": {"type": "string", "minLength": 2},
+                  "profile_url": {"type": "string", "minLength": 8}
+                }
+              },
+              "description": "Each platform the person publishes on, with the address of their own profile there"
+            },
+            "measure": {
+              "type": "string",
+              "minLength": 3,
+              "description": "The one number pieces are ranked by (for example views, saves, sends, sign-ups); the person's choice"
+            },
+            "window_days": {"type": "integer", "minimum": 1, "default": 7, "description": "How many days back the week reads; 7 when left out"},
+            "median_weeks": {"type": "integer", "minimum": 1, "default": 4, "description": "How many weeks of the person's own pieces make the median; 4 when left out"},
+            "outlier_multiple": {"type": "number", "minimum": 1, "default": 2, "description": "A piece at least this many times its median is a winner and a paid candidate; 2 when left out"}
+          }
+        },
+        "wakes": [
+          {"id": "monday", "on": {"time": {"every_ms": 604800000, "from_ms": 378000000}}, "budget": {"steps": 60, "wall_ms": 3600000}, "input": {"start_at": "read-pieces"}}
+        ],
+        "steps": [
+          {
+            "id": "read-pieces",
+            "title": "List every piece published in the window, with its numbers",
+            "do": "Read the person's records of their published pieces (records:list by the kind the person keeps them under, for example 'posted-piece'; each holds its platform, address, published date, format and angle when the person or an earlier run wrote them). Then for each platform in the input platforms, read the person's own profile at its profile_url: for a public profile call tool:github:yt-dlp-yt-dlp with the profile address and its metadata-only option (no download) for video platforms, or tool:github:mikf-gallery-dl with its metadata-only option for image and carousel platforms; for a page that needs the person signed in, call tool:read-a-page-in-my-browser with { \"url\": <the profile_url> }. Keep every piece published in the last window_days days (7 when left out) and every piece of the last median_weeks weeks (4 when left out) for the median. For each piece copy its address, platform, kind (short, long, carousel, post), published date and the input measure exactly as the tool returned it; a number the tool did not return is null with the reason in no_data, never an estimate.",
+            "submit": {
+              "type": "object",
+              "required": ["pieces"],
+              "properties": {
+                "pieces": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["address", "platform", "kind", "published", "in_window", "measure", "read_with"],
+                    "properties": {
+                      "address": {"type": "string", "minLength": 8},
+                      "platform": {"type": "string", "minLength": 2},
+                      "kind": {"type": "string", "minLength": 2},
+                      "published": {"type": "string", "format": "date"},
+                      "in_window": {"type": "boolean"},
+                      "measure": {"type": ["number", "null"]},
+                      "no_data": {"type": "string"},
+                      "read_with": {"type": "string", "pattern": "^tool:"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "pieces", "*", "platform"], "of": ["input", "platforms", "*", "platform"], "says": "Every piece comes from a platform the person publishes on"}
+            ]
+          },
+          {
+            "id": "name-angles",
+            "title": "Name the format and the angle of every piece in the window",
+            "do": "For each piece of the read-pieces step with in_window true, write its format (the repeatable structure, for example 'list of 5 mistakes', 'before and after', 'reaction') and its angle (the one claim, promise or tension the piece sells, in one sentence). Take both from the person's record of the piece when it has them; otherwise read the piece itself (its caption and opening with tool:read-a-page-in-my-browser, or its words with tool:transcribe-audio-and-repair-whisper-loops on its audio) and write them, then reuse the person's existing angle names from their records (records:list of the kind they keep angles or formats under) whenever one means the same thing, so tries of one angle add up across weeks.",
+            "submit": {
+              "type": "object",
+              "required": ["named"],
+              "properties": {
+                "named": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["address", "format", "angle", "angle_is_new"],
+                    "properties": {
+                      "address": {"type": "string", "minLength": 8},
+                      "format": {"type": "string", "minLength": 3},
+                      "angle": {"type": "string", "minLength": 10},
+                      "angle_is_new": {"type": "boolean"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "named", "*", "address"], "of": ["steps", "read-pieces", "pieces", "*", "address"], "says": "Every named piece is a piece that was read"}
+            ]
+          },
+          {
+            "id": "rank",
+            "title": "Rank every piece against the person's own median",
+            "do": "For each platform and kind, compute the median of the input measure over the person's pieces of the last median_weeks weeks from the read-pieces step (pieces with a null measure are left out of the median and say so). For each piece in the window, write its multiple: its measure divided by that median. Mark a piece a winner when its multiple is at least outlier_multiple (2 when left out), and a miss when it is below 0.5. Sort the window's pieces by multiple, highest first. A piece with a null measure is listed with multiple null and is neither a winner nor a miss.",
+            "submit": {
+              "type": "object",
+              "required": ["medians", "ranked"],
+              "properties": {
+                "medians": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["platform", "kind", "median", "pieces_counted"],
+                    "properties": {
+                      "platform": {"type": "string"},
+                      "kind": {"type": "string"},
+                      "median": {"type": ["number", "null"]},
+                      "pieces_counted": {"type": "integer", "minimum": 0}
+                    }
+                  }
+                },
+                "ranked": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["address", "multiple", "verdict"],
+                    "properties": {
+                      "address": {"type": "string", "minLength": 8},
+                      "multiple": {"type": ["number", "null"]},
+                      "verdict": {"type": "string", "enum": ["winner", "middle", "miss", "no-data"]}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "ranked", "*", "address"], "of": ["steps", "name-angles", "named", "*", "address"], "says": "Every piece in the window is ranked"}
+            ]
+          },
+          {
+            "id": "keep-or-retire",
+            "title": "Count tries per angle and per format, and retire only what earned it",
+            "do": "Read the person's earlier weekly results of this workflow (records:list of the kind this workflow writes, 'weekly-readback') and add this week's verdicts to them. For each angle, count its tries and its misses across all weeks; an angle with 3 misses and no winner is retired. For each format, read its declared minimum run from the person's format records (records:list of the kind they keep formats under; a format with no declared minimum run is treated as 10 pieces) and count its published pieces: a format below its minimum run is kept whatever its numbers, and its verdict is 'keep, run not finished'. Never recommend dropping a format before its minimum run.",
+            "submit": {
+              "type": "object",
+              "required": ["angles", "formats"],
+              "properties": {
+                "angles": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["angle", "tries", "winners", "misses", "decision"],
+                    "properties": {
+                      "angle": {"type": "string", "minLength": 10},
+                      "tries": {"type": "integer", "minimum": 1},
+                      "winners": {"type": "integer", "minimum": 0},
+                      "misses": {"type": "integer", "minimum": 0},
+                      "decision": {"type": "string", "enum": ["more", "keep", "retire"]}
+                    }
+                  }
+                },
+                "formats": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["format", "published", "minimum_run", "decision"],
+                    "properties": {
+                      "format": {"type": "string", "minLength": 3},
+                      "published": {"type": "integer", "minimum": 0},
+                      "minimum_run": {"type": "integer", "minimum": 1},
+                      "decision": {"type": "string", "enum": ["keep, run not finished", "keep", "retire"]}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "angles", "*", "angle"], "of": ["steps", "name-angles", "named", "*", "angle"], "says": "Every angle tried this week has a decision"},
+              {"kind": "covers", "path": ["this", "formats", "*", "format"], "of": ["steps", "name-angles", "named", "*", "format"], "says": "Every format used this week has a decision"}
+            ]
+          },
+          {
+            "id": "briefs",
+            "title": "Write a 'more of this' brief for each of the top 3 angles",
+            "do": "Take the 3 angles with the highest multiple among this week's winners (fewer when fewer won; never pad with a piece that did not win). For each write one brief for the next piece: the angle in one sentence, the winning piece it comes from, what to keep exactly (the hook structure, the format, the length), what to change (a new subject, example or item, taken from the person's own material and records, never invented), and the platform. Use tool:cross-techniques-with-a-goal with the person's technique records and the goal 'another piece on this angle' to pick at most 2 techniques that fit, and name them. Check each brief's words with tool:check-against-a-persons-rules-and-verdicts against the person's own rules; rewrite any line that fails.",
+            "submit": {
+              "type": "object",
+              "required": ["briefs"],
+              "properties": {
+                "briefs": {
+                  "type": "array",
+                  "maxItems": 3,
+                  "items": {
+                    "type": "object",
+                    "required": ["angle", "from_address", "keep", "change", "platform", "techniques"],
+                    "properties": {
+                      "angle": {"type": "string", "minLength": 10},
+                      "from_address": {"type": "string", "minLength": 8},
+                      "keep": {"type": "string", "minLength": 10},
+                      "change": {"type": "string", "minLength": 10},
+                      "platform": {"type": "string", "minLength": 2},
+                      "techniques": {"type": "array", "maxItems": 2, "items": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "briefs", "*", "angle"], "of": ["steps", "name-angles", "named", "*", "angle"], "says": "Every brief continues an angle that was actually tried"},
+              {"kind": "subset-of", "path": ["this", "briefs", "*", "from_address"], "of": ["steps", "rank", "ranked", "*", "address"], "says": "Every brief comes from a ranked piece"}
+            ]
+          },
+          {
+            "id": "paid-candidates",
+            "title": "List the organic winners the person may put paid spend behind",
+            "do": "List every piece the rank step marked winner as a paid candidate: its address, its multiple, and the short call to action to add at its end (one sentence, in the person's words from their records, naming the one action and the place). Write no budget, audience or ad of your own and open no ad account: the candidate list is for the person, who decides in their own ad account whether to spend anything.",
+            "submit": {
+              "type": "object",
+              "required": ["candidates"],
+              "properties": {
+                "candidates": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["address", "multiple", "call_to_action"],
+                    "properties": {
+                      "address": {"type": "string", "minLength": 8},
+                      "multiple": {"type": "number"},
+                      "call_to_action": {"type": "string", "minLength": 5}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "candidates", "*", "address"], "of": ["steps", "rank", "ranked", "*", "address"], "says": "Every paid candidate is a ranked piece"}
+            ]
+          },
+          {
+            "id": "keep-and-tell",
+            "title": "Keep the week's result and tell the person",
+            "do": "Write one record of the kind 'weekly-readback' with the person's record write: the week's date, the medians, the ranked pieces with their verdicts, the angle and format decisions, the briefs and the paid candidates, so the next week's keep-or-retire step reads it. Then call tool:tell-the-person with a short message: the top 3 pieces with their multiples, the briefs written, any angle retired and why, the formats still inside their minimum run, and the paid candidates waiting for the person's own decision. Give exact addresses, never just 'saved'.",
+            "submit": {
+              "type": "object",
+              "required": ["record_id", "told"],
+              "properties": {
+                "record_id": {"type": "string", "minLength": 3},
+                "told": {"type": "boolean", "const": true}
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

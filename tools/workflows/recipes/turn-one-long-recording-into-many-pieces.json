@@ -1,0 +1,265 @@
+{
+  "about": "A workflow every account can find and run: when a memory card or drive with new long recordings is connected, or the person records a new long recording, transcribe it, file what was said by topic, cut at least ten clips each with its own packaging and a link back to the long piece, and draft a newsletter and posts from the same message, all approved by the person before anything goes out. One workflow-recipe row in the shape of the shared recipe shelf (job, input_schema, ordered steps, each with do, submit and checks), with the wakes that start it.",
+  "records": [
+    {
+      "id": "turn-one-long-recording-into-many-pieces",
+      "address": "workflow-recipe:turn-one-long-recording-into-many-pieces",
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:turn-one-long-recording-into-many-pieces",
+        "label": "Turn one long recording into many pieces",
+        "job": "Find the long recordings the person has not used yet (on a connected drive or in their recording records), transcribe each with word times, file every spoken moment into topic buckets, pick at least ten clips that each stand alone, give each its own title and first line and a link back to the long piece, draft a newsletter and a set of posts from the long piece's one message, check every word against the person's own rules, and get the person's approval of each piece before anything is posted. The AI cuts and drafts; the person approves every piece and posts it.",
+        "produces": "At least ten packaged clips, a newsletter draft and a set of posts from one long recording, each pointing back to the long piece.",
+        "source": {
+          "from": "a principles registry mined from video captions",
+          "name": "Make long-form the foundation: one recording yields clips, posts, quotes and a newsletter; clip every long conversation generously; use shorts for reach and long pieces for depth",
+          "principles": ["P-107", "P-089", "P-099"],
+          "note": "Adopted: one long recording as the source of every derivative, ten or more clips per long piece with their own packaging, and every short linking back to the long piece. Not adopted: posting clips of a guest without the guest knowing; each clip with a guest is listed for the person to clear with that guest."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["long_at_least_minutes"],
+          "properties": {
+            "long_at_least_minutes": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "How long a recording must be to count as a long piece"
+            },
+            "recording_suffixes": {
+              "type": "array",
+              "items": {"type": "string", "minLength": 2},
+              "description": "The file endings the person's cameras and recorders write (for example .mov, .mp4, .wav); all common video and audio endings when left out"
+            },
+            "long_piece_link": {
+              "type": "string",
+              "description": "Where the long piece is or will be published, for the link back; asked for in the approve step when left out"
+            },
+            "channels": {
+              "type": "array",
+              "items": {"type": "string", "minLength": 2},
+              "description": "The platforms the clips and posts are for"
+            }
+          }
+        },
+        "wakes": [
+          {
+            "id": "card-inserted",
+            "on": {"host_event": {"kind": "volume-mounted"}},
+            "budget": {"steps": 80, "wall_ms": 3600000},
+            "input": {"start_at": "find-new"}
+          },
+          {
+            "id": "recording-added",
+            "on": {"record": {"resource": "own-records", "kind": "recording"}},
+            "budget": {"steps": 80, "wall_ms": 3600000},
+            "input": {"start_at": "find-new"}
+          }
+        ],
+        "steps": [
+          {
+            "id": "find-new",
+            "title": "Find the long recordings not used yet",
+            "do": "Call tool:list-connected-drives and, for each connected drive, tool:see-what-is-on-a-drive; for each folder that holds files ending in one of the input recording_suffixes, call tool:list-a-drive-folder and copy each file's path, size and length in minutes. Also list the person's recording records (records:list with { \"type\": \"recording\" }) and copy each one's file path and length. Keep only recordings at least the input long_at_least_minutes long. Then list the person's recording records that are marked used (each has a used_in field) and drop every recording whose path is already among them. If none is left, say so and stop here.",
+            "submit": {
+              "type": "object",
+              "required": ["recordings"],
+              "properties": {
+                "recordings": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["path", "minutes", "found_by"],
+                    "properties": {
+                      "path": {"type": "string", "minLength": 3},
+                      "minutes": {"type": "number", "minimum": 0},
+                      "found_by": {"type": "string", "enum": ["drive", "record"]}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "transcribe",
+            "title": "Transcribe each recording with word times",
+            "do": "For each recording from the find-new step, call tool:transcribe-audio-and-repair-whisper-loops with its path, and keep the transcript with each word's start and end second as the tool returns it. Copy any window the tool reports it could not repair; never fill it with guessed words.",
+            "submit": {
+              "type": "object",
+              "required": ["transcripts"],
+              "properties": {
+                "transcripts": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["path", "transcript", "unrepaired"],
+                    "properties": {
+                      "path": {"type": "string", "minLength": 3},
+                      "transcript": {"type": "string", "minLength": 20},
+                      "unrepaired": {"type": "array", "items": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "transcripts", "*", "path"], "of": ["steps", "find-new", "recordings", "*", "path"], "says": "Every new recording was transcribed"}
+            ]
+          },
+          {
+            "id": "buckets",
+            "title": "File every spoken moment into topic buckets",
+            "do": "Call tool:file-spoken-moments-into-topic-buckets with the transcripts from the transcribe step and the person's own topic records, as that tool's input names them. Copy each moment it files: the recording path, its start and end second, its words and its bucket. Write the one message of the long piece in one sentence: what a viewer should leave believing, in the person's own words from the transcript.",
+            "submit": {
+              "type": "object",
+              "required": ["message", "moments"],
+              "properties": {
+                "message": {"type": "string", "minLength": 10},
+                "moments": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["path", "start", "end", "words", "bucket"],
+                    "properties": {
+                      "path": {"type": "string", "minLength": 3},
+                      "start": {"type": "number", "minimum": 0},
+                      "end": {"type": "number", "minimum": 0},
+                      "words": {"type": "string", "minLength": 5},
+                      "bucket": {"type": "string", "minLength": 2}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "moments", "*", "path"], "of": ["steps", "transcribe", "transcripts", "*", "path"], "says": "Every moment comes from a transcribed recording"}
+            ]
+          },
+          {
+            "id": "clips",
+            "title": "Pick at least ten clips, each packaged on its own",
+            "do": "From the moments in the buckets step pick at least ten clips per long recording (fewer only when the recording holds fewer moments that stand alone; say which). A clip stands alone: a viewer who never saw the long piece understands it from its first second. For each clip write: its id, the recording path, its start and end second (cut at the edges of whole sentences), a title of its own, the first line spoken or shown on screen, the channel it is for from the input channels, and one line that sends the viewer to the long piece. Spread the clips over at least three buckets. Mark every clip in which a guest speaks, for the person to clear with that guest.",
+            "submit": {
+              "type": "object",
+              "required": ["clips"],
+              "properties": {
+                "clips": {
+                  "type": "array",
+                  "minItems": 10,
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "path", "start", "end", "title", "first_line", "bucket", "link_back", "guest_speaks"],
+                    "properties": {
+                      "id": {"type": "string", "minLength": 1},
+                      "path": {"type": "string", "minLength": 3},
+                      "start": {"type": "number", "minimum": 0},
+                      "end": {"type": "number", "minimum": 0},
+                      "title": {"type": "string", "minLength": 5},
+                      "first_line": {"type": "string", "minLength": 5},
+                      "bucket": {"type": "string", "minLength": 2},
+                      "channel": {"type": "string"},
+                      "link_back": {"type": "string", "minLength": 5},
+                      "guest_speaks": {"type": "boolean"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "clips", "*", "bucket"], "of": ["steps", "buckets", "moments", "*", "bucket"], "says": "Every clip comes from a filed moment"},
+              {"kind": "distinct-at-least", "path": ["this", "clips", "*", "bucket"], "count": 3, "says": "The clips cover at least three topics"},
+              {"kind": "distinct-at-least", "path": ["this", "clips", "*", "title"], "count": 10, "says": "Every clip has its own title"}
+            ]
+          },
+          {
+            "id": "written",
+            "title": "Draft a newsletter and posts from the same message",
+            "do": "From the message and the moments of the buckets step, draft: one newsletter issue that tells the long piece's story in writing and links to it; and one post per channel in the input channels, each written natively for its platform (its own first line and length), each pointing to the long piece. Quote the person only with words that appear in the transcript; every quote names its recording path and second.",
+            "submit": {
+              "type": "object",
+              "required": ["drafts"],
+              "properties": {
+                "drafts": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "kind", "channel", "words"],
+                    "properties": {
+                      "id": {"type": "string", "minLength": 1},
+                      "kind": {"type": "string", "enum": ["newsletter", "post"]},
+                      "channel": {"type": "string", "minLength": 2},
+                      "words": {"type": "string", "minLength": 20}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "drafts", "*", "kind"], "values": ["newsletter"], "says": "A newsletter issue is drafted"}
+            ]
+          },
+          {
+            "id": "check-words",
+            "title": "Check every title, first line and draft against the person's own rules",
+            "do": "Call tool:check-against-a-persons-rules-and-verdicts once per clip (its title, first line and link-back line) and once per draft from the written step, with the person's own rules and verdicts records as that tool's input names them. Rewrite every piece with a failing finding and check it again until it passes or the person's rule says it needs their ruling.",
+            "submit": {
+              "type": "object",
+              "required": ["checked"],
+              "properties": {
+                "checked": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["piece", "passed", "findings"],
+                    "properties": {
+                      "piece": {"type": "string", "minLength": 1},
+                      "passed": {"type": "boolean"},
+                      "findings": {"type": "array", "items": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "checked", "*", "piece"], "of": ["steps", "clips", "clips", "*", "id"], "says": "Every clip was checked"},
+              {"kind": "covers", "path": ["this", "checked", "*", "piece"], "of": ["steps", "written", "drafts", "*", "id"], "says": "Every draft was checked"}
+            ]
+          },
+          {
+            "id": "approve",
+            "title": "The person approves each piece",
+            "do": "Show the person, in the chat, each clip (its recording path and seconds, title, first line, link-back line, and whether a guest speaks) and each draft exactly as it would go out. If the input long_piece_link is empty, ask where the long piece is published. Ask for each piece: \"Do you approve this exactly as shown?\" Wait for the answer; change only what they ask, check the changed words again with tool:check-against-a-persons-rules-and-verdicts, and show them again. A clip in which a guest speaks is approved only when the person says the guest agreed. Never treat silence as approval.",
+            "submit": {
+              "type": "object",
+              "required": ["approved", "not_approved"],
+              "properties": {
+                "approved": {"type": "array", "items": {"type": "string"}},
+                "not_approved": {"type": "array", "items": {"type": "string"}},
+                "long_piece_link": {"type": "string"}
+              }
+            }
+          },
+          {
+            "id": "tell",
+            "title": "Mark the recordings used and tell the person what was made",
+            "do": "For each recording from the find-new step, write the person's recording record with the records write: its path, its length and a used_in field listing the approved clip and draft ids, so the next run skips it. Then call tool:tell-the-person with the approved clips (recording path and seconds, title, channel), the approved drafts, the pieces not approved, and every clip that waits for a guest's agreement. The person posts each piece; nothing is posted by this workflow.",
+            "submit": {
+              "type": "object",
+              "required": ["marked_used", "told"],
+              "properties": {
+                "marked_used": {"type": "array", "items": {"type": "string", "minLength": 3}},
+                "told": {"type": "boolean", "const": true}
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "marked_used", "*"], "of": ["steps", "find-new", "recordings", "*", "path"], "says": "Every recording used is marked so it is not used twice"}
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

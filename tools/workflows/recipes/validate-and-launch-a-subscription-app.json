@@ -6,6 +6,10 @@
       "address": "workflow-recipe:validate-and-launch-a-subscription-app",
       "payload": {
         "kind": "workflow-recipe",
+        "produces": "Each Monday: installs, trials, paid users and revenue by channel, with the channel that won and why; the weekly numbers are a build-in-public post.",
+        "wakes": [
+          { "id": "monday", "on": { "time": { "every_ms": 604800000, "from_ms": 378000000 } }, "budget": { "steps": 40, "wall_ms": 1800000 }, "input": { "start_at": "weekly" } }
+        ],
         "id": "workflow:validate-and-launch-a-subscription-app",
         "label": "Validate and launch a subscription app",
         "job": "Take a consumer app idea from a painful daily problem to a live subscription app: confirm that apps in the category already earn and that creators already post about the problem (stop if not), record the top 3 competitors' onboarding beats, paywall, price and growth channels from the person's own screenshots, write an onboarding that follows the winning order of beats in original words and design, end it with a paywall that states price, trial and cancellation plainly, publish a store page whose subtitle says what the app does, then run five growth channels (creators paid per post, influencers on a capped cost per 1,000 views, faceless slideshows, founder-made posts, paid ads after organic winners) with disclosures, and review installs, trials, paid users and revenue every week. Every number comes from a tool call or the person's own store and payment dashboards; where there is none, the answer is \"no data\". The AI drafts; the person owns the developer account, the payment setup and every contract, approves every word, and submits.",

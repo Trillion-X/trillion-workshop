@@ -6,6 +6,10 @@
       "address": "workflow-recipe:find-and-test-the-short-video-formats-that-sell-your-app",
       "payload": {
         "kind": "workflow-recipe",
+        "produces": "Each Monday: the formats winning in the niche this week, scored, with 3 new scripts for the best one; the ranked formats are a \"what is working now\" post.",
+        "wakes": [
+          { "id": "monday", "on": { "time": { "every_ms": 604800000, "from_ms": 378000000 } }, "budget": { "steps": 80, "wall_ms": 3600000 }, "input": { "start_at": "map-niche" } }
+        ],
         "id": "workflow:find-and-test-the-short-video-formats-that-sell-your-app",
         "label": "Find and test the short-video formats that sell your app",
         "job": "Map which short-video formats won in the person's category over the last 30 and 90 days, read the 8 most relevant videos in detail, score the formats and pick the top 3, write 9 scripts (3 per format, 3 hooks each, the app on screen by 0:03) that keep each format's structure and change every word, list the creators who already posted for the person's competitors, then plan a 2-week test of 3 videos per format and end every format that gets under 5 downloads per 1,000 views. Every number comes from a tool call or from the person's own analytics; where there is none, the answer is \"no data\". The AI drafts, the person approves the exact scripts, films and posts: the AI never posts by itself.",

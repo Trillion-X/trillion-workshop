@@ -1,0 +1,235 @@
+{
+  "about": "A workflow every account can find and run: every 90 days, ask the answer engines the person names the questions each of their own pages answers, record which pages are cited, find the facts on each page older than the person's freshness window, rewrite only those sections with dated facts from sources read in the run, check the words, and have the person approve and publish. One workflow-recipe row in the shape of the shared recipe shelf (job, input_schema, ordered steps, each with do, submit and checks).",
+  "records": [
+    {
+      "id": "keep-pages-cited-by-answer-engines",
+      "address": "workflow-recipe:keep-pages-cited-by-answer-engines",
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-pages-cited-by-answer-engines",
+        "label": "Keep your pages cited by answer engines",
+        "job": "Every 90 days, for each of the person's own pages: ask each answer engine the person names the questions the page answers, record whether the answer cites the page, list every fact on the page whose date is older than the person's freshness window or that has no date, rewrite only those sections with dated facts taken from sources read in this run, keep one message across the page and its other touchpoints, check every rewritten sentence against the person's own rules, and show the person the exact changes to approve and publish. The AI never publishes by itself.",
+        "produces": "A dated before-and-after of which pages each answer engine cites and which facts were refreshed, which can become a 'what changed in 90 days' post.",
+        "source": {
+          "from": "principles mined from video captions",
+          "name": "Content has a half-life for answer engines; keep one message at every touchpoint",
+          "principles": ["P-025", "P-047"],
+          "note": "The half-life numbers the sources give (weeks before a new page is cited, citations decaying in about three months) are their claims, not checked here; the 90-day wake is the person's to change. Not adopted: asking an answer engine many times to push a page up, or writing pages for engines instead of readers."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["pages", "answer_engines", "freshness_days", "rules"],
+          "properties": {
+            "pages": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["url", "questions"],
+                "properties": {
+                  "url": {"type": "string", "minLength": 8},
+                  "questions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 5}, "description": "The questions a reader asks that this page answers, in the reader's words"}
+                }
+              },
+              "description": "The person's own pages"
+            },
+            "answer_engines": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 8, "description": "The search address of an answer engine with {question} where the question goes"},
+              "description": "The answer engines the person wants to be cited by"
+            },
+            "freshness_days": {"type": "integer", "minimum": 1, "description": "A fact dated longer ago than this many days is refreshed"},
+            "rules": {"type": "array", "minItems": 1, "items": {"type": "object"}, "description": "The person's own word rules, as tool:check-against-a-persons-rules-and-verdicts takes them"},
+            "message": {"type": "string", "description": "The one message the person keeps at every touchpoint, if they wrote one"}
+          }
+        },
+        "wakes": [
+          {"id": "quarterly", "on": {"time": {"every_ms": 7776000000}}, "budget": {"steps": 60, "wall_ms": 3600000}, "input": {"start_at": "ask"}}
+        ],
+        "steps": [
+          {
+            "id": "ask",
+            "title": "Ask each answer engine every question each page answers",
+            "do": "For each page in the input pages and each of its questions, and for each address in the input answer_engines: put the question where {question} is (spaces written as +) and call tool:read-a-page-in-my-browser with { \"url\": <that address> }. Wait until the answer has finished writing, then copy the full answer text and every address the answer cites. A page counts as cited only when one of the cited addresses is the page's url or starts with it; a mention of the site's name without its address is not a citation. Record today's date in the person's time zone.",
+            "submit": {
+              "type": "object",
+              "required": ["date", "answers"],
+              "properties": {
+                "date": {"type": "string", "format": "date"},
+                "answers": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["page", "question", "engine", "cited", "cited_addresses"],
+                    "properties": {
+                      "page": {"type": "string"},
+                      "question": {"type": "string"},
+                      "engine": {"type": "string"},
+                      "cited": {"type": "boolean"},
+                      "cited_addresses": {"type": "array", "items": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "covers", "path": ["this", "answers", "*", "page"], "of": ["input", "pages", "*", "url"], "says": "Every page was asked about"},
+              {"kind": "covers", "path": ["this", "answers", "*", "engine"], "of": ["input", "answer_engines", "*"], "says": "Every answer engine was asked"},
+              {"kind": "subset-of", "path": ["this", "answers", "*", "page"], "of": ["input", "pages", "*", "url"], "says": "Only the person's own pages were asked about"}
+            ]
+          },
+          {
+            "id": "read-pages",
+            "title": "Read every page and list its dated facts",
+            "do": "For each page in the input pages call tool:read-public-web-page with { \"url\": <the page's url> }. List every fact on it a reader could act on: a number, a price, a name of a product or rule, a step that depends on a tool or a law. For each fact copy the sentence exactly, and the date the page gives for it (a 'last updated' date counts for every fact under it); write no date when the page gives none. Mark a fact stale when its date is more than the input freshness_days before the date of the ask step, or when it has no date.",
+            "submit": {
+              "type": "object",
+              "required": ["facts"],
+              "properties": {
+                "facts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["page", "sentence", "stale"],
+                    "properties": {
+                      "page": {"type": "string"},
+                      "sentence": {"type": "string", "minLength": 5},
+                      "dated": {"type": "string", "format": "date"},
+                      "stale": {"type": "boolean"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "facts", "*", "page"], "of": ["input", "pages", "*", "url"], "says": "Facts come only from the person's own pages"}
+            ]
+          },
+          {
+            "id": "find-current",
+            "title": "Find the current value of every stale fact from a source read now",
+            "do": "For each fact marked stale, find what is true today from the primary source: the maker's own page, the official rule or price page, or the original study. Call tool:read-public-web-page on it (tool:read-a-page-in-my-browser when the site refuses servers). Copy the exact words that state the current value, the source address and the date the source gives. If no source read in this run states it, write unconfirmed: the sentence will be marked for the person, never guessed.",
+            "submit": {
+              "type": "object",
+              "required": ["current"],
+              "properties": {
+                "current": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["sentence", "status"],
+                    "properties": {
+                      "sentence": {"type": "string"},
+                      "status": {"type": "string", "enum": ["still-true", "changed", "unconfirmed"]},
+                      "source": {"type": "string"},
+                      "source_words": {"type": "string"},
+                      "source_date": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "current", "*", "sentence"], "of": ["steps", "read-pages", "facts", "*", "sentence"], "says": "Only facts read from the pages are checked"}
+            ]
+          },
+          {
+            "id": "rewrite",
+            "title": "Rewrite only the sections with changed or undated facts",
+            "do": "For each page, rewrite only the sections holding a fact marked changed or still-true without a date: put the current value with its date and its source next to it, and add the question it answers as the section's heading in the reader's words when the section has none. Leave every other sentence exactly as it is. Keep the input message, if given, in the same words where the page states it. Never add a fact that no source in the find-current step states. List each section with its words before and after.",
+            "submit": {
+              "type": "object",
+              "required": ["changes"],
+              "properties": {
+                "changes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["page", "before", "after", "sources"],
+                    "properties": {
+                      "page": {"type": "string"},
+                      "before": {"type": "string"},
+                      "after": {"type": "string", "minLength": 5},
+                      "sources": {"type": "array", "items": {"type": "string"}}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "changes", "*", "page"], "of": ["input", "pages", "*", "url"], "says": "Only the person's own pages are changed"},
+              {"kind": "subset-of", "path": ["this", "changes", "*", "sources", "*"], "of": ["steps", "find-current", "current", "*", "source"], "says": "Every new fact cites a source read in this run"}
+            ]
+          },
+          {
+            "id": "check-words",
+            "title": "Check every rewritten section against the person's rules",
+            "do": "Call tool:check-against-a-persons-rules-and-verdicts with { \"rules\": <the input rules>, \"units\": [one unit per change: { \"id\": <page and index>, \"text\": <the after words> }] }. For every unit it answers fail, rewrite that section and call the tool again, until each unit passes or is uncertain. Keep the tool's answer for each unit.",
+            "submit": {
+              "type": "object",
+              "required": ["results"],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "verdict"],
+                    "properties": {
+                      "id": {"type": "string"},
+                      "verdict": {"type": "string", "enum": ["pass", "uncertain"]},
+                      "why": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "excludes-words", "path": ["this", "results", "*", "verdict"], "words": ["fail"], "says": "No rewritten section is left failing the person's rules"}
+            ]
+          },
+          {
+            "id": "approve-and-publish",
+            "title": "The person approves the exact changes and publishes them",
+            "do": "Show the person, in the chat, each page's sections before and after, the source of every new fact, the checker's uncertain answers and every fact marked unconfirmed. Ask for each page: \"Do you approve these changes exactly as shown?\" Wait; change only what they ask and show again. Then tell them to publish the approved words on their own site (the AI never publishes) and ask them to say when each page is live. Read each live page again with tool:read-public-web-page and confirm the approved words are on it.",
+            "submit": {
+              "type": "object",
+              "required": ["published"],
+              "properties": {
+                "published": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["page", "approved", "live"],
+                    "properties": {
+                      "page": {"type": "string"},
+                      "approved": {"type": "boolean"},
+                      "live": {"type": "boolean"}
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {"kind": "subset-of", "path": ["this", "published", "*", "page"], "of": ["steps", "rewrite", "changes", "*", "page"], "says": "Only pages with changes are published"}
+            ]
+          },
+          {
+            "id": "record",
+            "title": "Record the date, the citations and what changed",
+            "do": "Write one record to the person's own records with their record write: { \"kind\": \"page-citations\", \"date\": <the ask step's date>, \"answers\": <the ask step's answers>, \"changed\": <the pages published live> }, so the next run can compare. If an earlier page-citations record exists, read it first and list each page whose cited state changed since then. Call tool:tell-the-person with the pages cited before and now per engine, the facts refreshed, the facts left unconfirmed and the date of the next run.",
+            "submit": {
+              "type": "object",
+              "required": ["record_id", "told"],
+              "properties": {
+                "record_id": {"type": "string", "minLength": 3},
+                "told": {"type": "boolean", "const": true}
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
