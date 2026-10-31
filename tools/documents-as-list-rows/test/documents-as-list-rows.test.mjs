@@ -8,7 +8,8 @@ import { mkdir, mkdtemp, readFile, readdir, symlink, writeFile } from 'node:fs/p
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseDocument, readFrontmatter, writeFrontmatter } from '../read-data/document-properties.mjs';
+import { parseDocument, readFrontmatter, writeFrontmatter, documentRowSources } from '../read-data/document-properties.mjs';
+import { folderFiles } from '../read-data/folder-files.mjs';
 import { changeDocumentRows, readDocumentRows, readNamespaceDocumentRows, splitIntoDocuments } from '../read-data/rows.mjs';
 import { splitDocuments } from '../read-data/split.mjs';
 import { contentRows } from '../read-data/content-rows.mjs';
@@ -110,6 +111,22 @@ test('explicit UTF-8 source extensions do not change ordinary folder selection o
   await assert.rejects(readDocumentRows({ root, paths: ['/bad.py'], text_extensions: ['py'], content: true }), /not a complete UTF-8/);
 });
 
+test('a catalogue page probes only selected present names and lookahead, without hashing unrelated bodies', async () => {
+  const root = await scratch();
+  for (const name of ['a', 'b', 'c']) await writeFile(join(root, `${name}.md`), `# ${name}\n`);
+  const files = await folderFiles(root), entry = files.entry.bind(files), probes = [];
+  files.entry = async (name, options) => {
+    if (name.endsWith('.md')) probes.push({ name, identity: options?.identity });
+    return entry(name, options);
+  };
+  const read = documentRowSources({ files }).sources.documents;
+  const page = await read({ source: { of: '/', paths: ['/a.md', '/b.md', '/aa-missing.md', '/c.md'] }, cursor: '/a.md', limit: 1 });
+  assert.deepEqual(page.rows.map(row => row.id), ['/b.md']);
+  assert.equal(page.next_cursor, '/b.md');
+  assert.deepEqual(probes, [{ name: '/aa-missing.md', identity: false }, { name: '/b.md', identity: false }, { name: '/c.md', identity: false }]);
+  assert.match((await entry('/a.md')).identity, /^1f:[0-9a-f]{64}$/, 'ordinary identity reads retain their BLAKE3 proof');
+});
+
 test('extensionless UTF-8 files require an explicit positive path and empty declared extension', async () => {
   const root = await scratch();
   await mkdir(join(root, 'nested'));
@@ -136,15 +153,21 @@ test('a resumed long-body cursor reads future text pieces without rereading earl
     asked.push({ offset, length });
     return { identity, bytes: bytes.subarray(offset, offset + length) };
   } };
-  const read = async ({ row_ids, cursor }) => ({ rows: row_ids || !cursor ? [row] : [], next_cursor: null });
+  const metadataReads = [];
+  const read = async ({ row_ids, cursor }) => {
+    metadataReads.push({ row_ids, cursor });
+    return { rows: row_ids || !cursor ? [row] : [], next_cursor: null };
+  };
   const input = { folder: '/', limit: 3, content: { part_bytes: 1000 } };
   const first = await contentRows(files, read, input);
   assert.deepEqual(first.rows.map(one => one.values['document.part']), [1, 2, 3]);
   asked.length = 0;
+  metadataReads.length = 0;
   const second = await contentRows(files, read, { ...input, after: first.next });
   assert.deepEqual(second.rows.map(one => one.values['document.part']), [4, 5, 6]);
   assert.equal(asked.length, 4, 'three returned pieces plus one bounded lookahead');
   assert.ok(asked.every(one => one.offset >= 2997), 'none of the earlier body ranges is read again');
+  assert.deepEqual(metadataReads, [{ row_ids: ['/long.md'], cursor: undefined }], 'an unfinished body never reads following parent documents');
 });
 
 test('original BOM characters survive at the file start and at a bounded text-piece boundary', async () => {

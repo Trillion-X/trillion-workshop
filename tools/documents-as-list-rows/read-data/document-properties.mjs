@@ -393,14 +393,25 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
     // An explicit catalogue reads only its named files, without walking unrelated folders. The files owner still
     // resolves and checks every name against the granted root, including symlinks.
     const everything = source?.paths ? [...new Set(source.paths)].sort().map(name => ({ name })) : await names(files, folder);
-    const existing = [];
-    for (const row of everything) if (!source?.paths || await files.entry(row.name)) existing.push(row);
-    const all = existing.filter(row => {
+    const fitsSource = row => {
       const path = folder === '/' ? row.name.slice(1) : row.name.slice(folder.length + 1);
       return fits(path) && !excluded.some(test => test(path));
-    });
+    };
     const wanted = row_ids ? new Set(row_ids) : null;
-    const chosen = all.filter(row => (wanted ? wanted.has(row.name) : !cursor || row.name > cursor));
+    const inPage = row => wanted ? wanted.has(row.name) : !cursor || row.name > cursor;
+    const existing = [];
+    if (source?.paths && !backlinks) {
+      // Select names before probing files. Presence needs facts only, never the bytes of every other document in a
+      // large catalogue. One extra present name establishes continuation even when selected files were removed.
+      for (const row of everything.filter(row => fitsSource(row) && inPage(row))) {
+        if (await files.entry(row.name, { identity: false })) existing.push(row);
+        if (!wanted && existing.length > limit) break;
+      }
+    } else {
+      // Backlinks deliberately need the complete admitted collection; ordinary folder listings read names only.
+      for (const row of everything) if (!source?.paths || await files.entry(row.name)) existing.push(row);
+    }
+    const chosen = existing.filter(row => fitsSource(row) && inPage(row));
     const page = wanted ? chosen : chosen.slice(0, limit);
     // Links resolve by a document's name without folder or extension (and its aliases) among the documents read.
     const parsed = new Map();

@@ -70,12 +70,12 @@ export async function folderFiles(root) {
       const shown = rows.filter(row => !after || row.name > after).slice(0, limit);
       return { names: shown, next_after: shown.length === limit && rows.at(-1).name !== shown.at(-1).name ? shown.at(-1).name : null };
     },
-    async entry(name) {
+    async entry(name, { identity = true } = {}) {
       const path = await pathOf(name);
       const facts = await stat(path).catch(() => null);
       if (!facts) return null;
       if (facts.isDirectory()) return { name, folder: true };
-      return { name, identity: makeHashCodeHexFromBytes(await readFile(path)), byte_length: facts.size, modified_at_ms: facts.mtimeMs };
+      return { name, ...(identity ? { identity: makeHashCodeHexFromBytes(await readFile(path)) } : {}), byte_length: facts.size, modified_at_ms: facts.mtimeMs };
     },
     // The first `most` bytes of the named document as text: { identity, text, complete, facts }. `identity` is ignored
     // here (a folder's documents are read by name) and answered from the bytes read; `facts` are its size and times.

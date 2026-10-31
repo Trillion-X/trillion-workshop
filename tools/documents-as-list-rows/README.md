@@ -1,5 +1,9 @@
 # tools/documents-as-list-rows/
 
+Positive catalogue pages check only the selected names and one present lookahead using filesystem facts, without
+hashing unrelated document bodies. A continued body is consumed before following parent metadata is read. Default
+identity reads still hash the exact bytes; granted-root checks and source/answer/write bounds are unchanged.
+
 Shows a folder of markdown documents as the rows of a list. Each document is one row and its frontmatter holds the row's fields. The documents are the rows: nothing is copied into list records, so the files stay the one truth. A field changed in the list is written back into that document's frontmatter, but only if the document is still the one that was read. The tool can also split a long document of many items (rules, lessons, questions) into one document per item, so that each item can be a row. Like Obsidian Bases over a vault.
 
 This is the `documents` row source of the lists, ported from the earlier Trillion app (`src/document-properties.mjs` there). The port keeps its frontmatter reading and writing, links, tags, the property-types sidecar and the conditional write. What changed:
