@@ -1,0 +1,243 @@
+{
+  "kind": "tool-rows",
+  "record_set": "coordination-sessions-tool-rows",
+  "what_this_is": "The Workshop rows for tools/coordination-sessions: a gathering a person organizes (its purpose, times, places, modes, capacity and who may join), its lifecycle through create, change, reschedule, fork, merge, cancel, supersede, confirm, no-show, close and feedback, the catalog that offers sessions, and the plan for a new event from an organizer's draft. Every row takes what it works on and answers the next version; nothing is kept or sent.",
+  "records": [
+    {
+      "id": "package::coordination-sessions::tool::run-a-session-step",
+      "address": "package::coordination-sessions::tool::run-a-session-step",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:run-a-session-step",
+        "label": "Run a session step",
+        "status": "active",
+        "job": "Create, change, reschedule, fork, merge, cancel, supersede, confirm, close or ask feedback of a gathering I organize, keeping who came from where",
+        "description": "Applies one named step to a coordination session and answers the next session (or, for supersede, the old one and its successor). The session carries its purpose, candidate times, places and modes, capacity plan, who may see and join it, and a lifecycle state, all as open descriptors the person names. Every step keeps lineage (which sessions it came from) and the provenance of who took part and what they preferred. Steps: create, update, reschedule, fork, merge (two or more sessions), cancel, supersede, confirm, record_no_show, close, request_feedback. A step that is not named is refused. Nothing is saved or sent: keep the answer as a record.",
+        "input_schema": {
+          "type": "object",
+          "required": ["operation"],
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "type": "string", "description": "create, update, reschedule, fork, merge, cancel, supersede, confirm, record_no_show, close or request_feedback" },
+            "session": { "type": "object", "description": "The session the step works on (create: the session to make)" },
+            "sessions": { "type": "array", "items": { "type": "object" }, "description": "For merge: two or more sessions" },
+            "patch": { "type": "object", "description": "For update: the fields to change" },
+            "reschedule": { "type": "object", "description": "For reschedule: { candidate_occurrences, lifecycle_state, candidate_places?, candidate_modes? }" },
+            "fork": { "type": "object", "description": "For fork: { session_id, lifecycle_state, overrides?, inheritance_policy_ref?, conflict_policy_ref? }" },
+            "merge": { "type": "object", "description": "For merge: { session_id, lifecycle_state, overrides?, inheritance_policy_ref?, conflict_policy_ref? }" },
+            "supersede": { "type": "object", "description": "For supersede: { session_id, lifecycle_state, predecessor_lifecycle_state, overrides? }" },
+            "lifecycle_state": { "type": "object", "description": "For cancel, confirm, record_no_show, close, request_feedback: the new { key, descriptor_ref }" },
+            "feedback_request_ref": { "type": "string", "description": "For request_feedback: what the feedback request is" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "session": { "type": "object" },
+            "predecessor": { "type": "object" },
+            "successor": { "type": "object" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "coordination-sessions", "paths": ["do-work", "read-data"], "at": "/opt/coordination-sessions" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/coordination-sessions",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/coordination-sessions/do-work/coordination-sessions.mjs", "runASessionStep"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:coordination-sessions",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/coordination-session do-work/session-lifecycle-operations.ts" },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "operation": "create",
+            "session": {
+              "session_id": "session:sample",
+              "purpose_contract": { "key": "baking-morning", "descriptor_ref": "purpose:baking-morning" },
+              "candidate_occurrences": [{ "occurrence_id": "occurrence:sample:1", "starts_at": "2026-09-12T09:00", "ends_at": "2026-09-12T11:00", "time_zone": "America/Chicago", "calendar_system": "gregorian" }],
+              "candidate_places": [],
+              "candidate_modes": [{ "key": "mode:in-person", "descriptor_ref": "mode:in-person" }],
+              "capacity_plan": { "capacity_policy_ref": "capacity-policy:sample", "seat_ledger_ref": "ledger:sample" },
+              "participation_policy": { "visibility_predicate_ref": "visibility:members", "eligibility_predicate_ref": "eligible:members" },
+              "lifecycle_state": { "key": "draft", "descriptor_ref": "lifecycle:draft" },
+              "workflow_definition_ref": "workflow:sample",
+              "participant_provenance": [],
+              "preference_provenance": []
+            }
+          },
+          "output_selector": "$.session.fork_merge_provenance.operation",
+          "contains": "create"
+        }]
+      }
+    },
+    {
+      "id": "package::coordination-sessions::tool::work-a-session-catalog",
+      "address": "package::coordination-sessions::tool::work-a-session-catalog",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:work-a-session-catalog",
+        "label": "Work a session catalog",
+        "status": "active",
+        "job": "Offer my sessions in a catalog: publish an entry, read what is current, change it, withdraw it, replace it, or point it to a related offer",
+        "description": "Works on catalog entries, each naming the groups that own it, the sessions it offers, a reference to the person's own visibility rule, a recommendation policy, related offers and where it is shown. An entry is current until it is superseded or retracted. Operations: publish (checks and tidies an entry), read (the current entries, optionally for given entry or session refs), update, retract (with a reason), supersede (an entry by a different one), cross_offer (point one entry at another, replacing an earlier pointer to the same target). Who may see an entry, and the order entries are recommended in, are the person's own rules and are not decided here. Nothing is saved.",
+        "input_schema": {
+          "type": "object",
+          "required": ["operation"],
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "type": "string", "description": "publish, read, update, retract, supersede or cross_offer" },
+            "entry": { "type": "object", "description": "The entry (publish, update, retract, cross_offer)" },
+            "entries": { "type": "array", "items": { "type": "object" }, "description": "For read: the entries to read from" },
+            "catalog_entry_refs": { "type": "array", "items": { "type": "string" } },
+            "session_refs": { "type": "array", "items": { "type": "string" } },
+            "patch": { "type": "object", "description": "For update: fields to change (the entry's id cannot change)" },
+            "retracted_at": { "type": "string", "description": "For retract: when (this run's time when left out)" },
+            "reason_ref": { "type": "string", "description": "For retract: why" },
+            "predecessor": { "type": "object" },
+            "successor": { "type": "object" },
+            "relation": { "type": "object", "description": "For cross_offer: { target_catalog_entry_ref, relation_descriptor_ref, rule_data? }" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "entry": { "type": "object" },
+            "entries": { "type": "array", "items": { "type": "object" } },
+            "predecessor": { "type": "object" },
+            "successor": { "type": "object" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "coordination-sessions", "paths": ["do-work", "read-data"], "at": "/opt/coordination-sessions" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/coordination-sessions",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/coordination-sessions/do-work/coordination-sessions.mjs", "workASessionCatalog"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:coordination-sessions",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/coordination-session read-data/read-session-catalog.ts" },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "operation": "publish",
+            "entry": { "catalog_entry_id": "catalog:sample", "owning_group_refs": ["group:sample"], "session_refs": ["session:sample"], "catalog_visibility_predicate": { "policy_ref": "visibility:members" }, "recommendation_policy_ref": "recommend:sample", "cross_offer_policy": [], "presentation_surface_refs": [] }
+          },
+          "output_selector": "$.entry.catalog_entry_id",
+          "contains": "catalog:sample"
+        }]
+      }
+    },
+    {
+      "id": "package::coordination-sessions::tool::plan-an-event",
+      "address": "package::coordination-sessions::tool::plan-an-event",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:plan-an-event",
+        "label": "Plan an event",
+        "status": "active",
+        "job": "Turn my draft of a gathering into its session, its catalog entry, the places to open and the link people will use",
+        "description": "Checks an organizer's draft (a retained 128-bit hex id, the owning group, labels in any language, a primary time and an optional alternate in the zone given, a place, a mode and a visibility word the organizer chooses, a capacity of 1 to 1,000,000, the host's web address and the workflow to run) and answers the session, the catalog entry that offers it, the capacity ledger to open for its places (the input of tool:open-a-capacity-ledger), and the preview and share addresses. The same draft always gives the same plan. It plans only: nothing is kept, published or sent. Refuses a half-given alternate, an end before a start, an unsafe route or a web address that is not https (except this computer's own).",
+        "input_schema": {
+          "type": "object",
+          "required": ["idempotency_key", "host_group_ref", "event_label", "focus_label", "public_summary", "detail_intro", "schedule_intent", "primary_starts_at", "primary_ends_at", "time_zone", "mode", "visibility", "capacity", "host_origin", "workflow_definition_ref"],
+          "additionalProperties": false,
+          "properties": {
+            "idempotency_key": { "type": "string", "description": "A retained 128-bit hexadecimal id (32 hex characters) the caller allocated" },
+            "host_group_ref": { "type": "string", "description": "The existing group that owns the event" },
+            "event_label": { "type": "string" },
+            "focus_label": { "type": "string" },
+            "public_summary": { "type": "string" },
+            "detail_intro": { "type": "string" },
+            "schedule_intent": { "type": "string" },
+            "primary_starts_at": { "type": "string", "description": "Local time like 2026-09-12T09:00" },
+            "primary_ends_at": { "type": "string" },
+            "alternate_starts_at": { "type": "string" },
+            "alternate_ends_at": { "type": "string" },
+            "time_zone": { "type": "string", "description": "IANA zone, like America/Chicago" },
+            "place_label": { "type": "string" },
+            "mode": { "type": "string", "description": "The organizer's own word, like online or in person" },
+            "visibility": { "type": "string", "description": "The organizer's own word, like public or members only" },
+            "capacity": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+            "host_origin": { "type": "string", "description": "https://host, no path" },
+            "catalog_path": { "type": "string", "description": "Where events live on the host (/events when left out)" },
+            "lifecycle_state": { "type": "string", "description": "The session's first state (draft when left out)" },
+            "workflow_definition_ref": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["session", "capacity_ledger", "catalog_entry", "preview_path", "live_path", "share_url"],
+          "properties": {
+            "session": { "type": "object" },
+            "capacity_ledger": { "type": "object", "required": ["ledger_id", "scope_ref", "total", "policy_ref"] },
+            "catalog_entry": { "type": "object" },
+            "preview_path": { "type": "string" },
+            "live_path": { "type": "string" },
+            "share_url": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "coordination-sessions", "paths": ["do-work", "read-data"], "at": "/opt/coordination-sessions" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+          ] },
+          "workdir": "/opt/coordination-sessions",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/coordination-sessions/do-work/coordination-sessions.mjs", "planAnEvent"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:coordination-sessions",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/coordination-session read-data/materialize-organizer-event.ts" },
+        "verify": [{
+          "kind": "sample-run",
+          "input": {
+            "idempotency_key": "a8b0d0bfea434a4583182715150e1725",
+            "host_group_ref": "group:bakery-club",
+            "event_label": "Sourdough Saturday",
+            "focus_label": "Fix one flat loaf",
+            "public_summary": "Bring one flat loaf and leave knowing why.",
+            "detail_intro": "A small baking morning.",
+            "schedule_intent": "weekend morning",
+            "primary_starts_at": "2026-09-12T09:00",
+            "primary_ends_at": "2026-09-12T11:00",
+            "time_zone": "America/Chicago",
+            "mode": "in person",
+            "visibility": "members only",
+            "capacity": 12,
+            "host_origin": "https://club.example.test",
+            "workflow_definition_ref": "workflow:event-signup"
+          },
+          "output_selector": "$.share_url",
+          "contains": "https://club.example.test/events/"
+        }]
+      }
+    }
+  ]
+}
