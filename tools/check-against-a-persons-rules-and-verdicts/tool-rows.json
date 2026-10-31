@@ -250,13 +250,6 @@
         "at": "/opt/where-a-person-stands"
        },
        {
-        "package": "content-identity",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/content-identity"
-       },
-       {
         "module": "@noble/hashes",
         "paths": [
          "LICENSE",
@@ -331,22 +324,22 @@
         },
         "rows": [
          {
-          "id": "no-sampleword",
+          "id": "no-zorblax",
           "kinds": [
            "title"
           ],
           "words": [
-           "sampleword"
+           "zorblax"
           ],
-          "says": "Never sampleword."
+          "says": "Never zorblax."
          }
         ]
        },
        "stands": [
         {
          "kind": "title",
-         "artifact": "1f:fe4e18843a5222ff8c3c9ecc341c29d3506ffff4378b9e14febc0610010b1871",
-         "text": "Sampleword rising",
+         "artifact": "1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366",
+         "text": "Zorblax rising",
          "stance": "disagree",
          "why": "not a word I use",
          "at": "2026-01-01T00:00:00Z"
@@ -354,7 +347,7 @@
        ],
        "units": [
         {
-         "text": "Sampleword rising",
+         "text": "Zorblax rising",
          "kind": "title"
         }
        ]
@@ -503,13 +496,6 @@
         "at": "/opt/where-a-person-stands"
        },
        {
-        "package": "content-identity",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/content-identity"
-       },
-       {
         "module": "@noble/hashes",
         "paths": [
          "LICENSE",
@@ -590,7 +576,7 @@
           },
           "pairs": [
            {
-            "rejected": "1f:fe4e18843a5222ff8c3c9ecc341c29d3506ffff4378b9e14febc0610010b1871"
+            "rejected": "1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366"
            }
           ]
          }
@@ -599,8 +585,8 @@
        "stands": [
         {
          "kind": "title",
-         "artifact": "1f:fe4e18843a5222ff8c3c9ecc341c29d3506ffff4378b9e14febc0610010b1871",
-         "text": "Sampleword rising",
+         "artifact": "1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366",
+         "text": "Zorblax rising",
          "stance": "disagree",
          "why": "not a word I use",
          "at": "2026-01-01T00:00:00Z"

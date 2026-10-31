@@ -30,7 +30,7 @@ The last line is `{ "result": { status, passed, results, questions, lines } }`. 
 | `do-work/examples-from-where-they-stand.mjs` | `tool:make-examples-from-where-a-person-stands`: the person's stands as good and bad examples for their reading rows. |
 | `read-data/words.json` | Every word the tool says: its own finding ids, the words of each finding, the refusals. |
 | `part.json` | `do-work/rules-and-verdicts.mjs` is public. |
-| `tool-rows.json` | The two rows. Each packs `tools/judge-words` (`do-work`), `tools/where-a-person-stands` (the one identity of a judged thing), `tools/content-identity` (the BLAKE3 it hashes with) and `@noble/hashes`. |
+| `tool-rows.json` | The two rows. Each packs `tools/judge-words` (`do-work`), `tools/where-a-person-stands` (the one identity of a judged thing) and `@noble/hashes`. |
 | `test/rules-and-verdicts.test.mjs` | Every rule of the order above, on made-up rules, lines and stands. |
 | `test/rows.test.mjs` | Each row's sample, run as the container runs it; refusals; a question answered by id on a second run. |
 
@@ -48,6 +48,6 @@ The last line is `{ "result": { status, passed, results, questions, lines } }`. 
 
 ## Dependencies
 
-**Depends on:** `tools/judge-words` (`makeJudge`, `ruleApplies`, `valuesAt`), `tools/where-a-person-stands` (`artifactRef`, `foldWith`; it hashes through `tools/content-identity`), `@noble/hashes`, Node 24 in the tool container.
+**Depends on:** `tools/judge-words` (`makeJudge`, `ruleApplies`, `valuesAt`), `tools/where-a-person-stands` (`artifactRef`, `foldWith`), `@noble/hashes`, Node 24 in the tool container.
 
 **Depended on by:** `tool-rows.json`; a content check that imports `do-work/rules-and-verdicts.mjs`.
