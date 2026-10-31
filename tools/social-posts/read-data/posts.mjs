@@ -253,8 +253,10 @@ export async function checkAPost({ post_id: postId } = {}, { door }) {
   return { post_id: post.post_id, status: post.status, ...(await checksOf(door, post)) };
 }
 
-/** tool:approve-a-post: approves the post exactly as it was reviewed. */
-export async function approveAPost({ post_id: postId, expected_values: expected, approved_by: approvedBy } = {}, { door, now = () => new Date() }) {
+/** tool:approve-a-post: approves the post exactly as it was reviewed. `run_origin` is the run's own origin, filled by
+ *  its row from the task the engine attests (a run the person's page starts carries posts.json
+ *  first_contact.approved_from), never from the input: only such a run approves a post that reaches someone. */
+export async function approveAPost({ post_id: postId, expected_values: expected, approved_by: approvedBy, run_origin: runOrigin } = {}, { door, now = () => new Date() }) {
   const post = await readPost(door, postId);
   if (!post) throw new Error(`There is no post ${postId ?? ''}.`);
   // The reviewed snapshot is compared with the post as it is now, so newer words, destinations or timing are never
@@ -267,10 +269,11 @@ export async function approveAPost({ post_id: postId, expected_values: expected,
   if (post.status !== 'draft') throw new Error(`${post.post_id} is ${post.status}, so there is nothing to approve.`);
   if (!post.destinations?.length) throw nowhere(post);
   const reached = reachedBy(post, settings.first_contact);
-  if (reached.length) throw new Error(fillWords(settings.first_contact.words.person_only, { names: reached.join(', ') }));
+  const fromPage = runOrigin === settings.first_contact.approved_from;
+  if (reached.length && !fromPage) throw new Error(fillWords(settings.first_contact.words.person_only, { names: reached.join(', ') }));
   const at = now().toISOString();
   const by = text(approvedBy, 100);
-  const approved = await keep(door, { ...post, status: 'approved', approved_at: at, ...(by ? { approved_by: by } : {}), updated_at: at }, 'approve');
+  const approved = await keep(door, { ...post, status: 'approved', approved_at: at, ...(by ? { approved_by: by } : {}), ...(fromPage ? { approved_from: runOrigin } : {}), updated_at: at }, 'approve');
   return { post: shaped(approved), said: 'Approved. tool:set-a-post-to-go-at-its-time sets it to go at its scheduled time.' };
 }
 
