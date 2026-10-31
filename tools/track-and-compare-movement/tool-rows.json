@@ -1,0 +1,200 @@
+{
+  "kind": "package-set-records",
+  "record_set": "track-and-compare-movement-tool-rows",
+  "what_this_is": "The Workshop rows for the track-and-compare-movement folder: three scripts the person's AI runs on the person's own computer to follow a pointed-at object through a clip, to read people's joints from a clip, and to line up two movements by phase.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:track-a-selected-object-in-a-video",
+        "label": "Follow one thing I point at through a video clip and outline it in every frame (runs on your computer)",
+        "job": "Follow an object or a person I pointed at through a clip and get its outline in every frame",
+        "description": "Takes a video, a stretch of up to 30 seconds, the second at which the person pointed, and one to 32 points on that frame, each marked as inside the object or outside it. It runs a point-prompted SAM 2 video model on the person's own computer and writes, in a new folder, a lossless grayscale mask video (mask.mkv), one mask picture and one transparent preview picture per frame, and result.json with how many pixels the object covers in each frame. A frame where the object is hidden has an empty mask: it is kept empty, not filled with a guess. If nothing is found at the pointed spot the run fails and says to choose another point. Frames never leave the computer, the model is read from the local cache and never downloaded, and the video is only read.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["video", "output", "start", "end", "time", "points", "model"],
+          "properties": {
+            "video": { "type": "string", "description": "The video file, put where {video} is in the command." },
+            "output": { "type": "string", "description": "A folder that does not exist yet, put where {output} is." },
+            "start": { "type": "number", "minimum": 0, "description": "Second the stretch begins, put where {start} is." },
+            "end": { "type": "number", "description": "Second the stretch ends, at most 30 after start, put where {end} is." },
+            "time": { "type": "number", "description": "The second the person pointed at, from start up to but not including end, put where {time} is." },
+            "points": { "type": "string", "description": "JSON text: a list of {x, y, include} where x and y are 0 to 1 across and down the picture and include is true for a point inside the object and false for one outside it. At least one must be inside. Put where {points} is, which is inside single quotes." },
+            "fps": { "type": "integer", "minimum": 1, "maximum": 30, "description": "Masks per second, 12 if the person says nothing, put where {fps} is." },
+            "model": { "type": "string", "description": "The SAM 2 video model name in the local Hugging Face cache, put where {model} is." },
+            "device": { "type": "string", "description": "cpu, mps or cuda, put where {device} is." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {start, end, fps, frames, width, height, selected_frame, pixels: [object pixels per frame], model}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "install ffmpeg (brew install ffmpeg)",
+            "python3 -m venv motion-env",
+            "motion-env/bin/python -m pip install numpy pillow torch transformers"
+          ],
+          "run": "motion-env/bin/python trillion-workshop/tools/track-and-compare-movement/do-work/track_selected_object.py --video {video} --output {output} --start {start} --end {end} --time {time} --points '{points}' --fps {fps} --model {model} --device {device}",
+          "needs": [
+            "python 3.10 or later with numpy, pillow, torch and a transformers release that has Sam2VideoModel",
+            "ffmpeg",
+            "the SAM 2 video model (for example facebook/sam2.1-hiera-tiny, Apache-2.0) already in the local Hugging Face cache: the script runs offline, so fetch it once beforehand"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Ask which moment of the clip and which thing they mean; get a frame at that second, let them point at it (or read their point from what they said) and turn the point into x and y between 0 and 1, adding a point outside the object if it sits next to something similar. Run `run`, then read the last line. Tell the person how many frames were followed and in which frames the object is hidden (pixels 0). Say the outline can miss thin edges and never guarantees the same object after a long hiding."
+        },
+        "maker": "maker:track-and-compare-movement",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages packages/motion-analysis (track_selected_object.py). Model: SAM 2.1 by Meta (Apache-2.0) through Transformers' Sam2VideoModel."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-peoples-poses-from-a-video",
+        "label": "Read where each person's joints are in a video, frame by frame (runs on your computer)",
+        "job": "Find the people in a video and where their joints are in every frame, so two movements can be compared",
+        "description": "Runs a pose model on a video on the person's own computer and writes one file in the pose.keypoints.v1 shape: for each person (kept as the same id through the clip) and each frame, 17 joints (nose, eyes, ears, shoulders, elbows, wrists, hips, knees, ankles) as x and y in pixels with a confidence from 0 to 1. A joint that is not found or is not a finite number is written as absent (0, 0, 0). A track already written for the same video bytes and the same pose model is reused. The model weights are the person's: a downloaded pose checkpoint passed by path; the script names and fetches none.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["video", "out", "checkpoint"],
+          "properties": {
+            "video": { "type": "string", "description": "The video file, put where {video} is in the command." },
+            "out": { "type": "string", "description": "The track file to write, put where {out} is." },
+            "checkpoint": { "type": "string", "description": "Path of a downloaded ultralytics pose model, put where {checkpoint} is." },
+            "device": { "type": "string", "description": "cpu, mps or cuda, put where {device} is." },
+            "conf": { "type": "number", "description": "The lowest person confidence to keep, put where {conf} is; 0.3 if the person says nothing." },
+            "max_frames": { "type": "integer", "description": "Stop after this many frames, put where {max_frames} is; 0 for the whole video." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {out, persons, frames, cached}} or {\"error\": \"what to change\"}. The file holds {schema: pose.keypoints.v1, engine, video: {path, fps, width, height, frames, content_digest}, keypoint_names, persons: [{track_id, frames: [{t, i, kp: [[x, y, confidence] x 17]}]}]}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m venv motion-env",
+            "motion-env/bin/python -m pip install numpy opencv-python ultralytics"
+          ],
+          "run": "motion-env/bin/python trillion-workshop/tools/track-and-compare-movement/do-work/estimate_pose.py --video {video} --out {out} --checkpoint {checkpoint} --device {device} --conf {conf} --max-frames {max_frames}",
+          "needs": [
+            "python 3.10 or later with numpy, opencv-python and ultralytics",
+            "a pose model file the person has downloaded (an ultralytics pose checkpoint, for example); its licence is the person's to check, and ultralytics itself is AGPL-3.0"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Ask for the video and where a downloaded pose model file is; say that ultralytics is AGPL-3.0 licensed, so it suits their own use and not a product they hand to others without checking. Run `run`; the first read of a long video takes a while, and a second run with the same video and model returns at once. Tell the person how many people were found and over how many frames. Each person is a separate track; the movement to compare is usually the person with the most confident joints."
+        },
+        "maker": "maker:track-and-compare-movement",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages packages/motion-analysis (pose_estimate.py and the pose keypoint contract). Engine: ultralytics YOLO pose (AGPL-3.0)."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:line-up-two-movements",
+        "label": "Line up two movements by their phase, whatever their speed (runs on your computer)",
+        "job": "Match each moment of one movement to the same part of another movement, even when one is slower, starts later or has more frames",
+        "description": "Takes two pose tracks (from tool:read-peoples-poses-from-a-video, or any file in the pose.keypoints.v1 shape) and writes the pairs of frames that show the same phase of the movement: dynamic time warping over each frame's posture, with the joints centred on the hips and scaled by the torso so camera framing and body size do not count. It uses the most confident person in each track. Gamma 0 is hard warping; above 0 is soft warping with a smoother path. The path is monotonic (time never runs backwards), starts at the first pair and ends at the last pair. An empty or torso-less track, or a joint that is not a number, is refused with the reason; nothing is written. The cost grows with the product of the two frame counts: a 10 second clip at 30 frames a second takes seconds, a 10 minute clip does not.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["clip", "reference", "out"],
+          "properties": {
+            "clip": { "type": "string", "description": "The pose track of the movement being compared, put where {clip} is in the command." },
+            "reference": { "type": "string", "description": "The pose track of the movement it is compared with, put where {reference} is." },
+            "out": { "type": "string", "description": "The alignment file to write, put where {out} is." },
+            "gamma": { "type": "number", "minimum": 0, "description": "0 for hard warping, above 0 for soft; 0.1 if the person says nothing. Put where {gamma} is." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {out, clip_frames, reference_frames, path_length}} or {\"error\": \"what to change\"}. The file holds {kind: phase_alignment.v1, model, clip_frames, reference_frames, path: [[clip_index, reference_index], ...], provenance}. Indexes count the frames that showed a torso, in order."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install numpy"
+          ],
+          "run": "python3 trillion-workshop/tools/track-and-compare-movement/do-work/align_dtw.py --clip {clip} --reference {reference} --out {out} --gamma {gamma}",
+          "needs": [
+            "python 3.9 or later with numpy"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Read both pose tracks first (the person's clip and the movement it is compared with). Run `run`, then use the path to show the same phase side by side or to speed one up where the other is slower: for each pair, the clip frame and the reference frame show the same part of the movement. Say that the match is on body posture only; it does not say which movement is better."
+        },
+        "maker": "maker:track-and-compare-movement",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages packages/motion-analysis (reel/align_dtw.py): the soft dynamic time warping of two pose tracks."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:plan-a-side-by-side-movement-comparison",
+        "label": "Plan a side-by-side video of two movements, each framed on its person (runs on your computer)",
+        "job": "Make the edit for a video that shows two movements next to each other, each cropped to the person doing it, with labels and an optional slow-motion pass",
+        "description": "Takes two clips with their pose tracks (from tool:read-peoples-poses-from-a-video), the second of each clip to centre on, and the look as data: labels and corners, side by side or stacked, a mirror for a clip filmed from the other side, the passes (a full pass and a slow-motion pass, each with its own window), the picture size and an optional narration to replace the sound. It writes an edit for the media-composition tool: for each pass one split segment whose cells are crops of each clip around the joints it found in that window, padded and cut to the cell's shape and kept inside the clip's frame; with no confident joint a centred crop. The window is cut to the shorter clip so both cells stay in step. It renders nothing: hand the edit to the media-composition tool.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["spec", "out"],
+          "properties": {
+            "spec": { "type": "string", "description": "A JSON file, put where {spec} is in the command: {encode?: {width, height, fps, crf, preset}, layout: h or v, bg?, left: {clip, kp, peak, label?, corner?, flip?, track_id?, label_size?}, right: {same}, passes: [{id, half, speed?, label_suffix?}], crop?: {min_confidence, pad_height, pad_width}, voice_audio?}. clip is a video file, kp its pose track file, peak the second to centre on, half the seconds each way." },
+            "out": { "type": "string", "description": "The edit file to write, put where {out} is." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {out, segments}} or {\"error\": \"what to change\"}. The file is a media-composition edit: {encode, base, spine: {segments: [{id, kind: split, layout, speed?, sources: [{source, in, out, crop: {w, h, x, y}, label, flip?}]}]}, audio_graph?}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "install ffmpeg (brew install ffmpeg), which brings ffprobe"
+          ],
+          "run": "python3 trillion-workshop/tools/track-and-compare-movement/do-work/author_comparison_edl.py --spec {spec} --out {out}",
+          "needs": [
+            "python 3.9 or later",
+            "ffprobe, to keep the window inside each clip (without it the window is used as given)",
+            "a pose track for each clip"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. For each clip you need its pose track and the second its movement peaks at: if the person has not said, line the two tracks up with tool:line-up-two-movements and pick the moment of the strongest effort in each. Write the spec file, run `run`, then give the edit to the media-composition tool to render. Keep the labels and the look the person asks for; nothing is built in."
+        },
+        "maker": "maker:track-and-compare-movement",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages packages/motion-comparison (author-comparison-edl.py): the edit builder; the record connectors and the old engine's clip and pose address maps are not carried."
+        }
+      }
+    }
+  ]
+}
