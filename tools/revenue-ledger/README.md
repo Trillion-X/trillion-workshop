@@ -8,9 +8,12 @@ Adds up revenue, refunds, net revenue and active recurring revenue from any prov
 |------|---------|
 | `read-data/revenue-types.ts` | `PaymentEvent`, `RevenueProjectionConfig`, `RevenueView` and its buckets. |
 | `read-data/project-revenue.ts` | Pure `projectRevenue(events, config)`: field paths and event roles come from config, never from code; bad amounts, duplicates and conflicting amounts go to `review`. |
+| `read-data/read-payment-events.ts` | `readPaymentEvents(rows)`: the Workshop's one reader of payment events (a row is one when it carries `event_kind` and `event_id`), and `readRevenueProjectionConfig(rows)`. Public: `tools/take-payments` packs it to read the same events into access. |
 | `do-work/add-up-revenue.mjs` | The tool's command: `{ payments, how_to_read }` in `argv[2]`, one JSON line out (the RevenueView plus `payments_read`). |
 | `records.json` | The tool's row, listed into the Workshop by `tool-rows.json`. |
-| `part.json` | No public files: only the container runs this code. |
+| `part.json` | Public: `read-data/read-payment-events.ts` and the `read-data/revenue-types.ts` it imports. |
+| `test/project-revenue.test.ts` | The reducer: config-driven field paths, a second config with other names, honest zero, unknown kinds ignored, cohorts, review buckets. |
+| `test/read-payment-events.test.ts` | The read boundary: rows to events, the config row, and rows to totals. |
 | `tool-rows.json` | Lists `records.json` into the Workshop (`source:business-revenue-tools`). |
 
 ## Key Types / Functions
@@ -30,4 +33,4 @@ Adds up revenue, refunds, net revenue and active recurring revenue from any prov
 
 **Depends on:** Node 24 in the tool container.
 
-**Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names), the Workshop's container executor, Trillion's `test/business-tools.test.mjs`.
+**Depended on by:** `tools/take-payments` (packs `read-payment-events.ts`), Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names), the Workshop's container executor, Trillion's `test/business-tools.test.mjs`.
