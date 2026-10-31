@@ -1,0 +1,25 @@
+{
+  "kind": "payment-rail-rows",
+  "what_this_is": "The rails shipped with tools/guard-ai-spending, as DATA a person replaces: a person's own payment-rail record with the same id takes the place of a row here. Every rail ships disabled. A rail is valid only when its guard is tool:reserve-a-spend-within-budget and its ledger is tool:record-a-spend. Its credential_ref names the held key; the key itself is never here.",
+  "rails": [
+    {
+      "kind": "payment-rail-descriptor",
+      "id": "payment-rail:x402",
+      "label": "x402",
+      "enabled": false,
+      "spend_authority_ref": "spend-authority:x402",
+      "credential_ref": "credential:x402-signing-key",
+      "guard_invoke": { "tool": "tool:reserve-a-spend-within-budget" },
+      "ledger_invoke": { "tool": "tool:record-a-spend" },
+      "settlement_invoke": { "tool": "tool:settle-an-x402-payment" },
+      "evidence_contract": {
+        "session_intent_kind": "operation-session-intent-record",
+        "evidence_ref": "operation-evidence:payment-settlement",
+        "projection_ref": "operation-projection:payment-settlement-readable-status"
+      },
+      "metadata": {
+        "settlement_note": "No Workshop tool settles an x402 payment yet, so this rail stays disabled until one exists."
+      }
+    }
+  ]
+}
