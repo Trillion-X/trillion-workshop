@@ -209,7 +209,8 @@ def delivery_stage(lib: Library, at: str | None) -> str:
     return at
 
 
-def gate(lib: Library, piece: Path, stages: list[str], options: list[str], at: str | None = None) -> dict:
+def gate(lib: Library, piece: Path, stages: list[str], options: list[str], at: str | None = None,
+         start_first_record: bool = True) -> dict:
     """Every routed MUST check of the stages must hold a `pass` row (per item for per-item checks), asked at one delivery stage (the checklist's
     delivery_stages; none named is its default). An `advisory` row passes only at a stage its check lists in advisory_passes_at, and is then returned in
     `advisory` with the line to show beside the item; at any other stage it fails. A row that no longer answers for the files it covers (stale_reason)
@@ -225,7 +226,7 @@ def gate(lib: Library, piece: Path, stages: list[str], options: list[str], at: s
         raise ValueError(f'unknown stage {", ".join(unknown)}; stages are {", ".join(sorted(known))}')
     if not any(s['id'] in stages and s.get('checks') for s in doc['stages']):
         raise ValueError(f'the selected stage(s) have no checks; refusing to pass an empty review: {", ".join(stages)}')
-    started = start_record(lib, piece)
+    started = start_record(lib, piece) if start_first_record else None
     header = parse_header(piece / lib.piece_header['file'], lib.piece_header['heading'])
     all_options = all_items_of(lib, piece)
     tags, option_tags, routed_by, flags_unknown = routing(lib, piece, options or all_options)

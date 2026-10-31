@@ -144,9 +144,9 @@ def lane_spec(lib: Library, piece: Path, lane: Path, name: str) -> Path | None:
 
 def file_pins(lib: Library, piece: Path, files: dict[str, list[Path]]) -> dict[str, str]:
     """{item: BLAKE3 of its files' bytes} (several files joined by '+'). Hashes are kept in a cache under the schema's file_pin_cache (one JSON file per piece,
-    named by its absolute path), keyed by path, size and change time, so an unchanged file is read once; the pin itself is always the bytes' BLAKE3."""
+    named by its absolute path), keyed by path, size and change time, so an unchanged file is read once; the pin itself is always the bytes' BLAKE3.
+    In read-only mode an existing cache may be read, but an absent or stale cache is calculated in memory and never written."""
     folder = lib.path_of(lib.section('items')['file_pin_cache'])
-    folder.mkdir(parents=True, exist_ok=True)
     cache_path = folder / (str(piece.expanduser().resolve()).strip('/').replace('/', '__') + '.pins')
     cache = read_json(cache_path) if cache_path.is_file() else {}
     pins, dirty = {}, False
@@ -160,7 +160,8 @@ def file_pins(lib: Library, piece: Path, files: dict[str, list[Path]]) -> dict[s
                 dirty = True
             parts.append(hit['blake3'])
         pins[option] = '+'.join(parts)
-    if dirty:
+    if dirty and not lib.read_only:
+        folder.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile('w', dir=cache_path.parent, prefix=cache_path.name, suffix='.tmp', delete=False, encoding='utf-8') as tmp:
             json.dump(cache, tmp, indent=1)
         os.replace(tmp.name, cache_path)

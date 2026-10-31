@@ -72,35 +72,81 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:gate-a-piece-against-a-checklist",
-        "label": "Check a piece against my checklist before anyone sees it, and keep what was answered (runs on your computer)",
+        "label": "Run a read-only checklist gate on my files (runs on your computer)",
         "status": "active",
-        "job": "Before I am shown anything I made, ask every required check of my checklist that applies to it, keep each answer with the files it judged, tell me which checks are still open, stale or failed, and list what was put in front of me without passing",
-        "description": "Reads a person's checklist (a JSON document of stages and checks, each with the tags it routes on and whether it is required) and a piece (a folder with a header of tags and the files it offers as items) on the person's own computer, through a schema file the person gives. The gate lists every required check that applies and has no current passing answer, per item where the check is per item. Answers are rows in an append-only file in the piece, each pinned by BLAKE3 to the bytes of the files it judged, so a row on a file that changed is stale. A check that a checker or a gate answers counts only on that checker's own row, carrying the reviewed pin of the checker version that produced it; a person's own row never stands in for it. A checker's JSON report is recorded check by check, only for checks whose pin is the reviewed one; a sweep runs the checker over every item of a folder and lists faults by rule; the schema's gates run over items and record their rows. An advisory answer passes only at the delivery stages its check names. A failed judgment on a rebuild of an item the person picked waits for their ruling. The tool also lists the items a gate must cover (the latest round plus the live picks) and audits the folders the person watches, optionally moving unchecked files to a held-back folder. It knows no checklist, piece kind, checker or gate by name: everything comes from the schema.",
+        "job": "Before I am shown anything I made, list the required checks that apply to it and identify which answers are open, stale or failed, without changing my files",
+        "description": "Reads the person's checklist (stages, checks and routes), schema and piece from one folder they grant. It runs the existing checklist gate read-only: every required check that applies to the piece is listed with its current answer state, file identity and criterion pins. It accepts `gate`, `scope`, `audit` without `--hold`, and read-only `checklist` commands. It does not create a lock file, first-gate record or pin cache, and it cannot answer checks, run write-producing sweeps or hold files. The same generic checklist consumer still refuses empty or unknown scopes, reports stale answers and requires exact BLAKE3 file and definition pins. A separate write-grant tool handles commands that change the library. Nothing about a person's checklist or piece is known by this tool; the schema owns those details.",
         "input_schema": {
           "type": "object",
-          "required": ["library", "schema", "command"],
+          "required": [
+            "library",
+            "schema",
+            "command"
+          ],
           "properties": {
-            "library": { "type": "string", "description": "The folder the schema's files are relative to, put where {library} is in the command." },
-            "schema": { "type": "string", "description": "The schema file on the person's computer (see the README for its keys), put where {schema} is in the command." },
-            "command": { "type": "string", "description": "One of: gate <piece> --stage ID[,ID] [--option ITEM]... [--at DELIVERY_STAGE]; answer <piece> --check ID [--option ITEM] --answer pass|fail|n/a --evidence TEXT --by NAME; answers-from-report <piece> --json REPORT [--option ITEM]; sweep <piece> --previews FOLDER... [--only ITEM,ITEM]; run-gates <piece> --lane-dir FOLDER [--option ITEM,ITEM] [--at DELIVERY_STAGE]; run-files <piece> --file PATH... [--at DELIVERY_STAGE]; scope <piece> [--lane NAME]; audit <piece> [--hold] [--file PATH]... Put it where {command} is in the command." }
+            "library": {
+              "type": "string",
+              "description": "The folder the schema's files are relative to, put where {library} is in the command."
+            },
+            "schema": {
+              "type": "string",
+              "description": "The schema file on the person's computer (see the README for its keys), put where {schema} is in the command."
+            },
+            "command": {
+              "type": "string",
+              "description": "A read-only command: gate <piece> --stage ID[,ID] [--option ITEM]... [--at DELIVERY_STAGE]; scope <piece> [--lane NAME]; audit <piece> [--file PATH]...; or checklist [--check|--problems]. Never include --hold or --write. Put the command after the schema in the command."
+            }
           }
         },
         "output_schema": {
           "type": "object",
-          "description": "The JSON the script prints. gate: { all_passed, stages, options, at, tags, problems, unanswered_must, failed_must, waits_for_person_picked_design, advisory, unanswered_optional_count, per_option_checks_not_evaluated }, each open row with the command that answers it. answer: the row recorded. answers-from-report: { recorded, checks_not_recorded, rows }. sweep, run-gates and run-files: what was recorded and what failed or could not be measured. scope: the item ids. audit: { all_passed, offenders, waits_for_person, moved_to_held_back, superseded_picks }. The exit status is 0 when everything passed, 1 when something is open or failed and 2 when the schema or a file could not be read."
+          "description": "{ result, exit_code } from the existing gate consumer. For gate, result contains all_passed, the routed checks, stale or failed answers, and items not evaluated; scope lists item ids; audit lists offenders; checklist reports its generated comparison or problems. exit_code is 0 when the selected read passes, 1 when a gate is open or failed, and 2 for unreadable inputs. The private native run omits temporary answer command paths."
         },
         "invoke": {
-          "kind": "on-your-computer",
-          "get_it": [
-            "clone the Workshop repository (package.json repository.url)",
-            "python3 -m pip install -U blake3   # or have the b3sum command"
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
           ],
-          "run": "python3 tools/workflows/do-work/checklist_gate.py --library {library} --schema {schema} {command}",
-          "needs": ["python", "blake3 (the python module) or the b3sum command"],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. If you can run commands where they are: find the person's schema file (ask only if none exists yet; the README says what it holds), and run `gate` for the piece and stages they name before showing them anything. Report how many required checks are open, stale or failed, naming each check and item, and answer an open check only with evidence you actually looked at, under your own name: a checker's or gate's name is refused. Never write a checker's or gate's row by hand; run the command that records it. A row that says stale was answered on other bytes: look again. Never show the person an item whose required row is open or failed; a row that waits for the person's ruling is theirs to rule on. If you cannot run commands, give them the command."
+          "workdir": "/opt/workflows",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/workflows/do-work/native_checklist_gate.py",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "workflows",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/workflows"
+            }
+          }
         },
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "result_selector": "$",
         "licence_class": "licence:maker-own",
-        "placements": ["placement:your-computer"],
+        "placements": [
+          "placement:your-computer"
+        ],
         "maker": "maker:gate-a-piece-against-a-checklist",
         "provenance": {
           "source": "A pre-delivery gate over a person's own checklist where every answer is bound to the identity of the files it judged and every measuring tool's answer to the reviewed version of that tool"
@@ -142,6 +188,92 @@
         "maker": "maker:generate-a-checklist-from-my-text",
         "provenance": {
           "source": "A checklist document generated from the person's own text by declared patterns, so there is one source and a check that the generated file has not drifted"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:record-checklist-gate-changes",
+        "label": "Record a checklist answer or run its checked steps (runs on your computer)",
+        "status": "active",
+        "job": "Record a checklist answer or run a declared checker or gate, with the required folder change grant",
+        "description": "Uses the same checklist consumer as the read-only gate, but only after the person grants this tool permission to change one folder. It records the person's answer, imports a checker report under the reviewed checker pins, runs the schema's sweeps or gates, holds files only when requested, or writes the checklist generated from the person's text. The existing consumer still checks criteria definitions, BLAKE3 file pins, checker pins, scopes and stale rows; this tool adds no alternate answer or bypass.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "library",
+            "schema",
+            "command"
+          ],
+          "properties": {
+            "library": {
+              "type": "string",
+              "description": "The library folder inside the folder you grant for this run."
+            },
+            "schema": {
+              "type": "string",
+              "description": "The schema file inside the folder you grant for this run."
+            },
+            "command": {
+              "type": "string",
+              "description": "A write command: answer <piece> --check ID [--option ITEM] --answer pass|fail|n/a --evidence TEXT --by NAME; answers-from-report <piece> --json REPORT [--option ITEM]; sweep <piece> --previews FOLDER...; run-gates <piece> --lane-dir FOLDER; run-files <piece> --file PATH...; audit <piece> --hold; or checklist --write. The command is parsed as arguments, never shell text."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{ result, exit_code } from the existing checklist consumer, or { error, exit_code } when the command cannot run. An open or failed check remains failed; an answer is kept only under its own name and current file and criterion pins."
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/workflows",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/workflows/do-work/native_checklist_gate.py",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.change-a-folder.folder"
+              }
+            },
+            "--allow-writes"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "workflows",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/workflows"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "result_selector": "$",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:gate-a-piece-against-a-checklist",
+        "provenance": {
+          "source": "tools/workflows/do-work/checklist_gate.py: answer and checker operations share the same criterion, file and checker pins as the read-only gate"
         }
       }
     }

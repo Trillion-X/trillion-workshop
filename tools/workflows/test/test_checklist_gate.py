@@ -3,17 +3,21 @@ the way a person's AI runs it."""
 from __future__ import annotations
 
 import json
+import io
 import os
 import subprocess
 import sys
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import bakery  # noqa: E402
+sys.path.insert(0, str(HERE.parent / 'do-work'))
+import native_checklist_gate  # noqa: E402
 
 GATE = HERE.parent / 'do-work' / 'checklist_gate.py'
 MONDAY = 'batches/monday'
@@ -597,6 +601,81 @@ class SchemaReading(GateCase):
     def answers_ok(self):
         report = bakery.write(self.lib / 'reports' / 'checker-1.json', json.dumps({'_taste': {'check_pins': {'crust': 'p-crust-1', 'crumb': 'p-crumb-1'}, 'config_overridden': False}}))
         return self.cli('answers-from-report', self.piece, '--json', report)[0]
+
+
+class NativeAdapter(GateCase):
+    def test_native_entrypoint_loads_the_packaged_cli_with_isolated_python(self):
+        request = {'library': str(self.lib), 'schema': 'schema.json', 'command': 'scope batches/monday'}
+        done = subprocess.run(
+            [sys.executable, '-I', str(HERE.parent / 'do-work/native_checklist_gate.py'), str(self.lib)],
+            input=json.dumps(request), text=True, capture_output=True, check=False)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        result = json.loads(done.stdout)
+        self.assertEqual(result['exit_code'], 0, result)
+        self.assertIn('m1-r2', result['result'])
+
+    def payload(self, command, folder=None, capability='read-a-folder'):
+        return {
+            'input': {'library': str(self.lib), 'schema': 'schema.json', 'command': command},
+            'task': {'grants': {capability: {'folder': str(folder or self.lib)}}},
+        }
+
+    def test_read_only_adapter_runs_the_shared_gate_without_creating_or_changing_library_files(self):
+        result = native_checklist_gate.execute(
+            self.payload('gate batches/monday --stage B1 --at final'))
+        self.assertEqual(result['exit_code'], 1)
+        self.assertEqual(result['result']['piece'], str(self.piece.resolve()))
+        self.assertNotIn('answer_with', result['result']['unanswered_must'][0], 'private package paths are removed from native output')
+        self.assertFalse((self.lib / 'data/.gate.lock').exists())
+        self.assertFalse((self.lib / '.local/pins').exists(), 'read-only gate must not create its pin cache')
+        self.assertFalse((self.piece / 'record.json').exists(), 'read-only gate must not run on_first_gate')
+
+    def test_read_only_adapter_refuses_answer_writes_and_a_different_library(self):
+        with self.assertRaisesRegex(ValueError, 'changes the library'):
+            native_checklist_gate.execute(self.payload('answer batches/monday --check B1.1 --answer pass --evidence checked --by me'))
+        outside = self.payload('scope batches/monday')
+        outside['input']['library'] = str(self.lib.parent)
+        with self.assertRaisesRegex(ValueError, 'folder granted'):
+            native_checklist_gate.execute(outside)
+
+    def test_native_adapter_never_treats_the_command_as_shell_text(self):
+        result = native_checklist_gate.execute(
+            self.payload('scope batches/monday ; touch native-command-was-shell'))
+        self.assertEqual(result['exit_code'], 2, result)
+        self.assertFalse((self.lib / 'native-command-was-shell').exists())
+
+    def test_library_and_schema_can_be_scoped_under_one_granted_parent_folder(self):
+        payload = self.payload('scope batches/monday')
+        payload['task']['grants']['read-a-folder']['folder'] = str(self.lib.parent)
+        payload['input']['library'] = self.lib.name
+        payload['input']['schema'] = f'{self.lib.name}/schema.json'
+        result = native_checklist_gate.execute(payload)
+        self.assertEqual(result['exit_code'], 0, result)
+        self.assertIn('m1-r2', result['result'])
+
+    def test_write_adapter_requires_the_change_folder_grant_and_reuses_the_same_gate_cli(self):
+        result = native_checklist_gate.execute(
+            self.payload('checklist --write', capability='change-a-folder'), allow_writes=True)
+        self.assertEqual(result['exit_code'], 0, result)
+        self.assertTrue((self.lib / 'checklist.json').is_file())
+
+    def test_schema_must_remain_inside_the_granted_library(self):
+        payload = self.payload('scope batches/monday')
+        outside = bakery.write(self.lib.parent / 'outside.json', '{}')
+        payload['input']['schema'] = str(outside)
+        with self.assertRaisesRegex(ValueError, 'inside the granted folder'):
+            native_checklist_gate.execute(payload)
+
+    def test_native_entrypoint_reads_the_grant_from_argv_and_input_from_stdin(self):
+        request = {'library': str(self.lib), 'schema': 'schema.json', 'command': 'scope batches/monday'}
+        stdout = io.StringIO()
+        with patch.object(sys, 'argv', ['native_checklist_gate.py', str(self.lib)]), \
+                patch.object(sys, 'stdin', io.StringIO(json.dumps(request))), \
+                patch.object(sys, 'stdout', stdout):
+            self.assertEqual(native_checklist_gate.main(), 0)
+        result = json.loads(stdout.getvalue())
+        self.assertEqual(result['exit_code'], 0, result)
+        self.assertIn('m1-r2', result['result'])
 
 
 if __name__ == '__main__':
