@@ -1,0 +1,130 @@
+{
+  "kind": "package-set-records",
+  "record_set": "pointillist-film-tool-rows",
+  "what_this_is": "The Workshop rows for the pointillist-film folder: commands the person's AI runs on the person's own computer to turn a film script made of square-grid target pictures into packed frames, frame sequences or target animations.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:render-a-pointillist-frame",
+        "label": "Render one frame of a square-grid pointillist film (runs on your computer)",
+        "job": "Turn a film script of square-grid pictures, a grid and a time into one packed frame of coloured cells",
+        "description": "Takes a request file: the grid (columns, rows, gap), the limits and style bounds, the script (target pictures, one style per cell, and timeline segments whose weights are small expressions over time) and a time in seconds. Writes one packed frame file: the cells at that time, each with its colour, opacity and scale, in a fixed little-endian layout that begins PFCF. The same request always gives the same bytes. A request that breaks a limit or names a missing target is refused with a message and nothing is written.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": { "type": "string", "description": "The request file on the person's computer, put where {input} is in the command: JSON with config {grid {columns, rows, cell_gap_fraction}, limits {max_columns, max_rows, max_cells, max_targets, max_frame_bytes, max_cell_gap_fraction}, style {min_opacity, max_opacity, min_scale, max_scale}}, script {targets [{cells [{color {r,g,b,a}, opacity, scale}]}], segments [{start_seconds, duration_seconds, samples [{target, weight {terms [expression], combiner}}]}]}} and time_seconds. An expression is {kind: input}, {kind: channel, index}, {kind: constant, value}, {kind: unary, op, value}, {kind: binary, op, left, right} or {kind: clamp, value, min, max}; a combiner is max, sum or sumClamped." },
+            "output": { "type": "string", "description": "The file to write the packed frame to, put where {output} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Nothing is printed on success: the answer is the file at {output}, a packed frame (magic PFCF, version, columns, rows, time, cell count, then per cell id, colour, opacity, scale). A refusal is the message on standard error and a non-zero exit."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "cargo run --release --quiet --manifest-path trillion-workshop/tools/pointillist-film/Cargo.toml --target-dir /tmp/pointillist-film-build --example encode_frame_request -- {input} {output}",
+          "needs": [
+            "rust (cargo), to build the small program the first time"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Write the request file from what the person wants (grid size, the pictures as one style per cell, when each shows) and run `run` with that file in place of {input} and a new file name for {output}. The first run builds the program and takes a minute. Tell the person where the frame file is. If the command prints a message and fails, say it in plain words: it names the limit or the target that was wrong. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:pointillist-film",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages crates/pointillist-film-core and its request example, with the old slot wrapper left out"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:render-pointillist-frames-over-time",
+        "label": "Render a run of frames of a square-grid pointillist film (runs on your computer)",
+        "job": "Turn one film script into a numbered file of packed frames, one for each time I list",
+        "description": "Takes a sequence file: one frame request (grid, limits, style bounds, script) and the list of times in seconds. Writes frame-0000.pfcf, frame-0001.pfcf and so on into a folder, one for each time in the order given. Each is the packed frame the single-frame tool writes for that time, so the same file always gives the same frames. A request that breaks a limit is refused with a message.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": { "type": "string", "description": "The sequence file on the person's computer, put where {input} is in the command: JSON {request: the single-frame request (its time_seconds is replaced), times_seconds: [seconds, ...]}." },
+            "output": { "type": "string", "description": "The folder to write the frames to, put where {output} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Nothing is printed on success: the answer is the frame files in the folder at {output}. A refusal is the message on standard error and a non-zero exit."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "cargo run --release --quiet --manifest-path trillion-workshop/tools/pointillist-film/Cargo.toml --target-dir /tmp/pointillist-film-build --example encode_frame_sequence -- {input} {output}",
+          "needs": [
+            "rust (cargo), to build the small program the first time"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Write the sequence file (one request and the times wanted) and run `run` with that file in place of {input} and a new folder for {output}. Tell the person where the frames are and how many. If the command prints a message and fails, say it in plain words. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:pointillist-film",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages crates/pointillist-film-core and its sequence example, with the old slot wrapper left out"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:render-a-pointillist-target-animation",
+        "label": "Pack a square-grid pointillist film as one target-animation file (runs on your computer)",
+        "job": "Turn a film script into one compact file of its pictures and timeline at a frame rate, for a viewer that works out the frames itself",
+        "description": "Takes an animation request: the grid, limits, style bounds, the script and a frame rate. Writes one target-animation file, whose first bytes are PFAT, holding the target pictures and the timeline (when each picture shows and by what weight) with the frame rate, in a fixed layout a viewer reads directly. The same request always gives the same bytes. A request that breaks a limit is refused with a message.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": { "type": "string", "description": "The animation request file on the person's computer, put where {input} is in the command: JSON {config, script, frame_rate} with config and script as for a single frame." },
+            "output": { "type": "string", "description": "The file to write the animation to, put where {output} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Nothing is printed on success: the answer is the file at {output}. A refusal is the message on standard error and a non-zero exit."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "cargo run --release --quiet --manifest-path trillion-workshop/tools/pointillist-film/Cargo.toml --target-dir /tmp/pointillist-film-build --example encode_target_animation -- {input} {output}",
+          "needs": [
+            "rust (cargo), to build the small program the first time"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Write the animation request and run `run` with that file in place of {input} and a new file name for {output}. Tell the person where the file is. If the command prints a message and fails, say it in plain words. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:pointillist-film",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages crates/pointillist-film-core and its target-animation example, with the old slot wrapper left out"
+        }
+      }
+    }
+  ]
+}
