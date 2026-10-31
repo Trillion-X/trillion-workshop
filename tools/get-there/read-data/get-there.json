@@ -1,0 +1,56 @@
+{
+  "_what": "How tool:route-buttons and tool:find-nearest-places (read-data/get-there.mjs) open a trip and find places. `maps` are the maps apps a button opens, each an address template over the encoded fields (a stop is a place's address or its latitude,longitude): a new maps app is a row. `places` says where places are read: `geocode` turns words into a point and `near` lists places around a point by brand (`near_query`), and by name (`near_query_by_name`) when no place carries that brand, and by the address service's own search inside a box around the start (`near_by_search`) when every copy of the places service is busy (OpenStreetMap's open services, no account; `near` lists several copies of the same service, asked in turn when one is busy), each with its address template and `user_agent`, which those services ask every caller to send. Each map row's `modes` maps the travel modes a caller may name to that app's own word. `most` caps how many places come back; `radius_km` is how far around the start is searched unless the caller says; `most_at_most` and `radius_km_at_most` bound what a caller may ask. `words` are what the answer says.",
+  "maps": [
+    {
+      "id": "apple-maps",
+      "label": "Open in Apple Maps",
+      "route": "https://maps.apple.com/directions?{source}destination={destination}{waypoints}&mode={mode}",
+      "source": "source={origin}&",
+      "waypoint": "&waypoint={stop}",
+      "modes": {
+        "drive": "driving",
+        "walk": "walking",
+        "transit": "transit",
+        "cycle": "cycling"
+      }
+    },
+    {
+      "id": "google-maps",
+      "label": "Open in Google Maps",
+      "route": "https://www.google.com/maps/dir/?api=1{source}&destination={destination}{waypoints}&travelmode={mode}",
+      "source": "&origin={origin}",
+      "waypoints": "&waypoints={stops}",
+      "stop_joiner": "|",
+      "modes": {
+        "drive": "driving",
+        "walk": "walking",
+        "transit": "transit",
+        "cycle": "bicycling"
+      }
+    }
+  ],
+  "default_mode": "drive",
+  "places": {
+    "user_agent": "TrillionWorkshopGetThere/1.0 (+https://github.com/Trillion-X/trillion-workshop)",
+    "geocode": "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q={query}",
+    "near": [
+      "https://overpass-api.de/api/interpreter",
+      "https://overpass.private.coffee/api/interpreter",
+      "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+    ],
+    "near_query": "[out:json][timeout:25];nwr[\"brand\"~\"^{name}$\",i](around:{radius_m},{lat},{lon});out center tags {most_raw};",
+    "timeout_ms": 12000,
+    "near_query_by_name": "[out:json][timeout:25];nwr[\"name\"~\"^{name}$\",i][\"shop\"](around:{radius_m},{lat},{lon});out center tags {most_raw};",
+    "near_by_search": "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&bounded=1&limit=40&q={name}&viewbox={west},{north},{east},{south}"
+  },
+  "most": 5,
+  "radius_km": 25,
+  "words": {
+    "found": "{count} {name} near {start}; the nearest is {nearest}, {km} km away.",
+    "none": "No {name} within {km} km of {start}.",
+    "start_unknown": "Could not find where {start} is. Give a fuller address or a latitude and longitude.",
+    "no_destination": "Say where to go: an address, a place name, or a latitude and longitude."
+  },
+  "most_at_most": 20,
+  "radius_km_at_most": 200
+}
