@@ -1,0 +1,183 @@
+{
+  "kind": "tool-rows",
+  "record_set": "know-who-is-in-this-tool-rows",
+  "what_this_is": "The Workshop rows for tools/know-who-is-in-this: keep a person's voice or face print only with consent words, name who said each stretch of a transcript, and find and name the faces in a picture or video.",
+  "records": [
+    {
+      "id": "package::know-who-is-in-this::tool::enrol-a-voice-or-face",
+      "address": "package::know-who-is-in-this::tool::enrol-a-voice-or-face",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:enrol-a-voice-or-face",
+        "status": "active",
+        "label": "Enrol someone's voice or face so they can be named",
+        "job": "Let the person's AI name this person later by their voice or face, after they agreed to be known that way",
+        "description": "Measures a recording of one person speaking, or a picture or video of one person's face, or takes a voice heard in a listening, and keeps it as that person's print so later recordings and pictures can name them. It refuses before it measures anything unless `consent` says who agreed to be known by their voice or face and how. Enrolling the same name again adds samples and the new consent words to the same print and keeps the earlier ones. The voice-print, face-print and voice-session record kinds are stays_on_this_device: true: the numbers of a print are kept only on the device they were made on and are never shared, exported, synced or sent to a model off it. The answer says how many samples the person has, never the numbers.",
+        "input_schema": {
+          "type": "object",
+          "required": ["kind", "name", "consent"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {"type": "string", "enum": ["voice", "face"], "description": "Enrol a voice or a face"},
+            "name": {"type": "string", "maxLength": 120, "description": "The person's name", "x-free-text-because": "The name of the person being enrolled, as they want it said."},
+            "consent": {"type": "string", "maxLength": 500, "description": "Who agreed to be known by their voice or face, and how (for example: said yes in the team call on Monday)", "x-free-text-because": "The words that record who agreed and how; they are kept with the print."},
+            "me": {"type": "boolean", "description": "True when this is the person who owns the records"},
+            "file": {"type": "string", "format": "namespace-file", "description": "A recording of the person speaking, or a picture or video of their face, by identity in your files"},
+            "heard_voice": {"type": "string", "maxLength": 40, "description": "Instead of a file, for a voice: a label such as voice-3 heard in `listening`"},
+            "listening": {"type": "string", "maxLength": 120, "description": "The listening `heard_voice` was heard in"},
+            "voice_prints": {"type": "array", "items": {"type": "object"}, "x-your-records": ["voice-print"], "description": "Existing voice prints; filled automatically"},
+            "face_prints": {"type": "array", "items": {"type": "object"}, "x-your-records": ["face-print"], "description": "Existing face prints; filled automatically"},
+            "voice_sessions": {"type": "array", "items": {"type": "object"}, "x-your-records": ["voice-session"], "description": "Voices heard in listenings; filled automatically"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["person", "kind", "samples", "records"],
+          "properties": {
+            "person": {"type": "string"},
+            "kind": {"type": "string"},
+            "samples": {"type": "integer", "minimum": 1},
+            "heard_as": {"type": "array", "items": {"type": "string"}},
+            "records": {"type": "array"}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {"package": "know-who-is-in-this", "paths": ["do-work", "read-data"], "at": "/opt/know-who-is-in-this", "exclude": ["__tests__"]},
+              {"package": "media-composition", "paths": ["do-work"], "at": "/opt/media-composition", "exclude": ["__tests__"]}
+            ]
+          },
+          "workdir": "/opt/know-who-is-in-this",
+          "stdout": "json",
+          "argv": ["python3", "do-work/enrol-a-print.py"],
+          "stdin": {"fill": {"from": "input"}}
+        },
+        "result_selector": "$.result",
+        "needs": {"expected_seconds": 60, "network_egress": false, "memory_mb": 4096},
+        "licence_class": "licence:permissive",
+        "placements": ["placement:deployed-container"],
+        "maker": "maker:know-who-is-in-this",
+        "keeps_records": [{"output_selector": "$.records", "type_field": "kind", "id_field": "id"}],
+        "provenance": {
+          "model": "3D-Speaker CAM++ 200k (Apache 2.0) for voices; YuNet 2023mar (MIT) and SFace 2021dec (Apache 2.0), OpenCV Zoo, for faces; the models tools/media-composition holds",
+          "source": "know-who-is-in-this/do-work/enrol-a-print.py"
+        }
+      }
+    },
+    {
+      "id": "package::know-who-is-in-this::tool::who-is-in-this",
+      "address": "package::know-who-is-in-this::tool::who-is-in-this",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:who-is-in-this",
+        "status": "active",
+        "label": "Say who said each part of a recording",
+        "job": "Name who said each stretch of a call or recording, from the voices of people who agreed to be known",
+        "description": "Takes a recording and its transcript (the timed stretches tools/audio-transcription gives) and answers each turn with who said it: the person's name when one enrolled person is clearly the closest voice; every person it could be when two are too close to tell, so a guess is never made silently; otherwise an unknown voice with a number that stays the same for the whole listening, across every recording of it. Stretches of one voice are judged together, a stretch too short to measure takes its neighbour's voice, and turns of one voice a couple of seconds apart are joined. Thresholds, the wording of the labels and the gap that joins turns are inputs; the starting values are not yet calibrated on the person's own consented clips. The voice-print and voice-session record kinds are stays_on_this_device: true: only the listening's voice-session record is kept, with the numbers of the unknown voices heard, on this device. It names no one who has not enrolled.",
+        "input_schema": {
+          "type": "object",
+          "required": ["file", "segments"],
+          "additionalProperties": false,
+          "properties": {
+            "file": {"type": "string", "format": "namespace-file", "description": "The recording (audio or video), by identity in your files"},
+            "segments": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["start", "end"], "properties": {"start": {"type": "number"}, "end": {"type": "number"}, "text": {"type": "string", "maxLength": 4000, "x-free-text-because": "Words the recording's transcript says, passed through to the turn that holds them."}}}, "description": "The transcript's timed stretches, in seconds, in order"},
+            "listening": {"type": "string", "maxLength": 120, "description": "The listening this recording belongs to; unknown voices keep their number across all its recordings"},
+            "rules": {"type": "object", "description": "Thresholds: person_at_least, sure_by, maybe_at_least, same_unknown_at_least, same_in_piece_at_least, shortest_seconds, new_voice_shortest_seconds"},
+            "words": {"type": "object", "description": "Wording of the labels: unknown (with {voice}), unsure (with {names}), or"},
+            "join_within_seconds": {"type": "number", "minimum": 0, "maximum": 30, "description": "Turns of one voice this close are joined (default 2)"},
+            "max_seconds": {"type": "integer", "minimum": 30, "maximum": 3600, "description": "How many seconds of the recording to measure (default 3600)"},
+            "voice_prints": {"type": "array", "items": {"type": "object"}, "x-your-records": ["voice-print"], "description": "Enrolled voices; filled automatically"},
+            "voice_sessions": {"type": "array", "items": {"type": "object"}, "x-your-records": ["voice-session"], "description": "Voices heard in listenings; filled automatically"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["speakers", "voices_heard", "records"],
+          "properties": {
+            "speakers": {"type": "array"},
+            "voices_heard": {"type": "array", "items": {"type": "string"}},
+            "records": {"type": "array"}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {"package": "know-who-is-in-this", "paths": ["do-work", "read-data"], "at": "/opt/know-who-is-in-this", "exclude": ["__tests__"]},
+              {"package": "media-composition", "paths": ["do-work"], "at": "/opt/media-composition", "exclude": ["__tests__"]}
+            ]
+          },
+          "workdir": "/opt/know-who-is-in-this",
+          "stdout": "json",
+          "argv": ["python3", "do-work/who-is-in-this.py"],
+          "stdin": {"fill": {"from": "input"}}
+        },
+        "result_selector": "$.result",
+        "needs": {"expected_seconds": 180, "network_egress": false, "memory_mb": 4096},
+        "licence_class": "licence:permissive",
+        "placements": ["placement:deployed-container"],
+        "maker": "maker:know-who-is-in-this",
+        "keeps_records": [{"output_selector": "$.records", "type_field": "kind", "id_field": "id"}],
+        "provenance": {
+          "model": "3D-Speaker CAM++ 200k (Apache 2.0), the model tools/media-composition holds",
+          "source": "know-who-is-in-this/do-work/who-is-in-this.py"
+        }
+      }
+    },
+    {
+      "id": "package::know-who-is-in-this::tool::find-faces",
+      "address": "package::know-who-is-in-this::tool::find-faces",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-faces",
+        "status": "active",
+        "label": "Find the faces in a picture or video and say who they are",
+        "job": "Find every face in a picture or video and name the ones that belong to people who agreed to be known",
+        "description": "Finds the faces in a picture, or in a picture taken from a video every few seconds, and answers each face's place (the second, the box in pixels) and who it is: the person's name when one enrolled face is clearly the closest, every person it could be when two are too close to tell, nobody otherwise. Changes no file. Thresholds are inputs; the starting values are not yet calibrated on the person's own consented pictures. The face-print record kind is stays_on_this_device: true: prints are read here and never leave the device they were made on.",
+        "input_schema": {
+          "type": "object",
+          "required": ["file"],
+          "additionalProperties": false,
+          "properties": {
+            "file": {"type": "string", "format": "namespace-file", "description": "The picture or video, by identity in your files"},
+            "every_seconds": {"type": "number", "minimum": 0.1, "maximum": 60, "description": "For a video, how often a picture is taken from it (default 2)"},
+            "rules": {"type": "object", "description": "Thresholds: person_at_least, sure_by, maybe_at_least"},
+            "face_prints": {"type": "array", "items": {"type": "object"}, "x-your-records": ["face-print"], "description": "Enrolled faces; filled automatically"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["faces"],
+          "properties": {"faces": {"type": "array"}}
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {"package": "know-who-is-in-this", "paths": ["do-work", "read-data"], "at": "/opt/know-who-is-in-this", "exclude": ["__tests__"]},
+              {"package": "media-composition", "paths": ["do-work"], "at": "/opt/media-composition", "exclude": ["__tests__"]}
+            ]
+          },
+          "workdir": "/opt/know-who-is-in-this",
+          "stdout": "json",
+          "argv": ["python3", "do-work/find-faces.py"],
+          "stdin": {"fill": {"from": "input"}}
+        },
+        "result_selector": "$.result",
+        "needs": {"expected_seconds": 120, "network_egress": false, "memory_mb": 4096},
+        "licence_class": "licence:permissive",
+        "placements": ["placement:deployed-container"],
+        "maker": "maker:know-who-is-in-this",
+        "provenance": {
+          "model": "YuNet face detection 2023mar (MIT) and SFace face recognition 2021dec (Apache 2.0), OpenCV Zoo, the models tools/media-composition holds",
+          "source": "know-who-is-in-this/do-work/find-faces.py"
+        }
+      }
+    }
+  ]
+}
