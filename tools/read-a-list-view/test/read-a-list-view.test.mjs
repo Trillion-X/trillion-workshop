@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readListView, refreshRowSources } from '../read-data/list-view.mjs';
 import { openDoor } from '../read-data/door.mjs';
+import { readDocumentRows } from '../../documents-as-list-rows/read-data/rows.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import data from '../read-data/list-view.json' with { type: 'json' };
 
@@ -204,12 +205,33 @@ test('exact source paths remain an array and invalid path declarations are refus
     assert.equal(bad.runs.length, 0);
     assert.equal(bad.writes.length, 0);
   }
-  for (const invalid of [null, 'py', {}, [1], ['']]) {
+  for (const invalid of [null, 'py', {}, [1], [null]]) {
     const bad = bakery({ sources: [{ source: 'documents', paths, text_extensions: invalid }] });
     await assert.rejects(refresh(bad.door), /Source text_extensions must be an array/);
     assert.equal(bad.runs.length, 0);
     assert.equal(bad.writes.length, 0);
   }
+});
+
+test('an extensionless positive source refreshes through the actual document reader with complete text', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'list-extensionless-'));
+  try {
+    const literal = '*literal* text and a final line.\n';
+    await writeFile(join(root, 'LICENSE'), literal);
+    await writeFile(join(root, 'one.md'), '# One\n');
+    const { door, records } = bakery({ sources: [{ source: 'documents', id: 'selected', root, of: '/',
+      paths: ['/LICENSE', '/one.md'], text_extensions: ['', 'md'], content: { part_bytes: 6000 } }] });
+    door.run = async (tool, input) => {
+      assert.equal(tool, 'tool:read-documents-as-list-rows');
+      return { exit_code: 0, result: await readDocumentRows(input) };
+    };
+    const answer = await refreshRowSources({ names: NAMES, list: 'chores', source_answer_bytes: 28000 }, door);
+    assert.equal(answer.sources[0].written, 2);
+    assert.equal(records.get('record:chore:selected~%2FLICENSE')['document.text'], literal);
+    assert.equal(records.get('record:chore:selected~%2Fone.md')['document.text'], '# One\n');
+    assert.ok(records.has('record:chore:sweep'), 'manual rows remain outside source ownership');
+    assert.equal((await refresh(door)).sources[0].unchanged, 2);
+  } finally { await rm(root, { recursive: true, force: true }); }
 });
 
 test('a failed later source page preserves unread old rows, and a retry completes without rewriting equal values', async () => {
