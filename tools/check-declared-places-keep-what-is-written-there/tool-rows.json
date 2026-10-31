@@ -1,0 +1,169 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-declared-places-keep-what-is-written-there",
+        "id": "tool:check-declared-places-keep-what-is-written-there",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "label": "Check the places I let my AI write in keep a history",
+        "job": "Check that every place declared writable (on the promise that something keeps what is written there, such as a version history) really keeps it, and say which keep nothing",
+        "description": "Give the declaration (the JSON that lists the places, or declaration_file, a path inside the folder the person granted for reading), places_key (the key that holds the list, found at any depth), id_key (the key naming each place), bases (folders inside the granted folder a place may live under; \"\" is the folder itself) and retention_kinds ([{ kind, marker }]: a kind keeps what is written when its marker, a file or folder name such as a history folder, is present at the place or any ancestor up to the granted folder). exemptions ([{ place, why }]) names places that keep nothing on purpose; they are still examined and shown with their reason. A declared place with no folder here is unresolved, never a finding. Reading zero places is refused, never a pass. Returns passed, places_declared, examined_count, keeps_nothing_count and each place with what keeps it.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "places_key",
+            "id_key",
+            "retention_kinds"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "declaration": {
+              "description": "The JSON that lists the places"
+            },
+            "declaration_file": {
+              "type": "string",
+              "description": "Or a path inside the granted folder to that JSON"
+            },
+            "places_key": {
+              "type": "string"
+            },
+            "id_key": {
+              "type": "string"
+            },
+            "bases": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "retention_kinds": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "marker"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string"
+                  },
+                  "marker": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "exemptions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "place",
+                  "why"
+                ],
+                "properties": {
+                  "place": {
+                    "type": "string"
+                  },
+                  "why": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "remedy_hint": {
+              "type": "string",
+              "description": "What to do about a place that keeps nothing, returned with it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "passed",
+            "places_declared",
+            "examined_count",
+            "keeps_nothing_count"
+          ],
+          "properties": {
+            "passed": {
+              "type": "boolean"
+            },
+            "places_declared": {
+              "type": "integer"
+            },
+            "examined_count": {
+              "type": "integer"
+            },
+            "keeps_nothing_count": {
+              "type": "integer"
+            },
+            "unresolved_count": {
+              "type": "integer"
+            },
+            "examined": {
+              "type": "array"
+            },
+            "keeps_nothing": {
+              "type": "array"
+            },
+            "unresolved": {
+              "type": "array"
+            },
+            "remedy_hint": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/check-declared-places-keep-what-is-written-there",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/check-declared-places-keep-what-is-written-there/do-work/check-my-places.mjs",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "check-declared-places-keep-what-is-written-there",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/check-declared-places-keep-what-is-written-there"
+            }
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
