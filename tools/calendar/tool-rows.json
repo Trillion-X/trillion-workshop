@@ -1,0 +1,164 @@
+{
+  "kind": "tool-rows",
+  "record_set": "calendar-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/calendar: turning a person's own records that happen in time into time blocks, laying blocks out for a day, week, month or agenda view, and reading events from the person's own Google calendar.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-time-blocks",
+        "label": "Read records as time blocks",
+        "status": "active",
+        "job": "Turn any records that have a start and an end (bookings, scheduled work, reservations, events) into one ordered list of time blocks, and say which rows could not be shown",
+        "description": "Reads each kind of record through a lens the person wrote: which field is the identity, the start, the end, the title, the colour, the state, and which fields point at other records. A new kind of record that happens in time is one more lens. Rows may be records or lists of cells (column N is the Nth cell). Gives back the blocks ordered by start, how many rows were read and skipped, and an issue for every lens that could not be used or has no rows. It can also read account records through account lenses, and show changes waiting to be written and changes that clashed as blocks of their own. It reads and shows only; it never writes a calendar.",
+        "input_schema": {
+          "type": "object",
+          "required": ["lenses", "feeds"],
+          "properties": {
+            "lenses": { "type": "array", "items": { "type": "object" }, "description": "time-block-lens records: { kind: 'time-block-lens', lens_id, input_address, owner_ref, owner_label?, selectors: { identity, start, end, title?, all_day?, timezone?, color?, state?, lane? }, relations? }. A selector is a path, or { path | column, fallback_path?, fallback? }." },
+            "feeds": { "type": "object", "description": "The rows each lens reads, by the lens's input_address: a list of records or of lists of cells." },
+            "account_lenses": { "type": "array", "items": { "type": "object" }, "description": "calendar-account-lens records: { kind, lens_id, input_address, selectors: { identity, label, color?, status?, status_label?, visible?, calendars? } }" },
+            "queued_changes": { "type": "array", "items": { "type": "object" }, "description": "Changes waiting to be written: { id, affected_block_ref, proposed_start, proposed_end, label?, queue_state? }" },
+            "conflicts": { "type": "array", "items": { "type": "object" }, "description": "Changes that clashed: { id, affected_block_ref, original_start, original_end, proposed_start, proposed_end, owner_message_ref? }" }
+          },
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["blocks", "diagnostics", "issues"],
+          "properties": { "blocks": { "type": "array" }, "diagnostics": { "type": "object" }, "issues": { "type": "array" }, "accounts": { "type": "array" }, "queued_blocks": { "type": "array" }, "conflict_blocks": { "type": "array" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "calendar", "paths": ["do-work", "read-data"], "at": "/opt/parts/calendar" } },
+          "workdir": "/opt/parts/calendar",
+          "stdout": "json",
+          "argv": ["node", "do-work/read-time-blocks.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:deployed-container"],
+        "maker": "maker:calendar",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/calendar (the time-block projection, accounts and sync states)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "lenses": [{ "kind": "time-block-lens", "lens_id": "orders", "input_address": "pickups", "owner_ref": "bakery", "selectors": { "identity": "id", "start": "window.from", "end": "window.to", "title": "what" } }],
+              "feeds": { "pickups": [{ "id": "p1", "window": { "from": "2026-01-05T09:00:00Z", "to": "2026-01-05T09:30:00Z" }, "what": "Rye loaf pickup" }] }
+            },
+            "output_selector": "$.blocks[0].id",
+            "contains": "bakery:orders:p1"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:lay-out-a-calendar-view",
+        "label": "Lay out a calendar view",
+        "status": "active",
+        "job": "Arrange time blocks for a day, week, month or agenda view, split overlapping blocks into columns, and name the blocks that clash",
+        "description": "Takes time blocks and the views the person keeps (each a record naming a geometry: a time grid with a number of day columns, a month grid, or an agenda list, and the numbers it reads) and gives back the days to show with the blocks on each. In a time grid, blocks that overlap in time share the day column in equal parts, and every set of blocks that overlap is listed as a clash. Days are the person's own: give utc_offset_minutes and every time moves by it before it is cut into a day; an all-day block is a date and is not moved. There is no clock: the day comes from the anchor, the selected block, the first block or the range start. A view whose geometry is not known is answered with a notice.",
+        "input_schema": {
+          "type": "object",
+          "required": ["blocks", "views"],
+          "properties": {
+            "blocks": { "type": "array", "items": { "type": "object" }, "description": "Time blocks as read-time-blocks gives them: { id, interval: { start, end, allDay } }" },
+            "views": { "type": "array", "items": { "type": "object" }, "description": "calendar-view-descriptor records: { kind: 'calendar-view-descriptor', view_id, label?, layout: 'time-grid' | 'month-grid' | 'agenda-list', order?, day_count?, skip_weekends?, max_chips_per_cell? }" },
+            "view_id": { "type": "string", "description": "Which view; the first by order when absent or unknown" },
+            "anchor": { "type": "string", "description": "An ISO time inside the day to show" },
+            "range_start": { "type": "string", "description": "Used for the day when there is no anchor and no block" },
+            "selected_block_id": { "type": "string", "description": "The day of this block is the day to show when there is no anchor" },
+            "utc_offset_minutes": { "type": "integer", "description": "The person's offset from UTC in minutes; 0 when absent" }
+          },
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["view", "days", "clashes"],
+          "properties": { "view": { "type": ["object", "null"] }, "views": { "type": "array" }, "anchor_day": { "type": "string" }, "days": { "type": "array" }, "clashes": { "type": "array" }, "skipped": { "type": "array" }, "notice": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "calendar", "paths": ["do-work", "read-data"], "at": "/opt/parts/calendar" } },
+          "workdir": "/opt/parts/calendar",
+          "stdout": "json",
+          "argv": ["node", "do-work/lay-out-a-calendar-view.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:deployed-container"],
+        "maker": "maker:calendar",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/calendar (the view descriptors, the day and month grids and the overlap packing)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "blocks": [
+                { "id": "a", "interval": { "start": "2026-01-07T09:00:00Z", "end": "2026-01-07T10:00:00Z", "allDay": false } },
+                { "id": "b", "interval": { "start": "2026-01-07T09:30:00Z", "end": "2026-01-07T10:30:00Z", "allDay": false } }
+              ],
+              "views": [{ "kind": "calendar-view-descriptor", "view_id": "day", "layout": "time-grid", "day_count": 1 }]
+            },
+            "output_selector": "$.clashes[0].ids",
+            "contains": "b"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-google-calendar-events",
+        "label": "Read events from my Google calendar",
+        "status": "active",
+        "job": "Read the events in a time range from one of the person's own Google calendars and give them back as time blocks",
+        "description": "Asks Google for the events of one calendar between two times (every occurrence of a repeating event, in start order) with the person's own Google OAuth client id, client secret and refresh token, and gives them back as time blocks that read-time-blocks and lay-out-a-calendar-view understand. A cancelled event is marked cancelled; an all-day event is a date. It reads only: it never creates, changes or removes an event. The three credentials arrive only on private pipes under the held-value names the row names; no answer or error carries them. Without all three it refuses.",
+        "input_schema": {
+          "type": "object",
+          "required": ["range_start", "range_end"],
+          "properties": {
+            "range_start": { "type": "string", "description": "ISO time the range starts" },
+            "range_end": { "type": "string", "description": "ISO time the range ends" },
+            "calendar_id": { "type": "string", "description": "Which of the person's calendars; their primary one when absent" },
+            "max_results": { "type": "integer", "description": "At most this many events, 1 to 2500; 50 when absent" },
+            "connection_ref": { "type": "string", "description": "A name the person uses for this account; carried on each block" }
+          },
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["blocks", "issues", "source"],
+          "properties": { "blocks": { "type": "array" }, "issues": { "type": "array" }, "range_start": { "type": "string" }, "range_end": { "type": "string" }, "source": { "type": "object" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "files": { "package_files": { "package": "calendar", "paths": ["do-work", "read-data"], "at": "/opt/parts/calendar" } },
+          "workdir": "/opt/parts/calendar",
+          "stdout": "json",
+          "argv": ["node", "do-work/read-google-calendar-events.mjs"],
+          "stdin": { "fill": { "from": "input" } },
+          "credential_mounts": [
+            { "secret_name": "google-calendar-client-id", "fd": 3 },
+            { "secret_name": "google-calendar-client-secret", "fd": 4 },
+            { "secret_name": "google-calendar-refresh-token", "fd": 5 }
+          ]
+        },
+        "needs": { "expected_seconds": 20, "network_egress": true, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:deployed-container"],
+        "maker": "maker:calendar",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/calendar (the Google calendar sync workflow's request and normalizer)" },
+        "verify": null
+      }
+    }
+  ]
+}
