@@ -20,6 +20,8 @@ import { documentRowSources, folderKey, say } from './document-properties.mjs';
 import { folderFiles } from './folder-files.mjs';
 import { namespaceFiles } from './namespace-files.mjs';
 import { itemDocument, orderedIds, splitDocuments } from './split.mjs';
+import { contentRows } from './content-rows.mjs';
+import data from './document-properties.json' with { type: 'json' };
 
 const needRoot = root => {
   if (typeof root !== 'string' || !root.startsWith('/')) throw say('bad_input', { what: 'root must be the absolute path of the folder the tool was granted.' });
@@ -40,9 +42,10 @@ export async function readNamespaceDocumentRows(page = {}, { door } = {}) {
   return pageOf(namespaceFiles((operation, input) => door.files(operation, input)), page);
 }
 
-async function pageOf(files, { folder = '/', match, after = null, limit, backlinks = false, most_bytes } = {}) {
+async function pageOf(files, { folder = '/', match, exclude, paths, paths_file, text_extensions, after = null, limit = data.limits.page_rows, backlinks = false, most_bytes, content = false } = {}) {
   const read = documentRowSources({ files }).sources.documents;
-  const page = await read({ source: { of: folderKey(folder), match }, cursor: after, limit, backlinks: Boolean(backlinks) });
+  if (content !== false) return contentRows(files, read, { folder: folderKey(folder), match, exclude, paths, paths_file, text_extensions, after, limit, backlinks: Boolean(backlinks), most_bytes, content });
+  const page = await read({ source: { of: folderKey(folder), match, exclude, paths, paths_file, text_extensions }, cursor: after, limit, backlinks: Boolean(backlinks) });
   const answer = { rows: page.rows, next: page.next_cursor };
   if (most_bytes === undefined) return answer;
   if (!Number.isSafeInteger(most_bytes) || most_bytes < 1) throw say('bad_input', { what: 'most_bytes must be a whole number of bytes from 1.' });

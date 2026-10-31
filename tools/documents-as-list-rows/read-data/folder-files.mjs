@@ -22,7 +22,10 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 /** The files of one folder, by names written `/a/b.md` under it. */
 export async function folderFiles(root) {
   const base = await realpath(root);
-  const inside = path => path === base || path.startsWith(base + sep);
+  // One current document snapshot for its bounded content pieces. Reading the metadata already reads its bytes to
+  // establish BLAKE3; this cache prevents hashing a long document again for each small text piece on one page.
+  let contentSnapshot = null;
+  const inside = path => path === base || path.startsWith(base.endsWith(sep) ? base : base + sep);
   const nameOf = path => `/${relative(base, path).split(sep).join('/')}`;
   const pathOf = async name => {
     const wanted = join(base, ...String(name).split('/').filter(Boolean));
@@ -81,6 +84,14 @@ export async function folderFiles(root) {
       const [bytes, facts] = await Promise.all([readFile(path), stat(path)]);
       return { identity: makeHashCodeHexFromBytes(bytes), text: new TextDecoder().decode(bytes.subarray(0, most)), complete: bytes.length <= most,
         facts: { byte_length: facts.size, modified_at_ms: facts.mtimeMs, named_at: facts.birthtimeMs } };
+    },
+    async readSlice(expected, offset, length, name) {
+      if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(length) || length < 0) throw Object.assign(new Error('A document byte range is non-negative whole numbers.'), { code: 'bad_input' });
+      if (contentSnapshot?.name !== name || contentSnapshot.identity !== expected) {
+        const bytes = await readFile(await pathOf(name));
+        contentSnapshot = { name, bytes, identity: makeHashCodeHexFromBytes(bytes) };
+      }
+      return { identity: contentSnapshot.identity, bytes: contentSnapshot.bytes.subarray(offset, offset + length) };
     },
     async writeIfUnchanged(name, text, expected) {
       const path = await pathOf(name);

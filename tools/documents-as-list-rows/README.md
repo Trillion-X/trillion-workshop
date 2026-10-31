@@ -39,8 +39,39 @@ How the folder is read:
 - A listing reads names only, so a folder of thousands of documents costs one directory read plus the documents on the page.
 - `match` keeps the documents whose path under the folder fits a glob, as `*/SKILL.md`.
 - `file.backlinks` needs every document's links, so it is worked out only when `backlinks` is true.
+- `exclude` is an array of globs relative to the source folder. It keeps a broader knowledge source from repeating documents another list already owns.
+- `paths` is an exact positive catalogue of file names under the granted root, read without walking unrelated folders. Every name still goes through the files owner's root and symlink checks. `text_extensions` explicitly declares UTF-8 source extensions such as `py` or `mjs` for that catalogue; ordinary folder scans still select only the document extensions. Source bytes are read as text and never executed.
+- `paths_file` names a JSON array positive catalogue under that same granted root instead of embedding `paths` in a bounded list record. Its identity is checked, its complete JSON must fit the existing per-document byte read bound, and each selected name still passes the normal root checks.
 - `most_bytes` bounds the answer's JSON: the page ends at the last row that fits, and `next` goes on from there. A caller whose answer travels in a bounded message names its room this way; a door answers a run within one MCP message of 65,536 bytes that carries the answer twice.
 - The documents of a page are read `reads_at_once` at a time (32).
+
+### Whole document text, kept with the same rows
+
+`content: true` adds the complete original UTF-8 document, including frontmatter, without replacing the document's metadata or parent row ID. A document up to one piece appears as one row. Longer documents continue as stable linked child rows in the same source/list; each piece is bounded independently, so a large document never becomes a silently clipped field or an oversized single record.
+
+The defaults are DATA in `document-properties.json` and can be overridden by a `content` object:
+
+| Option | Default | Meaning |
+|---|---|---|
+| `field` | `document.text` | Exact UTF-8 text of this piece. |
+| `parent_field` | `document.parent` | The original document row ID, on every piece. |
+| `index_field` | `document.part` | One-based piece number. |
+| `count_field` | `document.parts` | Total pieces required for the complete document. |
+| `complete_field` | `document.complete` | `complete` for a whole single-piece document, otherwise `part of document`. |
+| `part_bytes` | 12000 | Nominal bytes per piece; a UTF-8 boundary moves forward by up to three bytes so no character is cut. |
+| `source_field` | `document.source` | Original file parent of a virtual section. |
+| `section_field` | `document.section` | Semantic section ID, or `remainder`. |
+| `offset_field` | `document.offset` | Original UTF-8 byte offset of the text piece. |
+| `sections` | null | Optional existing `splitDocuments` heading/row mapping for maintained virtual section rows. |
+| `omit_fields` | [] | Explicitly omit only DATA-declared regenerable derived caches, such as `file.links`; default callers keep every field. Original frontmatter, source bytes, identity and path cannot be omitted. |
+
+The first piece keeps the original `/folder/name.md` ID. Later IDs are `/folder/name.md#text-part-00000002`, and so on. All current frontmatter and file facts are kept. Reconstruct a document only after checking that its identity, part count and every consecutive part number agree, then join the text in part order. A list refresh can remove obsolete trailing child rows through its existing exact-source removal scope when a document becomes shorter.
+
+With content enabled, `limit` and `most_bytes` bound the emitted rows and the complete answer, including child rows. Pass `next` back unchanged: an unfinished document uses an opaque cursor pinned to its identity. A document changed between pages is refused, so text from two edits is never joined. The Namespace source reads the same pieces through the existing files door by name and checks the identity on every byte page. Invalid UTF-8 and incomplete byte ranges are refused. No file-content reference or local path is substituted for missing text.
+
+By hand, add `--content` (or `--content '<options JSON>'`) and optionally `--most-bytes N` to `rows`. Existing metadata-only callers are unchanged.
+
+With `content.sections`, the existing splitter exposes original source spans before presentation formatting or equal-word merging. The original file parent remains as metadata, with part number zero and no duplicate full body. Stable `#section-<id>` rows carry each section's exact original bytes; `#remainder-<offset>` rows retain everything outside sections. Repeated section IDs get an explicit occurrence suffix. Bounded child pieces still link to their section parent. To reconstruct the original file, take rows with a positive part number, order them by `document.offset`, and join their text. Headings, blank lines and repeated words remain exact. The normal split API is unchanged unless `raw_segments` is requested; that option adds `{source,file,id,kind,fields,from_byte,after_byte,text}` spans and never changes its existing normalized items.
 
 Measured on 2026-10-30 at load 80 to 98 on 18 cores, one page of 50 rows, including Node's start of about 0.44 s at that load:
 - A folder of about 200 documents: 0.5 s.

@@ -105,6 +105,7 @@ test('a refresh asks each source page for at most read_page_rows and each listin
   assert.ok(asked.length > 0 && asked.every(limit => limit <= limits.door_page_rows));
   assert.ok(runs.every(run => run.input.limit <= limits.read_page_rows));
   assert.ok(runs.every(run => run.input.most_bytes === 28000 && run.input.folder === '/recipes'));
+  assert.ok(runs.every(run => !Object.hasOwn(run.input, 'root')), 'an absent source root leaves the local tool default unchanged');
   const bytes = rows => rows.reduce((sum, row) => sum + new TextEncoder().encode(JSON.stringify(row)).length, 0);
   assert.ok(writes.every(write => write.rows.length <= limits.write_rows && bytes(write.rows) <= limits.write_bytes));
   assert.ok(writes.length >= Math.ceil(130 / limits.write_rows));
@@ -123,9 +124,16 @@ test('a write refused for one row is sent again row by row: the others are writt
   assert.ok(!records.has('record:chore:documents~%2Fscones.md') && records.has('record:chore:documents~%2Ftart.md'));
 });
 
-test('a source read in part or answering no rows is refused and nothing of it is written', async () => {
+test('a refresh streams beyond the view row bound, while a missing rows answer writes nothing', async () => {
   const big = bakery({ folder: Array.from({ length: limits.rows_per_read + 1 }, (_, at) => recipe(`r${String(at).padStart(5, '0')}`, at)) });
-  await assert.rejects(refresh(big.door), /more than 2000 rows; nothing of it was written/);
+  const done = await refresh(big.door);
+  assert.equal(done.sources[0].rows, limits.rows_per_read + 1);
+  assert.equal(done.sources[0].written, limits.rows_per_read + 1);
+  assert.ok(big.runs.every(run => run.input.limit === limits.read_page_rows));
+  assert.ok(big.writes.every(write => write.rows.length <= limits.write_rows));
+  big.writes.length = 0;
+  const repeated = await refresh(big.door);
+  assert.equal(repeated.sources[0].unchanged, limits.rows_per_read + 1);
   assert.equal(big.writes.length, 0);
   const { door, writes } = bakery();
   const broken = { ...door, run: async () => ({ exit_code: 0, result: { said: 'nothing' } }) };
@@ -133,11 +141,175 @@ test('a source read in part or answering no rows is refused and nothing of it is
   assert.equal(writes.length, 0);
 });
 
+test('same-kind sources have disjoint identities, values projections keep source fields, and content stays JSON', async () => {
+  const content = { field: 'document.text', part_bytes: 12000 };
+  const sources = [
+    { source: 'documents', id: 'recipes', of: '/recipes', content, values: { statement: { row: 'title' },
+      description: { from: 'document.text' }, site: { const: ['recipe-files'] } } },
+    { source: 'documents', id: 'orders', root: '/a-scoped-folder', of: '/orders', content: true, exclude: ['archive/**', 'draft.md'] },
+  ];
+  const { door, records, runs } = bakery({ sources });
+  const rows = { '/recipes': [{ id: '/shared.md', title: 'Recipe', values: { 'document.text': 'Knead.\n', original: 1 } }],
+    '/orders': [{ id: '/shared.md', title: 'Order', values: { 'document.text': 'Two loaves.\n' } }] };
+  const selected = { ...door, run: async (tool, input) => {
+    runs.push({ tool, input });
+    return { result: { rows: rows[input.folder], next: null } };
+  } };
+  await refresh(selected);
+  assert.deepEqual(records.get('record:chore:recipes~%2Fshared.md'), {
+    'document.text': 'Knead.\n', original: 1, statement: 'Recipe', description: 'Knead.\n', site: ['recipe-files'],
+  });
+  assert.deepEqual(records.get('record:chore:orders~%2Fshared.md'), { 'document.text': 'Two loaves.\n' });
+  assert.deepEqual(runs.map(run => run.input.content), [content, true]);
+  assert.ok(!Object.hasOwn(runs[0].input, 'root'));
+  assert.equal(runs[1].input.root, '/a-scoped-folder');
+  assert.deepEqual(runs[1].input.exclude, ['archive/**', 'draft.md']);
+  rows['/recipes'] = [];
+  const again = await refresh(selected);
+  assert.equal(again.sources[0].removed, 1);
+  assert.equal(again.sources[1].unchanged, 1);
+  assert.ok(records.has('record:chore:orders~%2Fshared.md'));
+  const readBack = await read(selected, { list: 'chores', limit: 20 });
+  assert.equal(readBack.rows.find(row => row.id === 'orders~%2Fshared.md').source, 'orders');
+  assert.ok(records.has('record:chore:sweep'));
+});
+
+test('source input templates preserve exact JSON values and fixed nonstring DATA without coercion', async () => {
+  const served = data.row_sources.documents.input;
+  const original = { ...served };
+  const { door, runs } = bakery({ sources: [{ source: 'documents', of: '/recipes', root: null }] });
+  try {
+    served.fixed = { mode: 'bounded' };
+    served.label = 'folder:{of}';
+    await refresh(door);
+    assert.equal(runs[0].input.root, null);
+    assert.deepEqual(runs[0].input.fixed, { mode: 'bounded' });
+    assert.equal(runs[0].input.label, 'folder:/recipes');
+  } finally {
+    for (const key of Object.keys(served)) delete served[key];
+    Object.assign(served, original);
+  }
+});
+
+test('exact source paths remain an array and invalid path declarations are refused before a run or write', async () => {
+  const paths = ['skills/one/SKILL.md', 'skills/two/SKILL.md'];
+  const { door, runs } = bakery({ sources: [{ source: 'documents', id: 'selected', root: '/admitted', of: '/', paths, text_extensions: ['md', 'py'] }] });
+  await refresh(door);
+  assert.deepEqual(runs[0].input.paths, paths);
+  assert.equal(Array.isArray(runs[0].input.paths), true);
+  assert.deepEqual(runs[0].input.text_extensions, ['md', 'py']);
+  for (const invalid of [null, 'one.md', {}, [1], [''], ['one.md', null]]) {
+    const bad = bakery({ sources: [{ source: 'documents', paths: invalid }] });
+    await assert.rejects(refresh(bad.door), /Source paths must be an array/);
+    assert.equal(bad.runs.length, 0);
+    assert.equal(bad.writes.length, 0);
+  }
+  for (const invalid of [null, 'py', {}, [1], ['']]) {
+    const bad = bakery({ sources: [{ source: 'documents', paths, text_extensions: invalid }] });
+    await assert.rejects(refresh(bad.door), /Source text_extensions must be an array/);
+    assert.equal(bad.runs.length, 0);
+    assert.equal(bad.writes.length, 0);
+  }
+});
+
+test('a failed later source page preserves unread old rows, and a retry completes without rewriting equal values', async () => {
+  const old = Array.from({ length: limits.read_page_rows + 2 }, (_, at) => recipe(`r${String(at).padStart(5, '0')}`, at));
+  const { door, records, folder, writes } = bakery({ folder: old });
+  await refresh(door);
+  folder[0] = recipe('r00000', 999);
+  folder.splice(limits.read_page_rows);
+  // Keep a continuation after the first page to model a tool whose next page fails.
+  const failed = { ...door, run: async (tool, input) => {
+    if (input.after) throw Object.assign(new Error('source unavailable'), { code: 'unavailable' });
+    const answer = await door.run(tool, input);
+    return { result: { ...answer.result, next: '/next-page' } };
+  } };
+  await assert.rejects(refresh(failed), /source unavailable/);
+  assert.equal(records.get('record:chore:documents~%2Fr00000.md')['note.minutes'], 999);
+  assert.ok(records.has('record:chore:documents~%2Fr00050.md'), 'unread existing row survives the failed pass');
+  assert.ok(records.has('record:chore:documents~%2Fr00051.md'));
+  writes.length = 0;
+  const retried = await refresh(door);
+  assert.equal(retried.sources[0].unchanged, limits.read_page_rows);
+  assert.equal(retried.sources[0].written, 0);
+  assert.equal(retried.sources[0].removed, 2);
+  assert.ok(writes.flatMap(write => write.rows).every(row => row.value === null));
+});
+
+test('stalled cursors, duplicate source rows and unsafe or duplicate source ids refuse without deleting old rows', async () => {
+  for (const sources of [
+    [{ source: 'documents', id: 'a~b' }], [{ source: 'documents', id: 'a/b' }],
+    [{ source: 'documents', id: 'a\\b' }], [{ source: 'documents', id: 'a\n' }],
+    [{ source: 'documents', id: '' }], [{ source: 'documents' }, { source: 'documents' }],
+    [{ source: 'documents', id: 'same' }, { source: 'documents', id: 'same' }],
+  ]) {
+    const { door, writes } = bakery({ sources });
+    await assert.rejects(refresh(door), error => error.code === 'bad_list');
+    assert.equal(writes.length, 0);
+  }
+  const { door, records } = bakery();
+  await refresh(door);
+  const stalled = { ...door, run: async () => ({ result: { rows: [recipe('new', 1)], next: 'same-cursor' } }) };
+  await assert.rejects(refresh(stalled), /did not advance/);
+  assert.ok(records.has('record:chore:documents~%2Ftart.md'));
+  const duplicate = { ...door, run: async () => ({ result: { rows: [recipe('new', 1), recipe('new', 2)], next: null } }) };
+  await assert.rejects(refresh(duplicate), /row id twice/);
+  assert.ok(records.has('record:chore:documents~%2Ftart.md'));
+  const incomplete = { ...door, run: async () => ({ result: { rows: [] } }) };
+  await assert.rejects(refresh(incomplete), /no continuation or terminal null/);
+  assert.ok(records.has('record:chore:documents~%2Ftart.md'), 'missing completion is not an empty completed source');
+});
+
+test('a multi-page document keeps every ordered text part, including children sharing the same source kind', async () => {
+  const body = '😀 Rye bread.\n'.repeat(1200);
+  const pieces = Array.from({ length: 3 }, (_, index) => ({
+    id: index ? `/bread.md#text-part-${String(index + 1).padStart(8, '0')}` : '/bread.md',
+    values: { 'document.parent': '/bread.md', 'document.part': index + 1, 'document.parts': 3,
+      'document.text': body.slice(index * (body.length / 3), (index + 1) * (body.length / 3)) },
+  }));
+  const { door, records } = bakery({ sources: [{ source: 'documents', id: 'text', of: '/recipes', content: true }] });
+  const paged = { ...door, run: async (tool, input) => {
+    const index = input.after ? Number(input.after) : 0;
+    return { result: { rows: [pieces[index]], next: index < 2 ? String(index + 1) : null } };
+  } };
+  await refresh(paged);
+  const saved = [...records.entries()].filter(([id]) => id.startsWith('record:chore:text~'))
+    .map(([, value]) => value).sort((a, b) => a['document.part'] - b['document.part']);
+  assert.equal(saved.map(row => row['document.text']).join(''), body);
+  assert.deepEqual(saved.map(row => row['document.parts']), [3, 3, 3]);
+});
+
+test('cancellation after a source read prevents writes and obsolete-row deletion', async () => {
+  const { door, records, writes } = bakery();
+  await refresh(door);
+  writes.length = 0;
+  const controller = new AbortController();
+  const stopped = { ...door, run: async () => {
+    controller.abort(new Error('refresh cancelled'));
+    return { result: { rows: [], next: null } };
+  } };
+  await assert.rejects(refresh(stopped, { signal: controller.signal }), /refresh cancelled/);
+  assert.equal(writes.length, 0);
+  assert.ok(records.has('record:chore:documents~%2Ftart.md'));
+});
+
+test('a declared path catalogue is forwarded as a path and invalid catalogue values refuse', async () => {
+  const chosen = bakery({ sources: [{ source: 'documents', of: '/', paths_file: '/catalogue.json' }] });
+  await refresh(chosen.door);
+  assert.equal(chosen.runs[0].input.paths_file, '/catalogue.json');
+  for (const paths_file of ['', null, 42, {}]) {
+    const invalid = bakery({ sources: [{ source: 'documents', of: '/', paths_file }] });
+    await assert.rejects(refresh(invalid.door), /Source paths_file/);
+  }
+});
+
 test('the reader\'s own bounds hold: too many or unknown sources are refused, no listing asks for more than the door\'s page', async () => {
   const many = bakery({ sources: ['/a', '/b', '/c', '/d', '/e'].map(of => ({ source: 'documents', of })) });
   await assert.rejects(read(many.door, { list: 'chores' }), new RegExp(`at most ${limits.row_sources_per_list} row sources`));
   const unknown = bakery({ sources: [{ source: 'weather' }] });
   await assert.rejects(refresh(unknown.door), /No tool serves the row source "weather"/);
+  const inherited = bakery({ sources: [{ source: '__proto__' }] });
+  await assert.rejects(refresh(inherited.door), /No tool serves the row source "__proto__"/);
   const { door } = bakery();
   await refresh(door);
   const asked = [];

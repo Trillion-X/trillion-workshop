@@ -372,10 +372,33 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
     if (!(Number.isInteger(limit) && limit >= 1 && limit <= limits.page_rows_most)) throw say('bad_page', { most: limits.page_rows_most });
     const folder = sourceFolder(source);
     const sidecar = await readDocumentTypes(files, folder);
+    if (source?.paths_file !== undefined) {
+      if (typeof source.paths_file !== 'string' || !source.paths_file.startsWith('/') || source.paths !== undefined) throw say('bad_input', { what: 'paths_file names one JSON positive catalogue under the granted root, instead of paths.' });
+      const entry = await files.entry(source.paths_file);
+      if (!entry || entry.folder) throw say('bad_input', { what: `The positive catalogue ${source.paths_file} is missing.` });
+      const read = await files.read(entry.identity, limits.bytes_per_document, source.paths_file);
+      if (!read.complete) throw say('bad_input', { what: `The positive catalogue ${source.paths_file} exceeds the existing ${limits.bytes_per_document}-byte document read bound.` });
+      if (read.identity !== entry.identity) throw say('document_changed', { document: source.paths_file, expected: entry.identity, current: read.identity });
+      let paths;
+      try { paths = JSON.parse(read.text); } catch { throw say('bad_input', { what: `The positive catalogue ${source.paths_file} is not JSON.` }); }
+      source = { ...source, paths };
+    }
     // A source may keep only the documents whose path under its folder fits a glob (`match`, as */SKILL.md).
     const fits = globTest(source?.match);
-    const everything = await names(files, folder);
-    const all = everything.filter(row => fits(folder === '/' ? row.name.slice(1) : row.name.slice(folder.length + 1)));
+    if (source?.exclude !== undefined && (!Array.isArray(source.exclude) || source.exclude.some(pattern => typeof pattern !== 'string'))) throw say('bad_input', { what: 'exclude is an array of document-path glob strings.' });
+    const excluded = (source?.exclude ?? []).map(globTest);
+    if (source?.text_extensions !== undefined && (!Array.isArray(source.text_extensions) || source.text_extensions.some(extension => typeof extension !== 'string' || !/^[a-z0-9]+$/.test(extension)))) throw say('bad_input', { what: 'text_extensions is an array of lowercase text-file extensions for explicitly named paths.' });
+    const explicitExtensions = new Set(source?.text_extensions ?? data.document_extensions);
+    if (source?.paths !== undefined && (!Array.isArray(source.paths) || source.paths.some(name => typeof name !== 'string' || !name.startsWith('/') || !explicitExtensions.has(extensionOf(name).toLowerCase()) || (folder !== '/' && !name.startsWith(`${folder}/`))))) throw say('bad_input', { what: 'paths is an array of exact document names under this source folder, with explicitly declared text extensions.' });
+    // An explicit catalogue reads only its named files, without walking unrelated folders. The files owner still
+    // resolves and checks every name against the granted root, including symlinks.
+    const everything = source?.paths ? [...new Set(source.paths)].sort().map(name => ({ name })) : await names(files, folder);
+    const existing = [];
+    for (const row of everything) if (!source?.paths || await files.entry(row.name)) existing.push(row);
+    const all = existing.filter(row => {
+      const path = folder === '/' ? row.name.slice(1) : row.name.slice(folder.length + 1);
+      return fits(path) && !excluded.some(test => test(path));
+    });
     const wanted = row_ids ? new Set(row_ids) : null;
     const chosen = all.filter(row => (wanted ? wanted.has(row.name) : !cursor || row.name > cursor));
     const page = wanted ? chosen : chosen.slice(0, limit);
@@ -383,7 +406,7 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
     const parsed = new Map();
     // The documents are read `reads_at_once` at a time: a read waits on the disk, so reading one after another costs a
     // page its rows times the disk's wait (measured 2026-10-30: about 120 ms a row inside the engine's sandbox).
-    const toRead = backlinks ? everything : page;
+    const toRead = backlinks ? existing : page;
     for (let from = 0; from < toRead.length; from += limits.reads_at_once) {
       const batch = toRead.slice(from, from + limits.reads_at_once);
       const read = await Promise.all(batch.map(row => parsedOf(files, row)));
@@ -401,7 +424,7 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
       return byStem.get(link.target.toLowerCase()) ?? link.target;
     };
     const facts = new Map();
-    for (const row of backlinks ? everything : page) facts.set(row.name, factsOf(parsed.get(row.name).row, parsed.get(row.name).doc, parsed.get(row.name).identity, resolve));
+    for (const row of backlinks ? existing : page) facts.set(row.name, factsOf(parsed.get(row.name).row, parsed.get(row.name).doc, parsed.get(row.name).identity, resolve));
     if (backlinks) {
       const from = new Map();
       for (const [name, fact] of facts) for (const target of fact.links) if (facts.has(target) && target !== name) from.set(target, [...(from.get(target) ?? []), name]);

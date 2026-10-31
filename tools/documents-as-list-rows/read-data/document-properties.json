@@ -1,6 +1,10 @@
 {
   "_what": "Documents as rows (document-properties.mjs): a folder of a person's text documents read as a list's rows, each with its own properties (written in the document itself, as frontmatter), what the file is (name, folder, times, size, links, backlinks, tags) and formulas worked out from both. A list names the folder with row_sources [{ source: <source>, of: <folder> }]; a saved view names a value by its namespace and key (note.status, file.mtime, formula.late). The kinds of property, the file facts, the link and tag syntaxes, the refusal words and every bound are rows here; the code names none of them.",
   "source": "documents",
+  "content": {"field": "document.text", "parent_field": "document.parent", "index_field": "document.part", "count_field": "document.parts", "complete_field": "document.complete", "source_field": "document.source", "section_field": "document.section", "offset_field": "document.offset", "part_bytes": 12000, "sections": null, "omit_fields": []},
+  "content_omittable_fields": ["file.links", "file.backlinks", "file.embeds", "file.tags", "file.aliases"],
+  "_content_omittable_fields": "Only regenerable derived caches may be explicitly omitted from content-bearing rows to avoid copying a huge links cache into every bounded text part. No source frontmatter, identity, path, file facts or original text is omitted; default behavior keeps every field.",
+  "_content": "Optional content:true projection keeps the original row ID and metadata, with complete UTF-8 text in one bounded piece or stable linked child rows. Parts are numbered from one; all document.parts pieces are required to reconstruct a long document. A content cursor pins a document's identity. Names can be overridden by a source's content object; no corpus is named in code.",
   "_source": "The row source name a list uses for a folder of documents.",
   "namespaces": { "properties": "note", "facts": "file", "formulas": "formula" },
   "_namespaces": "The namespace each kind of value is named in: a document's own properties, the facts of its file, the folder's formulas (the same names as the list's source_namespaces.documents).",

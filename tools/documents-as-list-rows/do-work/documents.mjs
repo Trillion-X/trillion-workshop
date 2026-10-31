@@ -34,7 +34,13 @@ try {
     answer = await run[command]({ ...JSON.parse((await text(process.stdin)) || '{}'), root: flags.root });
   } else if (command === 'rows') {
     answer = await readDocumentRows({ root: flags.root, folder: flags.folder, match: flags.match, after: flags.after ?? null,
-      limit: flags.limit ? Number(flags.limit) : undefined, backlinks: flags.backlinks === true });
+      ...(flags.exclude ? { exclude: json(flags.exclude) } : {}),
+      ...(flags.paths ? { paths: json(flags.paths) } : {}),
+      ...(flags['paths-file'] ? { paths_file: flags['paths-file'] } : {}),
+      ...(flags['text-extensions'] ? { text_extensions: json(flags['text-extensions']) } : {}),
+      limit: flags.limit ? Number(flags.limit) : undefined, backlinks: flags.backlinks === true,
+      ...(flags.content ? { content: flags.content === true ? true : json(flags.content) } : {}),
+      ...(flags['most-bytes'] ? { most_bytes: Number(flags['most-bytes']) } : {}) });
   } else if (command === 'set') {
     const values = {};
     for (const pair of flags.set ?? []) { const at = pair.indexOf('='); values[`${data.namespaces.properties}.${pair.slice(0, at)}`] = json(pair.slice(at + 1)); }

@@ -15,11 +15,12 @@
 //   2. No list, view, field, record type, source or tool is named here. The record names are the caller's (`names`),
 //      the sources and their tools are DATA (list-view.json `row_sources`), and so are the bounds (list-view.json
 //      `limits`), which a caller never passes.
-//   3. A refresh writes a source only once it has read the whole source (at most `rows_per_read` rows): a source
-//      read in part is refused and nothing of it is written, so a row is never removed because it was not read.
-//      A source that answers no rows is refused, never written as empty.
-//   4. A row source's record id is `<row type>:<source>~<its id, URI-encoded>`, so a row keeps its id from one
-//      refresh to the next and the door's ids (which hold no `/`) can carry a document's path.
+//   3. A refresh reads and writes bounded pages. It removes no old row until the source has answered a successful
+//      terminal page, so a source read in part never removes unread rows. Existing rows are held as ids and BLAKE3
+//      value identities, never as the whole source's bodies. A source with no rows array is refused, not read as empty.
+//   4. A row source's record id is `<row type>:<source id>~<its id, URI-encoded>`. Its optional `id` distinguishes
+//      logical collections served by the same source tool; without it the source kind keeps existing record ids.
+//      A source id never holds the separator or a path separator, and each list's source ids are unique.
 //   5. A write the door refuses for one row's values (a value that does not fit the list's field kind) is sent again
 //      one row at a time, so the other rows are written and the refused ones are named.
 //   6. Values are ordered by the bytes of their canonical JSON, the order the view publish gave (a published file's
@@ -28,12 +29,13 @@
 //   readListView({ list | view, after?, limit?, names }, door)
 //     → { list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }
 //     door: { read(type, id) → value | null, list({ type, limit, after?, prefix? }) → { records, next } }
-//   refreshRowSources({ list, names, source_answer_bytes? }, door)
+//   refreshRowSources({ list, names, source_answer_bytes?, signal? }, door)
 //     → { list, sources: [{ source, rows, written, removed, unchanged, refused: [ids] }] }
 //     door: { read, list, run(tool, input) → its answer, write(records, { key }) → the door's answer }
 import data from './list-view.json' with { type: 'json' };
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const say = (code, words) => Object.assign(new Error(words), { code });
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
@@ -62,10 +64,42 @@ function sourcesOf(list) {
   if (!Array.isArray(declared) || declared.length > limits.row_sources_per_list) {
     throw say('bad_list', `A list shows at most ${limits.row_sources_per_list} row sources.`);
   }
+  const ids = new Set();
   return declared.map(row => {
-    const served = data.row_sources[row?.source];
+    const served = Object.hasOwn(data.row_sources, row?.source) ? data.row_sources[row.source] : null;
     if (!served) throw say('bad_list', `No tool serves the row source ${JSON.stringify(row?.source)}.`);
-    return { ...row, served };
+    const id = row.id ?? row.source;
+    if (typeof id !== 'string' || !id.trim() || /[~\/\\\u0000-\u001f]/u.test(id)) {
+      throw say('bad_list', 'A row source id must be nonempty text without ~, path separators or control characters.');
+    }
+    if (ids.has(id)) throw say('bad_list', `The row source id ${JSON.stringify(id)} is declared twice.`);
+    ids.add(id);
+    const values = row.values ?? {};
+    if (!values || typeof values !== 'object' || Array.isArray(values)) throw say('bad_list', 'A source values projection must be an object.');
+    for (const [field, expression] of Object.entries(values)) {
+      if (!field || !expression || typeof expression !== 'object' || Array.isArray(expression) || Object.keys(expression).length !== 1 ||
+          !(['from', 'row', 'const'].some(key => Object.hasOwn(expression, key))) ||
+          (Object.hasOwn(expression, 'from') && (typeof expression.from !== 'string' || !expression.from)) ||
+          (Object.hasOwn(expression, 'row') && (typeof expression.row !== 'string' || !expression.row))) {
+        throw say('bad_list', `The source value ${JSON.stringify(field)} must name {from}, {row} or {const}.`);
+      }
+    }
+    if (row.content !== undefined && typeof row.content !== 'boolean' && (!row.content || typeof row.content !== 'object' || Array.isArray(row.content))) {
+      throw say('bad_list', 'Source content must be a boolean or an object.');
+    }
+    if (row.exclude !== undefined && (!Array.isArray(row.exclude) || row.exclude.some(glob => typeof glob !== 'string' || !glob))) {
+      throw say('bad_list', 'Source exclude must be an array of nonempty glob strings.');
+    }
+    if (row.paths !== undefined && (!Array.isArray(row.paths) || row.paths.some(path => typeof path !== 'string' || !path))) {
+      throw say('bad_list', 'Source paths must be an array of nonempty path strings.');
+    }
+    if (row.paths_file !== undefined && (typeof row.paths_file !== 'string' || !row.paths_file.trim())) {
+      throw say('bad_list', 'Source paths_file must name a nonempty catalogue path.');
+    }
+    if (row.text_extensions !== undefined && (!Array.isArray(row.text_extensions) || row.text_extensions.some(extension => typeof extension !== 'string' || !extension))) {
+      throw say('bad_list', 'Source text_extensions must be an array of nonempty extension strings.');
+    }
+    return { ...row, id, served, values };
   });
 }
 
@@ -87,7 +121,7 @@ async function rowPage(door, list, names, sources, { after, limit }) {
   return {
     rows: page.records.map(record => {
       const id = record.id.startsWith(`${type}:`) ? record.id.slice(type.length + 1) : record.id;
-      const source = sources.find(one => id.startsWith(`${one.source}${SOURCE_MARK}`))?.source;
+      const source = sources.find(one => id.startsWith(`${one.id}${SOURCE_MARK}`))?.id;
       return { id, record_id: record.id, values: record.value ?? {}, title: titleOf(list, record.value, id), ...(source ? { source } : {}) };
     }),
     next: page.records.length ? page.next ?? null : null,
@@ -134,6 +168,7 @@ const canonical = value => (Array.isArray(value) ? `[${value.map(canonical).join
   : value && typeof value === 'object' ? `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonical(value[key])}`).join(',')}}`
     : JSON.stringify(value));
 const utf8 = new TextEncoder();
+const valueIdentity = value => makeHashCodeHexFromBytes(utf8.encode(canonical(value)));
 function compare(x, y) {
   const a = utf8.encode(canonical(x)), b = utf8.encode(canonical(y));
   for (let index = 0; index < Math.min(a.length, b.length); index += 1) if (a[index] !== b[index]) return a[index] - b[index];
@@ -178,31 +213,84 @@ export async function readListView(input = {}, door) {
     of: every.rows.length, complete: every.next === null };
 }
 
-/** Every row a source's tool answers, page after page: [{ id, values }]. Refused when there are more than rows_per_read. */
-async function sourceRows(door, source, mostBytes) {
+// A source may place the same complete row in an existing list's vocabulary without changing the source document.
+// `from` names one literal values key (document values include dots), `row` a row property, and `const` JSON DATA.
+// All source fields remain; only explicitly mapped destination fields are added or replaced.
+function projectedValues(source, row) {
+  const values = { ...(row.values ?? {}) };
+  for (const [field, expression] of Object.entries(source.values)) {
+    const value = Object.hasOwn(expression, 'const') ? expression.const
+      : Object.hasOwn(expression, 'from') ? row.values?.[expression.from] : row[expression.row];
+    if (value !== undefined) values[field] = value;
+  }
+  return values;
+}
+
+function continued(next, after, cursors, what) {
+  if (next === undefined || next === null) return null;
+  if (typeof next !== 'string' || !next || next === after || cursors.has(next)) {
+    throw say('source_cursor_stalled', `${what} did not advance its continuation cursor.`);
+  }
+  cursors.add(next);
+  return next;
+}
+
+/** A source's bounded pages. A successful terminal page, never a read-count limit, proves the source is complete. */
+async function* sourcePages(door, source, mostBytes, signal) {
   // A template the row source leaves empty is no value, so the tool gets only what the list says.
+  // An exact placeholder keeps its value's JSON type. A fixed DATA input may itself be JSON; neither is coerced
+  // through String or `.replace`, which would turn an object or boolean into a different source request.
+  const context = Object.fromEntries(Object.entries(source).filter(([, value]) =>
+    typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'));
   const input = Object.fromEntries(Object.entries(source.served.input)
-    .map(([key, template]) => [key, fill(template, { of: source.of ?? '', match: source.match ?? '' })]).filter(([, value]) => value !== ''));
-  const rows = [];
+    .map(([key, template]) => {
+      const exact = typeof template === 'string' && /^\{(\w+)\}$/.exec(template);
+      const value = exact ? (source[exact[1]] === undefined ? '' : source[exact[1]])
+        : typeof template === 'string' ? fill(template, context) : template;
+      return [key, value];
+    }).filter(([, value]) => value !== ''));
+  if (source.content !== undefined) input.content = source.content;
+  if (source.exclude !== undefined) input.exclude = source.exclude;
+  if (source.paths !== undefined) input.paths = source.paths;
+  if (source.text_extensions !== undefined) input.text_extensions = source.text_extensions;
+  const cursors = new Set();
   for (let after = null; ;) {
+    signal?.throwIfAborted();
     const answer = await door.run(source.served.tool, { ...input, limit: limits.read_page_rows, ...(after ? { after } : {}), ...(mostBytes ? { most_bytes: mostBytes } : {}) });
+    signal?.throwIfAborted();
     const page = at(answer, source.served.rows_at);
     if (!Array.isArray(page)) throw say('source_unanswered', `The row source ${source.source} answered no rows: ${JSON.stringify(answer).slice(0, 300)}`);
-    rows.push(...page.map(row => ({ id: row.id, values: row.values ?? {} })));
-    if (rows.length > limits.rows_per_read) throw say('source_too_big', `The row source ${source.source} has more than ${limits.rows_per_read} rows; nothing of it was written.`);
-    after = at(answer, source.served.next_at) ?? null;
-    if (!after || !page.length) return rows;
+    if (page.length > limits.read_page_rows) throw say('source_page_too_big', `The row source ${source.id} answered more than ${limits.read_page_rows} rows in one page.`);
+    const continuation = at(answer, source.served.next_at);
+    if (continuation === undefined) throw say('source_unanswered', `The row source ${source.id} answered no continuation or terminal null.`);
+    const next = continued(continuation, after, cursors, `The row source ${source.id}`);
+    for (const row of page) if (!row || typeof row.id !== 'string' || !row.id || !row.values || typeof row.values !== 'object' || Array.isArray(row.values)) {
+      throw say('source_unanswered', `The row source ${source.id} answered a row without an id and values object.`);
+    }
+    yield page;
+    if (next === null) return;
+    after = next;
   }
 }
 
-/** The records a source wrote at its last refresh: Map(record id → value). */
-async function writtenRows(door, type, source) {
+/** The records a source wrote at its last refresh: Map(record id → BLAKE3 canonical value identity). */
+async function writtenRows(door, type, source, signal) {
   const held = new Map();
+  const cursors = new Set();
+  const prefix = `${type}:${source}${SOURCE_MARK}`;
   for (let after = null; ;) {
-    const page = await door.list({ type, prefix: `${type}:${source}${SOURCE_MARK}`, limit: limits.door_page_rows, ...(after ? { after } : {}) });
+    signal?.throwIfAborted();
+    const page = await door.list({ type, prefix, limit: limits.door_page_rows, ...(after ? { after } : {}) });
+    signal?.throwIfAborted();
     if (!Array.isArray(page?.records)) throw say('records_unanswered', `Listing ${type} answered no records.`);
-    for (const record of page.records) held.set(record.id, record.value);
-    after = page.records.length ? page.next ?? null : null;
+    if (page.next === undefined) throw say('records_unanswered', `Listing ${prefix} answered no continuation or terminal null.`);
+    for (const record of page.records) {
+      if (typeof record.id !== 'string' || !record.id.startsWith(prefix) || record.type !== type || held.has(record.id)) {
+        throw say('records_unanswered', `Listing ${prefix} answered a duplicate or unrelated record.`);
+      }
+      held.set(record.id, valueIdentity(record.value));
+    }
+    after = continued(page.next, after, cursors, `Listing ${prefix}`);
     if (!after) return held;
   }
 }
@@ -211,14 +299,16 @@ async function writtenRows(door, type, source) {
 const batches = records => writeBatches(records, { rows: limits.write_rows, bytes: limits.write_bytes });
 
 /** Writes each batch; a batch the door refuses as written is sent again one record at a time. Answers the refused ids. */
-async function writeAll(door, records, key) {
+async function writeAll(door, records, key, signal) {
   const refused = [];
   for (const [index, batch] of batches(records).entries()) {
+    signal?.throwIfAborted();
     try {
       await door.write(batch, { key: `${key}:${index}` });
     } catch (error) {
       if (error.code !== 'original_input_refused') throw error;
       for (const record of batch) {
+        signal?.throwIfAborted();
         await door.write([record], { key: `${key}:${index}:${record.id}` }).catch(one => {
           if (one.code !== 'original_input_refused') throw one;
           refused.push(record.id);
@@ -230,26 +320,40 @@ async function writeAll(door, records, key) {
 }
 
 export async function refreshRowSources(input = {}, door) {
+  input.signal?.throwIfAborted();
   const names = checkedNames(input);
   const list = await listOf(door, names, input.list);
   const type = rowTypeOf(list, names);
   const run = globalThis.crypto.randomUUID();
   const sources = [];
   for (const source of sourcesOf(list)) {
-    const rows = await sourceRows(door, source, input.source_answer_bytes);
-    const held = await writtenRows(door, type, source.source);
-    const writes = [];
-    let unchanged = 0;
-    for (const row of rows) {
-      const id = `${type}:${source.source}${SOURCE_MARK}${encodeURIComponent(row.id)}`;
-      if (held.has(id) && canonical(held.get(id)) === canonical(row.values)) unchanged += 1;
-      else writes.push({ id, type, value: row.values });
-      held.delete(id);
+    const held = await writtenRows(door, type, source.id, input.signal);
+    const seen = new Set(), refused = [];
+    let rows = 0, written = 0, unchanged = 0, pageIndex = 0;
+    const key = `refresh:${input.list}:${source.id}:${run}`;
+    for await (const page of sourcePages(door, source, input.source_answer_bytes, input.signal)) {
+      const writes = [];
+      for (const row of page) {
+        const id = `${type}:${source.id}${SOURCE_MARK}${encodeURIComponent(row.id)}`;
+        if (seen.has(id)) throw say('source_duplicate_row', `The row source ${source.id} answered a row id twice.`);
+        seen.add(id);
+        const value = projectedValues(source, row);
+        if (held.get(id) === valueIdentity(value)) unchanged += 1;
+        else writes.push({ id, type, value });
+        held.delete(id);
+        rows += 1;
+      }
+      const pageRefused = await writeAll(door, writes, `${key}:page:${pageIndex++}`, input.signal);
+      refused.push(...pageRefused);
+      written += writes.length - pageRefused.length;
     }
+    // Reaching here proves the source ended successfully. No deletion is attempted after a failed, stalled or
+    // duplicate source page. Unread records and every other source's or own row remain untouched on that failure.
+    input.signal?.throwIfAborted();
     const removals = [...held.keys()].map(id => ({ id, type, value: null }));
-    const refused = await writeAll(door, [...writes, ...removals], `refresh:${input.list}:${source.source}:${run}`);
-    const done = record => !refused.includes(record.id);
-    sources.push({ source: source.source, rows: rows.length, written: writes.filter(done).length, removed: removals.filter(done).length, unchanged, refused });
+    const removalRefused = await writeAll(door, removals, `${key}:remove`, input.signal);
+    refused.push(...removalRefused);
+    sources.push({ source: source.id, rows, written, removed: removals.length - removalRefused.length, unchanged, refused });
   }
   return { list: input.list, sources };
 }
