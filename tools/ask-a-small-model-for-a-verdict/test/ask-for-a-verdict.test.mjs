@@ -30,18 +30,18 @@ import {candidates as locallyServedCandidates, ask as askLocallyServed} from '..
 test('local adapter reads the provider DATA row: where the server is and how long a request may take', async () => {
   let requested
   const offered = await locallyServedCandidates(
-    {endpoint: 'http://127.0.0.1:11434', timeout_seconds: 3},
+    {endpoint: 'http://127.0.0.1:11434', timeout_seconds: 3, protocol: 'ollama'},
     async url => {
       requested = url
       return {models: [{name: 'small-chat', size: 2}]}
     },
   )
   assert.equal(requested, 'http://127.0.0.1:11434/api/tags')
-  assert.deepEqual(offered, [{name: 'small-chat', size: 2, reach: {endpoint: 'http://127.0.0.1:11434', timeoutSeconds: 3}}])
+  assert.deepEqual(offered, [{name: 'small-chat', size: 2, reach: {endpoint: 'http://127.0.0.1:11434', timeoutSeconds: 3, protocol: 'ollama'}}])
 })
 
 test('a local request limit comes from the provider DATA row', async () => {
-  const offered = await locallyServedCandidates({endpoint: 'http://x', timeout_seconds: 9}, async () => ({models: [{name: 'm'}]}))
+  const offered = await locallyServedCandidates({endpoint: 'http://x', timeout_seconds: 9, protocol: 'ollama'}, async () => ({models: [{name: 'm'}]}))
   assert.equal(offered[0].reach.timeoutSeconds, 9)
 })
 
@@ -101,7 +101,7 @@ test('a choice decided only because the preferred candidate was unreachable is n
 test('local chat requests the rubric answer type from the model server', async () => {
   let sent
   const result = await askLocallyServed({
-    candidate: {name: 'small-chat', reach: {endpoint: 'http://127.0.0.1:11434', timeoutSeconds: 3}},
+    candidate: {name: 'small-chat', reach: {endpoint: 'http://127.0.0.1:11434', timeoutSeconds: 3, protocol: 'ollama'}},
     question: 'Is the work complete?',
     shape: {kind: 'true-or-false'},
     content: 'Work is complete.',
@@ -398,7 +398,7 @@ test('local adapter refuses unsupported content parts before sending a text-only
     posts++
     return {json: async () => ({message: {content: '{"answer":true}'}})}
   }
-  const candidate = {name: 'synthetic-local', reach: {timeoutSeconds: 1}}
+  const candidate = {name: 'synthetic-local', reach: {timeoutSeconds: 1, protocol: 'ollama'}}
   for (const content_parts of [null, {}, [null],
     [{kind: 'addressed-content', content_kind: 'vision', mount_path: 'unreadable.png'}],
     [{kind: 'addressed-content', content_kind: 'text', address: 'required-context'}]]) {
@@ -440,10 +440,10 @@ test('local full review cannot qualify screenshot evidence through text-only HTT
   try {
     await assert.rejects(() => judgeContent({rubric, content: 'Review the current screen.',
       content_parts: [capture('fixture:current')], passes: 1,
-      providers: [{via: 'locally-served', endpoint: `http://127.0.0.1:${server.address().port}`, timeout_seconds: 1}],
+      providers: [{via: 'locally-served', endpoint: `http://127.0.0.1:${server.address().port}`, timeout_seconds: 1, protocol: 'ollama'}],
       // Inventory is synthetic; request delivery uses the actual adapter HTTP
       // path without inference, external services or a paid provider.
-      candidates: [{name: 'synthetic-local', reach: {endpoint: `http://127.0.0.1:${server.address().port}`, timeoutSeconds: 1}}],
+      candidates: [{name: 'synthetic-local', reach: {endpoint: `http://127.0.0.1:${server.address().port}`, timeoutSeconds: 1, protocol: 'ollama'}}],
       ask: askLocallyServed}).then(result => {
         t.diagnostic(`local-vision-consumer-result: ${JSON.stringify({accepted: result.accepted, answer: result.answer})}`)
         return result
@@ -454,7 +454,7 @@ test('local full review cannot qualify screenshot evidence through text-only HTT
       calibration: rubric.calibration.map(({content, expect}) => ({content, expect}))}
     const textResult = await judgeContent({rubric: textRubric, content: 'Review the current text.',
       content_parts: [], passes: 1,
-      candidates: [{name: 'synthetic-local', reach: {endpoint: `http://127.0.0.1:${server.address().port}`, timeoutSeconds: 1}}],
+      candidates: [{name: 'synthetic-local', reach: {endpoint: `http://127.0.0.1:${server.address().port}`, timeoutSeconds: 1, protocol: 'ollama'}}],
       ask: askLocallyServed})
     textReviewAccepted = textResult.accepted
     assert.equal(textReviewAccepted, true)

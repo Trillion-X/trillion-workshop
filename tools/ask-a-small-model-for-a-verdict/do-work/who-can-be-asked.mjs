@@ -25,6 +25,7 @@ import {readFileSync, writeFileSync, mkdirSync, renameSync, rmSync} from 'node:f
 import {join, dirname} from 'node:path'
 import {homedir} from 'node:os'
 import {askingForCandidate, blake3Material, VerdictRefused} from './ask-for-a-verdict.mjs'
+import {PROTOCOLS} from './ask-a-locally-served-model.mjs'
 
 export const ADAPTERS = {
   'locally-served': () => import('./ask-a-locally-served-model.mjs'),
@@ -38,6 +39,7 @@ const ROW_NEEDS = {
   'locally-served': [
     ['endpoint', isText, 'where the model server is'],
     ['timeout_seconds', isPositive, 'how many seconds one request may take (a model that must first load can hold every question until the caller gives up)'],
+    ['protocol', value => Object.hasOwn(PROTOCOLS, value), `how the server is spoken to (${Object.keys(PROTOCOLS).join(', ')})`],
   ],
   'hosted-classifier': [
     ['endpoint', isText, 'where the classifier is'],

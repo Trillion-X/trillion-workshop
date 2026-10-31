@@ -49,7 +49,7 @@ function run(action, request) {
 const scratch = () => mkdtempSync(join(tmpdir(), 'small-model-'))
 
 // A provider row always names where the server is and how long a request may take.
-const local = (endpoint, more = {}) => ({via: 'locally-served', endpoint, timeout_seconds: 30, ...more})
+const local = (endpoint, more = {}) => ({via: 'locally-served', endpoint, timeout_seconds: 30, protocol: 'ollama', ...more})
 
 // The bars a route needs from the person, written out in the request.
 const routeBars = {
