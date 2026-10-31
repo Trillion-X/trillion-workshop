@@ -8,6 +8,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 
 | File | Purpose |
 |------|---------|
+| `export-records-as-list-rows` | Turns records kept in files (JSON, tab-separated text, markdown tables) into the rows that fill a person's Trillion lists, by a mapping the person writes (runs on the person's computer; sends nothing) | `tool:export-records-as-list-rows` |
 | `tools/<name>/` | One tool folder: its code (`do-work/`, often `read-data/`), `tool-rows.json` (the rows Trillion reads), `README.md`, `part.json` and `test/`. |
 | `tools/tools-from-github/` | Other people's open-source repositories offered as tools that run on the person's own computer, read from GitHub by `index-github-tools.mjs`. |
 | `licence-classes.json` | The licence classes a row may name, which licences each covers and where each lets a tool run. |

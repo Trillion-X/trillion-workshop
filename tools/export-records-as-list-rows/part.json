@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/list_rows.py", "read-data/records_write.py", "read-data/expressions.py", "read-data/send_batches.py", "read-data/record_write_send.py", "read-data/view_publish.py", "read-data/what_shipped.py"]
+}

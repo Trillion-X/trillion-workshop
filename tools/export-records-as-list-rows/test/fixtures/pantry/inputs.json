@@ -1,0 +1,8 @@
+{"inputs": [
+ {"root": "here", "path": "staged/market-stock.json", "store": "market"},
+ {"root": "here", "path": "staged/web-finds.json"},
+ {"root": "here", "paths": ["staged/more/jam-*.jsonl"], "store": "corner", "keep": {"kind": "new"}, "adds_note": {"kind": "append_source"},
+  "id": {"slug_of": "item", "prefix": "jam"}, "kind": "preserve", "fields": {"name": "item", "description": "looks", "how_to": "steps", "category": "group"}},
+ {"root": "here", "path": "staged/not-there-yet.json", "optional": true},
+ {"root": "here", "path": "staged/optional-unknown.json", "optional": true}
+]}

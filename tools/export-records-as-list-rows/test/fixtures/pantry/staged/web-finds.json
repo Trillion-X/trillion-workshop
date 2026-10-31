@@ -1,0 +1,3 @@
+{"source": {"url": "https://newshop.test/", "title": "New Shop", "licence": "CC0"}, "meta": {"generated": "2026-02-03"}, "rows": [
+ {"id": "newshop:tea", "site": "newshop", "name": "Tea", "kind": "drink", "description": "Loose leaf tea.", "source_url": "https://newshop.test/tea", "acts_on": ["morning"]}
+]}

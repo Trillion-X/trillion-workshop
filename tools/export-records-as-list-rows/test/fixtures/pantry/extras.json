@@ -1,0 +1,4 @@
+{"rows": [
+ {"id": "extra-1", "site": "corner", "point": 3, "needs": ["extra-2"], "basis_sources": ["https://corner.test/a"], "values": {"name": "Extra one", "kind": "pantry", "description": "Added by hand.", "acts_on": ["storage"]}},
+ {"id": "extra-2", "site": "corner", "basis_sources": ["https://corner.test/b", "https://corner.test/c"], "values": {"name": "Extra two", "kind": "pantry", "description": "Added by hand too.", "acts_on": ["storage"], "how_to": "Put it away."}}
+]}

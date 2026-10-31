@@ -1,0 +1,4 @@
+{"rows": {
+ "market:flour": {"acts_on": ["baking", "bread"], "description": "Flour for any loaf."},
+ "market:oats": {"acts_on": ["breakfast"]}
+}}
