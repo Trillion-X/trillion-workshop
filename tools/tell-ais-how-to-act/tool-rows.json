@@ -31,7 +31,7 @@
             "package_files": { "package": "tell-ais-how-to-act", "paths": ["do-work", "rows.json"], "at": "/opt/tell-ais-how-to-act" }
           }
         },
-        "result_selector": "$.result",
+        "result_selector": "$",
         "needs": { "expected_seconds": 2, "network_egress": false },
         "maker": "maker:tell-ais-how-to-act",
         "licence_class": "licence:maker-own",
