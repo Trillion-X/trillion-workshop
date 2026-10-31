@@ -1,0 +1,42 @@
+{
+  "kind": "package-set-records",
+  "record_set": "tell-ais-how-to-act-tool-rows",
+  "what_this_is": "The Workshop row for the tell-ais-how-to-act folder: read the rows an AI is told when it first connects. The rows themselves are rows.json, served by the door; this tool only reads them back.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-how-ais-are-told",
+        "label": "Read how AIs are told to act",
+        "job": "See the standing instructions every AI is given when it first connects, or read one of them whole",
+        "description": "Answers the rows an AI is told on first connecting: with no id, each row's id, order, whether it is on, where it reaches and its size; with an id, that row whole. It changes nothing; a person switches a row off or adds a rule of their own with their own setting records.",
+        "status": "active",
+        "input_schema": { "type": "object", "additionalProperties": false, "properties": { "id": { "type": "string", "description": "The row to read whole; leave it out to list the rows" } } },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "rows": { "type": "array", "items": { "type": "object", "required": ["id", "order", "on", "reaches", "bytes"], "properties": { "id": { "type": "string" }, "order": { "type": "integer" }, "on": { "type": "boolean" }, "reaches": { "type": "array", "items": { "type": "string" } }, "bytes": { "type": "integer" } } } },
+            "count": { "type": "integer" },
+            "row": { "type": "object" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/tell-ais-how-to-act",
+          "stdout": "json",
+          "argv": ["node", "/opt/tell-ais-how-to-act/do-work/read-how-ais-are-told.mjs"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": { "package": "tell-ais-how-to-act", "paths": ["do-work", "rows.json"], "at": "/opt/tell-ais-how-to-act" }
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "maker": "maker:tell-ais-how-to-act",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    }
+  ]
+}
