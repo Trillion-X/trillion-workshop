@@ -1,0 +1,120 @@
+{
+  "kind": "tool-rows",
+  "record_set": "match-picks-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/match-picks: what each tool does, what it takes and gives back, and how it runs.",
+  "records": [
+    {
+      "id": "package::match-picks::tool::tally-match-picks",
+      "address": "package::match-picks::tool::tally-match-picks",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:tally-match-picks",
+        "label": "Tally a community's match picks",
+        "status": "active",
+        "job": "Show how a community picked the winner of each match (the split by choice), what the result was, and how one person's own picks turned out",
+        "description": "Give the records of the matches (pick-match: matchId, label, startsAt, choices of { choiceId, label }), the picks (match-pick: matchId, pickerId, choiceId, createdAt) and the results (match-pick-result: matchId, winningChoiceId, summary, resolvedAt). Each match comes back by start time with every choice's count and whole percent (rounded, so the percents may not add to 100), the winning choice once there is a result (the latest result record counts) and, with picker_id, that picker's own choice. A picker who changed their pick counts once, for the latest pick. With picker_id the answer also lists that picker's picks newest first with the match and choice in words, the result summary, whether the pick was right once the match has a result, and whether a later pick replaced it. Free picks only: this tool reads records and moves no money. To keep wording out of a prompt or a result summary (for example talk of money), check the text with tool:check-pick-copy and the list the person gives.",
+        "input_schema": {
+          "type": "object",
+          "required": ["rows"],
+          "additionalProperties": false,
+          "properties": {
+            "rows": { "type": "array", "items": { "type": "object" }, "description": "The records, each as { payload } or the record itself" },
+            "picker_id": { "type": "string", "description": "A person's id, to mark their own picks and give their history" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["matches"],
+          "properties": {
+            "matches": { "type": "array", "items": { "type": "object" }, "description": "Each match: { match, totalPicks, result, userPick, choices: [{ choiceId, label, pickCount, percentPicked, selectedByUser, winner }] }" },
+            "history": { "type": "array", "items": { "type": "object" }, "description": "With picker_id: { pick, matchLabel, choiceLabel, resultSummary, correct, superseded } newest first" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "match-picks", "paths": ["do-work", "read-data"], "at": "/opt/match-picks" } },
+          "workdir": "/opt/match-picks",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/tally-match-picks.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:match-picks",
+        "provenance": { "source": "ported from the match-picks package (the pick split, results and personal history)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "rows": [
+                { "payload": { "kind": "pick-match", "matchId": "match:1", "label": "Alder vs Birch", "status": "open", "choices": [{ "choiceId": "alder", "label": "Alder" }, { "choiceId": "birch", "label": "Birch" }] } },
+                { "payload": { "kind": "match-pick", "pickId": "p1", "matchId": "match:1", "pickerId": "user:1", "choiceId": "alder", "createdAt": "2026-01-01T09:00:00.000Z" } },
+                { "payload": { "kind": "match-pick", "pickId": "p2", "matchId": "match:1", "pickerId": "user:2", "choiceId": "birch", "createdAt": "2026-01-01T09:01:00.000Z" } },
+                { "payload": { "kind": "match-pick", "pickId": "p3", "matchId": "match:1", "pickerId": "user:3", "choiceId": "birch", "createdAt": "2026-01-01T09:02:00.000Z" } }
+              ]
+            },
+            "output_selector": "$.matches[0].choices[1].percentPicked",
+            "contains": "67"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::match-picks::tool::check-pick-copy",
+      "address": "package::match-picks::tool::check-pick-copy",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-pick-copy",
+        "label": "Check a pick prompt or result for wording the person does not want",
+        "status": "active",
+        "job": "Check the words of a free pick prompt, its choices or a result summary against the wording the person does not want used (for example talk of money) before they are written",
+        "description": "Give the texts to check, each as { field, text }, and banned_terms: the person's own list of words and phrases. Nothing is shipped as a default list. A term is found anywhere in a text in any letter case (so a short term also matches inside a longer word); a phrase written with spaces matches any run of white space. Returns passed and, for each hit, the field, the term and a message. An empty list passes everything. Refuses texts or terms written wrongly.",
+        "input_schema": {
+          "type": "object",
+          "required": ["texts", "banned_terms"],
+          "additionalProperties": false,
+          "properties": {
+            "texts": { "type": "array", "items": { "type": "object", "required": ["text"], "properties": { "field": { "type": "string", "description": "Where the text goes, for example label" }, "text": { "type": "string" } } } },
+            "banned_terms": { "type": "array", "items": { "type": "string" }, "description": "The words and phrases not to use" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["passed", "findings"],
+          "properties": {
+            "passed": { "type": "boolean" },
+            "findings": { "type": "array", "items": { "type": "object", "properties": { "field": { "type": "string" }, "term": { "type": "string" }, "message": { "type": "string" } } } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "match-picks", "paths": ["do-work", "read-data"], "at": "/opt/match-picks" } },
+          "workdir": "/opt/match-picks",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/check-pick-copy.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:match-picks",
+        "provenance": { "source": "ported from the match-picks package (the regulated-money copy guard, with its word list made an input)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "texts": [{ "field": "label", "text": "Win the Zorp today" }], "banned_terms": ["zorp"] },
+            "output_selector": "$.findings[0].term",
+            "contains": "zorp"
+          }
+        ]
+      }
+    }
+  ]
+}
