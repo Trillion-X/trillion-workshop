@@ -88,7 +88,7 @@ never in a record, an event, an answer or a log, and a route naming a field it l
 | `orderRequest`, `statusRequest`, `lookupRequest` | `(... , route) -> { url, method, headers, body, facts, timeout_ms }` | The request a route builds. |
 | `withCredentials` | `(request, route, held, { heldName, now }) -> { send, shown }` | `send` carries the held values; `shown` is what may be kept. |
 | `readOrderAnswer` | `({ status_code, body }, route) -> { broker_order_id, broker_status, filled_qty, filled_avg_price, filled_at, status, http_status, ... }` | A 2xx answer read through `response_map` and `status_map`. |
-| `readLookupAnswer` | `({ status_code, body }, lookup) -> { items, count, next }` | A lookup answer read through the lookup's DATA. |
+| `readLookupAnswer` | `({ status_code, body }, lookup) -> { items, count, next }` | A lookup answer read through the lookup's DATA. A lookup is any read the broker answers: instruments, the positions held (a list), or the account (`one_item: true` reads the one answer object as one item, with `keep_fields` and `numbers` as for any item). Reading the account is a route lookup, not a separate tool. |
 
 ## Dependencies
 

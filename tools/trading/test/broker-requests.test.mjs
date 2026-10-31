@@ -154,6 +154,15 @@ const CHAIN = {
   next_page: 'tok123',
 };
 
+test('a lookup that says one_item reads an account answer as one item, with numbers and kept fields', () => {
+  const lookup = { url: 'https://broker.example/v1/account', one_item: true, keep_fields: ['status', 'equity', 'buying_power'], numbers: ['equity', 'buying_power'] };
+  const read = readLookupAnswer(answer({ status: 'ACTIVE', equity: '10250.5', buying_power: '20000', account_number: 'hidden' }), lookup);
+  assert.deepEqual(read.items, [{ status: 'ACTIVE', equity: 10250.5, buying_power: 20000 }]);
+  assert.equal(read.count, 1);
+  assert.equal(readLookupAnswer({ status_code: 200, body: '' }, lookup).count, 0, 'an empty answer is no item');
+  assert.equal(readLookupAnswer(answer([{ symbol: 'a' }, { symbol: 'b' }]), { ...lookup, keep_fields: undefined }).count, 2, 'a list answer is still a list');
+});
+
 test('a lookup answer keeps only tradable items with an id, reads numbers, sorts by open interest and names the next page', () => {
   const read = readLookupAnswer(answer(CHAIN), PAPER_ROUTE.lookups.contracts);
   assert.equal(read.count, 2);

@@ -684,10 +684,10 @@
     },
     {
       "capability": "place broker orders from a trading policy and audit the trades",
-      "lives_at": ["bitfield-packages/packages/trade-order/", "bitfield-packages/packages/trade-audit/"],
+      "lives_at": ["bitfield-packages/packages/trade-order/", "bitfield-packages/packages/trade-audit/", "bitfield-packages/packages/portfolio-connector/"],
       "moves_to": "tools/trading/",
       "entry": "bitfield-packages/packages/trade-order/",
-      "evidence": "trade-order README.md:1 turns the AI-authored trading policy into real broker orders; trade-audit audits them"
+      "evidence": "trade-order README.md:1 turns the AI-authored trading policy into real broker orders; trade-audit audits them; portfolio-connector read the paper account and positions, which a route lookup now does"
     },
     {
       "capability": "predict match winners and see how the community picked",

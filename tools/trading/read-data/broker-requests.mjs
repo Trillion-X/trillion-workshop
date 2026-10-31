@@ -14,7 +14,7 @@
 //     status_map: { <broker status>: <order status>, "__default__"? },
 //     status_request?: { url, method?, headers? },
 //     open_statuses?: [<order status>, ...],
-//     lookups?: { <name>: { url, method?, headers?, query?, query_names?, items_at?, id_field?, keep_when?, numbers?,
+//     lookups?: { <name>: { url, method?, headers?, query?, query_names?, items_at?, one_item?, id_field?, keep_when?, numbers?,
 //                           whole_numbers?, keep_fields?, sort_by?, next_at? } },
 //     timeout_ms?
 //   }
@@ -252,13 +252,14 @@ export function readOrderAnswer(answer, route) {
 }
 
 /**
- * The items of a lookup answer: the list at items_at (or the answer itself when it is a list), only objects that
+ * The items of a lookup answer: the list at items_at (or the answer itself when it is a list, or when one_item says it is one object), only objects that
  * carry id_field and match every keep_when field, numbers and whole_numbers read as numbers, only keep_fields kept,
  * sorted by sort_by.field (missing values last), and the next page token at next_at.
  */
 export function readLookupAnswer(answer, lookup) {
   const body = bodyOf(answer.body);
-  const list = Array.isArray(body) ? body : atPath(body, lookup.items_at);
+  // one_item: the answer is one object (an account) and is read as a list of one.
+  const list = Array.isArray(body) ? body : lookup.one_item === true ? [isObject(body) ? body : null] : atPath(body, lookup.items_at);
   const keepWhen = objectOf(lookup.keep_when);
   const items = listOf(list).filter(item => isObject(item)
     && (missing(lookup.id_field) || !missing(item[lookup.id_field]))

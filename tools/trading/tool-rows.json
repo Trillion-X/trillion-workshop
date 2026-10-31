@@ -340,7 +340,7 @@
         "id": "tool:look-up-instruments-at-my-paper-broker",
         "label": "Look up instruments at my paper broker",
         "job": "Find the instruments my broker lists for trading, such as option contracts, from my paper account",
-        "description": "Give route (one broker route with mode \"paper\" and its lookups), lookup (a lookup's name) and query (by the names the lookup allows; the lookup's own defaults fill the rest). Answers the listed items the lookup keeps (for example only tradable ones), numbers read as numbers, sorted as the lookup says, with the next page token. An error answer carries no items. The held paper-broker-credentials reach only the request.",
+        "description": "Give route (one broker route with mode \"paper\" and its lookups), lookup (a lookup's name) and query (by the names the lookup allows; the lookup's own defaults fill the rest). A lookup is any read the broker answers: its listed instruments, the account (a lookup with one_item reads the one object as one item, for example equity and buying power) or the positions held. Answers the listed items the lookup keeps (for example only tradable ones), numbers read as numbers, sorted as the lookup says, with the next page token. An error answer carries no items. The held paper-broker-credentials reach only the request.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -802,7 +802,7 @@
         "id": "tool:look-up-instruments-at-my-live-broker",
         "label": "Look up instruments at my live broker",
         "job": "Find the instruments my broker lists for trading, such as option contracts, from my live account",
-        "description": "Give route (one broker route with mode \"live\" and its lookups), lookup (a lookup's name) and query (by the names the lookup allows; the lookup's own defaults fill the rest). Answers the listed items the lookup keeps (for example only tradable ones), numbers read as numbers, sorted as the lookup says, with the next page token. An error answer carries no items. The held live-broker-credentials reach only the request.",
+        "description": "Give route (one broker route with mode \"live\" and its lookups), lookup (a lookup's name) and query (by the names the lookup allows; the lookup's own defaults fill the rest). A lookup is any read the broker answers: its listed instruments, the account (a lookup with one_item reads the one object as one item, for example equity and buying power) or the positions held. Answers the listed items the lookup keeps (for example only tradable ones), numbers read as numbers, sorted as the lookup says, with the next page token. An error answer carries no items. The held live-broker-credentials reach only the request.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
