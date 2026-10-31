@@ -39,7 +39,7 @@ The config is JSON. Nothing in the code names a list, view, record type, address
 
 ## How a page is made
 
-- A page holds `--limit` rows, or `read_page_rows` when no limit is given, and never more than `rows_per_read`. Each records:list asks for at most `read_page_rows`, because the door refuses a page of 2,000; the read asks again until the page is full.
+- A page holds `--limit` rows, or `read_page_rows` when no limit is given, and never more than `rows_per_read`. Each records:list asks for at most `door_page_rows`, because the door refuses a page of 2,000; the read asks again until the page is full.
 - A list that declares more than `row_sources_per_list` sources is refused, and so is a source that no row serves.
 - A view with rules or a sort needs every row before it can order them, so it reads at most `rows_per_read` rows in all. The rule filter (`tools/formulas` `filterRecords`, imported and called in the same process) answers which rows to keep, and gets only the fields the rules read. A rule the filter cannot use is refused, never shown as an empty view. The kept rows are sorted and then paged. `complete` is false when the list had more rows than `rows_per_read`.
 - The sort compares values by the UTF-8 bytes of their canonical JSON (keys sorted, no spaces), from the last sort entry to the first, with empty values last. This is the order the view publish used, so a published file's hash does not change.
@@ -54,7 +54,8 @@ The config is JSON. Nothing in the code names a list, view, record type, address
 ## Bounds
 
 The bounds are this tool's own DATA, `limits` in `read-data/list-view.json`. Reading a list is this tool's job; the engine only stores and lists records. A caller never passes them.
-- `read_page_rows` (50): a page when no limit is given, and the most one request asks for.
+- `read_page_rows` (50): a page when no limit is given, and the most one source tool's page asks for.
+- `door_page_rows` (500): the most one records:list asks for, the records door's own page, so 2,000 rows are a few calls rather than forty.
 - `rows_per_read` (2,000): the most rows one read gathers, and the most rows a refresh takes from one source.
 - `row_sources_per_list` (4): the most row sources one list may declare.
 - `write_rows` (64) and `write_bytes` (24,000): the most records and bytes one write of a refresh sends.
