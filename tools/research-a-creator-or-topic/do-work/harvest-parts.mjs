@@ -8,7 +8,7 @@ import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 
 const SETTINGS = new URL('./harvest-settings.json', import.meta.url);
 
-const VALUE_KINDS = ['fact', 'text', 'value'];
+const VALUE_KINDS = ['fact', 'text', 'value', 'choose'];
 
 export const readSettings = () => JSON.parse(readFileSync(SETTINGS, 'utf8'));
 export const tail = text => String(text ?? '').trim().split('\n').slice(-3).join(' ').slice(-400);
@@ -84,15 +84,26 @@ export function lineFile(path, most) {
   };
 }
 
-// One value of a row: a fact of what was read, a text with {fact} holes, or a value as it is.
+// One value of a row: a fact of what was read, a text with {fact} holes, a value as it is, or a text chosen by what one
+// fact says: { choose: { fact, texts: { <what the fact says>: text }, otherwise: text } }, each text with {fact} holes.
+// `otherwise` is required, so a row is never left holding an earlier run's text because no text matched.
+const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+function readChoose(choose, name) {
+  const { fact, texts, otherwise, ...more } = isObject(choose) ? choose : { more: true };
+  const ok = !Object.keys(more).length && typeof fact === 'string' && fact.trim() && typeof otherwise === 'string'
+    && isObject(texts) && Object.keys(texts).length > 0 && Object.values(texts).every(text => typeof text === 'string');
+  if (!ok) refuse(`${name}.choose is { fact, texts: { <what the fact says>: text }, otherwise: text }.`);
+}
 function readValueSpec(spec, name) {
-  const keys = spec && typeof spec === 'object' && !Array.isArray(spec) ? Object.keys(spec) : [];
-  if (keys.length !== 1 || !VALUE_KINDS.includes(keys[0])) refuse(`${name} is one of { fact }, { text } or { value }.`);
-  if (keys[0] !== 'value' && typeof spec[keys[0]] !== 'string') refuse(`${name}.${keys[0]} is a word.`);
+  const keys = isObject(spec) ? Object.keys(spec) : [];
+  if (keys.length !== 1 || !VALUE_KINDS.includes(keys[0])) refuse(`${name} is one of { fact }, { text }, { value } or { choose }.`);
+  if (keys[0] === 'choose') readChoose(spec.choose, name);
+  else if (keys[0] !== 'value' && typeof spec[keys[0]] !== 'string') refuse(`${name}.${keys[0]} is a word.`);
   return spec;
 }
 const fill = (text, facts) => text.replace(/\{(\w+)\}/g, (_, name) => (facts[name] === undefined || facts[name] === null ? '' : String(facts[name])));
-const valueOf = (spec, facts) => ('fact' in spec ? facts[spec.fact] : 'text' in spec ? fill(spec.text, facts) : spec.value);
+const chosen = ({ fact, texts, otherwise }, facts) => (Object.hasOwn(texts, String(facts[fact])) ? texts[String(facts[fact])] : otherwise);
+const valueOf = (spec, facts) => ('fact' in spec ? facts[spec.fact] : 'text' in spec ? fill(spec.text, facts) : 'choose' in spec ? fill(chosen(spec.choose, facts), facts) : spec.value);
 
 // `rows` of an input: { one_per, id, fields }. `onePer` is the words one_per may be; `idFromElsewhere(onePer)` says
 // whether the id may be left out because what is read carries its own.

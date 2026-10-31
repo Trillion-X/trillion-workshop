@@ -310,7 +310,7 @@ export async function keepChannelsLatestVideosAndCaptions(input, context = {}, {
       listing.seeds.push({ seed, listing_url: listingUrl, source: found.source, items });
       const told = {
         seed, ...(rowId ? { row_id: rowId } : {}), listing_url: listingUrl, source: found.source, listed: items.length,
-        kept: items.filter(item => item.kept_before).length, comments_kept: 0, ...(windowed ? { undated: chosen.undated } : {}), finished: false,
+        kept: items.filter(item => item.kept_before).length, comments_kept: 0, ready: 0, empty: 0, failed: 0, ...(windowed ? { undated: chosen.undated } : {}), finished: false,
       };
       seeds.push(told);
       for (const item of items) {
@@ -320,6 +320,7 @@ export async function keepChannelsLatestVideosAndCaptions(input, context = {}, {
         settled.push(item.video_id);
         told.kept += 1;
         told.comments_kept += commentsKeptNow;
+        told[line.status] += 1;
         videoFacts.push({ ...item, seed, listing_url: listingUrl, source: found.source, caption_status: line.status, caption_language: line.language ?? null });
       }
       told.finished = true;
@@ -329,6 +330,13 @@ export async function keepChannelsLatestVideosAndCaptions(input, context = {}, {
     stopped = error.why;
   }
   writeFileSync(join(out, 'listing.json'), JSON.stringify(listing));
+  // Each seed reached says how it ended, as row facts: `stopped` (the run's own word for a seed it did not finish) and,
+  // after a refusal, `wait_minutes`; so a row can tell a seed stopped part-way from one finished with nothing kept.
+  const waitMinutes = stopped === 'refusal' ? minutesToWait(asked.refusals, settings.pause_after_refusal) : null;
+  for (const seed of seeds) {
+    seed.stopped = seed.finished ? 'finished' : stopped;
+    if (!seed.finished && waitMinutes !== null) seed.wait_minutes = waitMinutes;
+  }
 
   const rows = asked.rows ? await writeRows(asked.rows, asked.rows.one_per === 'video' ? videoFacts : seeds.filter(seed => seed.listing_url && seed.source !== undefined), asked.rows.one_per === 'video' ? 'video_id' : 'seed', context, settings) : null;
   // Rows that could not be written leave this run's videos unsettled: the next run lists and settles them again.
@@ -349,7 +357,7 @@ export async function keepChannelsLatestVideosAndCaptions(input, context = {}, {
     comments: counts.comments,
     settled: settled.length,
     ...(rows ? { rows } : {}),
-    ...(stopped === 'refusal' ? { wait_minutes: minutesToWait(asked.refusals, settings.pause_after_refusal) } : {}),
+    ...(waitMinutes !== null ? { wait_minutes: waitMinutes } : {}),
     again,
   };
 }
