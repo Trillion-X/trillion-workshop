@@ -5,11 +5,12 @@ import { createServer } from 'node:http';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 // Engine-wide cap on the records one write carries (own-record-writes.json maxItems); a row may declare fewer.
 const WRITE_CAP = 256;
 
-export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null } = {}) {
+export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null } = {}) {
   const capability = 'run_fake_capability';
   const kept = new Map(records.map(record => [record.id, record]));
   const receipts = new Map();
@@ -66,7 +67,18 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       if (busy > 0) { busy -= 1; reply.writeHead(503).end(); return; }
       if (request.headers.authorization !== `Bearer ${capability}`) { reply.writeHead(401).end(); return; }
       const operation = operations[args.method];
-      const result = operation ? operation(args.input ?? {}, args.request_key) : refuse('not_runnable_here');
+      const { after_byte: afterByte, ...input } = args.input ?? {};
+      let result = operation ? operation(input, args.request_key) : refuse('not_runnable_here');
+      // An answer bigger than `bytePage` comes as pages of its own bytes, the way the engine's door answers a record too
+      // big for one message: a list's first row alone, then the same call with after_byte reads on.
+      if (bytePage && !result.isError && (afterByte !== undefined || JSON.stringify(result.structuredContent).length > bytePage)) {
+        const one = args.method === 'records:list' ? operation({ ...input, limit: 1 }, args.request_key) : result;
+        const whole = Buffer.from(JSON.stringify(one.structuredContent));
+        const offset = afterByte ?? 0;
+        const part = whole.subarray(offset, offset + bytePage);
+        result = { structuredContent: { byte_page: { total: whole.length, blake3: makeHashCodeHexFromBytes(whole).slice(3), offset, length: part.length,
+          base64: part.toString('base64'), next_after_byte: offset + part.length < whole.length ? offset + part.length : null } } };
+      }
       const answer = JSON.stringify({ jsonrpc: '2.0', id: body.id, result });
       if (eventStream) reply.writeHead(200, { 'content-type': 'text/event-stream' }).end(`event: message\ndata: ${answer}\n\n`);
       else reply.writeHead(200, { 'content-type': 'application/json' }).end(answer);

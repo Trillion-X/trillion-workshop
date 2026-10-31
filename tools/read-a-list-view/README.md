@@ -70,7 +70,7 @@ In both, each document is a row and its frontmatter holds the fields. Adding a s
 ## Where it runs
 
 - **On the person's computer**: the command line above, with their own key (`read-data/door.mjs`).
-- **In a screen that shows a list**: the screen bundles `read-data/list-view.mjs` and `read-data/list-view.json`, pinned at a Workshop commit, and calls `readListView(input, door)` with a door of its own. A read needs only `read` and `list`. The rule filter comes with the module: it imports `tools/formulas`, so the screen also bundles that folder's `do-work` and `read-data/rule-operators.json`. So opening a list sends reads only. `refreshRowSources(input, door)` also needs `run` and `write`, and the screen calls it only when the person asks for a refresh.
+- **In a screen that shows a list**: the screen bundles `read-data/list-view.mjs` and `read-data/list-view.json`, pinned at a Workshop commit, and calls `readListView(input, door)` with a door of its own. A read needs only `read` and `list`. The rule filter comes with the module: it imports `tools/formulas`, so the screen also bundles that folder's `do-work` and `read-data/rule-operators.json`. So opening a list sends reads only. The screen's door answers `records:list` as the engine does, so a page holding a record too big for one message comes as byte pages; the screen's door joins them with `tools/records-door` `read-data/byte-pages.mjs` `wholeAnswer` before handing the page on. `refreshRowSources(input, door)` also needs `run` and `write`, and the screen calls it only when the person asks for a refresh.
 
 It is not an engine row. A run the engine starts gets record rights for named record kinds only, and each list's rows are a kind the list itself names, so such a run could not be granted them ahead of time.
 
@@ -80,9 +80,9 @@ It is not an engine row. A run the engine starts gets record rights for named re
 |---|---|
 | `read-data/list-view.mjs` | `readListView(input, door)`: one page of a list or a view, from records. `refreshRowSources(input, door)`: a list's row sources written as its records. |
 | `read-data/list-view.json` | The bounds, the row sources and the tool that serves each. |
-| `read-data/door.mjs` | `openDoor(config)`: the person's door over MCP from their computer, with `read`, `list`, `run` (through the door, or on this computer for a tool in `local_tools`) and `write`. |
+| `read-data/door.mjs` | `openDoor(config)`: the person's door over MCP from their computer, with `read`, `list`, `run` (through the door, or on this computer for a tool in `local_tools`) and `write`. An answer that comes as byte pages (a record too big for one message) is joined with `tools/records-door` `wholeAnswer`. |
 | `do-work/read-list-view.mjs` | The command line above. |
-| `test/read-a-list-view.test.mjs` | Tests on a made-up bakery: a refresh's writes (only what changed, removals, bounded batches, a refused row), a read that runs no tool, the bounds, a view's rules and sort, a local tool, and the door's key handling. |
+| `test/read-a-list-view.test.mjs` | Tests on a made-up bakery: a refresh's writes (only what changed, removals, bounded batches, a refused row), a read that runs no tool, the bounds, a view's rules and sort, a local tool, byte pages, and the door's key handling. |
 
 ## Dependencies
 

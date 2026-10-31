@@ -13,9 +13,11 @@
 //                                                          descriptor holds when the row declares a `files` right
 //
 // A busy account (503, or selected_owner_unavailable) and a call whose outcome is unknown are sent again with the same
-// request key after a growing wait. A refusal comes back as RecordsDoorError with the door's code and outcome.
+// request key after a growing wait. A refusal comes back as RecordsDoorError with the door's code and outcome. An
+// answer too big for one message comes as pages of its own bytes, which are read and joined (read-data/byte-pages.mjs).
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
+import { wholeAnswer } from './byte-pages.mjs';
 
 const PROTOCOL = '2025-06-18';
 const BUSY_RETRIES = 5;
@@ -55,7 +57,12 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
     throw new RecordsDoorError('no_door', 'This run was not handed a records door.');
   }
 
+  // A record too big for one message comes as pages of its own bytes; the same call with after_byte reads on.
   async function call(method, input, key = `${method}:${randomUUID()}`, address = resource) {
+    return wholeAnswer(await callOnce(method, input, key, address), after => callOnce(method, { ...input, after_byte: after }, `${method}:${randomUUID()}`, address));
+  }
+
+  async function callOnce(method, input, key, address) {
     const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: key, input } } });
     for (let attempt = 0; ; attempt += 1) {
       const response = await fetchImpl(url, {

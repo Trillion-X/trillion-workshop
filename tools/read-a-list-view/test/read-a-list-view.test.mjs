@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readListView, refreshRowSources } from '../read-data/list-view.mjs';
 import { openDoor } from '../read-data/door.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import data from '../read-data/list-view.json' with { type: 'json' };
 
 const { limits } = data;
@@ -177,8 +178,15 @@ test('the door sends the key only in the header, refuses an answer that holds it
       const call = JSON.parse(body);
       heard.push({ auth: request.headers.authorization, body, args: call.params.arguments });
       const { input } = call.params.arguments;
-      const answer = input.records ? { changed: true, write_count: input.records.length }
+      let answer = input.records ? { changed: true, write_count: input.records.length }
         : { id: input.id, type: input.type, value: input.id === 'leak' ? { said: KEY } : { label: 'Chores' } };
+      // A record too big for one message comes as pages of its own bytes, 256 at a time.
+      if (input.id === 'big') {
+        const whole = Buffer.from(JSON.stringify({ id: 'big', type: input.type, value: { words: 'rye '.repeat(200) } }));
+        const offset = input.after_byte ?? 0, part = whole.subarray(offset, offset + 256);
+        answer = { byte_page: { total: whole.length, blake3: makeHashCodeHexFromBytes(whole).slice(3), offset, length: part.length,
+          base64: part.toString('base64'), next_after_byte: offset + part.length < whole.length ? offset + part.length : null } };
+      }
       response.setHeader('content-type', 'application/json');
       response.end(JSON.stringify({ jsonrpc: '2.0', id: call.id, result: { structuredContent: answer } }));
     });
@@ -190,6 +198,8 @@ test('the door sends the key only in the header, refuses an answer that holds it
     tools: { address: '@workshop-tools', run_method: 'tools:run' } }, { keyOf: async () => KEY });
   assert.deepEqual(await door.read('list', 'list:chores'), { label: 'Chores' });
   await assert.rejects(door.read('list', 'leak'), /held the key/);
+  assert.equal((await door.read('list', 'big')).words, 'rye '.repeat(200));
+  assert.deepEqual(heard.filter(one => one.args.input.id === 'big').map(one => one.args.input.after_byte ?? 0), [0, 256, 512, 768]);
   assert.deepEqual(await door.write([{ id: 'record:chore:x', type: 'record:chore', value: { chore: 'x' } }], { key: 'refresh:chores:documents:1:0' }), { changed: true, write_count: 1 });
   assert.equal(heard.at(-1).args.request_key, 'refresh:chores:documents:1:0');
   assert.ok(heard.every(one => one.auth === `Bearer ${KEY}` && !one.body.includes(KEY)));
