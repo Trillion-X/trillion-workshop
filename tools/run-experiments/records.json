@@ -1,0 +1,474 @@
+{
+ "package": "run-experiments",
+ "things": [
+  {
+   "type": "record",
+   "id": "package::run-experiments::tool::choose-what-a-visitor-sees",
+   "address": "package::run-experiments::tool::choose-what-a-visitor-sees",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:choose-what-a-visitor-sees",
+    "label": "Choose what one visitor sees",
+    "status": "active",
+    "job": "Pick which version of a page, offer, headline or feature one visitor gets, from rules you write as data, keeping the same visitor on the same version",
+    "description": "Scores every candidate version with a decider (a rule written as structured data: a split by visitor, a switch on what is known about the visitor, a preference for the version with the best recorded result) and returns the winner, the full ranking and any findings. The same visitor key always lands on the same version. One candidate is a feature flag, two or more is an A/B test, a decider that reads recorded results is a bandit. A candidate set or decider that does not validate is refused with every problem listed.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "surface",
+      "decider"
+     ],
+     "properties": {
+      "surface": {
+       "type": "object",
+       "description": "{ entity_type: 'selection-surface', address, decider_program_ref, candidates: [{ candidate_id, material_ref }] }"
+      },
+      "decider": {
+       "type": "object",
+       "description": "{ entity_type: 'decider', decider_id, score, accepts_trust: [text] }; score is a structured expression such as { op: 'sticky_hash', ... }"
+      },
+      "facts": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "What is known: [{ path: [text], value, trust_ref }]"
+      },
+      "visitor": {
+       "type": "string",
+       "description": "A stable key for the visitor"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "chosen",
+      "ranked",
+      "findings",
+      "rule_used"
+     ],
+     "properties": {
+      "chosen": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "ranked": {
+       "type": "array"
+      },
+      "findings": {
+       "type": "array"
+      },
+      "rule_used": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "run-experiments",
+       "paths": [
+        "do-work/choose-what-a-visitor-sees.mjs",
+        "read-data/candidate-set-schema.ts",
+        "read-data/decider-schema.ts",
+        "read-data/score-candidates.ts"
+       ],
+       "at": "/opt/parts/run-experiments"
+      }
+     },
+     "workdir": "/opt/parts/run-experiments",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/choose-what-a-visitor-sees.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:run-experiments",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/choose-per-observer"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "surface": {
+        "entity_type": "selection-surface",
+        "address": "page:/offer",
+        "decider_program_ref": "decider:split",
+        "candidates": [
+         {
+          "candidate_id": "a",
+          "material_ref": "material:a"
+         },
+         {
+          "candidate_id": "b",
+          "material_ref": "material:b"
+         }
+        ]
+       },
+       "decider": {
+        "entity_type": "decider",
+        "decider_id": "split",
+        "score": {
+         "op": "sticky_hash",
+         "of": {
+          "const": "visitor"
+         },
+         "split": {
+          "split": {
+           "a": 0.5,
+           "b": 0.5
+          }
+         }
+        },
+        "accepts_trust": [
+         "trust:observer-supplied"
+        ]
+       },
+       "visitor": "visitor-1"
+      },
+      "output_selector": "$.rule_used",
+      "contains": "sticky_hash"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::run-experiments::tool::read-experiment-results",
+   "address": "package::run-experiments::tool::read-experiment-results",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-experiment-results",
+    "label": "Read how each version did",
+    "status": "active",
+    "job": "Sum what visitors did on each version of an experiment and work out the rate that decides the winner",
+    "description": "Takes the recorded outcome facts for one experiment (views, clicks, conversions or any metric you track, per candidate version) and returns each version's totals. A rate you name (converted over views) is worked out per version, left out where either number is missing or the denominator is zero, and the version that leads on it is named.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "address",
+      "facts"
+     ],
+     "properties": {
+      "address": {
+       "type": "string",
+       "description": "The surface the experiment ran on"
+      },
+      "facts": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "[{ path: ['candidate', 'outcome', metric, candidate_id], value: number }]"
+      },
+      "rates": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "[{ id, numerator, denominator }]"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "address",
+      "candidates",
+      "total_events",
+      "leader"
+     ],
+     "properties": {
+      "address": {
+       "type": "string"
+      },
+      "candidates": {
+       "type": "object"
+      },
+      "total_events": {
+       "type": "integer"
+      },
+      "leader": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "run-experiments",
+       "paths": [
+        "do-work/read-experiment-results.mjs",
+        "read-data/scoreboard.ts",
+        "read-data/score-candidates.ts"
+       ],
+       "at": "/opt/parts/run-experiments"
+      }
+     },
+     "workdir": "/opt/parts/run-experiments",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/read-experiment-results.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:run-experiments",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/choose-per-observer"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "address": "page:/offer",
+       "facts": [
+        {
+         "path": [
+          "candidate",
+          "outcome",
+          "views",
+          "a"
+         ],
+         "value": 100
+        },
+        {
+         "path": [
+          "candidate",
+          "outcome",
+          "converted",
+          "a"
+         ],
+         "value": 10
+        },
+        {
+         "path": [
+          "candidate",
+          "outcome",
+          "views",
+          "b"
+         ],
+         "value": 80
+        },
+        {
+         "path": [
+          "candidate",
+          "outcome",
+          "converted",
+          "b"
+         ],
+         "value": 16
+        }
+       ],
+       "rates": [
+        {
+         "id": "rate",
+         "numerator": "converted",
+         "denominator": "views"
+        }
+       ]
+      },
+      "output_selector": "$.leader.rate",
+      "contains": "b"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::run-experiments::tool::credit-outcomes-to-candidates",
+   "address": "package::run-experiments::tool::credit-outcomes-to-candidates",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:credit-outcomes-to-candidates",
+    "label": "Credit what visitors did to the version they saw",
+    "status": "active",
+    "job": "Join who saw which version with who bought, signed up or clicked, so each version's results can be read",
+    "description": "Takes two lists of records (which visitor was assigned which candidate, and which outcomes each visitor produced) and a join that names the fields of each, and returns one observation per visitor, outcome and candidate with how many times it happened and the value it carried. The same records always give the same observations. A join that does not validate is refused with every problem listed.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "join",
+      "assignments",
+      "outcomes",
+      "at"
+     ],
+     "properties": {
+      "join": {
+       "type": "object",
+       "description": "{ entity_type: 'attribution-join', join_id, assignment: { observer_key_path, candidate_key_path, where? }, outcome: { observer_key_path, metric_path, value_path?, where? }, emit: { observe_address, metric_map, value_metric?, trust_ref? } }"
+      },
+      "assignments": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "outcomes": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "at": {
+       "type": "string",
+       "description": "The ISO time stamped on every observation"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "observations",
+      "findings"
+     ],
+     "properties": {
+      "observations": {
+       "type": "array"
+      },
+      "findings": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "run-experiments",
+       "paths": [
+        "do-work/credit-outcomes-to-candidates.mjs",
+        "read-data/attribute-outcomes.ts",
+        "do-work/observe.ts"
+       ],
+       "at": "/opt/parts/run-experiments"
+      }
+     },
+     "workdir": "/opt/parts/run-experiments",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/credit-outcomes-to-candidates.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 512
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:run-experiments",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "bitfield-packages packages/choose-per-observer"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "join": {
+        "entity_type": "attribution-join",
+        "join_id": "join:offer",
+        "assignment": {
+         "observer_key_path": [
+          "visitor"
+         ],
+         "candidate_key_path": [
+          "candidate"
+         ]
+        },
+        "outcome": {
+         "observer_key_path": [
+          "visitor"
+         ],
+         "metric_path": [
+          "what"
+         ]
+        },
+        "emit": {
+         "observe_address": "page:/offer",
+         "metric_map": {
+          "purchase": "converted"
+         }
+        }
+       },
+       "assignments": [
+        {
+         "visitor": "v1",
+         "candidate": "a"
+        }
+       ],
+       "outcomes": [
+        {
+         "visitor": "v1",
+         "what": "purchase"
+        }
+       ],
+       "at": "2026-01-01T00:00:00.000Z"
+      },
+      "output_selector": "$.observations",
+      "contains": "converted"
+     }
+    ]
+   }
+  }
+ ]
+}

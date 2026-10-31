@@ -1,0 +1,22 @@
+{
+  "what_this_is": "An example price test with one price in it. The surface is the plan card; each candidate is one offer the person sells; the decider splits visitors by weight and keeps each visitor on the same offer every time (the split is keyed by the visitor: an observer id fact when one is given, otherwise the visitor key the caller passes). One price is one candidate with all the weight. To test a second price, add its candidate and give it a weight in the split; nothing else changes. The offer names are made up.",
+  "surface": {
+    "entity_type": "selection-surface",
+    "address": "page:pricing#plan-card",
+    "decider_program_ref": "price-split",
+    "candidates": [
+      { "candidate_id": "seat-monthly-a", "material_ref": "offer:example-seat-monthly-a" }
+    ]
+  },
+  "decider": {
+    "entity_type": "decider",
+    "decider_id": "price-split",
+    "label": "Split visitors across the offered prices by weight, the same visitor always on the same price",
+    "score": {
+      "op": "sticky_hash",
+      "of": { "fact_path": ["observer", "id"] },
+      "split": { "split": { "seat-monthly-a": 1 } }
+    },
+    "accepts_trust": ["trust:observer-supplied"]
+  }
+}

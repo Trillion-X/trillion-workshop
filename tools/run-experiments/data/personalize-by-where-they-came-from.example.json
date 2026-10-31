@@ -1,0 +1,38 @@
+{
+  "what_this_is": "An example of one page that changes per visitor. The candidates are versions of a headline; the decider reads what is known about the visitor (where the visit came from, and what a tracking or enrichment tool recorded about who they are) and gives each version a score; the highest wins. A visitor nothing is known about gets the split between the default versions, the same one every time, so the default stays an A/B test. Every source, size and version name here is made up.",
+  "surface": {
+    "entity_type": "selection-surface",
+    "address": "page:home#headline",
+    "decider_program_ref": "by-where-they-came-from",
+    "candidates": [
+      { "candidate_id": "default-a", "material_ref": "copy:example-headline-default-a" },
+      { "candidate_id": "default-b", "material_ref": "copy:example-headline-default-b" },
+      { "candidate_id": "from-search", "material_ref": "copy:example-headline-from-search" },
+      { "candidate_id": "for-teams", "material_ref": "copy:example-headline-for-teams" }
+    ]
+  },
+  "decider": {
+    "entity_type": "decider",
+    "decider_id": "by-where-they-came-from",
+    "label": "Teams see the team headline, search visitors the search headline, everyone else the A/B split",
+    "score": {
+      "op": "case",
+      "cases": [
+        {
+          "when": { "op": "eq", "left": { "fact_path": ["company", "size_band"] }, "right": { "const": "example-band-team" } },
+          "then": { "candidate_scores": { "for-teams": 1, "from-search": 0, "default-a": 0, "default-b": 0 } }
+        },
+        {
+          "when": { "op": "eq", "left": { "fact_path": ["visit", "utm_source"] }, "right": { "const": "example-search-engine" } },
+          "then": { "candidate_scores": { "from-search": 1, "for-teams": 0, "default-a": 0, "default-b": 0 } }
+        }
+      ],
+      "default": {
+        "op": "sticky_hash",
+        "of": { "fact_path": ["observer", "id"] },
+        "split": { "split": { "default-a": 0.5, "default-b": 0.5 } }
+      }
+    },
+    "accepts_trust": ["trust:observer-supplied", "trust:enrichment"]
+  }
+}
