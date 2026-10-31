@@ -1,0 +1,228 @@
+{
+ "package": "funnels-and-offers",
+ "things": [
+  {
+   "type": "record",
+   "id": "package::funnels-and-offers::tool::walk-a-funnel",
+   "address": "package::funnels-and-offers::tool::walk-a-funnel",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:walk-a-funnel",
+    "label": "Walk a sales funnel",
+    "status": "active",
+    "job": "Read a sales funnel's offers and see the price a buyer is shown and where an outcome such as buying or declining takes them next",
+    "description": "Reads the funnel records a person keeps: the funnel graph, its offer nodes (each with an offer, a price and the outcomes that move a buyer on), and the price experiments run on them. Gives back the whole flow in the order a buyer meets it, the price shown on the entry offer (the winning version of a settled price experiment when one applies, else the offer's own price, with which record decided it), the step a buyer is on, and where a named outcome takes them (an outcome that leads to no node ends the flow). It can also order a page's call-to-action links, main one first. Outcomes and offers are the person's own words; nothing is built in.",
+    "input_schema": {
+     "type": "object",
+     "required": ["graphs", "nodes"],
+     "properties": {
+      "graphs": {"type": "array", "items": {"type": "object"}, "description": "funnel-graph records: { id, entry_node }"},
+      "nodes": {"type": "array", "items": {"type": "object"}, "description": "funnel-node records: { id, entry?, offer: { amount_cents, name }, transitions: [{ on, to }] }"},
+      "experiments": {"type": "array", "items": {"type": "object"}, "description": "Price experiments: { id, state, result: { winner }, idea_ref? }"},
+      "variants": {"type": "array", "items": {"type": "object"}, "description": "Versions a winner can name: { variant_key, amount_cents }"},
+      "offer_experiments": {"type": "array", "items": {"type": "object"}, "description": "Links of an experiment to a node: { node_ref, outcome_links: { outcome } }"},
+      "graph_id": {"type": "string", "description": "Which graph; the first when absent"},
+      "at": {"type": "string", "description": "The node the buyer is on; the entry when absent"},
+      "outcome": {"type": "string", "description": "What the buyer did on that node; the answer then says where they go next"},
+      "cta_links": {"type": "array", "items": {"type": "object"}, "description": "Call-to-action links: { page, label, href, role?, attribution_key? }"},
+      "page": {"type": "string", "description": "Only the links of this page"}
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["flow"],
+     "properties": {"flow": {"type": ["object", "null"]}, "current": {"type": "object"}, "advance": {"type": "object"}, "cta_links": {"type": "array"}, "reason": {"type": "string"}}
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {"package_files": {"package": "funnels-and-offers", "paths": ["do-work", "read-data"], "at": "/opt/parts/funnels-and-offers"}},
+     "workdir": "/opt/parts/funnels-and-offers",
+     "stdout": "json",
+     "argv": ["node", "do-work/walk-a-funnel.mjs", {"fill": {"from": "input"}}]
+    },
+    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:deployed-container"],
+    "maker": "maker:funnels-and-offers",
+    "result_selector": "$.result",
+    "provenance": {"source": "bitfield-packages packages/funnel-offer-graph"},
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "graphs": [{"id": "graph:ladder", "entry_node": "front"}],
+       "nodes": [
+        {"id": "front", "entry": true, "offer": {"amount_cents": 900, "name": "Loaf"}, "transitions": [{"on": "purchase", "to": "extra"}, {"on": "decline", "to": "exit"}]},
+        {"id": "extra", "offer": {"amount_cents": 400, "name": "Jam"}, "transitions": [{"on": "purchase", "to": "done"}]}
+       ],
+       "at": "front",
+       "outcome": "purchase"
+      },
+      "output_selector": "$.advance.target",
+      "contains": "extra"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::funnels-and-offers::tool::measure-funnel-stages",
+   "address": "package::funnels-and-offers::tool::measure-funnel-stages",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:measure-funnel-stages",
+    "label": "Measure funnel stages",
+    "status": "active",
+    "job": "Count how many visitors reached each stage of a funnel, how many converted and the revenue each stage brought",
+    "description": "Reads the facts a person recorded (one per visit or per sale) and counts, for each stage you list, the visits, the conversions, the conversion rate to one decimal and the revenue in cents. You say which field of a fact holds the stage and which holds the amount; a fact is a conversion when it is marked converted or carries an amount. Facts that name none of your stages are counted separately, not hidden. It reads and counts only.",
+    "input_schema": {
+     "type": "object",
+     "required": ["facts", "stage_ids", "group_by", "amount_field"],
+     "properties": {
+      "facts": {"type": "array", "items": {"type": "object"}, "description": "One record per visit or sale"},
+      "stage_ids": {"type": "array", "items": {"type": "string"}, "description": "The stages to count"},
+      "group_by": {"type": "string", "description": "The field of a fact that holds its stage"},
+      "amount_field": {"type": "string", "description": "The field of a fact that holds its amount in whole cents"}
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["stages", "facts_read", "facts_unplaced"],
+     "properties": {"stages": {"type": "object"}, "facts_read": {"type": "number"}, "facts_unplaced": {"type": "number"}}
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {"package_files": {"package": "funnels-and-offers", "paths": ["do-work", "read-data"], "at": "/opt/parts/funnels-and-offers"}},
+     "workdir": "/opt/parts/funnels-and-offers",
+     "stdout": "json",
+     "argv": ["node", "do-work/measure-funnel-stages.mjs", {"fill": {"from": "input"}}]
+    },
+    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:deployed-container"],
+    "maker": "maker:funnels-and-offers",
+    "result_selector": "$.result",
+    "provenance": {"source": "bitfield-packages packages/funnel-offer-graph"},
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "facts": [{"stage": "front", "amount_cents": 900}, {"stage": "front"}, {"stage": "extra", "converted": true}],
+       "stage_ids": ["front", "extra"],
+       "group_by": "stage",
+       "amount_field": "amount_cents"
+      },
+      "output_selector": "$.stages.front.conversion_rate",
+      "contains": "50"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::funnels-and-offers::tool::read-a-funnel-definition",
+   "address": "package::funnels-and-offers::tool::read-a-funnel-definition",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-a-funnel-definition",
+    "label": "Read a funnel definition",
+    "status": "active",
+    "job": "Read a funnel that is written as stages pointing at workflow steps, offers, price options and measures, and see each stage's title, versions, price and conversion",
+    "description": "A funnel definition is a list of stages; each stage points at records kept elsewhere (a workflow step that gives its title, a selection surface holding the versions being tried, an offer with the price option the stage shows, and measures that count who entered and who converted). This joins them: each stage's title, its versions with the decided one marked live, its price, its measures with where they came from, and the conversion percent from entered to converted. A stage whose record is missing stays in the answer with what could be read. A stage with several price options and no named option gets no price rather than a guessed one.",
+    "input_schema": {
+     "type": "object",
+     "required": ["definitions"],
+     "properties": {
+      "definitions": {"type": "array", "items": {"type": "object"}, "description": "funnel-definition records: { kind, id, title?, stages: [{ stage_address, workflow_node_ref?, outcome_edges?, variant_surface_ref?, offer_price_ref?, price_option_ref?, metric_selectors?, title? }] }"},
+      "funnel_id": {"type": "string", "description": "Which funnel; the first when absent"},
+      "owners": {"type": "object", "description": "The records the refs point at: { workflowNodes, variantSurfaces, offers, measures }, each a list"},
+      "decisions": {"type": "array", "items": {"type": "object"}, "description": "What was decided per surface: { surface_address, winner_id }"}
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["funnel"],
+     "properties": {"funnel": {"type": ["object", "null"]}, "reason": {"type": "string"}}
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {"package_files": {"package": "funnels-and-offers", "paths": ["do-work", "read-data"], "at": "/opt/parts/funnels-and-offers"}},
+     "workdir": "/opt/parts/funnels-and-offers",
+     "stdout": "json",
+     "argv": ["node", "do-work/read-a-funnel-definition.mjs", {"fill": {"from": "input"}}]
+    },
+    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:deployed-container"],
+    "maker": "maker:funnels-and-offers",
+    "result_selector": "$.result",
+    "provenance": {"source": "bitfield-packages packages/funnel-offer-graph"},
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "definitions": [{"kind": "funnel-definition", "id": "funnel:bakery", "stages": [
+        {"stage_address": "stage:bakery:visit", "workflow_node_ref": {"$ref": "workflow-definition:bakery#visit"}, "metric_selectors": [{"measure_ref": "measure:visit-entered", "role": "entered"}, {"measure_ref": "measure:visit-converted", "role": "converted"}]}
+       ]}],
+       "owners": {"workflowNodes": [{"id": "visit", "label": "Visit the shop page"}], "measures": [{"id": "visit-entered", "value": 200}, {"id": "visit-converted", "value": 50}]}
+      },
+      "output_selector": "$.funnel.stages[0].conversion_rate",
+      "contains": "25"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::funnels-and-offers::tool::draft-a-funnel",
+   "address": "package::funnels-and-offers::tool::draft-a-funnel",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:draft-a-funnel",
+    "label": "Draft a funnel",
+    "status": "active",
+    "job": "Start a new funnel with a title and its steps, or add steps to a funnel I already have",
+    "description": "Gives back a funnel-definition record for the person to save in their own records: a new one from a title (with an id that cannot clash with another funnel of the same title) and the step titles, or the person's existing one with steps appended after its last, every other field of it kept as it is. Steps start as titles only; pointing a step at a workflow step, an offer or a measure is adding a ref to its row. A new funnel has only the steps asked for: nothing is made up.",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "title": {"type": "string", "description": "The new funnel's title"},
+      "stages": {"type": "array", "items": {"type": "string"}, "description": "Step titles, in order"},
+      "entropy": {"type": "string", "description": "A short text to keep the id apart from another funnel with the same title; random when absent"},
+      "add_to": {"type": "object", "description": "An existing funnel-definition record to append the steps to"}
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {"type": "object", "required": ["funnel"], "properties": {"funnel": {"type": "object"}}},
+    "invoke": {
+     "kind": "container",
+     "files": {"package_files": {"package": "funnels-and-offers", "paths": ["do-work", "read-data"], "at": "/opt/parts/funnels-and-offers"}},
+     "workdir": "/opt/parts/funnels-and-offers",
+     "stdout": "json",
+     "argv": ["node", "do-work/draft-a-funnel.mjs", {"fill": {"from": "input"}}]
+    },
+    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:deployed-container"],
+    "maker": "maker:funnels-and-offers",
+    "result_selector": "$.result",
+    "provenance": {"source": "bitfield-packages packages/funnel-offer-graph"},
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {"title": "Spring loaf offers", "stages": ["Visit", "Order"], "entropy": "a1"},
+      "output_selector": "$.funnel.id",
+      "contains": "funnel:spring-loaf-offers-a1"
+     }
+    ]
+   }
+  }
+ ]
+}

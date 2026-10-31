@@ -1,0 +1,144 @@
+{
+ "kind": "tool-rows",
+ "record_set": "funnels-and-offers-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/funnels-and-offers: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::ai-tool-catalog::tool-row-source::funnel-and-offer-tools",
+   "address": "package::ai-tool-catalog::tool-row-source::funnel-and-offer-tools",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "tool-row-source",
+    "id": "source:funnel-and-offer-tools",
+    "label": "Funnels and offers: walk a funnel, read its definition, measure its stages, draft one",
+    "list": {
+     "records": {
+      "package": "funnels-and-offers",
+      "kind": "ai-tool-descriptor"
+     }
+    },
+    "entry": {
+     "id": "record_name",
+     "label": "label",
+     "job": "job",
+     "description": "description",
+     "status": "status",
+     "input_schema": "input_schema",
+     "output_schema": "output_schema",
+     "invoke": "invoke",
+     "needs": "needs",
+     "licence_class": "licence_class",
+     "placements": "placements",
+     "maker": "maker",
+     "verify": "verify",
+     "result_selector": "result_selector",
+     "price_ref": "price_ref",
+     "billing": "billing",
+     "provenance": "provenance"
+    },
+    "id_prefix": "tool:",
+    "row": {
+     "label": {
+      "fill": {
+       "from": "entry",
+       "field": "label"
+      }
+     },
+     "job": {
+      "fill": {
+       "from": "entry",
+       "field": "job"
+      }
+     },
+     "description": {
+      "fill": {
+       "from": "entry",
+       "field": "description"
+      }
+     },
+     "status": {
+      "fill": {
+       "from": "entry",
+       "field": "status"
+      }
+     },
+     "input_schema": {
+      "fill": {
+       "from": "entry",
+       "field": "input_schema"
+      }
+     },
+     "output_schema": {
+      "fill": {
+       "from": "entry",
+       "field": "output_schema"
+      }
+     },
+     "invoke": {
+      "fill": {
+       "from": "entry",
+       "field": "invoke"
+      }
+     },
+     "needs": {
+      "fill": {
+       "from": "entry",
+       "field": "needs"
+      }
+     },
+     "licence_class": {
+      "fill": {
+       "from": "entry",
+       "field": "licence_class"
+      }
+     },
+     "placements": {
+      "fill": {
+       "from": "entry",
+       "field": "placements"
+      }
+     },
+     "maker": {
+      "fill": {
+       "from": "entry",
+       "field": "maker"
+      }
+     },
+     "verify": {
+      "fill": {
+       "from": "entry",
+       "field": "verify"
+      }
+     },
+     "result_selector": {
+      "fill": {
+       "from": "entry",
+       "field": "result_selector"
+      }
+     },
+     "price_ref": {
+      "fill": {
+       "from": "entry",
+       "field": "price_ref"
+      }
+     },
+     "billing": {
+      "fill": {
+       "from": "entry",
+       "field": "billing"
+      }
+     },
+     "provenance": {
+      "fill": {
+       "from": "entry",
+       "field": "provenance"
+      }
+     }
+    }
+   }
+  }
+ ]
+}
