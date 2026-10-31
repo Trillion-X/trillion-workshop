@@ -1352,7 +1352,7 @@
     "id": "tool:send-a-post-to-youtube",
     "label": "Send a post to YouTube",
     "job": "Send one of the person's approved posts to one of their YouTube accounts once its time has come, and keep where it went",
-    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a youtube connection, service_connection:youtube or service_connection:youtube:<account>). The engine hands this run only that account's held values; they reach www.googleapis.com, youtube.googleapis.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on YouTube. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a youtube connection, service_connection:youtube or service_connection:youtube:<account>). The engine hands this run only that account's held values; they reach www.googleapis.com, youtube.googleapis.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on YouTube. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -1455,6 +1455,13 @@
         "kind": "connection",
         "operations": [
          "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
         ]
        }
       ]
@@ -1509,7 +1516,7 @@
     "id": "tool:send-a-post-to-tiktok",
     "label": "Send a post to TikTok",
     "job": "Send one of the person's approved posts to one of their TikTok accounts once its time has come, and keep where it went",
-    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a tiktok connection, service_connection:tiktok or service_connection:tiktok:<account>). The engine hands this run only that account's held values; they reach open.tiktokapis.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on TikTok. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a tiktok connection, service_connection:tiktok or service_connection:tiktok:<account>). The engine hands this run only that account's held values; they reach open.tiktokapis.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on TikTok. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -1612,6 +1619,13 @@
         "kind": "connection",
         "operations": [
          "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
         ]
        }
       ]
@@ -1666,7 +1680,7 @@
     "id": "tool:send-a-post-to-instagram",
     "label": "Send a post to Instagram",
     "job": "Send one of the person's approved posts to one of their Instagram accounts once its time has come, and keep where it went",
-    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a instagram connection, service_connection:instagram or service_connection:instagram:<account>). The engine hands this run only that account's held values; they reach graph.instagram.com, graph.facebook.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Instagram. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a instagram connection, service_connection:instagram or service_connection:instagram:<account>). The engine hands this run only that account's held values; they reach graph.instagram.com, graph.facebook.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Instagram. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -1769,6 +1783,13 @@
         "kind": "connection",
         "operations": [
          "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
         ]
        }
       ]
@@ -1823,7 +1844,7 @@
     "id": "tool:send-a-post-to-facebook",
     "label": "Send a post to Facebook Page",
     "job": "Send one of the person's approved posts to one of their Facebook Page accounts once its time has come, and keep where it went",
-    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a facebook-messenger connection, service_connection:facebook-messenger or service_connection:facebook-messenger:<account>). The engine hands this run only that account's held values; they reach graph.facebook.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Facebook Page. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a facebook-messenger connection, service_connection:facebook-messenger or service_connection:facebook-messenger:<account>). The engine hands this run only that account's held values; they reach graph.facebook.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Facebook Page. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -1926,6 +1947,13 @@
         "kind": "connection",
         "operations": [
          "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
         ]
        }
       ]
@@ -1980,7 +2008,7 @@
     "id": "tool:send-a-post-to-instagram-facebook",
     "label": "Send a post to Instagram through Facebook",
     "job": "Send one of the person's approved posts to one of their Instagram through Facebook accounts once its time has come, and keep where it went",
-    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a instagram-facebook connection, service_connection:instagram-facebook or service_connection:instagram-facebook:<account>). The engine hands this run only that account's held values; they reach graph.facebook.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Instagram through Facebook. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a instagram-facebook connection, service_connection:instagram-facebook or service_connection:instagram-facebook:<account>). The engine hands this run only that account's held values; they reach graph.facebook.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Instagram through Facebook. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -2083,6 +2111,13 @@
         "kind": "connection",
         "operations": [
          "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
         ]
        }
       ]
@@ -2137,7 +2172,7 @@
     "id": "tool:send-a-post-to-threads",
     "label": "Send a post to Threads",
     "job": "Send one of the person's approved posts to one of their Threads accounts once its time has come, and keep where it went",
-    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a threads connection, service_connection:threads or service_connection:threads:<account>). The engine hands this run only that account's held values; they reach graph.threads.net only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Threads. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a threads connection, service_connection:threads or service_connection:threads:<account>). The engine hands this run only that account's held values; they reach graph.threads.net only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Threads. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -2240,6 +2275,13 @@
         "kind": "connection",
         "operations": [
          "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
         ]
        }
       ]
@@ -2294,7 +2336,7 @@
     "id": "tool:send-a-post-to-linkedin",
     "label": "Send a post to LinkedIn",
     "job": "Send one of the person's approved posts to one of their LinkedIn accounts once its time has come, and keep where it went",
-    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a linkedin connection, service_connection:linkedin or service_connection:linkedin:<account>). The engine hands this run only that account's held values; they reach api.linkedin.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on LinkedIn. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a linkedin connection, service_connection:linkedin or service_connection:linkedin:<account>). The engine hands this run only that account's held values; they reach api.linkedin.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on LinkedIn. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -2397,6 +2439,13 @@
         "kind": "connection",
         "operations": [
          "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
         ]
        }
       ]
@@ -2451,7 +2500,7 @@
     "id": "tool:send-a-post-to-substack",
     "label": "Send a post to Substack",
     "job": "Send one of the person's approved posts to one of their Substack accounts once its time has come, and keep where it went",
-    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a substack connection, service_connection:substack or service_connection:substack:<account>). The engine hands this run only that account's held values; they reach substack.com, the account's own address only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Substack. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a substack connection, service_connection:substack or service_connection:substack:<account>). The engine hands this run only that account's held values; they reach substack.com, the account's own address only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Substack. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -2554,6 +2603,13 @@
         "kind": "connection",
         "operations": [
          "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
         ]
        }
       ]
@@ -2608,7 +2664,7 @@
     "id": "tool:send-a-post-to-x",
     "label": "Send a post to X",
     "job": "Send one of the person's approved posts to one of their X accounts once its time has come, and keep where it went",
-    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a x connection, service_connection:x or service_connection:x:<account>). The engine hands this run only that account's held values; they reach api.x.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on X. A destination that already has the post is not sent it again. A post with a file is refused until the run can be handed the file. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a x connection, service_connection:x or service_connection:x:<account>). The engine hands this run only that account's held values; they reach api.x.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on X. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -2711,6 +2767,13 @@
         "kind": "connection",
         "operations": [
          "records:read"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "share_file",
+         "read_file"
         ]
        }
       ]

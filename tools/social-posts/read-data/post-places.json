@@ -1,5 +1,5 @@
 {
-  "_what": "The places a person posts to, one row per place: which kind of connection reaches the account (connection_vendor: a connection record of that vendor, `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), how a publisher is filled from it (options and account: {held: field} is a value held in the person's vault, read only as the request leaves; {plain: field} is a readable field of their connection record; {value} is fixed), which hosts a held value may go to, whether a file goes as bytes or a public address (media_from), the settings sent unless the post names its own (default_settings), and what the place takes (format: read by read-data/post-ready.mjs). Read by read-data/posts.mjs. A new place is a row; nothing in the code names a place.",
+  "_what": "The places a person posts to, one row per place: which kind of connection reaches the account (connection_vendor: a connection record of that vendor, `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), how a publisher is filled from it (options and account: {held: field} is a value held in the person's vault, read only as the request leaves; {plain: field} is a readable field of their connection record; {value} is fixed), which hosts a held value may go to, how a post's file reaches the place (media_from: stream, its bytes streamed to the place; whole, its bytes handed as one piece to a place whose uploader takes a file only so; address, a share of it the place fetches), the settings sent unless the post names its own (default_settings), and what the place takes (format: read by read-data/post-ready.mjs). Read by read-data/posts.mjs. A new place is a row; nothing in the code names a place.",
   "places": [
     {
       "id": "post-place:youtube",
@@ -24,7 +24,7 @@
         "www.googleapis.com",
         "youtube.googleapis.com"
       ],
-      "media_from": "bytes",
+      "media_from": "stream",
       "default_settings": {
         "visibility": "public",
         "madeForKids": false
@@ -312,7 +312,7 @@
       "hosts": [
         "api.linkedin.com"
       ],
-      "media_from": "bytes",
+      "media_from": "stream",
       "default_settings": {
         "visibility": "public"
       },
@@ -406,7 +406,7 @@
       "hosts": [
         "api.x.com"
       ],
-      "media_from": "bytes",
+      "media_from": "whole",
       "default_settings": {},
       "format": {
         "caption_max_characters": 280,
