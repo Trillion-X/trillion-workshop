@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b50138371d81f21b0ed041f5607785eed302d15ad58064963e3e78ae4d7af847"
+  "blake3": "1f:997e918835799034fdc03bfc0ef54a3ce424794cc23836e0c5db31793367083a"
  },
  "fields": [
   {
@@ -179,6 +179,36 @@
      "placement:your-computer"
     ],
     "folder": "keep-a-record-library-valid"
+   }
+  },
+  {
+   "id": "tool:advance-a-community-matchmaker",
+   "values": {
+    "title": "Run a community's matchmaker clock: start or close a round, introduce, follow up",
+    "job": "Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on",
+    "description": "The wake target of a community's matchmaker; a person declares it as their own wake (a wake-declaration record with tool tool:advance-a-community-matchmaker, a time repeat, and input { community_id }). Reads the community's settings (a match-community record, checked by tool:check-community-matching-settings), its members, rounds, matches and answers. When no round is open and the cadence (every_days after the last round) has come, it starts one: each opted-in member whose answers are incomplete gets a profile job for their own AI, and each complete member gets a bounded shortlist (an inverted index over categories and words, at most shortlist_size candidates, never every pair) and a score job asking their AI to score each candidate on the contract's factors with cited claims. Nothing here runs a model. At the deadline it forms groups from the grounded scores only (exact product of the factors, every factor cited), proposes each and hands each person's AI a consent job. It makes the one-to-one group of any match whose yeses all hold and hands topic jobs; it hands follow-up jobs at the community's follow_up_hours until the members talk. Jobs are ai-job records on the engine's job road, once per request key. Returns round (what started or closed, or null), next_at (when the clock next has something to do) and written; a community without usable settings returns ok false and its error.",
+    "status": "active",
+    "maker": "maker:form-groups-and-matches",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "form-groups-and-matches"
+   }
+  },
+  {
+   "id": "tool:answer-in-a-community",
+   "values": {
+    "title": "Answer a community's matchmaker: profile, scores, yes or no, topics, wrote",
+    "job": "Give a community's matchmaker what it asked for: a member's answers and on/off switch, an AI's cited scores for its shortlist, a person's yes or no to an introduction, first topics, or that they wrote in the one-to-one",
+    "description": "One answer from one person (person), then the community's clock. kind profile: { on?, answers: { question_id: answer }, categories? }, refused when a question is not one the community asks or an answer holds the community's contact pattern. kind scores: { round_id, scores: [{ candidate_ref, factors: { factor: { score in (0, 1], reason, you: [claim_ref], them: [claim_ref] } } }] }; answers which candidates were grounded and why not, and the round closes once every asked AI answered. kind answer: { match_id, yes, consent }: a yes counts only when the answer carries the community's person stamp (consent.yes_needs) and the consent the person was shown (read-my-community-matches gives it); an AI's yes is refused with the screen to open; a no, from the person or their AI, passes the match for everyone. Once every member's yes holds, the one-to-one group (group:introduction) is made and each AI is asked for first topics. kind topics: { match_id, topics: [line] }. kind wrote: { match_id }: once every member wrote, the match has talked. kind run-round: the community's owner closes the open round and starts the next. Returns outcome ({ ok: true, ... } or { ok: false, error, status, next_call?, changed?, consent? }), round, next_at and written.",
+    "status": "active",
+    "maker": "maker:form-groups-and-matches",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "form-groups-and-matches"
    }
   },
   {
@@ -415,7 +445,7 @@
    "values": {
     "title": "Call a treg endpoint",
     "job": "Call any endpoint in treg's catalog by its id, with its inputs, paid from the person's treg balance, never above a cost ceiling the caller names",
-    "description": "Sends one call to treg for the endpoint id given, with the person's treg token from their treg connection (the token is placed as the request leaves and never shown), and answers the provider's reply as treg relays it (a routed treg.* endpoint answers {output, raw, _treg}). Send the method the catalog names (endpoint.method), its query fields in query and its body fields in body, exactly as tool:read-a-treg-endpoint-and-its-price lists them; a path field goes in query. max_cost_usd is sent as treg's X-Treg-Route-Max-Cost: treg documents that a call it would bill above it is refused with HTTP 402 route_max_cost before anything is charged. This SPENDS the person's treg balance: read the endpoint's price first, say it to the person, and keep max_cost_usd at what they agreed to. A reply outside 2xx is an error that quotes treg: 402 is an empty balance or the ceiling, 503 provider_capacity_unavailable names other providers of the job; failed calls are not billed. treg answers the cost of a call in a reply header this row does not read; read the charge with tool:read-my-treg-balance. A team's own registered tool is called the same way, as <tool-name>/<path>.",
+    "description": "Sends one call to treg for the endpoint id given, with the person's treg token from their treg connection (the token is placed as the request leaves and never shown), and answers the provider's reply as treg relays it (a routed treg.* endpoint answers {output, raw, _treg}). Send the method the catalog names (endpoint.method), its query fields in query and its body fields in body, exactly as tool:read-a-treg-endpoint-and-its-price lists them; a path field goes in query. max_cost_usd is sent as treg's X-Treg-Route-Max-Cost: treg documents that a call it would bill above it is refused with HTTP 402 route_max_cost before anything is charged. This SPENDS the person's treg balance: read the endpoint's price first, say it to the person, and keep max_cost_usd at what they agreed to. A reply outside 2xx is an error that quotes treg: 402 is an empty balance or the ceiling, 503 provider_capacity_unavailable names other providers of the job; failed calls are not billed. The answer's headers (beside the reply, lower case) say what the call cost and how to follow it: x-treg-cost-micro is the charge in millionths of a US dollar (on an asynchronous submission, the amount held until the task finishes, not a charge; on a replay 0, with x-treg-original-cost-micro), x-treg-call-id is the call's id (keep it), x-treg-served-by the provider a routed call used, x-treg-cache a cached answer, and x-treg-async the descriptor of an asynchronous task. Tell the person the cost with each answer. An answer of 202 with _treg.outcome pending is a task still running: follow it with tool:read-a-treg-call and its call id, never by calling again. A team's own registered tool is called the same way, as <tool-name>/<path>.",
     "status": "active",
     "maker": "maker:treg",
     "licence_class": "licence:maker-own",
@@ -786,6 +816,39 @@
      "placement:small-container"
     ],
     "folder": "evaluate-progress"
+   }
+  },
+  {
+   "id": "tool:check-community-matching-settings",
+   "values": {
+    "title": "Check a community's matchmaker settings before keeping them",
+    "job": "Check that a community's matching settings can run: cadence, sizes, the evidence contract and the questions that cover every factor's citations, consent, follow-up hours, words for every job, refusal and state, contact pattern, limits and experiments",
+    "description": "community is the value of a match-community record: { title, owner, created_at, matching }. Returns usable and problems, each a plain sentence naming the field to fix. matching holds every_days, round_hours, shortlist_size, posting_cap, group_size, cadence_label, default_on, contract (the match-evidence contract: factors, primitives, scope_fields, questions, citation_requirements, authority, forbidden_interventions), questions (the contract questions this community asks, which must cover every claim kind a factor cites), expected_value? (minimum_expected_value, minimum_distinguishable_delta), initiative { required_level, pre_authorized_levels }, grouping?, consent { answer_hours, selection { approved_values, veto_values }, yes_needs { field, equals }, screen }, follow_up_hours, jobs (profile, score, consent, topics, follow_up: { said, job } with {name} fields), words, state_words, contact_pattern, limits, discover { offers, seeks } and experiments? ([{ id, arms: [{ id, weight, jobs }] }]). Nothing is written.",
+    "status": "active",
+    "maker": "maker:form-groups-and-matches",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "form-groups-and-matches",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:check-copy",
+   "values": {
+    "title": "Check copy before a person reads it",
+    "job": "Check text, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
+    "description": "Give words as text, texts, value (any JSON; fields names which keys hold words, or \"strings\" for every string), units, sources (JSON with its place), html (pages), decks (a rendered deck's HTML) or pictures with their readings. Give rules (one row each: words, pattern, exact or a named grammar check) or leave them out to use mechanical grammar rows. Optionally give required (locked lines, features, baseline ids, approvals with the person's own words and the text they sit in), audience, offers and counts, and the person's verdict_rules and stands. Nothing about any person is kept here; their rules are input. A source with no words, a required line gone, a row for the wrong audience, a count that is not a published list view, an offer listing fewer lines than the others and a picture with no reading are problems, never passes. Model questions come back as questions; send answers on a second run.",
+    "status": "active",
+    "maker": "maker:check-against-a-persons-rules-and-verdicts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "check-against-a-persons-rules-and-verdicts"
    }
   },
   {
@@ -1736,6 +1799,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:forget-a-person-in-a-community",
+   "values": {
+    "title": "Forget a person in a community's matchmaker",
+    "job": "Erase a person from a community's matching: what they told it, every match naming them, their asks, answers and jobs, and their place and scores on other members' shortlists and score jobs",
+    "description": "Removes the member record, every match naming the person with its one-to-one group, answers and jobs, their own asks and jobs, and takes them and the scores of them out of other members' asks and waiting score jobs. Others keep their own asks and jobs. Returns forgotten and written.",
+    "status": "active",
+    "maker": "maker:form-groups-and-matches",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "form-groups-and-matches"
    }
   },
   {
@@ -3650,6 +3728,24 @@
    }
   },
   {
+   "id": "tool:read-a-treg-call",
+   "values": {
+    "title": "Read one treg call by its id",
+    "job": "Read one of the person's treg calls by the id it answered: what it cost, and how an asynchronous task it started is going and where its result is",
+    "description": "Give account and call_id, the x-treg-call-id header of a tool:call-a-treg-endpoint answer. Answers treg's own record of that call (GET /calls/<call id>): call (its endpoint, status and cost_charged_micro), async_task when it started an asynchronous task (status pending, settled, released or timed_out; reserved_micro, settled_micro, error, and once settled its result_url, which expires, or fetch_command), ledger (the money entries) and charged_micro. This is how a task is followed: treg itself polls the provider, so after a call answered 202 with _treg.outcome pending (its x-treg-async header says which statuses are final), read the call about 60 seconds later, then every 30 to 60 seconds, until async_task.status is no longer pending. Never send the call again or try another provider while it is pending: the task may still finish and charge. Reads only; spends nothing; the token is never shown.",
+    "status": "active",
+    "maker": "maker:treg",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "treg",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:read-a-treg-endpoint-and-its-price",
    "values": {
     "title": "Read a treg endpoint and its price",
@@ -3834,6 +3930,24 @@
      "placement:small-container"
     ],
     "folder": "live-match-scores"
+   }
+  },
+  {
+   "id": "tool:read-my-community-matches",
+   "values": {
+    "title": "Read my matches in a community, my profile, and the score job I owe",
+    "job": "See who a community's matchmaker proposed for me and where each introduction stands, what my profile still misses, the shortlist my AI still has to score, and fellow members who share my categories",
+    "description": "Reads one member's view (person): on (their switch), cadence_label, next_at, matches (each match_id, status and the community's words for it, answered, answer_by, consent: what to answer a yes with, with, why: the scoring AI's cited reasons, topics, space_id once they are in the one-to-one), profile (answers, categories, complete, missing questions), waiting_for_your_scores (the open round's shortlist with citable claims), discover (members sharing a category, with what they offer and seek), waiting_jobs (this person's own waiting jobs, for their AI to pull: nothing is ever written into another person's account), wake_at (when the community's clock next acts, so the member side wakes then and pulls once), and for the community's owner experiments (each arm's introduced and talked counts and the shown and converted events an experiment owner reads). Writes nothing.",
+    "status": "active",
+    "maker": "maker:form-groups-and-matches",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "form-groups-and-matches",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -5002,11 +5116,41 @@
    }
   },
   {
+   "id": "tool:send-a-post-to-beehiiv",
+   "values": {
+    "title": "Send a post to beehiiv",
+    "job": "Send one of the person's approved posts to one of their beehiiv accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a beehiiv connection, service_connection:beehiiv or service_connection:beehiiv:<account>). The engine hands this run only that account's held values; they reach api.beehiiv.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on beehiiv. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
+   }
+  },
+  {
    "id": "tool:send-a-post-to-facebook",
    "values": {
     "title": "Send a post to Facebook Page",
     "job": "Send one of the person's approved posts to one of their Facebook Page accounts once its time has come, and keep where it went",
     "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a facebook-messenger connection, service_connection:facebook-messenger or service_connection:facebook-messenger:<account>). The engine hands this run only that account's held values; they reach graph.facebook.com only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Facebook Page. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:send-a-post-to-ghost",
+   "values": {
+    "title": "Send a post to Ghost",
+    "job": "Send one of the person's approved posts to one of their Ghost accounts once its time has come, and keep where it went",
+    "description": "Give post_id (an approved or scheduled post whose time has come) and account_id (one of its destinations: a ghost connection, service_connection:ghost or service_connection:ghost:<account>). The engine hands this run only that account's held values; they reach the site's own address only, as each request leaves. The destination is marked not known before sending, so a cut-off send is never repeated by itself: give resend: true only after looking on Ghost. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words) and said. This posts publicly on the person's account: run it only with the person's yes for this post.",
     "status": "active",
     "maker": "maker:social-posts",
     "licence_class": "licence:maker-own",
@@ -5209,6 +5353,21 @@
      "placement:your-computer"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:send-each-post-at-its-time",
+   "values": {
+    "title": "Send each post at its time",
+    "job": "When the person's posts change, set each post that is set to go at its time to be sent then, to each of its destinations, by that place's send row",
+    "description": "Runs on its own once the person switches on its wake (at-its-time): each time their posts change, it reads the changed posts, and for each one set to go at its time (tool:set-a-post-to-go-at-its-time) it sets one run of the place's send row (tool:send-a-post-to-<place>) per destination still to be sent, at the post's scheduled_for. That run sends only while the post is still set to go as it was then, so a post taken back, changed or set again sends nothing at the old time. It sends nothing itself, polls nothing and keeps nothing. Its rights are the ones the sends it sets need (the person's posts, their connections and their files), because each send reaches only what this wake was granted. Returns set (each post, destination, send row and time), left_out (each send not set, with why) and said.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
    }
   },
   {
