@@ -1,0 +1,191 @@
+{
+  "kind": "package-set-records",
+  "record_set": "documents-as-list-rows-tool-rows",
+  "what_this_is": "The Workshop rows for the tool in tools/documents-as-list-rows: a folder of markdown documents the person granted, shown as the rows of a list (each document's frontmatter its fields, read a page at a time), a field changed by rewriting that document's frontmatter while it is the document read, and long documents split into one document per item. They run on the person's own computer, over the folder they granted.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-documents-as-list-rows",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:documents-as-list-rows",
+        "placements": ["placement:your-computer"],
+        "needs": {"expected_seconds": 3, "network_egress": false},
+        "label": "Show a folder of my documents as the rows of a list",
+        "job": "Read the markdown documents in a folder I granted as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time",
+        "description": "Reads every .md, .markdown and .txt document under the granted folder (or `folder` inside it), skipping folders whose names start with a dot and links that point outside it, in name order, and answers one page of rows: { id (its path under the folder), title, identity (1f: and the BLAKE3 of its bytes), values } where values holds its frontmatter as note.<key> and its file facts as file.<key>. A page holds up to `limit` rows (200 by default, 2,000 at most) and answers `next` while more remain; pass it as `after` for the next page, so any number of documents is read. `match` keeps the documents whose path fits a glob such as */SKILL.md. `backlinks` adds file.backlinks, worked out over the whole folder. Nothing is copied: the documents are the rows.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "folder": {"type": "string", "description": "A folder inside the granted folder, written /a/b; the granted folder itself when left out."},
+            "match": {"type": "string", "description": "A glob the document's path under `folder` must fit, as */SKILL.md."},
+            "after": {"type": ["string", "null"], "description": "The `next` of the page before; left out for the first page."},
+            "limit": {"type": "integer", "minimum": 1, "maximum": 2000, "description": "Rows a page holds (200 when left out)."},
+            "backlinks": {"type": "boolean", "description": "Work out which documents link to each row (reads the whole folder)."},
+            "most_bytes": {"type": "integer", "minimum": 1, "description": "The most bytes the answer may take: the page ends at the last row that fits (a door answers a run within one bounded message)."}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["rows", "next"],
+          "properties": {
+            "rows": {"type": "array", "items": {"type": "object", "required": ["id", "identity", "values"]}},
+            "next": {"type": ["string", "null"]}
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["read-a-folder"],
+          "workdir": "/opt/tools/documents-as-list-rows",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/tools/documents-as-list-rows/do-work/documents.mjs", "rows", "--root", {"fill": {"from": "task", "field": "grants.read-a-folder.folder"}}, "--stdin"],
+          "stdin": {"fill": {"from": "input"}},
+          "files": {
+            "package_files": [
+              {"package": "documents-as-list-rows", "paths": ["do-work", "read-data"], "at": "/opt/tools/documents-as-list-rows"},
+              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/tools/content-identity"},
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            ]
+          }
+        },
+        "result_selector": "$",
+        "provenance": {"source": "Written for the Workshop: a folder of documents queried as rows by their frontmatter, in the way a notes vault's database view reads its notes"}
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-namespace-documents-as-list-rows",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:documents-as-list-rows",
+        "placements": ["placement:your-computer"],
+        "needs": {"expected_seconds": 3, "network_egress": false},
+        "label": "Show a folder of my account's documents as the rows of a list",
+        "job": "Read the markdown documents in a folder of my account's files as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time",
+        "description": "The same rows as tool:read-documents-as-list-rows, read from the person's Namespace files through the run's records door (list_files and read_file, every file read by its name) instead of a folder on their computer. A page holds up to `limit` rows and answers `next` while more remain; `match` keeps the documents whose path fits a glob; `most_bytes` ends a page at the last row whose answer fits. It writes nothing: the files door has no write that checks a file is still the one read.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "folder": {"type": "string", "description": "The Namespace folder, as /Notes/plans."},
+            "match": {"type": "string", "description": "A glob the document's path under the folder must fit."},
+            "after": {"type": ["string", "null"], "description": "The `next` of the page before."},
+            "limit": {"type": "integer", "minimum": 1, "maximum": 2000, "description": "Rows a page holds (200 when left out)."},
+            "backlinks": {"type": "boolean", "description": "Work out which documents link to each row (reads the whole folder)."},
+            "most_bytes": {"type": "integer", "minimum": 1, "description": "The most bytes the answer may take."}
+          }
+        },
+        "output_schema": {"type": "object", "required": ["rows", "next"], "properties": {"rows": {"type": "array"}, "next": {"type": ["string", "null"]}}},
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/tools/documents-as-list-rows",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/tools/documents-as-list-rows/read-data/rows.mjs", "readNamespaceDocumentRows"],
+          "stdin": {"fill": {"from": "input"}},
+          "records": {"fd": 3, "rights": [{"files": "/", "operations": ["list_files", "read_file"]}]},
+          "files": {
+            "package_files": [
+              {"package": "documents-as-list-rows", "paths": ["read-data"], "at": "/opt/tools/documents-as-list-rows"},
+              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/tools/content-identity"},
+              {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"},
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {"source": "Written for the Workshop: the documents row source over the files door, as the earlier lists read a Namespace folder"}
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:change-a-document-row",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:documents-as-list-rows",
+        "placements": ["placement:your-computer"],
+        "needs": {"expected_seconds": 2, "network_egress": false},
+        "label": "Change fields of documents in my folder list",
+        "job": "Change or remove fields of documents' frontmatter in a folder I granted, each only if the document is still the one I read",
+        "description": "For each row { id, values: { note.<key>: value or null }, if_identity } rewrites only the frontmatter lines of the keys named: a value sets the key, null removes it, and other keys, comments and the body stay byte for byte. A value must fit the kind the folder's property-types.json gives the property; file facts cannot be written. When if_identity is given and the document changed since it was read, the change is refused and nothing is merged. The new bytes replace the document in one rename, and the answer is each changed document's new values and identity.",
+        "input_schema": {
+          "type": "object",
+          "required": ["rows"],
+          "additionalProperties": false,
+          "properties": {
+            "folder": {"type": "string", "description": "A folder inside the granted folder the ids are under; the granted folder itself when left out."},
+            "rows": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["id", "values"],
+                "properties": {
+                  "id": {"type": "string", "description": "The document's id from its row, as /notes/plan.md."},
+                  "values": {"type": "object", "description": "note.<key> to its new value, or null to remove the key."},
+                  "if_identity": {"type": "string", "description": "The identity from the row that was read (1f:...)."}
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {"type": "object", "required": ["kept"], "properties": {"kept": {"type": "array"}}},
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["change-a-folder"],
+          "workdir": "/opt/tools/documents-as-list-rows",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/tools/documents-as-list-rows/do-work/documents.mjs", "set", "--root", {"fill": {"from": "task", "field": "grants.change-a-folder.folder"}}, "--stdin"],
+          "stdin": {"fill": {"from": "input"}},
+          "files": {
+            "package_files": [
+              {"package": "documents-as-list-rows", "paths": ["do-work", "read-data"], "at": "/opt/tools/documents-as-list-rows"},
+              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/tools/content-identity"},
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            ]
+          }
+        },
+        "result_selector": "$",
+        "provenance": {"source": "Written for the Workshop: a conditional write keyed by the content identity that was read, so a change made meanwhile is never lost"}
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:split-a-document-into-item-documents",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:documents-as-list-rows",
+        "placements": ["placement:your-computer"],
+        "label": "Split a long document of many items into one document per item",
+        "job": "Turn long markdown documents that hold many numbered items (rules, lessons, questions) into one document per item with its fields in frontmatter, so each item is a row of a folder list",
+        "description": "Reads the documents a mapping names and finds the items by the mapping's heading and table-row patterns, merging pieces of one item from several documents. Each item becomes `<id>.md`: frontmatter (id, then the fields the mapping captures, groups and flags) and its parts under headings. Text that belongs to no item is kept in one leftover file per document. Every line read is placed (the report counts both), and pieces with the same words are written once. It refuses a folder that is not empty. It knows no item kind: everything comes from the mapping.",
+        "input_schema": {
+          "type": "object",
+          "required": ["mapping", "root"],
+          "properties": {
+            "mapping": {"type": "string", "description": "The mapping file, relative to root (the README describes its keys)."},
+            "root": {"type": "string", "description": "The folder the mapping's documents are relative to."},
+            "out": {"type": "string", "description": "An empty folder under root for the item documents."},
+            "leftover": {"type": "string", "description": "A folder under root for each document's text that belongs to no item."}
+          }
+        },
+        "output_schema": {"type": "object", "description": "{ items, lines_in, lines_placed, leftover_lines, identical_pieces_merged } as JSON; exit 2 with a reason when the mapping or a document could not be read, the lines did not add up or the folder is not empty."},
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "npm install   # for @noble/hashes"],
+          "run": "node tools/documents-as-list-rows/do-work/documents.mjs split --root {root} --mapping {mapping} --out {out} --leftover {leftover}",
+          "needs": ["node"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the mapping with them from a few of their items, run it with --check in place of --out and --leftover first and read the report with them: how many items, how many lines are leftover and why. Then run it into an empty folder and open two or three of the item documents with them before anything else changes."
+        },
+        "provenance": {"source": "Written for the Workshop: a fence-aware markdown sectioner driven by a declarative mapping"}
+      }
+    }
+  ]
+}

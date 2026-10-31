@@ -9,6 +9,8 @@
 //   await door.read('post', 'post:abc')                   -> the value, or null
 //   for await (const record of door.list({ type: 'post' })) ...   every record of a kind, page after page
 //   await door.write([{ id, type, value }], { key })      -> { changed, write_count }; value null removes
+//   await door.files('list_files', { folder: '/notes/' })   -> the files door's answer, at `files_resource`, which the
+//                                                          descriptor holds when the row declares a `files` right
 //
 // A busy account (503, or selected_owner_unavailable) and a call whose outcome is unknown are sent again with the same
 // request key after a growing wait. A refusal comes back as RecordsDoorError with the door's code and outcome.
@@ -27,6 +29,7 @@ const WORDS = {
   original_workspace_source_unavailable: 'The person\'s records cannot be reached right now.',
   selected_owner_unavailable: 'The person\'s records stayed busy; try again shortly.',
   capability_gone: 'This run\'s records door has closed.',
+  no_files: 'This run was not handed the person\'s files: its row declares no files right.',
   refused: 'The records door refused the call.',
 };
 
@@ -47,13 +50,13 @@ function answerOf(text, contentType) {
 }
 
 export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms => new Promise(done => setTimeout(done, ms)) } = {}) {
-  const { url, resource, capability } = JSON.parse(readFileSync(descriptor, 'utf8'));
+  const { url, resource, capability, files_resource: filesResource } = JSON.parse(readFileSync(descriptor, 'utf8'));
   if (typeof url !== 'string' || typeof resource !== 'string' || typeof capability !== 'string') {
     throw new RecordsDoorError('no_door', 'This run was not handed a records door.');
   }
 
-  async function call(method, input, key = `${method}:${randomUUID()}`) {
-    const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address: resource, method, request_key: key, input } } });
+  async function call(method, input, key = `${method}:${randomUUID()}`, address = resource) {
+    const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: key, input } } });
     for (let attempt = 0; ; attempt += 1) {
       const response = await fetchImpl(url, {
         method: 'POST',
@@ -92,6 +95,12 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
     // `key` makes the write safe to send again: the same key answers the receipt it already saved.
     async write(records, { key } = {}) {
       return call('records:write', { records }, key);
+    },
+    // One operation on the person's Namespace files (list_files, read_file, find_file ...), at the files resource the run
+    // was handed when its row declares a `files` right; a run handed none is refused before anything is sent.
+    async files(method, input) {
+      if (typeof filesResource !== 'string') throw new RecordsDoorError('no_files', WORDS.no_files);
+      return call(method, input, undefined, filesResource);
     },
   };
 }

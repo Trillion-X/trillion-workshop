@@ -146,3 +146,20 @@ test('a run with no door is told so', () => {
   writeFileSync(empty, '{}');
   assert.throws(() => openRecordsDoor({ descriptor: empty }), error => error instanceof RecordsDoorError && error.code === 'no_door');
 });
+
+test('files operations go to the files resource the run was handed, and a run with none is refused before sending', async () => {
+  const folder = mkdtempSync(join(tmpdir(), 'records-door-files-'));
+  const sent = [];
+  const fetchImpl = async (_url, { body }) => {
+    sent.push(JSON.parse(body).params.arguments);
+    return new Response(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: { names: [], next_after: null } } }), { headers: { 'content-type': 'application/json' } });
+  };
+  const handed = join(folder, 'with-files.json');
+  writeFileSync(handed, JSON.stringify({ url: 'http://127.0.0.1:9/mcp', resource: '@made-up-records', capability: 'run_made_up', files_resource: '@made-up-files' }));
+  assert.deepEqual(await openRecordsDoor({ descriptor: handed, fetchImpl }).files('list_files', { folder: '/notes/' }), { names: [], next_after: null });
+  assert.deepEqual([sent[0].address, sent[0].method, sent[0].input], ['@made-up-files', 'list_files', { folder: '/notes/' }]);
+  const none = join(folder, 'without-files.json');
+  writeFileSync(none, JSON.stringify({ url: 'http://127.0.0.1:9/mcp', resource: '@made-up-records', capability: 'run_made_up' }));
+  await assert.rejects(openRecordsDoor({ descriptor: none, fetchImpl }).files('list_files', {}), { code: 'no_files' });
+  assert.equal(sent.length, 1);
+});

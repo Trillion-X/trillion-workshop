@@ -21,6 +21,11 @@ A row asks for the door in its invoke, with one rights item per record kind:
   both. Nothing gets a blanket right on a kind when it reads only one record of it.
 - The run gets one JSON line on that descriptor: `{ url, resource, capability }`. The capability can do no more than
   the row's rights and the person's own key. It is never printed, logged or returned.
+- A rights item `{ "files": "/" | "/<folder>/", "operations": [...] }` reaches the person's Namespace files under that
+  folder instead of a record kind. The descriptor then also holds `files_resource`, and `door.files(operation, input)`
+  calls the files door's operations there (list_files `{ folder?, after?, limit? }` answers `{ names, next_after, folders }`;
+  read_file `{ name_or_identity, offset?, length? }` answers one part of a file's bytes). A run handed no files right is
+  refused before anything is sent (`no_files`).
 - Without `"internet": true` the run can reach only the door's loopback port.
 - Operations (`run_resource_operation` at `@own-records`):
   - `records:read { id, type }` gives `{ id, type, value }`. value is null when the record is absent or of another kind.
@@ -48,7 +53,7 @@ A row asks for the door in its invoke, with one rights item per record kind:
 
 | File | Purpose |
 |------|---------|
-| `read-data/records-door.mjs` | `openRecordsDoor()`: `read(type, id)`, `list(query)` (every page, as an async iterator), `write(records, { key })`; `RecordsDoorError` with the door's code. |
+| `read-data/records-door.mjs` | `openRecordsDoor()`: `read(type, id)`, `list(query)` (every page, as an async iterator), `write(records, { key })`, `files(operation, input)`; `RecordsDoorError` with the door's code. |
 | `do-work/run-an-export.mjs` | `node run-an-export.mjs <module file> <export>`: calls `fn(input, { door })` with the run's input and prints `{ result }` or `{ error }`. The door opens on first use, so a function that reads no records needs none. |
 | `test/fake-door.mjs` | A stand-in door on loopback: records in memory, bearer and rights checks, cut pages, busy answers, event-stream answers, saved write receipts. |
 | `test/run-row.mjs` | `runRow(row, input, { records })`: runs a row's argv the way the container does (`/opt/<folder>` laid on `tools/<folder>`), with the fake door on the row's descriptor and exactly the row's rights. |
