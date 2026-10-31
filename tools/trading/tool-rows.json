@@ -1,0 +1,931 @@
+{
+  "kind": "tool-rows",
+  "record_set": "trading-tool-rows",
+  "what_this_is": "The Workshop rows for trading at the person's own broker: place the orders of a trading policy, check placed orders, and look up listed instruments, each once for a paper account and once for a live one. A row holds only its own mode's broker credentials and reaches only that mode's records.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:place-paper-orders-from-a-trading-policy",
+        "label": "Place paper orders from a trading policy",
+        "job": "Place the orders of my trading policy at my broker's paper account",
+        "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone), routes (how your broker takes an order, each route with mode \"paper\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: true, has no paper route, was already sent for this policy version, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held paper-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "policy": {
+              "type": "object",
+              "description": "The trading policy: { policy_version, decided_at?, orders: [{ instrument: { symbol, kind?, contract_multiplier? }, side, qty, order_type, limit_price?, time_in_force?, live: false, route_ref }], risk: { max_order_notional, max_daily_notional, day_time_zone } }"
+            },
+            "routes": {
+              "type": "object",
+              "description": "The person's broker routes by route_ref, each with mode \"paper\", instrument_requests, credential_injections, response_map and status_map (tools/trading/README.md)"
+            },
+            "prices": {
+              "type": "object",
+              "description": "A price for each symbol a market order names: { <symbol>: <price> }"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "mode",
+            "policy_version",
+            "placed",
+            "skipped",
+            "day",
+            "said"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string"
+            },
+            "policy_version": {},
+            "placed": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "day": {
+              "type": "object"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/trading",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/trading/read-data/trading.mjs",
+            "placePaperOrders"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "trading",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/trading"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 3,
+            "rights": [
+              {
+                "kind": "trade-order",
+                "prefix": "paper-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "trade-order-event",
+                "prefix": "paper-",
+                "operations": [
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "trade-day-spend",
+                "prefix": "paper-",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "paper-broker-credentials",
+              "fd": 4
+            }
+          ]
+        },
+        "status": "active",
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "maker": "maker:trading",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages trade-order (decide-orders, assemble-order-request, parse-broker-order, merge-headers) and trade-audit (the order trail), ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-paper-orders-with-the-broker",
+        "label": "Check paper orders with the broker",
+        "job": "Check my paper orders with my broker: which are filled, at what price, and which never got there",
+        "description": "Give routes (the same routes the orders were placed with, each with status_request and open_statuses). Every paper order still open (sending, unknown, or a status in the route's open_statuses) is asked about at the broker, and its record takes the broker's real status and fill; order_ids checks those orders whatever their status. An order the broker never named and does not know is marked not-placed and its day's spend is given back. Each answer is kept as a trade-order-event. The held paper-broker-credentials reach only the request.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "routes": {
+              "type": "object",
+              "description": "The same broker routes the orders were placed with, each with status_request and open_statuses"
+            },
+            "order_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Check these orders whatever their status; without it every open order is checked"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "mode",
+            "checked",
+            "could_not_check",
+            "said"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string"
+            },
+            "checked": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "could_not_check": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/trading",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/trading/read-data/trading.mjs",
+            "checkPaperOrders"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "trading",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/trading"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 3,
+            "rights": [
+              {
+                "kind": "trade-order",
+                "prefix": "paper-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "trade-order-event",
+                "prefix": "paper-",
+                "operations": [
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "trade-day-spend",
+                "prefix": "paper-",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "paper-broker-credentials",
+              "fd": 4
+            }
+          ]
+        },
+        "status": "active",
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "maker": "maker:trading",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages trade-order (reconcile-order and reconcile-open-orders, parse-broker-order), ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:look-up-instruments-at-my-paper-broker",
+        "label": "Look up instruments at my paper broker",
+        "job": "Find the instruments my broker lists for trading, such as option contracts, from my paper account",
+        "description": "Give route (one broker route with mode \"paper\" and its lookups), lookup (a lookup's name) and query (by the names the lookup allows; the lookup's own defaults fill the rest). Answers the listed items the lookup keeps (for example only tradable ones), numbers read as numbers, sorted as the lookup says, with the next page token. An error answer carries no items. The held paper-broker-credentials reach only the request.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "route": {
+              "type": "object",
+              "description": "One broker route with mode \"paper\", its credential_injections and its lookups"
+            },
+            "lookup": {
+              "type": "string",
+              "description": "The name of one of the route's lookups"
+            },
+            "query": {
+              "type": "object",
+              "description": "The lookup's query, by the names the route allows"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "state",
+            "http_status",
+            "count",
+            "items",
+            "next"
+          ],
+          "properties": {
+            "state": {
+              "type": "string"
+            },
+            "http_status": {},
+            "count": {
+              "type": "integer"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "next": {},
+            "note": {}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/trading",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/trading/read-data/trading.mjs",
+            "lookUpPaperInstruments"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "trading",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/trading"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "paper-broker-credentials",
+              "fd": 4
+            }
+          ]
+        },
+        "status": "active",
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 15,
+          "network_egress": true
+        },
+        "maker": "maker:trading",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages trade-order (prepare-option-discovery, normalize-option-contracts), ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:place-live-orders-from-a-trading-policy",
+        "label": "Place live orders from a trading policy",
+        "job": "Place the orders of my trading policy at my broker's live (real money) account",
+        "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone), routes (how your broker takes an order, each route with mode \"live\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: false, has no live route, was already sent for this policy version, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held live-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "policy": {
+              "type": "object",
+              "description": "The trading policy: { policy_version, decided_at?, orders: [{ instrument: { symbol, kind?, contract_multiplier? }, side, qty, order_type, limit_price?, time_in_force?, live: true, route_ref }], risk: { max_order_notional, max_daily_notional, day_time_zone } }"
+            },
+            "routes": {
+              "type": "object",
+              "description": "The person's broker routes by route_ref, each with mode \"live\", instrument_requests, credential_injections, response_map and status_map (tools/trading/README.md)"
+            },
+            "prices": {
+              "type": "object",
+              "description": "A price for each symbol a market order names: { <symbol>: <price> }"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "mode",
+            "policy_version",
+            "placed",
+            "skipped",
+            "day",
+            "said"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string"
+            },
+            "policy_version": {},
+            "placed": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "day": {
+              "type": "object"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/trading",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/trading/read-data/trading.mjs",
+            "placeLiveOrders"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "trading",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/trading"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 3,
+            "rights": [
+              {
+                "kind": "trade-order",
+                "prefix": "live-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "trade-order-event",
+                "prefix": "live-",
+                "operations": [
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "trade-day-spend",
+                "prefix": "live-",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "live-broker-credentials",
+              "fd": 4
+            }
+          ]
+        },
+        "status": "active",
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "maker": "maker:trading",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages trade-order (decide-orders, assemble-order-request, parse-broker-order, merge-headers) and trade-audit (the order trail), ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-live-orders-with-the-broker",
+        "label": "Check live orders with the broker",
+        "job": "Check my live orders with my broker: which are filled, at what price, and which never got there",
+        "description": "Give routes (the same routes the orders were placed with, each with status_request and open_statuses). Every live order still open (sending, unknown, or a status in the route's open_statuses) is asked about at the broker, and its record takes the broker's real status and fill; order_ids checks those orders whatever their status. An order the broker never named and does not know is marked not-placed and its day's spend is given back. Each answer is kept as a trade-order-event. The held live-broker-credentials reach only the request.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "routes": {
+              "type": "object",
+              "description": "The same broker routes the orders were placed with, each with status_request and open_statuses"
+            },
+            "order_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Check these orders whatever their status; without it every open order is checked"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "mode",
+            "checked",
+            "could_not_check",
+            "said"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string"
+            },
+            "checked": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "could_not_check": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/trading",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/trading/read-data/trading.mjs",
+            "checkLiveOrders"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "trading",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/trading"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 3,
+            "rights": [
+              {
+                "kind": "trade-order",
+                "prefix": "live-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "trade-order-event",
+                "prefix": "live-",
+                "operations": [
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "trade-day-spend",
+                "prefix": "live-",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "live-broker-credentials",
+              "fd": 4
+            }
+          ]
+        },
+        "status": "active",
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "maker": "maker:trading",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages trade-order (reconcile-order and reconcile-open-orders, parse-broker-order), ported"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:look-up-instruments-at-my-live-broker",
+        "label": "Look up instruments at my live broker",
+        "job": "Find the instruments my broker lists for trading, such as option contracts, from my live account",
+        "description": "Give route (one broker route with mode \"live\" and its lookups), lookup (a lookup's name) and query (by the names the lookup allows; the lookup's own defaults fill the rest). Answers the listed items the lookup keeps (for example only tradable ones), numbers read as numbers, sorted as the lookup says, with the next page token. An error answer carries no items. The held live-broker-credentials reach only the request.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "route": {
+              "type": "object",
+              "description": "One broker route with mode \"live\", its credential_injections and its lookups"
+            },
+            "lookup": {
+              "type": "string",
+              "description": "The name of one of the route's lookups"
+            },
+            "query": {
+              "type": "object",
+              "description": "The lookup's query, by the names the route allows"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "state",
+            "http_status",
+            "count",
+            "items",
+            "next"
+          ],
+          "properties": {
+            "state": {
+              "type": "string"
+            },
+            "http_status": {},
+            "count": {
+              "type": "integer"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "next": {},
+            "note": {}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/trading",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/trading/read-data/trading.mjs",
+            "lookUpLiveInstruments"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "trading",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/trading"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "live-broker-credentials",
+              "fd": 4
+            }
+          ]
+        },
+        "status": "active",
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 15,
+          "network_egress": true
+        },
+        "maker": "maker:trading",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages trade-order (prepare-option-discovery, normalize-option-contracts), ported"
+        }
+      }
+    }
+  ]
+}
