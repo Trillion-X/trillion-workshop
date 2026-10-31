@@ -1,0 +1,145 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-the-last-good-answer",
+        "id": "tool:ask-a-web-address-or-give-the-last-answer",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true,
+          "memory_mb": 128
+        },
+        "label": "Ask a web address, or give me the last answer it gave",
+        "job": "Ask a web address for its answer and keep that answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing",
+        "description": "Give address (a web address that starts with http:// or https://) and key (a short name for this answer: lower-case letters, digits and hyphens, so the last answer can be found again); wait_seconds (1 to 120, default 20) is how long to wait for the address. The answer is JSON when the address says it is JSON and text otherwise, up to 256 KiB. When the address answers, the answer is kept in the person's own records under the key and returned with origin from-the-source. When it fails (an error status, no answer in time, an unreadable or too large body) or answers with nothing, the last answer kept under the key is returned with origin from-what-was-kept and when it was kept; an empty answer never replaces a good one. With nothing kept the origin is nothing-to-give and the answer is null. Failures are returned in words (source_failure, keep_failure, kept_failure), never raised: a failure to keep never costs the answer already in hand. The engine keeps this to public web addresses.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "address",
+            "key"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "type": "string",
+              "description": "The web address to ask"
+            },
+            "key": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,63}$",
+              "description": "A short name for this answer, so the last good one can be found again"
+            },
+            "wait_seconds": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 120
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "origin",
+            "answer",
+            "said"
+          ],
+          "properties": {
+            "origin": {
+              "type": "string",
+              "enum": [
+                "from-the-source",
+                "from-what-was-kept",
+                "nothing-to-give"
+              ]
+            },
+            "answer": {},
+            "kept_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "source_failure": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "keep_failure": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "kept_failure": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-the-last-good-answer",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/keep-the-last-good-answer"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          },
+          "workdir": "/opt/keep-the-last-good-answer",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-the-last-good-answer/read-data/ask-and-keep.mjs",
+            "askAndKeep"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "kept-answer",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ],
+            "most_writes": 1
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
