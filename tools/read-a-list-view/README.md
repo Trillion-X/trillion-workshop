@@ -91,6 +91,7 @@ It is not an engine row. A run the engine starts gets record rights for named re
 - the person's door;
 - for a refresh, the tools its row sources name (`tools/documents-as-list-rows`);
 - for a view's rules, the rule filter of `tools/formulas`, imported in the same process.
+- for a refresh's writes, `writeBatches` of `tools/records-door` (`read-data/write-batches.mjs`), imported in the same process.
 
 **Depended on by:**
 - the Lists screen;

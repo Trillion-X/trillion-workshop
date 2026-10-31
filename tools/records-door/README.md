@@ -29,8 +29,11 @@ A row asks for the door in its invoke, with one rights item per record kind:
 - Without `"internet": true` the run can reach only the door's loopback port.
 - Operations (`run_resource_operation` at `@own-records`):
   - `records:read { id, type }` gives `{ id, type, value }`. value is null when the record is absent or of another kind.
-  - `records:list { type, order?, prefix?, above?, below?, reverse?, limit? (1..999), after? }` gives
-    `{ records, next }`. With no order it lists the greatest id first. Keep paging until `next` is null.
+  - `records:list { type, order?, prefix?, above?, below?, reverse?, fields?, where?, limit? (1..999), after? }` gives
+    `{ records, next }`. With no order it lists the greatest id first. Keep paging until `next` is null. `fields` (at
+    most 64 top-level names) narrows each value to those fields; `[]` gives ids and types only. `where` (at most 64
+    top-level names, each with a value) keeps only the rows whose fields equal those values as JSON; `limit` then
+    bounds the rows read, so a page may show fewer rows, or none, and still name a next page.
   - `records:write { records: [{ id, type, value | null }] }` gives `{ changed, write_count }`. Every record carries
     its type, and every id must be inside a rights item, or the whole write is refused. One write carries 1 to
     `invoke.records.most_writes` records. Left out, that is the engine cap of 256; declaring more refuses the run.
@@ -62,6 +65,7 @@ A row asks for the door in its invoke, with one rights item per record kind:
 | `read-data/records-door.mjs` | `openRecordsDoor()`: `read(type, id)`, `list(query)` (every page, as an async iterator), `write(records, { key })`, `files(operation, input)`; `RecordsDoorError` with the door's code. |
 | `do-work/run-an-export.mjs` | `node run-an-export.mjs <module file> <export>`: calls `fn(input, { door })` with the run's input and prints `{ result }` or `{ error }`. The door opens on first use, so a function that reads no records needs none. |
 | `read-data/byte-pages.mjs` | `wholeAnswer(answer, again)`: an answer that came as byte pages, read on with `again(after_byte)`, joined, checked and parsed. Pure, so a page bundles it too. |
+| `read-data/write-batches.mjs` | `writeBatches(records, { rows, bytes })`: records in order as writes that each fit one door message (at most `rows` records and `bytes` bytes of JSON; a larger record alone), since a write over the 64 KiB message is refused whole. Pure, so a page bundles it too. |
 | `test/fake-door.mjs` | A stand-in door on loopback: records in memory, bearer and rights checks, cut pages, byte pages, busy answers, event-stream answers, saved write receipts. |
 | `test/run-row.mjs` | `runRow(row, input, { records })`: runs a row's argv the way the container does (`/opt/<folder>` laid on `tools/<folder>`), with the fake door on the row's descriptor and exactly the row's rights. |
 | `test/records-door.test.mjs` | The client and the driver against the fake door. |
@@ -73,4 +77,5 @@ A row asks for the door in its invoke, with one rights item per record kind:
 **Depended on by:**
 - `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`, `tools/person-list`: their rows pack this folder, and their tests use `test/run-row.mjs`;
 - `tools/meaning-search` and `tools/documents-as-list-rows`: their rows pack this folder and read the person's files with `door.files`;
-- `tools/read-a-list-view`: its door joins byte pages with `read-data/byte-pages.mjs`.
+- `tools/read-a-list-view`: its door joins byte pages with `read-data/byte-pages.mjs`, and its refresh cuts writes with `read-data/write-batches.mjs`;
+- `tools/decide-with-a-method`: its rows pack this folder, and a decision too large for one write is cut with `read-data/write-batches.mjs`.

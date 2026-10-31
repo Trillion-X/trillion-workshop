@@ -570,6 +570,26 @@
       "evidence": "spaced-repetition README.md:1 due-review prompts; practice-decision-loop practises decisions from evidence; tactics-practice is chess tactics over it"
     },
     {
+      "capability": "decide with a method: start a decision, ask and answer its method's questions, make it, report how it turned out, bring back the person's similar past decisions, and make a decided one safe to share",
+      "owner": ["tools/decide-with-a-method/"],
+      "entry": "tools/decide-with-a-method/tool-rows.json",
+      "evidence": "README.md: the method is the person's list rows (list:methods, list:method-checks); every step is kept in their records; sharing needs the plain privacy pass and a re-identification verdict bound to the exact words",
+      "distinct_from": [
+        {"job": "practise with due reviews and guided drills: spaced repetition, decision practice, tactics", "why": "that job drills a person on practice cases; this one makes and keeps the person's real decisions with their own method"},
+        {"job": "ask people questions and act on their answers: make quiz questions from text, check answers against a form, score answers into a segment with its follow-up", "why": "that job asks other people a form's questions and sorts them by their answers; this one walks one person's own decision through their method's steps and checks, keeps the decision, its outcome and its result"}
+      ]
+    },
+    {
+      "capability": "learn from everyone's results: add and withdraw randomized results and shared situations in a pool, keep the words that enter it safe to show strangers, and answer only aggregates over enough people",
+      "owner": ["tools/learn-from-everyones-results/"],
+      "entry": "tools/learn-from-everyones-results/tool-rows.json",
+      "evidence": "README.md: randomized response, one vote per contributor, minimum people, median of shards, fixed noise; read-data/plain-privacy-pass.mjs is the plain pass every shared situation goes through",
+      "distinct_from": [
+        {"job": "ask a judge model a declared question about some content, trusting only a judge that first answered known cases right", "why": "that job asks a model and calibrates it; this one keeps a pool of many people's randomized results and answers only aggregates, and its privacy pass asks no model"},
+        {"job": "keep a piece's own words as a template, fill only its slots, and catch changed words in a rewrite", "why": "that job keeps a writer's words unchanged; this one removes what could point to a person from words before they enter a shared pool"}
+      ]
+    },
+    {
       "capability": "plan the next training session and log workouts",
       "lives_at": ["bitfield-packages/packages/training-plan/", "bitfield-packages/packages/workout-log/"],
       "moves_to": "tools/training-and-workouts/",

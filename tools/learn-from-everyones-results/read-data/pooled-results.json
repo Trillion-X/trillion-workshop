@@ -1,0 +1,17 @@
+{
+  "about": "DATA for read-data/pooled-results.mjs. `results` and `situations` name the two lists the pool account keeps (a list declares its row type; each row is the record `record:<row_type>:<id>`): a result row is { contributor, situation, worked (1 or 0, the randomized bit as sent), embedding, day }, a situation row holds at least `embedding`, the meaning of a shared situation. The tool rows' records rights name the same row types (test/pooled-results.test.mjs checks they agree). `limits.dimensions` is the longest embedding taken; `limits.writes` is how many removals one door write carries (the engine's cap is 256). `words` are what a refusal says. The rules every answer is given under (epsilon, minimum people, shards, noise, buckets, closeness) are never here: the caller passes the pool's own settings. `limits.entry_fields` and `limits.entry_characters` bound a shared entry (tool:add-a-shared-situation): at most that many fields, each words or a list of words, every text at most that long.",
+  "results": { "list": "list:pooled-results", "row_type": "pooled-result" },
+  "situations": { "list": "list:pooled-situations", "row_type": "pooled-situation" },
+  "limits": { "dimensions": 4096, "writes": 256, "entry_fields": 16, "entry_characters": 2000 },
+  "words": {
+    "no_rules": "Name the rules the pool answers under.",
+    "rule_missing": "A rule is missing or is not a positive number:",
+    "rule_whole": "shards and min_people are whole numbers.",
+    "bad_embedding": "An embedding is a list of numbers, at most 4096 long.",
+    "worked_not_boolean": "worked is true or false.",
+    "bad_contributor": "A contributor is 64 lowercase hex characters.",
+    "no_situation": "No shared situation has that id.",
+    "bad_entry": "A shared entry is an object of at most 16 fields, each words or a list of words of at most 2000 characters.",
+    "not_safe": "These words could still point to someone, so they stay out of the pool:"
+  }
+}

@@ -31,14 +31,17 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       const held = kept.get(id);
       return { structuredContent: { id, type, value: held?.type === type ? held.value : null } };
     },
-    'records:list': ({ type, prefix, order, limit = 50, after }) => {
+    // `limit` bounds the rows read; `where` keeps those whose named fields equal it (as JSON), `fields` narrows each value.
+    'records:list': ({ type, prefix, order, limit = 50, after, fields, where }) => {
       if (!may(type, 'records:list', { prefix, order })) return refuse(OUTSIDE);
       const ids = [...kept.values()].filter(record => record.type === type && (!prefix || record.id.startsWith(prefix))).map(record => record.id).sort().reverse();
       const from = after === undefined ? 0 : ids.indexOf(after) + 1;
       const size = Math.min(limit, pageCut ?? limit);
       const page = ids.slice(from, from + size);
       const next = from + size < ids.length ? page.at(-1) : null;
-      return { structuredContent: { records: page.map(id => kept.get(id)), next } };
+      const matches = record => !where || Object.entries(where).every(([name, value]) => JSON.stringify(record.value?.[name]) === JSON.stringify(value));
+      const shown = record => (fields ? { id: record.id, type: record.type, ...(fields.length ? { value: Object.fromEntries(fields.filter(name => name in (record.value ?? {})).map(name => [name, record.value[name]])) } : {}) } : record);
+      return { structuredContent: { records: page.map(id => kept.get(id)).filter(matches).map(shown), next } };
     },
     'records:write': ({ records: items }, key) => {
       if (receipts.has(key)) return { structuredContent: receipts.get(key) };
