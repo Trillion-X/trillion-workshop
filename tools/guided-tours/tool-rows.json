@@ -1,0 +1,241 @@
+{
+ "kind": "tool-rows",
+ "record_set": "guided-tours-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/guided-tours: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::guided-tours::tool::step-through-a-guided-tour",
+   "address": "package::guided-tours::tool::step-through-a-guided-tour",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:step-through-a-guided-tour",
+    "label": "Move a person through a guided tour, quiz or spotlight",
+    "status": "active",
+    "job": "Work out where a person is in a guided tour, walkthrough, spotlight or branching quiz after they start, go on, answer, go back, jump to a step or restart",
+    "description": "Give the tour (an ordered list of steps with an entry step; a step may route by the person's answer with a branch_map of by_answer routes and a default_next) and one action: start or restart, advance (with the person's answer when the step asks one), back, or jump (with step_id). The cursor from the last answer goes back in with every action but start and restart. The answer is the new cursor (current_step_id, the history of steps visited, and status active or complete), the whole current step exactly as the tour author wrote it (what it shows and where it points are the author's and pass through untouched) and whether the tour has finished. Going on from the last step, or along a route to a step the tour does not have, finishes the tour and the cursor stays on the last step shown. Going back undoes exactly, even across a branch. Nothing is kept between calls; the caller keeps the cursor.",
+    "input_schema": {
+     "type": "object",
+     "required": ["tour", "action"],
+     "additionalProperties": false,
+     "properties": {
+      "tour": { "type": "object", "description": "The tour record: entry_step and steps (each with an id, and optionally a branch_map)" },
+      "action": { "type": "string", "enum": ["start", "restart", "advance", "back", "jump"] },
+      "cursor": { "type": "object", "description": "The cursor from the last answer: { current_step_id, history, status }; not needed for start or restart" },
+      "answer": { "type": "string", "description": "The person's answer, for a step that routes by answer" },
+      "step_id": { "type": "string", "description": "The step to go to, for jump" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["cursor", "step", "finished"],
+     "properties": {
+      "cursor": {
+       "type": "object",
+       "required": ["current_step_id", "history", "status"],
+       "properties": {
+        "current_step_id": { "type": "string" },
+        "history": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string", "enum": ["active", "complete"] }
+       }
+      },
+      "step": { "type": ["object", "null"], "description": "The current step as written in the tour" },
+      "finished": { "type": "boolean" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "guided-tours", "paths": ["do-work"], "at": "/opt/guided-tours" } },
+     "workdir": "/opt/guided-tours",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/tours.mjs", "step"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:guided-tours",
+    "provenance": { "source": "ported from the guided-overlay package (cursor machine and branch resolver)" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "tour": { "entry_step": "hello", "steps": [{ "id": "hello", "branch_map": { "by_answer": { "baker": "oven" }, "default_next": "menu" } }, { "id": "menu" }, { "id": "oven" }] },
+       "action": "advance",
+       "cursor": { "current_step_id": "hello", "history": [], "status": "active" },
+       "answer": "baker"
+      },
+      "output_selector": "$.cursor.current_step_id",
+      "contains": "oven"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::guided-tours::tool::check-if-a-tour-step-may-advance",
+   "address": "package::guided-tours::tool::check-if-a-tour-step-may-advance",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-if-a-tour-step-may-advance",
+    "label": "Check whether a tour step may move on by itself",
+    "status": "active",
+    "job": "Decide whether a guided-tour step has met its advance condition: tapped next, touched the highlighted thing, answered, watched enough of a video, waited long enough, finished an embedded form, or a fact someone looked up has the right value",
+    "description": "Give the step's advance condition ({ op, args }) and what is known now (signals: next_tapped, target_interacted, answer, media_ratio from 0 to 1, elapsed_ms, surface_completion_refs, owner_readbacks keyed by the fact's ref). Ops: tap-next, target-interacted, answer-given, media-watched (args.min_ratio, default 1), timeout (args.ms), surface-completed (args.completion_ref), owner-readback (args.readback_ref, answer_fact_ref or objective_answer_ref, with required_values_present, required_nonempty, required_answer_values, accepted_states or required_states), and all-of / any-of over a list in args.of, nested as deep as written (an empty all-of is false). Every threshold is in the condition. An op that is not defined answers false, so a typo never pushes a person on; they can still move on by hand.",
+    "input_schema": {
+     "type": "object",
+     "required": ["condition"],
+     "additionalProperties": false,
+     "properties": {
+      "condition": { "type": "object", "required": ["op"], "description": "{ op, args? }" },
+      "signals": { "type": "object", "description": "What is known now about the step" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["may_advance"],
+     "properties": { "may_advance": { "type": "boolean" } }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "guided-tours", "paths": ["do-work"], "at": "/opt/guided-tours" } },
+     "workdir": "/opt/guided-tours",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/tours.mjs", "may-advance"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:guided-tours",
+    "provenance": { "source": "ported from the guided-overlay package (advance evaluator)" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "condition": { "op": "any-of", "args": { "of": [{ "op": "tap-next" }, { "op": "timeout", "args": { "ms": 5000 } }] } },
+       "signals": { "elapsed_ms": 6000 }
+      },
+      "output_selector": "$.may_advance",
+      "contains": "true"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::guided-tours::tool::find-the-tour-an-event-starts",
+   "address": "package::guided-tours::tool::find-the-tour-an-event-starts",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-the-tour-an-event-starts",
+    "label": "Find which guided tour an event starts",
+    "status": "active",
+    "job": "Decide which guided tour, if any, should start when something happens in an app (it opened, a page was entered, a replay was asked for), without showing a tour that was already seen",
+    "description": "Give the tour records in the order they were written (a later record at the same id replaces an earlier one; one marked status deleted removes it; records that are not tours are skipped), the event ({ event_kind, plus any fields }) and the suppression keys already used up. A trigger fires on one event kind and only when every field in its match equals the event's. The first trigger in the order written, over the tours in id order, whose key is not used up wins. The answer names the tour, the trigger with its reason exactly as written, and the key to record so the tour does not start again (scoped by once_key_fields of the event when the trigger names them, so one person's tour being used up leaves another's); a trigger with no once_key has no key and can fire every time. When nothing fires all three are null.",
+    "input_schema": {
+     "type": "object",
+     "required": ["tours", "event"],
+     "additionalProperties": false,
+     "properties": {
+      "tours": { "type": "array", "description": "The tour records, oldest first" },
+      "event": { "type": "object", "required": ["event_kind"], "description": "What happened: { event_kind, ...fields }" },
+      "consumed_keys": { "type": "array", "items": { "type": "string" }, "description": "Suppression keys already used up" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["tour_id", "trigger", "suppression_key"],
+     "properties": {
+      "tour_id": { "type": ["string", "null"] },
+      "trigger": { "type": ["object", "null"] },
+      "suppression_key": { "type": ["string", "null"] }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "guided-tours", "paths": ["do-work"], "at": "/opt/guided-tours" } },
+     "workdir": "/opt/guided-tours",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/tours.mjs", "find"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:guided-tours",
+    "provenance": { "source": "ported from the guided-overlay package (trigger intake and tour record fold)" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "tours": [{ "kind": "walkthrough-definition", "id": "tour:welcome", "entry_step": "a", "steps": [{ "id": "a" }], "triggers": [{ "reason": "first-visit", "on_event": { "event_kind": "shop-opened" }, "once_key": "tour:welcome" }] }],
+       "event": { "event_kind": "shop-opened" }
+      },
+      "output_selector": "$.tour_id",
+      "contains": "tour:welcome"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::guided-tours::tool::find-the-event-that-starts-one-tour",
+   "address": "package::guided-tours::tool::find-the-event-that-starts-one-tour",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-the-event-that-starts-one-tour",
+    "label": "Find the event that starts or replays one guided tour",
+    "status": "active",
+    "job": "Work out the event a Start or Replay control should send to run one named guided tour on demand",
+    "description": "Give the tour records (oldest first) and the id of the tour. Of that tour's triggers, the most specific repeatable one is chosen: a trigger bound to this tour's id and with no once_key first, then one not bound to a tour, then the ones that can be used up. A trigger bound to a different tour is never chosen. The event is the trigger's event kind and its match fields, copied as written, with walkthrough_id set to the tour. Null when the tour has no usable trigger. A tour that is not among the records is refused.",
+    "input_schema": {
+     "type": "object",
+     "required": ["tours", "tour_id"],
+     "additionalProperties": false,
+     "properties": {
+      "tours": { "type": "array", "description": "The tour records, oldest first" },
+      "tour_id": { "type": "string", "description": "The tour to start" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["event"],
+     "properties": { "event": { "type": ["object", "null"] } }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "guided-tours", "paths": ["do-work"], "at": "/opt/guided-tours" } },
+     "workdir": "/opt/guided-tours",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/tours.mjs", "start-event"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:guided-tours",
+    "provenance": { "source": "ported from the guided-overlay package (start event for a walkthrough)" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "tours": [{ "kind": "walkthrough-definition", "id": "tour:welcome", "entry_step": "a", "steps": [{ "id": "a" }], "triggers": [{ "reason": "replay", "on_event": { "event_kind": "tour-requested", "match": { "walkthrough_id": "tour:welcome" } } }] }],
+       "tour_id": "tour:welcome"
+      },
+      "output_selector": "$.event.event_kind",
+      "contains": "tour-requested"
+     }
+    ]
+   }
+  }
+ ]
+}
