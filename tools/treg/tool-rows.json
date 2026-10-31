@@ -1,0 +1,265 @@
+{
+ "kind": "tool-rows",
+ "record_set": "treg-tool-rows",
+ "what_this_is": "The Workshop rows for treg (treg.to), a catalog of paid external endpoints (search and SEO data, ads libraries, social posts, company data, enrichment, generation) behind one address and one token. The catalog is treg's DATA: one row calls any endpoint by its id, so no endpoint has a row of its own. Finding an endpoint and reading its price are free and need no token; a call spends the person's treg balance, through their treg connection, under a cost ceiling the caller names.",
+ "records": [
+  {
+   "id": "package::ai-tool-catalog::tool::search-the-treg-catalog",
+   "address": "package::ai-tool-catalog::tool::search-the-treg-catalog",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:search-the-treg-catalog",
+    "label": "Search treg's catalog of paid endpoints",
+    "job": "Find the external endpoints that can do a job (backlinks for a domain, a company's job openings, a brand's ads, a channel's posts) and what each costs, before spending anything",
+    "description": "Searches treg's public catalog by the job in plain words and answers its matches, each with its id, what it does, its method, its inputs and its price (cost.usd per cost.unit, and whether it is billed per call or per success). Free and needs no account or token: nothing is spent. Read one match in full with tool:read-a-treg-endpoint-and-its-price, then call it with tool:call-a-treg-endpoint. A job usually has several providers at very different prices; choose by the inputs you actually hold first, then by how often each works, then by price.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": ["job"],
+     "additionalProperties": false,
+     "properties": {
+      "job": { "type": "string", "minLength": 2, "maxLength": 300, "description": "The job in plain words, for example \"backlinks summary for a domain\"" },
+      "limit": { "type": "integer", "minimum": 1, "maximum": 25, "default": 10, "description": "How many matches to answer (default 10)" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["results"],
+     "properties": {
+      "query": { "type": "string" },
+      "count": { "type": "integer" },
+      "total": { "type": "integer" },
+      "results": { "type": "array", "items": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string" }, "method": { "type": "string" }, "cost": { "type": "object" } }, "additionalProperties": true } }
+     },
+     "additionalProperties": true
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://treg.to/catalog/search",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "headers": { "accept": "application/json" },
+     "query": {
+      "q": { "from": "job" },
+      "limit": { "from": "limit", "optional": true, "otherwise": { "const": 10 } }
+     }
+    },
+    "result_selector": "$",
+    "needs": { "expected_seconds": 5, "network_egress": true },
+    "read_only": true,
+    "maker": "maker:treg",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:public-web-address"],
+    "provenance": {
+     "provider": "treg",
+     "api": "https://treg.to/catalog/search",
+     "documentation": "https://treg.to/integrate.md",
+     "read_on": "2026-10-30"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::tool::read-a-treg-endpoint-and-its-price",
+   "address": "package::ai-tool-catalog::tool::read-a-treg-endpoint-and-its-price",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-a-treg-endpoint-and-its-price",
+    "label": "Read a treg endpoint and its price",
+    "job": "Read one paid endpoint in full before calling it: its price, the inputs it takes, how it is called, and the other providers that do the same job",
+    "description": "Reads one endpoint of treg's public catalog by its id: endpoint.method and endpoint.input (its query or body fields, which are required, their notes), endpoint.cost (usd per unit, per call or per success, and a note on per-row charges), endpoint.async (a task that is polled, when not null), endpoint.observed (how often it worked, over how many calls, when it last worked) and siblings (other providers of the same job with their prices). An id it does not know answers 404 with near misses in detail.did_you_mean. Free and needs no token. Quote the price to the person before the first call of an endpoint, and pass a max_cost_usd to tool:call-a-treg-endpoint that the quoted price fits.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": ["endpoint"],
+     "additionalProperties": false,
+     "properties": {
+      "endpoint": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._~-]*$", "maxLength": 200, "description": "The endpoint's id, as tool:search-the-treg-catalog answers it, for example \"treg.web.map\"" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["endpoint"],
+     "properties": {
+      "endpoint": { "type": "object", "required": ["id", "method"], "properties": { "id": { "type": "string" }, "method": { "type": "string" }, "cost": { "type": "object" }, "input": { "type": "object" }, "async": {} }, "additionalProperties": true },
+      "siblings": { "type": "array", "items": { "type": "object" } },
+      "routing": { "type": ["object", "null"] }
+     },
+     "additionalProperties": true
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://treg.to/catalog/endpoints/{endpoint}",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "headers": { "accept": "application/json" }
+    },
+    "result_selector": "$",
+    "needs": { "expected_seconds": 5, "network_egress": true },
+    "read_only": true,
+    "maker": "maker:treg",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:public-web-address"],
+    "provenance": {
+     "provider": "treg",
+     "api": "https://treg.to/catalog/endpoints/<id>",
+     "documentation": "https://treg.to/integrate.md",
+     "read_on": "2026-10-30"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::tool::call-a-treg-endpoint",
+   "address": "package::ai-tool-catalog::tool::call-a-treg-endpoint",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:call-a-treg-endpoint",
+    "label": "Call a treg endpoint",
+    "job": "Call any endpoint in treg's catalog by its id, with its inputs, paid from the person's treg balance, never above a cost ceiling the caller names",
+    "description": "Sends one call to treg for the endpoint id given, with the person's treg token from their treg connection (the token is placed as the request leaves and never shown), and answers the provider's reply as treg relays it (a routed treg.* endpoint answers {output, raw, _treg}). Send the method the catalog names (endpoint.method), its query fields in query and its body fields in body, exactly as tool:read-a-treg-endpoint-and-its-price lists them; a path field goes in query. max_cost_usd is sent as treg's X-Treg-Route-Max-Cost: treg documents that a call it would bill above it is refused with HTTP 402 route_max_cost before anything is charged. This SPENDS the person's treg balance: read the endpoint's price first, say it to the person, and keep max_cost_usd at what they agreed to. A reply outside 2xx is an error that quotes treg: 402 is an empty balance or the ceiling, 503 provider_capacity_unavailable names other providers of the job; failed calls are not billed. treg answers the cost of a call in a reply header this row does not read; read the charge with tool:read-my-treg-balance. A team's own registered tool is called the same way, as <tool-name>/<path>.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": ["account", "endpoint", "method", "max_cost_usd"],
+     "additionalProperties": false,
+     "properties": {
+      "account": { "type": "string", "pattern": "^service_connection:treg(:[A-Za-z0-9._-]+)?$", "description": "Which of the person's treg connections pays, by its id: service_connection:treg, or service_connection:treg:<account> for another team" },
+      "endpoint": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._~-]*(/(?!\\.{1,2}(/|$))[A-Za-z0-9._~-]+)*$", "maxLength": 300, "description": "The catalog endpoint's id (for example \"dataforseo.web.backlinks.summary\"), or a team's own tool as <tool-name>/<path>" },
+      "method": { "type": "string", "enum": ["GET", "POST"], "description": "The method the catalog names for this endpoint (endpoint.method)" },
+      "query": { "type": "object", "additionalProperties": { "type": ["string", "number", "boolean", "array"] }, "description": "The endpoint's query and path fields, by name" },
+      "body": { "type": "object", "description": "The endpoint's JSON body fields, by name, for a POST endpoint" },
+      "max_cost_usd": { "type": "number", "exclusiveMinimum": 0, "maximum": 10, "description": "The most this one call may cost, in US dollars, at or above the price quoted from the catalog for the rows or targets asked for" },
+      "team": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "The treg team slug, only when the held token is a person's sign-in token rather than one team's key" }
+     }
+    },
+    "output_schema": {},
+    "invoke": {
+     "kind": "http",
+     "url": "https://treg.to/call/{endpoint}",
+     "method": { "fill": { "from": "input", "field": "method" } },
+     "timeout_seconds": 120,
+     "headers": {
+      "accept": "application/json",
+      "X-Treg-Route-Max-Cost": { "from": "max_cost_usd" },
+      "X-Treg-Org": { "from": "team", "optional": true }
+     },
+     "query": { "from": "query", "optional": true },
+     "body": { "from": "body", "optional": true },
+     "body_encoding": "json",
+     "connection": { "vendor": "treg", "from_input": "account" },
+     "credential_injections": [
+      { "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+     ]
+    },
+    "result_selector": "$",
+    "needs": { "expected_seconds": 30, "network_egress": true },
+    "read_only": false,
+    "maker": "maker:treg",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "provenance": {
+     "provider": "treg",
+     "api": "https://treg.to/call/<id>",
+     "documentation": "https://treg.to/llms.txt",
+     "source_rights": "Each endpoint's provider answers under its own terms; treg relays the reply as the provider sent it.",
+     "read_on": "2026-10-30"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::tool::read-my-treg-team",
+   "address": "package::ai-tool-catalog::tool::read-my-treg-team",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-my-treg-team",
+    "label": "Read which treg team my connection pays from",
+    "job": "Read the treg team a connection's token belongs to, with the team's number that its balance is read by",
+    "description": "Asks treg who the held token is (GET /auth/me, the request the treg command line makes when it needs the team's number). The answer's org_id is the team number tool:read-my-treg-balance takes. Reads only; spends nothing; the token is never shown.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": ["account"],
+     "additionalProperties": false,
+     "properties": {
+      "account": { "type": "string", "pattern": "^service_connection:treg(:[A-Za-z0-9._-]+)?$", "description": "Which of the person's treg connections, by its id: service_connection:treg, or service_connection:treg:<account>" }
+     }
+    },
+    "output_schema": { "type": "object", "properties": { "org_id": { "type": ["integer", "string", "null"] } }, "additionalProperties": true },
+    "invoke": {
+     "kind": "http",
+     "url": "https://treg.to/auth/me",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "headers": { "accept": "application/json" },
+     "connection": { "vendor": "treg", "from_input": "account" },
+     "credential_injections": [
+      { "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+     ]
+    },
+    "result_selector": "$",
+    "needs": { "expected_seconds": 5, "network_egress": true },
+    "read_only": true,
+    "maker": "maker:treg",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "provenance": {
+     "provider": "treg",
+     "api": "https://treg.to/auth/me",
+     "documentation": "The treg command line reads org_id from this answer (treg/cli.py, _active_org_id); treg's public pages do not list it.",
+     "read_on": "2026-10-30"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::tool::read-my-treg-balance",
+   "address": "package::ai-tool-catalog::tool::read-my-treg-balance",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-my-treg-balance",
+    "label": "Read my treg balance and recent charges",
+    "job": "Read how much is left on the person's treg balance and what recent calls were charged, to keep a run inside its budget",
+    "description": "Reads the treg team's prepaid balance (balance_micro, in millionths of a US dollar), its credit blocks, amounts held for tasks still running, and its most recent charges. The balance is the hard limit on what any call can spend. Read it before a run's first paid call and after each step: what the run spent is the balance at the start less the balance now. Reads only; spends nothing; the token is never shown.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": ["account", "team_id"],
+     "additionalProperties": false,
+     "properties": {
+      "account": { "type": "string", "pattern": "^service_connection:treg(:[A-Za-z0-9._-]+)?$", "description": "Which of the person's treg connections, by its id: service_connection:treg, or service_connection:treg:<account>" },
+      "team_id": { "type": "integer", "minimum": 1, "description": "The team's number, the org_id tool:read-my-treg-team answers" },
+      "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20, "description": "How many recent charges to answer (default 20)" }
+     }
+    },
+    "output_schema": { "type": "object", "required": ["balance_micro"], "properties": { "balance_micro": { "type": "integer" }, "blocks": { "type": "array" }, "holds": { "type": "array" } }, "additionalProperties": true },
+    "invoke": {
+     "kind": "http",
+     "url": "https://treg.to/orgs/{team_id}/balance",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "headers": { "accept": "application/json" },
+     "query": { "limit": { "from": "limit", "optional": true, "otherwise": { "const": 20 } } },
+     "connection": { "vendor": "treg", "from_input": "account" },
+     "credential_injections": [
+      { "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+     ]
+    },
+    "result_selector": "$",
+    "needs": { "expected_seconds": 5, "network_egress": true },
+    "read_only": true,
+    "maker": "maker:treg",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "provenance": {
+     "provider": "treg",
+     "api": "https://treg.to/orgs/<id>/balance",
+     "documentation": "https://treg.to/integrate.md",
+     "read_on": "2026-10-30"
+    }
+   }
+  }
+ ]
+}
