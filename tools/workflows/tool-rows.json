@@ -22,7 +22,7 @@
         "label": "Start a run of a recipe: leave its steps as a job for my AI",
         "status": "active",
         "job": "When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing",
-        "description": "Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row. It reads that recipe's steps from the recipes folder and writes one record of kind ai-job, id ai-job:<recipe id>:<request key>, holding status waiting, the recipe id and label, its steps, the input it was started with and the wake cause that started it. It does no step itself, schedules nothing and keeps nothing else. The AI that next connects to the person's records lists ai-job records with status waiting, does the oldest, and writes status done with its result. A firing or a call that comes again with the same request key finds its job and writes nothing.",
+        "description": "Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row. It reads that recipe from the person's own list of workflows and the rows of its steps, or else from the public recipes folder (the person's own row wins when both hold the id), and writes one record of kind ai-job, id ai-job:<recipe id>:<request key>, holding status waiting, the recipe id and label, its steps, the input it was started with and the wake cause that started it. It does no step itself, schedules nothing and keeps nothing else. The AI that next connects to the person's records lists ai-job records with status waiting, does the oldest, and writes status done with its result. A firing or a call that comes again with the same request key finds its job and writes nothing.",
         "input_schema": {
           "type": "object",
           "required": ["row"],
@@ -45,7 +45,7 @@
           "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
           "files": {
             "package_files": [
-              { "package": "workflows", "paths": ["read-data/start-a-recipe-run.mjs", "recipes"], "at": "/opt/workflows" },
+              { "package": "workflows", "paths": ["read-data/start-a-recipe-run.mjs", "read-data/recipe-rows.mjs", "recipes"], "at": "/opt/workflows" },
               { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
             ]
           },
@@ -53,7 +53,9 @@
             "fd": 3,
             "most_writes": 1,
             "rights": [
-              { "kind": "ai-job", "operations": ["records:read", "records:write"] }
+              { "kind": "ai-job", "operations": ["records:read", "records:write"] },
+              { "kind": "record:workflow-recipe", "operations": ["records:read"] },
+              { "kind": "record:workflow-step", "operations": ["records:list"], "prefix": "record:workflow-step:" }
             ]
           }
         },

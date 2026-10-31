@@ -1,0 +1,1081 @@
+{
+ "schema": "list-view-file/v1",
+ "source": {
+  "view": "list-view:workflows:public",
+  "list": "workflows",
+  "blake3": "d06730f4cdc20dda155799c3d5719d8c750ab966ddcdba4c82c1613bb6cc959f"
+ },
+ "fields": [
+  {
+   "id": "title",
+   "kind": "text",
+   "label": "Workflow"
+  },
+  {
+   "id": "recipe",
+   "kind": "text",
+   "label": "Recipe id"
+  },
+  {
+   "id": "job",
+   "kind": "long-text",
+   "label": "What it gets done"
+  },
+  {
+   "id": "produces",
+   "kind": "text",
+   "label": "What a run makes"
+  },
+  {
+   "id": "made_from",
+   "kind": "tags",
+   "label": "Made from"
+  },
+  {
+   "id": "input_schema",
+   "kind": "long-text",
+   "label": "Input (JSON schema)"
+  },
+  {
+   "id": "source",
+   "kind": "long-text",
+   "label": "Where it came from (JSON)"
+  },
+  {
+   "id": "wakes",
+   "kind": "long-text",
+   "label": "Wakes (JSON)"
+  },
+  {
+   "id": "definition",
+   "kind": "long-text",
+   "label": "Engine definition (JSON)"
+  },
+  {
+   "id": "flags",
+   "kind": "tags",
+   "label": "Flags"
+  }
+ ],
+ "rows": [
+  {
+   "id": "bring-in-a-framework",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"title\",\"sources\"],\"properties\":{\"title\":{\"type\":\"string\",\"minLength\":2},\"author\":{\"type\":\"string\",\"minLength\":1},\"sources\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"Private file names or identities in this person's files\"},\"about\":{\"type\":\"string\"}}}",
+    "job": "Turn any author's own book, notes or conversation into private framework data for their AI to run, preserving every question, exercise and source citation in order.",
+    "recipe": "workflow:bring-in-a-framework",
+    "source": "{\"from\":\"a method a person repeated across their work\"}",
+    "title": "Bring in a framework"
+   }
+  },
+  {
+   "id": "bring-in-my-processes",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"scope\"],\"properties\":{\"scope\":{\"type\":\"string\",\"minLength\":3,\"description\":\"What to look through, such as a folder of skills, a scripts folder, or everything this agent can reach\"}}}",
+    "job": "Find the processes, skills, checklists, scripts and tools a person already has on a computer or agent, check which ones the marketplace already has, and bring each missing one in as a workflow or a tool that keeps running where it already lives, with no duplicates.",
+    "recipe": "workflow:bring-in-my-processes",
+    "source": "{\"from\":\"the product's own behaviour\"}",
+    "title": "Bring in my processes and tools"
+   }
+  },
+  {
+   "id": "buy-and-deliver",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"items\"],\"properties\":{\"items\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"deliver_to\":{\"type\":\"string\"},\"by\":{\"type\":\"string\",\"format\":\"date-time\"}}}",
+    "job": "Buy what a plan says to bring or get (supplies, gear, a clipboard) and have it delivered or ready for pickup on the way, after one tap with the price",
+    "recipe": "workflow:buy-and-deliver",
+    "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Orders go through the person's own accounts, after one tap with the price.\"}",
+    "title": "Buy and deliver"
+   }
+  },
+  {
+   "id": "check-a-decision-against-your-map",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"case_id\"],\"properties\":{\"case_id\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The decision's case_id\"}}}",
+    "job": "Weigh one decision against the person's own map of their life: which areas of that map it serves or lives and which it leaves out or takes from, especially the ones none of their pursuits touch, and keep the result on the decision.",
+    "recipe": "workflow:check-a-decision-against-your-map",
+    "source": "{\"from\":\"a method a person repeated across their work\"}",
+    "title": "Check a decision against your map"
+   }
+  },
+  {
+   "id": "combine-several-ai-answers",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"question\",\"answers\"],\"properties\":{\"question\":{\"type\":\"string\"},\"answers\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"minItems\":2},\"pursuit\":{\"type\":\"string\"}}}",
+    "job": "Take several answers to the same question (from different AIs, people or runs), pull out every claim, group the ones that mean the same thing, find the different assumption behind each disagreement, check the disputed claims against a primary source or a test, and write one answer that shows how many agree, what is still disputed and what none of them established.",
+    "recipe": "workflow:combine-several-ai-answers",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Several different answers become one checked meta-analysis. Nothing here names a subject, field or person.\"}",
+    "title": "Combine several answers to one question into one answer"
+   }
+  },
+  {
+   "id": "describe-what-happens-before-naming-it",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"subject\"],\"properties\":{\"subject\":{\"type\":\"string\",\"minLength\":3},\"goal\":{\"type\":\"string\"},\"pursuit\":{\"type\":\"string\"}}}",
+    "job": "Find out what is actually happening in any subject, and under which conditions it holds or fails, before choosing its dimensions, goals, tradeoffs or name: describe it in observable terms, sort every stated requirement into observed, assumed or inherited, keep only the distinctions that change the outcome, derive the fewest principles the evidence supports, and only then propose dimensions (each with a test that could reject it) and a name that claims no more than what was derived.",
+    "recipe": "workflow:describe-what-happens-before-naming-it",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Familiar concepts are conclusions to investigate, not premises to inherit; show the derivation; force no framework the evidence does not justify. Nothing here names a subject, field or person.\"}",
+    "title": "Describe what happens before you name it"
+   }
+  },
+  {
+   "id": "file-what-needs-the-person",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"said\"],\"properties\":{\"said\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The sentence or plan that has the person doing something, as written\"},\"source\":{\"type\":\"string\",\"description\":\"Where it came from: a message id, a decision case_id, a chat\"},\"asked_by\":{\"type\":\"string\",\"description\":\"Who said it, as the person knows them\"},\"pursuit\":{\"type\":\"string\",\"description\":\"The pursuit it serves, when known\"},\"near\":{\"type\":\"string\",\"description\":\"Where the person is or starts from, when the plan involves going somewhere\"}}}",
+    "job": "Take any sentence or plan that has the person doing something, do every step the host can, weigh what is left (a last resort, or truly better from them), keep each remaining step as one fully explained row on their Waiting on you list with how they finish it and what was tried, then take them to the oldest one. Run it before any message, answer or plan tells the person to do something.",
+    "recipe": "workflow:file-what-needs-the-person",
+    "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Any sentence that has the person doing something becomes a row first, so it reaches every device, explains itself and gets louder until it is done, instead of sitting in one chat. Every plan passes through this before a person sees it. It also holds the earlier workflow \\\"Do it for me\\\", which had the same first three steps. Names tools that no tool in the Workshop offers yet: tool:take-me-there, tool:what-can-trillion-do, tool:what-is-waiting-on-me, tool:who-does-each-step.\"}",
+    "title": "File what needs the person"
+   }
+  },
+  {
+   "id": "find-and-test-the-short-video-formats-that-sell-your-app",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"app\",\"best_feature\",\"category\",\"competitors\",\"platform\"],\"properties\":{\"app\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The person's app, in one plain sentence: what it is and who it is for\"},\"best_feature\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The one feature that shows the app's value fastest on a phone screen\"},\"category\":{\"type\":\"string\",\"minLength\":2,\"description\":\"The app's category in the person's own words, for example language learning or period tracking\"},\"competitors\":{\"type\":\"array\",\"minItems\":1,\"maxItems\":5,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"Up to 5 competing apps, by name as people know them\"},\"platform\":{\"enum\":[\"tiktok\",\"instagram\",\"youtube-shorts\"],\"description\":\"Where the person will post\"},\"library\":{\"enum\":[\"darkugc-connector\",\"own-tools\"],\"description\":\"darkugc-connector when the person has connected their free DarkUGC account (tools search_videos, get_video, analyze_brand, analyze_niche, find_creators, get_creator, query_library, top_hooks, trending_now, get_search_filters); own-tools to use public video addresses with yt-dlp metadata and the person's own outlier scoring instead. If left out, use darkugc-connector when its tools are listed and own-tools when they are not.\"}}}",
+    "job": "Map which short-video formats won in the person's category over the last 30 and 90 days, read the 8 most relevant videos in detail, score the formats and pick the top 3, write 9 scripts (3 per format, 3 hooks each, the app on screen by 0:03) that keep each format's structure and change every word, list the creators who already posted for the person's competitors, then plan a 2-week test of 3 videos per format and end every format that gets under 5 downloads per 1,000 views. Every number comes from a tool call or from the person's own analytics; where there is none, the answer is \"no data\". The AI drafts, the person approves the exact scripts, films and posts: the AI never posts by itself.",
+    "produces": "Each Monday: the formats winning in the niche this week, scored, with 3 new scripts for the best one; the ranked formats are a \"what is working now\" post.",
+    "recipe": "workflow:find-and-test-the-short-video-formats-that-sell-your-app",
+    "source": "{\"from\":\"X posts\",\"author\":\"Jake Castillo and a second X author on the same method\",\"url\":\"https://x.com/jakecastilloooo/status/2115831262740980171\",\"name\":\"Jake Castillo, X post of 2026-10-30, and a second X post (https://x.com/fuckgrowth/status/2114783239705424235): a research library of viral UGC videos plus an agent prompt that turns it into a content plan\",\"note\":\"Their claims, not checked here: after about 25 videos from the last 30 days, 3 or 4 formats keep winning; a format a brand re-runs about 20 times is probably making money (a guess, labelled as one in this workflow); a good format shows the app's value within 3 to 5 seconds; the bar to keep a format is 5 downloads per 1,000 views. The method: map the niche, copy the structure and not the words, make 3 to 5 hooks per structure, use the creators who already posted for competitors as the outreach list, and every week add new winners, run 10 fresh tests, move the best organic videos to paid, and keep a log of which borrowed formats converted for the person's own app. The strategist prompt asks for every number from the library tool, \\\"no data\\\" instead of an invented number, formats scored 1 to 5 on reach, momentum, fit with the moment the app shows its value, ease to film and proof from competitors, and a Monday rerun checklist. The video library is DarkUGC (darkugc.com), a free library; its connector needs a free account of the person's own, its terms forbid scraping, bulk download and training models on it, and they allow quoting short parts with a link. This workflow uses it only through the person's own signed-in connector, one request at a time, and keeps nothing but short notes and links.\"}",
+    "title": "Find and test the short-video formats that sell your app",
+    "wakes": "[{\"id\":\"monday\",\"on\":{\"time\":{\"every_ms\":604800000,\"from_ms\":378000000}},\"budget\":{\"steps\":80,\"wall_ms\":3600000},\"input\":{\"start_at\":\"map-niche\"}}]"
+   }
+  },
+  {
+   "id": "find-moments-in-a-recording",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"file\"],\"properties\":{\"file\":{\"type\":\"string\",\"pattern\":\"^1f:[0-9a-f]{64}$\",\"description\":\"The recording in this account by its content identity\"}}}",
+    "job": "Inspect a recording, keep what is seen and heard as timed rows linked to its file, then turn useful material into source-linked drafts without inventing speech or approving a post.",
+    "recipe": "workflow:find-moments-in-a-recording",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Names tools that no tool in the Workshop offers yet: tool:find-action-moments, tool:find-scene-changes, tool:pick-cover-frame, tool:who-is-in-this.\"}",
+    "title": "Find useful moments in a recording"
+   }
+  },
+  {
+   "id": "find-their-own-map",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"properties\":{}}",
+    "job": "Before using a default map, look through everything a person keeps for how they themselves divide their life (the parts they name, the areas they keep coming back to, a framework they wrote or follow) and keep their map as rows of their own map list in their own words, each with where they said it; when they have none, keep the default map.",
+    "recipe": "workflow:find-their-own-map",
+    "source": "{\"from\":\"a method a person repeated across their work\"}",
+    "title": "Find a person's own map of their life"
+   }
+  },
+  {
+   "id": "find-unexplored-ground",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"properties\":{\"count\":{\"type\":\"integer\",\"minimum\":10,\"maximum\":1000,\"description\":\"How many areas to find (100 when left out)\"},\"near\":{\"type\":\"string\",\"description\":\"A field, pursuit or interest to start near, when the person named one\"},\"list_id\":{\"type\":\"string\",\"description\":\"The list to keep them in (unexplored-ground when left out)\"}}}",
+    "job": "Find many things nobody has explored, researched or talked about enough (unusual combinations of fields, overlooked everyday things, questions without good answers) and match each to what one person is good at, is aiming for, values and keeps coming back to, so they see where they would be a strong explorer; then ask them about the best few and keep the list for them.",
+    "recipe": "workflow:find-unexplored-ground",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps.\"}",
+    "title": "Find unexplored ground that fits you"
+   }
+  },
+  {
+   "id": "find-what-your-pursuits-leave-out",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"properties\":{\"about\":{\"type\":\"string\",\"description\":\"One area to look at, when only one matters now\"}}}",
+    "job": "Find the areas of a person's map of their life that none of their pursuits touches (for example, no pursuit that looks after their health or their money), look in their own words for what they already want there, and either put an existing pursuit on that area or record the pursuit they already described, quoting them; never invent one.",
+    "recipe": "workflow:find-what-your-pursuits-leave-out",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Runs on any person's own map.\"}",
+    "title": "Find what your pursuits leave out"
+   }
+  },
+  {
+   "id": "find-where-the-steward-ladder-breaks",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"subject\",\"outcome\"],\"properties\":{\"subject\":{\"type\":\"string\",\"minLength\":3,\"description\":\"Who or what keeps not getting the result\"},\"outcome\":{\"type\":\"string\",\"minLength\":5,\"description\":\"The result it should be getting\"}}}",
+    "job": "When a person, team, AI or running system keeps not getting a result, walk the whole path from what it could do to a lasting result (before acting, initiative, continuity, durability, reliability, effectiveness, adapting, predicting, learning and reuse, stewardship), find the one stage that fails with evidence, aim the fix at that stage, and check the stage again once the fix is in.",
+    "recipe": "workflow:find-where-the-steward-ladder-breaks",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a person, product or field: an athlete, a sales team, an AI agent and a delivery route run the same steps.\"}",
+    "title": "Find where the steward ladder breaks"
+   }
+  },
+  {
+   "id": "follow-up-with-people-who-engaged",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"platforms\",\"offer\"],\"properties\":{\"platforms\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"platform\",\"profile_url\"],\"properties\":{\"platform\":{\"type\":\"string\",\"minLength\":2},\"profile_url\":{\"type\":\"string\",\"minLength\":8}}},\"description\":\"Each platform the person publishes on, with the address of their own profile there\"},\"offer\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What the person can offer a person who engaged (an answer, a call, a free resource, the product), in their own words\"},\"window_days\":{\"type\":\"integer\",\"minimum\":1,\"default\":7,\"description\":\"How many days back to read; 7 when left out\"},\"most_people\":{\"type\":\"integer\",\"minimum\":1,\"default\":10,\"description\":\"The most follow-ups to draft in one week; 10 when left out\"}}}",
+    "job": "Once a week, list the people who commented, replied or signed up because of the person's own posts in the window, match each to the person's people records (adding none without the person), rank them by what they did, draft one short personal follow-up for each of the top people that answers what they actually said, check every draft against the person's own rules, get the person's approval of the exact words, and record each follow-up the person sent. The AI reads and drafts; the person approves and sends every message from their own account, and the AI never sends, replies or posts by itself.",
+    "produces": "A weekly list of the real questions and objections people raised, which can become answer-the-question posts and a 'you asked' segment.",
+    "recipe": "workflow:follow-up-with-people-who-engaged",
+    "source": "{\"from\":\"a cited principles registry mined from video captions\",\"name\":\"Turn content engagement into a funnel: people who liked, commented, followed, signed up or visited are warm leads; reach out to them directly; use comments deliberately\",\"principles\":[\"P-103\",\"P-050\"],\"note\":\"Adopted: a weekly export of engagers with a personal follow-up, answering good comments. Not adopted: bulk or automated messages, messages to people who only liked a post, and any message the person did not approve word for word; a platform's rules on direct messages are read and followed.\"}",
+    "title": "Follow up with the people who engaged",
+    "wakes": "[{\"id\":\"thursday\",\"on\":{\"time\":{\"every_ms\":604800000,\"from_ms\":32400000}},\"budget\":{\"steps\":40,\"wall_ms\":1800000},\"input\":{\"start_at\":\"read-engagement\"}}]"
+   }
+  },
+  {
+   "id": "get-found-in-search-and-answer-engines",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"site\",\"questions\",\"engines\"],\"properties\":{\"site\":{\"type\":\"string\",\"minLength\":8,\"description\":\"The address of the person's own site, for example the home page; its sitemap is read from /sitemap.xml or from the Sitemap line of its robots.txt\"},\"questions\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":5},\"description\":\"The questions a reader asks that the site should answer, in the reader's words\"},\"engines\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The engines to measure, for example Google, Google AI Mode, ChatGPT, Claude, Gemini and Perplexity\"},\"check_rows\":{\"type\":\"array\",\"items\":{\"type\":\"object\"},\"description\":\"The person's own check rows, as tool:check-a-page-for-search-and-answer-engines takes them, if they want different checks from the shipped ones\"}}}",
+    "job": "For the person's own site: list every page in its sitemap, check each page with tool:check-a-page-for-search-and-answer-engines (readable text in the served HTML, one clear definition in the first words, structured data, a canonical address, published and updated dates, robots rules that let the answer-engine crawlers in, working links), fix what is missing on each page and across the site (a robots.txt that names the answer-engine crawlers, an llms.txt that lists every page and tool, Markdown when a reader asks for it), show the person the exact changes to approve and publish, check the changed pages again, then ask Google, Google AI Mode, ChatGPT, Claude, Gemini and Perplexity the questions the person's readers ask and record which answers name or cite the site. The AI never publishes by itself.",
+    "produces": "A dated before-and-after of every page's score and of which engines name the site for which questions, which can become a 'what changed and what it did' post.",
+    "recipe": "workflow:get-found-in-search-and-answer-engines",
+    "source": "{\"from\":\"the served-HTML check rows in tools/ai-readiness/read-data/ai-readiness-checks.json, each naming where it came from\",\"name\":\"Answer engines read the HTML a page is served with; measure the result in the engines' own answers\",\"note\":\"Not adopted: writing pages for engines instead of readers, or asking an engine the same question many times to push a page up. The check rows are the person's to change; the tool takes its own rows as input. tools/workflows/recipes/keep-pages-cited-by-answer-engines.json is the companion that keeps the facts on cited pages fresh.\"}",
+    "title": "Get found in search and answer engines"
+   }
+  },
+  {
+   "id": "give-paid-buyers-access",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"offer_id\",\"email_tool\",\"from\",\"setup_email\"],\"properties\":{\"offer_id\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The offer whose buyers get access, as named in the checkout's metadata\"},\"start_unix\":{\"type\":\"integer\",\"minimum\":0,\"description\":\"Where the first run looks from, in seconds, when no customer record exists yet\"},\"customer_record_type\":{\"type\":\"string\",\"minLength\":2,\"default\":\"customer\",\"description\":\"The record type each buyer is kept as\"},\"email_tool\":{\"enum\":[\"tool:send-an-email-with-resend\",\"tool:send-an-email-with-amazon-ses\"],\"description\":\"The send-messages tool the seller has a sender and key for\"},\"from\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The address the setup email comes from\"},\"setup_email\":{\"type\":\"object\",\"required\":[\"subject\",\"text\"],\"properties\":{\"subject\":{\"type\":\"string\",\"minLength\":2},\"text\":{\"type\":\"string\",\"minLength\":10,\"description\":\"The setup email's words; {email} and {people} are filled per buyer\"}},\"description\":\"The setup email the seller wrote\"}}}",
+    "job": "Every time it runs (every 15 minutes is the intended schedule), turn each newly paid Stripe checkout into a customer: list the checkouts completed since the last one kept, skip any already kept, check each paid amount against a price the offer declares (a trial checkout is checked by its subscription's amount), keep a customer record keyed by the checkout, send the setup email once with an idempotency key, and mark each customer whose subscription ended as ended, keeping their record. A checkout whose amount matches no declared price is not kept; the seller is told instead. Nothing is charged, refunded or cancelled here.",
+    "recipe": "workflow:give-paid-buyers-access",
+    "source": "{\"from\":\"Workshop tools\",\"name\":\"tools/take-payments (list completed checkouts, look up a checkout, check what a buyer paid, list ended subscriptions), tools/send-messages (send one email), the account's records door (records:write) and tools/tell-the-person\",\"note\":\"Made for selling through a Stripe Payment Link while no hosted app receives Stripe's webhooks: the follow-up reads Stripe instead of waiting for it. It runs on the engine's wake (a repeat every 15 minutes, starting at the first step) once wakes run recipe rows, and by hand through tools:run until then. NOT ADOPTED, with the reason: (1) granting anything from the buyer's browser landing on a success page, because a redirect can be forged; only what Stripe says counts; (2) deleting a customer's record when they cancel, because their records stay theirs; the record is marked ended; (3) sending the setup email from the seller's own mailbox without a sender they set up, so the sender and its held key are inputs.\"}",
+    "title": "Give paid buyers access"
+   }
+  },
+  {
+   "id": "grow-on-reddit-without-selling-first",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"product\",\"keywords\",\"reddit_username\"],\"properties\":{\"product\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The person's product, in one plain sentence: what it is and who it is for\"},\"keywords\":{\"type\":\"array\",\"minItems\":1,\"maxItems\":10,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The person's best keywords: the words their buyers type into Google, one phrase each\"},\"reddit_username\":{\"type\":\"string\",\"minLength\":3,\"maxLength\":20,\"description\":\"The person's Reddit username, without u/ in front\"}}}",
+    "job": "Warm up a Reddit account before the first post: choose 5 subreddits by which ones Google ranks for the person's keywords, read and record every subreddit's rules, reach at least 10 karma, then spend 3 days leaving one useful comment a day in each of the 5 subreddits (15 comments, no self-promotion), and only then write and publish a post. The AI drafts every comment and post, the person approves the exact words, and the person sends it: the AI never posts by itself.",
+    "recipe": "workflow:grow-on-reddit-without-selling-first",
+    "source": "{\"from\":\"X post\",\"author\":\"Nicholas Dulait\",\"url\":\"https://x.com/NicholasDulait/status/2115756883050918215\",\"name\":\"Nicholas Dulait, X post of 2026-10-29: warm up a Reddit account for 3 days before the first post\",\"note\":\"His claims, not checked here: 10 of his 12 Reddit posts went over 50K views, and the best one reached 168K. His method has 5 steps: (1) create the account with an email that is a few months old, (2) hide profile activity (Settings > Profile > Content and activity > Hide all), (3) reach at least 10 karma, (4) pick 5 subreddits that Google ranks for your best keywords, not by size, (5) for 3 days leave 1 useful comment in each of the 5 subreddits on a post from the last few hours that is gaining traction (15 comments, no self-promotion), then read every rule in the sidebar before each post. Steps 3, 4 and 5 and the rules reading are the steps of this workflow. NOT ADOPTED, with the reason: (1) using a months-old email so the account is not flagged as spam is evading spam detection, so this workflow does not use an email's age to get past a spam filter; (2) hiding profile activity so other Redditors cannot see the account is marketing conceals commercial intent, so this workflow leaves the profile as it is. The honest version is in the post steps: disclose the person's affiliation with the product wherever a subreddit's rules or Reddit's content policy require it.\"}",
+    "title": "Grow on Reddit without selling for the first 3 days"
+   }
+  },
+  {
+   "id": "hire-help-for-a-step",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"step\"],\"properties\":{\"step\":{\"type\":\"string\"},\"where\":{\"type\":\"string\"},\"when\":{\"type\":\"string\"},\"proof_wanted\":{\"type\":\"string\",\"description\":\"What shows it was done: photos, counts, a signed sheet\"}}}",
+    "job": "Hire a person nearby (TaskRabbit and services like it, or an employee by email) to do a step that needs someone physically there, after one tap with the price, then make sure they did it",
+    "recipe": "workflow:hire-help-for-a-step",
+    "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Hiring goes through real accounts in the person's name; the AI never pretends to be a person and shows the cost first. Names tools that no tool in the Workshop offers yet: tool:hold-to-it, tool:send-an-email.\"}",
+    "title": "Hire help for a step"
+   }
+  },
+  {
+   "id": "hold-us-to-it",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"properties\":{\"space_id\":{\"type\":\"string\",\"description\":\"The shared pursuit of the people involved; left out, the pursuit whose members match who spoke\"},\"since\":{\"type\":\"string\",\"format\":\"date-time\",\"description\":\"Read words from this time on; left out, the last day\"},\"about\":{\"type\":\"string\",\"description\":\"A specific thing someone said, when it is already known\"}}}",
+    "job": "Find every agreement people made in transcripts, messages and meetings (who agreed to what, and how often), put it on everyone's calendar for real, check afterwards who showed up, keep each person's merit scorecard, and say plainly in the shared pursuit who did not keep it, so agreeing to something and then not doing it stops",
+    "recipe": "workflow:hold-us-to-it",
+    "source": "{\"from\":\"the product's own behaviour\",\"note\":\"A group agrees to an idea (a daily meeting, say) and nothing happens: agreeing and then not doing it is the failure this workflow ends. Runs through tool:hold-to-it; the person's own AI reads the words and no model is paid for by the host. Names tools that no tool in the Workshop offers yet: tool:hold-to-it.\"}",
+    "title": "Hold us to it"
+   }
+  },
+  {
+   "id": "keep-a-changelog-from-what-shipped",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"repository\",\"settings\",\"staged\",\"mapping\",\"payload\",\"door_config\",\"work\"],\"properties\":{\"repository\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The person's repository folder\"},\"settings\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The read-what-shipped settings file: where the newest release is read and which keys hold its commit, name and time\"},\"staged\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The staged file of releases the reader keeps\"},\"mapping\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The person's build-records-to-write mapping that makes one row of their list from each staged release\"},\"roots\":{\"type\":\"string\",\"description\":\"The --root NAME=DIR arguments the mapping needs, if any\"},\"payload\":{\"type\":\"string\",\"minLength\":1,\"description\":\"Where the built payload is written\"},\"door_config\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The sender config for the person's door, with keep_held true\"},\"work\":{\"type\":\"string\",\"minLength\":1,\"description\":\"A folder for the sender's plan, result and status files\"}}}",
+    "job": "Every time the person ships, put one row for that release into the list they keep their work in: read their newest release (from the release program or git ref they name) with the subjects of the commits since the release before it, make the row with their own mapping, and write it only when the list lacks it, so a row someone already edited stays as they left it. The AI writes no words people read and never marks a row public by itself.",
+    "produces": "One row per release in the person's list, with its commit, name, time and the commit subjects since the release before it.",
+    "recipe": "workflow:keep-a-changelog-from-what-shipped",
+    "source": "{\"from\":\"a working changelog list that filled itself from what each release shipped\",\"name\":\"The work fills the list: each landing writes its own row, nobody types a changelog line twice\",\"note\":\"Not adopted: rewriting a row someone edited, and writing public words from commit subjects without a person's review.\"}",
+    "title": "Keep a changelog from what shipped",
+    "wakes": "[{\"id\":\"hourly\",\"on\":{\"time\":{\"every_ms\":3600000,\"from_ms\":0}},\"budget\":{\"steps\":10,\"wall_ms\":600000},\"input\":{\"start_at\":\"read-release\"}}]"
+   }
+  },
+  {
+   "id": "keep-pages-cited-by-answer-engines",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"pages\",\"answer_engines\",\"freshness_days\",\"rules\"],\"properties\":{\"pages\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"url\",\"questions\"],\"properties\":{\"url\":{\"type\":\"string\",\"minLength\":8},\"questions\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":5},\"description\":\"The questions a reader asks that this page answers, in the reader's words\"}}},\"description\":\"The person's own pages\"},\"answer_engines\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":8,\"description\":\"The search address of an answer engine with {question} where the question goes\"},\"description\":\"The answer engines the person wants to be cited by\"},\"freshness_days\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"A fact dated longer ago than this many days is refreshed\"},\"rules\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\"},\"description\":\"The person's own word rules, as tool:check-against-a-persons-rules-and-verdicts takes them\"},\"message\":{\"type\":\"string\",\"description\":\"The one message the person keeps at every touchpoint, if they wrote one\"}}}",
+    "job": "Every 90 days, for each of the person's own pages: ask each answer engine the person names the questions the page answers, record whether the answer cites the page, list every fact on the page whose date is older than the person's freshness window or that has no date, rewrite only those sections with dated facts taken from sources read in this run, keep one message across the page and its other touchpoints, check every rewritten sentence against the person's own rules, and show the person the exact changes to approve and publish. The AI never publishes by itself.",
+    "produces": "A dated before-and-after of which pages each answer engine cites and which facts were refreshed, which can become a 'what changed in 90 days' post.",
+    "recipe": "workflow:keep-pages-cited-by-answer-engines",
+    "source": "{\"from\":\"principles mined from video captions\",\"name\":\"Content has a half-life for answer engines; keep one message at every touchpoint\",\"principles\":[\"P-025\",\"P-047\"],\"note\":\"The half-life numbers the sources give (weeks before a new page is cited, citations decaying in about three months) are their claims, not checked here; the 90-day wake is the person's to change. Not adopted: asking an answer engine many times to push a page up, or writing pages for engines instead of readers.\"}",
+    "title": "Keep your pages cited by answer engines",
+    "wakes": "[{\"id\":\"quarterly\",\"on\":{\"time\":{\"every_ms\":7776000000}},\"budget\":{\"steps\":60,\"wall_ms\":3600000},\"input\":{\"start_at\":\"ask\"}}]"
+   }
+  },
+  {
+   "id": "keep-what-you-find-in-lists",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"need\"],\"properties\":{\"need\":{\"type\":\"string\",\"minLength\":5,\"description\":\"What you need to know, such as the emails of the founding members\"}}}",
+    "job": "Before looking anything up about the people, customers or things a person works with, read what their records already keep; then keep every fact you find (an email, a role, who someone is linked to) as rows of the person's lists, linked to each other, so it is never found again from scratch.",
+    "recipe": "workflow:keep-what-you-find-in-lists",
+    "source": "{\"from\":\"the product's own behaviour\"}",
+    "title": "Keep what you find in the person's lists"
+   }
+  },
+  {
+   "id": "lead-me-to-it",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"properties\":{\"about\":{\"type\":\"string\",\"description\":\"What to lead them to, when it is already known (a meeting, a message that arrived, something they said); left out, the AI picks the needle mover\"}}}",
+    "job": "Pick the one thing that moves the person's pursuits most right now, do every part of it an AI can, then take the person to it: open that exact thing on their screen and walk them through only the part that needs them, pointing at its own control. Run it at a set time (a schedule), when something arrives or is said (a rule), or from the person's AI on its own routine.",
+    "recipe": "workflow:lead-me-to-it",
+    "source": "{\"from\":\"the product's own behaviour\",\"note\":\"The person is led by the hand: never only told what to do. The last step runs tool:take-me-there. Names tools that no tool in the Workshop offers yet: tool:take-me-there, tool:what-is-waiting-on-me.\"}",
+    "title": "Lead the person to the one thing that needs them"
+   }
+  },
+  {
+   "id": "learn-the-person",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\",\"description\":\"A full name supplied for this exact account\"},\"name_source\":{\"type\":\"string\",\"description\":\"Who supplied the name and where\"},\"focus\":{\"type\":\"string\",\"description\":\"Optional profile area to start with\"}}}",
+    "job": "Build or refresh this person's private, editable profile from their own account. Keep each fact tied to its exact source and quote, preserve their edits, and ask only about conflicts or gaps the sources cannot settle.",
+    "recipe": "workflow:learn-the-person",
+    "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Use this account's sources for identity and facts. A machine username or folder name is never identity evidence.\"}",
+    "title": "Learn about this person"
+   }
+  },
+  {
+   "id": "lock-in",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"properties\":{\"minutes\":{\"type\":\"integer\",\"minimum\":5,\"maximum\":720,\"description\":\"How long the session runs, up to 12 hours; left out, it is 120 minutes, or the free time before the next calendar event if that is shorter\"},\"what\":{\"type\":\"string\",\"description\":\"What the session is for, when the person already said\"},\"space_id\":{\"type\":\"string\",\"description\":\"A shared pursuit, when others lock in together (each person's AI runs this for them)\"}}}",
+    "job": "Run one locked-in work session on the needle mover: pick the block from the person's pursuits and calendar, shut out everything else on their computer for the length of it, practise what they keep getting wrong, then say what got done and book the next one",
+    "recipe": "workflow:lock-in",
+    "source": "{\"from\":\"the product's own behaviour\",\"note\":\"A lock-in protocol run before, during and after a session, from the person's main pursuit and calendar, with focus on, distracting apps closed and spaced practice after. Runs through tool:hold-a-device-quiet, tool:focus, tool:practice and tool:hold-to-it; the person's own AI does the reading. Names tools that no tool in the Workshop offers yet: tool:focus, tool:hold-a-device-quiet, tool:hold-to-it, tool:practice, tool:release-a-device.\"}",
+    "title": "Lock in"
+   }
+  },
+  {
+   "id": "make-a-brand-book-and-decks",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"brand_list\",\"look\",\"faces\",\"claims\",\"price\",\"buyers\",\"out\",\"copy_check\"],\"properties\":{\"brand_list\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The id of the person's brand list (one row per logo variant and one selection row)\"},\"look\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The look the brand wears: its record id, or a file holding the look record\"},\"faces\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"family\",\"file\"],\"properties\":{\"family\":{\"type\":\"string\"},\"weight\":{\"type\":\"integer\"},\"style\":{\"type\":\"string\"},\"file\":{\"type\":\"string\"}}},\"description\":\"The person's own font files the look names, with their licences already theirs\"},\"claims\":{\"type\":\"string\",\"minLength\":1,\"description\":\"Where the person's verified claims are kept (a list or a file): each claim's exact words, its source and whether it is verified\"},\"price\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The record or file that holds the price the decks quote\"},\"decisions\":{\"type\":\"string\",\"description\":\"Optional: where the person's brand decisions are written down, each with its source\"},\"buyers\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"kind\",\"record\"],\"properties\":{\"kind\":{\"enum\":[\"company\",\"team\",\"person\"]},\"record\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The buyer's record or file: its facts, each with its source\"}}},\"description\":\"Who each personal copy is for\"},\"out\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The folder on the person's computer the PDFs and pictures go into\"},\"copy_check\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The person's own command that checks the public words of a folder of documents and exits 0 only when they pass, with {out} where the folder goes\"}}}",
+    "job": "Make a brand book that shows every settled brand decision with its source, a pitch deck and a sales deck in that brand, and a copy of each deck for each buyer where only the buyer's own facts change, every claim and price read from the person's own records",
+    "produces": "A brand book PDF, a pitch deck PDF, a sales deck PDF and one PDF per buyer, each with a picture of every page, every claim and price traced to its source, and the person's approval of each.",
+    "recipe": "workflow:make-a-brand-book-and-decks",
+    "title": "Make a brand book and decks"
+   }
+  },
+  {
+   "id": "make-a-personalised-explainer-video-on-any-topic-for-a-learner",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"topic\",\"learner\"],\"properties\":{\"topic\":{\"type\":\"string\",\"minLength\":3,\"description\":\"What the video teaches, in a few words\"},\"learner\":{\"type\":\"object\",\"required\":[\"level\",\"goal\"],\"properties\":{\"level\":{\"type\":\"string\",\"minLength\":3,\"description\":\"What the learner already knows about the topic, in their own terms\"},\"goal\":{\"type\":\"string\",\"minLength\":3,\"description\":\"What the learner wants to be able to do or understand afterwards\"},\"age_or_background\":{\"type\":\"string\",\"description\":\"Anything that changes the words or examples that will land\"},\"language\":{\"type\":\"string\",\"description\":\"The language of the video; defaults to the language of the topic\"}}},\"length_seconds\":{\"type\":\"integer\",\"minimum\":20,\"maximum\":600,\"description\":\"How long the video should run; defaults to 90\"},\"voice\":{\"type\":\"string\",\"enum\":[\"stock-voice\",\"my-own-voice\"],\"description\":\"stock-voice uses a local speech model's built-in voice; my-own-voice clones the voice of the person running this workflow from their own clean recording\"},\"own_voice_reference\":{\"type\":\"string\",\"description\":\"Path to a clean recording of the person's own voice and the exact words said in it, only when voice is my-own-voice\"},\"character_description\":{\"type\":\"string\",\"description\":\"Who the on-screen character is, in a sentence; the AI invents a simple one if left out\"}}}",
+    "job": "Turn a topic and a description of one learner (what they know, what they want, how long they will watch) into a finished explainer video: a lesson pitched at that learner, a spoken track, word-exact timing, one consistent animated character whose mouth follows the voice, one picture per spoken line, and a deterministic render. Every part uses a free or open-source tool that runs on the person's own computer, so a video for one more learner costs only the computer's time. Every number the video states comes from the lesson text the person's AI wrote or from a source it names; the AI never invents a statistic.",
+    "produces": "A finished explainer video for one learner on one topic; the video itself, or a cut of it, is shareable.",
+    "recipe": "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
+    "source": "{\"from\":\"a public post\",\"name\":\"A post showing a personalised lesson video made in about 15 minutes for a few cents with paid voice, image, timing and animation services\",\"note\":\"The post's cost and time are the author's claim and were not verified. This recipe replaces each paid service with a free tool the person already has: voice from a local speech model or the person's own cloned voice, timing from a local speech-to-text model, the character from a local image model with a reference-image method, mouth movement from the voice's loudness, and the render from an open-source HTML video renderer.\"}",
+    "title": "Make a personalised explainer video on any topic for a learner",
+    "wakes": "[{\"id\":\"lesson-asked\",\"on\":{\"record\":{\"resource\":\"own-records\",\"kind\":\"lesson-request\"}},\"budget\":{\"steps\":100,\"wall_ms\":3600000},\"input\":{\"start_at\":\"plan-the-lesson\"}}]"
+   }
+  },
+  {
+   "id": "make-it-once-for-everyone",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What is asked for, in the words it was asked\"},\"came_from\":{\"type\":\"string\",\"description\":\"Where it was asked (a message id, a file, a date)\"}}}",
+    "job": "Build a feature, tool, page, footer, email look or design someone asks for, in one pass: treat what they said as raw material rather than the answer (is it worthwhile, how far each constraint can go), check whether it already works by combining what exists or is built but not shown, build what is truly new as a tool or workflow everyone building on the platform gets and use it yourself, carry its deep principle into each of their pursuits and into unrelated fields, and make every surface it touches show the exact state at once.",
+    "recipe": "workflow:make-it-once-for-everyone",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a person, product or field: a bakery owner asking for a loyalty card, a coach asking for a drill sheet and a founder asking for an email footer run the same steps.\"}",
+    "title": "Build a feature, tool or page once, for everyone"
+   }
+  },
+  {
+   "id": "make-one-piece-of-content-from-audience-to-publish",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"purpose\",\"goal\",\"destinations\",\"records\"],\"properties\":{\"purpose\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The id of the person's own purpose record: their mission statement, kept verbatim in their words, and the tests that statement names, each a question a piece must answer (for example what it questions, what it tests and where it could be wrong, what others can use from it). Every plan, title list, hook list, script and edit plan answers these tests and cites this record. Purpose is a test applied to the work, never a line the piece must recite\"},\"goal\":{\"type\":\"string\",\"minLength\":10,\"description\":\"The goal of the piece, in the person's words\"},\"lead\":{\"type\":\"string\",\"description\":\"The person's working idea, if any; it is checked against the audience, never taken as demand\"},\"destinations\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"platform\",\"account\"],\"properties\":{\"platform\":{\"type\":\"string\",\"minLength\":2},\"account\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The person's own account on that platform\"}}},\"description\":\"Platform and account pairs to post to\"},\"records\":{\"type\":\"object\",\"required\":[\"library_kinds\",\"audience_kinds\"],\"description\":\"Which of the person's own records the run reads, by record kind or list id. Nothing here is a value; every value is read from the records at run time\",\"properties\":{\"library_kinds\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"Every record kind or list that holds the person's library rows: techniques, principles, formats, title templates, devices. All of them are read and crossed\"},\"audience_kinds\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"Record kinds or lists that hold the person's audience: who they are, their questions with where each was said, and the person's own buckets for what is in their minds\"},\"offer_kinds\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"description\":\"Record kinds or lists of the person's offers, if the goal sells something\"},\"voice_kinds\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"description\":\"Record kinds or lists of the person's voice and style: copy rules, word lists, writing samples\"},\"rules_and_verdicts\":{\"type\":\"object\",\"description\":\"The person's rule rows and rule document for tool:check-against-a-persons-rules-and-verdicts, and the kinds of thing they keep stances on\",\"properties\":{\"rule_kinds\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"rule_document\":{\"type\":\"string\"}}},\"footage_index_ids\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"description\":\"index_id of each of the person's semantic-index-descriptor records over their recordings (spoken lines, frames)\"},\"material_kinds\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"Every other record kind holding material the person might use in a piece, searched the same way as footage: notes, chats, emails, meetings, books, posts, and posts of other people they have permission to use. Each passage used becomes or updates one of the person's source passage records (where it came from, its original words, who owns it, what use is allowed, whether it is private, what was done to it, which pieces reuse it)\"},\"research_kinds\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"Record kinds of the person's research aids, each read if they keep it: audience guesses (competing ideas of who a piece is for, each with what would disprove it), audience cases (one real person's situation from a source), research methods (job, output, failure to avoid), a viewer worksheet or other companion asset with fill-in fields, a terms record (their words with how each was sourced), and a conflicts record (two sources that disagree and how it was treated)\"},\"limits\":{\"type\":\"object\",\"description\":\"Record ids or files of the person's settings for each tool that needs them: render-check limits, the motion bar, speech grading settings, the camera's log profile, the look and graphics templates, the checklist schema\",\"additionalProperties\":{\"type\":\"string\"}}}},\"outlier_multiple\":{\"type\":\"number\",\"minimum\":1,\"description\":\"How many times its channel's usual views a reference must have to count as demand evidence. If left out, read it from the person's records; if they have none, ask with tool:tell-the-person\"},\"stale_after_days\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"Evidence checked longer ago than this is not fresh: it is checked again before it supports a decision. If left out, read it from the person's records\"},\"spend_limit\":{\"type\":\"string\",\"description\":\"The most the run may spend, and which actions that cannot be undone need the person's yes first. If left out, the run spends nothing and asks before any such action\"}}}",
+    "job": "Make one piece of content (a video, a talk, a carousel, a post or an article) the way a careful studio would, in this order and never skipping ahead to the edit: read the person's own records, their purpose record first; describe any library row that has no crossing fields yet; find what the audience is really asking, in their own words and with where they said it, and whether they would want this; cross ALL of the person's technique, principle and format rows with that goal to get cited ideas; find what the person has already said or written that answers it; choose a format by that material and by measured references; write packages (title, cover, opening) with at least 3 hook variants to test against each other, and show them to people from the audience before making anything; build the script from those filmed points first; check every word against the person's rules and verdicts; write a shoot sheet for only what is still missing; after the person films, grade the sound, colour and cut the piece through the Workshop's tools; run every check before the person sees anything; publish; and read the numbers back to learn. Plan-time rules: every beat, title, hook and edit cites the library rows it was drawn from, and a cite that is not one of the person's rows read in this run fails the step; and every idea list, title and hook list, script and edit plan answers each test of the person's own purpose record and cites it, so audience demand only ranks ideas that already passed the person's purpose.",
+    "recipe": "workflow:make-one-piece-of-content-from-audience-to-publish",
+    "source": "{\"from\":\"the common stages of producing one piece of content (audience, idea, format, packaging, script, filming, sound, edit, review, publishing, readback), in the order that puts the audience and the idea before any editing\",\"note\":\"The order and the rules are generic: research before the idea, the person's own recorded words before new lines, a source for every line, opening variants tested against each other, one decision per speech passage (use as recorded, remaster, or re-voice the same words), checks before the person is shown anything, readback at 1, 7 and 28 days with a written lesson. Purpose comes first because work judged only by demand numbers drifts away from what the person set out to do; so the person's purpose record is the first input, its tests are answered by every plan step, and demand ranks only what passed. Everything specific to a person (audience frameworks and bucket names, rubrics, pass marks, word lists, edit rules, title structures, formats, channels, tool settings) is an input read from their records at run time, never part of this recipe. A person's own checklist runs through the workflows checklist gate.\"}",
+    "title": "Make one piece of content from audience to publish"
+   }
+  },
+  {
+   "id": "method-build-a-product",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Build a product people reach, use and pay for: research the field, name the change, find the constraints, test the design against every case, build the real running thing with its free extras, name it plainly, do it completely, and prove it with real people.",
+    "made_from": [
+     "workflow:method-research-plan-build",
+     "workflow:method-name-question-delete",
+     "workflow:method-contact-reality",
+     "workflow:method-find-the-constraints",
+     "workflow:method-test-a-design-against-every-case",
+     "workflow:method-build-the-real-thing",
+     "workflow:method-name-things-by-what-they-do",
+     "workflow:method-do-it-completely",
+     "workflow:method-plan-only-what-helps"
+    ],
+    "recipe": "workflow:method-build-a-product",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Build a product"
+   }
+  },
+  {
+   "id": "method-build-the-real-thing",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Build a capability as the real running product people can reach and use, with a generic mechanism (no person, product or vendor in it, every open set a row of data), what it makes possible for free built in the same change, and proof from the running product.",
+    "recipe": "workflow:method-build-the-real-thing",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Build the real thing people use, not a demo"
+   }
+  },
+  {
+   "id": "method-change-code",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Change or fix code: name the change, question and delete before adding, use what the code already has, keep any new mechanism generic, do it completely in one pass, and prove it on the real running path.",
+    "made_from": [
+     "workflow:method-name-question-delete",
+     "workflow:method-contact-reality",
+     "workflow:method-test-a-design-against-every-case",
+     "workflow:method-do-it-completely",
+     "workflow:method-plan-only-what-helps"
+    ],
+    "recipe": "workflow:method-change-code",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Change code"
+   }
+  },
+  {
+   "id": "method-contact-reality",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Hold any decision, design or test to contact with reality: assume no limit before investigating it, say what is being optimized before choosing any dimension, describe what happens before naming it, keep your opinion out of the person's words, reconcile disagreeing answers, test against real outcomes with predictions written first and counted in tiers, fold what is learned into the person's life automatically, run the platform's own copy from the marketplace, and improve the method itself every run.",
+    "recipe": "workflow:method-contact-reality",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Make contact with reality"
+   }
+  },
+  {
+   "id": "method-design-a-feature",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Design a new feature or capability from the request to the working result: name the change, find the constraints, look at what already exists, test the design against every case, keep the mechanism generic, list and build what it makes possible for free, name it plainly, and prove it in the running product.",
+    "made_from": [
+     "workflow:method-name-question-delete",
+     "workflow:method-contact-reality",
+     "workflow:method-find-the-constraints",
+     "workflow:method-test-a-design-against-every-case",
+     "workflow:method-build-the-real-thing",
+     "workflow:method-name-things-by-what-they-do",
+     "workflow:method-plan-only-what-helps"
+    ],
+    "recipe": "workflow:method-design-a-feature",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Design a feature"
+   }
+  },
+  {
+   "id": "method-do-it-completely",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Hold the work to the full result on the first pass: no stopgaps, no partial versions, nothing left for later, every claim checked against what is actually there.",
+    "recipe": "workflow:method-do-it-completely",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Do it completely and correctly the first time"
+   }
+  },
+  {
+   "id": "method-find-the-constraints",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "List every hard constraint a design must meet and find the ones that, combined, rule out every lazy answer, so the right design is the only one left standing.",
+    "recipe": "workflow:method-find-the-constraints",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Find the constraints that leave one right answer"
+   }
+  },
+  {
+   "id": "method-hold-to-the-hardest-test",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Walk any decision, plan or claim through the method's hardest questions: attack every claim and say how each source found it out, hear every voice and name the least obvious insights, find unexplored ground that fits the person, pick the move with the most result for its time, money and attention (hiring included), let what the pursuit already makes pay for it, have the next need ready before it is asked, and show the result where the person already is.",
+    "recipe": "workflow:method-hold-to-the-hardest-test",
+    "source": "{\"from\":\"a decision method\",\"note\":\"Names tools that no tool in the Workshop offers yet: tool:run-price-experiments, tool:who-does-each-step.\"}",
+    "title": "Hold any plan to the hardest test"
+   }
+  },
+  {
+   "id": "method-name-question-delete",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Before building or changing anything: name the change (who or what is in which state now and which state it should reach), question every assumption and every requirement against it, delete what is not needed, simplify what survives, shorten how long it takes, and only then automate it.",
+    "recipe": "workflow:method-name-question-delete",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Name the change, question it, delete, then simplify"
+   }
+  },
+  {
+   "id": "method-name-things-by-what-they-do",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Name every part, field, screen and message by what it does for the person, in plain words a newcomer understands, so each name can be pointed at in the real result.",
+    "recipe": "workflow:method-name-things-by-what-they-do",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Name things by what they do"
+   }
+  },
+  {
+   "id": "method-plan-only-what-helps",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Write a short plan only when it helps: the change and the exact messages it answers, who owns it now, the smallest change, the features asked for, made possible and found by combining, and the proof, with every identified step done in the same pass.",
+    "recipe": "workflow:method-plan-only-what-helps",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Write only the plan that helps, then do it"
+   }
+  },
+  {
+   "id": "method-research-plan-build",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Research how a capability is done across the whole field and from first principles, turn the findings into a plan, and carry that plan through to the real working result.",
+    "recipe": "workflow:method-research-plan-build",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Research the field, then plan and build it end to end"
+   }
+  },
+  {
+   "id": "method-tell-a-story",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Write a story, post, article, newsletter, talk or video script as one real change: before, what changed and after; the part of the person that was stuck and the distinction that dissolves; every stage of the journey in their awareness; the enhancers its length carries in priority order; and a draft that shows each of them. A step is refused until every check is answered.",
+    "recipe": "workflow:method-tell-a-story",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Tell a story that changes the reader"
+   }
+  },
+  {
+   "id": "method-test-a-design-against-every-case",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
+    "job": "Test a proposed design or feature from outside the box it was drawn in: the underlying building block it is one case of, what it gives for free combined with everything already there, how it holds for any number of people in completely different fields, and what breaks first.",
+    "recipe": "workflow:method-test-a-design-against-every-case",
+    "source": "{\"from\":\"a decision method\"}",
+    "title": "Test a design against every case it will meet"
+   }
+  },
+  {
+   "id": "plan-a-launch-as-a-content-campaign",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"launch_record\",\"channels\"],\"properties\":{\"launch_record\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The id of the person's launch record: it holds what launches, the launch date and time with its time zone, and the offer\"},\"channels\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The platforms and owned channels the person posts on (for example an email list, a video platform, a social feed)\"},\"supporting_voices\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"Other accounts that agreed to post at launch (partners, co-founders, customers), each named as the person names them\"},\"list_target\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"How many sign-ups the person wants on the list before launch day\"}}}",
+    "job": "When the person records a launch, read that launch record, plan the campaign backwards from its date in four phases (build the list, tease, hype and collect, blitz), write a blitz runbook in which every channel and every supporting voice posts within the first 30 to 120 minutes after the lead post, draft every post natively for its platform from one message, check every word against the person's own rules, get the person's approval of each post exactly as it will go out, schedule only approved posts in the person's own scheduler or hand them to the person, and after the launch read the numbers back against the targets the plan set. The AI drafts and schedules approved posts only; the person approves every word and owns every account.",
+    "produces": "A dated launch calendar with its teaser, hype and blitz posts drafted per platform, and after launch a readback of what each phase brought in.",
+    "recipe": "workflow:plan-a-launch-as-a-content-campaign",
+    "source": "{\"from\":\"a principles registry mined from video captions\",\"name\":\"Run a launch as a content campaign planned against real milestones; fire the launch inside one short window; launch often; announce publicly what you will do\",\"principles\":[\"P-082\",\"P-093\",\"P-071\",\"P-098\"],\"note\":\"Adopted: the phase order (list, tease, hype, collect, blitz), the 30 to 120 minute window for every supporting post, launches as recurring content moments, and the public promise turned into follow-up pieces. Not adopted: posting from accounts the person does not own or asking supporters to hide that they are connected to the launch; every supporting voice posts as itself.\"}",
+    "title": "Plan a launch as a content campaign",
+    "wakes": "[{\"id\":\"launch-recorded\",\"on\":{\"record\":{\"resource\":\"own-records\",\"kind\":\"launch\"}},\"budget\":{\"steps\":60,\"wall_ms\":3600000},\"input\":{\"start_at\":\"read-launch\"}}]"
+   }
+  },
+  {
+   "id": "port-without-losing-anything",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"old\",\"new\"],\"properties\":{\"old\":{\"type\":\"string\",\"minLength\":3,\"description\":\"Where the old one is\"},\"new\":{\"type\":\"string\",\"minLength\":3,\"description\":\"Where it moves to\"}}}",
+    "job": "When a screen, app or feature moves to a new home, list everything the old one let a person do and see (actions on hover, metadata, layouts, shortcuts, data), check each in the new home, bring back what is missing there, and show the old and new side by side.",
+    "recipe": "workflow:port-without-losing-anything",
+    "source": "{\"from\":\"a person's request\"}",
+    "title": "Port a screen without losing anything"
+   }
+  },
+  {
+   "id": "possibility-to-proof",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"idea\"],\"properties\":{\"idea\":{\"type\":\"string\",\"minLength\":3},\"pursuit\":{\"type\":\"string\"},\"context\":{\"type\":\"string\"},\"authority\":{\"type\":\"string\"}}}",
+    "job": "Convert any person's idea, observed unmet need, recombined tool capability, business or service concept into a hypothesis, an independently executable minimal real-world experiment, observed customer behavior or cost, and a revised next action; iterate without treating a draft or demo as market validation. Predictions are written down before anything is observed, outcomes are counted in tiers from first exposure to repeat and economics against a fixed baseline, and an early signal only counts once it has predicted a later outcome it was not fitted to.",
+    "recipe": "workflow:possibility-to-proof",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Test against real data and real outcomes, with test cost driven toward zero and depth kept. Nothing here names a subject, field or person.\"}",
+    "title": "Turn a possibility into reality evidence"
+   }
+  },
+  {
+   "id": "post-a-weekly-build-in-public-update",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"lists\",\"platforms\",\"rules\"],\"properties\":{\"lists\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The record kinds or lists of the person's own records that show the work (tasks, releases, sales, sign-ups)\"},\"platforms\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The platforms the person posts the update on\"},\"rules\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\"},\"description\":\"The person's own word rules, as tool:check-against-a-persons-rules-and-verdicts takes them\"},\"private\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"description\":\"Words, names and kinds of numbers the person never shares publicly\"}}}",
+    "job": "Every week, build the person's public update from what really happened: read the changes this week in the lists and records the person names, pick the numbers that moved (each with the record it comes from), one setback or mistake that really happened, and what the person promised last week and whether it was done; draft one update per platform the person names, each written the way that platform reads (its first line, length and tone), check every word against the person's own rules, and have the person approve the exact words and post them. The AI never posts by itself and never writes a number no record holds.",
+    "produces": "One approved update per platform with the week's real numbers, one real setback and next week's promise, ready for the person to post.",
+    "recipe": "workflow:post-a-weekly-build-in-public-update",
+    "source": "{\"from\":\"principles mined from video captions\",\"name\":\"Build in public with real numbers, announce what you will do, show the mess, write each platform natively\",\"principles\":[\"P-069\",\"P-098\",\"P-012\",\"P-078\"],\"note\":\"Not adopted: inventing or rounding up numbers, hiding a setback that happened, posting the same words unchanged on every platform, and any post the person did not approve word for word.\"}",
+    "title": "Post a weekly build-in-public update",
+    "wakes": "[{\"id\":\"friday\",\"on\":{\"time\":{\"every_ms\":604800000,\"from_ms\":144000000}},\"budget\":{\"steps\":40,\"wall_ms\":1800000},\"input\":{\"start_at\":\"read-week\"}}]"
+   }
+  },
+  {
+   "id": "print-and-deliver",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"file\"],\"properties\":{\"file\":{\"type\":\"string\",\"description\":\"The file in the person's files\"},\"size\":{\"type\":\"string\",\"description\":\"Finished size, such as shelf scale 10 x 14 in, or 11 x 17 in\"},\"copies\":{\"type\":\"integer\",\"minimum\":1},\"near\":{\"type\":\"string\",\"description\":\"Where the person starts or is going\"},\"on_the_way_to\":{\"type\":\"string\",\"description\":\"The place the prints are needed, so pickup is on the route\"},\"by\":{\"type\":\"string\",\"format\":\"date-time\"}}}",
+    "job": "Print a file at a print shop (shelf-scale packaging, posters, signs, many copies) and have it ready for pickup on the person's way or delivered, after one tap with the price; small jobs go to the person's own printer instead",
+    "recipe": "workflow:print-and-deliver",
+    "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Prints are ordered through a real account in the person's name, with the price shown before the first order. Names tools that no tool in the Workshop offers yet: tool:find-nearest-places, tool:route-buttons, tool:who-does-each-step.\"}",
+    "title": "Print and deliver"
+   }
+  },
+  {
+   "id": "put-it-where-it-belongs",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"part\"],\"properties\":{\"part\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The part to check: a file, folder, feature, setting or tool\"}}}",
+    "job": "Check where a part of a system lives (a file, a folder, a setting, a feature, a tool) against the job it does, move it to the owner that should hold that job, and remove it from the old place, because where something already is never shows it belongs there.",
+    "recipe": "workflow:put-it-where-it-belongs",
+    "source": "{\"from\":\"a person's request\"}",
+    "title": "Put it where it belongs, not where it is"
+   }
+  },
+  {
+   "id": "question-the-belief-until-it-holds",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"belief\"],\"properties\":{\"belief\":{\"type\":\"string\",\"minLength\":3},\"pursuit\":{\"type\":\"string\"},\"context\":{\"type\":\"string\"}}}",
+    "job": "Turn a broad belief, strategy or claim into a checked one: say the decision it would change, list every limit it assumes and where each came from, name what would show each limit is wrong, look for evidence far outside the original field, revise both the belief and the question, propose the smallest real test that could overturn it, then run the same questioning on the method itself and repeat at every level it applies to.",
+    "recipe": "workflow:question-the-belief-until-it-holds",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Do not impose assumed limits on the possibility space before investigating it; recursively improve the method, not only apply it. Nothing here names a subject, field or person.\"}",
+    "title": "Question the belief until it holds"
+   }
+  },
+  {
+   "id": "read-the-week-and-make-more-of-what-won",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"platforms\",\"measure\"],\"properties\":{\"platforms\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"platform\",\"profile_url\"],\"properties\":{\"platform\":{\"type\":\"string\",\"minLength\":2},\"profile_url\":{\"type\":\"string\",\"minLength\":8}}},\"description\":\"Each platform the person publishes on, with the address of their own profile there\"},\"measure\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The one number pieces are ranked by (for example views, saves, sends, sign-ups); the person's choice\"},\"window_days\":{\"type\":\"integer\",\"minimum\":1,\"default\":7,\"description\":\"How many days back the week reads; 7 when left out\"},\"median_weeks\":{\"type\":\"integer\",\"minimum\":1,\"default\":4,\"description\":\"How many weeks of the person's own pieces make the median; 4 when left out\"},\"outlier_multiple\":{\"type\":\"number\",\"minimum\":1,\"default\":2,\"description\":\"A piece at least this many times its median is a winner and a paid candidate; 2 when left out\"}}}",
+    "job": "Once a week, read the real numbers of every piece the person published in the window, rank each against the person's own median for its platform and kind, name the angle behind each piece, write a 'more of this' brief for each of the top 3 angles, retire only angles that failed 3 times and only formats past their declared minimum run, and list the organic winners above the person's outlier multiple as paid candidates for the person to approve. Every number comes from a tool call or the person's own analytics; where there is none, the answer is \"no data\". The AI reads, ranks and writes briefs; it never spends money, boosts, posts or deletes anything.",
+    "produces": "A weekly 'what won and why' ranking with 3 follow-up briefs, which can become a 'what worked this week' post or the next pieces themselves.",
+    "recipe": "workflow:read-the-week-and-make-more-of-what-won",
+    "source": "{\"from\":\"a cited principles registry mined from video captions\",\"name\":\"Treat performance as the market's verdict; run a weekly loop that feeds results back at the angle level; commit to a minimum run before judging a format; use organic content as the ad test\",\"principles\":[\"P-026\",\"P-052\",\"P-048\",\"P-017\"],\"note\":\"Adopted: weekly ranking against the creator's own median, briefs for the top 3, kill an angle after 3 failures, no kill before the declared minimum run, organic winners above a multiple become paid candidates. Not adopted: any automatic spend or boost; paid spend is the person's own decision on each candidate, in their own ad account.\"}",
+    "title": "Read the week and make more of what won",
+    "wakes": "[{\"id\":\"monday\",\"on\":{\"time\":{\"every_ms\":604800000,\"from_ms\":378000000}},\"budget\":{\"steps\":60,\"wall_ms\":3600000},\"input\":{\"start_at\":\"read-pieces\"}}]"
+   }
+  },
+  {
+   "id": "research-brief-and-study",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"subject\"],\"properties\":{\"subject\":{\"type\":\"string\",\"minLength\":3,\"description\":\"What to research: a goal's title, a topic, a person or a place, in plain words\"},\"pursuit_id\":{\"type\":\"string\",\"description\":\"The goal this serves (pursuit:...), when it is one of the person's goals\"},\"space_id\":{\"type\":\"string\",\"description\":\"The community or shared pursuit where an approved insight may be shared\"},\"since_briefing\":{\"type\":\"string\",\"description\":\"The name of the last briefing on this subject (/Briefings/...), so this one reports what changed and first asks the questions left unanswered there\"}}}",
+    "job": "Keep a person current on one of their goals or any subject they care about: their own AI researches it from public sources (articles, videos, social posts, papers, their own notes), writes a short briefing in which every claim names the exact source it rests on, asks the person a few questions they answer from memory, and, only if they approve the exact words, shares one insight with its sources in their community so anyone, or anyone's AI, can check it.",
+    "recipe": "workflow:research-brief-and-study",
+    "source": "{\"from\":\"a person's request\",\"note\":\"Study follows a recall-then-one-insight loop; every claim carries an exact quote because checkable sources are what make a claim trustworthy.\"}",
+    "title": "Research, brief and study"
+   }
+  },
+  {
+   "id": "research-what-everyone-says",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"subject\"],\"properties\":{\"subject\":{\"type\":\"string\",\"minLength\":3,\"description\":\"What to research, in plain words\"},\"pursuit_id\":{\"type\":\"string\",\"description\":\"The pursuit it serves, when there is one (pursuit:...)\"},\"question\":{\"type\":\"string\",\"description\":\"The decision or question the research has to settle, when there is one\"}}}",
+    "job": "Research any subject, market, product or claim the way a hardcore researcher does: read what people out there say about it (social posts, threads, forums, reviews), what the companies in the field do, what the very best do, and every complaint and gap in all of them; lay the findings side by side to see what every source agrees on and where they contradict; rebuild the answer from first principles; and finish with the least obvious insights that would change the result most. Every claim names the source it rests on and how that source found it out.",
+    "recipe": "workflow:research-what-everyone-says",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps.\"}",
+    "title": "Research what everyone says, then see past it"
+   }
+  },
+  {
+   "id": "reverse-engineer-how-something-grows",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"target\",\"goal\"],\"properties\":{\"target\":{\"type\":\"string\",\"minLength\":3,\"description\":\"What to reverse engineer: its site address, or its name when the site is not known, for example https://example.com\"},\"goal\":{\"type\":\"string\",\"minLength\":5,\"description\":\"What the person wants to grow, in their own words: their product or channel and the result they want; the plays are crossed with it\"},\"mode\":{\"type\":\"string\",\"enum\":[\"full\",\"content\"],\"default\":\"full\",\"description\":\"full runs every step; content reads only the target's handles and own content and ends with the content report\"},\"budget_usd\":{\"type\":\"number\",\"exclusiveMinimum\":0,\"default\":3,\"description\":\"The most the whole run may spend from the person's treg balance, in US dollars (default 3)\"},\"country\":{\"type\":\"string\",\"minLength\":2,\"default\":\"US\",\"description\":\"The market to read search data for (default US)\"},\"account\":{\"type\":\"string\",\"pattern\":\"^service_connection:treg(:[A-Za-z0-9._-]+)?$\",\"default\":\"service_connection:treg\",\"description\":\"Which of the person's treg connections pays\"},\"handles\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The target's social handles or channel addresses, if the person already knows them; the site step finds them otherwise\"},\"buyer_questions\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":5},\"description\":\"Questions a buyer asks an AI before choosing in the target's market; the search step writes three when none are given\"},\"models\":{\"type\":\"object\",\"description\":\"The chat model tool:say-why-a-technique-works and tool:cross-techniques-with-a-goal use, as they take it ({ writing: { url, model } })\"}}}",
+    "job": "For any target the person names (a company, product, app or creator): read its site, stack, partners, launches and funding, when its traffic turned, what it ranks for and which AI answers name it, its ads, who talks about it, its own content ranked top quartile against bottom quartile on each channel, its links and loops, and what it is hiring for; set the dated moves against its growth; map its customer path; then cross the moves with the person's own goal into ten plays. Every finding is SEEN (a call result or a page shows it, with its link) or INFERRED (reasoned from what was seen), or not seen. Public evidence only: no account is made, no form is filled and nobody is contacted. Every paid endpoint is priced before its first call, the run stays inside the person's budget, and after every step the person says continue, skip or stop.",
+    "produces": "A dated growth teardown of the target with every finding labelled SEEN or INFERRED, its moves set against its traffic, and ten plays the person can run, each with a ready prompt; in content mode, the patterns that separate the target's best posts from its worst on each channel.",
+    "recipe": "workflow:reverse-engineer-how-something-grows",
+    "source": "{\"from\":\"https://treg.to/skills/rea-growth/SKILL.md\",\"name\":\"REA growth: turn a company's growth history into a playbook (treg)\",\"read_on\":\"2026-10-30\",\"note\":\"Adopted: the steps and their order, full and content modes, the SEEN and INFERRED labels with 'not seen' for anything unseen, public evidence only, the price read before an endpoint's first call, free routes first, a $3 default budget, one alternative endpoint when one fails, every count computed by code and dated, and a short finding with the next check and its cost after each step, then continue, skip or stop. Not adopted: calling treg through its command line (the calls go through the Workshop rows in tools/treg, paid by the person's treg connection); reading YouTube channel videos through a paid endpoint (tool:keep-channels-latest-videos-and-captions reads them on the person's computer for free and keeps the captions, which tool:cite-principles-from-captions then reads); writing playbook.md, playbook.html and CSV files in a folder (each step's submitted output is the record of the run). Endpoint ids and prices are as the catalog listed them on 2026-10-30; the run reads them again before spending.\"}",
+    "title": "Reverse engineer how something grows"
+   }
+  },
+  {
+   "id": "run-a-slideshow-page-that-sells-a-small-digital-product",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"niche\",\"audience\",\"product\",\"own_material\",\"platform\",\"batch_size\"],\"properties\":{\"niche\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The page's subject in the person's own words, for example high-protein meals or budget travel\"},\"audience\":{\"type\":\"string\",\"minLength\":3,\"description\":\"Who the page is for, as specifically as the person can say it\"},\"product\":{\"type\":\"object\",\"required\":[\"kind\",\"price\",\"currency\"],\"properties\":{\"kind\":{\"type\":\"string\",\"minLength\":3,\"description\":\"What the product is, for example a PDF cookbook with a 7-day plan\"},\"price\":{\"type\":\"number\",\"exclusiveMinimum\":0},\"currency\":{\"type\":\"string\",\"pattern\":\"^[A-Z]{3}$\",\"description\":\"ISO 4217 code, for example EUR or USD\"}}},\"own_material\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":3},\"description\":\"Where the person's own material lives: folder paths, document paths or notes they wrote, one per item\"},\"rival_pages\":{\"type\":\"array\",\"maxItems\":5,\"items\":{\"type\":\"string\",\"format\":\"uri\"},\"description\":\"Public profile addresses of the biggest pages in the niche, if the person knows them\"},\"platform\":{\"enum\":[\"tiktok\",\"instagram\"],\"description\":\"Where the page will post its carousels\"},\"batch_size\":{\"type\":\"integer\",\"minimum\":5,\"maximum\":120,\"description\":\"How many carousels to draft in one batch\"}}}",
+    "job": "Build a slideshow page around the person's own material and one small paid product: list the material they really made, read the biggest pages in the niche for their top 3 formats, fix one visual style, outline the product with every item marked as the person's own or still to make, write a batch of carousels whose first slide names who it is for and whose last slide shows the product with one action, render them as 1080x1350 images, get the person's approval of every batch, schedule only approved posts, and each week read views, saves and sales, make part 2 of the winners and turn the biggest winner into a video. Every number comes from a tool call, a package label, a cited database or the person's own analytics; where there is none, the answer is \"no data\". The AI drafts and renders; the person approves, owns every account and the checkout, and the AI never posts by itself.",
+    "produces": "Each Monday: which carousels won on views and saves, the part 2 of each winner, and the video of the biggest one; the before-and-after numbers are a weekly results post.",
+    "recipe": "workflow:run-a-slideshow-page-that-sells-a-small-digital-product",
+    "source": "{\"from\":\"X posts\",\"author\":\"Three X posts on slideshow pages\",\"url\":\"https://x.com/tivollem/status/2115760561489318295\",\"name\":\"A post of 2026-10-29 on a meal-idea slideshow page that sells a EUR 4.99 cookbook (60 recipes and a 7-day plan) from its last slide, studied from its screen recording; plus Ernesto Lopez on slideshow pages (https://x.com/ErnestoSOFTWARE/status/2112940887806296269, quoted by https://x.com/ErnestoSOFTWARE/status/2115442722660037110) and on AI cooking reels (https://x.com/ErnestoSOFTWARE/status/2115897827775988205)\",\"note\":\"Their claims, not checked here: the page had 462K likes with under 8K followers (the recording shows that 462K is the profile's lifetime likes; the one post shown had 1,620 likes and 635 saves); one recipe page has 488M views; 5M views brings about $2,000 to $5,000 in revenue; some sounds average about 10 times the page average. The observed format: six slides (a cover, then breakfast, lunch, dinner and dessert, one per slide, then the product), each meal slide a top-down plate, a two-line label naming the slot and three ingredients joined with '+', and three ingredient cut-outs; the last slide is the product mock-up, an outcome headline and one 'link in bio' button; the bio holds one link to a one-screen page with a single price button. The method from the article: a first slide that names who it is for and forces the next swipe; rerun a winning hook as numbered parts; one theme or character on every post; keep a sound that works; the product on the last slide and its full name in the caption; pull the biggest page's posts with views and saves, find its top 3 formats, brief 2 months, generate about 120, a person approves, schedule, and every Monday read views, make a part 2 of the winners and turn the biggest winners into video. His paid tools are replaced with open ones: ViewTrack by yt-dlp and gallery-dl metadata reads, Higgsfield by mflux image generation, Kling and Seedance by mlx-video or ltx-2-mlx, Postiz cloud by self-hosted Postiz (AGPL-3.0), and the Slack AI employee by this workflow on the person's own AI. NOT ADOPTED, with the reason: (1) AI-generated food or product photos shown as the person's own work mislead buyers, so generated images are labelled as illustrations and the person's own photos come first; (2) nutrition or health claims beyond a cited label or database are not written, because a recipe product that promises health results makes claims nobody checked; (3) bulk scraping of rival pages breaks platform terms, so rivals are read one public page at a time as metadata only and nothing is downloaded but numbers and links.\"}",
+    "title": "Run a slideshow page that sells a small digital product",
+    "wakes": "[{\"id\":\"monday\",\"on\":{\"time\":{\"every_ms\":604800000,\"from_ms\":378000000}},\"budget\":{\"steps\":60,\"wall_ms\":3600000},\"input\":{\"start_at\":\"weekly\"}}]"
+   }
+  },
+  {
+   "id": "same-abilities-each-device-its-own-look",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"feature\"],\"properties\":{\"feature\":{\"type\":\"string\",\"minLength\":3}}}",
+    "job": "When a person asks for something to be the same everywhere (phone, browser, computer, share sheet), make every device offer the same abilities in the same order, each drawn in that device's own native way, instead of putting one device's page inside another.",
+    "recipe": "workflow:same-abilities-each-device-its-own-look",
+    "source": "{\"from\":\"a person's request\"}",
+    "title": "Same abilities on every device, each in its own look"
+   }
+  },
+  {
+   "id": "say-if-it-is-known-new-or-rechecked",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"question\"],\"properties\":{\"question\":{\"type\":\"string\",\"minLength\":5,\"description\":\"The question being answered, in the words it was asked\"},\"came_from\":{\"type\":\"string\",\"description\":\"Where it was asked (a message id, a file, a date)\"}}}",
+    "job": "Before answering any question about what exists, what was decided or what was found, read everything already held about it, then label every claim as known before (since when, linked to where), a new finding, or re-checked now (still true or changed). Write new findings back where the next reader looks first, and give the link to any screen that already shows the answer, so nobody rediscovers what was already known and the reader can tell a first discovery from a re-check.",
+    "recipe": "workflow:say-if-it-is-known-new-or-rechecked",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a person, product or place: a lawyer checking precedent, a researcher checking prior work and an AI checking a codebase run the same steps.\"}",
+    "title": "Say whether it is known, new or re-checked"
+   }
+  },
+  {
+   "id": "sell-what-the-pursuit-makes",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"properties\":{\"pursuit_id\":{\"type\":\"string\",\"description\":\"The pursuit whose byproducts to sell (pursuit:...); the biggest one when left out\"}}}",
+    "job": "Find what a pursuit already produces along the way (footage, notes, a method, a tool, a product, a book), pick what people would pay for without bending the pursuit toward whatever sells, offer it, and test several prices so as many people as possible can get in while the money funds the pursuit.",
+    "recipe": "workflow:sell-what-the-pursuit-makes",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps. Names tools that no tool in the Workshop offers yet: tool:run-price-experiments.\"}",
+    "title": "Sell what your pursuit already makes"
+   }
+  },
+  {
+   "id": "set-up-a-checked-repository",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"repository\",\"registries\",\"check_command\"],\"properties\":{\"repository\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The repository folder\"},\"product_folder\":{\"type\":\"string\",\"description\":\"The folder of DATA files a program reads at run time, under the repository, when it has one\"},\"pin_file\":{\"type\":\"string\",\"description\":\"The pin file for that folder, under the repository\"},\"unpinned_ok\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"description\":\"Files in the product folder that are never pinned\"},\"registries\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\"},\"description\":\"The person's own check registry files, each with its own schema: where the repository is declared, which commit checks run on it, which folders an agent may write in\"},\"hook_installer\":{\"type\":\"string\",\"description\":\"The person's own command that installs their git hooks in a repository, if they have one\"},\"check_command\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The person's own command that runs their commit checks on a repository's staged files\"}}}",
+    "job": "Set up a new or existing repository so that its rules are checked at every edit, commit and push. The repository says its jobs as capability rows, from what each folder's README says it does. Its DATA files are pinned by content. Its retired paths are declared. It is registered with the person's own checks, and those checks are shown to pass on it. Every input is the repository's own files or the person's own check settings. The AI writes no job the repository's own README does not say, and changes no check to make it pass.",
+    "produces": "The repository's own capabilities.json, pin file and retired-paths file, its entry in each of the person's check registries, its git hooks installed, and one run of the person's checks that passes on it.",
+    "recipe": "workflow:set-up-a-checked-repository",
+    "source": "{\"from\":\"setting up a generic engine repository whose edits, commits and pushes are judged by DATA-driven checks\",\"name\":\"A repository is checked when its own files say what it does and the checks read them, not when someone remembers the rules\",\"note\":\"Not adopted: a template folder copied into every repository (its rows would describe the template, not the repository), and writing capability rows for folders whose README does not say their job.\"}",
+    "title": "Set up a repository whose rules are checked"
+   }
+  },
+  {
+   "id": "start-from-the-persons-own-work",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are about to plan, design, build or advise on, in the words it was asked\"},\"came_from\":{\"type\":\"string\",\"description\":\"Where it was asked (a message id, a file, a date)\"}}}",
+    "job": "Plan something for a person (their week, a training season, a launch, a trip), design something for them (a screen, a programme, a logo) or advise them on a choice (keep or sell, which offer, what to do next), starting from their own work: find what their own body of work already says on the topic (their own frameworks, philosophy, notes, recordings, past AI conversations, files and pursuits), apply each of their frameworks and principles to the request, and give the result citing their own words with where each is kept, so the person never has to point an AI to their own material.",
+    "recipe": "workflow:start-from-the-persons-own-work",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a person, product or framework: a coach planning a season from their own drills, a founder designing from their own principles and a writer outlining from their own notes run the same steps.\"}",
+    "title": "Plan, design or advise from the person's own work"
+   }
+  },
+  {
+   "id": "tell-the-person-what-waits",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"properties\":{\"after\":{\"type\":\"string\",\"description\":\"What you just finished, when this runs after work; leave out at the start of a chat\"}}}",
+    "job": "At the start of a chat and after finishing work, show the person in the chat everything that only they can do (sign in somewhere, approve, pay or top up, press a button on another site, answer), each with where to do it; and keep anything this AI could not do itself in their Waiting on you list, so no AI leaves the person not knowing what it needs from them.",
+    "recipe": "workflow:tell-the-person-what-waits",
+    "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Names tools that no tool in the Workshop offers yet: tool:what-is-waiting-on-me.\"}",
+    "title": "Tell the person what is waiting on them"
+   }
+  },
+  {
+   "id": "test-a-finding",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"claim\"],\"properties\":{\"claim\":{\"type\":\"string\",\"minLength\":5,\"description\":\"What was noticed or claimed, in the words it was said\"},\"came_from\":{\"type\":\"string\",\"description\":\"Where it was said or found: a message id, file, recording, link or the person's own words\"},\"list_id\":{\"type\":\"string\",\"description\":\"The list findings are kept in; findings when left out\"},\"tests\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":3,\"description\":\"How many small reality tests to hand the person; 3 when left out\"}}}",
+    "job": "Take anything a person noticed or claims (said in a chat or a recording, shared from a page, or an AI's own conclusion), question what it assumes, research the strongest case for it and the strongest case against it in the hardest places it could fail, say how strongly it holds and where it was tested, hand the person one to three small tests to try in their own life, and keep it as a row of their Findings list so only tested findings rise into the summaries they decide from.",
+    "recipe": "workflow:test-a-finding",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a subject, field or person: a coach's hunch, a customer complaint, a lab result and a philosophy all run the same steps. The list and its columns are data the workflow makes on first run; another list can be named in the input.\"}",
+    "title": "Test what you noticed"
+   }
+  },
+  {
+   "id": "trace-to-first-principles",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"subject\",\"framework\"],\"properties\":{\"subject\":{\"type\":\"string\",\"minLength\":5,\"description\":\"The feature, decision, claim or plan to trace, in plain words or by its id\"},\"framework\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The chain's framework file in the person's files (name or identity): kind framework with items in order from the most basic stage to the last\"}}}",
+    "job": "Walk a feature, decision, claim or plan back through a person's own chain of first principles (kept as a framework file whose stages run from the most basic to the change it should make in the world), saying at each stage how the thing shows up there with evidence, which stage is its deepest root, whether it reaches a real change, and which stages it skips, then what to change so it does.",
+    "recipe": "workflow:trace-to-first-principles",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"The chain is data: the person's own framework file, so someone else's chain (the scientific method, OODA, a coach's model) runs the same steps. workflow:bring-in-a-framework turns a written chain into such a file.\"}",
+    "title": "Trace something back to first principles"
+   }
+  },
+  {
+   "id": "turn-a-correction-into-workflows",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"correction\"],\"properties\":{\"correction\":{\"type\":\"string\",\"minLength\":10,\"description\":\"The person's words, exactly as they wrote or said them\"}}}",
+    "job": "When the person corrects how you worked, name each thing you did wrong in their words, find what made you do it, apply the fix to every part of the work it touches, and keep each fix as a workflow on the marketplace (improving the one that already does that job, or saving a variation that names where it came from), so no AI on any account repeats it.",
+    "made_from": [
+     "workflow:bring-in-my-processes"
+    ],
+    "recipe": "workflow:turn-a-correction-into-workflows",
+    "source": "{\"from\":\"the product's own behaviour\"}",
+    "title": "Turn a correction into workflows"
+   }
+  },
+  {
+   "id": "turn-notes-into-finished-content",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"material\",\"format\"],\"properties\":{\"material\":{\"type\":\"string\",\"minLength\":20,\"description\":\"The notes, words or principle the piece is made from, word for word\"},\"format\":{\"type\":\"string\",\"minLength\":2,\"description\":\"The format it becomes (an id from the person's content formats, or its name)\"},\"pursuit\":{\"type\":\"string\",\"description\":\"The pursuit it is for, if there is one\"}}}",
+    "job": "Turn a person's notes, a recording or a principle into one finished piece in one of their formats (a post, thread, newsletter, article, script or talk): start from what they have already said, tell it as a story that changes the reader, write it in their format citing their own words, check every line against their copywriting laws and aloud, and run the copy judge before the draft is kept.",
+    "recipe": "workflow:turn-notes-into-finished-content",
+    "source": "{\"from\":\"a person's request\",\"note\":\"Nothing here names a person, pursuit, platform or product. Names tools that no tool in the Workshop offers yet: tool:check-copy.\"}",
+    "title": "Turn notes into finished content"
+   }
+  },
+  {
+   "id": "turn-one-long-recording-into-many-pieces",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"long_at_least_minutes\"],\"properties\":{\"long_at_least_minutes\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"How long a recording must be to count as a long piece\"},\"recording_suffixes\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The file endings the person's cameras and recorders write (for example .mov, .mp4, .wav); all common video and audio endings when left out\"},\"long_piece_link\":{\"type\":\"string\",\"description\":\"Where the long piece is or will be published, for the link back; asked for in the approve step when left out\"},\"channels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The platforms the clips and posts are for\"}}}",
+    "job": "Find the long recordings the person has not used yet (on a connected drive or in their recording records), transcribe each with word times, file every spoken moment into topic buckets, pick at least ten clips that each stand alone, give each its own title and first line and a link back to the long piece, draft a newsletter and a set of posts from the long piece's one message, check every word against the person's own rules, and get the person's approval of each piece before anything is posted. The AI cuts and drafts; the person approves every piece and posts it.",
+    "produces": "At least ten packaged clips, a newsletter draft and a set of posts from one long recording, each pointing back to the long piece.",
+    "recipe": "workflow:turn-one-long-recording-into-many-pieces",
+    "source": "{\"from\":\"a principles registry mined from video captions\",\"name\":\"Make long-form the foundation: one recording yields clips, posts, quotes and a newsletter; clip every long conversation generously; use shorts for reach and long pieces for depth\",\"principles\":[\"P-107\",\"P-089\",\"P-099\"],\"note\":\"Adopted: one long recording as the source of every derivative, ten or more clips per long piece with their own packaging, and every short linking back to the long piece. Not adopted: posting clips of a guest without the guest knowing; each clip with a guest is listed for the person to clear with that guest.\"}",
+    "title": "Turn one long recording into many pieces",
+    "wakes": "[{\"id\":\"card-inserted\",\"on\":{\"host_event\":{\"kind\":\"volume-mounted\"}},\"budget\":{\"steps\":80,\"wall_ms\":3600000},\"input\":{\"start_at\":\"find-new\"}},{\"id\":\"recording-added\",\"on\":{\"record\":{\"resource\":\"own-records\",\"kind\":\"recording\"}},\"budget\":{\"steps\":80,\"wall_ms\":3600000},\"input\":{\"start_at\":\"find-new\"}}]"
+   }
+  },
+  {
+   "id": "turn-research-into-a-plan",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"capability\"],\"properties\":{\"capability\":{\"type\":\"string\",\"minLength\":3,\"description\":\"What is missing or needs hardening\"},\"where\":{\"type\":\"string\",\"description\":\"Which project, codebase or product it affects\"}}}",
+    "job": "Research a missing or weak capability across the whole industry and turn it into a facts-only plan document: current state, sourced findings, deepest cause, the constraint stack, and what everyone still gets wrong. No solutions or recommendations.",
+    "recipe": "workflow:turn-research-into-a-plan",
+    "source": "{\"from\":\"an agent skill\",\"note\":\"Its phases 0 to 6 are these steps, with phase 2's seventh lane as the per-system step.\"}",
+    "title": "Turn research into a plan"
+   }
+  },
+  {
+   "id": "turn-something-shared-into-what-you-can-use",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"properties\":{\"shared\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":3},\"description\":\"What the person shared: each item is a link, or the pasted text of a post or article. Left out when the run was woken by a shared record: the gather step reads it from the record.\"},\"why\":{\"type\":\"string\",\"description\":\"Anything the person said about it, in their own words (for example 'must do 100%')\"}}}",
+    "job": "Read what the person shared in full, split it into its parts, and put each part where the person's AI can use it again: methods and facts as technique records described by what they work on (never tied to one medium), step-by-step playbooks as workflow recipes, code as tools, and every paid product matched to a free or open-source tool that does the same job. Record every step that is not adopted and why.",
+    "produces": "New technique records, recipes and tools made from what was shared, with the free tool for each paid one; \"what I took from this and built\" is a post.",
+    "recipe": "workflow:turn-something-shared-into-what-you-can-use",
+    "source": "{\"from\":\"a person's standing rule\",\"name\":\"Anything shared means incorporate it, not acknowledge it\",\"note\":\"Written from the way one person's AI handled 30 shared posts, repositories and product pages on 2026-10-30: each was split into parts and each part went to the owner of its kind. Steps that deceive people or evade a platform's checks are recorded as not adopted with the reason, never silently dropped.\"}",
+    "title": "Turn something shared into what you can use",
+    "wakes": "[{\"id\":\"shared\",\"on\":{\"record\":{\"resource\":\"own-records\",\"kind\":\"shared\"}},\"budget\":{\"steps\":50,\"wall_ms\":1800000},\"input\":{\"start_at\":\"gather\"}}]"
+   }
+  },
+  {
+   "id": "turn-what-you-said-into-content",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"words\"],\"properties\":{\"words\":{\"type\":\"string\",\"minLength\":20,\"description\":\"What the person wrote or said, word for word\"},\"came_from\":{\"type\":\"string\",\"description\":\"Where and when they wrote or said it (a message id, a file, a date)\"},\"may_post\":{\"type\":\"boolean\",\"description\":\"True only when the person has said these may be posted; otherwise drafts are kept\"}}}",
+    "job": "Take anything a person wrote or said (a message, a voice note, a talk, a comment) and decide whether it should be content. If so, pull out the principles in it that hold far beyond this case, write them with the person's writing workflows, shape each into every format that fits (posts, threads, videos, newsletters, talks, print, signs) and into an angle for each of their pursuits, keep the drafts, and feed each principle back into the workflows, checks and features that should use it, so every message makes both content and a better product.",
+    "recipe": "workflow:turn-what-you-said-into-content",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a person, pursuit, platform or product: a coach's voice note, a founder's chat message and a teacher's lecture run the same steps.\"}",
+    "title": "Turn what you said into content and better workflows"
+   }
+  },
+  {
+   "id": "validate-and-launch-a-subscription-app",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"problem\",\"audience\",\"category\",\"store\"],\"properties\":{\"problem\":{\"type\":\"string\",\"minLength\":5,\"description\":\"The painful problem the app solves, in one sentence, as the people who have it would say it\"},\"audience\":{\"type\":\"string\",\"minLength\":3,\"description\":\"Who has the problem every day\"},\"category\":{\"type\":\"string\",\"minLength\":2,\"description\":\"The store category the app would sit in, for example Health & Fitness or Food & Drink\"},\"store\":{\"enum\":[\"app-store\",\"google-play\"],\"description\":\"Which store the app launches in first\"},\"competitors\":{\"type\":\"array\",\"maxItems\":5,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"Competing apps the person already knows, by name\"}}}",
+    "job": "Take a consumer app idea from a painful daily problem to a live subscription app: confirm that apps in the category already earn and that creators already post about the problem (stop if not), record the top 3 competitors' onboarding beats, paywall, price and growth channels from the person's own screenshots, write an onboarding that follows the winning order of beats in original words and design, end it with a paywall that states price, trial and cancellation plainly, publish a store page whose subtitle says what the app does, then run five growth channels (creators paid per post, influencers on a capped cost per 1,000 views, faceless slideshows, founder-made posts, paid ads after organic winners) with disclosures, and review installs, trials, paid users and revenue every week. Every number comes from a tool call or the person's own store and payment dashboards; where there is none, the answer is \"no data\". The AI drafts; the person owns the developer account, the payment setup and every contract, approves every word, and submits.",
+    "produces": "Each Monday: installs, trials, paid users and revenue by channel, with the channel that won and why; the weekly numbers are a build-in-public post.",
+    "recipe": "workflow:validate-and-launch-a-subscription-app",
+    "source": "{\"from\":\"X posts\",\"author\":\"Ernesto Lopez\",\"url\":\"https://x.com/ErnestoSOFTWARE/status/2014110519913857122\",\"name\":\"Ernesto Lopez, 'I built 10 apps in 10 months' guide (X article), and his post on cooking apps and generated cooking reels (https://x.com/ErnestoSOFTWARE/status/2115897827775988205)\",\"note\":\"His claims, not checked here: about $800,000 a year from 10 apps; his first app made $20,000 in its first 30 days from 2 viral videos; a recipe app at about $1M a month; a paid influencer at $1 per 1,000 views capped at $1,000; creators paid $15 a post with bonuses from $150 at 100K views to $800 at 1M. His 8 steps: validate the niche (a daily painful problem, apps already earning over $10K a month, creators already posting), build fast with AI coding tools, borrow the onboarding and pricing of the best competitors (he says he means their structure, not a literal copy, with the inside of the app original), a hard paywall at the end of onboarding, a minimal store page (clear name, a subtitle that says what it does, 3 to 5 big-text screenshots, a simple description), then five growth channels: creators, influencers, faceless slideshows with one style or character, founder-led posts, paid ads. NOT ADOPTED, with the reason: (1) copying a competitor's screens, words or design, which is copyright and trade-dress infringement, so only the order of beats is reused and every word and screen is new; (2) a paywall that hides how to close it, restore a purchase or cancel, or that charges before a clearly stated trial end, which breaks App Store guideline 3.1.2 and consumer-protection rules on subscriptions, so the paywall states price, period, trial end and how to cancel; (3) creator and influencer posts without an ad disclosure, which breaks endorsement rules, so every paid post carries one; (4) hiring a minor to send 100 cold messages a day, so outreach is done by the person or an adult they contract, one message at a time and within each platform's messaging rules.\"}",
+    "title": "Validate and launch a subscription app",
+    "wakes": "[{\"id\":\"monday\",\"on\":{\"time\":{\"every_ms\":604800000,\"from_ms\":378000000}},\"budget\":{\"steps\":40,\"wall_ms\":1800000},\"input\":{\"start_at\":\"weekly\"}}]"
+   }
+  },
+  {
+   "id": "walk-a-pursuit-through-your-map",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"pursuit\"],\"properties\":{\"pursuit\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The pursuit's id, or its title\"}}}",
+    "job": "Place one pursuit on the person's own map of their life: which areas of that map it serves or lives along the way, each with evidence in the person's own words, then keep those areas on the pursuit so every reader sees them.",
+    "recipe": "workflow:walk-a-pursuit-through-your-map",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"A person who keeps a different map runs the same steps on theirs.\"}",
+    "title": "Walk a pursuit through your map"
+   }
+  },
+  {
+   "id": "work-through-a-framework",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"framework\"],\"properties\":{\"framework\":{\"type\":\"string\",\"minLength\":3,\"description\":\"A private framework file in this person's files (name or identity), with its items, questions, exercises and source citations\"},\"about\":{\"type\":\"string\",\"description\":\"The pursuit or area to work through, when known\"}}}",
+    "job": "Work through any author's framework for a person using what is already known about them, keep every answer with its source and confidence, and ask only for answers the evidence cannot support.",
+    "recipe": "workflow:work-through-a-framework",
+    "source": "{\"from\":\"a method a person repeated across their work\"}",
+    "title": "Work through a framework"
+   }
+  },
+  {
+   "id": "write-a-research-prompt-without-the-answer-in-it",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"goal\"],\"properties\":{\"goal\":{\"type\":\"string\",\"minLength\":3},\"draft_prompt\":{\"type\":\"string\"},\"constraints\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}",
+    "job": "Write a research prompt (for an AI or a person) that tests the requester's question without slipping in the writer's expected answer: keep the requester's goal and scope in their own words, find every term that presumes a result (a tradeoff, a limit, a fixed number of dimensions, a physical constraint, a frontier), delete it or turn it into something to be tested, keep only the constraints the requester gave, and log every change.",
+    "recipe": "workflow:write-a-research-prompt-without-the-answer-in-it",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"did you taint my prompts with your subjective opinion. Nothing here names a subject, field or person.\"}",
+    "title": "Write a research prompt without the answer in it"
+   }
+  },
+  {
+   "id": "write-product-words",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"what\"],\"properties\":{\"what\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What changed or what the words are for, with every true fact you have.\"},\"where\":{\"type\":\"string\",\"description\":\"Where the words will show: a tour card, a notice, a landing page, an email, a post.\"},\"reader\":{\"type\":\"string\",\"description\":\"Who reads it, if you know.\"}}}",
+    "job": "Write copy a person will read (a tour, a what is new note, a notice, an error, a button, a landing section, an email or a post) in plain, true, warm sentences, checked by the copy judge before anyone sees it.",
+    "recipe": "workflow:write-product-words",
+    "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Names tools that no tool in the Workshop offers yet: tool:check-copy.\"}",
+    "title": "Write product words people enjoy reading"
+   }
+  }
+ ]
+}
