@@ -37,9 +37,9 @@ const fieldsOf = (match, skip = ['id', 'text']) => Object.fromEntries(Object.ent
   .filter(([name, value]) => !skip.includes(name) && value && value.trim()).map(([name, value]) => [name, value.trim()]));
 
 function piecesOf(name, lines, compiled) {
-  const pieces = [], leftover = [];
+  const pieces = [], leftover = [], leftoverAt = [];
   let current = null, group = {}, groupLevel = 0, inFence = false;
-  for (const line of lines) {
+  for (const [lineIndex, line] of lines.entries()) {
     if (FENCE.test(line)) inFence = !inFence;
     const level = inFence ? null : HEADING.exec(line);
     if (level) {
@@ -48,7 +48,7 @@ function piecesOf(name, lines, compiled) {
       const found = compiled.heading.exec(line);
       if (found) {
         if (current) pieces.push(current);
-        current = { id: found.groups.id, source: name, kind: 'section', level: depth, lines: [line], fields: fieldsOf(found) };
+        current = { id: found.groups.id, source: name, kind: 'section', level: depth, lines: [line], fields: fieldsOf(found), from_line: lineIndex, after_line: lineIndex + 1 };
         continue;
       }
       if (!current) {
@@ -60,17 +60,36 @@ function piecesOf(name, lines, compiled) {
         } else if (Object.keys(group).length && depth <= groupLevel) group = {};
       }
     }
-    if (current) { current.lines.push(line); continue; }
+    if (current) { current.lines.push(line); current.after_line = lineIndex + 1; continue; }
     const row = inFence ? null : compiled.row.exec(line);
     if (row) {
       pieces.push({ id: row.groups.id, source: name, kind: Object.keys(group).length ? 'grouped-row' : 'row', lines: [line],
-        fields: { ...group, ...fieldsOf(row) }, text: (row.groups.text ?? '').trim() });
+        fields: { ...group, ...fieldsOf(row) }, text: (row.groups.text ?? '').trim(), from_line: lineIndex, after_line: lineIndex + 1 });
       continue;
     }
-    leftover.push(line);
+    leftover.push(line); leftoverAt.push(lineIndex);
   }
   if (current) pieces.push(current);
-  return { pieces, leftover };
+  return { pieces, leftover, leftoverAt };
+}
+
+// Original spans are optional output for virtual section rows. They are taken before item formatting, margin
+// trimming or equal-word merging. Each input byte belongs to exactly one span, including headings and blank lines.
+function rawSegments(source, text, lines, pieces, leftoverAt) {
+  const offsets = [0];
+  for (const [index, line] of lines.entries()) offsets.push(offsets.at(-1) + Buffer.byteLength(line) + (index + 1 < lines.length ? 1 : 0));
+  const groups = [];
+  for (const line of leftoverAt) {
+    const last = groups.at(-1);
+    if (last && last.after_line === line) last.after_line += 1;
+    else groups.push({ id: null, kind: 'remainder', from_line: line, after_line: line + 1, fields: {} });
+  }
+  const bytes = Buffer.from(text);
+  return [...pieces, ...groups].sort((a, b) => a.from_line - b.from_line).map(piece => ({
+    source: source.name, file: source.file, id: piece.id, kind: piece.kind, fields: piece.fields,
+    from_byte: offsets[piece.from_line], after_byte: offsets[piece.after_line],
+    text: bytes.subarray(offsets[piece.from_line], offsets[piece.after_line]).toString('utf8'),
+  }));
 }
 
 const normal = text => text.replace(/\s+/g, ' ').trim();
@@ -81,12 +100,13 @@ export async function splitDocuments(mapping, read) {
   for (const key of ['sources', 'heading', 'row', 'parts']) if (!mapping?.[key]) throw say('bad_input', { what: `The mapping needs \`${key}\`.` });
   const compiled = { heading: new RegExp(mapping.heading), row: new RegExp(mapping.row), group_heading: mapping.group_heading ? new RegExp(mapping.group_heading) : null };
   for (const key of ['heading', 'row']) if (!/\(\?<id>/.test(mapping[key])) throw say('bad_input', { what: `\`${key}\` needs a named group \`id\` ((?<id>...)).` });
-  const byId = new Map(), leftover = {};
+  const byId = new Map(), leftover = {}, segments = [];
   let linesIn = 0, placed = 0;
   for (const source of mapping.sources) {
-    const lines = (await read(source.file)).split('\n');
+    const text = await read(source.file), lines = text.split('\n');
     linesIn += lines.length;
-    const { pieces, leftover: rest } = piecesOf(source.name, lines, compiled);
+    const { pieces, leftover: rest, leftoverAt } = piecesOf(source.name, lines, compiled);
+    if (mapping.raw_segments) segments.push(...rawSegments(source, text, lines, pieces, leftoverAt));
     leftover[source.name] = rest;
     placed += rest.length + pieces.reduce((sum, piece) => sum + piece.lines.length, 0);
     for (const piece of pieces) byId.set(piece.id, [...(byId.get(piece.id) ?? []), piece]);
@@ -135,7 +155,7 @@ export async function splitDocuments(mapping, read) {
   }
   const report = { items: items.size, lines_in: linesIn, lines_placed: placed,
     leftover_lines: Object.fromEntries(Object.entries(leftover).map(([name, rest]) => [name, rest.length])), identical_pieces_merged: merged };
-  return { items, leftover, report };
+  return { items, leftover, report, ...(mapping.raw_segments ? { segments } : {}) };
 }
 
 /** One item as a markdown document: frontmatter (id, then the fields) and its parts under their headings. */

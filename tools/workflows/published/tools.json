@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:a83e9159d488027ca09244699804c87759141d68982a826219733ab1b9a23222"
+  "blake3": "1f:5e5e8804e554b10ea306d54210b9eb04b0ccbe30d2ee7c00dbbd83b92b654bda"
  },
  "fields": [
   {
@@ -4550,7 +4550,7 @@
    "values": {
     "title": "Show a folder of my documents as the rows of a list",
     "job": "Read the markdown documents in a folder I granted as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time",
-    "description": "Reads every .md, .markdown and .txt document under the granted folder (or `folder` inside it), skipping folders whose names start with a dot and links that point outside it, in name order, and answers one page of rows: { id (its path under the folder), title, identity (1f: and the BLAKE3 of its bytes), values } where values holds its frontmatter as note.<key> and its file facts as file.<key>. A page holds up to `limit` rows (200 by default, 2,000 at most) and answers `next` while more remain; pass it as `after` for the next page, so any number of documents is read. `match` keeps the documents whose path fits a glob such as */SKILL.md. `backlinks` adds file.backlinks, worked out over the whole folder. Nothing is copied: the documents are the rows.",
+    "description": "Reads every .md, .markdown and .txt document under the granted folder (or `folder` inside it), skipping folders whose names start with a dot and links that point outside it, in name order, and answers one page of rows: { id (its path under the folder), title, identity (1f: and the BLAKE3 of its bytes), values } where values holds its frontmatter as note.<key> and its file facts as file.<key>. A page holds up to `limit` rows (200 by default, 2,000 at most) and answers `next` while more remain; pass it as `after` for the next page, so any number of documents is read. `match` keeps the documents whose path fits a glob such as */SKILL.md. `backlinks` adds file.backlinks, worked out over the whole folder. Nothing is copied: the documents are the rows. Optional content:true adds exact complete UTF-8 text including frontmatter in bounded linked pieces, keeping the original parent ID and metadata. Child pieces name their parent, part number and total; pass the opaque next cursor unchanged. No body is silently truncated.",
     "status": "active",
     "maker": "maker:documents-as-list-rows",
     "licence_class": "licence:maker-own",
@@ -4820,7 +4820,7 @@
    "values": {
     "title": "Show a folder of my account's documents as the rows of a list",
     "job": "Read the markdown documents in a folder of my account's files as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time",
-    "description": "The same rows as tool:read-documents-as-list-rows, read from the person's Namespace files through the run's records door (list_files and read_file, every file read by its name) instead of a folder on their computer. A page holds up to `limit` rows and answers `next` while more remain; `match` keeps the documents whose path fits a glob; `most_bytes` ends a page at the last row whose answer fits. It writes nothing: the files door has no write that checks a file is still the one read.",
+    "description": "The same rows as tool:read-documents-as-list-rows, read from the person's Namespace files through the run's records door (list_files and read_file, every file read by its name) instead of a folder on their computer. A page holds up to `limit` rows and answers `next` while more remain; `match` keeps the documents whose path fits a glob; `most_bytes` ends a page at the last row whose answer fits. It writes nothing: the files door has no write that checks a file is still the one read. Optional content:true adds exact complete UTF-8 text including frontmatter in bounded linked pieces, keeping the original parent ID and metadata. Child pieces name their parent, part number and total; pass the opaque next cursor unchanged. No body is silently truncated.",
     "status": "active",
     "maker": "maker:documents-as-list-rows",
     "licence_class": "licence:maker-own",

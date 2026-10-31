@@ -1,8 +1,8 @@
 # tools/read-a-list-view/
 
-Reads one page of what a person's list shows, from their records only. A list's rows are the records of its row type. The rows of each row source the list declares (`row_sources: [{ source, of, match? }]`) are among those records too: a refresh writes them there. So opening a list or a saved view runs no tool. With a saved view, the rule filter of `tools/formulas` decides in the same process which rows the view's rules keep, and they come in the view's order.
+Reads one page of what a person's list shows, from their records only. A list's rows are the records of its row type. The rows of each row source the list declares (`row_sources: [{ source, id?, root?, of, match?, exclude?, paths?, text_extensions?, content?, values? }]`) are among those records too: a refresh writes them there. So opening a list or a saved view runs no tool. With a saved view, the rule filter of `tools/formulas` decides in the same process which rows the view's rules keep, and they come in the view's order.
 
-A refresh is the one thing that runs the source tools. It runs the tool each row source names, reads the whole source, and writes its rows as the list's records. It writes only the rows that changed and removes the rows the source no longer has.
+A refresh is the one thing that runs the source tools. It runs the tool each row source names, reads and writes bounded pages, and removes obsolete rows only after the source ends successfully. It writes only the rows that changed.
 
 Ported from:
 - the read path of the lists in the earlier Trillion app (`src/lists.mjs` `withRowSources`), where a source row's id is `<source>~<id>`;
@@ -20,7 +20,7 @@ node tools/read-a-list-view/do-work/read-list-view.mjs --config FILE --refresh L
 A read prints the page as JSON: `{ list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }`.
 - `values` is each row's whole value, not only the view's columns.
 - `record_id` is the row's full record id.
-- `source` names the row source a row came from.
+- `source` names the logical row source a row came from (`id`, or the source kind when `id` is omitted).
 - `of` is how many rows a view read before its rules kept some.
 - Pass `next` as `--after` to read the next page; it is null on the last page.
 
@@ -46,9 +46,10 @@ The config is JSON. Nothing in the code names a list, view, record type, address
 
 ## How a refresh writes
 
-- A source row's record id is `<row type>:<source>~<its id, URI-encoded>`. The door's ids hold no `/`, so a document's path is encoded, and the row keeps its id from one refresh to the next.
-- The whole source is read first, at most `rows_per_read` rows. A source with more is refused and nothing of it is written, so a row is never removed only because it was not read. A source tool that answers no rows is refused, never written as empty.
-- A row whose values equal the record's (by canonical JSON) is left alone. A row the source no longer has is removed. The list's other records are never touched. So a refresh run again with nothing changed writes nothing.
+- A source row's record id is `<row type>:<logical source id>~<its id, URI-encoded>`. The optional source `id` distinguishes two folders served by the same `source` tool. Without it, the kind is the identity, preserving existing record IDs. IDs must be unique within the list and cannot contain `~`, path separators or control characters.
+- Existing source records are read in bounded pages; only their IDs and BLAKE3 identities of canonical values are retained. Source bodies are then read and written one bounded page at a time. A refresh is not limited by a view's `rows_per_read`, so a large collection needs more pages rather than a higher per-page limit.
+- A row whose value identity equals the existing record's is left alone. The source must reach a successful terminal page before any obsolete row is removed. If a later page fails, repeats its cursor, repeats a row ID or is cancelled, unread existing rows survive. Earlier successfully saved page changes may remain and a retry compares them normally. An answer missing its rows array is refused; an explicit empty terminal array is a complete empty collection.
+- The list's own rows and the rows of other source IDs are never touched. A second refresh with nothing changed writes nothing. The local `refreshRowSources` function accepts an optional `AbortSignal` as `signal`, checked around source/list reads and before each write batch.
 - Writes go in batches of at most `write_rows` records and `write_bytes` bytes, each with its own request key. If the door refuses a batch as written, its records are sent again one at a time: the others are written, and the refused ones are named.
 
 ## Bounds
@@ -56,7 +57,7 @@ The config is JSON. Nothing in the code names a list, view, record type, address
 The bounds are this tool's own DATA, `limits` in `read-data/list-view.json`. Reading a list is this tool's job; the engine only stores and lists records. A caller never passes them.
 - `read_page_rows` (50): a page when no limit is given, and the most one source tool's page asks for.
 - `door_page_rows` (500): the most one records:list asks for, the records door's own page, so 2,000 rows are a few calls rather than forty.
-- `rows_per_read` (2,000): the most rows one read gathers, and the most rows a refresh takes from one source.
+- `rows_per_read` (2,000): the most rows one view read gathers. Refreshes stream bounded pages until each source ends.
 - `row_sources_per_list` (4): the most row sources one list may declare.
 - `write_rows` (64) and `write_bytes` (24,000): the most records and bytes one write of a refresh sends.
 
@@ -68,10 +69,35 @@ The bounds are this tool's own DATA, `limits` in `read-data/list-view.json`. Rea
 
 In both, each document is a row and its frontmatter holds the fields. Adding a source means adding a row here.
 
+Optional fields on each source declaration:
+
+| Field | Meaning |
+|---|---|
+| `id` | The stable identity of this logical collection, separate from the source tool kind. |
+| `root` | For a documents source, an explicit scoped computer folder passed to that tool's `root` input. Omitted when absent, retaining the configured local tool root. The document tool's containment and the run's grants still apply. |
+| `content` | The source's boolean or JSON object content option, forwarded unchanged to its tool. For documents, this opts into complete bounded text parts. |
+| `exclude` | An array of nonempty glob strings relative to the source folder, forwarded unchanged. The source tool omits matching documents. |
+| `paths` | An array of nonempty exact document paths, forwarded unchanged. The document source validates their containment under its admitted root and can read those files without a broad recursive scan. |
+| `text_extensions` | An array of nonempty extension strings, forwarded unchanged. The document source permits these UTF-8 file extensions only with exact `paths`; this selects text to read and never executes source files. |
+| `values` | Additional destination fields: `{destination: {from: "literal.source.field"}}` copies a source value; `{destination: {row: "title"}}` copies a row property; `{destination: {const: JSON}}` supplies DATA. Original fields are retained, and only explicitly named destination fields are replaced. |
+
+For example, two document folders can feed one Library without deleting each other's rows:
+
+```json
+{
+  "row_sources": [
+    {"source":"documents","id":"guides","of":"/guides","content":true,
+     "values":{"statement":{"row":"title"},"description":{"from":"document.text"}}},
+    {"source":"documents","id":"research","of":"/research","content":true,
+     "values":{"statement":{"row":"title"},"description":{"from":"document.text"}}}
+  ]
+}
+```
+
 ## Where it runs
 
 - **On the person's computer**: the command line above, with their own key (`read-data/door.mjs`).
-- **In a screen that shows a list**: the screen bundles `read-data/list-view.mjs` and `read-data/list-view.json`, pinned at a Workshop commit, and calls `readListView(input, door)` with a door of its own. A read needs only `read` and `list`. The rule filter comes with the module: it imports `tools/formulas`, so the screen also bundles that folder's `do-work` and `read-data/rule-operators.json`. So opening a list sends reads only. The screen's door answers `records:list` as the engine does, so a page holding a record too big for one message comes as byte pages; the screen's door joins them with `tools/records-door` `read-data/byte-pages.mjs` `wholeAnswer` before handing the page on. `refreshRowSources(input, door)` also needs `run` and `write`, and the screen calls it only when the person asks for a refresh.
+- **In a screen that shows a list**: the screen bundles `read-data/list-view.mjs` and `read-data/list-view.json`, pinned at a Workshop commit, and calls `readListView(input, door)` with a door of its own. A read needs only `read` and `list`. The rule filter comes with the module: it imports `tools/formulas`, so the screen also bundles that folder's `do-work` and `read-data/rule-operators.json`. Canonical refresh value identities reuse `tools/content-identity` (BLAKE3), so that shared module is part of the import closure too. So opening a list sends reads only. The screen's door answers `records:list` as the engine does, so a page holding a record too big for one message comes as byte pages; the screen's door joins them with `tools/records-door` `read-data/byte-pages.mjs` `wholeAnswer` before handing the page on. `refreshRowSources(input, door)` also needs `run` and `write`, and the screen calls it only when the person asks for a refresh.
 
 It is not an engine row. A run the engine starts gets record rights for named record kinds only, and each list's rows are a kind the list itself names, so such a run could not be granted them ahead of time.
 

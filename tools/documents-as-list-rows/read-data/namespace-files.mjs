@@ -61,6 +61,20 @@ export function namespaceFiles(files) {
       // The pages are joined as bytes before they are read as text, so a character cut between two pages stays whole.
       return { identity, text: Buffer.concat(parts).toString('utf8'), complete: total !== null && offset >= total, facts: { byte_length: total } };
     },
+    async readSlice(expected, offset, length, name) {
+      if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(length) || length < 0) throw say('bad_input', 'A document byte range is non-negative whole numbers.');
+      const parts = [];
+      let received = 0, identity = expected;
+      while (received < length) {
+        const page = await files('read_file', { name_or_identity: name, offset: offset + received, length: Math.min(READ_BYTES, length - received) });
+        identity = page.identity;
+        if (identity !== expected) throw say('document_changed', `${name} changed while its content was read.`);
+        const part = bytesOf(page);
+        if (!page.bytes_returned || part.length !== page.bytes_returned || part.length > length - received) throw say('bad_input', `${name} did not answer its requested byte range.`);
+        parts.push(part); received += part.length;
+      }
+      return { identity, bytes: Buffer.concat(parts) };
+    },
     async writeIfUnchanged(name) {
       throw say('not_written', `${name} is a Namespace file, and the files door has no write that checks the file is still the one read.`);
     },

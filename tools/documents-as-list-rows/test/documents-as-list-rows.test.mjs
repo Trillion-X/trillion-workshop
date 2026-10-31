@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDocument, readFrontmatter, writeFrontmatter } from '../read-data/document-properties.mjs';
 import { changeDocumentRows, readDocumentRows, readNamespaceDocumentRows, splitIntoDocuments } from '../read-data/rows.mjs';
+import { splitDocuments } from '../read-data/split.mjs';
 
 const command = fileURLToPath(new URL('../do-work/documents.mjs', import.meta.url));
 const scratch = () => mkdtemp(join(tmpdir(), 'documents-as-list-rows-'));
@@ -84,6 +85,145 @@ test('a row holds its properties, its file facts and its identity; a glob keeps 
   assert.match(row.values['file.identity'], /^1f:[0-9a-f]{64}$/);
   const kept = await readDocumentRows({ root: join(root, 'chores'), match: 'rooms/*.md' });
   assert.deepEqual(kept.rows.map(one => one.id), ['/rooms/kitchen.md']);
+});
+
+test('an exact path catalogue reads only named documents and exclusions work for both metadata and content', async () => {
+  const root = await chores();
+  const scope = { root: join(root, 'chores'), paths: ['/chore-1.md', '/rooms/kitchen.md'], exclude: ['rooms/**'] };
+  assert.deepEqual((await readDocumentRows(scope)).rows.map(row => row.id), ['/chore-1.md']);
+  assert.deepEqual((await readDocumentRows({ ...scope, content: true })).rows.map(row => row.id), ['/chore-1.md']);
+  await assert.rejects(readDocumentRows({ root: join(root, 'chores'), paths: ['/escape.md'] }), /not in the folder/);
+  await assert.rejects(readDocumentRows({ root, paths: ['relative.md'] }), /exact document names/);
+  await assert.rejects(readDocumentRows({ root, exclude: 'one.md' }), /array/);
+});
+
+test('explicit UTF-8 source extensions do not change ordinary folder selection or execute the source', async () => {
+  const root = await scratch();
+  const code = '# a source file, not executed\nraise RuntimeError("must never run")\n';
+  await writeFile(join(root, 'check.py'), code);
+  assert.equal((await readDocumentRows({ root })).rows.length, 0);
+  const page = await readDocumentRows({ root, paths: ['/check.py'], text_extensions: ['py'], content: true });
+  assert.equal(page.rows[0].values['document.text'], code);
+  await assert.rejects(readDocumentRows({ root, paths: ['/check.py'] }), /declared text extensions/);
+  await writeFile(join(root, 'bad.py'), Buffer.from([0xff, 0xfe]));
+  await assert.rejects(readDocumentRows({ root, paths: ['/bad.py'], text_extensions: ['py'], content: true }), /not a complete UTF-8/);
+});
+
+test('a granted filesystem root can read an exact positive catalogue without a recursive root listing', async () => {
+  const folder = await scratch(), path = join(folder, 'one.md');
+  await writeFile(path, 'one exact granted file\n');
+  const page = await readDocumentRows({ root: '/', paths: [path], content: true });
+  assert.deepEqual(page.rows.map(row => row.id), [path]);
+  assert.equal(page.rows[0].values['document.text'], 'one exact granted file\n');
+});
+
+test('a bounded paths_file keeps a large positive catalogue out of the list record', async () => {
+  const root = await chores();
+  await writeFile(join(root, 'catalogue.json'), JSON.stringify(['/chores/chore-1.md', '/chores/rooms/kitchen.md']));
+  const page = await readDocumentRows({ root, paths_file: '/catalogue.json', content: true });
+  assert.deepEqual(page.rows.map(row => row.id), ['/chores/chore-1.md', '/chores/rooms/kitchen.md']);
+  await assert.rejects(readDocumentRows({ root, paths_file: '/catalogue.json', paths: ['/chores/chore-1.md'] }), /instead of paths/);
+  await writeFile(join(root, 'too-big.json'), ' '.repeat(262145));
+  await assert.rejects(readDocumentRows({ root, paths_file: '/too-big.json' }), /existing .*byte document read bound/);
+});
+
+test('optional content keeps the same parent id and all metadata, with the complete small document', async () => {
+  const root = await chores();
+  const metadata = (await readDocumentRows({ root: join(root, 'chores'), match: 'chore-1.md' })).rows[0];
+  const page = await readDocumentRows({ root: join(root, 'chores'), match: 'chore-1.md', content: true });
+  const row = page.rows[0];
+  assert.equal(row.id, metadata.id);
+  for (const [key, value] of Object.entries(metadata.values)) assert.deepEqual(row.values[key], value, key);
+  assert.equal(row.values['document.text'], await readFile(join(root, 'chores', 'chore-1.md'), 'utf8'));
+  assert.equal(row.values['document.complete'], 'complete');
+  assert.equal(row.values['document.part'], 1);
+  assert.equal(row.values['document.parts'], 1);
+  assert.equal(page.next, null);
+});
+
+test('explicit omission removes only regenerable caches, allowing bounded exact text while preserving authored fields', async () => {
+  const root = await scratch();
+  const text = '---\nname: Original name\ntags: [authored-tag]\n---\n' + Array.from({ length: 400 }, (_, index) => `[link ${index}](./${'a'.repeat(100)}-${index}.md)`).join('\n');
+  await writeFile(join(root, 'links.md'), text);
+  const metadata = (await readDocumentRows({ root })).rows[0];
+  assert.equal(metadata.values['file.links'].length, 400);
+  await assert.rejects(readDocumentRows({ root, content: { part_bytes: 4000 }, most_bytes: 12000 }), /bigger than most_bytes/);
+  const rows = [];
+  let after = null;
+  do {
+    const page = await readDocumentRows({ root, content: { part_bytes: 4000, omit_fields: ['file.links', 'file.tags'] }, most_bytes: 12000, after });
+    rows.push(...page.rows); after = page.next;
+  } while (after);
+  assert.equal(rows.map(row => row.values['document.text']).join(''), text);
+  assert.ok(rows.every(row => !Object.hasOwn(row.values, 'file.links')));
+  assert.ok(rows.every(row => row.values['note.name'] === 'Original name'));
+  assert.ok(rows.every(row => row.values['file.identity'] === metadata.values['file.identity']));
+  assert.ok(rows.every(row => JSON.stringify(row.values['note.tags']) === '["authored-tag"]'));
+  await assert.rejects(readDocumentRows({ root, content: { omit_fields: ['note.name'] } }), /source\/frontmatter fields/);
+  await assert.rejects(readDocumentRows({ root, content: { field: 'file.links', omit_fields: ['file.links'] } }), /content text field/);
+});
+
+test('content beyond the metadata cap reconstructs byte-for-byte from bounded linked rows and opaque pages', async () => {
+  const root = await scratch();
+  const body = '---\nname: Long café notes\n---\n' + 'café 🙂 漢字\\\"\n'.repeat(18000) + 'END beyond the former metadata cap\n';
+  await writeFile(join(root, 'long.md'), body);
+  await writeFile(join(root, 'z.md'), 'after the long document\n');
+  assert.ok(Buffer.byteLength(body) > 262144);
+  const rows = [];
+  let after = null;
+  do {
+    const page = await readDocumentRows({ root, content: { part_bytes: 4097 }, after, limit: 3, most_bytes: 20000 });
+    assert.ok(Buffer.byteLength(JSON.stringify(page)) <= 20000);
+    assert.ok(page.rows.length > 0);
+    rows.push(...page.rows); after = page.next;
+  } while (after);
+  const parts = rows.filter(row => row.values['document.parent'] === '/long.md');
+  assert.equal(parts[0].id, '/long.md');
+  assert.equal(parts[0].values['note.name'], 'Long café notes');
+  assert.ok(parts.length > 1);
+  assert.equal(parts.length, parts[0].values['document.parts']);
+  assert.deepEqual(parts.map(row => row.values['document.part']), Array.from({ length: parts.length }, (_, index) => index + 1));
+  assert.deepEqual(Buffer.from(parts.map(row => row.values['document.text']).join('')), Buffer.from(body));
+  assert.ok(parts.every(row => row.values['document.complete'] === 'part of document'));
+  assert.equal(rows.at(-1).id, '/z.md');
+  const again = await readDocumentRows({ root, content: { part_bytes: 4097 }, limit: 3 });
+  assert.deepEqual(again.rows, rows.slice(0, 3));
+});
+
+test('an unfinished content cursor refuses a changed document instead of combining two versions', async () => {
+  const root = await scratch();
+  await writeFile(join(root, 'notes.md'), 'before '.repeat(100));
+  const first = await readDocumentRows({ root, content: { part_bytes: 100 }, limit: 1 });
+  assert.ok(first.next.startsWith('document-content:'));
+  await writeFile(join(root, 'notes.md'), 'after '.repeat(100));
+  await assert.rejects(readDocumentRows({ root, content: { part_bytes: 100 }, after: first.next, limit: 1 }), /changed after it was read/);
+});
+
+test('section content reuses the split parser but retains every original byte, duplicate words and stable section ids', async () => {
+  const root = await scratch();
+  const text = '# Original\n\nPreface café.\n\n### Case A: First\n\nSame words.\n\n### Case B: Second\n\nSame words.\n\n## Between\n\nRemainder 🙂.\n\n### Case A: Repeated id\n\nSame words.\n\n';
+  await writeFile(join(root, 'cases.md'), text);
+  const sections = { heading: '^### Case (?<id>[A-Z]): (?<title>.*)$', row: '^(?<id>never)(?!)$', parts: { 'document:section': 'Source' } };
+  const split = await splitDocuments({ ...sections, sources: [{ name: 'document', file: 'cases.md' }], raw_segments: true }, async () => text);
+  assert.equal(split.segments.map(span => span.text).join(''), text);
+  assert.equal(split.report.lines_in, split.report.lines_placed);
+  assert.equal(split.segments[0].from_byte, 0);
+  assert.equal(split.segments.at(-1).after_byte, Buffer.byteLength(text));
+  assert.equal('segments' in await splitDocuments({ ...sections, sources: [{ name: 'document', file: 'cases.md' }] }, async () => text), false);
+  const rows = [];
+  let after = null;
+  do {
+    const page = await readDocumentRows({ root, content: { sections, part_bytes: 41 }, after, limit: 2, most_bytes: 10000 });
+    rows.push(...page.rows); after = page.next;
+  } while (after);
+  assert.equal(rows[0].id, '/cases.md');
+  assert.equal(rows[0].values['document.part'], 0, 'original parent retains metadata without copying the whole body again');
+  assert.ok(rows.some(row => row.id === '/cases.md#section-A'));
+  assert.ok(rows.some(row => row.id === '/cases.md#section-A-occurrence-00000002'));
+  assert.equal(new Set(rows.map(row => row.id)).size, rows.length);
+  const content = rows.filter(row => row.values['document.part'] > 0).sort((a, b) => a.values['document.offset'] - b.values['document.offset']);
+  assert.equal(content.map(row => row.values['document.text']).join(''), text);
+  assert.ok(content.every(row => row.values['document.source'] === '/cases.md'));
 });
 
 test('backlinks are worked out across the whole folder when asked for', async () => {
@@ -237,6 +377,20 @@ test('Namespace documents are rows too: read by name through the run\'s files do
   assert.equal(page.rows[0].values['note.note'], 'café crème');
   assert.ok(asked.every(([, input]) => !String(input.name_or_identity ?? '').startsWith('id-')), 'every read is by name');
   await assert.rejects(readNamespaceDocumentRows({ folder: '/Garden' }, {}), /no records door with files/);
+});
+
+test('Namespace content pieces join exact UTF-8 across both source and files-door byte pages', async () => {
+  const text = '---\nname: café\n---\n' + 'a🙂é漢\n'.repeat(50);
+  const { door } = namespaceDoor({ '/Notes/one.md': text }, 7);
+  const rows = [];
+  let after = null;
+  do {
+    const page = await readNamespaceDocumentRows({ folder: '/Notes', content: { part_bytes: 31 }, after, limit: 2 }, { door });
+    rows.push(...page.rows); after = page.next;
+  } while (after);
+  assert.equal(rows[0].id, '/Notes/one.md');
+  assert.equal(rows.map(row => row.values['document.text']).join(''), text);
+  assert.equal(rows.length, rows[0].values['document.parts']);
 });
 
 test('the rows command pages and the set command refuses a stale identity with exit 1', async () => {
