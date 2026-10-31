@@ -1,0 +1,87 @@
+{
+  "what_this_is": "Five made-up rule sets of the kind a person hands in: their own framework, the feelings their scripts carry, how they help a viewer remember, the cues they speak with, and their humour. Every word, group, share, weight and least score here is invented for the tests; a person's own come from their records.",
+  "framework": {
+    "min_score": 80,
+    "rules": [
+      { "id": "core-parts", "says": "Name all three parts, two of them together in one line.", "across": true, "weight": 2,
+        "percent_found_at_least": 100, "together_at_least": 2,
+        "groups": [
+          { "id": "soil", "label": "Soil", "words": ["soil", "roots", "earth"] },
+          { "id": "water", "label": "Water", "words": ["water", "rain", "river"] },
+          { "id": "light", "label": "Light", "words": ["light", "sun", "glow"] }
+        ] },
+      { "id": "roles", "says": "Speak to most of the five roles.", "across": true, "weight": 2, "percent_found_at_least": 80,
+        "groups": [
+          { "id": "gardener", "words": ["gardener", "grows"] },
+          { "id": "painter", "words": ["painter", "colour"] },
+          { "id": "sailor", "words": ["sailor", "voyage"] },
+          { "id": "baker", "words": ["baker", "bread"] },
+          { "id": "miner", "words": ["miner", "dig"] }
+        ] },
+      { "id": "shared-gain", "says": "Say how everyone gains.", "across": true, "weight": 1, "at_most": "warn",
+        "pattern": "together|shared|everyone wins", "flags": "i", "required": true }
+    ]
+  },
+  "feeling": {
+    "min_score": 70,
+    "rules": [
+      { "id": "open-about-loss", "says": "Be open about what went wrong.", "across": true, "weight": 2, "percent_found_at_least": 60,
+        "groups": [
+          { "id": "loss", "words": ["lost", "failed", "mistake"], "weight": 2 },
+          { "id": "memory", "words": ["remember", "when I was"] },
+          { "id": "honest", "words": ["honest", "real"] }
+        ] },
+      { "id": "near-to-you", "says": "Show the viewer they are like you.", "across": true, "weight": 1, "at_most": "warn", "percent_found_at_least": 40,
+        "groups": [{ "id": "same", "words": ["like you", "we all", "you too"] }] },
+      { "id": "stakes", "says": "Say why it matters.", "across": true, "weight": 1, "at_most": "warn", "percent_found_at_least": 30,
+        "groups": [{ "id": "matters", "words": ["matters", "everything changes"] }] },
+      { "id": "needs-the-film", "says": "How it sounds is judged on the film, not here.", "weight": 0, "at_most": "warn",
+        "pattern": "a phrase no script holds" }
+    ]
+  },
+  "remembering": {
+    "min_score": 65,
+    "rules": [
+      { "id": "said-again", "says": "Say the key words again, later.", "across": true, "weight": 2, "percent_found_at_least": 100,
+        "groups": [{ "id": "key", "words": ["the garden", "growth"], "apart_at_least": 2 }] },
+      { "id": "senses", "says": "Reach more than one sense.", "across": true, "weight": 1, "at_most": "warn", "percent_found_at_least": 66,
+        "groups": [
+          { "id": "see", "words": ["watch", "see", "look"] },
+          { "id": "feel", "words": ["feel", "touch"] },
+          { "id": "hear", "words": ["hear", "listen"] }
+        ] },
+      { "id": "asks-back", "says": "Ask the viewer something.", "across": true, "weight": 1, "at_most": "warn",
+        "pattern": "what|how|why|would you|try", "flags": "i", "required": true },
+      { "id": "story", "says": "Tell it as a story.", "across": true, "weight": 1, "at_most": "warn",
+        "pattern": "story|journey|learn|discover", "flags": "i", "required": true }
+    ]
+  },
+  "voice": {
+    "min_score": 60,
+    "rules": [
+      { "id": "pauses", "says": "Mark where to pause.", "across": true, "weight": 2, "at_most": "warn", "percent_found_at_least": 50,
+        "groups": [{ "id": "pause", "patterns": ["\\[PAUSE\\]"] }, { "id": "breath", "patterns": ["\\[BREATH\\]"] }] },
+      { "id": "loud-and-quiet", "says": "Mark where to be loud or quiet.", "across": true, "weight": 1, "at_most": "warn", "percent_found_at_least": 50,
+        "groups": [{ "id": "loud", "patterns": ["\\[LOUD\\]"] }, { "id": "quiet", "patterns": ["\\[QUIET\\]"] }] },
+      { "id": "pace", "says": "Mark the pace.", "across": true, "weight": 1, "at_most": "warn",
+        "pattern": "\\(SLOW\\)|\\(FAST\\)|slow|fast", "flags": "i", "required": true },
+      { "id": "said-three-times", "says": "Say one key word three times.", "across": true, "weight": 2,
+        "pattern": "\\b\\w{4,}\\b", "repeated_at_least": 3 },
+      { "id": "knowing", "says": "Show you know how it sounds.", "across": true, "weight": 1, "at_most": "warn",
+        "words": ["but", "however", "wait", "actually", "oops"], "required": true }
+    ]
+  },
+  "humour": {
+    "min_score": 50,
+    "rules": [
+      { "id": "slips", "says": "Keep a slip in.", "across": true, "weight": 2, "at_most": "warn", "percent_found_at_least": 100,
+        "groups": [{ "id": "slip", "patterns": ["\\[SLIP\\]"] }] },
+      { "id": "wordplay", "says": "Play with a word.", "across": true, "weight": 1, "at_most": "warn", "percent_found_at_least": 50,
+        "groups": [{ "id": "pun", "words": ["pun"] }, { "id": "twist", "words": ["twist"] }] },
+      { "id": "laughs-at-self", "says": "Laugh at yourself once.", "across": true, "weight": 1, "at_most": "warn",
+        "pattern": "not the best|terrible|honestly|admit", "flags": "i", "required": true },
+      { "id": "talky", "says": "Talk, do not lecture.", "across": true, "weight": 1, "at_most": "warn",
+        "pattern": "you|honestly|look|wait|actually", "flags": "i", "required": true }
+    ]
+  }
+}

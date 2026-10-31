@@ -16,7 +16,7 @@
     "label": "Check words or anything made against your rules",
     "status": "active",
     "job": "Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead",
-    "description": "Give rules (one row each) and what to check: text, texts, value (any JSON whose words a person reads), artifact (any JSON a rule reads by path, like a plan or a take's measures) or items, each with an optional kind. A row picks words (words, pattern, exact or a named grammar check) or values (path, with where to keep only some), may apply only to some kinds, and may say what must hold: required, count_at_least, count_at_most, value_at_least, value_at_most or equals. Its because and at_most travel with every finding. Returns status (passed, failed, held when only capped rows found something, no-applicable-rule, no-input), findings and lines in plain words. Nothing passes on silence: a value test that finds nothing is a finding.",
+    "description": "Give rules (one row each) and what to check: text, texts, value (any JSON whose words a person reads), artifact (any JSON a rule reads by path, like a plan or a take's measures) or items, each with an optional kind. A row picks words (words, pattern, exact or a named grammar check), named groups of markers (groups: a framework's parts, the feelings or cues a script should carry), values (path, with where or where_pattern to keep only some) or an evidence check over supplied evidence (evidence: exact source spans, complete review, a captured answer set), may apply only to some kinds, may judge every item together as one piece (across), and may say what must hold: required, count_at_least, count_at_most, value_at_least, value_at_most, equals, includes_all, in_order, repeated_at_least, percent_found_at_least or together_at_least. Its because and at_most travel with every finding. Each row may carry a weight; the answer's score is the weighted score of the rows that apply, and min_score fails a request scored under it. Returns status (passed, failed, held when only capped rows found something, no-applicable-rule, no-input), score, findings (with the offset of each word found) and lines in plain words. Nothing passes on silence: a value test that finds nothing is a finding.",
     "input_schema": {
      "type": "object",
      "required": ["rules"],
@@ -51,7 +51,33 @@
          "value_at_most": { "type": "number" },
          "equals": { "type": "array", "description": "Every picked value is one of these" },
          "because": { "description": "The records the row came from, carried onto each finding" },
-         "at_most": { "type": "string", "description": "Present on an inferred row: its findings hold, never fail" }
+         "at_most": { "type": "string", "description": "Present on an inferred row: its findings hold, never fail" },
+         "groups": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": ["id"],
+           "properties": {
+            "id": { "type": "string" },
+            "label": { "type": "string", "description": "The group's name in a finding's not-found list" },
+            "words": { "type": "array", "items": { "type": "string" }, "description": "Whole words or phrases that show the group, any case" },
+            "patterns": { "type": "array", "items": { "type": "string" }, "description": "Regular expressions that show the group, with the row's flags" },
+            "weight": { "type": "number", "description": "What the group counts for in percent_found_at_least; 1 when it names none" },
+            "apart_at_least": { "type": "number", "description": "Found only when one marker is in two items at least this many items apart (said again later); needs across" }
+           }
+          },
+          "description": "Named groups of markers; the row selects each group found"
+         },
+         "evidence": { "type": "string", "enum": ["source-span-coverage", "review-coverage", "inference-capture-qualification"], "description": "An evidence check over the item's value; the row's other fields are its policy" },
+         "where_pattern": { "type": "string", "description": "Keep only the picked string values this regular expression matches (with flags)" },
+         "across": { "type": "boolean", "description": "True: judge every item the row applies to together, as one piece" },
+         "normalize": { "type": "array", "items": { "type": "string", "enum": ["nfkc", "whitespace"] }, "description": "Normalize the words before reading them; findings then carry no offset" },
+         "weight": { "type": "number", "description": "What the row counts for in the score; 1 when it names none" },
+         "includes_all": { "type": "array", "description": "Each of these values is among the picked values" },
+         "in_order": { "type": "array", "description": "The picked values in this list come in this order" },
+         "repeated_at_least": { "type": "number", "description": "Some one picked value is found at least this many times" },
+         "percent_found_at_least": { "type": "number", "description": "At least this share (0 to 100) of the groups is found, by weight" },
+         "together_at_least": { "type": "number", "description": "At least this many groups are found in one item; needs across" }
         }
        },
        "description": "The rules, one row each"
@@ -78,7 +104,8 @@
        },
        "description": "Items to check, each text or value, with its own kind"
       },
-      "kind": { "type": "string", "description": "The kind of every item that names none (title, plan, voice take...)" }
+      "kind": { "type": "string", "description": "The kind of every item that names none (title, plan, voice take...)" },
+      "min_score": { "type": "number", "minimum": 0, "maximum": 100, "description": "The least score that passes; with none, the score decides nothing" }
      }
     },
     "output_schema": {
@@ -87,6 +114,7 @@
      "properties": {
       "passed": { "type": "boolean" },
       "status": { "type": "string", "enum": ["no-input", "no-applicable-rule", "failed", "held", "passed"] },
+      "score": { "type": ["number", "null"], "description": "The weighted score (0 to 100) of the rows that apply" },
       "coverage": { "type": "object" },
       "findings": { "type": "array", "items": { "type": "object", "required": ["rule", "found"] } },
       "lines": { "type": "array", "items": { "type": "string" } },
@@ -113,7 +141,7 @@
     "licence_class": "licence:maker-own",
     "placements": ["placement:small-container"],
     "maker": "maker:judge-words",
-    "provenance": { "source": "the copy judge parts/judge-words, with kinds, path rows and tests added" },
+    "provenance": { "source": "the copy judge parts/judge-words, with kinds, path rows and tests added; the content gate bitfield-packages packages/content-gate merged in as groups, across rows, share, order and repeat tests, weights and evidence checks" },
     "verify": [
      {
       "kind": "sample-run",
@@ -129,6 +157,19 @@
       },
       "output_selector": "$.lines[0]",
       "contains": "2 found, at most 1 allowed"
+     },
+     {
+      "kind": "sample-run",
+      "input": {
+       "rules": [
+        { "id": "three-parts", "across": true, "percent_found_at_least": 100, "says": "Name all three parts.",
+          "groups": [{ "id": "soil", "label": "Soil", "words": ["soil"] }, { "id": "water", "label": "Water", "words": ["water", "rain"] }, { "id": "light", "label": "Light", "words": ["light", "sun"] }] }
+       ],
+       "texts": ["The soil holds the roots.", "The rain feeds them."],
+       "min_score": 80
+      },
+      "output_selector": "$.lines[0]",
+      "contains": "not found: Light"
      }
     ]
    }

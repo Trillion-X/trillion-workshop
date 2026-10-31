@@ -21,8 +21,25 @@ for (const row of rows) {
   });
 }
 
+// Carried from bitfield-packages packages/content-gate/__tests__/local-consumer.test.ts: a malformed request gives no
+// result, and an evidence row with its evidence missing fails closed through the command.
+test('a request that is not JSON is refused with why, and gives no result', () => {
+  const ran = spawnSync(process.execPath, ['do-work/judge-against-rules.mjs'], { cwd: folder, input: '{"rules": [', encoding: 'utf8' });
+  assert.equal(ran.status, 1);
+  const answer = JSON.parse(ran.stdout.trim().split('\n').at(-1));
+  assert.deepEqual([typeof answer.error, 'result' in answer], ['string', false]);
+});
+
+test('an evidence row whose evidence is missing fails closed through the command', () => {
+  const input = { rules: [{ id: 'capture', evidence: 'inference-capture-qualification', says: 'No captured answers to trust.' }], artifact: { other: true } };
+  const ran = spawnSync(process.execPath, ['do-work/judge-against-rules.mjs'], { cwd: folder, input: JSON.stringify(input), encoding: 'utf8' });
+  assert.equal(ran.status, 0, ran.stderr);
+  const { result } = JSON.parse(ran.stdout.trim().split('\n').at(-1));
+  assert.deepEqual([result.status, result.findings[0].found], ['failed', 'missing_capture']);
+});
+
 test('a rule row it cannot compile is refused with why, not judged', () => {
   const ran = spawnSync(process.execPath, ['do-work/judge-against-rules.mjs'], { cwd: folder, input: JSON.stringify({ rules: [{ id: 'bad', count_at_most: 1 }], text: 'x' }), encoding: 'utf8' });
   assert.equal(ran.status, 1);
-  assert.match(JSON.parse(ran.stdout.trim().split('\n').at(-1)).error, /words, pattern, exact, check or path/);
+  assert.match(JSON.parse(ran.stdout.trim().split('\n').at(-1)).error, /words, pattern, exact, check, groups, path or evidence/);
 });
