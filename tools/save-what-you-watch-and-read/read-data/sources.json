@@ -1,0 +1,308 @@
+{
+  "_what": "One row per kind of saved-items export (bookmarks, pins) this tool reads. A row is read by the conversations reader (conversations/read-data/read_source.py): shape says where each saved item, its words, author and time are, and input_shape lets a file be matched to its row. Each saved item becomes one thread of one message, so a saved item is kept and found like anything else the person read. A new kind of saved-items export is a new row in a file of the person's own, never new code.",
+  "sources": [
+    {
+      "id": "pinterest-saved",
+      "label": "Pinterest pins and boards",
+      "reader": "fields",
+      "format_version": "Pinterest API v5 pin and board objects",
+      "unreadable_expected": "readable JSON Pinterest snapshot",
+      "file": {
+        "format": "json"
+      },
+      "input_shape": {
+        "media_types": [
+          "application/json"
+        ],
+        "required_paths": [
+          [
+            "categories"
+          ]
+        ]
+      },
+      "shape": {
+        "root_list_key": "items",
+        "threads": {
+          "fixed": [
+            {
+              "session_id": "pins",
+              "title": "Your Pins",
+              "messages": {
+                "path": [
+                  "categories",
+                  "pins",
+                  "items"
+                ]
+              }
+            },
+            {
+              "session_id": "boards",
+              "title": "Your Boards",
+              "messages": {
+                "path": [
+                  "categories",
+                  "boards",
+                  "items"
+                ]
+              }
+            }
+          ]
+        },
+        "thread": {
+          "id": {
+            "path": [
+              "id"
+            ]
+          },
+          "title": {
+            "path": [
+              "title"
+            ]
+          }
+        },
+        "message": {
+          "speaker": {
+            "const": "me"
+          },
+          "text": {
+            "pair": [
+              {
+                "first": [
+                  {
+                    "path": [
+                      "title"
+                    ]
+                  },
+                  {
+                    "path": [
+                      "name"
+                    ]
+                  }
+                ]
+              },
+              {
+                "path": [
+                  "description"
+                ]
+              }
+            ],
+            "join": ": "
+          },
+          "at": {
+            "first": [
+              {
+                "path": [
+                  "created_at"
+                ]
+              },
+              {
+                "path": [
+                  "updated_at"
+                ]
+              }
+            ],
+            "ops": [
+              {
+                "op": "time",
+                "from": "iso-normalized"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "x-bookmarks",
+      "label": "X bookmarks",
+      "reader": "fields",
+      "format_version": "X API v2 post objects (id, text, author_id, created_at)",
+      "unreadable_expected": "readable JSON X bookmarks snapshot",
+      "file": {
+        "format": "json"
+      },
+      "input_shape": {
+        "media_types": [
+          "application/json"
+        ],
+        "required_paths": [
+          [
+            "bookmarks"
+          ]
+        ]
+      },
+      "summary": {
+        "order": "source",
+        "most": 999
+      },
+      "batch": {
+        "category": {
+          "first": [
+            {
+              "path": [
+                "mode"
+              ]
+            },
+            {
+              "const": "bookmarks"
+            }
+          ]
+        }
+      },
+      "shape": {
+        "root_expected": "JSON object X bookmarks snapshot",
+        "self": {
+          "path": [
+            "user_id"
+          ]
+        },
+        "threads": {
+          "per_item": {
+            "path": [
+              "bookmarks"
+            ]
+          }
+        },
+        "thread": {
+          "id": {
+            "first": [
+              {
+                "path": [
+                  "id"
+                ],
+                "ops": [
+                  {
+                    "op": "string"
+                  }
+                ]
+              },
+              {
+                "path": [
+                  "url"
+                ],
+                "ops": [
+                  {
+                    "op": "match",
+                    "pattern": "https://(?:www\\.)?(?:x|twitter)\\.com/[^/]+/status/(\\d+)/?",
+                    "group": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "skip_without_id": true,
+          "skip_without_text": true,
+          "unique": true,
+          "title": {
+            "value": "session_id",
+            "ops": [
+              {
+                "op": "template",
+                "text": "Tweet {value}"
+              }
+            ]
+          },
+          "native_ref": {
+            "first": [
+              {
+                "if": {
+                  "present": {
+                    "path": [
+                      "id"
+                    ]
+                  }
+                },
+                "else": {
+                  "value": "session_id",
+                  "ops": [
+                    {
+                      "op": "template",
+                      "text": "https://x.com/i/status/{value}"
+                    }
+                  ]
+                }
+              },
+              {
+                "value": "session_id"
+              }
+            ]
+          }
+        },
+        "message": {
+          "index": {
+            "const": 0
+          },
+          "speaker": {
+            "if": {
+              "present": {
+                "path": [
+                  "author_id"
+                ]
+              }
+            },
+            "then": {
+              "if": {
+                "equals": [
+                  {
+                    "path": [
+                      "author_id"
+                    ]
+                  },
+                  {
+                    "value": "self"
+                  }
+                ]
+              },
+              "then": {
+                "const": "me"
+              },
+              "else": {
+                "path": [
+                  "author_id"
+                ],
+                "ops": [
+                  {
+                    "op": "string"
+                  }
+                ]
+              }
+            }
+          },
+          "text": {
+            "path": [
+              "text"
+            ]
+          },
+          "at": {
+            "path": [
+              "created_at"
+            ],
+            "ops": [
+              {
+                "op": "time",
+                "from": "iso-checked"
+              }
+            ]
+          },
+          "native_ref": {
+            "if": {
+              "present": {
+                "path": [
+                  "id"
+                ]
+              }
+            },
+            "else": {
+              "value": "session_id",
+              "ops": [
+                {
+                  "op": "template",
+                  "text": "https://x.com/i/status/{value}"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

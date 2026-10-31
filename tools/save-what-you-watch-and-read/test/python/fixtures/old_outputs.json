@@ -1,0 +1,159 @@
+{
+ "fixtures": [
+  {
+   "old": {
+    "atoms": [
+     [
+      "None",
+      "utterance",
+      "Mine too",
+      "2026-01-02T09:00:00Z",
+      "\"speaker:source:proof:me\""
+     ],
+     [
+      "None",
+      "utterance",
+      "Rye needs a long rise",
+      "2026-01-02T08:00:00Z",
+      "\"speaker:source:proof:baker\""
+     ]
+    ],
+    "rejections": 0,
+    "threads": [
+     [
+      "9001",
+      null
+     ],
+     [
+      "9002",
+      null
+     ]
+    ]
+   },
+   "snapshot": {
+    "bookmarks": [
+     {
+      "author_id": "baker",
+      "created_at": "2026-01-02T08:00:00Z",
+      "id": "9001",
+      "text": "Rye needs a long rise"
+     },
+     {
+      "author_id": "12345",
+      "created_at": "2026-01-02T09:00:00Z",
+      "id": "9002",
+      "text": "Mine too"
+     }
+    ],
+    "user_id": "12345"
+   },
+   "source": "x-bookmarks"
+  },
+  {
+   "old": {
+    "atoms": [
+     [
+      "None",
+      "utterance",
+      "Food: Recipes and cooking tips",
+      "2023-07-15T00:00:00Z",
+      "\"speaker:source:proof:me\""
+     ],
+     [
+      "None",
+      "utterance",
+      "Healthy Recipes: Quick weeknight dinners",
+      "2024-01-12T09:30:00Z",
+      "\"speaker:source:proof:me\""
+     ],
+     [
+      "None",
+      "utterance",
+      "Summer Vacation Ideas: Beautiful beach destinations",
+      "2024-01-10T08:00:00Z",
+      "\"speaker:source:proof:me\""
+     ],
+     [
+      "None",
+      "utterance",
+      "Travel: Travel inspiration",
+      "2023-06-01T00:00:00Z",
+      "\"speaker:source:proof:me\""
+     ]
+    ],
+    "rejections": 0,
+    "threads": [
+     [
+      "boards",
+      null
+     ],
+     [
+      "pins",
+      null
+     ]
+    ]
+   },
+   "snapshot": {
+    "account_id": "user123",
+    "categories": {
+     "boards": {
+      "items": [
+       {
+        "created_at": "2023-06-01T00:00:00Z",
+        "description": "Travel inspiration",
+        "id": "board1",
+        "name": "Travel"
+       },
+       {
+        "created_at": "2023-07-15T00:00:00Z",
+        "description": "Recipes and cooking tips",
+        "id": "board2",
+        "name": "Food"
+       }
+      ]
+     },
+     "pins": {
+      "items": [
+       {
+        "board": {
+         "id": "board1",
+         "name": "Travel"
+        },
+        "created_at": "2024-01-10T08:00:00Z",
+        "description": "Beautiful beach destinations",
+        "id": "pin1",
+        "image": {
+         "original": {
+          "height": 400,
+          "url": "https://example.com/pin1.jpg",
+          "width": 600
+         }
+        },
+        "title": "Summer Vacation Ideas"
+       },
+       {
+        "board": {
+         "id": "board2",
+         "name": "Food"
+        },
+        "created_at": "2024-01-12T09:30:00Z",
+        "description": "Quick weeknight dinners",
+        "id": "pin2",
+        "image": {
+         "original": {
+          "height": 600,
+          "url": "https://example.com/pin2.jpg",
+          "width": 800
+         }
+        },
+        "title": "Healthy Recipes"
+       }
+      ]
+     }
+    },
+    "cursor": "2024-01-15T10:00:00Z"
+   },
+   "source": "pinterest-saved"
+  }
+ ]
+}

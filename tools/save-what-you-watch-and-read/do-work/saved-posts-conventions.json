@@ -1,0 +1,66 @@
+{
+  "_what": "How a saved-posts read is done, as data: which X page lists each kind of saved post, which of the page's own requests carries the list, how the page is scrolled and when the read stops, and where a Chromium-family browser is found. Nothing here names a person.",
+  "saved_from": "X",
+  "api": {
+    "base": "https://api.x.com/2",
+    "token_fd": 3,
+    "me": "users/me",
+    "answer_seconds": 30,
+    "params": {
+      "tweet.fields": "created_at,author_id,entities,note_tweet,referenced_tweets,attachments",
+      "expansions": "author_id,referenced_tweets.id,referenced_tweets.id.author_id,attachments.media_keys",
+      "user.fields": "username,name",
+      "media.fields": "url,preview_image_url,type"
+    }
+  },
+  "lists": {
+    "bookmarks": {
+      "saved_as": "bookmark",
+      "path": "users/{id}/bookmarks",
+      "page_size": 100,
+      "max_pages": 8,
+      "page": "https://x.com/i/bookmarks",
+      "operation": "/graphql/[^/]+/Bookmarks\\b"
+    },
+    "likes": {
+      "saved_as": "like",
+      "path": "users/{id}/liked_tweets",
+      "page_size": 100,
+      "max_pages": 32,
+      "page": "https://x.com/{handle}/likes",
+      "operation": "/graphql/[^/]+/Likes\\b",
+      "needs": "handle"
+    }
+  },
+  "sign_in_page": "https://x.com/i/flow/login",
+  "signed_out_address_pattern": "^/(?:i/flow/login|login|i/jf/onboarding)(?:[/?]|$)",
+  "scroll": { "wheel_pixels": 4000, "pause_ms": 1500, "window": { "width": 1280, "height": 2400 } },
+  "stop": { "pages_with_nothing_new": 3, "seconds_without_new": 45, "seconds_to_first_page": 60, "minutes_at_most": 15 },
+  "browser": {
+    "start_seconds": 30,
+    "answer_seconds": 60,
+    "headless_name": "HeadlessChrome",
+    "usual_name": "Chrome",
+    "switches": ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--disable-background-networking"],
+    "executable_env": ["CHROME_PATH", "CHROMIUM_PATH"],
+    "executable_places": [
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/Applications/Chromium.app/Contents/MacOS/Chromium",
+      "/usr/bin/google-chrome",
+      "/usr/bin/chromium",
+      "/usr/bin/chromium-browser"
+    ],
+    "playwright_cache_places": [
+      {
+        "under_home": "Library/Caches/ms-playwright",
+        "folder_prefix": "chromium-",
+        "inside": ["chrome-mac/Chromium.app/Contents/MacOS/Chromium", "chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"]
+      },
+      {
+        "under_home": ".cache/ms-playwright",
+        "folder_prefix": "chromium-",
+        "inside": ["chrome-linux/chrome"]
+      }
+    ]
+  }
+}

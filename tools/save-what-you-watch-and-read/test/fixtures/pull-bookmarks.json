@@ -1,0 +1,11 @@
+{
+ "generated": "2026-10-30T20:00:00.000Z",
+ "which": "bookmarks",
+ "pages": 1,
+ "read": 2,
+ "not_kept_yet": 2,
+ "posts": [
+  { "id": "x-bookmark-1", "saved_from": "X", "saved_as": "bookmark", "key": "1", "url": "https://x.com/sample_maker/status/1", "title": "A sample skill for agents, repo below https://t.co/aaa", "author": "sample_maker", "author_name": "Sample Maker", "posted_at": "2026-09-02T16:50:26.000Z", "media": ["https://example.org/a.jpg"], "links": ["https://github.com/sample-org/sample-repo", "https://example.org/doc"] },
+  { "id": "x-bookmark-2", "saved_from": "X", "saved_as": "bookmark", "key": "2", "url": "https://x.com/other_maker/status/2", "title": "Just words", "author": "other_maker", "author_name": "Other Maker", "posted_at": "2026-09-03T01:00:00.000Z", "quoted": { "key": "3", "url": "https://x.com/quoted_maker/status/3", "title": "quoted words", "author": "quoted_maker" } }
+ ]
+}
