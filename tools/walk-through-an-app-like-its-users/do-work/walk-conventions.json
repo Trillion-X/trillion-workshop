@@ -1,0 +1,93 @@
+{
+  "what_this_is": "The conventions walk-through-an-app.mjs reads: where a Chromium is usually installed, the switches it starts with, the window it opens, how long it waits for a page to settle and an expectation to hold, which elements count as controls a person can use, how a control's role is read from its element, and which failed requests and console lines are noise. Changing a convention is an edit here, never in the code.",
+  "browser": {
+    "executable_env": ["WALK_BROWSER", "CHROME_PATH"],
+    "executable_places": [
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/Applications/Chromium.app/Contents/MacOS/Chromium",
+      "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+      "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+      "/usr/bin/chromium",
+      "/usr/bin/chromium-browser",
+      "/usr/bin/google-chrome",
+      "/usr/bin/google-chrome-stable"
+    ],
+    "playwright_cache_places": [
+      { "under_home": "Library/Caches/ms-playwright", "folder_prefix": "chromium_headless_shell-", "inside": ["chrome-headless-shell-mac-arm64/chrome-headless-shell", "chrome-headless-shell-mac-x64/chrome-headless-shell", "chrome-mac/headless_shell"] },
+      { "under_home": "Library/Caches/ms-playwright", "folder_prefix": "chromium-", "inside": ["chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing", "chrome-mac/Chromium.app/Contents/MacOS/Chromium"] },
+      { "under_home": ".cache/ms-playwright", "folder_prefix": "chromium_headless_shell-", "inside": ["chrome-linux/headless_shell", "chrome-headless-shell-linux64/chrome-headless-shell"] },
+      { "under_home": ".cache/ms-playwright", "folder_prefix": "chromium-", "inside": ["chrome-linux/chrome"] }
+    ],
+    "switches": [
+      "--headless=new", "--use-mock-keychain", "--password-store=basic", "--no-first-run", "--no-default-browser-check",
+      "--disable-gpu", "--hide-scrollbars", "--mute-audio", "--disable-dev-shm-usage", "--force-color-profile=srgb"
+    ],
+    "start_seconds": 30,
+    "answer_seconds": 60
+  },
+  "window": { "width": 1280, "height": 800 },
+  "timing": {
+    "settle_quiet_ms": 300,
+    "settle_most_ms": 8000,
+    "expect_most_ms": 5000,
+    "poll_ms": 100,
+    "navigate_most_ms": 20000
+  },
+  "controls": {
+    "selector": "a[href], button, input:not([type=hidden]), select, textarea, summary, [role=button], [role=link], [role=checkbox], [role=radio], [role=switch], [role=tab], [role=menuitem], [role=option], [role=combobox], [role=textbox], [role=slider], [contenteditable=''], [contenteditable=true]",
+    "most_offered": 80,
+    "implicit_roles": [
+      { "tag": "a", "role": "link" },
+      { "tag": "button", "role": "button" },
+      { "tag": "select", "role": "combobox" },
+      { "tag": "textarea", "role": "textbox" },
+      { "tag": "summary", "role": "button" },
+      { "tag": "input", "type": "button", "role": "button" },
+      { "tag": "input", "type": "submit", "role": "button" },
+      { "tag": "input", "type": "reset", "role": "button" },
+      { "tag": "input", "type": "image", "role": "button" },
+      { "tag": "input", "type": "checkbox", "role": "checkbox" },
+      { "tag": "input", "type": "radio", "role": "radio" },
+      { "tag": "input", "type": "range", "role": "slider" },
+      { "tag": "input", "type": "file", "role": "file" },
+      { "tag": "input", "type": "search", "role": "searchbox" },
+      { "tag": "input", "role": "textbox" }
+    ],
+    "fillable_roles": ["textbox", "searchbox", "combobox"],
+    "offered_actions_by_role": {
+      "link": ["click"],
+      "button": ["click"],
+      "checkbox": ["click"],
+      "radio": ["click"],
+      "switch": ["click"],
+      "tab": ["click"],
+      "menuitem": ["click"],
+      "option": ["click"],
+      "textbox": ["fill"],
+      "searchbox": ["fill"],
+      "combobox": ["fill"],
+      "slider": ["fill"],
+      "file": ["upload"]
+    }
+  },
+  "keys": {
+    "Enter": { "code": "Enter", "windowsVirtualKeyCode": 13, "text": "\r" },
+    "Tab": { "code": "Tab", "windowsVirtualKeyCode": 9 },
+    "Escape": { "code": "Escape", "windowsVirtualKeyCode": 27 },
+    "Backspace": { "code": "Backspace", "windowsVirtualKeyCode": 8 },
+    "Delete": { "code": "Delete", "windowsVirtualKeyCode": 46 },
+    "Space": { "key": " ", "code": "Space", "windowsVirtualKeyCode": 32, "text": " " },
+    "ArrowDown": { "code": "ArrowDown", "windowsVirtualKeyCode": 40 },
+    "ArrowUp": { "code": "ArrowUp", "windowsVirtualKeyCode": 38 },
+    "ArrowLeft": { "code": "ArrowLeft", "windowsVirtualKeyCode": 37 },
+    "ArrowRight": { "code": "ArrowRight", "windowsVirtualKeyCode": 39 }
+  },
+  "most_wait_ms": 30000,
+  "noise": {
+    "request_url_patterns": ["/favicon\\.ico$"],
+    "console_text_patterns": []
+  },
+  "map": { "most_screens": 20, "most_links_per_screen": 60 },
+  "observe": { "elements_most": 50, "text_most": 2000, "media_wait_ms": 30000, "blocked_by_most": 300 },
+  "evidence": { "folder_under_tmp": "walk-through-an-app", "screencast": { "format": "jpeg", "quality": 60, "every_nth_frame": 1 } }
+}
