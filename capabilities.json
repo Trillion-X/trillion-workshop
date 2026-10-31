@@ -44,6 +44,16 @@
       "evidence": "README.md:3 the one reader of a page's bytes, the container tool that reads one page, and the one that reads one link into a card"
     },
     {
+      "capability": "predict, second by second, how an average viewer's brain responds to a video, to compare two cuts of one video",
+      "owner": ["tools/predict-viewer-response-to-a-video/"],
+      "entry": "tools/predict-viewer-response-to-a-video/tool-rows.json",
+      "evidence": "README.md:3 runs a published brain-response model on one video and writes the predicted response for every second: where it spikes and where it goes flat",
+      "distinct_from": [
+        {"job": "check a rendered video for the mistakes a viewer notices: stray frames at cuts, cuts inside words, graphics and audio faults", "why": "that job looks for faults in the frames, joins and audio; this one predicts how a viewer responds second by second, and says nothing about faults"},
+        {"job": "run experiments and personalization: A/B tests, feature flags and bandits over what each viewer saw", "why": "that job measures what real viewers did; this one predicts an average viewer's response from the video alone, never a measured view count or retention"}
+      ]
+    },
+    {
       "capability": "check a rendered video for the mistakes a viewer notices: stray frames at cuts, cuts inside words, graphics and audio faults",
       "owner": ["tools/check-a-rendered-video/"],
       "entry": "tools/check-a-rendered-video/tool-rows.json",

@@ -1,0 +1,54 @@
+{
+  "kind": "package-set-records",
+  "record_set": "predict-viewer-response-to-a-video-tool-rows",
+  "what_this_is": "The Workshop row for the predict-viewer-response-to-a-video folder: a script the person's AI runs on the person's own computer to predict, second by second, how an average viewer's brain responds to a video, and where it spikes and goes flat.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:predict-viewer-response-to-a-video",
+        "label": "Predict how a viewer's brain responds to a video, second by second (runs on your computer)",
+        "job": "See, second by second, where a video should hold a viewer's attention and where it goes flat, by predicting the brain's response to it",
+        "description": "Runs a published brain-response model (TRIBE v2 by Meta FAIR) on one video on the person's own computer and writes curve.json and curve.png: the mean predicted cortical response for each second of the video, scored against the video's own average (z), the seconds where it spikes and the stretches where it stays flat. It is a prediction for an average viewer, not a measured view count or retention: use it to compare two cuts of the same video, never two different videos. Every model name, which of picture, sound and words to use, the device, and the spike and flat thresholds are fields of the request. The model's weights are licensed for non-commercial use only (CC-BY-NC-4.0); the person must be using it that way. The video is only read: the script works on a copy. Nothing leaves the computer.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The request file on the person's computer, put where {input} is in the command: JSON with video (a file path), out_dir (a new folder), model, modalities (video, audio, text), device (mps, cuda or cpu), spike_z, flat_z, min_flat_seconds, and optionally words_tsv, mps_memory_fraction and mps_synchronize_after."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {kind: \"predicted-brain-response-curve\", video, model, modalities, device, vertices, seconds: {load, predict}, thresholds, spikes: [{t, z}], flat_zones: [{start, end, seconds, mean_z}], curve_json, curve_png}}. curve.json also holds the whole curve."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m venv tribev2-env",
+            "tribev2-env/bin/python -m pip install numpy pandas matplotlib torch git+https://github.com/facebookresearch/tribev2.git"
+          ],
+          "run": "tribev2-env/bin/python trillion-workshop/tools/predict-viewer-response-to-a-video/do-work/predict_viewer_response.py < {input}",
+          "needs": [
+            "python 3.11 or later with tribev2 installed",
+            "the model weights (facebook/tribev2 and its picture, sound and, for words, text encoders) in the Hugging Face cache; the first run downloads them",
+            "a graphics processor: an NVIDIA GPU is what the model was published for; on Apple silicon the picture encoder needs 45 GB or more of GPU memory per window unless mps_memory_fraction and mps_synchronize_after bound it, and on the processor alone it takes about two minutes per four-second window"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. First say plainly that the model is licensed for non-commercial use only and ask whether that is how they will use the result. If they have a graphics card or an Apple silicon computer, write the request file (video, out_dir, model facebook/tribev2, modalities [video, audio] (add text only when the gated text model is available to them), device, spike_z 1.0, flat_z -0.5, min_flat_seconds 3) and run `run` with it in place of {input}. Tell the person the seconds where the predicted response spikes and the stretches where it is flat, show curve.png, and say it is a prediction for an average viewer: compare cuts of one video with it, never different videos with each other. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:predict-viewer-response-to-a-video",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages packages/media-analysis. The model is TRIBE v2 (https://github.com/facebookresearch/tribev2, weights facebook/tribev2, CC-BY-NC-4.0: non-commercial use only)."
+        }
+      }
+    }
+  ]
+}
