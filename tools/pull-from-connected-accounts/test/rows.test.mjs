@@ -6,11 +6,15 @@ import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row
 import rows from '../tool-rows.json' with { type: 'json' };
 import * as pulls from '../do-work/pull.mjs';
 import * as reads from '../do-work/read.mjs';
-import { sourceIds } from '../read-data/sources.mjs';
+import { loadSource, sourceIds } from '../read-data/sources.mjs';
 import { PART_KIND, stateId, threadId } from '../read-data/snapshot.mjs';
 
+// The source a pull row runs: its function is named pull<Source>, the source id without its dashes.
+const sourceOfRow = row => sourceIds().find(id => id.replaceAll('-', '') === row.invoke.argv.at(-1).replace(/^pull/, '').toLowerCase());
 const all = rows.records.map(record => record.payload);
 const pullRows = all.filter(row => row.id.startsWith('tool:pull-my-'));
+const handedRows = pullRows.filter(row => loadSource(sourceOfRow(row)).handed_in);
+const askingRows = pullRows.filter(row => !handedRows.includes(row));
 const readRow = rowOf(rows, 'tool:read-what-i-pulled-from-an-account');
 
 test('there is one pull row for each source, and each runs a function this folder exports', () => {
@@ -25,9 +29,9 @@ test('there is one pull row for each source, and each runs a function this folde
   assert.equal(typeof reads.readPulledSnapshot, 'function');
 });
 
-test('a pull row gets the public internet, its own held token on descriptor 4 and the records door on 3, and nothing more', () => {
+test('a pull row that asks a service gets the public internet, its own held token on descriptor 4 and the records door on 3, and nothing more', () => {
   const secrets = new Set();
-  for (const row of pullRows) {
+  for (const row of askingRows) {
     assert.equal(row.invoke.internet, true, row.id);
     assert.deepEqual(row.invoke.records, { fd: 3, rights: [{ kind: PART_KIND, prefix: 'account-snapshot:', operations: ['records:list', 'records:write'] }] }, row.id);
     assert.equal(row.invoke.credential_mounts.length, 1, row.id);
@@ -38,7 +42,25 @@ test('a pull row gets the public internet, its own held token on descriptor 4 an
     assert.equal(row.invoke.stdin.fill.from, 'input');
     assert.ok(!('account' in row.invoke) && !JSON.stringify(row.input_schema).includes('token'), row.id);
   }
-  assert.equal(secrets.size, pullRows.length);
+  assert.equal(secrets.size, askingRows.length);
+});
+
+test('a pull row for a source handed its document gets the records door on 3, no internet and no secret, and takes the document as input', () => {
+  assert.deepEqual(handedRows.map(row => row.id), ['tool:pull-my-signal-messages']);
+  for (const row of handedRows) {
+    assert.equal(row.invoke.internet, false, row.id);
+    assert.equal(row.needs.network_egress, false, row.id);
+    assert.deepEqual(row.invoke.records, { fd: 3, rights: [{ kind: PART_KIND, prefix: 'account-snapshot:', operations: ['records:list', 'records:write'] }] }, row.id);
+    assert.equal(row.invoke.credential_mounts, undefined, row.id);
+    const document = loadSource(sourceOfRow(row)).handed_in.document;
+    assert.deepEqual(row.input_schema.required, ['self_id', document], row.id);
+    assert.equal(row.input_schema.properties[document].type, 'array', row.id);
+    assert.equal(row.maker, 'maker:pull-from-connected-accounts');
+  }
+});
+
+test('every pull row says in its output what was left out, as { conversation, reason }', () => {
+  for (const row of pullRows) assert.deepEqual(row.output_schema.properties.skipped.items.required, ['conversation', 'reason'], row.id);
 });
 
 test('the read row can only list the records, and reaches no network and no secret', () => {
@@ -56,7 +78,7 @@ test('no row carries a path on a computer or a maker that is not the folder (pro
 });
 
 test('run as the container runs it with no token handed over, a pull says it needs a login and touches no record', async () => {
-  for (const row of pullRows) {
+  for (const row of askingRows) {
     const ran = await runRow(row, {});
     assert.equal(ran.status, 0, ran.error);
     assert.equal(ran.result.status, 'needs_login', row.id);
@@ -68,6 +90,22 @@ test('run as the container runs it, a pull refuses input that is out of range wi
   const ran = await runRow(pullRows[0], { limit: 9000 });
   assert.equal(ran.status, 1);
   assert.match(ran.error, /limit is a whole number from 1 to 500/);
+});
+
+test('run as the container runs it, a handed-in pull keeps the conversations in the records, and refuses a document that is not a list or a missing self_id', async () => {
+  const [row] = handedRows;
+  const ran = await runRow(row, { self_id: 'acct-a', conversations: [{ id: 'thread-1', name: 'Bakers', messages: [{ id: 'm1', timestamp: 1700000000000, from: 'acct-b', body: 'Rye is ready' }] }] });
+  assert.equal(ran.status, 0, ran.error);
+  assert.equal(ran.result.status, 'pulled');
+  assert.equal(ran.result.new_messages, 1);
+  assert.equal(ran.result.cursor, 1700000000000);
+  assert.ok(ran.kept.some(record => record.id === threadId('signal', 'default', 'thread-1')));
+  const notAList = await runRow(row, { self_id: 'acct-a', conversations: 'not a list' });
+  assert.equal(notAList.status, 1);
+  assert.match(notAList.error, /conversations is the whole list of conversations that Signal printed/);
+  const noSelf = await runRow(row, { conversations: [] });
+  assert.equal(noSelf.status, 1);
+  assert.match(noSelf.error, /self_id is the identity of the account/);
 });
 
 test('run as the container runs it, the read row answers from the records and a thread read gives its messages', async () => {

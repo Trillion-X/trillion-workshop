@@ -101,7 +101,7 @@ const idsOf = (list, policy) => new Set(list.map(item => identityOf(item, policy
 // Walk one description walk: every level's requests, the last level's items collected. Returns what it gathered.
 async function runWalk(walk, { source, settings, cursor, selfId, get, held, errors }) {
   const levels = walk.levels;
-  const collected = { threads: new Map(), items: [], raw: [], records: [] };
+  const collected = { threads: new Map(), items: [], raw: [], records: [], unplaced: new Map() };
   let threadsFetched = 0;
   const baseVars = { ...(source.vars ?? {}), self_id: selfId, limit: settings.limit, most_threads: settings.most_threads, cursor };
 
@@ -109,7 +109,7 @@ async function runWalk(walk, { source, settings, cursor, selfId, get, held, erro
     const here = levels[index];
     const last = index === levels.length - 1;
     const query = () => Object.fromEntries(Object.entries(here.query ?? {}).map(([name, template]) => [name, fill(template, vars)]).filter(([, value]) => value !== ''));
-    const path = here.path.replace(/\{([A-Za-z0-9_]+)\}/g, (_, name) => encodeURIComponent(vars[name] ?? ''));
+    const path = (here.path ?? '').replace(/\{([A-Za-z0-9_]+)\}/g, (_, name) => encodeURIComponent(vars[name] ?? ''));
     if (last && walk.fold.layout === 'threads') {
       if (threadsFetched >= settings.most_threads) return;
       threadsFetched += 1;
@@ -121,15 +121,16 @@ async function runWalk(walk, { source, settings, cursor, selfId, get, held, erro
     const known = last && walk.fold.stop_when_known ? knownIds(walk, vars, held) : null;
     let page;
     for (let pages = 1; pages <= (last ? settings.most_pages : LIST_PAGES); pages += 1) {
-      const answer = await get(path, page === undefined ? query() : { ...query(), [here.page.param]: page });
+      // A level that reads from its parent asks nothing: its items are inside the entry the level above gave.
+      const answer = here.from === 'parent' ? { body: parent } : await get(path, page === undefined ? query() : { ...query(), [here.page.param]: page });
       if (answer.error) { errors.push(answer.error); return; }
       const list = at(answer.body, here.items ?? '');
       const entries = Array.isArray(list) ? list.filter(isItem) : [];
       if (!last) {
-        for (const entry of entries) {
+        for (const [position, entry] of entries.entries()) {
           if (!(here.keep ?? []).every(rule => rule.in.includes(at(entry, rule.at)))) continue;
-          const bound = { ...vars };
-          for (const [name, expression] of Object.entries(here.bind ?? {})) bound[name] = evaluate(expression, { item: entry, vars });
+          const bound = { ...vars, position: position + 1 };
+          for (const [name, expression] of Object.entries(here.bind ?? {})) bound[name] = evaluate(expression, { item: entry, vars: bound });
           await level(index + 1, bound, entry);
         }
       } else {
@@ -196,7 +197,12 @@ function gather(walk, entries, vars, parent, collected) {
     if (walk.fold.layout === 'items') { collected.items.push(record); continue; }
     const thread = walk.fold.thread;
     const id = evaluate(thread.id, { item: record, vars });
-    if (id === undefined) continue;
+    if (id === undefined) {
+      // The message cannot be placed. It is counted under what the conversation is called, so the answer can name it.
+      const label = evaluate(thread.title ?? thread.id, { item: record, vars }) ?? null;
+      collected.unplaced.set(label, (collected.unplaced.get(label) ?? 0) + 1);
+      continue;
+    }
     register(collected, id, evaluate(thread.title ?? thread.id, { item: record, vars }), thread.source ? parent : undefined).records.push(record);
   }
 }
@@ -210,12 +216,47 @@ function advanced(rule, prior, gathered) {
   return prior !== null && prior !== undefined && compareValues(prior, next) >= 0 ? prior : next;
 }
 
+const messagesWord = count => (count === 1 ? '1 message' : `${count} messages`);
+
+// What a walk could not keep, as { conversation, reason } entries: messages with no conversation, and messages or
+// items with none of the fields that tell one from another.
+function skippedBy(walk, gathered, foldedSkips) {
+  const skipped = [...gathered.unplaced].map(([conversation, count]) => ({ conversation, reason: `${messagesWord(count)} left out: the conversation has no id` }));
+  for (const [conversation, count] of foldedSkips) skipped.push({ conversation, reason: `${walk.fold.layout === 'items' ? (count === 1 ? '1 item' : `${count} items`) : messagesWord(count)} left out: ${count === 1 ? 'it has' : 'they have'} none of ${walk.fold.key.join(', ')} to tell ${count === 1 ? 'it' : 'them'} by` });
+  return skipped;
+}
+
 function wordsFor(source, result) {
   if (result.status === 'needs_login') return `${source.label} did not accept the token (or none was given). Give the held token for ${source.label} again, then pull again.`;
   if (result.status === 'unreachable') return `${source.label} could not be reached, so nothing was pulled. Try again shortly.`;
   const what = result.new_messages ? `${result.new_messages} new messages in ${result.threads} conversations` : result.new_items ? `${result.new_items} new items` : 'nothing new';
+  const left = result.skipped.length ? `; ${result.skipped.length} left out (see skipped)` : '';
   const failed = result.errors.length ? `; ${result.errors.length} request${result.errors.length === 1 ? '' : 's'} failed (see errors), so the cursor did not move` : '';
-  return `Pulled ${what} from ${source.label}${failed}.`;
+  return `Pulled ${what} from ${source.label}${left}${failed}.`;
+}
+
+// What a pull starts from. A service is asked with the held token: who the token belongs to, then the walk's requests.
+// A source handed its document asks nothing: the document in the input is the one answer every request of the walk
+// reads, and `self_id` in the input says whose account it is. Answers { get, selfId }, or { answered } when the pull
+// cannot start (no token, a token refused, a service that did not answer).
+async function opening(source, settings, input, context, answer) {
+  if (source.handed_in) {
+    const document = input[source.handed_in.document];
+    if (!Array.isArray(document)) throw new Error(`${source.handed_in.document} is the whole list of conversations that ${source.label} printed (a JSON list); give it as it was printed.`);
+    if (typeof input.self_id !== 'string' || !input.self_id.trim() || input.self_id.length > 200) throw new Error('self_id is the identity of the account the document belongs to (1 to 200 characters); the account\'s own messages are known by it.');
+    return { get: async () => ({ body: document }), selfId: input.self_id };
+  }
+  const token = 'token' in context ? context.token : readToken();
+  if (!token) return { answered: answer({ status: 'needs_login' }) };
+  const get = makeHttp(source, token, context);
+  const who = await get(source.identity.path, source.identity.query);
+  const selfId = who.body === undefined ? undefined : evaluate(source.identity.self_id, { item: who.body });
+  if (selfId === undefined) {
+    // A token the service refuses (or one that names nobody) needs a new login; a service that did not answer does not.
+    const refused = who.error ? who.refused : true;
+    return { answered: answer({ status: refused ? 'needs_login' : 'unreachable', errors: who.error ? [who.error] : [] }) };
+  }
+  return { get, selfId };
 }
 
 /**
@@ -225,23 +266,16 @@ function wordsFor(source, result) {
 export async function pullFromAnAccount(sourceId, input, context = {}) {
   const source = loadSource(sourceId);
   const settings = settingsOf(source, input);
-  const answer = (fields) => { const result = { source: sourceId, account: settings.account, self_id: null, threads: 0, items: 0, new_messages: 0, new_items: 0, cursor: null, errors: [], ...fields }; return { ...result, said: wordsFor(source, result) }; };
-  const token = 'token' in context ? context.token : readToken();
-  if (!token) return answer({ status: 'needs_login' });
-  const get = makeHttp(source, token, context);
-
-  const who = await get(source.identity.path, source.identity.query);
-  const selfId = who.body === undefined ? undefined : evaluate(source.identity.self_id, { item: who.body });
-  if (selfId === undefined) {
-    // A token the service refuses (or one that names nobody) needs a new login; a service that did not answer does not.
-    const refused = who.error ? who.refused : true;
-    return answer({ status: refused ? 'needs_login' : 'unreachable', errors: who.error ? [who.error] : [] });
-  }
+  const answer = (fields) => { const result = { source: sourceId, account: settings.account, self_id: null, threads: 0, items: 0, new_messages: 0, new_items: 0, cursor: null, errors: [], skipped: [], ...fields }; return { ...result, said: wordsFor(source, result) }; };
+  const entry = await opening(source, settings, input, context, answer);
+  if (entry.answered) return entry.answered;
+  const { get, selfId } = entry;
 
   const door = context.door;
   const held = await readParts(door, sourceId, settings.account);
   const prior = held.state?.cursor ?? source.cursor?.start ?? null;
   const errors = [];
+  const skipped = [];
   const writes = [];
   let seq = [...held.threads.values(), ...[...held.items.values()].flatMap(items => [...items.values()])].reduce((most, value) => Math.max(most, value.seq), 0);
   const threadIds = new Set(held.threads.keys());
@@ -255,10 +289,12 @@ export async function pullFromAnAccount(sourceId, input, context = {}) {
     const gathered = await runWalk(walk, { source, settings, cursor: prior, selfId, get, held, errors });
     gatheredAll.raw.push(...gathered.raw);
     gatheredAll.records.push(...gathered.records);
+    const foldedSkips = [];
     if (walk.fold.layout === 'threads') {
       for (const [id, thread] of gathered.threads) {
         const before = held.threads.get(id);
         const folded = foldItems(before?.thread.messages ?? [], thread.records, walk.fold);
+        if (folded.skipped) foldedSkips.push([id, folded.skipped]);
         const next = { ...(before?.thread ?? {}), id, title: thread.title ?? before?.thread.title ?? id, messages: folded.items };
         if (thread.source !== undefined) next.source = thread.source;
         newMessages += folded.added;
@@ -272,6 +308,7 @@ export async function pullFromAnAccount(sourceId, input, context = {}) {
       const holding = held.items.get(walk.fold.into) ?? new Map();
       const heldList = [...holding.values()].sort((a, b) => a.seq - b.seq).map(value => value.item);
       const folded = foldItems(heldList, gathered.items, walk.fold);
+      if (folded.skipped) foldedSkips.push([walk.fold.into, folded.skipped]);
       for (const item of folded.items) {
         const id = identityOf(item, walk.fold);
         const before = holding.get(id);
@@ -281,6 +318,7 @@ export async function pullFromAnAccount(sourceId, input, context = {}) {
         writes.push({ id: itemId(sourceId, settings.account, walk.fold.into, id), type: PART_KIND, value: { kind: 'item', seq: before?.seq ?? (seq += 1), collection: walk.fold.into, identity: id, item } });
       }
     }
+    skipped.push(...skippedBy(walk, gathered, foldedSkips));
   }
   if (source.cursor && !errors.length) cursor = advanced(source.cursor.advance, prior, gatheredAll);
 
@@ -297,6 +335,7 @@ export async function pullFromAnAccount(sourceId, input, context = {}) {
     new_items: newItems,
     cursor,
     errors,
+    skipped,
   });
 }
 
@@ -307,4 +346,5 @@ export const pullTelegram = (input, context) => pullFromAnAccount('telegram', in
 export const pullInstagramMessages = (input, context) => pullFromAnAccount('instagram-messages', input, context);
 export const pullMessengerMessages = (input, context) => pullFromAnAccount('messenger-messages', input, context);
 export const pullXBookmarks = (input, context) => pullFromAnAccount('x-bookmarks', input, context);
+export const pullSignal = (input, context) => pullFromAnAccount('signal', input, context);
 export const pullPinterestPins = (input, context) => pullFromAnAccount('pinterest-pins', input, context);

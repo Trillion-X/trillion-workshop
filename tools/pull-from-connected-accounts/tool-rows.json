@@ -91,6 +91,27 @@
                 "type": "string"
               }
             },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "conversation",
+                  "reason"
+                ],
+                "properties": {
+                  "conversation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
             "said": {
               "type": "string"
             }
@@ -255,6 +276,27 @@
               "type": "array",
               "items": {
                 "type": "string"
+              }
+            },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "conversation",
+                  "reason"
+                ],
+                "properties": {
+                  "conversation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
               }
             },
             "said": {
@@ -423,6 +465,27 @@
                 "type": "string"
               }
             },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "conversation",
+                  "reason"
+                ],
+                "properties": {
+                  "conversation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
             "said": {
               "type": "string"
             }
@@ -587,6 +650,27 @@
               "type": "array",
               "items": {
                 "type": "string"
+              }
+            },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "conversation",
+                  "reason"
+                ],
+                "properties": {
+                  "conversation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
               }
             },
             "said": {
@@ -755,6 +839,27 @@
                 "type": "string"
               }
             },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "conversation",
+                  "reason"
+                ],
+                "properties": {
+                  "conversation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
             "said": {
               "type": "string"
             }
@@ -913,6 +1018,27 @@
               "type": "array",
               "items": {
                 "type": "string"
+              }
+            },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "conversation",
+                  "reason"
+                ],
+                "properties": {
+                  "conversation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
               }
             },
             "said": {
@@ -1075,6 +1201,27 @@
                 "type": "string"
               }
             },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "conversation",
+                  "reason"
+                ],
+                "properties": {
+                  "conversation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
             "said": {
               "type": "string"
             }
@@ -1156,10 +1303,195 @@
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "id": "tool:pull-my-signal-messages",
+        "label": "Pull the Signal conversations my client printed into my own records",
+        "job": "Pull the Signal conversations my client printed into my own records",
+        "description": "Keeps the conversations a Signal client on your computer printed (signal-cli output, handed in as conversations) as conversations in your records, with who the account is (self_id). It asks no one and holds no token: the Signal client holds its own login and the transport that runs it is a different row. A message pulled twice is kept once, an edit replaces the older copy, messages stay exactly as printed in time order, and the cursor is the greatest message time seen, which the transport asks the client from next time. Give self_id and conversations, and optionally account (a name for this account, default \"default\") and most_threads. Answers status (pulled), how many new messages arrived, the cursor, and anything that failed in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "self_id",
+            "conversations"
+          ],
+          "properties": {
+            "self_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "The identity Signal knows this account by. A message from it is the account's own."
+            },
+            "conversations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "What the person's Signal client printed: a list of conversations, each { id, name?, type?, messages: [{ id?, timestamp (epoch milliseconds), from, body?, editedTimestamp?, type? }] }."
+            },
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "A name that tells this account from your other accounts on the same service (for example work). Default: default."
+            },
+            "most_threads": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "At most this many conversations are read in one pull."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "account",
+            "status",
+            "said"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "account": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pulled",
+                "partial",
+                "needs_login",
+                "unreachable"
+              ]
+            },
+            "self_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "threads": {
+              "type": "integer"
+            },
+            "items": {
+              "type": "integer"
+            },
+            "new_messages": {
+              "type": "integer"
+            },
+            "new_items": {
+              "type": "integer"
+            },
+            "cursor": {},
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "conversation",
+                  "reason"
+                ],
+                "properties": {
+                  "conversation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/pull-from-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pull-from-connected-accounts/do-work/pull.mjs",
+            "pullSignal"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "account-snapshot-part",
+                "prefix": "account-snapshot:",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": false
+        },
+        "maker": "maker:pull-from-connected-accounts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages signal-bot-connector (snapshot fold, normalization of the client output), merged into one source description and ported; the live client is not here"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
         "id": "tool:read-what-i-pulled-from-an-account",
         "label": "Read what I pulled from a connected account",
-        "job": "Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Instagram, Messenger, X bookmarks or Pinterest",
-        "description": "Give source (discord, slack, telegram, instagram-messages, messenger-messages, x-bookmarks or pinterest-pins) and optionally account (the name it was pulled under, default \"default\"). Without thread it answers the conversations (id, title, message count), the collections (name, count), who the account is, the cursor and when it was last pulled. With thread (a conversation id from that list) it answers that conversation's messages exactly as the service sent them, the last limit of them (default 100, at most 500). It reads your records and changes nothing; it never reaches the service.",
+        "job": "Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest",
+        "description": "Give source (discord, slack, telegram, signal, instagram-messages, messenger-messages, x-bookmarks or pinterest-pins) and optionally account (the name it was pulled under, default \"default\"). Without thread it answers the conversations (id, title, message count), the collections (name, count), who the account is, the cursor and when it was last pulled. With thread (a conversation id from that list) it answers that conversation's messages exactly as the service sent them, the last limit of them (default 100, at most 500). It reads your records and changes nothing; it never reaches the service.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1175,6 +1507,7 @@
                 "instagram-messages",
                 "messenger-messages",
                 "pinterest-pins",
+                "signal",
                 "slack",
                 "telegram",
                 "x-bookmarks"

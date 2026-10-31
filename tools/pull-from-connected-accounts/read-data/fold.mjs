@@ -60,8 +60,9 @@ function winner(held, arriving, conflict) {
 }
 
 /**
- * Fold `arriving` into `held`. Returns { items, added, changed }: the new list, how many identities were new, and how
- * many held copies were replaced by a different one. Entries that are not objects, or have no identity, are skipped.
+ * Fold `arriving` into `held`. Returns { items, added, changed, skipped }: the new list, how many identities were new, how
+ * many held copies were replaced by a different one, and how many arriving objects had no identity and were left out.
+ * Entries that are not objects are ignored.
  */
 export function foldItems(held, arriving, policy) {
   const conflict = policy.conflict ?? { keep: 'held' };
@@ -70,10 +71,11 @@ export function foldItems(held, arriving, policy) {
   items.forEach((item, index) => { const id = identityOf(item, policy); if (id !== undefined) place.set(id, index); });
   let added = 0;
   let changed = 0;
+  let skipped = 0;
   for (const item of arriving) {
     if (!isItem(item)) continue;
     const id = identityOf(item, policy);
-    if (id === undefined) continue;
+    if (id === undefined) { skipped += 1; continue; }
     if (place.has(id)) {
       const held = items[place.get(id)];
       const kept = winner(held, structuredClone(item), conflict);
@@ -95,5 +97,5 @@ export function foldItems(held, arriving, policy) {
       return ta === order.length ? 0 : compareValues(at(a, order[ta]), at(b, order[tb]));
     });
   }
-  return { items, added, changed };
+  return { items, added, changed, skipped };
 }
