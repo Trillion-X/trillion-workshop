@@ -324,9 +324,18 @@ export async function refreshRowSources(input = {}, door) {
   const names = checkedNames(input);
   const list = await listOf(door, names, input.list);
   const type = rowTypeOf(list, names);
+  const declared = sourcesOf(list);
+  if (input.source_ids !== undefined && (!Array.isArray(input.source_ids) || !input.source_ids.length ||
+      input.source_ids.some(id => typeof id !== 'string' || !id) || new Set(input.source_ids).size !== input.source_ids.length)) {
+    throw say('bad_input', 'source_ids is a nonempty array of distinct declared source ids.');
+  }
+  if (input.source_ids?.some(id => !declared.some(source => source.id === id))) {
+    throw say('bad_input', 'source_ids names a source this list does not declare.');
+  }
+  const selected = input.source_ids ? declared.filter(source => input.source_ids.includes(source.id)) : declared;
   const run = globalThis.crypto.randomUUID();
   const sources = [];
-  for (const source of sourcesOf(list)) {
+  for (const source of selected) {
     const held = await writtenRows(door, type, source.id, input.signal);
     const seen = new Set(), refused = [];
     let rows = 0, written = 0, unchanged = 0, pageIndex = 0;
