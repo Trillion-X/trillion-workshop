@@ -1,0 +1,863 @@
+{
+  "about": "Every job a Workshop tool does, as a plain verb phrase with its ONE owner folder and entry. A new file of any kind is admitted only under the owner of a row or under a place (content and the repository's own files); anywhere else it is refused with the nearest rows named. A row for a job another row already does, here or in another repository, is refused and pointed at that owner, and so is a row NEAR one by shared words, or one a local judge calls the same job, unless it says in distinct_from how its job differs. A row whose code still lives elsewhere names lives_at (where it is now, by repository-relative name) and moves_to (the folder here that owns it): porting it in is extending that owner. To add a tool: find the row whose job it is first; add a row only for a job no row does, before the code.",
+  "owner_globs": "Repository-relative. `*` is any characters but /, `**` any characters, `?` one character but /; a match also covers everything under a matched folder.",
+  "places": [
+    { "path": "README.md", "holds": "what the Workshop is and how a tool folder is laid out" },
+    { "path": "CONTRIBUTING.md", "holds": "how to contribute a tool" },
+    { "path": "LICENSE", "holds": "the Workshop's licence" },
+    { "path": ".gitignore", "holds": "the paths git leaves out" },
+    { "path": "licence-classes.json", "holds": "the licence classes a tool row may declare" },
+    { "path": "package.json", "holds": "the Workshop's package manifest and test command" },
+    { "path": "package-lock.json", "holds": "the locked package versions" },
+    { "path": "node_modules", "holds": "installed packages" },
+    { "path": "test", "holds": "the tests every tool row is checked by" },
+    { "path": "test-helpers", "holds": "helpers the tool tests share" }
+  ],
+  "capabilities": [
+    {
+      "capability": "check a public page the way search and answer engines read it (served HTML, no script run), score it against editable check rows and say how to fix each miss; add the language, address and dates a page leaves out; answer a page as Markdown when asked",
+      "owner": ["tools/ai-readiness/"],
+      "entry": "tools/ai-readiness/tool-rows.json",
+      "evidence": "README.md:3 reads a page from the HTML it is served with and says which checks pass, which are missing and how to fix each",
+      "distinct_from": [
+        {"job": "read a public web page: its title, words, links and the card it describes itself with; read a link into a preview card", "why": "that job returns what a page says; this one scores the served HTML against check rows for search and answer engines and says how to fix each miss"},
+
+        {"job": "judge a public page against saved craft rules at every width, with each finding boxed on a picture", "why": "that job renders the page at every width for design craft; this one reads only the served bytes, with no script run, the way a crawler does"}
+      ]
+    },
+    {
+      "capability": "ask people questions and act on their answers: make quiz questions from text, check answers against a form, score answers into a segment with its follow-up",
+      "owner": ["tools/ask-questions-sort-answers-follow-up/"],
+      "entry": "tools/ask-questions-sort-answers-follow-up/tool-rows.json",
+      "evidence": "README.md:3 makes quiz questions from text, checks answers against a form's questions, and scores answers into a segment with its follow-up"
+    },
+    {
+      "capability": "assemble an edit plan into a rough cut of a video and check the cut",
+      "owner": ["tools/assemble-a-plan-into-a-cut/"],
+      "entry": "tools/assemble-a-plan-into-a-cut/do-work/assemble.py",
+      "evidence": "do-work/assemble.py, do-work/cut.py"
+    },
+    {
+      "capability": "read a public web page: its title, words, links and the card it describes itself with; read a link into a preview card",
+      "owner": ["tools/browse-public-page/"],
+      "entry": "tools/browse-public-page/tool-rows.json",
+      "evidence": "README.md:3 the one reader of a page's bytes, the container tool that reads one page, and the one that reads one link into a card"
+    },
+    {
+      "capability": "check a rendered video for the mistakes a viewer notices: stray frames at cuts, cuts inside words, graphics and audio faults",
+      "owner": ["tools/check-a-rendered-video/"],
+      "entry": "tools/check-a-rendered-video/tool-rows.json",
+      "evidence": "README.md:3 checks a rendered video's frames, joins and audio for the mistakes a viewer notices and a maker misses"
+    },
+    {
+      "capability": "measure whether a video moves about as much as the reference video it copies",
+      "owner": ["tools/check-a-videos-motion-against-a-reference/"],
+      "entry": "tools/check-a-videos-motion-against-a-reference/tool-rows.json",
+      "evidence": "README.md:3 says whether a video someone made moves about as much as the video it copies, against a bar the person passes in"
+    },
+    {
+      "capability": "check words or anything made for a person against their own rules and the verdicts they already gave",
+      "owner": ["tools/check-against-a-persons-rules-and-verdicts/"],
+      "entry": "tools/check-against-a-persons-rules-and-verdicts/tool-rows.json",
+      "evidence": "README.md:3 checks words, or anything else made for a person, against that person's own rules and the verdicts they already gave"
+    },
+    {
+      "capability": "keep principles taken from videos, each backed by a quote checked against that video's captions",
+      "owner": ["tools/cite-principles-from-captions/"],
+      "entry": "tools/cite-principles-from-captions/do-work/cite_principles.py",
+      "evidence": "do-work/cite_principles.py:2 keep principles, each backed by words checked against the captions of the videos they came from"
+    },
+    {
+      "capability": "see the drives connected to a person's computer: what is on one, its icon, and which programs are using it",
+      "owner": ["tools/connected-drives/"],
+      "entry": "tools/connected-drives/tool-rows.json",
+      "evidence": "README.md:3 the drives connected to the person's Mac, what is in one folder on one of them, the icon Finder shows, which programs are using one"
+    },
+    {
+      "capability": "give exact bytes their content identity",
+      "owner": ["tools/content-identity/"],
+      "entry": "tools/content-identity/read-data/identity.mjs",
+      "evidence": "README.md:3 the one owner of internal content identities: BLAKE3-256 of exact bytes"
+    },
+    {
+      "capability": "copy a live website into the files a public app is published from",
+      "owner": ["tools/copy-a-site/"],
+      "entry": "tools/copy-a-site/tool-rows.json",
+      "evidence": "README.md:3 copies a live website into the file map a public app is published from"
+    },
+    {
+      "capability": "keep techniques by why they work and cross any technique with any goal",
+      "owner": ["tools/cross-techniques-with-a-goal/"],
+      "entry": "tools/cross-techniques-with-a-goal/do-work/cross-techniques-with-a-goal.mjs",
+      "evidence": "README.md:3 keeps every technique a person captures by why it works, so any technique can be used for any goal in any medium"
+    },
+    {
+      "capability": "follow each customer's steps (outreach, replies, calls, purchases, onboarding, feedback) and each product's progress toward its customer target",
+      "owner": ["tools/customer-follow-up/"],
+      "entry": "tools/customer-follow-up/tool-rows.json",
+      "evidence": "README.md:3 a customer's steps and each product's progress toward its customer target"
+    },
+    {
+      "capability": "list which domains a person's email-sending account may send from and how each stands",
+      "owner": ["tools/email-sending-domains/"],
+      "entry": "tools/email-sending-domains/tool-rows.json",
+      "evidence": "README.md:3 which domains a person's email-sending account may send from, how each stands, and how many there are"
+    },
+    {
+      "capability": "turn records on disk (JSON, tab-separated files, markdown tables) into rows of a person's lists",
+      "owner": ["tools/export-records-as-list-rows/"],
+      "entry": "tools/export-records-as-list-rows/tool-rows.json",
+      "evidence": "README.md:3 turns a person's records on disk into the payloads that put rows into their lists"
+    },
+    {
+      "capability": "show a folder of markdown documents as the rows of a list, each document's frontmatter its fields, a field changed by rewriting that document's frontmatter, and split one long document into one document per item",
+      "owner": ["tools/documents-as-list-rows/"],
+      "entry": "tools/documents-as-list-rows/tool-rows.json",
+      "evidence": "README.md:3 the documents are the rows: nothing is copied into list records, so the files stay the one truth",
+      "distinct_from": [
+        {"job": "turn records on disk (JSON, tab-separated files, markdown tables) into rows of a person's lists", "why": "that tool copies records into list rows; this one reads the documents themselves as the rows and writes a changed field back into the document"},
+
+        {"job": "put one named section into a markdown document without repeating it", "why": "that tool edits a section inside one document; this one treats each document of a folder as one row and changes only its frontmatter"},
+
+        {"job": "view a file: markdown, code, JSON or an image", "why": "that tool draws one file; this one answers a folder's documents as rows with their fields, in pages"}
+      ]
+    },
+    {
+      "capability": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort",
+      "owner": ["tools/read-a-list-view/"],
+      "entry": "tools/read-a-list-view/tool-rows.json",
+      "evidence": "README.md:3 one page of what a list shows, its own rows and its row sources' rows, read through the person's door",
+      "distinct_from": [
+        {"job": "read and write records for tools: the generic record journal, queries, values and record models", "why": "the engine reads and writes any record; a list, its row sources and its views are a feature over those reads, which the engine leaves to tools"},
+        {"job": "reach a person's own records from a tool run: the records door client every records tool uses", "why": "that client reaches records from inside a run; this tool composes a list's records, its sources' tool runs and its view into one page"},
+        {"job": "evaluate formulas over rows", "why": "the formulas tool decides which rows a rule tree keeps; this tool reads the list and its sources and asks that tool which rows a view keeps"},
+        {"job": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends", "why": "that tool searches people records it is handed; this one reads any list as the person keeps it, with its sources and view"},
+        {"job": "show a folder of markdown documents as the rows of a list, each document's frontmatter its fields, a field changed by rewriting that document's frontmatter, and split one long document into one document per item", "why": "that tool is one row source, a folder of documents; this one reads a whole list, its own records and every source it declares, and pages across them"},
+        {"job": "turn records on disk (JSON, tab-separated files, markdown tables) into rows of a person's lists", "why": "that tool writes rows into lists from files; this one only reads what a list shows and writes nothing"}
+      ]
+    },
+    {
+      "capability": "cut word-timed transcripts into spoken moments and file each moment into topic buckets",
+      "owner": ["tools/file-spoken-moments-into-topic-buckets/"],
+      "entry": "tools/file-spoken-moments-into-topic-buckets/tool-rows.json",
+      "evidence": "do-work/bucket_moments.py, read-data/moments.py"
+    },
+    {
+      "capability": "keep a piece's own words as a template, fill only its slots, and catch changed words in a rewrite",
+      "owner": ["tools/fill-a-template-without-changing-its-words/"],
+      "entry": "tools/fill-a-template-without-changing-its-words/tool-rows.json",
+      "evidence": "README.md:3 word-level templates, so changed words cannot hide inside rewritten chunks"
+    },
+    {
+      "capability": "grade speech audio and repair it: keep, remaster or re-voice each stretch of speech",
+      "owner": ["tools/grade-and-repair-speech-audio/"],
+      "entry": "tools/grade-and-repair-speech-audio/tool-rows.json",
+      "evidence": "README.md:3 keep the sound when it is good; remaster it when noise, hum, echo or loudness spoil it; re-voice it when it is still bad"
+    },
+    {
+      "capability": "start a headless browser and drive it over the DevTools protocol, for the browser tools",
+      "owner": ["tools/headless-browser/"],
+      "entry": "tools/headless-browser/devtools.mjs",
+      "evidence": "README.md:3 a library the browser tools pack: a headless Chromium spoken to over the DevTools protocol"
+    },
+    {
+      "capability": "search the Internet Archive and read an item's metadata",
+      "owner": ["tools/internet-archive/"],
+      "entry": "tools/internet-archive/tool-rows.json",
+      "evidence": "README.md:3 bounded Advanced Search and item metadata lookup"
+    },
+    {
+      "capability": "judge words or JSON a person will read against rule rows: which rows each breaks, why, and what to do instead",
+      "owner": ["tools/judge-words/"],
+      "entry": "tools/judge-words/tool-rows.json",
+      "evidence": "README.md:3 judges words a person will read, and any JSON a person makes, against rule rows the caller hands in"
+    },
+    {
+      "capability": "keep a library of record files valid and work one piece through a bank of questions with evidence",
+      "owner": ["tools/keep-a-record-library-valid/"],
+      "entry": "tools/keep-a-record-library-valid/tool-rows.json",
+      "evidence": "README.md:3 keeps a library of record files valid, and works one piece through a bank of questions with evidence"
+    },
+    {
+      "capability": "write a business's terms of service, privacy policy, refund policy and waiver from a clause library",
+      "owner": ["tools/legal-document-builder/"],
+      "entry": "tools/legal-document-builder/tool-rows.json",
+      "evidence": "README.md:3 writes a business's terms of service, privacy policy, refund policy and waiver from a clause library and the business's own facts"
+    },
+    {
+      "capability": "make a colour lookup table that turns log camera footage into display colour",
+      "owner": ["tools/make-a-lut-for-log-footage/"],
+      "entry": "tools/make-a-lut-for-log-footage/tool-rows.json",
+      "evidence": "README.md:3 writes a .cube colour lookup table that turns a camera's flat log footage into display colour"
+    },
+    {
+      "capability": "find things by meaning, picture or words across a person's files",
+      "owner": ["tools/meaning-search/"],
+      "entry": "tools/meaning-search/tool-rows.json",
+      "evidence": "README.md:3 the meaning-search package's find-similar-vector and find-similar actions as Workshop tools; ported from bitfield-packages/packages/meaning-search, whose indexing and convergence actions are this job too and not ported yet"
+    },
+    {
+      "capability": "edit video: find action, scene changes, silence and beats; reframe; change speed; caption; grade colour; lay sounds and pictures over it; arrange and render an edit; measure loudness",
+      "owner": ["tools/media-composition/"],
+      "entry": "tools/media-composition/tool-rows.json",
+      "evidence": "README.md:3 the video editing tools. Ported in part from bitfield-packages/packages/media-composition, whose remaining scripts (motion detection, highlights, reel plans, split layouts) are this job too; caption-renderer is the same captioning job"
+    },
+    {
+      "capability": "move a record (a deal, an order, an applicant, a plan) through declared stages, only along declared moves",
+      "owner": ["tools/move-records-through-declared-states/"],
+      "entry": "tools/move-records-through-declared-states/tool-rows.json",
+      "evidence": "README.md:3 a record is in one of a declared set of stages and moves only where a declared move allows it; bitfield-packages/packages/plan-lifecycle is this job for plans"
+    },
+    {
+      "capability": "judge a public page against saved craft rules at every width, with each finding boxed on a picture",
+      "owner": ["tools/page-critic/"],
+      "entry": "tools/page-critic/do-work/critique-a-page.mjs",
+      "evidence": "README.md:3 judges a public page against the saved craft rules at every width they name, and keeps a picture of each width with every finding boxed and numbered"
+    },
+    {
+      "capability": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends",
+      "owner": ["tools/person-list/"],
+      "entry": "tools/person-list/do-work/find-people.mjs",
+      "evidence": "README.md:3 search a list of people by any field; rank people by activity points with levels; merge people a source sends, each once"
+    },
+    {
+      "capability": "lay out one person's or record's profile from a description of what to show",
+      "owner": ["tools/person-profile/"],
+      "entry": "tools/person-profile/tool-rows.json",
+      "evidence": "README.md:3 lays out one person's (or any record's) profile from a description of what to show"
+    },
+    {
+      "capability": "print a file on a printer the person's computer already has, and list its printers",
+      "owner": ["tools/print-here/"],
+      "entry": "tools/print-here/tool-rows.json",
+      "evidence": "README.md:3 prints a file from the person's files on a printer their Mac already has, and says which printers it has"
+    },
+    {
+      "capability": "say how long Recently Deleted and Archived keep a person's files, by their own setting",
+      "owner": ["tools/recently-deleted/"],
+      "entry": "tools/recently-deleted/tool-rows.json",
+      "evidence": "README.md:3 how long each keeps the person's files before its time ends; the person's own choice replaces the default"
+    },
+    {
+      "capability": "record a web page as a demo video: play steps like a person would, with a drawn pointer and click ripples",
+      "owner": ["tools/record-a-web-page/"],
+      "entry": "tools/record-a-web-page/tool-rows.json",
+      "evidence": "README.md:3 a headless Chromium plays a list of steps the way a person would, with a large drawn pointer and a ripple at every click"
+    },
+    {
+      "capability": "reach a person's own records from a tool run: the records door client every records tool uses",
+      "owner": ["tools/records-door/"],
+      "entry": "tools/records-door/read-data/records-door.mjs",
+      "evidence": "README.md:3 how a Workshop tool reaches the person's own records: the client for the records door the run was handed"
+    },
+    {
+      "capability": "map who is connected to whom from records: each person or company once, with its connections",
+      "owner": ["tools/relationship-graph/"],
+      "entry": "tools/relationship-graph/do-work/map-who-is-connected.mjs",
+      "evidence": "README.md:3 out comes each person or company once with the connections it is in"
+    },
+    {
+      "capability": "add up revenue, refunds, net revenue and recurring revenue from any provider's payment events",
+      "owner": ["tools/revenue-ledger/"],
+      "entry": "tools/revenue-ledger/tool-rows.json",
+      "evidence": "README.md:3 adds up revenue, refunds, net revenue and active recurring revenue from any provider's payment events"
+    },
+    {
+      "capability": "see the programs running on a person's computer and how much memory each one uses",
+      "owner": ["tools/running-programs/"],
+      "entry": "tools/running-programs/tool-rows.json",
+      "evidence": "read-data/read-programs.js:3 every program running on this Mac: its process id, name and memory, read from the system's process information"
+    },
+    {
+      "capability": "keep saved examples of work that worked (posts, videos, pages), each with why it worked",
+      "owner": ["tools/saved-examples/"],
+      "entry": "tools/saved-examples/tool-rows.json",
+      "evidence": "README.md:3 posts, videos and pages other people made that worked, each kept with its link, words, pictures and why it worked"
+    },
+    {
+      "capability": "make a site's web fonts smaller and prove its pages still look the same",
+      "owner": ["tools/shrink-web-fonts-without-changing-how-they-look/"],
+      "entry": "tools/shrink-web-fonts-without-changing-how-they-look/tool-rows.json",
+      "evidence": "README.md:3 makes a site's web fonts smaller and proves the pages still look the same, pixel for pixel"
+    },
+    {
+      "capability": "read a person's social posts and their posting calendar",
+      "owner": ["tools/social-posts/"],
+      "entry": "tools/social-posts/tool-rows.json",
+      "evidence": "README.md:3 the person's posts, read from their own post records"
+    },
+    {
+      "capability": "read what the product told the person, in order",
+      "owner": ["tools/tell-the-person/"],
+      "entry": "tools/tell-the-person/tool-rows.json",
+      "evidence": "README.md:3 what the product told the person, read from their own told-the-person records"
+    },
+    {
+      "capability": "find an open-source repository that does a job and say how to get it and run it on the person's computer",
+      "owner": ["tools/tools-from-github/"],
+      "entry": "tools/tools-from-github/tool-rows.json",
+      "evidence": "README.md:3 when an AI asks for a job, it finds the repository and hands back how to get it and run it on the person's own computer"
+    },
+    {
+      "capability": "measure traffic by where it came from: tracked links, visitors, leads and sales by source, ad return, conversions sent back to ad platforms",
+      "owner": ["tools/traffic-attribution/"],
+      "entry": "tools/traffic-attribution/do-work/make-a-tracked-link.mjs",
+      "evidence": "README.md:3 tracked links with UTM fields, visitors, leads and sales broken down by where they came from, what ad spend brings back"
+    },
+    {
+      "capability": "transcribe recordings with a time for every word, and redo the places where the speech model looped",
+      "owner": ["tools/audio-transcription/"],
+      "entry": "tools/audio-transcription/tool-rows.json",
+      "evidence": "tools/audio-transcription/README.md:3 the package's local Whisper transcription with word times, plus finding where Whisper looped and hearing only those windows again"
+    },
+    {
+      "capability": "work out a business's unit economics (ARPU, gross margin, CAC, LTV, payback) from plain numbers",
+      "owner": ["tools/unit-economics/"],
+      "entry": "tools/unit-economics/tool-rows.json",
+      "evidence": "README.md:3 works out a business's unit economics from one period's plain numbers"
+    },
+    {
+      "capability": "walk an app's user journeys in a real browser and keep evidence that people can still do what they came for",
+      "owner": ["tools/walk-through-an-app-like-its-users/"],
+      "entry": "tools/walk-through-an-app-like-its-users/tool-rows.json",
+      "evidence": "README.md:3 walks journeys written as DATA in a real browser, keeps a picture per step, a log and a video per journey; bitfield-packages/packages/web-surface-observation is this job, not ported"
+    },
+    {
+      "capability": "show everything a person's account runs on its own: each schedule and trigger, its last and next run, and a switch",
+      "owner": ["tools/what-runs-on-its-own/"],
+      "entry": "tools/what-runs-on-its-own/tool-rows.json",
+      "evidence": "README.md:3 one screen of everything a person's account runs on its own: each schedule, record change and incoming event"
+    },
+    {
+      "capability": "keep and read where a person stands on one thing made for them: agree, disagree or partly, with their own words why",
+      "owner": ["tools/where-a-person-stands/"],
+      "entry": "tools/where-a-person-stands/do-work/keep-where-you-stand.mjs",
+      "evidence": "README.md:3 agree, disagree or partly, with their own words for why; one stance record per kind of thing and identity"
+    },
+    {
+      "capability": "search Wikimedia Commons for files and read a file's reuse metadata",
+      "owner": ["tools/wikimedia-commons/"],
+      "entry": "tools/wikimedia-commons/tool-rows.json",
+      "evidence": "README.md:3 search scoped to File pages and metadata lookup of one exact File: title"
+    },
+    {
+      "capability": "turn words into the vector a picture model gives pictures that show them",
+      "owner": ["tools/words-as-picture-vector/"],
+      "entry": "tools/words-as-picture-vector/tool-rows.json",
+      "evidence": "README.md:3 turns words into the vector a CLIP picture model gives pictures that show them",
+      "distinct_from": [
+        {"job": "find things by meaning, picture or words across a person's files", "why": "this makes one vector from words with a picture model; finding the nearest kept things is meaning-search's job, which this part serves"}
+      ]
+    },
+    {
+      "capability": "hold a body of work as a tree: roll up what is really finished, add requested items, check the proof behind finished work",
+      "owner": ["tools/work-breakdown/"],
+      "entry": "tools/work-breakdown/tool-rows.json",
+      "evidence": "README.md:3 rolls up how much is really finished, adds requested items, and checks whether the proof behind finished work can be checked"
+    },
+    {
+      "capability": "keep shared step-by-step playbooks any person's AI can follow",
+      "owner": ["tools/workflows/"],
+      "entry": "tools/workflows/tool-rows.json",
+      "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, one recipe file each"
+    },
+    {
+      "capability": "draw ink marks on any page or picture and erase them",
+      "lives_at": ["bitfield-packages/packages/addressed-marks/"],
+      "moves_to": "tools/draw-ink-marks/",
+      "entry": "bitfield-packages/packages/addressed-marks/",
+      "evidence": "addressed-marks README.md:1 mark operations, tools and the ink physics: capture, point mappers, erase"
+    },
+    {
+      "capability": "guard an AI's spending: budgets, reservations, a spend ledger and resets",
+      "lives_at": ["bitfield-packages/packages/agent-wallet/"],
+      "moves_to": "tools/guard-ai-spending/",
+      "entry": "bitfield-packages/packages/agent-wallet/",
+      "evidence": "agent-wallet README.md:1 the rail-agnostic autonomous spend guard: budget, reservation, ledger, reset"
+    },
+    {
+      "capability": "read office files (spreadsheets, documents, presentations) and rewrite their cells or text from declared edits",
+      "lives_at": ["bitfield-packages/packages/office-open-xml-decoder/", "bitfield-packages/packages/apply-declared-presentation-text-edits/"],
+      "moves_to": "tools/office-files/",
+      "entry": "bitfield-packages/packages/office-open-xml-decoder/",
+      "evidence": "office-open-xml-decoder README.md:1 read xlsx, docx, pptx into JSON and rewrite matched cells or text; apply-declared-presentation-text-edits does it for presentations"
+    },
+    {
+      "capability": "ask a small model for a yes or no verdict and remember its answers",
+      "lives_at": ["bitfield-packages/packages/ask-a-small-model-for-a-verdict/"],
+      "moves_to": "tools/ask-a-small-model-for-a-verdict/",
+      "entry": "bitfield-packages/packages/ask-a-small-model-for-a-verdict/",
+      "evidence": "ask-a-small-model-for-a-verdict: route judges, ask a local or hosted small model, keep answers"
+    },
+    {
+      "capability": "send a message or email to people through a chosen provider (email service, text message, Messages)",
+      "lives_at": ["bitfield-packages/packages/broadcast-delivery/", "bitfield-packages/packages/resend-email-sender/", "bitfield-packages/packages/imessage-messages-sender/"],
+      "moves_to": "tools/send-messages/",
+      "entry": "bitfield-packages/packages/broadcast-delivery/",
+      "evidence": "broadcast-delivery README.md:1 broadcast message delivery via provider adapters; resend-email-sender sends transactional email; imessage-messages-sender sends over Messages"
+    },
+    {
+      "capability": "organize a person's saved browser items",
+      "lives_at": ["bitfield-packages/packages/browser-saved-items/"],
+      "moves_to": "tools/browser-saved-items/",
+      "entry": "bitfield-packages/packages/browser-saved-items/",
+      "evidence": "browser-saved-items README.md:1 reversible organization of a person's saved items"
+    },
+    {
+      "capability": "act on a computer's apps, windows and command lines within declared bounds",
+      "lives_at": ["bitfield-packages/packages/computer-interface-actions/"],
+      "moves_to": "tools/computer-interface-actions/",
+      "entry": "bitfield-packages/packages/computer-interface-actions/",
+      "evidence": "computer-interface-actions README.md:1 bounded actions against a computer's interface (apps, windows, CLIs); browser-session-actions routes a browser intent the same way"
+    },
+    {
+      "capability": "show a person's time blocks on a calendar",
+      "lives_at": ["bitfield-packages/packages/calendar/"],
+      "moves_to": "tools/calendar/",
+      "entry": "bitfield-packages/packages/calendar/",
+      "evidence": "calendar README.md:1 the time-block projection and owner-action handoff"
+    },
+    {
+      "capability": "let people book time: scheduling and booking links",
+      "lives_at": ["bitfield-packages/packages/calendar-booker/"],
+      "moves_to": "tools/book-time/",
+      "entry": "bitfield-packages/packages/calendar-booker/",
+      "evidence": "calendar-booker README.md:1 scheduling and booking"
+    },
+    {
+      "capability": "run time-boxed challenges people enroll in",
+      "lives_at": ["bitfield-packages/packages/challenge/"],
+      "moves_to": "tools/challenges/",
+      "entry": "bitfield-packages/packages/challenge/",
+      "evidence": "challenge: challenge definitions and enrollment (no README)"
+    },
+    {
+      "capability": "publish a changelog backed by evidence",
+      "lives_at": ["bitfield-packages/packages/changelog-publisher/"],
+      "moves_to": "tools/publish-a-changelog/",
+      "entry": "bitfield-packages/packages/changelog-publisher/",
+      "evidence": "changelog-publisher README.md:1 evidence-backed changelog record publishing"
+    },
+    {
+      "capability": "stop a build that takes a file a package did not declare public",
+      "lives_at": ["bitfield-packages/packages/check-bundle-package-boundaries/"],
+      "moves_to": "tools/check-bundle-package-boundaries/",
+      "entry": "bitfield-packages/packages/check-bundle-package-boundaries/",
+      "evidence": "check-bundle-package-boundaries README.md:1"
+    },
+    {
+      "capability": "report declared writable places that keep nothing written there",
+      "lives_at": ["bitfield-packages/packages/check-declared-places-keep-what-is-written-there/"],
+      "moves_to": "tools/check-declared-places-keep-what-is-written-there/",
+      "entry": "bitfield-packages/packages/check-declared-places-keep-what-is-written-there/",
+      "evidence": "check-declared-places-keep-what-is-written-there README.md:1"
+    },
+    {
+      "capability": "report documents that fell behind the source they describe",
+      "lives_at": ["bitfield-packages/packages/check-documents-agree-with-their-source/"],
+      "moves_to": "tools/check-documents-agree-with-their-source/",
+      "entry": "bitfield-packages/packages/check-documents-agree-with-their-source/",
+      "evidence": "check-documents-agree-with-their-source README.md:1"
+    },
+    {
+      "capability": "report source files that break a rule written down as DATA",
+      "lives_at": ["bitfield-packages/packages/check-source-files-against-declared-rules/"],
+      "moves_to": "tools/check-a-folder-against-my-rules/",
+      "entry": "bitfield-packages/packages/check-source-files-against-declared-rules/",
+      "evidence": "check-source-files-against-declared-rules README.md:1"
+    },
+    {
+      "capability": "run experiments and personalization: A/B tests, feature flags and bandits over what each viewer saw",
+      "lives_at": ["bitfield-packages/packages/choose-per-observer/"],
+      "moves_to": "tools/run-experiments/",
+      "entry": "bitfield-packages/packages/choose-per-observer/",
+      "evidence": "choose-per-observer README.md:1 observer-conditioned selection: A/B, personalization, flags, bandits"
+    },
+    {
+      "capability": "give out and claim referral codes and rewards",
+      "lives_at": ["bitfield-packages/packages/referrals/"],
+      "moves_to": "tools/referral-codes-and-rewards/",
+      "entry": "bitfield-packages/packages/referrals/",
+      "evidence": "codes-and-rewards README.md:1 code, share, claim; referrals records codes given and received"
+    },
+    {
+      "capability": "triage incoming items against a person's priorities and decide what to do with each",
+      "lives_at": ["bitfield-packages/packages/commander-triage/"],
+      "moves_to": "tools/triage-against-priorities/",
+      "entry": "bitfield-packages/packages/commander-triage/",
+      "evidence": "commander-triage README.md:1 score every sensed item against the founder's priorities with a data-chosen disposition"
+    },
+    {
+      "capability": "write a post, check it for each place it goes, approve it as reviewed and set it to go at its time",
+      "owner": ["tools/social-posts/"],
+      "entry": "tools/social-posts/tool-rows.json",
+      "evidence": "tools/social-posts/README.md: tool:draft-a-post, tool:check-a-post, tool:approve-a-post, tool:set-a-post-to-go-at-its-time, tool:take-back-a-post and tool:list-post-destinations, over the person's post and connection records",
+      "distinct_from": [
+        {"job": "read a person's social posts and their posting calendar", "why": "that row reads posts onto a calendar; this one writes a post and moves it from draft to approved to scheduled"},
+
+        {"job": "write posts and publish them to chosen places, now or on a schedule", "why": "that row is the sending, still in its old packages and moving here; this one keeps the post and its approval and time, and sends nothing"}
+      ]
+    },
+    {
+      "capability": "write posts and publish them to chosen places, now or on a schedule",
+      "lives_at": ["bitfield-packages/packages/content-distribution/"],
+      "moves_to": "tools/social-posts/",
+      "entry": "bitfield-packages/packages/content-distribution/",
+      "evidence": "content-distribution README.md:1 scheduled, destination-bound delivery; publish-composer writes a draft and posts it to a chosen place"
+    },
+    {
+      "capability": "plan a piece of content from source material and a format, check the plan is ready, choose a style and decide which audience questions go in",
+      "lives_at": ["bitfield-packages/packages/content-production/"],
+      "moves_to": "tools/generate-content-drafts/",
+      "entry": "bitfield-packages/packages/content-production/",
+      "evidence": "content-production compiles a presentation plan, checks readiness, selects a style"
+    },
+    {
+      "capability": "bring a person's conversations from every app (chat apps, email, AI chats) into one place to read and reply",
+      "lives_at": ["bitfield-packages/packages/transcript-mapper/", "bitfield-packages/packages/conversation-snapshot-fold/", "bitfield-packages/packages/discord-messages-decoder/", "bitfield-packages/packages/slack-messages-decoder/", "bitfield-packages/packages/signal-messages-decoder/", "bitfield-packages/packages/telegram-messages-decoder/", "bitfield-packages/packages/whatsapp-web-decoder/", "bitfield-packages/packages/instagram-dm-decoder/", "bitfield-packages/packages/imessage-chatdb-decoder/", "bitfield-packages/packages/gmail-mailbox-decoder/", "bitfield-packages/packages/rfc5322-mail-decoder/", "bitfield-packages/packages/jsonl-session-decoder/", "bitfield-packages/packages/hermes-session-decoder/", "bitfield-packages/packages/gemini-logs-decoder/", "bitfield-packages/packages/web-conversation-decoder/"],
+      "moves_to": "tools/conversations/",
+      "entry": "bitfield-packages/packages/transcript-mapper/",
+      "evidence": "conversations README.md:1 conversations backend and surface; each connector pulls one app into a snapshot and its decoder maps it to the one thread and message contract (transcript-mapper)"
+    },
+    {
+      "capability": "run a coordination session: its purpose, mode, who may join and its offers",
+      "lives_at": ["bitfield-packages/packages/coordination-session/"],
+      "moves_to": "tools/coordination-sessions/",
+      "entry": "bitfield-packages/packages/coordination-session/",
+      "evidence": "coordination-session README.md:1 coordination-session lifecycle and catalog operations"
+    },
+    {
+      "capability": "teach lessons and track a learner's progress along a path",
+      "lives_at": ["bitfield-packages/packages/learning-path/", "bitfield-packages/packages/learning-progress/"],
+      "moves_to": "tools/lessons-and-learning-paths/",
+      "entry": "bitfield-packages/packages/learning-path/",
+      "evidence": "course-lesson README.md:1 renders one lesson, its action and PDF; learning-path, learning-progress and learning-home show the journey and progress"
+    },
+    {
+      "capability": "practise with due reviews and guided drills: spaced repetition, decision practice, tactics",
+      "lives_at": ["bitfield-packages/packages/spaced-repetition/"],
+      "moves_to": "tools/practice-and-review/",
+      "entry": "bitfield-packages/packages/spaced-repetition/",
+      "evidence": "spaced-repetition README.md:1 due-review prompts; practice-decision-loop practises decisions from evidence; tactics-practice is chess tactics over it"
+    },
+    {
+      "capability": "plan the next training session and log workouts",
+      "lives_at": ["bitfield-packages/packages/training-plan/", "bitfield-packages/packages/workout-log/"],
+      "moves_to": "tools/training-and-workouts/",
+      "entry": "bitfield-packages/packages/training-plan/",
+      "evidence": "training-plan: next session and progression; workout-log: workout log state"
+    },
+    {
+      "capability": "show the destinations an owner publishes",
+      "lives_at": ["bitfield-packages/packages/destination-surface/"],
+      "moves_to": "tools/published-destinations/",
+      "entry": "bitfield-packages/packages/destination-surface/",
+      "evidence": "destination-surface README.md:1 read-only surface over owner-published destination descriptors"
+    },
+    {
+      "capability": "put one named section into a markdown document without repeating it",
+      "lives_at": ["bitfield-packages/packages/document-sections/"],
+      "moves_to": "tools/document-sections/",
+      "entry": "bitfield-packages/packages/document-sections/",
+      "evidence": "document-sections README.md:1 place one named section into a markdown document, idempotently"
+    },
+    {
+      "capability": "export a document tree to Word, PDF or other file formats",
+      "lives_at": ["bitfield-packages/packages/structured-file-output/", "bitfield-packages/packages/public-document-renderer/"],
+      "moves_to": "tools/export-documents-to-files/",
+      "entry": "bitfield-packages/packages/structured-file-output/",
+      "evidence": "structured-file-output: export a node tree to docx, pdf or other file bodies from projection rules"
+    },
+    {
+      "capability": "edit text and code files",
+      "lives_at": ["bitfield-packages/packages/file-editor/"],
+      "moves_to": "tools/edit-text-and-code/",
+      "entry": "bitfield-packages/packages/file-editor/",
+      "evidence": "file-editor README.md:1 CodeMirror-backed text and code editor"
+    },
+    {
+      "capability": "save what a person watches, reads and bookmarks elsewhere: X bookmarks, Pinterest pins, files that match a pattern",
+      "lives_at": ["bitfield-packages/packages/save-what-you-watch-and-read/", "bitfield-packages/packages/x-bookmarks-decoder/", "bitfield-packages/packages/pinterest-pins-decoder/", "bitfield-packages/packages/file-glob-observer/"],
+      "moves_to": "tools/save-what-you-watch-and-read/",
+      "entry": "bitfield-packages/packages/save-what-you-watch-and-read/",
+      "evidence": "save-what-you-watch-and-read README.md:1 turns outside activity records into observation batches; each connector pulls one source"
+    },
+    {
+      "capability": "find a person's files by words, name, place, kind or spoken words in the index their computer already keeps",
+      "lives_at": ["bitfield-packages/packages/find-files-in-an-index/"],
+      "moves_to": "tools/find-files-in-an-index/",
+      "entry": "bitfield-packages/packages/find-files-in-an-index/",
+      "evidence": "find-files-in-an-index README.md:1 no hosted service, no indexing: the computer's own index",
+      "distinct_from": [
+        {"job": "find things by meaning, picture or words across a person's files", "why": "this asks the computer's existing keyword and file index; it makes no vectors and judges no meaning"}
+      ]
+    },
+    {
+      "capability": "evaluate formulas over rows",
+      "lives_at": ["bitfield-packages/packages/formula-engine/"],
+      "moves_to": "tools/formulas/",
+      "entry": "bitfield-packages/packages/formula-engine/",
+      "evidence": "formula-engine: slot source and rules"
+    },
+    {
+      "capability": "map sales funnels and offers, and run price experiments with live conversion measures",
+      "lives_at": ["bitfield-packages/packages/funnel-offer-graph/"],
+      "moves_to": "tools/funnels-and-offers/",
+      "entry": "bitfield-packages/packages/funnel-offer-graph/",
+      "evidence": "funnel-offer-graph README.md:1 funnel graphs, offer nodes, transitions and A/B price experiments"
+    },
+    {
+      "capability": "stage, diff and commit changes in a git working tree",
+      "lives_at": ["bitfield-packages/packages/git-worktree/"],
+      "moves_to": "tools/git-changes/",
+      "entry": "bitfield-packages/packages/git-worktree/",
+      "evidence": "git-worktree: worktree records, stage, unstage, diff and commit"
+    },
+    {
+      "capability": "run guided tours, spotlights and quizzes over an app's screens",
+      "lives_at": ["bitfield-packages/packages/guided-overlay/"],
+      "moves_to": "tools/guided-tours/",
+      "entry": "bitfield-packages/packages/guided-overlay/",
+      "evidence": "guided-overlay README.md:1 one engine that runs a list of self-describing steps, started by a trigger"
+    },
+    {
+      "capability": "keep a profile of how someone does their thing (style, voice) to shape drafts made for them",
+      "lives_at": ["bitfield-packages/packages/how-someone-does-their-thing/"],
+      "moves_to": "tools/how-someone-does-their-thing/",
+      "entry": "bitfield-packages/packages/how-someone-does-their-thing/",
+      "evidence": "how-someone-does-their-thing README.md:1 a profile record for a creator style, a user's voice or any reference pattern"
+    },
+    {
+      "capability": "generate images from a prompt with a chosen model",
+      "lives_at": ["bitfield-packages/packages/image-generation/"],
+      "moves_to": "tools/generate-images/",
+      "entry": "bitfield-packages/packages/image-generation/",
+      "evidence": "image-generation README.md:1 a prompt and a provider command into image results"
+    },
+    {
+      "capability": "form groups, tribes and matches among people",
+      "lives_at": ["bitfield-packages/packages/interaction-program/", "bitfield-packages/packages/group/"],
+      "moves_to": "tools/form-groups-and-matches/",
+      "entry": "bitfield-packages/packages/interaction-program/",
+      "evidence": "interaction-program README.md:1 a tribe, community or matchmaker as DATA over the group nucleus"
+    },
+    {
+      "capability": "ask a live source and fall back to its last good answer",
+      "lives_at": ["bitfield-packages/packages/keep-the-last-good-answer/"],
+      "moves_to": "tools/keep-the-last-good-answer/",
+      "entry": "bitfield-packages/packages/keep-the-last-good-answer/",
+      "evidence": "keep-the-last-good-answer README.md:1 if it answers, keep that answer; if it does not, hand back the last one kept"
+    },
+    {
+      "capability": "keep live scores of tennis and pickleball matches with a view for spectators",
+      "lives_at": ["bitfield-packages/packages/live-match-score/"],
+      "moves_to": "tools/live-match-scores/",
+      "entry": "bitfield-packages/packages/live-match-score/",
+      "evidence": "live-match-score: tennis and pickleball scoring with a spectator view"
+    },
+    {
+      "capability": "pull live market and prediction-market prices",
+      "lives_at": ["bitfield-packages/packages/market-data-feed/", "bitfield-packages/packages/polymarket/"],
+      "moves_to": "tools/live-market-prices/",
+      "entry": "bitfield-packages/packages/polymarket/",
+      "evidence": "polymarket README.md:1 pull live markets from the public Gamma API; market-data-feed shows a live feed"
+    },
+    {
+      "capability": "place broker orders from a trading policy and audit the trades",
+      "lives_at": ["bitfield-packages/packages/trade-order/", "bitfield-packages/packages/trade-audit/"],
+      "moves_to": "tools/trading/",
+      "entry": "bitfield-packages/packages/trade-order/",
+      "evidence": "trade-order README.md:1 turns the AI-authored trading policy into real broker orders; trade-audit audits them"
+    },
+    {
+      "capability": "predict match winners and see how the community picked",
+      "lives_at": ["bitfield-packages/packages/match-picks/"],
+      "moves_to": "tools/match-picks/",
+      "entry": "bitfield-packages/packages/match-picks/",
+      "evidence": "match-picks README.md:1 free match prediction"
+    },
+    {
+      "capability": "scout an opponent and plan a match",
+      "lives_at": ["bitfield-packages/packages/opponent-game-plan/"],
+      "moves_to": "tools/opponent-game-plan/",
+      "entry": "bitfield-packages/packages/opponent-game-plan/",
+      "evidence": "opponent-game-plan README.md:1 opponent scouting and match plan"
+    },
+    {
+      "capability": "play poker: rules, tables and invites",
+      "lives_at": ["bitfield-packages/packages/poker-rules/", "bitfield-packages/packages/poker-table/"],
+      "moves_to": "tools/poker/",
+      "entry": "bitfield-packages/packages/poker-table/",
+      "evidence": "poker-rules README.md:1 Texas Hold'em rule definitions; poker-table the table, room state and invites"
+    },
+    {
+      "capability": "request photo and video analysis and keep its results",
+      "lives_at": ["bitfield-packages/packages/media-analysis/"],
+      "moves_to": "tools/media-analysis/",
+      "entry": "bitfield-packages/packages/media-analysis/",
+      "evidence": "media-analysis README.md:1 requesting photo/video analysis and recording results"
+    },
+    {
+      "capability": "track a moving body or object in video and compare one movement with another, with coaching notes",
+      "lives_at": ["bitfield-packages/packages/motion-analysis/", "bitfield-packages/packages/motion-comparison/"],
+      "moves_to": "tools/track-and-compare-movement/",
+      "entry": "bitfield-packages/packages/motion-comparison/",
+      "evidence": "motion-comparison README.md:1 movement comparison, factor confidence, sync windows; motion-analysis tracks a selected object"
+    },
+    {
+      "capability": "notify a person when their notification rules say so",
+      "lives_at": ["bitfield-packages/packages/notifications/"],
+      "moves_to": "tools/notifications/",
+      "entry": "bitfield-packages/packages/notifications/",
+      "evidence": "notifications README.md:1 a data-described policy and action package"
+    },
+    {
+      "capability": "plan trips: notes, itinerary, packing list and bookings",
+      "lives_at": ["bitfield-packages/packages/travel-operations/", "bitfield-packages/packages/packing-list/"],
+      "moves_to": "tools/plan-trips/",
+      "entry": "bitfield-packages/packages/travel-operations/",
+      "evidence": "travel-operations: trip notes, itinerary, packing and booking; packing-list the packing list"
+    },
+    {
+      "capability": "render film frames as square-grid pointillist pictures",
+      "lives_at": ["bitfield-packages/packages/pointillist-film/"],
+      "moves_to": "tools/pointillist-film/",
+      "entry": "bitfield-packages/packages/pointillist-film/",
+      "evidence": "pointillist-film: generate square-grid film frames"
+    },
+    {
+      "capability": "research a creator or topic: gather its latest items and transcripts, and write a profile of it",
+      "lives_at": ["bitfield-packages/packages/research-workspace/", "bitfield-packages/packages/profile-a-creator-or-topic/"],
+      "moves_to": "tools/research-a-creator-or-topic/",
+      "entry": "bitfield-packages/packages/research-workspace/",
+      "evidence": "research-workspace README.md:1 paste a source, gather its latest items, extract transcripts, synthesize a creator profile"
+    },
+    {
+      "capability": "evaluate measures over a person's facts to band and gate their progress",
+      "lives_at": ["bitfield-packages/packages/progression-evaluator/"],
+      "moves_to": "tools/evaluate-progress/",
+      "entry": "bitfield-packages/packages/progression-evaluator/",
+      "evidence": "progression-evaluator README.md:1 resolve a measure definition and apply it over fact records"
+    },
+    {
+      "capability": "receive files over FTP",
+      "lives_at": ["bitfield-packages/packages/receive-files-over-file-transfer-protocol/"],
+      "moves_to": "tools/receive-files-over-ftp/",
+      "entry": "bitfield-packages/packages/receive-files-over-file-transfer-protocol/",
+      "evidence": "receive-files-over-file-transfer-protocol README.md:1 a resident receiver that speaks RFC 959"
+    },
+    {
+      "capability": "check a port or replica against the source it copies",
+      "lives_at": ["bitfield-packages/packages/reference-adaptation-contract/"],
+      "moves_to": "tools/check-a-port-against-its-source/",
+      "entry": "bitfield-packages/packages/reference-adaptation-contract/",
+      "evidence": "reference-adaptation-contract README.md:1 validator for source-first ports, behavioral ports and visual replicas"
+    },
+    {
+      "capability": "expand canned reply templates",
+      "lives_at": ["bitfield-packages/packages/reply-template/"],
+      "moves_to": "tools/reply-templates/",
+      "entry": "bitfield-packages/packages/reply-template/",
+      "evidence": "reply-template README.md:1 canned reply templates expanded by a blind evaluator"
+    },
+    {
+      "capability": "take requests through forms and route each to its owner with a receipt",
+      "lives_at": ["bitfield-packages/packages/request-intake/"],
+      "moves_to": "tools/take-requests/",
+      "entry": "bitfield-packages/packages/request-intake/",
+      "evidence": "request-intake README.md:1 configurable intake records: forms, questions, submissions and owner requests"
+    },
+    {
+      "capability": "track reservations and the capacity left",
+      "lives_at": ["bitfield-packages/packages/reservation-tracker/"],
+      "moves_to": "tools/reservations/",
+      "entry": "bitfield-packages/packages/reservation-tracker/",
+      "evidence": "reservation-tracker: reservation status changes and capacity ledger"
+    },
+    {
+      "capability": "generate speech from text in a chosen voice",
+      "lives_at": ["bitfield-packages/packages/speech-generation/"],
+      "moves_to": "tools/generate-speech/",
+      "entry": "bitfield-packages/packages/speech-generation/",
+      "evidence": "speech-generation README.md:1 speech request, voice profile, result and error records"
+    },
+    {
+      "capability": "take payments with Stripe",
+      "lives_at": ["bitfield-packages/packages/stripe-payment-provider/", "bitfield-packages/packages/payment-adapter/", "bitfield-packages/packages/checkout/"],
+      "moves_to": "tools/take-payments/",
+      "entry": "bitfield-packages/packages/stripe-payment-provider/",
+      "evidence": "stripe-payment-provider README.md:1 Stripe as package data and external adapter; stripe-payment-elements the client-safe payment material"
+    },
+    {
+      "capability": "turn a board's presentation frames into slides in story order, one page each, as SVG, printable HTML and a PDF",
+      "owner": ["tools/turn-frames-into-slides/"],
+      "entry": "tools/turn-frames-into-slides/tool-rows.json",
+      "evidence": "README.md:3 each presentation frame on a board becomes one slide, in story order, drawn by the board's own SVG exporter",
+      "distinct_from": [
+        {"job": "export a document tree to Word, PDF or other file formats", "why": "that tool flows headings, paragraphs and tables onto pages; this one places items at fixed positions on fixed-size slides"},
+
+        {"job": "read office files (spreadsheets, documents, presentations) and rewrite their cells or text from declared edits", "why": "that tool edits existing office files; this one draws new slides from a board's frames"},
+
+        {"job": "make a sales contract (terms and a PDF) from an accepted deal", "why": "that tool writes contract terms; this one draws whatever slides a board holds"},
+
+        {"job": "write documents and scenes as content records, and turn them into an outbound message body", "why": "that tool keeps documents as records and mail bodies; this one draws a board's frames as pages"},
+
+        {"job": "print a file on a printer the person's computer already has, and list its printers", "why": "that tool sends a finished file to paper; this one makes the slides and their PDF file"},
+
+        {"job": "extract and review media frames", "why": "that tool pulls frames out of video; this one draws a board's presentation frames as slides"}
+      ]
+    },
+    {
+      "capability": "keep a brand's logo files as list rows and pick the variant a page wears on a light or a dark background",
+      "owner": ["tools/brand-kit/"],
+      "entry": "tools/brand-kit/tool-rows.json",
+      "evidence": "README.md:3 a brand is rows of a list, one per logo variant, and one selection row names the family in use",
+      "distinct_from": [
+        {"job": "turn records on disk (JSON, tab-separated files, markdown tables) into rows of a person's lists", "why": "that tool imports any records as rows; this one reads a brand's rows and picks the logo variant for a background"},
+
+        {"job": "find a person's files by words, name, place, kind or spoken words in the index their computer already keeps", "why": "that finds files; this one picks which logo file a page shows"}
+      ]
+    },
+    {
+      "capability": "turn a look's colour, size and font tokens into concrete values and the stylesheet a document carries, with its font faces",
+      "owner": ["tools/screen-looks/"],
+      "entry": "tools/screen-looks/tool-rows.json",
+      "evidence": "README.md:3 a look is tokens; this resolves them into concrete colours and fonts and one stylesheet any page or slide can carry",
+      "distinct_from": [
+        {"job": "make a colour lookup table that turns log camera footage into display colour", "why": "that tool grades video colour; this one resolves a page look's colour and font tokens"},
+
+        {"job": "make a site's web fonts smaller and prove its pages still look the same", "why": "that tool shrinks font files; this one names which faces and colours a look uses and writes them as a stylesheet"},
+
+        {"job": "write documents and scenes as content records, and turn them into an outbound message body", "why": "that tool writes document content; this one writes the look a document wears"}
+      ]
+    },
+    {
+      "capability": "rank a person's records in the order they should review them, and keep their accept or pass as their stand",
+      "lives_at": ["bitfield-packages/packages/suggested-match/"],
+      "moves_to": "tools/rank-records-for-review/",
+      "entry": "bitfield-packages/packages/suggested-match/",
+      "evidence": "suggested-match ranked-record-review-projection.js, owner-action-request.js"
+    },
+    {
+      "capability": "say which paid access a buyer holds now, check a buyer may open a gated thing, and deliver a paid file only to a buyer who holds its access",
+      "lives_at": ["bitfield-packages/packages/signed-event-effects/", "bitfield-packages/packages/capability-effect-lifecycle/", "bitfield-packages/packages/product-access/", "bitfield-packages/packages/material-delivery/"],
+      "moves_to": "tools/paid-access/",
+      "entry": "bitfield-packages/packages/product-access/",
+      "evidence": "product-access authorize-addressed-expiring-value-scope.ts; material-delivery authorize-private-object.ts; capability-effect-lifecycle; signed-event-effects projection"
+    },
+    {
+      "capability": "pull a person's messages and saved items from connected accounts (Discord, Slack, Telegram, Instagram, Messenger, X bookmarks, Pinterest) into snapshot records",
+      "lives_at": ["bitfield-packages/packages/discord-bot-connector/", "bitfield-packages/packages/slack-bot-connector/", "bitfield-packages/packages/telegram-bot-connector/", "bitfield-packages/packages/instagram-dm-connector/", "bitfield-packages/packages/x-bookmarks-connector/", "bitfield-packages/packages/pinterest-pins-connector/"],
+      "moves_to": "tools/pull-from-connected-accounts/",
+      "entry": "bitfield-packages/packages/discord-bot-connector/",
+      "evidence": "the connector packages' pull scripts; per-service differences are DATA rows"
+    },
+    {
+      "capability": "write from a recipe: compose the exact instruction, gate what was written before it goes on, and run the person's content actions and instruction blocks",
+      "lives_at": ["bitfield-packages/packages/content-generation/", "bitfield-packages/packages/content-actions/", "bitfield-packages/packages/ai-instruction-blocks/"],
+      "moves_to": "tools/write-from-a-recipe/",
+      "entry": "bitfield-packages/packages/content-generation/",
+      "evidence": "content-generation recipe composer and fail-closed gate; content-actions; ai-instruction-blocks"
+    }
+  ]
+}
