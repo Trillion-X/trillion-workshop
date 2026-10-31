@@ -1,7 +1,7 @@
 {
   "about": "Every sentence tool:check-copy says that is not a rule's own: its refusals, its problems and its status words.",
   "refused": {
-    "no_units": "Nothing to check: send text, texts, value, units, html, decks or pictures.",
+    "no_units": "Nothing to check: send text, texts, Markdown, value, units, html, decks or pictures.",
     "bad_rules": "The rules must be a list of rule rows, or left out to use the grammar rows.",
     "no_checker": "The person's-rules checker could not run: {why}"
   },

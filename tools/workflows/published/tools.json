@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:5e5e8804e554b10ea306d54210b9eb04b0ccbe30d2ee7c00dbbd83b92b654bda"
+  "blake3": "1f:dfb9ff71ed765e4e3c9d29de279517970b8d367821af3877b2f0001f126a516c"
  },
  "fields": [
   {
@@ -900,8 +900,8 @@
    "id": "tool:check-copy",
    "values": {
     "title": "Check copy before a person reads it",
-    "job": "Check text, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
-    "description": "Give words as text, texts, value (any JSON; fields names which keys hold words, or \"strings\" for every string), units, sources (JSON with its place), html (pages), decks (a rendered deck's HTML) or pictures with their readings. Give rules (one row each: words, pattern, exact or a named grammar check) or leave them out to use mechanical grammar rows. Optionally give required (locked lines, features, baseline ids, approvals with the person's own words and the text they sit in), audience, offers and counts, and the person's verdict_rules and stands. Nothing about any person is kept here; their rules are input. A source with no words, a required line gone, a row for the wrong audience, a count that is not a published list view, an offer listing fewer lines than the others and a picture with no reading are problems, never passes. Model questions come back as questions; send answers on a second run.",
+    "job": "Check text, Markdown, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
+    "description": "Give words as text, texts, Markdown, value (any JSON; fields names which keys hold words, or \"strings\" for every string), units, sources (JSON with its place), html (pages), decks (a rendered deck's HTML) or pictures with their readings. Markdown reads headings, paragraphs, list items, table cells and fenced display text; unresolved quotes, preamble before a declared document title and unsupported blocks stay coverage problems. It retains each block's role and field; for findings whose context is not established, name the matching rule ids or grammar check names for review, which keeps those findings uncertain and leaves other findings in force. Give rules (one row each: words, pattern, exact or a named grammar check) or leave them out to use mechanical grammar rows. Optionally give required (locked lines, features, baseline ids, approvals with the person's own words and the text they sit in), audience, offers and counts, and the person's verdict_rules and stands. Nothing about any person is kept here; their rules are input. A source with no words, a required line gone, a row for the wrong audience, a count that is not a published list view, an offer listing fewer lines than the others and a picture with no reading are problems, never passes. Model questions come back as questions; send answers on a second run.",
     "status": "active",
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
     "licence_class": "licence:maker-own",
@@ -1990,9 +1990,9 @@
   {
    "id": "tool:gate-a-piece-against-a-checklist",
    "values": {
-    "title": "Check a piece against my checklist before anyone sees it, and keep what was answered (runs on your computer)",
-    "job": "Before I am shown anything I made, ask every required check of my checklist that applies to it, keep each answer with the files it judged, tell me which checks are still open, stale or failed, and list what was put in front of me without passing",
-    "description": "Reads a person's checklist (a JSON document of stages and checks, each with the tags it routes on and whether it is required) and a piece (a folder with a header of tags and the files it offers as items) on the person's own computer, through a schema file the person gives. The gate lists every required check that applies and has no current passing answer, per item where the check is per item. Answers are rows in an append-only file in the piece, each pinned by BLAKE3 to the bytes of the files it judged, so a row on a file that changed is stale. A check that a checker or a gate answers counts only on that checker's own row, carrying the reviewed pin of the checker version that produced it; a person's own row never stands in for it. A checker's JSON report is recorded check by check, only for checks whose pin is the reviewed one; a sweep runs the checker over every item of a folder and lists faults by rule; the schema's gates run over items and record their rows. An advisory answer passes only at the delivery stages its check names. A failed judgment on a rebuild of an item the person picked waits for their ruling. The tool also lists the items a gate must cover (the latest round plus the live picks) and audits the folders the person watches, optionally moving unchecked files to a held-back folder. It knows no checklist, piece kind, checker or gate by name: everything comes from the schema.",
+    "title": "Run a read-only checklist gate on my files (runs on your computer)",
+    "job": "Before I am shown anything I made, list the required checks that apply to it and identify which answers are open, stale or failed, without changing my files",
+    "description": "Reads the person's checklist (stages, checks and routes), schema and piece from one folder they grant. It runs the existing checklist gate read-only: every required check that applies to the piece is listed with its current answer state, file identity and criterion pins. It accepts `gate`, `scope`, `audit` without `--hold`, and read-only `checklist` commands. It does not create a lock file, first-gate record or pin cache, and it cannot answer checks, run write-producing sweeps or hold files. The same generic checklist consumer still refuses empty or unknown scopes, reports stale answers and requires exact BLAKE3 file and definition pins. A separate write-grant tool handles commands that change the library. Nothing about a person's checklist or piece is known by this tool; the schema owns those details.",
     "status": "active",
     "maker": "maker:gate-a-piece-against-a-checklist",
     "licence_class": "licence:maker-own",
@@ -5141,6 +5141,21 @@
     ],
     "listed_on": "2026-09-29T20:38:25Z",
     "folder": "record-a-web-page"
+   }
+  },
+  {
+   "id": "tool:record-checklist-gate-changes",
+   "values": {
+    "title": "Record a checklist answer or run its checked steps (runs on your computer)",
+    "job": "Record a checklist answer or run a declared checker or gate, with the required folder change grant",
+    "description": "Uses the same checklist consumer as the read-only gate, but only after the person grants this tool permission to change one folder. It records the person's answer, imports a checker report under the reviewed checker pins, runs the schema's sweeps or gates, holds files only when requested, or writes the checklist generated from the person's text. The existing consumer still checks criteria definitions, BLAKE3 file pins, checker pins, scopes and stale rows; this tool adds no alternate answer or bypass.",
+    "status": "active",
+    "maker": "maker:gate-a-piece-against-a-checklist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "workflows"
    }
   },
   {

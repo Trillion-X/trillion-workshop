@@ -66,12 +66,125 @@ export function wordsOfDeck(html, where = 'deck') {
   return found;
 }
 
+/**
+ * Reads authored words from a Markdown document without guessing at source-only blocks. A document title may be metadata
+ * when the caller declares its heading level; otherwise headings are ordinary words. Unclassified quotes, preamble before
+ * a declared document title, unsupported markup and code-shaped indentation are coverage issues, not silent exclusions.
+ */
+export function wordsOfMarkdown(markdown, where = 'markdown', {
+  kind = 'copy', heading_kind = kind, display_kind = kind, document_heading_level = null,
+  document_heading_is_metadata = false, quote_kind = null, fields = {}, context_requires_review_rules = [],
+} = {}) {
+  const units = [], issues = [];
+  if (typeof markdown !== 'string') return { units, issues: [{ kind: 'markdown_text_missing' }], coverage: { selected_units: 0, display_blocks: 0 } };
+  if (document_heading_level !== null && (!Number.isInteger(document_heading_level) || document_heading_level < 1 || document_heading_level > 6)) {
+    return { units, issues: [{ kind: 'invalid_document_heading_level' }], coverage: { selected_units: 0, display_blocks: 0 } };
+  }
+  if (!fields || typeof fields !== 'object' || Array.isArray(fields)
+      || Object.values(fields).some(field => typeof field !== 'string')
+      || !Array.isArray(context_requires_review_rules) || context_requires_review_rules.some(id => typeof id !== 'string')) {
+    return { units, issues: [{ kind: 'invalid_markdown_context_options' }], coverage: { selected_units: 0, display_blocks: 0 } };
+  }
+  const lines = markdown.split(/\r?\n/u);
+  let documentHeadingSeen = document_heading_level === null;
+  let fence = null, paragraph = [], paragraphLine = null, inTable = false, bodyUnits = 0, displayBlocks = 0;
+  const add = (text, unitKind, line, role) => {
+    const clean = text.trim();
+    if (!clean) return;
+    const checks = role === 'paragraph' ? [] : ['starts-with-capital', 'capital-after-stop', 'ends-with-stop'];
+    units.push({ text: clean, kind: unitKind, where: `${where}:${line}`, facts: { markdown_role: role },
+      ...(fields[role] ? { field: fields[role] } : {}),
+      ...(checks.length ? { context_requires_review_checks: checks } : {}),
+      ...(context_requires_review_rules.length ? { context_requires_review_rules } : {}) });
+    bodyUnits++;
+  };
+  const flush = () => {
+    if (paragraph.length) add(paragraph.join(' '), kind, paragraphLine, 'paragraph');
+    paragraph = [];
+    paragraphLine = null;
+  };
+  const cellsFor = value => {
+    if (!value.includes('|')) return null;
+    let row = value.trim();
+    if (row.startsWith('|')) row = row.slice(1);
+    if (row.endsWith('|') && !row.endsWith('\\|')) row = row.slice(0, -1);
+    return row.split(/(?<!\\)\|/u).map(cell => cell.trim().replace(/\\\|/gu, '|'));
+  };
+  const delimiter = cells => cells?.length > 1 && cells.every(cell => /^:?-{3,}:?$/u.test(cell));
+
+  for (let index = 0; index < lines.length; index++) {
+    const raw = lines[index], line = raw.trim(), number = index + 1;
+    if (fence) {
+      if (new RegExp(`^${fence.marker}{${fence.length},}\\s*$`, 'u').test(line)) { fence = null; continue; }
+      if (line) add(line, display_kind, number, 'display_text');
+      continue;
+    }
+    if (!line) { flush(); inTable = false; continue; }
+    const open = /^(`{3,}|~{3,})/u.exec(line);
+    if (open) {
+      flush(); inTable = false;
+      if (!documentHeadingSeen) { issues.push({ kind: 'preamble_content', line: number }); continue; }
+      fence = { marker: open[1][0], length: open[1].length };
+      displayBlocks++;
+      continue;
+    }
+    if (!documentHeadingSeen) {
+      const title = new RegExp(`^#{${document_heading_level}}\\s+(.+?)\\s*#*\\s*$`, 'u').exec(line);
+      if (title) {
+        documentHeadingSeen = true;
+        if (!document_heading_is_metadata) add(title[1], heading_kind, number, 'heading');
+      } else issues.push({ kind: 'preamble_content', line: number });
+      continue;
+    }
+    const heading = /^(#{1,6})\s+(.+?)\s*#*\s*$/u.exec(line);
+    if (line.startsWith('#')) {
+      flush(); inTable = false;
+      if (!heading) { issues.push({ kind: 'unknown_heading_shape', line: number }); continue; }
+      if (document_heading_level !== null && heading[1].length < document_heading_level) {
+        issues.push({ kind: 'repeated_document_heading', line: number }); continue;
+      }
+      add(heading[2], heading_kind, number, 'heading');
+      continue;
+    }
+    if (line.startsWith('>')) {
+      flush(); inTable = false;
+      if (quote_kind) add(line.replace(/^>\s?/u, ''), quote_kind, number, 'quote');
+      else issues.push({ kind: 'unresolved_quote_role', line: number });
+      continue;
+    }
+    const cells = cellsFor(line);
+    const nextCells = index + 1 < lines.length ? cellsFor(lines[index + 1].trim()) : null;
+    if (inTable && cells) { for (const cell of cells) add(cell, kind, number, 'table_cell'); continue; }
+    inTable = false;
+    if (cells?.length > 1 && cells.length === nextCells?.length && delimiter(nextCells)) {
+      flush();
+      for (const cell of cells) add(cell, kind, number, 'table_cell');
+      index++;
+      inTable = true;
+      continue;
+    }
+    if (/^(?:-{3,}|\*{3,}|_{3,})$/u.test(line)) { flush(); inTable = false; continue; }
+    if (/^<\/?[A-Za-z!]/u.test(line)) { flush(); inTable = false; issues.push({ kind: 'unclassified_markup', line: number }); continue; }
+    const list = /^(?:[-*+]\s+|\d+[.)]\s+)/u.exec(line);
+    if (list) { flush(); inTable = false; add(line.slice(list[0].length), kind, number, 'list_item'); continue; }
+    if (/^(?: {4,}|\t)/u.test(raw)) { flush(); inTable = false; issues.push({ kind: 'indented_code_or_unclassified_block', line: number }); continue; }
+    if (paragraphLine === null) paragraphLine = number;
+    paragraph.push(line);
+  }
+  flush();
+  if (fence) issues.push({ kind: 'unterminated_fence' });
+  if (!documentHeadingSeen) issues.push({ kind: 'missing_document_heading' });
+  if (!bodyUnits) issues.push({ kind: 'missing_public_body' });
+  return { units, issues, coverage: { selected_units: bodyUnits, display_blocks: displayBlocks } };
+}
+
 /** One unit per distinct (kind, text), each with every place it was found (the first three are named). */
 export function distinctUnits(found, defaults = {}) {
   const byKey = new Map();
-  for (const { text, where, kind = defaults.kind ?? 'copy', facts = defaults.facts ?? {} } of found) {
-    const key = `${kind}\u0000${text.trim()}`;
-    if (!byKey.has(key)) byKey.set(key, { kind, text: text.trim(), where: [], facts });
+  for (const unit of found) {
+    const { text, where, kind = defaults.kind ?? 'copy', facts = defaults.facts ?? {}, ...metadata } = unit;
+    const key = JSON.stringify({ kind, text: text.trim(), facts, metadata });
+    if (!byKey.has(key)) byKey.set(key, { ...metadata, kind, text: text.trim(), where: [], facts });
     byKey.get(key).where.push(where);
   }
   return [...byKey.values()].map(unit => ({ ...unit, where: unit.where.slice(0, 3).join('; ') + (unit.where.length > 3 ? ` (+${unit.where.length - 3})` : '') }));

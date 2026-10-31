@@ -93,9 +93,10 @@ def values_at(document: Any, path: str) -> list:
 class Library:
     """One library: its root folder and its schema. Tests point it at a temporary library."""
 
-    def __init__(self, root: Path, schema_path: Path):
+    def __init__(self, root: Path, schema_path: Path, read_only: bool = False):
         self.root = Path(root)
         self.schema_path = Path(schema_path)
+        self.read_only = read_only
         self._files: dict[str, Any] = {}
         self.schema = self._resolve(read_json(self.schema_path))
 
@@ -142,11 +143,32 @@ class Library:
         return self.section('piece')['header']
 
     def lock(self):
-        path = self.path_of(self.schema['lock'])
-        path.parent.mkdir(parents=True, exist_ok=True)
-        f = open(path, 'a')
-        fcntl.flock(f, fcntl.LOCK_EX)
-        return f
+        """Lock the existing library directory without creating or changing a file in it.
+
+        A gate only reads the library. Its lock must therefore work when the caller has a read-only folder grant and
+        the library itself is not writable. Every current gate command locks the same directory inode, so readers and
+        writers still serialize with one another.
+        """
+        fd = os.open(self.root, os.O_RDONLY)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX)
+        except BaseException:
+            os.close(fd)
+            raise
+        return _DirectoryLock(fd)
+
+
+class _DirectoryLock:
+    """The closeable handle ``contextlib.closing`` expects for a directory flock."""
+
+    def __init__(self, fd: int):
+        self.fd = fd
+
+    def close(self) -> None:
+        try:
+            fcntl.flock(self.fd, fcntl.LOCK_UN)
+        finally:
+            os.close(self.fd)
 
 
 @contextlib.contextmanager

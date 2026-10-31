@@ -49,7 +49,8 @@
   "units": "units is a non-empty list of { text, kind } (or { view, kind } for a JSON artifact): the things to check.",
   "verdict_rules": "verdict_rules is the person's rule document: { rows, fold, stage: { default }, stance_rule, novel: { rule, says }, agree_clears: { rules } }. Missing: {missing}.",
   "stage": "stage is review or final.",
-  "pairs": "A reading row's pairs[].rejected names a stand that is not a current exact stand on a text: {missing}. Pass that stand, or take the pair out of the row."
+    "pairs": "A reading row's pairs[].rejected names a stand that is not a current exact stand on a text: {missing}. Pass that stand, or take the pair out of the row.",
+    "context_review": "Context review selectors must name rule ids in rules and grammar checks in the judge. Unknown rule ids: {rules}. Unknown grammar checks: {checks}."
  },
  "usable": "usable"
 }
