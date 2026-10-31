@@ -1,0 +1,33 @@
+{
+  "game": "Texas Hold'em",
+  "what_this_is": "The rules of the game as data: its cards, its phases and streets, its betting actions and the table settings a new table starts from. The rule code in poker-rules.mjs reads every name from here.",
+  "ranks": ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"],
+  "suits": ["S", "H", "D", "C"],
+  "hand_categories": ["high card", "pair", "two pair", "three of a kind", "straight", "flush", "full house", "four of a kind", "straight flush"],
+  "phases": { "lobby": "lobby", "active": "playing", "showdown": "showdown", "finished": "finished" },
+  "blind_modes": { "fixed": "fixed", "multiplier": "multiplier" },
+  "player_actions": { "fold": "fold", "check_call": "checkCall", "raise": "raise", "all_in": "allIn" },
+  "events": { "warning": "warning", "fold": "fold", "check": "check", "call": "call", "raise": "raise", "all_in": "allIn" },
+  "seat_roles": { "dealer": "D", "small_blind": "SB", "big_blind": "BB" },
+  "street_flow": [
+    { "street": "preflop", "visible_community_cards": 0, "next_street": "flop", "next_phase": "playing", "advance_label": "Deal flop" },
+    { "street": "flop", "visible_community_cards": 3, "next_street": "turn", "next_phase": "playing", "advance_label": "Deal turn" },
+    { "street": "turn", "visible_community_cards": 4, "next_street": "river", "next_phase": "playing", "advance_label": "Deal river" },
+    { "street": "river", "visible_community_cards": 5, "next_street": "river", "next_phase": "showdown", "advance_label": "Showdown" }
+  ],
+  "table_defaults": {
+    "starting_chips": { "least": 100, "default": 1000 },
+    "small_blind": { "least": 1, "default": 10 },
+    "big_blind_is_small_blind_times": 2,
+    "max_players": { "least": 2, "default": 9, "most": 23 }
+  },
+  "event_text": {
+    "rejected": "Action rejected.",
+    "fold": "{name} folded.",
+    "check": "{name} checked.",
+    "call": "{name} called {paid}.",
+    "raise": "{name} raised {paid}.",
+    "all_in": "{name} moved all-in for {paid}."
+  },
+  "control_labels": { "fold": "Fold", "check": "Check", "call": "Call {to_call}", "raise": "Raise", "all_in": "All In" }
+}

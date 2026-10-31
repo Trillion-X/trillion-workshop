@@ -1,0 +1,207 @@
+{
+  "kind": "tool-rows",
+  "record_set": "poker-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/poker: what each tool does, what it takes and gives back, and how it runs.",
+  "records": [
+    {
+      "id": "package::poker::tool::run-a-poker-table",
+      "address": "package::poker::tool::run-a-poker-table",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:run-a-poker-table",
+        "label": "Run a game of Texas Hold'em at a table",
+        "status": "active",
+        "job": "Run a game of Texas Hold'em poker for a table of players: open a table, seat players, deal a hand, take each player's action, and deal the next hand",
+        "description": "Keep the table's saved state (the room) and send it back with one operation each time. open-table makes a table in its lobby from a list of player names and optional settings (starting chips, blinds, blind mode and increase, most players). seat-player adds a player (only in the lobby) or reconnects one by id or name. configure-table changes the settings. start-game posts the blinds and deals every player two cards and the board. player-action is the turn of the seat to act: fold, checkCall, raise (with an amount) or allIn; a round that is over moves on by itself to the next street and then to the showdown, and the answer says in words what happened. next-hand moves the dealer on, raises the blinds by the table's mode and deals again. kick-player removes a player and deals again if a hand was in play. Every deal takes a seed (any whole number), so the same table and seed always deal the same cards. The room holds every player's cards: give a player only what view-a-poker-table-for-a-player returns. One pot is kept per hand: when a player who is all in has put in less than the others, the showdown still pays the whole pot to the best hand. Refuses an action out of turn, a request that does not fit the table's phase, and a room that is not a saved table.",
+        "input_schema": {
+          "type": "object",
+          "required": ["operation"],
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "type": "string", "enum": ["open-table", "seat-player", "configure-table", "start-game", "player-action", "next-hand", "kick-player"], "description": "What to do to the table" },
+            "room_id": { "type": "string", "description": "open-table: the table's name" },
+            "players": { "type": "array", "items": { "type": "string" }, "description": "open-table: the names of the first players; the first is the host" },
+            "config": { "type": "object", "description": "open-table, configure-table: startingChips, smallBlind, bigBlind, blindMode (fixed or multiplier), blindIncrease, maxPlayers", "additionalProperties": true },
+            "room": { "type": "object", "description": "The table's saved state, exactly as the last answer gave it", "additionalProperties": true },
+            "name": { "type": "string", "description": "seat-player: the player's name" },
+            "player_id": { "type": "string", "description": "seat-player: a returning player's id. player-action: the id of the player acting, checked against whose turn it is. kick-player: the player to remove" },
+            "action": { "type": "string", "enum": ["fold", "checkCall", "raise", "allIn"], "description": "player-action: what the seat to act does" },
+            "amount": { "type": "integer", "minimum": 0, "description": "player-action raise: chips to raise by (at least the table's minimum raise)" },
+            "seed": { "type": "integer", "description": "start-game, next-hand, kick-player: any whole number; the same seed deals the same cards" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["operation", "room"],
+          "properties": {
+            "operation": { "type": "string" },
+            "room": { "type": "object", "description": "The table's new saved state" },
+            "playerId": { "type": "string", "description": "seat-player: the id of the player seated" },
+            "event": { "type": "object", "description": "player-action: what happened, as { kind, actorId, text }" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "poker", "paths": ["do-work", "read-data"], "at": "/opt/poker" } },
+          "workdir": "/opt/poker",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-a-poker-table.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 2, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:poker",
+        "provenance": { "source": "ported from the poker-rules package (hold'em rules and room state)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "operation": "open-table", "room_id": "room:sample", "players": ["Alder", "Birch"], "config": { "smallBlind": 5, "bigBlind": 10, "startingChips": 200 } },
+            "output_selector": "$.room.state.phase",
+            "contains": "lobby"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::poker::tool::rank-poker-hands",
+      "address": "package::poker::tool::rank-poker-hands",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:rank-poker-hands",
+        "label": "Rank poker hands and name the winner",
+        "status": "active",
+        "job": "Rank poker hands against a board of community cards and say which hand wins",
+        "description": "Give the community cards (none to five) and each player's own cards (up to two), every card as its rank then its suit: ranks 2 to 9, T, J, Q, K, A and suits S, H, D, C, for example AS or TD. Each hand is ranked on its best five cards out of its own and the board, from high card up to a straight flush (an ace plays low in the lowest straight, five high). Returns the hands best first with the category and the five cards that make it, a place (hands that tie share a place) and the winners: every hand in first place. A hand with fewer than five cards in all cannot be ranked yet and comes last with no place. Refuses a card written wrongly and a card given twice.",
+        "input_schema": {
+          "type": "object",
+          "required": ["board", "hands"],
+          "additionalProperties": false,
+          "properties": {
+            "board": { "type": "array", "items": { "type": "string" }, "maxItems": 5, "description": "The community cards, for example [\"AS\",\"7D\",\"9C\"]" },
+            "hands": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["id", "cards"],
+                "additionalProperties": false,
+                "properties": {
+                  "id": { "type": "string", "description": "A name for this hand, unique in the request" },
+                  "cards": { "type": "array", "items": { "type": "string" }, "maxItems": 2, "description": "The player's own cards" }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["ranking", "winners"],
+          "properties": {
+            "ranking": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "category", "place"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "category": { "type": ["string", "null"], "description": "high card, pair, two pair, three of a kind, straight, flush, full house, four of a kind or straight flush; null when under five cards" },
+                  "bestFive": { "type": ["array", "null"], "items": { "type": "string" } },
+                  "place": { "type": ["integer", "null"] }
+                }
+              }
+            },
+            "winners": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "poker", "paths": ["do-work", "read-data"], "at": "/opt/poker" } },
+          "workdir": "/opt/poker",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/rank-poker-hands.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:poker",
+        "provenance": { "source": "ported from the poker-rules package (hand evaluation)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "board": ["2S", "7D", "9C", "JS", "3H"], "hands": [{ "id": "left", "cards": ["AH", "AC"] }, { "id": "right", "cards": ["KH", "QC"] }] },
+            "output_selector": "$.winners[0]",
+            "contains": "left"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::poker::tool::view-a-poker-table-for-a-player",
+      "address": "package::poker::tool::view-a-poker-table-for-a-player",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:view-a-poker-table-for-a-player",
+        "label": "See a poker table as one player may see it",
+        "status": "active",
+        "job": "Show a poker table as one player may see it: the board, the pot, each seat, what that player may do now and only that player's own cards",
+        "description": "Give a saved table (the room run-a-poker-table returned) and, optionally, the id of the player looking. Returns the phase and street, hand number, pot, current bet, minimum raise and blinds, the board as it is dealt so far, the label of the next street, every seat (chips, bet, dealer and blind marks, whose turn it is, folded, all in, out, connected), the four betting controls (fold, check or call with what a call costs, raise with its minimum, all in) switched on only for the player whose turn it is, that player's own two cards, every player's cards once the hand is over and never before, and the hand's result with the winners' names. With no player id it is the view of a spectator and holds no private cards. Refuses a room that is not a saved table and a player who is not at it.",
+        "input_schema": {
+          "type": "object",
+          "required": ["room"],
+          "additionalProperties": false,
+          "properties": {
+            "room": { "type": "object", "description": "The table's saved state", "additionalProperties": true },
+            "player_id": { "type": "string", "description": "The player looking; leave out for a spectator" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["phase", "street", "pot", "seats", "controls", "privateHand", "publicHoleCards"],
+          "properties": {
+            "phase": { "type": "string" },
+            "street": { "type": "string" },
+            "pot": { "type": "integer" },
+            "communityCards": { "type": "array" },
+            "seats": { "type": "array" },
+            "controls": { "type": "array" },
+            "privateHand": { "type": "object" },
+            "publicHoleCards": { "type": "object" },
+            "handResult": { "type": ["object", "null"] }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "poker", "paths": ["do-work", "read-data"], "at": "/opt/poker" } },
+          "workdir": "/opt/poker",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/view-a-poker-table.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:poker",
+        "provenance": { "source": "ported from the poker-rules package (room projection) and the poker-table package (betting controls, hand result)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "room": { "kind": "poker-room-state", "version": 1, "roomId": "room:sample", "board": [], "config": { "startingChips": 100, "smallBlind": 5, "bigBlind": 10, "blindMode": "fixed", "blindIncrease": 0, "maxPlayers": 9 }, "handNumber": 0, "holeCards": {}, "hostPlayerId": "player-1", "state": { "phase": "lobby", "config": { "startingChips": 100, "smallBlind": 5, "bigBlind": 10, "blindMode": "fixed", "blindIncrease": 0, "maxPlayers": 9 }, "players": [{ "id": "player-1", "name": "Alder", "chips": 100, "currentBet": 0, "totalCommitted": 0, "hasActed": false, "folded": false, "allIn": false, "eliminated": false, "connected": true }], "communityCards": [], "dealerIndex": -1, "smallBlindIndex": -1, "bigBlindIndex": -1, "activeIndex": -1, "pot": 0, "pots": [], "currentBet": 0, "minRaise": 10, "street": "preflop", "handNumber": 0, "smallBlind": 5, "bigBlind": 10, "result": null } }, "player_id": "player-1" },
+            "output_selector": "$.phase",
+            "contains": "lobby"
+          }
+        ]
+      }
+    }
+  ]
+}
