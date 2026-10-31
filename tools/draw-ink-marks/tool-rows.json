@@ -1,0 +1,262 @@
+{
+ "kind": "tool-rows",
+ "record_set": "draw-ink-marks-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/draw-ink-marks: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::draw-ink-marks::tool::see-the-ink-marks-on-a-space",
+   "address": "package::draw-ink-marks::tool::see-the-ink-marks-on-a-space",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:see-the-ink-marks-on-a-space",
+    "label": "See the ink marks drawn on a page or picture",
+    "status": "active",
+    "job": "Work out which ink marks are showing on one page, picture or other space, after later marks hid, restyled, reordered, copied or merged earlier ones",
+    "description": "Give the mark operations (every drawing step ever recorded, in any space), the mark styles they name and the space to look at. Marks are only ever added; a later operation changes what shows by naming an earlier mark in its effects (hide_refs, style_ref_by_ref, order_by_ref, copy_ref_by_ref, merge_refs). The answer lists, in drawing order, each visible mark with its points, whether its shape is closed and its style (the style it names, with any fields the mark carries itself laid over it), plus the refs that are hidden and the operations that drew nothing. Operations for other spaces are left out. Rows may be bare, wrapped as { payload } or stored as { value_json } text. Nothing is written.",
+    "input_schema": {
+     "type": "object",
+     "required": ["operations"],
+     "additionalProperties": false,
+     "properties": {
+      "operations": { "type": "array", "description": "The mark operation rows" },
+      "styles": { "type": "array", "description": "The mark style rows the operations name" },
+      "target": { "type": "object", "description": "The space to look at: { address, frame?, range?, anchor?, reader_key? }; leave out to take every operation" },
+      "reader_key": { "type": "string", "description": "Which reader's view of the space, when spaces are read differently by reader" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["marks", "hidden_refs", "empty_operations"],
+     "properties": {
+      "marks": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": ["ref", "operation", "points", "closed", "order"],
+        "properties": {
+         "ref": { "type": "string" },
+         "operation": { "type": "string" },
+         "points": { "type": "array", "items": { "type": "array", "items": { "type": "number" } } },
+         "closed": { "type": "boolean" },
+         "order": { "type": "number" },
+         "style": { "type": ["object", "null"] }
+        }
+       }
+      },
+      "hidden_refs": { "type": "array", "items": { "type": "string" } },
+      "empty_operations": { "type": "array", "items": { "type": "string" } }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "draw-ink-marks", "paths": ["do-work"], "at": "/opt/draw-ink-marks" } },
+     "workdir": "/opt/draw-ink-marks",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/marks.mjs", "see"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 2, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:draw-ink-marks",
+    "provenance": { "source": "ported from the addressed-marks package (materialize-mark-records)" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "operations": [
+        { "id": "one", "target": { "address": "poster" }, "body": { "coordinate_sets": [{ "points": [{ "values": [0, 0] }, { "values": [4, 4] }] }] } },
+        { "id": "undo", "target": { "address": "poster" }, "body": { "effects": { "hide_refs": ["one:set:0"] } } }
+       ],
+       "target": { "address": "poster" }
+      },
+      "output_selector": "$.hidden_refs[0]",
+      "contains": "one:set:0"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::draw-ink-marks::tool::turn-a-drawn-stroke-into-a-mark-shape",
+   "address": "package::draw-ink-marks::tool::turn-a-drawn-stroke-into-a-mark-shape",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:turn-a-drawn-stroke-into-a-mark-shape",
+    "label": "Turn a drawn stroke into a line, rectangle or polygon",
+    "status": "active",
+    "job": "Turn the points of a drawn stroke into the shape the chosen drawing tool makes: freehand ink, a straight line, a rectangle or a regular polygon or ellipse",
+    "description": "Give the drawing tool's own row and the stroke's points in order. The tool's mapper picks the shape: passthrough keeps every point, segment keeps the first and last, polygon with corners gives the four corners of the rectangle between first and last point, polygon with sides N gives N points on the ellipse inscribed in that rectangle (3 to 18 reads as a regular polygon, many as an ellipse). A mapper of any other kind keeps the stroke as drawn. The answer also says whether the tool closes its figure and whether it is an eraser (an eraser appends a hide effect instead of ink). Points are [x, y] or { values: [x, y] }.",
+    "input_schema": {
+     "type": "object",
+     "required": ["tool", "points"],
+     "additionalProperties": false,
+     "properties": {
+      "tool": { "type": "object", "description": "The drawing tool's row; its mapper, mode and closed flag decide the result" },
+      "points": { "type": "array", "minItems": 1, "description": "The stroke's points, in the order they were drawn" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["points", "closed", "erases"],
+     "properties": {
+      "points": { "type": "array", "items": { "type": "array", "items": { "type": "number" } } },
+      "closed": { "type": "boolean" },
+      "erases": { "type": "boolean" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "draw-ink-marks", "paths": ["do-work"], "at": "/opt/draw-ink-marks" } },
+     "workdir": "/opt/draw-ink-marks",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/marks.mjs", "stroke"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:draw-ink-marks",
+    "provenance": { "source": "ported from the addressed-marks package (tool point mappers)" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "tool": { "id": "line", "mapper": { "kind": "segment" } }, "points": [[0, 0], [3, 9], [10, 4]] },
+      "output_selector": "$.points[1]",
+      "contains": "10"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::draw-ink-marks::tool::find-the-ink-mark-to-erase",
+   "address": "package::draw-ink-marks::tool::find-the-ink-mark-to-erase",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-the-ink-mark-to-erase",
+    "label": "Find the ink mark under an eraser",
+    "status": "active",
+    "job": "Find which showing ink mark lies nearest a point, so it can be erased without changing any mark",
+    "description": "Give the mark operations, their styles, the space and the point where the eraser touched, with a radius in the space's own units. The nearest showing mark within the radius is found by distance to each of its segments (a closed shape counts its closing edge), and its ref comes back with the effect to record: { hide_refs: [ref] } on a new operation. Nothing is edited or deleted; the earlier marks stay and the new operation hides the one. When no mark is within the radius the ref and effects are null. Marks already hidden are not found.",
+    "input_schema": {
+     "type": "object",
+     "required": ["operations", "target", "point", "radius"],
+     "additionalProperties": false,
+     "properties": {
+      "operations": { "type": "array", "description": "The mark operation rows" },
+      "styles": { "type": "array", "description": "The mark style rows the operations name" },
+      "target": { "type": "object", "description": "The space the eraser is on: { address, frame?, range?, anchor?, reader_key? }" },
+      "point": { "description": "Where the eraser touched, in the space's coordinates: [x, y] or { values: [x, y] }" },
+      "radius": { "type": "number", "minimum": 0, "description": "How near a mark must be, in the space's own units" },
+      "reader_key": { "type": "string", "description": "Which reader's view of the space" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["ref", "effects"],
+     "properties": {
+      "ref": { "type": ["string", "null"], "description": "The mark to hide, or null when none is near" },
+      "effects": { "type": ["object", "null"], "description": "The effects to put on a new operation" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "draw-ink-marks", "paths": ["do-work"], "at": "/opt/draw-ink-marks" } },
+     "workdir": "/opt/draw-ink-marks",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/marks.mjs", "erase"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 2, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:draw-ink-marks",
+    "provenance": { "source": "ported from the addressed-marks package (erase-by-reference)" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "operations": [{ "id": "one", "target": { "address": "poster" }, "body": { "coordinate_sets": [{ "points": [{ "values": [0, 0] }, { "values": [10, 0] }] }] } }],
+       "target": { "address": "poster" },
+       "point": [5, 1],
+       "radius": 2
+      },
+      "output_selector": "$.ref",
+      "contains": "one:set:0"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::draw-ink-marks::tool::export-ink-marks-as-svg",
+   "address": "package::draw-ink-marks::tool::export-ink-marks-as-svg",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:export-ink-marks-as-svg",
+    "label": "Export the ink marks on a space as an SVG picture",
+    "status": "active",
+    "job": "Draw the ink marks showing on a page or picture as an SVG fragment, with the bounds of all the ink, so the ink can be laid over an export of that page",
+    "description": "Give the mark operations, their styles and the space. Every showing mark becomes one stroke path in the space's own coordinates (M x y, L x y, Z when closed, round caps, the style's stroke, width and opacity, width 3 and opacity 1 when the style says nothing), so the fragment needs no transform to sit over the page it was drawn on. The bounds are the box around all the ink, or null when there is none. A style that names only a colour token has no colour a standalone picture can resolve, so give default_stroke; a mark with neither is refused rather than drawn in a colour nobody chose. Fills are not drawn.",
+    "input_schema": {
+     "type": "object",
+     "required": ["operations"],
+     "additionalProperties": false,
+     "properties": {
+      "operations": { "type": "array", "description": "The mark operation rows, including any drawn but not yet saved" },
+      "styles": { "type": "array", "description": "The mark style rows the operations name" },
+      "target": { "type": "object", "description": "The space to export; leave out to take every operation" },
+      "reader_key": { "type": "string", "description": "Which reader's view of the space" },
+      "default_stroke": { "type": "string", "description": "The colour for a mark whose style has no concrete colour" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["svg", "bounds"],
+     "properties": {
+      "svg": { "type": "string", "description": "Zero or more path elements" },
+      "bounds": {
+       "type": ["object", "null"],
+       "properties": { "minX": { "type": "number" }, "minY": { "type": "number" }, "maxX": { "type": "number" }, "maxY": { "type": "number" } }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "draw-ink-marks", "paths": ["do-work"], "at": "/opt/draw-ink-marks" } },
+     "workdir": "/opt/draw-ink-marks",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/marks.mjs", "svg"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 2, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:draw-ink-marks",
+    "provenance": { "source": "ported from the addressed-marks package (marks-to-svg)" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "operations": [{ "id": "one", "target": { "address": "poster" }, "body": { "coordinate_sets": [{ "points": [{ "values": [10, 10] }, { "values": [20, 30] }] }] } }],
+       "target": { "address": "poster" },
+       "default_stroke": "#222222"
+      },
+      "output_selector": "$.svg",
+      "contains": "d=\"M 10 10 L 20 30\""
+     }
+    ]
+   }
+  }
+ ]
+}
