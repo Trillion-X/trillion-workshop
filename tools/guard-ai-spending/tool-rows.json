@@ -1,0 +1,302 @@
+{
+  "kind": "tool-rows",
+  "record_set": "guard-ai-spending-tool-rows",
+  "what_this_is": "The Workshop rows for tools/guard-ai-spending: an AI's own spending kept inside the budget its person set (reserve before paying, check just before paying, record after paying, reset each day) and the rails that may pay. Each row reaches the person's own spend records through the run's records door. None can raise a limit or turn a budget on.",
+  "records": [
+    {
+      "id": "package::guard-ai-spending::tool::reserve-a-spend-within-budget",
+      "address": "package::guard-ai-spending::tool::reserve-a-spend-within-budget",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:reserve-a-spend-within-budget",
+        "label": "Reserve a spend within budget",
+        "status": "active",
+        "job": "Before my AI spends money, check the spend against my budget and reserve it, or refuse it",
+        "description": "Checks one spend (whole cents) against the person's spend authority: it must be turned on and active, and stay inside the daily limit and the per-spend limit. Answers approved and the reason, and writes the check and a reservation the spend carries to the person's records; a refused spend is written too, with its reason. A zero-cost operation is checked and fenced without using the budget. The same idempotency key while its reservation is current answers the first reservation again and counts nothing twice. No authority record means every positive spend is refused.",
+        "input_schema": {
+          "type": "object",
+          "required": ["spend_authority_ref", "operation_ref", "estimated_cost"],
+          "additionalProperties": false,
+          "properties": {
+            "spend_authority_ref": { "type": "string", "description": "The person's spend authority to spend from, like \"spend-authority:research\"" },
+            "operation_ref": { "type": "string", "description": "What the money is for, like \"operation:buy-a-report\"" },
+            "estimated_cost": { "type": "integer", "minimum": 0, "description": "Whole cents" },
+            "rail_ref": { "type": "string", "description": "The rail that will pay, like \"payment-rail:x402\"" },
+            "spender_id": { "type": "string", "description": "Which AI or worker is spending" },
+            "idempotency_key": { "type": "string", "description": "The same key for the same spend sent again" },
+            "ttl_seconds": { "type": "integer", "minimum": 1, "description": "How long the reservation stays current (300 when left out)" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["approved", "reason", "idempotent", "budget_check", "budget_reservation", "spend_snapshot"],
+          "properties": {
+            "approved": { "type": "boolean" },
+            "reason": { "type": "string" },
+            "idempotent": { "type": "boolean" },
+            "budget_check": { "type": "object" },
+            "budget_reservation": { "type": "object" },
+            "spend_snapshot": { "type": "object" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "guard-ai-spending", "paths": ["do-work", "read-data"], "at": "/opt/guard-ai-spending" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "workdir": "/opt/guard-ai-spending",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/guard-ai-spending/read-data/spend-budget.mjs", "reserveSpendWithinBudget"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "spend-authority", "operations": ["records:read"] },
+              { "kind": "spend-budget-check", "operations": ["records:write"] },
+              { "kind": "spend-budget-reservation", "operations": ["records:read", "records:write"] }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:guard-ai-spending",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/agent-wallet (do-work/decide-budget.mjs and action:budget-gate), ported to the records door" },
+        "verify": [{ "kind": "output-number-within", "output_selector": "$.spend_snapshot.total_spent_today", "at_least": 0 }]
+      }
+    },
+    {
+      "id": "package::guard-ai-spending::tool::may-this-spend-go-ahead",
+      "address": "package::guard-ai-spending::tool::may-this-spend-go-ahead",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:may-this-spend-go-ahead",
+        "label": "May this spend go ahead",
+        "status": "active",
+        "job": "Just before my AI pays, check that the spend still holds its one current budget reservation",
+        "description": "Reads the latest budget check and the reservation for one operation and answers available only when the check approved this operation, idempotency key and spend authority, has not expired, and exactly one current reservation matches it. Answers the reason, the reserved amount in whole cents and the reservation's fencing token. It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": ["spend_authority_ref", "operation_ref", "idempotency_key"],
+          "additionalProperties": false,
+          "properties": {
+            "spend_authority_ref": { "type": "string" },
+            "operation_ref": { "type": "string" },
+            "idempotency_key": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["available", "reason", "amount", "fencing_token"],
+          "properties": {
+            "available": { "type": "boolean" },
+            "reason": { "type": "string" },
+            "amount": { "type": "number" },
+            "fencing_token": { "type": ["string", "null"] }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "guard-ai-spending", "paths": ["do-work", "read-data"], "at": "/opt/guard-ai-spending" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "workdir": "/opt/guard-ai-spending",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/guard-ai-spending/read-data/spend-budget.mjs", "maySpendGoAhead"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "spend-budget-check", "operations": ["records:read"] },
+              { "kind": "spend-budget-reservation", "operations": ["records:read"] }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:guard-ai-spending",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/agent-wallet read-data/read-agent-budget-authority.ts, ported to the records door" },
+        "verify": [{ "kind": "output-number-within", "output_selector": "$.amount", "at_least": 0 }]
+      }
+    },
+    {
+      "id": "package::guard-ai-spending::tool::record-a-spend",
+      "address": "package::guard-ai-spending::tool::record-a-spend",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:record-a-spend",
+        "label": "Record a spend",
+        "status": "active",
+        "job": "After my AI has paid, add what it spent to today's and the all-time totals",
+        "description": "Adds one paid spend (whole cents) to the spend authority's total for today and for all time, and keeps a record of the payment. One payment is added once: sending the same payment_ref again (the operation_ref when left out) answers the record already kept and adds nothing. It records what was paid; it never authorizes a spend.",
+        "input_schema": {
+          "type": "object",
+          "required": ["spend_authority_ref", "operation_ref", "amount"],
+          "additionalProperties": false,
+          "properties": {
+            "spend_authority_ref": { "type": "string" },
+            "operation_ref": { "type": "string" },
+            "amount": { "type": "integer", "minimum": 0, "description": "Whole cents paid" },
+            "payment_ref": { "type": "string", "description": "The rail's own reference for this payment" },
+            "rail_ref": { "type": "string" },
+            "spender_id": { "type": "string" },
+            "facilitator_response": { "description": "What the rail answered, kept with the payment" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["already_recorded", "total_spent_today", "total_spent_all_time", "amount", "payment_record"],
+          "properties": {
+            "already_recorded": { "type": "boolean" },
+            "total_spent_today": { "type": "number" },
+            "total_spent_all_time": { "type": "number" },
+            "amount": { "type": "number" },
+            "payment_record": { "type": "object" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "guard-ai-spending", "paths": ["do-work", "read-data"], "at": "/opt/guard-ai-spending" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "workdir": "/opt/guard-ai-spending",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/guard-ai-spending/read-data/spend-budget.mjs", "recordASpend"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "spend-authority", "operations": ["records:read", "records:write"] },
+              { "kind": "spend-payment", "operations": ["records:read", "records:write"] }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:guard-ai-spending",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/agent-wallet (do-work/record-spend.mjs and action:record-spend), ported to the records door" },
+        "verify": [{ "kind": "output-number-within", "output_selector": "$.total_spent_today", "at_least": 0 }]
+      }
+    },
+    {
+      "id": "package::guard-ai-spending::tool::reset-daily-spend",
+      "address": "package::guard-ai-spending::tool::reset-daily-spend",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:reset-daily-spend",
+        "label": "Reset today's spend",
+        "status": "active",
+        "job": "When a new day starts (UTC), set my AI's spend today back to zero",
+        "description": "Sets the spend authority's total for today back to zero the first time it runs on a new UTC day, and remembers that day; every later run the same day changes nothing. Answers whether it reset, the day and today's total. Meant to run on a schedule each day.",
+        "input_schema": {
+          "type": "object",
+          "required": ["spend_authority_ref"],
+          "additionalProperties": false,
+          "properties": { "spend_authority_ref": { "type": "string" } }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["reset", "day", "total_spent_today"],
+          "properties": {
+            "reset": { "type": "boolean" },
+            "day": { "type": "string" },
+            "total_spent_today": { "type": "number" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "guard-ai-spending", "paths": ["do-work", "read-data"], "at": "/opt/guard-ai-spending" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "workdir": "/opt/guard-ai-spending",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/guard-ai-spending/read-data/spend-budget.mjs", "resetDailySpend"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": {
+            "fd": 3,
+            "rights": [{ "kind": "spend-authority", "operations": ["records:read", "records:write"] }]
+          }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:guard-ai-spending",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/agent-wallet (do-work/decide-daily-reset.mjs and action:reset-daily-spend), ported to the records door" },
+        "verify": [{ "kind": "output-number-within", "output_selector": "$.total_spent_today", "at_least": 0 }]
+      }
+    },
+    {
+      "id": "package::guard-ai-spending::tool::read-spend-rails",
+      "address": "package::guard-ai-spending::tool::read-spend-rails",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-spend-rails",
+        "label": "Read spend rails",
+        "status": "active",
+        "job": "See which ways my AI may pay (card, bank, x402 and others) and which rail rows are refused",
+        "description": "Reads the rails shipped with this tool and the person's own payment-rail records (a person's row replaces a shipped row of the same id). Answers each valid rail's id, label, whether it is turned on, the spend authority it spends from, the name of the credential it settles with and its settlement tool, and the rows refused because they do not go through the budget reservation and the spend record. It never shows a key.",
+        "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
+        "output_schema": {
+          "type": "object",
+          "required": ["rails", "refused"],
+          "properties": {
+            "rails": { "type": "array" },
+            "refused": { "type": "array" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "guard-ai-spending", "paths": ["do-work", "read-data"], "at": "/opt/guard-ai-spending" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "workdir": "/opt/guard-ai-spending",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/guard-ai-spending/read-data/spend-budget.mjs", "readSpendRails"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": {
+            "fd": 3,
+            "rights": [{ "kind": "payment-rail", "operations": ["records:list"] }]
+          }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:guard-ai-spending",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/payment-adapter read-data/operation-routes.ts (readPaymentRail) and packages/agent-wallet payment-rail:x402, ported to the records door" },
+        "verify": [{ "kind": "sample-run", "input": {}, "output_selector": "$.rails[0].id", "contains": "payment-rail:" }]
+      }
+    }
+  ]
+}
