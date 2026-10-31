@@ -157,6 +157,161 @@
     },
     "result_selector": "$.result"
    }
+  },
+  {
+   "id": "package::social-posts::tool::see-how-each-post-did",
+   "address": "package::social-posts::tool::see-how-each-post-did",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:see-how-each-post-did",
+    "label": "How each post did",
+    "job": "Show how each of this person's published posts did in each place it went: that place's own counts, the visitors its link brought and what they bought",
+    "description": "Give observations (each place's own counts for a post, read with that place's tools: { post_id, account_id, metrics: { name: number }, observed_at } or { platform_post_id, account_id?, metrics }), visits and conversions (as tool:break-down-visits-and-sales takes them: { visitor, project?, signals: { utm_content, ... } } and { visitor, project?, value? }) and optionally post_ids. Reads the person's post records and returns posts: one row per place a post was published to that has a count, a visit or a conversion, with post_id, account_id, title, platform_post_id, url, metrics, observed_at, brought ({ visits, conversions, value }, only what was counted) and evidence. A visit counts for a place only when its utm_content is exactly that post's post_id (the post went to one place), the place's own post id, or post_id::account_id; a token that could name several places counts for none. Nothing missing is shown as zero.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "post_ids": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Only these posts (post_id values from tool:read-post-calendar)"
+      },
+      "observations": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "metrics"
+        ]
+       },
+       "description": "Each place's own counts for a post"
+      },
+      "visits": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "visitor"
+        ]
+       },
+       "description": "First-touch visits with their link signals"
+      },
+      "conversions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "visitor"
+        ]
+       },
+       "description": "Sign-ups or sales by visitor, with value"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "posts",
+      "places_published"
+     ],
+     "properties": {
+      "posts": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "post_id",
+         "platform_post_id",
+         "metrics",
+         "evidence"
+        ]
+       }
+      },
+      "places_published": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/post-results.mjs",
+      "seeHowEachPostDid"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "post",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "bitfield-packages packages/content-analytics read-data/post-performance-attribution.ts (the join, unchanged but for its local types), read over the person's post records through the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "post_ids": [
+        "post-that-is-not-there"
+       ]
+      },
+      "output_selector": "$.places_published",
+      "contains": "0"
+     }
+    ],
+    "result_selector": "$.result"
+   }
   }
  ]
 }
