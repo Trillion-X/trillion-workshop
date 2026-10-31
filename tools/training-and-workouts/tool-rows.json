@@ -1,0 +1,338 @@
+{
+  "kind": "tool-rows",
+  "record_set": "training-and-workouts-tool-rows",
+  "what_this_is": "The Workshop rows for tools/training-and-workouts: read a training plan, read the progression inputs from it, adapt the next session from adjustments already worked out, read a workout log and add to it. Each row runs one function of do-work/requests.mjs on the request given; the plan, the log, the rules and the words are the person's, none is built in.",
+  "records": [
+    {
+      "id": "package::training-and-workouts::tool::read-my-training-plan",
+      "address": "package::training-and-workouts::tool::read-my-training-plan",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-my-training-plan",
+        "label": "Read my training plan",
+        "status": "active",
+        "job": "Read my training plan: its goals, phases, weeks and the sessions prescribed in each week",
+        "description": "Takes the training plan record (goals, phases in a goal, week blocks in a phase, session prescriptions in a week, each prescription with an open dose record and an open intensity record) and answers it decoded, with a count of each, and the sessions of one week when week_id is given. Rows with no id are dropped and a missing field reads as empty, never invented. A week's load intent may be a bare word or a record with any fields; it keeps its own identifier.",
+        "input_schema": {
+          "type": "object",
+          "required": ["plan"],
+          "properties": {
+            "plan": { "type": "object", "description": "The training plan record: goals, phases, weeks, sessions" },
+            "week_id": { "type": "string", "description": "Also answer the sessions of this week" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["plan", "summary"],
+          "properties": {
+            "plan": { "type": "object" },
+            "summary": { "type": "object", "required": ["goals", "phases", "weeks", "sessions"] },
+            "week_sessions": { "type": "array" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "training-and-workouts", "paths": ["do-work", "read-data"], "at": "/opt/training-and-workouts" } },
+          "workdir": "/opt/training-and-workouts",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-request.mjs", "readTrainingPlan"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:training-and-workouts",
+        "result_selector": "$.result",
+        "billing": null,
+        "price_ref": null,
+        "provenance": { "source": "bitfield-packages packages/training-plan (read-data: training-plan)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "plan": {
+                "goals": [{ "id": "g1", "name": "Juggle five", "domain": "juggling" }],
+                "phases": [{ "id": "p1", "goalId": "g1", "name": "Build", "intent": "build", "sequence": 1 }],
+                "weeks": [{ "id": "w1", "phaseId": "p1", "sequence": 1, "loadIntent": "steady" }],
+                "sessions": [
+                  { "id": "s1", "weekBlockId": "w1", "title": "Cascade blocks", "activity": "technical", "dose": { "sets": 4, "throws": 60 }, "intensity": { "heightCm": 100 } },
+                  { "id": "s2", "weekBlockId": "w1", "title": "Rest and review", "activity": "rest", "dose": {}, "intensity": {} }
+                ]
+              },
+              "week_id": "w1"
+            },
+            "output_selector": "$.week_sessions[1].title",
+            "contains": "Rest and review"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::training-and-workouts::tool::read-my-progression-inputs",
+      "address": "package::training-and-workouts::tool::read-my-progression-inputs",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-my-progression-inputs",
+        "label": "Read what my plan needs to decide the next session",
+        "status": "active",
+        "job": "Read my stored progression rules and the last session's result from my training plan, ready for the progress evaluator",
+        "description": "Takes the training plan feed (the plan, its stored progression rules and, when there is one, the last session's result with its measured signals). Answers `rules` (each stored rule turned into { id, metricRef, band, adjustment }, a rule with no metric dropped), `signals` (the last result's { metricRef, value } pairs), `session_id` and the `prescription` the result belongs to (the named session, else the last in the plan). With no usable result there are no signals and no prescription: nothing is made up. The rules are then evaluated against the signals by the progress evaluator (the pick-fired-rules tool), and its adjustments go to the adapt-the-next-session tool.",
+        "input_schema": {
+          "type": "object",
+          "required": ["feed"],
+          "properties": {
+            "feed": { "type": "object", "description": "The training plan record with progressionRules and an optional lastResult { sessionId, signals: [{ metricRef, value }] }" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["rules", "signals", "session_id", "prescription"],
+          "properties": {
+            "rules": { "type": "array" },
+            "signals": { "type": "array" },
+            "session_id": { "type": "string" },
+            "prescription": { "type": ["object", "null"] }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "training-and-workouts", "paths": ["do-work", "read-data"], "at": "/opt/training-and-workouts" } },
+          "workdir": "/opt/training-and-workouts",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-request.mjs", "readProgressionInputs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:training-and-workouts",
+        "result_selector": "$.result",
+        "billing": null,
+        "price_ref": null,
+        "provenance": { "source": "bitfield-packages packages/training-plan (read-data: derive-next-session decodeProgressionRule(s), select-adaptive-next-session decodeLastResult)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "feed": {
+                "sessions": [{ "id": "s1", "weekBlockId": "w1", "title": "Cascade blocks", "activity": "technical", "dose": { "throws": 60 }, "intensity": { "heightCm": 100 } }],
+                "progressionRules": [{ "id": "r:up", "condition": { "metricRef": "catch-rate", "min": 0.85 }, "adjustment": { "doseScale": 1.1, "note": "Add load." } }],
+                "lastResult": { "sessionId": "s1", "signals": [{ "metricRef": "catch-rate", "value": 0.9 }] }
+              }
+            },
+            "output_selector": "$.rules[0].metricRef",
+            "contains": "catch-rate"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::training-and-workouts::tool::adapt-the-next-training-session",
+      "address": "package::training-and-workouts::tool::adapt-the-next-training-session",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:adapt-the-next-training-session",
+        "label": "Adapt my next training session",
+        "status": "active",
+        "job": "Adapt the next training session from the adjustments my progress rules gave for the session I just did",
+        "description": "Takes a session prescription (or the plan and the id of the session) and the adjustments already worked out by the progress evaluator (its list may be empty). Applies them in order and answers `from` (the prescription as given), `next` (the adapted prescription) and `applied` (how many adjustments). An adjustment's doseScale multiplies every number in dose and its intensityScale every number in intensity (whole numbers stay whole, others round to two places); its note is kept at intensity.note; any other key is ignored and words in dose or intensity pass through. The input is never changed. This tool does not decide which rule fires: run the pick-fired-rules tool of the progress evaluator first and give its adjustments here.",
+        "input_schema": {
+          "type": "object",
+          "required": ["adjustments"],
+          "properties": {
+            "adjustments": { "type": "array", "items": { "type": "object" }, "description": "The adjustments the progress evaluator returned" },
+            "prescription": { "type": "object", "description": "The session prescription to adapt: dose and intensity records and the rest" },
+            "plan": { "type": "object", "description": "Instead of a prescription: the plan holding the session" },
+            "session_id": { "type": "string", "description": "With plan: the session to adapt" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["from", "next", "applied"],
+          "properties": {
+            "from": { "type": "object" },
+            "next": { "type": "object" },
+            "applied": { "type": "number" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "training-and-workouts", "paths": ["do-work", "read-data"], "at": "/opt/training-and-workouts" } },
+          "workdir": "/opt/training-and-workouts",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-request.mjs", "adaptNextSession"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:training-and-workouts",
+        "result_selector": "$.result",
+        "billing": null,
+        "price_ref": null,
+        "provenance": { "source": "bitfield-packages packages/training-plan (read-data: apply-progression; the evaluation moved to the progress evaluator)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "prescription": { "id": "s1", "weekBlockId": "w1", "title": "Cascade blocks", "activity": "technical", "dose": { "sets": 4, "reps": "6-8", "throws": 60 }, "intensity": { "heightCm": 100 } },
+              "adjustments": [{ "doseScale": 1.1, "intensityScale": 1.1, "note": "Add load." }]
+            },
+            "output_selector": "$.next.dose.throws",
+            "contains": "66"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::training-and-workouts::tool::read-my-workout-log",
+      "address": "package::training-and-workouts::tool::read-my-workout-log",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-my-workout-log",
+        "label": "Read my workout log",
+        "status": "active",
+        "job": "Read my workout log: what still needs checking, my summary views, the rows to export and my progress over time",
+        "description": "Takes the workout log record: a ledger of evidence atoms (each one thing observed, with when, source, subject, measured dimensions, links to other atoms and how sure it is), plus optional sessions, sets and the person's own projection lenses. Nothing is edited in place: an entry is confirmed, discarded, corrected, split or merged by a later atom that links to it. Answers `canonicalEvidenceAtoms` (entries not replaced), `reviewQueue` (not confirmed and not yet decided, newest first), `lensOutputs` (each of the person's lenses run: previous-value, review-queue, progress-summary, export-rows, or a list of matches), `exportRows` (confirmed entries as flat rows), `progressSeries` (the numeric measure with the most points over time, as plain numbers with its summary; null when none) and `diagnostics`. A lens that finds nothing says so. With done_status (the word the person uses for a finished session) it also answers completion_rate.",
+        "input_schema": {
+          "type": "object",
+          "required": ["log"],
+          "properties": {
+            "log": { "type": "object", "description": "The workout log record: evidenceAtoms, rawArtifacts, projectionLenses, sessions, sets" },
+            "done_status": { "type": "string", "description": "The session status word that means finished, to also answer the completion rate" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["canonicalEvidenceAtoms", "reviewQueue", "lensOutputs", "exportRows", "progressSeries", "diagnostics"],
+          "properties": {
+            "canonicalEvidenceAtoms": { "type": "array" },
+            "reviewQueue": { "type": "array" },
+            "lensOutputs": { "type": "array" },
+            "exportRows": { "type": "array" },
+            "progressSeries": { "type": ["object", "null"] },
+            "diagnostics": { "type": "array" },
+            "completion_rate": { "type": "number" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "training-and-workouts", "paths": ["do-work", "read-data"], "at": "/opt/training-and-workouts" } },
+          "workdir": "/opt/training-and-workouts",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-request.mjs", "readMyWorkoutLog"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:training-and-workouts",
+        "result_selector": "$.result",
+        "billing": null,
+        "price_ref": null,
+        "provenance": { "source": "bitfield-packages packages/workout-log (read-data: workout-log decode, review queue, lenses, progress series)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "log": {
+                "evidenceAtoms": [
+                  { "id": "entry:1", "observedAt": "2026-01-01T09:00:00Z", "source": { "kind": "typed" }, "subject": { "kind": "drill", "label": "Cascade" }, "dimensions": { "throws": { "value": 400, "unit": "throws" } }, "confidence": { "state": "needs_review", "reviewReason": "a lot of throws" } },
+                  { "id": "entry:2", "observedAt": "2026-01-02T09:00:00Z", "source": { "kind": "typed" }, "subject": { "kind": "drill", "label": "Cascade" }, "dimensions": { "throws": { "value": 40, "unit": "throws" } } }
+                ]
+              }
+            },
+            "output_selector": "$.reviewQueue[0].id",
+            "contains": "entry:1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::training-and-workouts::tool::add-to-my-workout-log",
+      "address": "package::training-and-workouts::tool::add-to-my-workout-log",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:add-to-my-workout-log",
+        "label": "Add to my workout log",
+        "status": "active",
+        "job": "Add new evidence to my workout log, or confirm, discard, correct, split or merge an entry already in it",
+        "description": "Takes the workout log record, an operation and when it happened (observed_at; the tool holds no clock). `add` needs descriptor_id (how the evidence was captured, part of the atom id unless id is given), a subject with a kind, dimensions (each a number or text, or { value, unit, role, label }), and optionally source, links, confidence, evidence_refs and a raw_artifact. `confirm` and `discard` need target_atom_id and may carry a note. `correct`, `split` and `merge` need target_atom_id, dimensions holding the new values, optionally additional_target_atom_ids (for merge), subject and note. The entry is never edited: a new atom linking to it is added. Answers `log` (the next record to store: every other key of the record is kept as given), the `atom` added, the ids now in the review queue and the count of canonical entries. Adding the same atom id twice keeps one. The record is stored by the person's AI through the records door.",
+        "input_schema": {
+          "type": "object",
+          "required": ["log", "operation", "observed_at"],
+          "properties": {
+            "log": { "type": "object", "description": "The workout log record as stored now (an empty record starts a log)" },
+            "operation": { "type": "string", "enum": ["add", "confirm", "discard", "correct", "split", "merge"] },
+            "observed_at": { "type": "string", "description": "When it was observed or decided, as a date and time" },
+            "id": { "type": "string", "description": "Id for the atom added; made from the content when absent" },
+            "descriptor_id": { "type": "string" },
+            "subject": { "type": "object" },
+            "dimensions": { "type": "object" },
+            "source": { "type": "object" },
+            "links": { "type": "array" },
+            "confidence": { "type": "object" },
+            "evidence_refs": { "type": "array" },
+            "raw_artifact": { "type": "object" },
+            "raw_artifact_refs": { "type": "array", "items": { "type": "string" } },
+            "target_atom_id": { "type": "string" },
+            "additional_target_atom_ids": { "type": "array", "items": { "type": "string" } },
+            "note": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["log", "atom", "review_queue_ids", "canonical_count"],
+          "properties": {
+            "log": { "type": "object" },
+            "atom": { "type": "object" },
+            "review_queue_ids": { "type": "array", "items": { "type": "string" } },
+            "canonical_count": { "type": "number" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "training-and-workouts", "paths": ["do-work", "read-data"], "at": "/opt/training-and-workouts" } },
+          "workdir": "/opt/training-and-workouts",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-request.mjs", "addToWorkoutLog"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:training-and-workouts",
+        "result_selector": "$.result",
+        "billing": null,
+        "price_ref": null,
+        "provenance": { "source": "bitfield-packages packages/workout-log (read-data: build atoms and append; do-work: workout-log-requests state builders)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "log": {},
+              "operation": "add",
+              "descriptor_id": "drill-log",
+              "observed_at": "2026-01-01T09:00:00Z",
+              "id": "entry:1",
+              "subject": { "kind": "drill", "label": "Cascade" },
+              "dimensions": { "throws": { "value": 40, "unit": "throws" } }
+            },
+            "output_selector": "$.atom.id",
+            "contains": "entry:1"
+          }
+        ]
+      }
+    }
+  ]
+}
