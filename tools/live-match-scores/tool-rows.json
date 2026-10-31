@@ -1,0 +1,141 @@
+{
+  "kind": "tool-rows",
+  "record_set": "live-match-scores-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/live-match-scores: what each tool does, what it takes and gives back, and how it runs.",
+  "records": [
+    {
+      "id": "package::live-match-scores::tool::score-a-match",
+      "address": "package::live-match-scores::tool::score-a-match",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:score-a-match",
+        "label": "Keep score of a match point by point",
+        "status": "active",
+        "job": "Keep the score of a match (tennis, pickleball, padel or any game whose scoring a person writes as a rule): start a match, give a point to a side, undo the last point, type in a score, and link a match to a tournament, schedule, bracket, standings or leaderboard",
+        "description": "Every answer is records for the caller to write; nothing is kept here. A game's scoring is a rule row (scoring-rule: ruleId, label, scoringModel with scoreUnit game or point, setsToWin, gamesToWinSet, tiebreakAt, pointsToWinTiebreak, winBy and, for a labelled ladder, pointLabels and advantageLabel). Rules for tennis, pickleball and padel come with the tool; pass scoring_rules to use the person's own. start-match takes a rule id, singles or doubles and the players of each side, and gives the match record and its first score event. score-point takes the match's records (rows) and the side that won the point, replays the log, and gives the next score event with the right sequence number: a game is won on the rule's points with its lead, a tiebreak counts to the rule's target, games make a set, sets make the match, and a point after the match is won is refused. undo-point writes the score before the latest event as a new event, because the log only grows. record-score writes a score the scorer typed in (whole numbers at or above 0). link-context writes a context link for a tournament, schedule row, bracket match, standing or leaderboard. A tap made offline is written with local_state pending-offline; spectators do not see it until it is confirmed or reconciled.",
+        "input_schema": {
+          "type": "object",
+          "required": ["operation"],
+          "additionalProperties": false,
+          "properties": {
+            "operation": { "type": "string", "enum": ["start-match", "score-point", "undo-point", "record-score", "link-context"], "description": "What to do" },
+            "scoring_rule_ref": { "type": "string", "description": "start-match: the ruleId of the scoring rule" },
+            "scoring_rules": { "type": "array", "items": { "type": "object" }, "description": "start-match: the scoring-rule rows to choose from (the bundled tennis, pickleball and padel rules when absent)" },
+            "match_format": { "type": "string", "enum": ["singles", "doubles"], "description": "start-match: one or two players on a side" },
+            "team_a_players": { "type": "array", "items": { "type": "string" }, "description": "start-match: the names on side team-a" },
+            "team_b_players": { "type": "array", "items": { "type": "string" }, "description": "start-match: the names on side team-b" },
+            "team_a_label": { "type": "string", "description": "start-match: a name for team-a (the players' names when absent)" },
+            "team_b_label": { "type": "string", "description": "start-match: a name for team-b" },
+            "scoring_model": { "type": "object", "additionalProperties": true, "description": "start-match: model fields that replace the rule's, for example { setsToWin: 1 }" },
+            "share_path_prefix": { "type": "string", "description": "start-match: what the spectator path starts with (/live/ when absent)" },
+            "created_by": { "type": "string", "description": "start-match: who started the match" },
+            "match_id": { "type": "string", "description": "start-match: an id for the new match (made when absent). Other operations: the match's id" },
+            "share_id": { "type": "string" },
+            "event_id": { "type": "string", "description": "An id for the new score event (made when absent)" },
+            "rows": { "type": "array", "items": { "type": "object" }, "description": "score-point, undo-point, record-score: the match's records, as read" },
+            "side": { "type": "string", "enum": ["team-a", "team-b"], "description": "score-point: the side that won the point" },
+            "score": { "type": "object", "additionalProperties": true, "description": "record-score: { setNumber, teamScores: { team-a, team-b }, and optionally pointScores, gameScores, setScores, winnerTeamId }" },
+            "actor_id": { "type": "string", "description": "Who scored" },
+            "local_state": { "type": "string", "enum": ["confirmed", "pending-offline", "reconciled"], "description": "The state of this tap (confirmed when absent)" },
+            "context_id": { "type": "string" },
+            "tournament_id": { "type": "string" },
+            "schedule_row_id": { "type": "string" },
+            "bracket_match_id": { "type": "string" },
+            "standing_id": { "type": "string" },
+            "leaderboard_id": { "type": "string" },
+            "now": { "type": "string", "description": "An ISO time for the record (the clock when absent)" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "match_record": { "type": "object", "description": "start-match: the live-match record to write" },
+            "initial_event_record": { "type": "object", "description": "start-match: the first live-score-event (sequence 0)" },
+            "event_record": { "type": "object", "description": "score-point, undo-point, record-score: the live-score-event to write" },
+            "score": { "type": "object", "description": "The score after the event: teamScores, pointScores, gameScores, setScores, displayScores, scoringPhase and winnerTeamId once won" },
+            "context_record": { "type": "object", "description": "link-context: the live-match-context-link to write" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "live-match-scores", "paths": ["do-work", "read-data"], "at": "/opt/live-match-scores" } },
+          "workdir": "/opt/live-match-scores",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/score-a-match.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:live-match-scores",
+        "provenance": { "source": "ported from the live-match-score package (scoring rules, point-by-point scoring and the score-event builders)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "operation": "start-match", "scoring_rule_ref": "scoring-rule:tennis-standard", "match_format": "singles", "team_a_players": ["Alder"], "team_b_players": ["Birch"], "match_id": "live-match:sample", "now": "2026-01-01T09:00:00Z" },
+            "output_selector": "$.match_record.teams[0].label",
+            "contains": "Alder"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::live-match-scores::tool::read-live-matches",
+      "address": "package::live-match-scores::tool::read-live-matches",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-live-matches",
+        "label": "Show live matches, their scores and a tournament board",
+        "status": "active",
+        "job": "Show the current score of live matches for the scorer and for spectators, and a board of matches with their schedule, bracket, standings and leaderboard",
+        "description": "Give the records of the matches (match records, score events, context links and board rows) and get every match, newest first. Each match has the scorer's view (every event counts) and the spectator view (no actor ids, and no tap that is still pending-offline). Events with one sequence number, such as an offline tap and its confirmation, count once: reconciled beats confirmed beats pending-offline, and the same state keeps the later one. The board lists each match with its score line and its linked schedule, bracket, standing and leaderboard rows; a finished match without standing or leaderboard rows of its own gets one row per side (win 3 points, loss 0). With match_id the answer also holds that match's view and the sequence number the next event takes.",
+        "input_schema": {
+          "type": "object",
+          "required": ["rows"],
+          "additionalProperties": false,
+          "properties": {
+            "rows": { "type": "array", "items": { "type": "object" }, "description": "The records, each as { payload } or the record itself" },
+            "match_id": { "type": "string", "description": "A match to answer for on its own" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["matches", "board"],
+          "properties": {
+            "matches": { "type": "array", "items": { "type": "object" }, "description": "Each match: { match, latestEvent, score, eventCount, context, spectator }" },
+            "board": { "type": "object", "description": "{ rows, schedule, brackets, standings, leaderboard }" },
+            "match": { "type": "object", "description": "With match_id: that match's view" },
+            "next_sequence": { "type": "integer", "description": "With match_id: the sequence number the next score event takes" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": { "package": "live-match-scores", "paths": ["do-work", "read-data"], "at": "/opt/live-match-scores" } },
+          "workdir": "/opt/live-match-scores",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/read-live-matches.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 1, "network_egress": false, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:live-match-scores",
+        "provenance": { "source": "ported from the live-match-score package (the score-event replay and the live board projection)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "rows": [{ "payload": { "kind": "live-match", "matchId": "live-match:sample", "scoringRuleRef": "scoring-rule:pickleball-11", "matchFormat": "singles", "teams": [{ "teamId": "team-a", "label": "Alder", "players": ["Alder"] }, { "teamId": "team-b", "label": "Birch", "players": ["Birch"] }], "scoringModel": { "scoreUnit": "point", "setsToWin": 1, "gamesToWinSet": 11, "tiebreakAt": 0, "pointsToWinTiebreak": 0, "winBy": 2 }, "status": "live", "share": { "shareId": "s", "publicPath": "/live/live-match%3Asample", "enabled": true }, "createdAt": "2026-01-01T09:00:00.000Z" } }] },
+            "output_selector": "$.board.rows[0].label",
+            "contains": "Alder vs Birch"
+          }
+        ]
+      }
+    }
+  ]
+}
