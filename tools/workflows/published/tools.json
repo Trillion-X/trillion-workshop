@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:685ae0163900abec2cc30ca150eef6f97985dd4dce5826121950e7cd2884894a"
+  "blake3": "1f:9dd58f58d93db69d29c0b13c5fab8085ba0dd2f16ee00d0856a7bb53ae32ba94"
  },
  "fields": [
   {
@@ -483,6 +483,36 @@
      "placement:your-computer"
     ],
     "folder": "check-bundle-package-boundaries"
+   }
+  },
+  {
+   "id": "tool:check-a-buyer-may-open",
+   "values": {
+    "title": "Check a buyer may open something",
+    "job": "Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires",
+    "description": "Takes the scope the thing is gated by ({ schema: \"addressed-expiring-value-scope/v1\", value_ref, instance_ref, required_access_refs }) and the buyer. A thing that requires no access is open to any named buyer; otherwise the buyer must hold any one of the required access refs now (tool:see-who-holds-paid-access works that out). Answers only authorized true or false: a scope that is not exactly that schema, no buyer, or access that cannot be worked out is false.",
+    "status": "active",
+    "maker": "maker:paid-access",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "paid-access"
+   }
+  },
+  {
+   "id": "tool:check-a-destination-is-honest",
+   "values": {
+    "title": "Check a destination is honest before it is published",
+    "job": "Check a progress or results screen description before publishing it: it must not ship made-up numbers, ranks, bars or percents before the owner has worked them out",
+    "description": "Give a destination descriptor and, if you want, refuse_keys: keys that may not appear anywhere in it. Returns honest (true when nothing is wrong) and every problem in words: a missing ref, subject_ref or statement, bars, stats, percents, ring labels, ranks, actors or fractions that are filled in instead of starting empty, and any refused key found.",
+    "status": "active",
+    "maker": "maker:published-destinations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "published-destinations"
    }
   },
   {
@@ -1315,6 +1345,21 @@
    }
   },
   {
+   "id": "tool:find-a-destination",
+   "values": {
+    "title": "Find a published destination",
+    "job": "Find the destination screen an owner has published (a progress page, a results page) among saved records, for one person or subject, and read it safely",
+    "description": "Give rows (records shaped {record, payload}, the payload being the decoded destination-descriptor), the destination's ref and, when the descriptor is for one subject, that subject_ref. Returns found, the descriptor read within safe bounds (at most 64 sections, 200 items each; malformed parts dropped) and finished_refs, the items the owner marked to celebrate whose own percent is 100 or more. A descriptor for one subject is never returned when no subject, or another subject, is given. Nothing is added up or ranked here.",
+    "status": "active",
+    "maker": "maker:published-destinations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "published-destinations"
+   }
+  },
+  {
    "id": "tool:find-action-moments",
    "values": {
     "title": "Find action moments in a video",
@@ -1848,6 +1893,21 @@
    }
   },
   {
+   "id": "tool:give-a-buyer-a-paid-file-link",
+   "values": {
+    "title": "Give a buyer a paid file link",
+    "job": "Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid",
+    "description": "Reads the file's paid-file record and answers grant with a link that expires (the record's ttl_seconds, else 3600), only when the subject is a verified account and holds any of the file's required access refs now (worked out as tool:see-who-holds-paid-access works it out). Otherwise answers denied (anonymous, not-entitled), unavailable (no sealed bytes, no such file, access could not be worked out) or loading (the records could not be read). The file's gate comes from its record, never from the request. subject must be the account the door verified from the buyer's own session. The link carries no bytes and no key; every open is checked again by tool:open-a-paid-file-for-a-buyer.",
+    "status": "active",
+    "maker": "maker:paid-access",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "paid-access"
+   }
+  },
+  {
    "id": "tool:grade-a-video",
    "values": {
     "title": "Change a video's colour",
@@ -2179,6 +2239,21 @@
    }
   },
   {
+   "id": "tool:list-what-is-due",
+   "values": {
+    "title": "List what is due for review",
+    "job": "See which of the things a person is learning are due for review now, soonest first, from the grades they have given them",
+    "description": "Give the items being learned (each with an id and optional text; anything else on an item is handed back), the grades given so far (the item id, the grade word and when) and the person's own spacing policy. Each item's due time is folded from its grades, oldest first, so the grades are the only record and the queue cannot drift from them. Returns every item with whether it is due now, when it is next due, its state to keep and how many grades went into it. Items never reviewed are due at once. Due items come first, soonest due first, then by text and id. Pass learner to count only that person's grades. The policy may be given as policy or found among rows by policy_kind. There is no default policy: a missing policy or field is refused with its name.",
+    "status": "active",
+    "maker": "maker:practice-and-review",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "practice-and-review"
+   }
+  },
+  {
    "id": "tool:look-up-a-stripe-checkout",
    "values": {
     "title": "Look up a Stripe checkout",
@@ -2344,6 +2419,21 @@
      "placement:small-container"
     ],
     "folder": "guard-ai-spending"
+   }
+  },
+  {
+   "id": "tool:measure-a-checklist",
+   "values": {
+    "title": "Measure how much of a checklist is done",
+    "job": "See how much of a packing list or other checklist is done and group its items, for example by category",
+    "description": "Give the items (id, status, and optionally group) and which statuses mean done and which statuses leave the count (an item no longer needed). Returns how many counted items are done, how many are counted, the share done (0 when nothing is counted), and the items grouped by their group with a count and a done count for each. An item with no group goes under ungrouped_label (default uncategorized). Both status lists must be given, and may be empty. An item with no id is refused.",
+    "status": "active",
+    "maker": "maker:plan-trips",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "plan-trips"
    }
   },
   {
@@ -2527,6 +2617,21 @@
      "placement:your-computer"
     ],
     "folder": "connected-drives"
+   }
+  },
+  {
+   "id": "tool:open-a-paid-file-for-a-buyer",
+   "values": {
+    "title": "Open a paid file for a buyer",
+    "job": "Check, each time a buyer opens a paid file link, that they still hold access, and say which sealed bytes to stream",
+    "description": "For a link's token and the account presenting it: refuses a malformed or expired token, then checks the file's paid-file record against what the presenter holds now, so a refund or an ended subscription stops the very next open and a link passed to someone else does not open. On authorized it answers the sealed copy's identity, the cipher, the nonce and the NAME of the key the door decrypts with; never the key.",
+    "status": "active",
+    "maker": "maker:paid-access",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "paid-access"
    }
   },
   {
@@ -2804,6 +2909,111 @@
    }
   },
   {
+   "id": "tool:pull-my-discord-messages",
+   "values": {
+    "title": "Pull the messages from the Discord text channels my bot can read into my own records",
+    "job": "Pull the messages from the Discord text channels my bot can read into my own records",
+    "description": "Reads the text and announcement channels of every server the bot is in (only those the bot may view and read the history of), newest messages first, and keeps them in your records beside the ones already there: a message pulled twice is kept once, an edited message replaces the older copy, and a renamed channel takes its new title. The bot cannot read anyone's personal direct messages, and a message's text is empty unless the bot has the Message Content setting. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Discord bot token (name discord-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Discord did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+    "status": "active",
+    "maker": "maker:pull-from-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
+   "id": "tool:pull-my-instagram-messages",
+   "values": {
+    "title": "Pull the direct messages of my Instagram professional account into my own records",
+    "job": "Pull the direct messages of my Instagram professional account into my own records",
+    "description": "Reads the conversations of the Instagram professional account the token belongs to (through the Instagram messaging API, not by logging in as a person) and the newest messages of each, and keeps them in your records. Each conversation keeps the service's own description of it (its participants) in source. A message pulled twice is kept once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Instagram messaging access token (name instagram-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Instagram did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+    "status": "active",
+    "maker": "maker:pull-from-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
+   "id": "tool:pull-my-messenger-messages",
+   "values": {
+    "title": "Pull the Messenger conversations of my Facebook Page into my own records",
+    "job": "Pull the Messenger conversations of my Facebook Page into my own records",
+    "description": "Reads the Messenger conversations of the Facebook Page the page access token belongs to and the newest messages of each, and keeps them in your records. Each conversation keeps the service's own description of it (its participants) in source. A message pulled twice is kept once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Facebook Page access token (name messenger-page-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Facebook Messenger did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+    "status": "active",
+    "maker": "maker:pull-from-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
+   "id": "tool:pull-my-pinterest-pins",
+   "values": {
+    "title": "Pull my Pinterest pins and boards into my own records",
+    "job": "Pull my Pinterest pins and boards into my own records",
+    "description": "Reads the pins and boards of the account the token belongs to (needs a token with pins:read and boards:read) and keeps each in your records. It stops at the first page it already holds, so a pull after the first reads only what is new; a pin or board pulled again has its fields refreshed. Give account (a name for this account, default \"default\"), and optionally limit, most_pages. The held Pinterest access token (name pinterest-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Pinterest did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+    "status": "active",
+    "maker": "maker:pull-from-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
+   "id": "tool:pull-my-slack-messages",
+   "values": {
+    "title": "Pull the messages from the Slack channels my bot is in into my own records",
+    "job": "Pull the messages from the Slack channels my bot is in into my own records",
+    "description": "Reads the public channels the bot is a member of, only the messages newer than the last pull (the cursor is the newest message time seen, and moves only when no request failed), and keeps them in your records: a message pulled twice is kept once and an edited message replaces the older copy. Channels the bot has not joined cannot be read. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Slack bot token (name slack-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Slack did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+    "status": "active",
+    "maker": "maker:pull-from-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
+   "id": "tool:pull-my-telegram-messages",
+   "values": {
+    "title": "Pull the messages my Telegram bot was sent into my own records",
+    "job": "Pull the messages my Telegram bot was sent into my own records",
+    "description": "Reads the updates waiting for the bot (messages and edited messages in chats, groups and channels it is in), keeps each chat as a conversation in your records and moves the offset past what it read so Telegram does not send it again. A message pulled twice is kept once and an edit replaces the older copy. A bot cannot read your own private chats. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Telegram bot token (name telegram-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Telegram did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+    "status": "active",
+    "maker": "maker:pull-from-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
+   "id": "tool:pull-my-x-bookmarks",
+   "values": {
+    "title": "Pull the posts I bookmarked on X into my own records",
+    "job": "Pull the posts I bookmarked on X into my own records",
+    "description": "Reads your bookmarks (newest first; needs a token with the bookmark.read, tweet.read and users.read scopes) and keeps each in your records. It stops at the first page it already holds, so a pull after the first reads only what is new, and a bookmark pulled twice is kept once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages. The held X OAuth 2.0 user access token (name x-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when X did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+    "status": "active",
+    "maker": "maker:pull-from-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
    "id": "tool:put-a-booking-on-my-calendar",
    "values": {
     "title": "Put a booking on my calendar",
@@ -2834,6 +3044,21 @@
    }
   },
   {
+   "id": "tool:rank-open-trip-things",
+   "values": {
+    "title": "Rank what is still open on a trip",
+    "job": "Plan a trip: list everything still open across its schedule, packing list and bookings in the order to deal with it, with the one thing to do first and a count of open things per lane",
+    "description": "Give the trip's lanes, each a list of rows (id, title, status, and optionally kind, group, day_order, day_date, starts_at, ends_at), and the person's policy: priority_order (the priority names, most urgent first, the last one meaning closed) and, for each lane, default_priority, priority_by_status (which status has which priority) and sort_by (the row fields that order things of the same priority, for example day_order then starts_at). A row with no status takes the lane's default_status. Returns every row with its priority, then the first open one as focus, the other open ones as later, and for each lane how many rows it holds and how many are open. Things of the same priority come lane by lane in the order the lanes were given. A row with no id is skipped and named under skipped. The tool knows no status and no urgency: a lane the policy does not cover, a priority name outside priority_order and a missing policy are refused.",
+    "status": "active",
+    "maker": "maker:plan-trips",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "plan-trips"
+   }
+  },
+  {
    "id": "tool:rank-people-by-activity",
    "values": {
     "title": "Rank people by activity",
@@ -2861,6 +3086,21 @@
      "placement:small-container"
     ],
     "folder": "person-list"
+   }
+  },
+  {
+   "id": "tool:rank-poker-hands",
+   "values": {
+    "title": "Rank poker hands and name the winner",
+    "job": "Rank poker hands against a board of community cards and say which hand wins",
+    "description": "Give the community cards (none to five) and each player's own cards (up to two), every card as its rank then its suit: ranks 2 to 9, T, J, Q, K, A and suits S, H, D, C, for example AS or TD. Each hand is ranked on its best five cards out of its own and the board, from high card up to a straight flush (an ace plays low in the lowest straight, five high). Returns the hands best first with the category and the five cards that make it, a place (hands that tie share a place) and the winners: every hand in first place. A hand with fewer than five cards in all cannot be ranked yet and comes last with no place. Refuses a card written wrongly and a card given twice.",
+    "status": "active",
+    "maker": "maker:poker",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "poker"
    }
   },
   {
@@ -3275,6 +3515,21 @@
    }
   },
   {
+   "id": "tool:read-what-i-pulled-from-an-account",
+   "values": {
+    "title": "Read what I pulled from a connected account",
+    "job": "Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Instagram, Messenger, X bookmarks or Pinterest",
+    "description": "Give source (discord, slack, telegram, instagram-messages, messenger-messages, x-bookmarks or pinterest-pins) and optionally account (the name it was pulled under, default \"default\"). Without thread it answers the conversations (id, title, message count), the collections (name, count), who the account is, the cursor and when it was last pulled. With thread (a conversation id from that list) it answers that conversation's messages exactly as the service sent them, the last limit of them (default 100, at most 500). It reads your records and changes nothing; it never reaches the service.",
+    "status": "active",
+    "maker": "maker:pull-from-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
    "id": "tool:read-what-shipped",
    "values": {
     "title": "Note each new release of my repository with what changed since the last one (runs on your computer)",
@@ -3384,6 +3639,21 @@
     ],
     "listed_on": "2026-10-30T20:00:00Z",
     "folder": "notifications"
+   }
+  },
+  {
+   "id": "tool:record-a-publishing-step",
+   "values": {
+    "title": "Record a step on the work waiting to be published",
+    "job": "Record a step on the finished work waiting to be published: change a field, link its proof, add a receipt that it was sent, correct it, or hand an action to whatever tool does it",
+    "description": "Give graph (the queue as data; its actions are the person's own) and steps. Each step is { operationId, descriptorId (an action of the graph) or method (update-field, create-record, link-record, unlink-record, append-receipt, correct-record, archive-record or restore-record), recordId, fieldPatch, relationshipPatch, receipt, correction, expectedBasis, actor, observedAt, sources }. An action's patch, params and bindings apply; the record the step is about is offered to its bindings as the source named selected. A step on a local method becomes an operation and is folded into the queue: records get their fields and relationships added to, receipts and corrections are only ever added. A step whose action names a target or a definition is not done here: it comes back in handoffs with its inputs bound, for whichever tool does that job (for example the one that posts). A step that cannot be recorded (no operationId, an action the graph lacks, a method nobody declared) comes back in refused with a code and what was wrong; the other steps are still recorded. Returns operations, handoffs, refused and the queue as it now stands. The queue keeps no state of its own: read it with the tool that sees what is ready.",
+    "status": "active",
+    "maker": "maker:publish-a-changelog",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "publish-a-changelog"
    }
   },
   {
@@ -3497,6 +3767,36 @@
    }
   },
   {
+   "id": "tool:render-a-pointillist-frame",
+   "values": {
+    "title": "Render one frame of a square-grid pointillist film (runs on your computer)",
+    "job": "Turn a film script of square-grid pictures, a grid and a time into one packed frame of coloured cells",
+    "description": "Takes a request file: the grid (columns, rows, gap), the limits and style bounds, the script (target pictures, one style per cell, and timeline segments whose weights are small expressions over time) and a time in seconds. Writes one packed frame file: the cells at that time, each with its colour, opacity and scale, in a fixed little-endian layout that begins PFCF. The same request always gives the same bytes. A request that breaks a limit or names a missing target is refused with a message and nothing is written.",
+    "status": "active",
+    "maker": "maker:pointillist-film",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pointillist-film"
+   }
+  },
+  {
+   "id": "tool:render-a-pointillist-target-animation",
+   "values": {
+    "title": "Pack a square-grid pointillist film as one target-animation file (runs on your computer)",
+    "job": "Turn a film script into one compact file of its pictures and timeline at a frame rate, for a viewer that works out the frames itself",
+    "description": "Takes an animation request: the grid, limits, style bounds, the script and a frame rate. Writes one target-animation file, whose first bytes are PFAT, holding the target pictures and the timeline (when each picture shows and by what weight) with the frame rate, in a fixed layout a viewer reads directly. The same request always gives the same bytes. A request that breaks a limit is refused with a message.",
+    "status": "active",
+    "maker": "maker:pointillist-film",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pointillist-film"
+   }
+  },
+  {
    "id": "tool:render-an-edit",
    "values": {
     "title": "Render an edit",
@@ -3512,6 +3812,21 @@
     "flags": [
      "has-a-screen"
     ]
+   }
+  },
+  {
+   "id": "tool:render-pointillist-frames-over-time",
+   "values": {
+    "title": "Render a run of frames of a square-grid pointillist film (runs on your computer)",
+    "job": "Turn one film script into a numbered file of packed frames, one for each time I list",
+    "description": "Takes a sequence file: one frame request (grid, limits, style bounds, script) and the list of times in seconds. Writes frame-0000.pfcf, frame-0001.pfcf and so on into a folder, one for each time in the order given. Each is the packed frame the single-frame tool writes for that time, so the same file always gives the same frames. A request that breaks a limit is refused with a message.",
+    "status": "active",
+    "maker": "maker:pointillist-film",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pointillist-film"
    }
   },
   {
@@ -3665,6 +3980,21 @@
    }
   },
   {
+   "id": "tool:run-a-poker-table",
+   "values": {
+    "title": "Run a game of Texas Hold'em at a table",
+    "job": "Run a game of Texas Hold'em poker for a table of players: open a table, seat players, deal a hand, take each player's action, and deal the next hand",
+    "description": "Keep the table's saved state (the room) and send it back with one operation each time. open-table makes a table in its lobby from a list of player names and optional settings (starting chips, blinds, blind mode and increase, most players). seat-player adds a player (only in the lobby) or reconnects one by id or name. configure-table changes the settings. start-game posts the blinds and deals every player two cards and the board. player-action is the turn of the seat to act: fold, checkCall, raise (with an amount) or allIn; a round that is over moves on by itself to the next street and then to the showdown, and the answer says in words what happened. next-hand moves the dealer on, raises the blinds by the table's mode and deals again. kick-player removes a player and deals again if a hand was in play. Every deal takes a seed (any whole number), so the same table and seed always deal the same cards. The room holds every player's cards: give a player only what view-a-poker-table-for-a-player returns. One pot is kept per hand: when a player who is all in has put in less than the others, the showdown still pays the whole pot to the best hand. Refuses an action out of turn, a request that does not fit the table's phase, and a room that is not a saved table.",
+    "status": "active",
+    "maker": "maker:poker",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "poker"
+   }
+  },
+  {
    "id": "tool:run-a-session-step",
    "values": {
     "title": "Run a session step",
@@ -3722,6 +4052,21 @@
      "placement:your-computer"
     ],
     "folder": "cross-techniques-with-a-goal"
+   }
+  },
+  {
+   "id": "tool:schedule-next-review",
+   "values": {
+    "title": "Schedule the next review of something being learned",
+    "job": "Work out when a flashcard, drill, passage or any other thing being learned should come back, from how well the person just recalled it",
+    "description": "Give the grade the person just gave, the item's state from its last review (leave it out the first time) and the person's own spacing policy: the starting ease, the ease floor, the gap after the first and the second success, the recall quality below which an item lapses, and a map from each grade word to a recall quality between 0 and 1. Returns the item's next state to keep and hand back at the next review, when it is due (a time and a date), whether it lapsed and the quality the grade mapped to. The grade is an open word the policy defines. A grade the policy does not list counts as a total lapse and is marked grade_in_policy false. With prompt_id and schedule_id it also returns the next schedule record to keep (the state, the day it is due and state due). The policy may be given as policy or found among rows by policy_kind. There is no default policy: a missing policy or field is refused with its name.",
+    "status": "active",
+    "maker": "maker:practice-and-review",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "practice-and-review"
    }
   },
   {
@@ -3797,6 +4142,21 @@
      "placement:small-container"
     ],
     "folder": "opponent-game-plan"
+   }
+  },
+  {
+   "id": "tool:seal-a-paid-file",
+   "values": {
+    "title": "Seal a paid file",
+    "job": "Put a file I sell (a book, an audiobook, a course video) behind paid access so only buyers can open it",
+    "description": "Encrypts one of the person's files with their paid-files key (AES-256-CTR, a fresh nonce per file), keeps the sealed copy in their files, and writes the file's paid-file record: the name buyers ask for it by, the sealed copy's identity, how it is sealed, the key's NAME and the access refs a buyer must hold (any one of them opens it). The key is handed to this run on a private pipe and is never in the record or the answer. A buyer then gets the file only through tool:give-a-buyer-a-paid-file-link and tool:open-a-paid-file-for-a-buyer.",
+    "status": "active",
+    "maker": "maker:paid-access",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "paid-access"
    }
   },
   {
@@ -3946,6 +4306,21 @@
    }
   },
   {
+   "id": "tool:see-what-work-is-ready-to-publish",
+   "values": {
+    "title": "See what finished work is ready to publish",
+    "job": "See the finished work waiting to be published as a changelog: which group each piece is in, what can be done with it, what stops it (for example no proof yet) and what was already sent",
+    "description": "Give graph: the queue described as data. Its groups ({ id, label, empty_copy, order }), fields, relationships, views ({ selected, density_threshold }), rules ({ id, message, requires_relationship or requires_field, blocks_actions }), actions ({ id, label, method, target }) and surface_copy are the person's own words and rules; this tool knows none. Records come in graph.records or in recordAtoms ({ id, title, group_id, fields, relationships, action_ids, receipt_ids, issue }), receipts in graph.receipts or receiptAtoms. Optional selectedRecordId, status and issues. Returns status (empty, sparse, dense, loading, error or blocked, with where it came from), each group with its records, the selected record with its actions, the rules that block it and its receipts, and the ids the data names that the queue does not declare. A record with no proof is shown with the rule that asks for it; nothing is sent.",
+    "status": "active",
+    "maker": "maker:publish-a-changelog",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "publish-a-changelog"
+   }
+  },
+  {
    "id": "tool:see-where-each-customer-is",
    "values": {
     "title": "See where each customer is",
@@ -3973,6 +4348,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:see-who-holds-paid-access",
+   "values": {
+    "title": "See who holds paid access",
+    "job": "Work out which paid access one buyer holds right now: what they bought, what renewed, what ended or was refunded, and what I gave them by hand",
+    "description": "Folds the buyer's payment events (the payment-event records the payment tools keep) through your access-effect-rule rows into effects, folds those into purchase episodes (a purchase starts one, a renewal keeps it, a cancellation or refund ends it) and answers the access refs of the offers they hold now, with every offer that asks for no money held by everyone, plus the access-grant records you wrote for them (a gift, a pass with an end date). Returns held_access_refs (the one list every gate here asks), the episodes behind it, any allowance limits, and problems (events that gave no effect, and why). Give the buyer the way your rules name them; the starter rules read the buyer's email address from the payment event. Without your own rule or effect-lifecycle records it reads the event kinds the payment tool writes. It reads records and sends nothing.",
+    "status": "active",
+    "maker": "maker:paid-access",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "paid-access"
    }
   },
   {
@@ -4458,6 +4848,21 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "git-changes"
+   }
+  },
+  {
+   "id": "tool:view-a-poker-table-for-a-player",
+   "values": {
+    "title": "See a poker table as one player may see it",
+    "job": "Show a poker table as one player may see it: the board, the pot, each seat, what that player may do now and only that player's own cards",
+    "description": "Give a saved table (the room run-a-poker-table returned) and, optionally, the id of the player looking. Returns the phase and street, hand number, pot, current bet, minimum raise and blinds, the board as it is dealt so far, the label of the next street, every seat (chips, bet, dealer and blind marks, whose turn it is, folded, all in, out, connected), the four betting controls (fold, check or call with what a call costs, raise with its minimum, all in) switched on only for the player whose turn it is, that player's own two cards, every player's cards once the hand is over and never before, and the hand's result with the winners' names. With no player id it is the view of a spectator and holds no private cards. Refuses a room that is not a saved table and a player who is not at it.",
+    "status": "active",
+    "maker": "maker:poker",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "poker"
    }
   },
   {
