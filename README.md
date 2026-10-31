@@ -84,6 +84,8 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `opponent-game-plan` | Pulls together the notes on an opponent (good at, weak at, what worked, ratings), says which notes are trusted enough to plan from, prepares the brief a match plan is written from and records the plan | `tool:scout-an-opponent`, `tool:prepare-a-match-plan` |
 | `page-critic` | Judges a public page against craft rules at every width and keeps a marked picture of each width | `tool:critique-a-public-page` |
 | `person-list` | Find people by any field; rank people by the points their activity earns, handed in or read from their records | `tool:find-people`, `tool:rank-people-by-activity`, `tool:rank-people-by-recorded-activity` |
+| `paid-access` | Who holds paid access now (from a person's payment events, offers and hand-written grants), whether a buyer may open one gated thing, and a file sold so only a buyer who holds its access gets it | `tool:see-who-holds-paid-access`, `tool:check-a-buyer-may-open`, `tool:seal-a-paid-file`, `tool:give-a-buyer-a-paid-file-link`, `tool:open-a-paid-file-for-a-buyer` |
+| `person-list` | Find people by any field; rank people by the points their activity earns | `tool:find-people`, `tool:rank-people-by-activity` |
 | `person-profile` | Lays out one person's profile from a description of what to show | `tool:lay-out-a-profile` |
 | `print-here` | Prints a file from the person's files on a printer their Mac already has, and lists its printers (runs on the person's Mac with the print system they granted) | `tool:printers`, `tool:print` |
 | `person-list` | Find people by any field; rank people by the points their activity earns | `tool:find-people`, `tool:rank-people-by-activity` |

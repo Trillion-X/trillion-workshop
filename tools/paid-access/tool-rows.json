@@ -1,0 +1,360 @@
+{
+  "kind": "tool-rows",
+  "record_set": "paid-access-tool-rows",
+  "what_this_is": "The Workshop rows for tools/paid-access: who holds paid access now (from the person's payment events, offers and grants), whether a buyer may open one gated thing, and selling a file so only a buyer who holds its access gets it. Every gate asks the one answer of who-holds-access; the file's own paid-file record is its gate; the key is named in rows and handed only on a private pipe.",
+  "records": [
+    {
+      "id": "package::paid-access::tool::see-who-holds-paid-access",
+      "address": "package::paid-access::tool::see-who-holds-paid-access",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-who-holds-paid-access",
+        "label": "See who holds paid access",
+        "status": "active",
+        "job": "Work out which paid access one buyer holds right now: what they bought, what renewed, what ended or was refunded, and what I gave them by hand",
+        "description": "Folds the buyer's payment events (the payment-event records the payment tools keep) through your access-effect-rule rows into effects, folds those into purchase episodes (a purchase starts one, a renewal keeps it, a cancellation or refund ends it) and answers the access refs of the offers they hold now, with every offer that asks for no money held by everyone, plus the access-grant records you wrote for them (a gift, a pass with an end date). Returns held_access_refs (the one list every gate here asks), the episodes behind it, any allowance limits, and problems (events that gave no effect, and why). Give the buyer the way your rules name them; the starter rules read the buyer's email address from the payment event. Without your own rule or effect-lifecycle records it reads the event kinds the payment tool writes. It reads records and sends nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": ["subject"],
+          "additionalProperties": false,
+          "properties": {
+            "subject": { "type": "string", "description": "The buyer, the way your access rules name a buyer (the starter rules: their email address)" },
+            "payment_events": { "type": "array", "items": { "type": "object" }, "description": "Payment events to use instead of your payment-event records" },
+            "offers": { "type": "array", "items": { "type": "object" }, "description": "Offers (id, access_refs, price_options, allowances) to use instead of your commercial-offer records" },
+            "grants": { "type": "array", "items": { "type": "object" }, "description": "Grant and revoke rows to use instead of your access-grant records" },
+            "rules": { "type": "array", "items": { "type": "object" }, "description": "Effect rules to use instead of your access-effect-rule records" },
+            "lifecycle": { "type": "object", "description": "One lifecycle row (episode_keys and transitions) to use instead of your effect-lifecycle record" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["subject", "held_access_refs", "capabilities", "granted_access_refs", "limits", "active_offers", "episodes", "problems"],
+          "properties": {
+            "subject": { "type": "string" },
+            "held_access_refs": { "type": "array", "items": { "type": "string" } },
+            "capabilities": { "type": "array", "items": { "type": "string" } },
+            "granted_access_refs": { "type": "array", "items": { "type": "string" } },
+            "limits": { "type": "object" },
+            "active_offers": { "type": "array", "items": { "type": "string" } },
+            "episodes": { "type": "array", "items": { "type": "object" } },
+            "membership_revision_input": { "type": "string" },
+            "problems": { "type": "array", "items": { "type": "object" } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "paid-access", "paths": ["do-work", "read-data"], "at": "/opt/paid-access" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "workdir": "/opt/paid-access",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/do-work/paid-access.mjs", "seeWhoHoldsPaidAccess"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "payment-event", "operations": ["records:list"] },
+              { "kind": "commercial-offer", "operations": ["records:list"] },
+              { "kind": "access-grant", "operations": ["records:list"] },
+              { "kind": "access-effect-rule", "operations": ["records:list"] },
+              { "kind": "effect-lifecycle", "operations": ["records:list"] }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:paid-access",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/signed-event-effects (the rule projection), capability-effect-lifecycle (the fold) and product-access (the grant projection), over the payment events the payment tools keep" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "subject": "buyer@example.com",
+              "payment_events": [
+                { "event_id": "evt_sample_1", "event_kind": "payment.confirmed", "occurred_at": "2026-01-01T00:00:00.000Z", "attributes": { "provider_event_id": "evt_sample_1", "customer_email": "buyer@example.com", "offer_id": "offer:sample", "payment_intent_ref": "pi_sample_1", "payment_status": "paid" } }
+              ],
+              "offers": [{ "id": "offer:sample", "access_refs": ["access:sample-course"], "price_options": [{ "id": "price:sample", "amount_cents": 1000 }] }]
+            },
+            "output_selector": "$.held_access_refs",
+            "contains": "access:sample-course"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::paid-access::tool::check-a-buyer-may-open",
+      "address": "package::paid-access::tool::check-a-buyer-may-open",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-buyer-may-open",
+        "label": "Check a buyer may open something",
+        "status": "active",
+        "job": "Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires",
+        "description": "Takes the scope the thing is gated by ({ schema: \"addressed-expiring-value-scope/v1\", value_ref, instance_ref, required_access_refs }) and the buyer. A thing that requires no access is open to any named buyer; otherwise the buyer must hold any one of the required access refs now (tool:see-who-holds-paid-access works that out). Answers only authorized true or false: a scope that is not exactly that schema, no buyer, or access that cannot be worked out is false.",
+        "input_schema": {
+          "type": "object",
+          "required": ["subject", "scope"],
+          "additionalProperties": false,
+          "properties": {
+            "subject": { "type": "string", "description": "The buyer, the way your access rules name a buyer" },
+            "scope": { "type": "object", "description": "{ schema, value_ref, instance_ref, required_access_refs }" }
+          }
+        },
+        "output_schema": { "type": "object", "required": ["authorized"], "properties": { "authorized": { "type": "boolean" } } },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "paid-access", "paths": ["do-work", "read-data"], "at": "/opt/paid-access" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "workdir": "/opt/paid-access",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/do-work/paid-access.mjs", "checkABuyerMayOpen"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "payment-event", "operations": ["records:list"] },
+              { "kind": "commercial-offer", "operations": ["records:list"] },
+              { "kind": "access-grant", "operations": ["records:list"] },
+              { "kind": "access-effect-rule", "operations": ["records:list"] },
+              { "kind": "effect-lifecycle", "operations": ["records:list"] }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:paid-access",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/product-access (do-work/authorize-addressed-expiring-value-scope.ts)" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "subject": "buyer@example.com", "scope": { "schema": "addressed-expiring-value-scope/v1", "value_ref": "page:sample", "instance_ref": "page:sample:1", "required_access_refs": [] } },
+            "output_selector": "$.authorized",
+            "contains": "true"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::paid-access::tool::seal-a-paid-file",
+      "address": "package::paid-access::tool::seal-a-paid-file",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:seal-a-paid-file",
+        "label": "Seal a paid file",
+        "status": "active",
+        "job": "Put a file I sell (a book, an audiobook, a course video) behind paid access so only buyers can open it",
+        "description": "Encrypts one of the person's files with their paid-files key (AES-256-CTR, a fresh nonce per file), keeps the sealed copy in their files, and writes the file's paid-file record: the name buyers ask for it by, the sealed copy's identity, how it is sealed, the key's NAME and the access refs a buyer must hold (any one of them opens it). The key is handed to this run on a private pipe and is never in the record or the answer. A buyer then gets the file only through tool:give-a-buyer-a-paid-file-link and tool:open-a-paid-file-for-a-buyer.",
+        "input_schema": {
+          "type": "object",
+          "required": ["file", "object_key", "required_access_refs"],
+          "additionalProperties": false,
+          "properties": {
+            "file": { "type": "string", "format": "namespace-file", "description": "The file to sell, in your files (1f: then 64 hex), as find_file or list_files returns it" },
+            "object_key": { "type": "string", "description": "The name buyers ask for the file by, like \"chapter-one.pdf\"" },
+            "required_access_refs": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "The access refs your offers grant; a buyer holding any one opens the file, like [\"access:course-a\"]" },
+            "mime": { "type": "string", "description": "The file's content type, like \"application/pdf\"" },
+            "ttl_seconds": { "type": "integer", "minimum": 1, "description": "How long one link to it stays good (3600 when left out)" },
+            "object_store_ref": { "type": "string", "description": "Which of your stores the file is kept in (\"object-store:paid-files\" when left out)" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["row", "sealed_bytes"],
+          "properties": {
+            "row": {
+              "type": "object",
+              "required": ["object_key", "cas_hash", "enc_alg", "enc_key_ref", "enc_nonce", "required_access_refs"],
+              "properties": {
+                "object_key": { "type": "string" },
+                "object_store_ref": { "type": "string" },
+                "cas_hash": { "type": "string" },
+                "enc_alg": { "type": "string" },
+                "enc_key_ref": { "type": "string" },
+                "enc_nonce": { "type": "string" },
+                "required_access_refs": { "type": "array", "items": { "type": "string" } },
+                "mime": { "type": "string" },
+                "ttl_seconds": { "type": "integer" }
+              }
+            },
+            "sealed_bytes": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "paid-access", "paths": ["do-work", "read-data"], "at": "/opt/paid-access" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "workdir": "/opt/paid-access",
+          "internet": true,
+          "stdout": "json",
+          "argv": ["node", "/opt/paid-access/do-work/seal-a-paid-file.mjs", "--out", "/opt/paid-access/sealed.bin", "--key-ref", "paid-files-key"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "paid-file", "operations": ["records:write"] }] },
+          "credential_mounts": [{ "secret_name": "paid-files-key", "fd": 4 }],
+          "outputs": [{ "name": "sealed", "path": "/opt/paid-access/sealed.bin", "keep_in": "files", "media_type": "application/octet-stream", "max_bytes": 4000000000 }]
+        },
+        "needs": { "expected_seconds": 60, "network_egress": true, "memory_mb": 2048 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:deployed-container"],
+        "maker": "maker:paid-access",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/material-delivery (tools/encrypt-private-object.mjs), with the key kept out of the row" }
+      }
+    },
+    {
+      "id": "package::paid-access::tool::give-a-buyer-a-paid-file-link",
+      "address": "package::paid-access::tool::give-a-buyer-a-paid-file-link",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:give-a-buyer-a-paid-file-link",
+        "label": "Give a buyer a paid file link",
+        "status": "active",
+        "job": "Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid",
+        "description": "Reads the file's paid-file record and answers grant with a link that expires (the record's ttl_seconds, else 3600), only when the subject is a verified account and holds any of the file's required access refs now (worked out as tool:see-who-holds-paid-access works it out). Otherwise answers denied (anonymous, not-entitled), unavailable (no sealed bytes, no such file, access could not be worked out) or loading (the records could not be read). The file's gate comes from its record, never from the request. subject must be the account the door verified from the buyer's own session. The link carries no bytes and no key; every open is checked again by tool:open-a-paid-file-for-a-buyer.",
+        "input_schema": {
+          "type": "object",
+          "required": ["object_key", "subject"],
+          "additionalProperties": false,
+          "properties": {
+            "object_key": { "type": "string", "description": "The file the buyer asks for, like \"chapter-one.pdf\"" },
+            "subject": { "type": "string", "description": "The account the door verified from the buyer's session, named the way your access rules name a buyer; empty for no session" },
+            "delivery_config": { "type": "object", "description": "The door's { delivery_base_path, default_ttl_seconds }" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": { "type": "string" },
+            "reason": { "type": "string" },
+            "delivery_url": { "type": "string" },
+            "expires_at": { "type": "integer" },
+            "mime": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "paid-access", "paths": ["read-data"], "at": "/opt/paid-access" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "workdir": "/opt/paid-access",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/read-data/request-private-object.ts", "requestPrivateObject"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "paid-file", "operations": ["records:read"] },
+              { "kind": "payment-event", "operations": ["records:list"] },
+              { "kind": "commercial-offer", "operations": ["records:list"] },
+              { "kind": "access-grant", "operations": ["records:list"] },
+              { "kind": "access-effect-rule", "operations": ["records:list"] },
+              { "kind": "effect-lifecycle", "operations": ["records:list"] }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:paid-access",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/material-delivery (do-work/request-private-object.ts and resolve-private-delivery.ts)" },
+        "verify": [{ "kind": "sample-run", "input": { "object_key": "no-such-file.pdf", "subject": "buyer@example.com" }, "output_selector": "$.status", "contains": "unavailable" }]
+      }
+    },
+    {
+      "id": "package::paid-access::tool::open-a-paid-file-for-a-buyer",
+      "address": "package::paid-access::tool::open-a-paid-file-for-a-buyer",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:open-a-paid-file-for-a-buyer",
+        "label": "Open a paid file for a buyer",
+        "status": "active",
+        "job": "Check, each time a buyer opens a paid file link, that they still hold access, and say which sealed bytes to stream",
+        "description": "For a link's token and the account presenting it: refuses a malformed or expired token, then checks the file's paid-file record against what the presenter holds now, so a refund or an ended subscription stops the very next open and a link passed to someone else does not open. On authorized it answers the sealed copy's identity, the cipher, the nonce and the NAME of the key the door decrypts with; never the key.",
+        "input_schema": {
+          "type": "object",
+          "required": ["token", "subject"],
+          "additionalProperties": false,
+          "properties": {
+            "token": { "type": "string", "description": "The last part of the link the buyer opened" },
+            "subject": { "type": "string", "description": "The account the door verified from the presenting session, named the way your access rules name a buyer" },
+            "delivery_config": { "type": "object", "description": "The door's { delivery_base_path, default_ttl_seconds }" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["authorized"],
+          "properties": {
+            "authorized": { "type": "boolean" },
+            "cas_hash": { "type": "string" },
+            "enc_key_ref": { "type": "string" },
+            "enc_nonce": { "type": "string" },
+            "enc_alg": { "type": "string" },
+            "mime": { "type": "string" },
+            "expires_at": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "paid-access", "paths": ["read-data"], "at": "/opt/paid-access" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          },
+          "workdir": "/opt/paid-access",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/read-data/authorize-private-object.ts", "authorizePrivateObject"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "paid-file", "operations": ["records:read"] },
+              { "kind": "payment-event", "operations": ["records:list"] },
+              { "kind": "commercial-offer", "operations": ["records:list"] },
+              { "kind": "access-grant", "operations": ["records:list"] },
+              { "kind": "access-effect-rule", "operations": ["records:list"] },
+              { "kind": "effect-lifecycle", "operations": ["records:list"] }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:paid-access",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/material-delivery (do-work/authorize-private-object.ts), answering the key's name instead of the key" },
+        "verify": [{ "kind": "sample-run", "input": { "token": "not-a-token", "subject": "buyer@example.com" }, "output_selector": "$.authorized", "contains": "false" }]
+      }
+    }
+  ]
+}
