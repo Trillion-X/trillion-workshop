@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+// A stand-in for yt-dlp in this folder's tests. It never reaches a network: it answers from the made-up plan file
+// STAND_IN_PLAN names, keyed by the address it is asked about, and adds each call's arguments as one line to the file
+// STAND_IN_LOG names. A listing prints one JSON line per video (at most --playlist-end); a video writes <id>.info.json
+// (with comments when --write-comments is given) and its caption files where -o says. An answer may `refuse` (the
+// words go to stderr, exit 1), fail with `error`, or `wait_seconds` first.
+import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+
+const args = process.argv.slice(2);
+appendFileSync(process.env.STAND_IN_LOG, `${JSON.stringify(args)}\n`);
+const answer = JSON.parse(readFileSync(process.env.STAND_IN_PLAN, 'utf8'))[args.at(-1)] ?? { error: 'Unsupported URL' };
+if (answer.wait_seconds) await new Promise(done => setTimeout(done, answer.wait_seconds * 1000));
+if (answer.refuse || answer.error) {
+  process.stderr.write(`ERROR: [site] ${answer.refuse ?? answer.error}\n`);
+  process.exit(1);
+}
+if (args.includes('--flat-playlist')) {
+  const end = Number(args[args.indexOf('--playlist-end') + 1]);
+  for (const video of answer.videos.slice(0, end)) process.stdout.write(`${JSON.stringify(video)}\n`);
+} else {
+  const at = ending => args[args.indexOf('-o') + 1].replace('%(id)s', answer.info.id).replace('%(ext)s', ending);
+  const comments = args.includes('--write-comments') ? { comments: answer.comments ?? [] } : {};
+  writeFileSync(at('info.json'), JSON.stringify({ ...answer.info, ...comments }));
+  for (const [ending, text] of Object.entries(answer.captions ?? {})) writeFileSync(at(ending), text);
+}
