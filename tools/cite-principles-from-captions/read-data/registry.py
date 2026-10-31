@@ -4,9 +4,8 @@ A working row: {"id", "principle", "kind": "stated"|"demonstrated"|"stated+demon
 "demonstrated_in": [{"video", "t", "how"}], "test", "do_it", "transfer", "paraphrase"?, "contradicts"?: [{"id_or_text", "how"}]}.
 corpus = {video id: video}. Nothing here reads a file; the person's own grouping and stage names come in as arguments.
 """
-import math
 import re
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 
 import captions
 

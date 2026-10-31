@@ -13,7 +13,8 @@
 //              the ones still to judge in `waiting`. `fresh` folds every row again from an empty lexicon.
 //
 // Non-negotiable invariants
-//   1. A source file is only read, never written. Its rows are the file itself when it is a list, else its `rows`.
+//   1. A source file is only read, never written. Its rows are its lines when it is .jsonl, else the
+//      file itself when it is a list, else its `rows`.
 //   2. A sidecar row carries `from_hash`, the BLAKE3 of the source row's JSON, and `settled_from`, the BLAKE3 of the
 //      proposal it was settled from. list/propose only touch rows whose source changed or that have no proposal;
 //      settle (unless fresh) only folds rows whose proposal changed since they were settled. Work is O(changed).
@@ -45,13 +46,17 @@ export const rowsOf = document => {
   if (!Array.isArray(rows)) throw new Error('A source file is a list of rows, or an object whose rows key is one.');
   return rows;
 };
-export const sidecarOf = file => join(dirname(file), `${basename(file, '.json')}.nxn.json`);
+// A source file's rows: a .jsonl file holds one row per line; any other file is JSON (rowsOf).
+export const rowsOfFile = file => (file.endsWith('.jsonl')
+  ? readFileSync(file, 'utf8').split('\n').filter(line => line.trim()).map(line => JSON.parse(line))
+  : rowsOf(json(file)));
+export const sidecarOf = file => join(dirname(file), `${basename(file, file.endsWith('.jsonl') ? '.jsonl' : '.json')}.nxn.json`);
 
 // Every source with its rows, hashes and sidecar (made empty when there is none yet).
 function openLibrary(request) {
   return request.sources.map(source => {
     const sidecarFile = source.sidecar ?? sidecarOf(source.file);
-    const rows = rowsOf(json(source.file));
+    const rows = rowsOfFile(source.file);
     const sidecar = existsSync(sidecarFile) ? json(sidecarFile) : {
       kind: 'technique-crossing-fields',
       what_this_is: 'The crossing fields of every row in the source file, by row id: why it works (mechanism), what it changes (operates_on), what it needs (each need tagged with its property) and produces, and the medium it came from. Terms are from the vocabulary file. `proposed` is the writer\'s own answer, kept as evidence; the source rows are unchanged.',

@@ -25,6 +25,31 @@
     "reuse_at": 0.72,
     "new_below": 0.43
   },
+  "row_lines": {
+    "comment": "The admission lines group-rows-by-meaning.mjs folds rows by, for the meaning they were measured with (measure-reuse-line.mjs over hand-labelled pairs of whole-sentence rows from different sources, 2026-10-30: 7 same, 11 different). Rows written as sentences sit closer together than terms do: the closest 'different' pair was 0.726, so at or above reuse_at two rows are one idea, and between new_below and reuse_at they are only related, never merged. Another model or form needs its own measurement.",
+    "meaning": {
+      "model": "embeddinggemma",
+      "dims": 768,
+      "forms": {
+        "query": "task: search result | query: {text}",
+        "document": "title: none | text: {text}"
+      }
+    },
+    "reuse_at": 0.73,
+    "new_below": 0.64
+  },
+  "placing_line": {
+    "comment": "How close a row's free word must be to one of a short declared list of terms for place-rows-in-declared-terms.mjs to give the row that term, for the meaning it was measured with (closeness over one library's free domain words against an eight-term declared list, read by hand, 2026-10-30). Of the words placed at or above 0.70 all but one were placed right; between 0.62 and 0.70 right and wrong placements mixed, so below the line a word gives way to the row's next word, and a row with no word that places is none. Another model or form needs its own measurement.",
+    "meaning": {
+      "model": "embeddinggemma",
+      "dims": 768,
+      "forms": {
+        "query": "task: search result | query: {text}",
+        "document": "title: {title} | text: {text}"
+      }
+    },
+    "at_least": 0.7
+  },
   "carry": [
     "name",
     "kind",

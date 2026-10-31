@@ -18,8 +18,6 @@ Keeps every technique a person captures by **why it works**, in words shared by 
 
 Which fields are vocabulary-bound is DATA: `bound.why` and `bound.changes` in `do-work/technique-conventions.json`.
 
-Nothing about any person's techniques ships here: their rows, vocabulary and row shape come with each request. By default the writer reads `name`, `kind` and `description` first, then every other words field. A request names its own with `reading` (`first`, `skip`, ...), and `say-why-for-files.mjs` also takes `carry`, the source fields copied onto crossing rows. The worked examples the writer sees are made up.
-
 Nothing about any person's techniques ships here: their rows, vocabulary and row shape come with each request. By default the writer reads `name`, `kind` and `description` first, then every other words field; a request names its own with `reading` (`first`, `skip`, ...), and `say-why-for-files.mjs` also takes `carry`, the source fields copied onto crossing rows. The worked examples the writer sees are made up.
 
 ## The vocabulary rule (code-enforced)
@@ -73,17 +71,30 @@ A term the writer names that is not in the vocabulary, or a mechanism outside it
 | `do-work/cross-techniques-with-a-goal.mjs` | `tool:cross-techniques-with-a-goal` command. |
 | `do-work/say-why-for-files.mjs` | A whole library of row files on one computer: `list`, `propose`, `take`, `settle`, `rows` (below). |
 | `do-work/measure-reuse-line.mjs` | Measures a vocabulary's lines for one embedding model. |
+| `do-work/place-rows-in-declared-terms.mjs` | Each row gets one term from a short list the person declares (the terms, or `terms_from` the file they keep them in), from its own free words, or `none`: `closeness` (to measure the line, kept in `technique-conventions.json` `placing_line`) and `place`. |
+| `do-work/group-rows-by-meaning.mjs` | Rows across a library that say the same thing share one group, by `admit` with each row's words as the proposal: `pairs` (closeness bands, for labelling) and `group` (below). |
 | `do-work/technique-conventions.json` | Bound fields, measured lines, the words the writer reads, instructions and Claude-written worked examples, crossing prompts and limits. |
 | `do-work/reuse-line-pairs.json` | The hand-labelled term pairs (vocabulary lines). |
 | `do-work/need-tag-pairs.json` | The made-up, hand-labelled need/property pairs (`needs_tags.tag_min`). |
 | `test/vocabulary-and-settle.test.mjs` | Admission order, the band, provisional terms, the fold, stale "none" judgments, definitions filled in, `rowText`. |
 | `test/cross-medium.test.mjs` | 20 rows from 4 media crossed with a sales page (a fifth medium) on the writer's recorded answers; the exact joins on their own. |
+| `test/say-why-for-files.test.mjs` | A `.jsonl` source and its sidecar name; a writer with `seed: null` and `body` against a stand-in server that wraps its JSON in a thinking block and a fence. |
+| `test/place-rows-in-declared-terms.test.mjs` | Terms are read by a `{ key: value }` path from the person's file; the first word that places gives the term (same words, then closeness at the measured line), else none; another meaning is refused. |
+| `test/group-rows-by-meaning.test.mjs` | Same words and same meaning join the first row's group; the band is related, never merged; folds repeat exactly; pairs never come from one source. |
 | `test/record-cassette.mjs` | Re-records the writer's answers for the fixture from a live model. |
 | `test/fixtures/` | The cross-medium rows and their vocabulary (made up: four invented sources and a sales page goal), and the recorded writer answers. |
 
+## Rows that say the same thing
+
+`group-rows-by-meaning.mjs` reads one JSON request on standard input (`step`, `sources: [{ file, text: [fields], label?, id? }]`, `meaning`, `vectors_file`, `groups_file`, and for `pairs` the `bands` and `per_band`) and prints `{ result }`. Every row's words are embedded once (the vectors file keeps each vector with the BLAKE3 of its words). `group` folds rows in source order through `admit`: the same words, or closeness at or above `reuse_at`, join the group of the first row that said it (its id is the group's id); a row in the band keeps the groups it is close to as `related`, with their closeness, and is never merged, because a model judging its own kind of text agreed with every row it was shown. The groups file holds `rows: { id: { group, how, closeness?, related } }`, keyed by row id as `place-rows-in-declared-terms.mjs` keys its rows, so a list builder can look a row up; `related` is closest first, at most five. The lines are `technique-conventions.json` `row_lines`, kept beside the meaning they were measured with; `group` with another meaning is refused. A person measures lines for another meaning with `pairs`, labels the pairs, and runs `measure-reuse-line.mjs` with them: rows written as whole sentences sit closer together than terms do, and one line rarely separates them.
+
+`place-rows-in-declared-terms.mjs` reads one JSON request on standard input (`step`, `terms` or `terms_from: { file, path }`, `out_file`, `sources: [{ file, words: [fields], id? }]`, `meaning`) and prints `{ result }`. A path step is a key, an index, or `{ key: value }`, the list element whose key holds that value, so a list field's `choices` are read where the person keeps them and never copied. The list never grows: a row's words are tried in order (main word first); the same words as a term or an alias give that term, else the closest term (vocabulary `nearest`) when it is at least `placing_line.at_least` close, the line `technique-conventions.json` keeps beside the meaning it was measured with (a request with another meaning is refused), else the next word; a row none of whose words place is `none`. `closeness` lists every word with its three closest terms, for a person to read and measure the line for another meaning; `place` writes `{ rows: { id: { term, from, how, closeness? } } }` and leaves the source rows unchanged.
+
 ## A library of row files
 
-`say-why-for-files.mjs` reads one JSON request on standard input and prints `{ result }` as its last line. Source files are only read. Each source gets a sidecar `<name>.nxn.json` (or the path given), and one lexicon file holds the shared vocabulary.
+`say-why-for-files.mjs` reads one JSON request on standard input and prints `{ result }` as its last line. Source files are only read: a `.jsonl` file holds one row per line, any other file is JSON (a list of rows, or an object with `rows`). Each source gets a sidecar `<name>.nxn.json` (or the path given), and one lexicon file holds the shared vocabulary.
+
+A model in a request is `{ url, model, key_env? }`; a writing model may also name `body` (more request fields its server reads, for example `{ "chat_template_kwargs": { "enable_thinking": false } }`) and `seed: null` (no seed is sent, because a server that batches requests, such as `mlx_lm.server`, batches only unseeded ones). A writer's answer may arrive inside a thinking block or a code fence; the JSON object in it is read.
 
 - **`list`**: the rows with no current proposal (`{ source, id, text }`).
 - **`propose`**: asks `models.writing` for proposals, a few rows per call.
