@@ -1,0 +1,67 @@
+{
+  "providers": [
+    {
+      "id": "amazon-ses",
+      "label": "Amazon SES",
+      "channel": "email",
+      "kind": "adapter",
+      "adapter": "send-via-amazon-ses.cjs",
+      "settings": [
+        { "env": "AWS_REGION", "input": "region" },
+        { "env": "EMAIL_FROM", "input": "from" }
+      ],
+      "credentials": [
+        { "env": "AWS_ACCESS_KEY_ID", "secret_name": "amazon-ses-access-key-id", "fd": 3 },
+        { "env": "AWS_SECRET_ACCESS_KEY", "secret_name": "amazon-ses-secret-access-key", "fd": 4 }
+      ]
+    },
+    {
+      "id": "resend",
+      "label": "Resend",
+      "channel": "email",
+      "kind": "adapter",
+      "adapter": "send-via-resend.cjs",
+      "settings": [
+        { "env": "EMAIL_FROM", "input": "from" }
+      ],
+      "credentials": [
+        { "env": "RESEND_API_KEY", "secret_name": "resend-api-key", "fd": 3 }
+      ]
+    },
+    {
+      "id": "twilio-sms",
+      "label": "Twilio text message",
+      "channel": "text",
+      "kind": "adapter",
+      "adapter": "send-via-twilio-sms.cjs",
+      "settings": [
+        { "env": "TWILIO_ACCOUNT_SID", "input": "account_sid" },
+        { "env": "TWILIO_FROM_NUMBER", "input": "from" }
+      ],
+      "credentials": [
+        { "env": "TWILIO_AUTH_TOKEN", "secret_name": "twilio-auth-token", "fd": 3 }
+      ]
+    },
+    {
+      "id": "messages-on-this-mac",
+      "label": "Messages on this Mac",
+      "channel": "text",
+      "kind": "process",
+      "settings": [],
+      "credentials": [],
+      "process": {
+        "interpreter_argv": [
+          "osascript",
+          "-e",
+          "on run argv\nset recipientId to item 1 of argv\nset messageBody to item 2 of argv\ntell application \"Messages\"\nset targetService to 1st service whose service type = iMessage\nset targetBuddy to buddy recipientId of targetService\nsend messageBody to targetBuddy\nend tell\nreturn \"SENT\"\nend run"
+        ],
+        "timeout_ms": 30000,
+        "success_stdout_marker": "SENT",
+        "tcc_denial": {
+          "stderr_patterns": ["-1743", "Not authorized to send Apple events", "not authorized"],
+          "remediation": "Grant Automation control of \"Messages\" to the sending process in System Settings → Privacy & Security → Automation, then retry."
+        }
+      }
+    }
+  ]
+}

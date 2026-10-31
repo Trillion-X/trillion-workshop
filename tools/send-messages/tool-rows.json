@@ -1,0 +1,648 @@
+{
+  "kind": "tool-rows",
+  "record_set": "send-messages-tool-rows",
+  "what_this_is": "The Workshop rows for sending a message from the person's AI: an email (Amazon SES or Resend), a text (Twilio) or a Messages message on the person's own Mac, to one person or a list, and turning a document into a message body first. Each provider is one row here and one entry in read-data/message-providers.json; the person's own key reaches the one process on private pipes and is never in the request.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:send-an-email-with-amazon-ses",
+        "label": "Send an email with Amazon SES",
+        "job": "Send an email, to one person or a list, through my Amazon SES account",
+        "description": "Give recipients (a list of addresses; to for one), from (an address verified in SES), region (such as us-east-1), and the words: subject and html (text optional), or template (a template name from read-data/message-templates.json, or your own templates) with variables. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error }. The held SES keys reach the one process on private pipes; they are never shown and no sender is assumed.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["from", "region"],
+          "properties": {
+            "recipients": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+            "to": { "type": "string" },
+            "from": { "type": "string" },
+            "region": { "type": "string" },
+            "subject": { "type": "string" },
+            "html": { "type": "string" },
+            "text": { "type": "string" },
+            "template": { "type": "string" },
+            "templates": { "type": "array" },
+            "variables": { "type": "object" },
+            "message": { "type": "object" },
+            "headers": { "type": "object" },
+            "idempotencyKey": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["provider", "sent", "said"],
+          "properties": {
+            "provider": { "type": "string" },
+            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "messageId": { "type": "string" }, "error": { "type": "string" } } } },
+            "said": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": ["node", "/opt/send-messages/do-work/send-a-message.mjs", "amazon-ses"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" }
+          },
+          "credential_mounts": [
+            { "secret_name": "amazon-ses-access-key-id", "fd": 3 },
+            { "secret_name": "amazon-ses-secret-access-key", "fd": 4 }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 10, "network_egress": true },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "bitfield-packages broadcast-delivery (Amazon SES adapter) and resend-email-sender (templates, headers), ported" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:send-an-email-with-resend",
+        "label": "Send an email with Resend",
+        "job": "Send an email, to one person or a list, through my Resend account",
+        "description": "Give recipients (a list of addresses; to for one), from (an address on a domain verified in Resend, see tool:list-email-sending-domains), and the words: subject and html (text optional), or template (a template name from read-data/message-templates.json, or your own templates) with variables. headers can carry In-Reply-To, References or List-Unsubscribe (names are limited to letters, digits and hyphens, values to one line of 4 KiB); idempotencyKey makes a retry safe. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with the provider's own status and reason. The held key reaches the one process on a private pipe; it is never shown and no sender is assumed.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "recipients": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+            "to": { "type": "string" },
+            "from": { "type": "string" },
+            "subject": { "type": "string" },
+            "html": { "type": "string" },
+            "text": { "type": "string" },
+            "template": { "type": "string" },
+            "templates": { "type": "array" },
+            "variables": { "type": "object" },
+            "message": { "type": "object" },
+            "headers": { "type": "object" },
+            "idempotencyKey": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["provider", "sent", "said"],
+          "properties": {
+            "provider": { "type": "string" },
+            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "messageId": { "type": "string" }, "error": { "type": "string" } } } },
+            "said": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": ["node", "/opt/send-messages/do-work/send-a-message.mjs", "resend"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" }
+          },
+          "credential_mounts": [{ "secret_name": "resend-api-key", "fd": 3 }]
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 10, "network_egress": true },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "bitfield-packages resend-email-sender (templates, headers, idempotency) and broadcast-delivery (Resend adapter, list sending), merged and ported" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:send-a-text-with-twilio",
+        "label": "Send a text message with Twilio",
+        "job": "Send a text message, to one number or a list, through my Twilio account",
+        "description": "Give recipients (phone numbers with country code; to for one), from (a number on the Twilio account), account_sid (the account's id) and text (or subject when there is no text). Each number is sent to on its own and answered on its own: sent holds { recipient, messageId } or { recipient, error }. The held auth token reaches the one process on a private pipe; it is never shown.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["from", "account_sid"],
+          "properties": {
+            "recipients": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+            "to": { "type": "string" },
+            "from": { "type": "string" },
+            "account_sid": { "type": "string" },
+            "text": { "type": "string" },
+            "subject": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["provider", "sent", "said"],
+          "properties": {
+            "provider": { "type": "string" },
+            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "messageId": { "type": "string" }, "error": { "type": "string" } } } },
+            "said": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": ["node", "/opt/send-messages/do-work/send-a-message.mjs", "twilio-sms"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" }
+          },
+          "credential_mounts": [{ "secret_name": "twilio-auth-token", "fd": 3 }]
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 10, "network_egress": true },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "bitfield-packages broadcast-delivery (Twilio text adapter), ported" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:send-a-message-on-this-mac",
+        "label": "Send a message in Messages on this Mac",
+        "job": "Send a message to one person or a list from the Messages app on the person's own Mac",
+        "description": "Give recipients (phone numbers or Apple ids Messages knows; to for one) and text. Each recipient is sent to on their own and answered on their own: sent holds { recipient } or { recipient, error }. The text goes to Messages as its own argument, never inside the script. If the Mac has not allowed this to control Messages, nothing is sent and the answer says what to allow in System Settings, Privacy and Security, Automation.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["text"],
+          "properties": {
+            "recipients": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+            "to": { "type": "string" },
+            "text": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["provider", "sent", "said"],
+          "properties": {
+            "provider": { "type": "string" },
+            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "error": { "type": "string" } } } },
+            "said": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["use-the-messages-app"],
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/send-a-message.mjs", "sendOnThisMac"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            ]
+          }
+        },
+        "result_selector": "$.result.result",
+        "needs": { "expected_seconds": 30, "network_egress": false },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "bitfield-packages imessage-messages-sender (the Messages script as DATA, permission classification), ported" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:write-a-message-body-from-a-document",
+        "label": "Turn a document into a message body (runs on your computer)",
+        "job": "Turn a document I wrote (headings, paragraphs, images, a quoted reply) into the HTML and plain-text body of a message, ready to send",
+        "description": "Takes a request file { document_nodes: [{ id, kind, props, children, visible }] or one root node, options? } and writes { body_html, body_text, inline_refs, degraded }. Text and heading kinds become paragraphs and headings with a plain-text line each; image and media blocks become inline_refs { cid, fetch_ref, mime } for the sender to attach; blocks marked as a quote become one blockquote with > lines; hidden subtrees are skipped; a block kind it does not know falls back to its text and is listed in degraded, never dropped silently. options.kind_renderers maps your own block kinds to paragraph, heading1 to heading3 or media. It names no mail provider.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["request", "output"],
+          "properties": {
+            "request": { "type": "string", "description": "Path of the request JSON file" },
+            "output": { "type": "string", "description": "Path to write the result JSON to" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Exit 0 and one summary line: the HTML and text sizes, the number of parts and of degraded blocks. The output file holds { body_html, body_text, inline_refs, degraded }."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/send-messages/do-work/composition_mail_serializer.py {request} {output}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request file from the document, run `run`, then read the output file. Hand body_html and body_text to the sending tool as html and text. Tell the person about every entry in degraded (a block that could not be shown as itself). If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "bitfield-packages composition-mail-serializer, ported unchanged" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:sign-someone-up-for-an-email-course-with-resend",
+        "label": "Sign someone up for an email course (sends through Resend)",
+        "job": "Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others",
+        "description": "Give email, consent (true only when the person agreed in the words of course.consent_text), course (id, public_origin as an https site root, checkout_url, from, mailing_address, consent_text, consent_version and 2 to 12 lessons { delay_hours, subject, article_url, text_lines, html_lines } where every lesson carries {{unsubscribeUrl}} and {{mailingAddress}} and the first has delay_hours 0), source (where they signed up, optional) and provider (resend). Nothing is sent without consent, a sender and a mailing address. Records the consent with its words, version, time and source; queues each later lesson at its time (tool:send-due-email-lessons-with-resend sends them); sends lesson 1 with List-Unsubscribe headers; signing up again sends nothing twice. Answers { status: enrolled, already_enrolled }.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["email", "consent", "course", "provider"],
+          "properties": {
+            "email": { "type": "string" },
+            "consent": { "type": "boolean" },
+            "course": { "type": "object" },
+            "source": { "type": "string" },
+            "provider": { "enum": ["resend"] }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["status", "already_enrolled"],
+          "properties": { "status": { "type": "string" }, "already_enrolled": { "type": "boolean" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "enrollInEmailCourse"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "email-course-subscription", "operations": ["records:read", "records:write"] },
+              { "kind": "email-course-token", "operations": ["records:read", "records:write"] },
+              { "kind": "contact-point", "operations": ["records:read", "records:write"] },
+              { "kind": "email-lesson-due", "operations": ["records:write"] }
+            ]
+          },
+          "credential_mounts": [{ "secret_name": "resend-api-key", "fd": 4 }]
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 10, "network_egress": true },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course enroll), ported" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:sign-someone-up-for-an-email-course-with-amazon-ses",
+        "label": "Sign someone up for an email course (sends through Amazon SES)",
+        "job": "Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others",
+        "description": "Give email, consent (true only when the person agreed in the words of course.consent_text), course (id, public_origin as an https site root, checkout_url, from, mailing_address, consent_text, consent_version and 2 to 12 lessons { delay_hours, subject, article_url, text_lines, html_lines } where every lesson carries {{unsubscribeUrl}} and {{mailingAddress}} and the first has delay_hours 0), source (where they signed up, optional), provider (amazon-ses) and region (the SES region). Nothing is sent without consent, a sender and a mailing address. Records the consent with its words, version, time and source; queues each later lesson at its time (tool:send-due-email-lessons-with-amazon-ses sends them); sends lesson 1; signing up again sends nothing twice. Answers { status: enrolled, already_enrolled }.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["email", "consent", "course", "provider", "region"],
+          "properties": {
+            "email": { "type": "string" },
+            "consent": { "type": "boolean" },
+            "course": { "type": "object" },
+            "source": { "type": "string" },
+            "provider": { "enum": ["amazon-ses"] },
+            "region": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["status", "already_enrolled"],
+          "properties": { "status": { "type": "string" }, "already_enrolled": { "type": "boolean" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "enrollInEmailCourse"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "email-course-subscription", "operations": ["records:read", "records:write"] },
+              { "kind": "email-course-token", "operations": ["records:read", "records:write"] },
+              { "kind": "contact-point", "operations": ["records:read", "records:write"] },
+              { "kind": "email-lesson-due", "operations": ["records:write"] }
+            ]
+          },
+          "credential_mounts": [
+            { "secret_name": "amazon-ses-access-key-id", "fd": 4 },
+            { "secret_name": "amazon-ses-secret-access-key", "fd": 5 }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 10, "network_egress": true },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course enroll), ported" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:send-due-email-lessons-with-resend",
+        "label": "Send the email lessons that have come due (through Resend)",
+        "job": "Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later",
+        "description": "Optional limit (up to 50 per run) and provider (resend). Finds the queued lessons whose time has passed, sends each to a subscriber who is still signed up and has not had it, marks it sent, and removes the queue entry. A failed send queues its own retry (up to three, each later than the last). Answers results [{ lesson_index, status: sent, already-sent, unsubscribed or failed, why? }] and said.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["provider"],
+          "properties": {
+            "limit": { "type": "integer", "minimum": 1, "maximum": 50 },
+            "provider": { "enum": ["resend"] }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["results", "said"],
+          "properties": { "results": { "type": "array" }, "said": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "sendDueEmailLessons"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "email-lesson-due", "operations": ["records:list", "records:write"] },
+              { "kind": "email-course-subscription", "operations": ["records:read", "records:write"] },
+              { "kind": "email-course-token", "operations": ["records:read"] },
+              { "kind": "contact-point", "operations": ["records:read"] }
+            ]
+          },
+          "credential_mounts": [{ "secret_name": "resend-api-key", "fd": 4 }]
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 30, "network_egress": true },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course deliver, run when a lesson comes due), ported" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:send-due-email-lessons-with-amazon-ses",
+        "label": "Send the email lessons that have come due (through Amazon SES)",
+        "job": "Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later",
+        "description": "Optional limit (up to 50 per run), provider (amazon-ses) and region. Finds the queued lessons whose time has passed, sends each to a subscriber who is still signed up and has not had it, marks it sent, and removes the queue entry. A failed send queues its own retry (up to three, each later than the last). Answers results [{ lesson_index, status: sent, already-sent, unsubscribed or failed, why? }] and said.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["provider", "region"],
+          "properties": {
+            "limit": { "type": "integer", "minimum": 1, "maximum": 50 },
+            "provider": { "enum": ["amazon-ses"] },
+            "region": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["results", "said"],
+          "properties": { "results": { "type": "array" }, "said": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "sendDueEmailLessons"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "email-lesson-due", "operations": ["records:list", "records:write"] },
+              { "kind": "email-course-subscription", "operations": ["records:read", "records:write"] },
+              { "kind": "email-course-token", "operations": ["records:read"] },
+              { "kind": "contact-point", "operations": ["records:read"] }
+            ]
+          },
+          "credential_mounts": [
+            { "secret_name": "amazon-ses-access-key-id", "fd": 4 },
+            { "secret_name": "amazon-ses-secret-access-key", "fd": 5 }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 30, "network_egress": true },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "bitfield-packages myletter-newsletter (email-course deliver, run when a lesson comes due), ported" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:save-interest-in-an-email-update",
+        "label": "Save someone's interest in one email update",
+        "job": "Keep the consent of a person who asked for one email if a course becomes available, without sending anything",
+        "description": "Give email, consent (true only when the person agreed in the words of course.consent_text) and course ({ id, public_origin as an https site root, consent_text, consent_version, capture_only: true }) and source (optional). Records the address with the words, version, time and source of the agreement as pending. Sends nothing, queues nothing; saving the same agreement again changes nothing. Answers { status: interest_saved, already_saved }.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["email", "consent", "course"],
+          "properties": {
+            "email": { "type": "string" },
+            "consent": { "type": "boolean" },
+            "course": { "type": "object" },
+            "source": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["status", "already_saved"],
+          "properties": { "status": { "type": "string" }, "already_saved": { "type": "boolean" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "saveEmailInterest"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [{ "kind": "email-course-interest", "operations": ["records:read", "records:write"] }]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "provenance": { "source": "bitfield-packages myletter-newsletter (capture-interest), ported" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:stop-an-email-course",
+        "label": "Stop sending an email course to someone who unsubscribed",
+        "job": "End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent",
+        "description": "Give token (the unsubscribe token in the link the person was sent). Marks the subscription unsubscribed with the time; an unknown or already used token answers unsubscribed too. Answers { status: unsubscribed }.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["token"],
+          "properties": { "token": { "type": "string" } }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["status"],
+          "properties": { "status": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "unsubscribeFromEmailCourse"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "email-course-token", "operations": ["records:read"] },
+              { "kind": "email-course-subscription", "operations": ["records:read", "records:write"] }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "provenance": { "source": "bitfield-packages myletter-newsletter (unsubscribe), ported" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:who-agreed-to-get-which-emails",
+        "label": "Who agreed to get which emails",
+        "job": "Show who agreed to get which email list, in what words, when and from where, and whether they still do",
+        "description": "Optional list (one list's id) and status (active, pending or unsubscribed). Reads every consent in my records: email courses and one-update interest lists. Returns people [{ email, list, kind: course or update, status, consented_at, consent_text, consent_version, source }], agreed (the addresses that can be sent to now, each once) and said. It changes nothing; hand agreed to a send tool as recipients.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "list": { "type": "string" },
+            "status": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["people", "agreed", "said"],
+          "properties": { "people": { "type": "array" }, "agreed": { "type": "array", "items": { "type": "string" } }, "said": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/send-messages/do-work/keep-who-agreed.mjs", "whoAgreedToGetEmails"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "email-course-subscription", "operations": ["records:list"] },
+              { "kind": "email-course-interest", "operations": ["records:list"] },
+              { "kind": "contact-point", "operations": ["records:read"] }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 3, "network_egress": false },
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "provenance": { "source": "bitfield-packages myletter-newsletter (the subscription and interest records its consent logic keeps), read back" }
+      }
+    }
+  ]
+}
