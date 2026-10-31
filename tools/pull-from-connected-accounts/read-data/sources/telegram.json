@@ -1,0 +1,43 @@
+{
+  "id": "telegram",
+  "label": "Telegram",
+  "says": "the messages the bot has been sent, in every chat and channel it is in",
+  "base": "https://api.telegram.org",
+  "auth": { "in": "path", "template": "bot{token}" },
+  "headers": { "Accept": "application/json" },
+  "identity": { "path": "/getMe", "self_id": "/result/id" },
+  "failure": { "when_false": "/ok", "message": ["/description"] },
+  "defaults": { "limit": 100, "most_pages": 1, "most_threads": 100 },
+  "cursor": { "start": "0", "advance": { "over": "raw", "by": "/update_id", "plus": 1 } },
+  "walks": [
+    {
+      "name": "updates",
+      "levels": [
+        {
+          "path": "/getUpdates",
+          "query": { "offset": "{cursor}", "limit": "{limit}", "timeout": "0" },
+          "items": "/result",
+          "unwrap": ["/message", "/edited_message", "/channel_post", "/edited_channel_post"]
+        }
+      ],
+      "fold": {
+        "layout": "threads",
+        "thread": {
+          "id": "/chat/id",
+          "title": {
+            "first": [
+              "/chat/title",
+              { "join": ["/chat/first_name", "/chat/last_name"], "sep": " " },
+              { "prefix": "@", "of": "/chat/username" },
+              "/chat/id"
+            ]
+          }
+        },
+        "key": ["/message_id"],
+        "signature": ["/from/id", "/date", "/text"],
+        "order": ["/message_id", "/date"],
+        "conflict": { "newer": { "by": ["/edit_date"], "strict": false } }
+      }
+    }
+  ]
+}

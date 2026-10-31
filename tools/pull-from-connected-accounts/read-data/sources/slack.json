@@ -1,0 +1,41 @@
+{
+  "id": "slack",
+  "label": "Slack",
+  "says": "the channels the bot has been invited to",
+  "base": "https://slack.com/api",
+  "auth": { "in": "header", "name": "Authorization", "prefix": "Bearer " },
+  "headers": { "Accept": "application/json" },
+  "identity": { "path": "/auth.test", "self_id": "/user_id" },
+  "failure": { "when_false": "/ok", "message": ["/error"] },
+  "rate_limit": { "wait_from": { "header": "retry-after" }, "most_wait_seconds": 30 },
+  "defaults": { "limit": 100, "most_pages": 10, "most_threads": 50 },
+  "cursor": { "start": "0", "advance": { "over": "records", "by": "/ts", "plus": 0 } },
+  "walks": [
+    {
+      "name": "channels",
+      "levels": [
+        {
+          "path": "/conversations.list",
+          "query": { "limit": "100", "exclude_archived": "true" },
+          "items": "/channels",
+          "page": { "param": "cursor", "next": "/response_metadata/next_cursor" },
+          "bind": { "channel": "/id", "channel_name": { "first": ["/name", "/id"] } }
+        },
+        {
+          "path": "/conversations.history",
+          "query": { "channel": "{channel}", "oldest": "{cursor}", "limit": "{limit}" },
+          "items": "/messages",
+          "page": { "param": "cursor", "next": "/response_metadata/next_cursor" }
+        }
+      ],
+      "fold": {
+        "layout": "threads",
+        "thread": { "id": { "var": "channel" }, "title": { "var": "channel_name" } },
+        "key": ["/ts"],
+        "signature": ["/user", "/text", "/ts"],
+        "order": ["/ts"],
+        "conflict": { "newer": { "by": ["/edited/ts"], "strict": false } }
+      }
+    }
+  ]
+}

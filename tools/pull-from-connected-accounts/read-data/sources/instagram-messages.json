@@ -1,0 +1,40 @@
+{
+  "id": "instagram-messages",
+  "label": "Instagram direct messages",
+  "says": "the direct-message conversations of the Instagram professional account the token belongs to",
+  "base": "https://graph.instagram.com/v21.0",
+  "auth": { "in": "header", "name": "Authorization", "prefix": "Bearer " },
+  "headers": { "Accept": "application/json" },
+  "vars": { "platform": "instagram" },
+  "identity": { "path": "/me", "query": { "fields": "user_id,username" }, "self_id": { "first": ["/user_id", "/id"] } },
+  "defaults": { "limit": 20, "most_pages": 1, "most_threads": 20 },
+  "walks": [
+    {
+      "name": "conversations",
+      "levels": [
+        {
+          "path": "/me/conversations",
+          "query": { "platform": "{platform}", "fields": "participants,updated_time", "limit": "{most_threads}" },
+          "page": { "param": "after", "next": "/paging/cursors/after", "requires": "/paging/next" },
+          "items": "/data",
+          "bind": { "conversation": "/id" }
+        },
+        {
+          "path": "/{conversation}/messages",
+          "query": { "fields": "from,created_time,message", "limit": "{limit}" },
+          "items": "/data",
+          "page": { "param": "after", "next": "/paging/cursors/after", "requires": "/paging/next" }
+        }
+      ],
+      "fold": {
+        "layout": "threads",
+        "thread": { "id": { "var": "conversation" }, "title": { "var": "conversation" }, "source": true },
+        "key": ["/id"],
+        "signature": ["/from/id", "/created_time", "/message"],
+        "order": ["/created_time"],
+        "conflict": { "merge": true },
+        "stop_when_known": true
+      }
+    }
+  ]
+}

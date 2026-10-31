@@ -1,0 +1,28 @@
+{
+  "id": "pinterest-pins",
+  "label": "Pinterest pins and boards",
+  "says": "the pins and boards of the Pinterest account the token belongs to",
+  "base": "https://api.pinterest.com/v5",
+  "auth": { "in": "header", "name": "Authorization", "prefix": "Bearer " },
+  "headers": { "Accept": "application/json" },
+  "identity": { "path": "/user_account", "self_id": "/username" },
+  "failure": { "message": ["/message"] },
+  "rate_limit": { "wait_from": { "header": "retry-after" }, "most_wait_seconds": 30 },
+  "defaults": { "limit": 100, "most_pages": 5, "most_threads": 1 },
+  "walks": [
+    {
+      "name": "pins",
+      "levels": [
+        { "path": "/pins", "query": { "page_size": "{limit}" }, "items": "/items", "page": { "param": "bookmark", "next": "/bookmark" } }
+      ],
+      "fold": { "layout": "items", "into": "pins", "key": ["/id"], "conflict": { "merge": true }, "stop_when_known": true }
+    },
+    {
+      "name": "boards",
+      "levels": [
+        { "path": "/boards", "query": { "page_size": "{limit}" }, "items": "/items", "page": { "param": "bookmark", "next": "/bookmark" } }
+      ],
+      "fold": { "layout": "items", "into": "boards", "key": ["/id"], "conflict": { "merge": true }, "stop_when_known": true }
+    }
+  ]
+}

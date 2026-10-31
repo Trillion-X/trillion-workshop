@@ -1,0 +1,38 @@
+{
+  "id": "x-bookmarks",
+  "label": "X bookmarks",
+  "says": "the posts the person bookmarked on X, newest first",
+  "base": "https://api.twitter.com/2",
+  "auth": { "in": "header", "name": "Authorization", "prefix": "Bearer " },
+  "headers": { "Accept": "application/json" },
+  "identity": { "path": "/users/me", "self_id": "/data/id" },
+  "failure": { "message": ["/errors/0/message", "/detail", "/title"] },
+  "rate_limit": { "wait_from": { "header": "retry-after" }, "most_wait_seconds": 30 },
+  "defaults": { "limit": 100, "most_pages": 5, "most_threads": 1 },
+  "walks": [
+    {
+      "name": "bookmarks",
+      "levels": [
+        {
+          "path": "/users/{self_id}/bookmarks",
+          "query": {
+            "max_results": "{limit}",
+            "tweet.fields": "created_at,author_id,public_metrics",
+            "expansions": "author_id,attachments.media_keys",
+            "user.fields": "username,name",
+            "media.fields": "url,type,public_metrics"
+          },
+          "items": "/data",
+          "page": { "param": "pagination_token", "next": "/meta/next_token" }
+        }
+      ],
+      "fold": {
+        "layout": "items",
+        "into": "bookmarks",
+        "key": ["/id"],
+        "conflict": { "keep": "held" },
+        "stop_when_known": true
+      }
+    }
+  ]
+}

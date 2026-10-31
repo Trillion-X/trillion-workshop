@@ -1,0 +1,39 @@
+{
+  "id": "discord",
+  "label": "Discord",
+  "says": "the text channels the bot can read, in every server it is in",
+  "base": "https://discord.com/api/v10",
+  "auth": { "in": "header", "name": "Authorization", "prefix": "Bot " },
+  "headers": { "User-Agent": "DiscordBot (https://discord.com/developers/docs/reference#user-agent, 1.0)", "Accept": "application/json" },
+  "identity": { "path": "/users/@me", "self_id": "/id" },
+  "failure": { "message": ["/message"] },
+  "rate_limit": { "wait_from": { "body": "/retry_after", "header": "retry-after" }, "most_wait_seconds": 30 },
+  "defaults": { "limit": 50, "most_pages": 1, "most_threads": 25 },
+  "walks": [
+    {
+      "name": "channels",
+      "levels": [
+        { "path": "/users/@me/guilds", "bind": { "guild": "/id", "guild_name": { "first": ["/name", "/id"] } } },
+        {
+          "path": "/guilds/{guild}/channels",
+          "keep": [{ "at": "/type", "in": [0, 5] }],
+          "bind": { "channel": "/id", "channel_name": { "first": ["/name", "/id"] } }
+        },
+        {
+          "path": "/channels/{channel}/messages",
+          "query": { "limit": "{limit}" },
+          "page": { "param": "before", "from_last": "/id" }
+        }
+      ],
+      "fold": {
+        "layout": "threads",
+        "thread": { "id": { "var": "channel" }, "title": { "template": "#{channel_name} — {guild_name}" } },
+        "key": ["/id"],
+        "signature": ["/author/id", "/timestamp", "/content"],
+        "order": ["/id", "/timestamp"],
+        "conflict": { "newer": { "by": ["/edited_timestamp"], "strict": true } },
+        "stop_when_known": true
+      }
+    }
+  ]
+}
