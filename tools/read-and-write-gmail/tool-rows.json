@@ -1,0 +1,2056 @@
+{
+ "kind": "tool-rows",
+ "record_set": "read-and-write-gmail-tool-rows",
+ "what_this_is": "The Workshop rows for tools/read-and-write-gmail: one http row per Gmail request the mail screen makes (search, read, organize, trash and restore mail and threads, drafts, send-as signatures), each run as the Google account its input's connection names.",
+ "records": [
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-clear_primary_signature",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Clear primary email signature",
+    "job": "Clear the primary Gmail SendAs signature by sending an empty signature to the exact sendAsEmail where isPrimary is true in list_send_as. The provider response is the saved value; read list_send_as again to verify. This operation does not manage aliases.",
+    "description": "Clear the primary Gmail SendAs signature by sending an empty signature to the exact sendAsEmail where isPrimary is true in list_send_as. The provider response is the saved value; read list_send_as again to verify. This operation does not manage aliases. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "send_as_email"
+     ],
+     "properties": {
+      "send_as_email": {
+       "type": "string",
+       "minLength": 3,
+       "description": "The exact SendAs email where isPrimary is true in list_send_as for this same connected account."
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "sendAsEmail"
+     ],
+     "properties": {
+      "sendAsEmail": {
+       "type": "string"
+      },
+      "isPrimary": {
+       "type": "boolean"
+      },
+      "signature": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs/{send_as_email}",
+     "method": "PATCH",
+     "timeout_seconds": 30,
+     "body_template": {
+      "signature": {
+       "const": ""
+      }
+     },
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs/{send_as_email}"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-create_draft",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Create email draft",
+    "job": "Save a plain-text Gmail draft. raw is a base64url-encoded RFC 2822 message; thread_id is optional for a reply draft.",
+    "description": "Save a plain-text Gmail draft. raw is a base64url-encoded RFC 2822 message; thread_id is optional for a reply draft. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "raw"
+     ],
+     "properties": {
+      "raw": {
+       "type": "string",
+       "minLength": 1
+      },
+      "thread_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id",
+      "message"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "message": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts",
+     "method": "POST",
+     "timeout_seconds": 30,
+     "body_template": {
+      "message": {
+       "raw": {
+        "from": "raw"
+       },
+       "threadId": {
+        "from": "thread_id",
+        "optional": true
+       }
+      }
+     },
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/drafts"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-delete_draft",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Delete email draft",
+    "job": "Delete one Gmail draft permanently.",
+    "description": "Delete one Gmail draft permanently. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "draft_id"
+     ],
+     "properties": {
+      "draft_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/{draft_id}",
+     "method": "DELETE",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/{draft_id}"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-find_my_mailbox",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "label": "Read mailbox details",
+    "job": "Find which Gmail address a connection belongs to, and where its mail stands now",
+    "description": "Find which Gmail address a connection belongs to, and where its mail stands now Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "connection"
+     ],
+     "properties": {
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "emailAddress",
+      "historyId"
+     ],
+     "properties": {
+      "emailAddress": {
+       "type": "string"
+      },
+      "historyId": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/profile",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/profile"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-list_drafts",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "label": "List email drafts",
+    "job": "List your Gmail drafts, newest first.",
+    "description": "List your Gmail drafts, newest first. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "query": {
+       "type": "string"
+      },
+      "page_token": {
+       "type": "string",
+       "minLength": 1
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     },
+     "required": [
+      "connection"
+     ]
+    },
+    "output_schema": {
+     "type": "object",
+     "properties": {
+      "drafts": {
+       "type": "array"
+      },
+      "nextPageToken": {
+       "type": "string"
+      },
+      "resultSizeEstimate": {
+       "type": "number"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts?maxResults=50",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "query": {
+      "pageToken": {
+       "from": "page_token",
+       "optional": true
+      },
+      "q": {
+       "from": "query",
+       "optional": true
+      }
+     },
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/drafts"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-list_new_mail",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "label": "Read new email",
+    "job": "List the mail that reached this Gmail inbox since a point in its history",
+    "description": "List the mail that reached this Gmail inbox since a point in its history Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "connection",
+      "since"
+     ],
+     "properties": {
+      "since": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The history point to list from, as find_my_mailbox or the last listing gave it"
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "historyId"
+     ],
+     "properties": {
+      "historyId": {
+       "type": "string"
+      },
+      "history": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/history?startHistoryId={since}&historyTypes=messageAdded&labelId=INBOX&maxResults=100",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/history"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-list_send_as",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "label": "Read sending addresses and signatures",
+    "job": "Read Gmail SendAs identities and signatures. Use the single row whose isPrimary is true for the account's primary signature; aliases are outside this operation.",
+    "description": "Read Gmail SendAs identities and signatures. Use the single row whose isPrimary is true for the account's primary signature; aliases are outside this operation. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection"
+     ],
+     "properties": {
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "sendAs"
+     ],
+     "properties": {
+      "sendAs": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "sendAsEmail"
+        ],
+        "properties": {
+         "sendAsEmail": {
+          "type": "string"
+         },
+         "isPrimary": {
+          "type": "boolean"
+         },
+         "signature": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-modify_mail",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Organize email",
+    "job": "Add or remove Gmail labels on one message. Use INBOX to archive, UNREAD to change read status, and STARRED to star or unstar it.",
+    "description": "Add or remove Gmail labels on one message. Use INBOX to archive, UNREAD to change read status, and STARRED to star or unstar it. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "message_id"
+     ],
+     "properties": {
+      "message_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "add_label_ids": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "minLength": 1
+       }
+      },
+      "remove_label_ids": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "minLength": 1
+       }
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id",
+      "labelIds"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "labelIds": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}/modify",
+     "method": "POST",
+     "timeout_seconds": 30,
+     "body_template": {
+      "addLabelIds": {
+       "from": "add_label_ids",
+       "optional": true
+      },
+      "removeLabelIds": {
+       "from": "remove_label_ids",
+       "optional": true
+      }
+     },
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}/modify"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-modify_mail_thread",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Organize email conversation",
+    "job": "Add or remove Gmail labels on every message of one conversation. Use INBOX to archive the whole conversation.",
+    "description": "Add or remove Gmail labels on every message of one conversation. Use INBOX to archive the whole conversation. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "thread_id"
+     ],
+     "properties": {
+      "thread_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "add_label_ids": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "minLength": 1
+       }
+      },
+      "remove_label_ids": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "minLength": 1
+       }
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}/modify",
+     "method": "POST",
+     "timeout_seconds": 30,
+     "body_template": {
+      "addLabelIds": {
+       "from": "add_label_ids",
+       "optional": true
+      },
+      "removeLabelIds": {
+       "from": "remove_label_ids",
+       "optional": true
+      }
+     },
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}/modify"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-read_a_mail",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "label": "Read email",
+    "job": "Read a whole Gmail message: its headers and its text, each part's body in base64url",
+    "description": "Read a whole Gmail message: its headers and its text, each part's body in base64url Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "connection",
+      "message_id"
+     ],
+     "properties": {
+      "message_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The message to read"
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "payload": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}?format=full",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-read_draft",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "label": "Read email draft",
+    "job": "Read one draft and its full message. The draft id comes from list_drafts.",
+    "description": "Read one draft and its full message. The draft id comes from list_drafts. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "draft_id"
+     ],
+     "properties": {
+      "draft_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id",
+      "message"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "message": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/{draft_id}?format=full",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/{draft_id}"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-read_mail_headers",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "label": "Read email headers",
+    "job": "Read who sent a Gmail message, to whom, its subject, when, and its first lines",
+    "description": "Read who sent a Gmail message, to whom, its subject, when, and its first lines Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "connection",
+      "message_id"
+     ],
+     "properties": {
+      "message_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The message, as list_new_mail gave it"
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "snippet": {
+       "type": "string"
+      },
+      "payload": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-read_mail_thread",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "label": "Read email conversation",
+    "job": "Read the list of one Gmail conversation in order: each message's id, labels, preview line and time, and its sender, recipients, subject and message id. Message words are not included; read one message with read_a_mail.",
+    "description": "Read the list of one Gmail conversation in order: each message's id, labels, preview line and time, and its sender, recipients, subject and message id. Message words are not included; read one message with read_a_mail. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "thread_id"
+     ],
+     "properties": {
+      "thread_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "messages": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Cc&metadataHeaders=Subject&metadataHeaders=Date&metadataHeaders=Message-ID",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-restore_mail",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Restore email",
+    "job": "Restore a Gmail message from Trash.",
+    "description": "Restore a Gmail message from Trash. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "message_id"
+     ],
+     "properties": {
+      "message_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id",
+      "labelIds"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "labelIds": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}/untrash",
+     "method": "POST",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}/untrash"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-restore_mail_thread",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Restore email conversation",
+    "job": "Restore every message of one Gmail conversation from Trash.",
+    "description": "Restore every message of one Gmail conversation from Trash. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "thread_id"
+     ],
+     "properties": {
+      "thread_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}/untrash",
+     "method": "POST",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}/untrash"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-search_mail",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "label": "Search email",
+    "job": "Find Gmail messages matching a search, written as in Gmail's own search box (from:, to:, subject:, after:)",
+    "description": "Find Gmail messages matching a search, written as in Gmail's own search box (from:, to:, subject:, after:) Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "connection",
+      "query"
+     ],
+     "properties": {
+      "query": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The search, as typed in Gmail's search box, like from:alex to:sam"
+      },
+      "page_token": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The nextPageToken the search before gave, for the next page of its results"
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "properties": {
+      "messages": {
+       "type": "array"
+      },
+      "resultSizeEstimate": {
+       "type": "number"
+      },
+      "nextPageToken": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages?q={query}&maxResults=50&includeSpamTrash=true",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "query": {
+      "pageToken": {
+       "from": "page_token",
+       "optional": true
+      }
+     },
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/messages"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-send_draft",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Send email draft",
+    "job": "Send an existing Gmail draft by draft_id. Sending consumes the draft, so repeating the same draft id cannot send it a second time.",
+    "description": "Send an existing Gmail draft by draft_id. Sending consumes the draft, so repeating the same draft id cannot send it a second time. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "draft_id"
+     ],
+     "properties": {
+      "draft_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id",
+      "threadId"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "threadId": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/send",
+     "method": "POST",
+     "timeout_seconds": 30,
+     "body_template": {
+      "id": {
+       "from": "draft_id"
+      }
+     },
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/send"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-trash_mail",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Move email to Trash",
+    "job": "Move a Gmail message to Trash, where it can still be restored.",
+    "description": "Move a Gmail message to Trash, where it can still be restored. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "message_id"
+     ],
+     "properties": {
+      "message_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id",
+      "labelIds"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "labelIds": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}/trash",
+     "method": "POST",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/messages/{message_id}/trash"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-trash_mail_thread",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Move email conversation to Trash",
+    "job": "Move every message of one Gmail conversation to Trash, where it can still be restored.",
+    "description": "Move every message of one Gmail conversation to Trash, where it can still be restored. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "thread_id"
+     ],
+     "properties": {
+      "thread_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}/trash",
+     "method": "POST",
+     "timeout_seconds": 30,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/threads/{thread_id}/trash"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-update_draft",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Edit email draft",
+    "job": "Replace the contents of an existing Gmail draft. raw is a base64url-encoded RFC 2822 message.",
+    "description": "Replace the contents of an existing Gmail draft. raw is a base64url-encoded RFC 2822 message. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "draft_id",
+      "raw"
+     ],
+     "properties": {
+      "draft_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "raw": {
+       "type": "string",
+       "minLength": 1
+      },
+      "thread_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id",
+      "message"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "message": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/{draft_id}",
+     "method": "PUT",
+     "timeout_seconds": 30,
+     "body_template": {
+      "message": {
+       "raw": {
+        "from": "raw"
+       },
+       "threadId": {
+        "from": "thread_id",
+        "optional": true
+       }
+      }
+     },
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/{draft_id}"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:google-account-update_send_as_signature",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "maker": "maker:read-and-write-gmail",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": false,
+    "label": "Update email signature",
+    "job": "Set a Gmail SendAs signature using the exact sendAsEmail from the row where isPrimary is true in list_send_as. Gmail sanitizes the HTML and returns its saved value; read list_send_as again to verify provider state. This operation does not manage aliases.",
+    "description": "Set a Gmail SendAs signature using the exact sendAsEmail from the row where isPrimary is true in list_send_as. Gmail sanitizes the HTML and returns its saved value; read list_send_as again to verify provider state. This operation does not manage aliases. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "connection",
+      "send_as_email",
+      "signature"
+     ],
+     "properties": {
+      "send_as_email": {
+       "type": "string",
+       "minLength": 3,
+       "description": "The exact SendAs email where isPrimary is true in list_send_as for this same connected account."
+      },
+      "signature": {
+       "type": "string",
+       "maxLength": 10000,
+       "description": "HTML signature content. Gmail sanitizes it before saving."
+      },
+      "connection": {
+       "type": "object",
+       "required": [
+        "connection_id"
+       ],
+       "additionalProperties": true,
+       "properties": {
+        "connection_id": {
+         "type": "string",
+         "description": "The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it"
+        },
+        "connected_at": {
+         "type": "string",
+         "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+        }
+       },
+       "description": "The person's Google account this run uses, by its handle only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "sendAsEmail"
+     ],
+     "properties": {
+      "sendAsEmail": {
+       "type": "string"
+      },
+      "isPrimary": {
+       "type": "boolean"
+      },
+      "signature": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "url": "https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs/{send_as_email}",
+     "method": "PATCH",
+     "timeout_seconds": 30,
+     "body_template": {
+      "signature": {
+       "from": "signature"
+      }
+     },
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       }
+      }
+     ],
+     "connection": {
+      "vendor": "google-account",
+      "from_input": "connection"
+     }
+    },
+    "result_selector": "$",
+    "provenance": {
+     "provider": "Google",
+     "api": "https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs/{send_as_email}"
+    }
+   }
+  }
+ ]
+}
