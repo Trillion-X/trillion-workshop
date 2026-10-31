@@ -1,0 +1,23 @@
+{
+  "_what": "Where the public prediction-market data is read (no account, no key). `markets` is the market-discovery API: GET base_url + path with `query` and the `limit_param` set to the limit asked for (default_limit when none). `order_book` is the order-book API: GET base_url + path with `token_param` set to the outcome token asked for. `headers` go on every request: the User-Agent is required, because the sites' edge refuses a request with none. `normalizer` names the carried file in do-work/ that turns the reply into the answer. Another venue is another file in this folder with the same shape, not new code.",
+  "user_agent": "trillion-workshop-live-market-prices (+https://github.com/Trillion-X/trillion-workshop)",
+  "markets": {
+    "base_url": "https://gamma-api.polymarket.com",
+    "path": "/markets",
+    "headers": { "accept": "application/json" },
+    "query": { "active": "true", "closed": "false", "order": "volume24hr", "ascending": "false" },
+    "limit_param": "limit",
+    "default_limit": 20,
+    "most_limit": 100,
+    "timeout_seconds": 30,
+    "normalizer": "normalize-gamma-markets.py"
+  },
+  "order_book": {
+    "base_url": "https://clob.polymarket.com",
+    "path": "/book",
+    "headers": { "accept": "application/json" },
+    "token_param": "token_id",
+    "timeout_seconds": 30,
+    "normalizer": "normalize-order-book.py"
+  }
+}
