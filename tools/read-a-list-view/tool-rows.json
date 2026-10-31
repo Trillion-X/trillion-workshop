@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "read-a-list-view-tool-rows",
-  "what_this_is": "The Workshop row for the tool in tools/read-a-list-view: one page of what a person's list or saved view shows, its own rows and its row sources' rows, read through the person's own door.",
+  "what_this_is": "The Workshop row for the tool in tools/read-a-list-view: one page of what a person's list or saved view shows, read from their records through their own door, and the refresh that writes a list's row sources into those records.",
   "records": [
     {
       "payload": {
@@ -11,9 +11,9 @@
         "licence_class": "licence:maker-own",
         "maker": "maker:read-a-list-view",
         "placements": ["placement:your-computer"],
-        "label": "Read a page of one of my lists or saved views",
-        "job": "Read one page of what one of my lists shows, its own rows and then the rows of each row source it declares (a folder of documents, for one), or what a saved view of it keeps, in its order",
-        "description": "Reads the list (or the saved view and its list) through the person's door. Its own rows come first, then each row source's rows, each source read by running the tool that serves it (read-data/list-view.json), so nothing is copied. A page holds `limit` rows (the lists' read_page_rows when left out, never more than rows_per_read) and answers `next` while more remain. A view with rules keeps the rows the person's rule-filter tool says its rules keep, ordered by its sort. A list with more row sources than its bound, a source no tool serves, or a source that answers no rows is refused, never shown as empty.",
+        "label": "Read a page of one of my lists or saved views, or refresh its row sources",
+        "job": "Read one page of what one of my lists or saved views shows, from my records, or refresh a list's row sources (a folder of documents, for one) into its records",
+        "description": "Reads the list (or the saved view and its list) through the person's door, from records only: the list's rows are the records of its row type, and each row source's rows are among them, written there by the last refresh (row id <source>~<its id>), so a read runs no tool. A page holds `limit` rows (read_page_rows when left out, never more than rows_per_read) and answers `next` while more remain. A view with rules keeps the rows the person's rule filter says its rules keep, ordered by its sort. With `refresh` it runs the tool each row source names (read-data/list-view.json), reads the whole source, and writes its rows as the list's records: only the rows that changed, removing the rows the source no longer has, in bounded writes. A source with more than rows_per_read rows, a source no tool serves, or a source that answers no rows is refused and nothing of it is written.",
         "input_schema": {
           "type": "object",
           "required": ["config"],
@@ -22,16 +22,17 @@
             "list": {"type": "string", "description": "The list's id; give this or view."},
             "view": {"type": "string", "description": "The saved view's record id; give this or list."},
             "after": {"type": "string", "description": "The `next` of the page before; left out for the first page."},
-            "limit": {"type": "integer", "minimum": 1, "description": "Rows a page holds."}
+            "limit": {"type": "integer", "minimum": 1, "description": "Rows a page holds."},
+            "refresh": {"type": "string", "description": "A list's id: run its row sources and write their rows as its records, instead of reading a page."}
           }
         },
-        "output_schema": {"type": "object", "description": "{ list, fields, rows: [{ id, values, title, source? }], next, complete } as JSON; exit 2 with the reason on standard error."},
+        "output_schema": {"type": "object", "description": "A page { list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }, or for a refresh { list, sources: [{ source, rows, written, removed, unchanged, refused }] }, as JSON; exit 2 with the reason on standard error."},
         "invoke": {
           "kind": "on-your-computer",
           "get_it": ["clone the Workshop repository (package.json repository.url)"],
           "run": "node tools/read-a-list-view/do-work/read-list-view.mjs --config {config} --list {list} --after {after} --limit {limit}",
           "needs": ["node"],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout, and reads their lists through their own door with their own key. Use --view instead of --list for a saved view. Show the rows as a table of the list's fields, and read the next page with `next` until it is null when they want every row."
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, and reads their lists through their own door with their own key. Use --view instead of --list for a saved view, and --refresh with a list's id when they want its row sources read again: a refresh is the only thing that runs the source tools. Show the rows as a table of the list's fields, and read the next page with `next` until it is null when they want every row."
         },
         "provenance": {"source": "Written for the Workshop: a list read that pages across a list's own records and its row sources, in the way a database view joins its tables"}
       }

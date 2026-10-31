@@ -3,12 +3,10 @@
 // One function per Workshop row. Each takes the request object a person's AI sent, refuses what it cannot run with a
 // sentence that says what to send, and returns the answer. The comparisons are DATA (read-data/rule-operators.json, or the
 // `operators` the request brings); no field, comparison or value is named in code.
-import { readFileSync } from 'node:fs';
 import { classifyByRules } from './classify-by-rules.mjs';
 import { compileRules, ruleVocabulary } from './compile-rules.mjs';
 import { evaluateBinding, filterRows, operatorIds } from './evaluate-binding.mjs';
-
-const defaultOperators = JSON.parse(readFileSync(new URL('../read-data/rule-operators.json', import.meta.url), 'utf8'));
+import defaultOperators from '../read-data/rule-operators.json' with { type: 'json' };
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const need = (ok, sentence) => { if (!ok) throw new Error(sentence); };
