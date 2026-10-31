@@ -3,7 +3,21 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "f8d8504bdc2fe3c3ed0d040ef19922ec82b7d69e4cb03f899bd4e2ca40d6fe4c"
+  "blake3": "e453ff9d177436a3e7ec4eafad6a8acf1a0cf005aeda783f4dd6dfd1cb735703",
+  "local_update_status": "pending-account-row-sync",
+  "account_row_sync": {
+   "status": "pending",
+   "canonical_rows_readback": false,
+   "reason": "The selected native Trillion app route was unavailable; do not represent these local row updates as account writes.",
+   "target_lists": [
+    "workflows",
+    "workflow-steps"
+   ],
+   "workflow_ids": [
+    "get-found-in-search-and-answer-engines",
+    "keep-pages-cited-by-answer-engines"
+   ]
+  }
  },
  "fields": [
   {
@@ -1149,7 +1163,7 @@
    "id": "get-found-in-search-and-answer-engines--fix-site",
    "values": {
     "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"files\",\"*\",\"path\"],\"values\":[\"/robots.txt\",\"/llms.txt\"],\"says\":\"Both files are written\"},{\"kind\":\"mentioned-in\",\"path\":[\"steps\",\"list-pages\",\"pages\",\"*\"],\"in\":[\"this\",\"files\",\"*\",\"text\"],\"says\":\"llms.txt lists every page\"}]",
-    "do": "Read the site's /robots.txt and /llms.txt with tool:read-public-web-page. Write, as exact file text for the person to publish: a robots.txt that keeps every rule the site already has and lets the answer-engine crawlers in by name where a check found them kept out; an llms.txt in the form the llmstxt.org proposal describes, with one line for the site, then every page in the list-pages step and every tool the site offers, each with its address and one plain sentence; and, when the site's server can answer a request that asks for text/markdown, the rule that makes it answer Markdown for HTML pages and add Vary: Accept (tools/ai-readiness/do-work/negotiate-markdown.mjs is the working code). Say for each file whether the site already has it and what changed. Never remove a rule the site already has.",
+    "do": "Read the site's /robots.txt and /llms.txt with tool:read-public-web-page. Prepare proposed exact file contents: keep every existing robots rule and open an answer-engine crawler only where a check found it blocked; make llms.txt follow the current llmstxt.org proposal and list the site's actual pages and tools; include Markdown negotiation only when the site's served response supports it. Report what exists and the proposed diff. These are draft inputs for the destination-publication step, not instructions for the person to upload files. Never remove an existing rule or invent an offered tool.",
     "flags": [
      "public"
     ],
@@ -1183,7 +1197,7 @@
    "id": "get-found-in-search-and-answer-engines--approve-and-publish",
    "values": {
     "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"published\",\"*\",\"page\"],\"of\":[\"steps\",\"check-pages\",\"results\",\"*\",\"page\"],\"says\":\"Only checked pages are published\"}]",
-    "do": "Show the person, in the chat, each file from the fix-site step and each page's changes from the fix-pages step, with the changes that need their facts first. Ask for each page and file: \"Do you approve this exactly as shown?\" Wait; change only what they ask and show it again. Then tell them to publish the approved changes on their own site (the AI never publishes) and ask them to say when each is live. Check every changed page again with tool:check-a-page-for-search-and-answer-engines and record its score now next to its score before.",
+    "do": "Combine only the exact file contents from fix-site and page changes from fix-pages. Inspect the callable tools actually present in this session and select a destination integration only when its declared contract provides all needed operations: read current destination/revision, save a draft with concurrency protection, open or read a concrete preview, publish under the current caller's grant, and read the live result back. Use those exact tool names and schemas; do not infer or invent an API. If no matching destination or any required operation/grant is absent, return blocked with the exact operation and missing integration or authority, make no live write, and do not tell the person to publish manually. Otherwise read the exact target files and current/draft revisions, save each approved-intent change to a draft using the current expected revisions, read the resulting draft and preview, then show the exact diff and preview address. Preserve missing facts for the person to provide. Follow a human confirmation only when the actual tool authorization boundary requires it or a fact/choice is genuinely missing; existing standing authority needs no repeated approval. Publish through the declared tool, then fetch the public page and read the exact live files again. Mark live only when that readback contains the saved bytes; the publish receipt alone is not readback. Recheck changed pages with tool:check-a-page-for-search-and-answer-engines. If a conflict, refusal, unavailable read or mismatch occurs, report that exact state and never claim the page is live.",
     "flags": [
      "public"
     ],
@@ -1192,8 +1206,8 @@
      "get-found-in-search-and-answer-engines"
     ],
     "step": "approve-and-publish",
-    "submit": "{\"type\":\"object\",\"required\":[\"published\"],\"properties\":{\"published\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"page\",\"approved\",\"live\"],\"properties\":{\"page\":{\"type\":\"string\"},\"approved\":{\"type\":\"boolean\"},\"live\":{\"type\":\"boolean\"},\"score_before\":{\"type\":[\"integer\",\"null\"]},\"score_now\":{\"type\":[\"integer\",\"null\"]}}}}}}",
-    "title": "The person approves the exact changes and publishes them"
+    "submit": "{\"type\":\"object\",\"required\":[\"published\"],\"properties\":{\"published\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"page\",\"status\"],\"properties\":{\"page\":{\"type\":\"string\"},\"status\":{\"type\":\"string\",\"enum\":[\"published-and-read-back\",\"blocked\",\"unchanged\",\"readback-mismatch\"]},\"preview_url\":{\"type\":\"string\"},\"draft_revision\":{\"type\":\"string\"},\"live_revision\":{\"type\":\"string\"},\"live_readback\":{\"type\":\"boolean\"},\"missing_operation\":{\"type\":\"string\"},\"missing_authority\":{\"type\":\"string\"},\"error\":{\"type\":\"string\"}}}}}}",
+    "title": "Save a destination draft, preview it, publish under existing authority, and read it back"
    }
   },
   {
@@ -1693,17 +1707,17 @@
   {
    "id": "keep-pages-cited-by-answer-engines--ask",
    "values": {
-    "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"answers\",\"*\",\"page\"],\"of\":[\"input\",\"pages\",\"*\",\"url\"],\"says\":\"Every page was asked about\"},{\"kind\":\"covers\",\"path\":[\"this\",\"answers\",\"*\",\"engine\"],\"of\":[\"input\",\"answer_engines\",\"*\"],\"says\":\"Every answer engine was asked\"},{\"kind\":\"subset-of\",\"path\":[\"this\",\"answers\",\"*\",\"page\"],\"of\":[\"input\",\"pages\",\"*\",\"url\"],\"says\":\"Only the person's own pages were asked about\"}]",
-    "do": "For each page in the input pages and each of its questions, and for each address in the input answer_engines: put the question where {question} is (spaces written as +) and call tool:read-a-page-in-my-browser with { \"url\": <that address> }. Wait until the answer has finished writing, then copy the full answer text and every address the answer cites. A page counts as cited only when one of the cited addresses is the page's url or starts with it; a mention of the site's name without its address is not a citation. Record today's date in the person's time zone.",
+    "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"observations\",\"*\",\"cell_id\"],\"of\":[\"steps\",\"plan-cells\",\"cells\",\"*\",\"cell_id\"],\"says\":\"Every planned page × question × engine cell was observed or explicitly unavailable\"},{\"kind\":\"subset-of\",\"path\":[\"this\",\"observations\",\"*\",\"cell_id\"],\"of\":[\"steps\",\"plan-cells\",\"cells\",\"*\",\"cell_id\"],\"says\":\"No unplanned page × question × engine cell was asked\"}]",
+    "do": "For each cell in steps.plan-cells.cells: substitute the URL-encoded cell.question in the matching input.answer_engines address and call tool:read-a-page-in-my-browser. Preserve the full answer and exact citation URLs; never decide citation by a prefix or site-name mention. Return one observation for every planned cell, with cell_id, exact page_url, question and engine. Use status observed only after the answer finished loading; then keep full answer text and citations (empty only when the read answer has no citations), observed_at as ISO timestamp with the person's local UTC offset, and locale, mode and source only when known. A failed, signed-out or unfinished read is unavailable with its reason, not a no-citation result. Do not omit any cell.",
     "flags": [
      "public"
     ],
-    "position": 1,
+    "position": 2,
     "recipe": [
      "keep-pages-cited-by-answer-engines"
     ],
     "step": "ask",
-    "submit": "{\"type\":\"object\",\"required\":[\"date\",\"answers\"],\"properties\":{\"date\":{\"type\":\"string\",\"format\":\"date\"},\"answers\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"page\",\"question\",\"engine\",\"cited\",\"cited_addresses\"],\"properties\":{\"page\":{\"type\":\"string\"},\"question\":{\"type\":\"string\"},\"engine\":{\"type\":\"string\"},\"cited\":{\"type\":\"boolean\"},\"cited_addresses\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}}}}",
+    "submit": "{\"type\":\"object\",\"required\":[\"observations\"],\"properties\":{\"observations\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"cell_id\",\"page_url\",\"question\",\"engine\",\"status\"],\"properties\":{\"cell_id\":{\"type\":\"string\"},\"page_url\":{\"type\":\"string\"},\"question\":{\"type\":\"string\"},\"engine\":{\"type\":\"string\"},\"status\":{\"type\":\"string\",\"enum\":[\"observed\",\"unavailable\"]},\"observed_at\":{\"type\":\"string\"},\"locale\":{\"type\":[\"string\",\"null\"]},\"mode\":{\"type\":[\"string\",\"null\"]},\"source\":{\"type\":[\"string\",\"null\"]},\"answer\":{\"type\":\"string\"},\"citations\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"reason\":{\"type\":\"string\"}}}}}}",
     "title": "Ask each answer engine every question each page answers"
    }
   },
@@ -1711,11 +1725,11 @@
    "id": "keep-pages-cited-by-answer-engines--read-pages",
    "values": {
     "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"facts\",\"*\",\"page\"],\"of\":[\"input\",\"pages\",\"*\",\"url\"],\"says\":\"Facts come only from the person's own pages\"}]",
-    "do": "For each page in the input pages call tool:read-public-web-page with { \"url\": <the page's url> }. List every fact on it a reader could act on: a number, a price, a name of a product or rule, a step that depends on a tool or a law. For each fact copy the sentence exactly, and the date the page gives for it (a 'last updated' date counts for every fact under it); write no date when the page gives none. Mark a fact stale when its date is more than the input freshness_days before the date of the ask step, or when it has no date.",
+    "do": "For each page in input.pages call tool:read-public-web-page with its exact url. Read every actionable number, price, product/rule name and tool-dependent or law-dependent claim. Copy each supporting sentence and any date the page itself gives. Write no date when none was supplied. Mark facts older than input.freshness_days before the date of this page read, or with no date, as stale. The measure-citations step separately reads page identity evidence for citation matching.",
     "flags": [
      "public"
     ],
-    "position": 2,
+    "position": 4,
     "recipe": [
      "keep-pages-cited-by-answer-engines"
     ],
@@ -1732,7 +1746,7 @@
     "flags": [
      "public"
     ],
-    "position": 3,
+    "position": 5,
     "recipe": [
      "keep-pages-cited-by-answer-engines"
     ],
@@ -1749,7 +1763,7 @@
     "flags": [
      "public"
     ],
-    "position": 4,
+    "position": 6,
     "recipe": [
      "keep-pages-cited-by-answer-engines"
     ],
@@ -1766,7 +1780,7 @@
     "flags": [
      "public"
     ],
-    "position": 5,
+    "position": 7,
     "recipe": [
      "keep-pages-cited-by-answer-engines"
     ],
@@ -1779,27 +1793,27 @@
    "id": "keep-pages-cited-by-answer-engines--approve-and-publish",
    "values": {
     "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"published\",\"*\",\"page\"],\"of\":[\"steps\",\"rewrite\",\"changes\",\"*\",\"page\"],\"says\":\"Only pages with changes are published\"}]",
-    "do": "Show the person, in the chat, each page's sections before and after, the source of every new fact, the checker's uncertain answers and every fact marked unconfirmed. Ask for each page: \"Do you approve these changes exactly as shown?\" Wait; change only what they ask and show again. Then tell them to publish the approved words on their own site (the AI never publishes) and ask them to say when each page is live. Read each live page again with tool:read-public-web-page and confirm the approved words are on it.",
+    "do": "Show the exact proposed section diff and its evidence. Inspect the callable tools actually present in this session and select a destination integration only when its declared contract has the needed read, concurrency-checked draft save, concrete preview, publish and live readback operations. Use only those exact current tool names and input schemas; do not infer or invent an API. If the integration or authority is missing, mark the page blocked with the exact absent operation/grant, leave the live page unchanged, and do not tell the person to publish manually. Otherwise reread the current destination and revision, save the changed page to its draft using expected revisions, read the draft and preview, then show the precise diff and preview address. Follow a confirmation only when the real tool authorization boundary requires it or a fact or choice is genuinely missing; existing standing authority needs no repeated approval. Publish through the available declared tool, then read the public page back and compare its content with the approved draft. Mark it live only after that readback matches; a receipt alone is insufficient. A stale revision, refusal, missing operation, failed readback or mismatch is reported exactly, with no unsupported success claim.",
     "flags": [
      "public"
     ],
-    "position": 6,
+    "position": 8,
     "recipe": [
      "keep-pages-cited-by-answer-engines"
     ],
     "step": "approve-and-publish",
-    "submit": "{\"type\":\"object\",\"required\":[\"published\"],\"properties\":{\"published\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"page\",\"approved\",\"live\"],\"properties\":{\"page\":{\"type\":\"string\"},\"approved\":{\"type\":\"boolean\"},\"live\":{\"type\":\"boolean\"}}}}}}",
-    "title": "The person approves the exact changes and publishes them"
+    "submit": "{\"type\":\"object\",\"required\":[\"published\"],\"properties\":{\"published\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"page\",\"status\"],\"properties\":{\"page\":{\"type\":\"string\"},\"status\":{\"type\":\"string\",\"enum\":[\"published-and-read-back\",\"blocked\",\"unchanged\",\"readback-mismatch\"]},\"preview_url\":{\"type\":\"string\"},\"draft_revision\":{\"type\":\"string\"},\"live_revision\":{\"type\":\"string\"},\"live_readback\":{\"type\":\"boolean\"},\"missing_operation\":{\"type\":\"string\"},\"missing_authority\":{\"type\":\"string\"},\"error\":{\"type\":\"string\"}}}}}}",
+    "title": "Save a draft, preview, publish under existing authority, and read back the live page"
    }
   },
   {
    "id": "keep-pages-cited-by-answer-engines--record",
    "values": {
-    "do": "Write one record to the person's own records with their record write: { \"kind\": \"page-citations\", \"date\": <the ask step's date>, \"answers\": <the ask step's answers>, \"changed\": <the pages published live> }, so the next run can compare. If an earlier page-citations record exists, read it first and list each page whose cited state changed since then. Call tool:tell-the-person with the pages cited before and now per engine, the facts refreshed, the facts left unconfirmed and the date of the next run.",
+    "do": "Write one page-citations record to the person's own records using the record write tool currently available to this session. Store the measure-citations step's full matrix with every exact answer, citation, observed_at, locale, mode, source, status, unknown and citation result, plus the changes whose live page was actually read back. If an earlier page-citations record exists, compare each page × question × engine cell; unavailable or not-run is unknown, never zero. Tell the person the measured citations, unknown cells, facts refreshed, exact destination operations that were blocked and the readback evidence. Do not say a change caused an engine result.",
     "flags": [
      "public"
     ],
-    "position": 7,
+    "position": 9,
     "recipe": [
      "keep-pages-cited-by-answer-engines"
     ],
@@ -7598,6 +7612,34 @@
     "step": "judge",
     "submit": "{\"type\":\"object\",\"required\":[\"words\",\"judge_said\"],\"properties\":{\"words\":{\"type\":\"object\",\"minProperties\":1,\"additionalProperties\":{\"type\":\"string\",\"minLength\":1},\"description\":\"Every piece of copy, by where it goes (title, summary, step 1 body, subject line, button...).\"},\"judge_said\":{\"type\":\"string\",\"description\":\"What tool:check-copy said on the final words.\"}}}",
     "title": "Run the copy judge and fix every finding"
+   }
+  },
+  {
+   "id": "keep-pages-cited-by-answer-engines--measure-citations",
+   "values": {
+    "recipe": [
+     "keep-pages-cited-by-answer-engines"
+    ],
+    "position": 3,
+    "step": "measure-citations",
+    "title": "Measure the complete page, question and engine matrix",
+    "do": "For each input page call tool:read-public-web-page with its exact url. Use the input URL as the page identity; add a final_url to verified_redirects only when the fetched response explicitly reports that redirect target, and add canonical_url only when the fetched page data explicitly contains a canonical link. Then call tool:measure-page-citation-coverage with those page identities and each page's own questions, engines from input.answer_engines (each exact engine address is its stable id), and observations from ask. Keep every returned cell, answer, citation and context. The result enumerates the complete planned page × question × engine matrix; absent cells are not-run and unavailable reads stay unknown, never zero citations.",
+    "submit": "{\"type\":\"object\",\"required\":[\"coverage\"],\"properties\":{\"coverage\":{\"type\":\"object\",\"required\":[\"planned\",\"measured\",\"cited\",\"not_cited\",\"unknown\",\"citation_rate\",\"cells\"],\"properties\":{\"planned\":{\"type\":\"object\"},\"measured\":{\"type\":\"integer\"},\"cited\":{\"type\":\"integer\"},\"not_cited\":{\"type\":\"integer\"},\"unknown\":{\"type\":\"integer\"},\"citation_rate\":{\"type\":[\"number\",\"null\"]},\"cells\":{\"type\":\"array\",\"items\":{\"type\":\"object\"}}}}}}",
+    "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"coverage\",\"cells\",\"*\",\"cell_id\"],\"of\":[\"steps\",\"plan-cells\",\"cells\",\"*\",\"cell_id\"],\"says\":\"The measured matrix covers every planned page × question × engine cell\"},{\"kind\":\"subset-of\",\"path\":[\"this\",\"coverage\",\"cells\",\"*\",\"cell_id\"],\"of\":[\"steps\",\"plan-cells\",\"cells\",\"*\",\"cell_id\"],\"says\":\"The measured matrix contains no extra cell\"}]"
+   }
+  },
+  {
+   "id": "keep-pages-cited-by-answer-engines--plan-cells",
+   "values": {
+    "recipe": [
+     "keep-pages-cited-by-answer-engines"
+    ],
+    "position": 1,
+    "step": "plan-cells",
+    "title": "Enumerate every planned page, question and answer engine cell",
+    "do": "For each input page and each question listed for that page, form one cell for every input.answer_engines value. Each cell is { page_url: the exact page url, question: the exact question, engine: the exact answer-engine address, cell_id: JSON.stringify([page_url, question, engine]) }. Include every combination exactly once; do not count separate page, question and engine coverage as proof of combination coverage.",
+    "submit": "{\"type\":\"object\",\"required\":[\"cells\"],\"properties\":{\"cells\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"cell_id\",\"page_url\",\"question\",\"engine\"],\"properties\":{\"cell_id\":{\"type\":\"string\"},\"page_url\":{\"type\":\"string\"},\"question\":{\"type\":\"string\"},\"engine\":{\"type\":\"string\"}}}}}}",
+    "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"cells\",\"*\",\"page_url\"],\"of\":[\"input\",\"pages\",\"*\",\"url\"],\"says\":\"The plan names every page\"},{\"kind\":\"covers\",\"path\":[\"this\",\"cells\",\"*\",\"question\"],\"of\":[\"input\",\"pages\",\"*\",\"questions\",\"*\"],\"says\":\"The plan names every page question\"},{\"kind\":\"covers\",\"path\":[\"this\",\"cells\",\"*\",\"engine\"],\"of\":[\"input\",\"answer_engines\",\"*\"],\"says\":\"The plan names every answer engine\"}]"
    }
   }
  ]

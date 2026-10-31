@@ -66,6 +66,16 @@
          "context_requires_review": {
           "type": "boolean"
          },
+         "context_requires_review_rules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Rule ids whose findings need context review on this unit; only those findings become uncertain."
+         },
+         "context_requires_review_checks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Named grammar checks whose findings need context review on this unit; other findings stay in force."
+         },
          "also_found": {
           "type": "array",
           "items": {
@@ -608,8 +618,8 @@
     "id": "tool:check-copy",
     "label": "Check copy before a person reads it",
     "status": "active",
-    "job": "Check text, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
-    "description": "Give words as text, texts, value (any JSON; fields names which keys hold words, or \"strings\" for every string), units, sources (JSON with its place), html (pages), decks (a rendered deck's HTML) or pictures with their readings. Give rules (one row each: words, pattern, exact or a named grammar check) or leave them out to use mechanical grammar rows. Optionally give required (locked lines, features, baseline ids, approvals with the person's own words and the text they sit in), audience, offers and counts, and the person's verdict_rules and stands. Nothing about any person is kept here; their rules are input. A source with no words, a required line gone, a row for the wrong audience, a count that is not a published list view, an offer listing fewer lines than the others and a picture with no reading are problems, never passes. Model questions come back as questions; send answers on a second run.",
+    "job": "Check text, Markdown, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
+    "description": "Give words as text, texts, Markdown, value (any JSON; fields names which keys hold words, or \"strings\" for every string), units, sources (JSON with its place), html (pages), decks (a rendered deck's HTML) or pictures with their readings. Markdown reads headings, paragraphs, list items, table cells and fenced display text; unresolved quotes, preamble before a declared document title and unsupported blocks stay coverage problems. It retains each block's role and field; for findings whose context is not established, name the matching rule ids or grammar check names for review, which keeps those findings uncertain and leaves other findings in force. Give rules (one row each: words, pattern, exact or a named grammar check) or leave them out to use mechanical grammar rows. Optionally give required (locked lines, features, baseline ids, approvals with the person's own words and the text they sit in), audience, offers and counts, and the person's verdict_rules and stands. Nothing about any person is kept here; their rules are input. A source with no words, a required line gone, a row for the wrong audience, a count that is not a published list view, an offer listing fewer lines than the others and a picture with no reading are problems, never passes. Model questions come back as questions; send answers on a second run.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -618,6 +628,26 @@
       "kind": { "type": "string", "description": "The kind of every word that names none (default copy)" },
       "text": { "type": "string" },
       "texts": { "type": "array", "items": { "type": "string" } },
+      "markdown": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": ["text"],
+        "properties": {
+         "text": { "type": "string" },
+         "where": { "type": "string" },
+         "kind": { "type": "string" },
+         "heading_kind": { "type": "string" },
+         "display_kind": { "type": "string" },
+         "document_heading_level": { "type": "integer", "minimum": 1, "maximum": 6 },
+         "document_heading_is_metadata": { "type": "boolean" },
+         "quote_kind": { "type": "string" },
+         "fields": { "type": "object", "description": "Markdown block role to source field mapping, such as heading to title and paragraph to body" },
+         "context_requires_review_rules": { "type": "array", "items": { "type": "string" }, "description": "Rule ids whose findings need context review on every Markdown unit in this document" }
+        }
+       },
+       "description": "Markdown documents: { text, where, kind, heading_kind, display_kind, document_heading_level, document_heading_is_metadata, quote_kind, fields, context_requires_review_rules }. Unresolved quotes and unsupported blocks are coverage problems; sentence-specific check findings on headings, list items, table cells and display text stay uncertain for context review."
+      },
       "value": { "description": "Any JSON whose strings a person reads" },
       "fields": { "description": "Which keys of value hold words, or \"strings\"" },
       "skip_keys": { "type": "array", "items": { "type": "string" } },

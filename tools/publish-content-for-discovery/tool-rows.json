@@ -1,0 +1,125 @@
+{
+  "kind": "tool-rows",
+  "record_set": "publish-content-for-discovery-tool-rows",
+  "what_this_is": "A callable, side-effect-free preparation tool for public content projections.",
+  "records": [
+    {
+      "id": "package::publish-content-for-discovery::tool::prepare-public-content-for-discovery",
+      "address": "package::publish-content-for-discovery::tool::prepare-public-content-for-discovery",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:prepare-public-content-for-discovery",
+        "label": "Prepare public content for people and discovery tools",
+        "status": "active",
+        "job": "Prepare one explicitly authorized public source page as consistent HTML, Markdown, structured data and discovery-feed data, with exact source versions and continuation state.",
+        "description": "Takes a site identity, one bounded page from the existing current-public-view owner, its real source version and observation time, public document citations and one origin-relative route per document. A customer’s existing public List/share read enforces current visibility; this pure projector does not authenticate caller strings or create rights. Imported or model-written text is parsed as safe blocks and rendered through the existing structured page renderer. The complete flag, requestedCursor and nextCursor must match the owner’s actual paged result. Preparation never publishes or caches content.",
+        "input_schema": {
+          "type": "object",
+          "required": ["site", "source", "routes"],
+          "additionalProperties": false,
+          "properties": {
+            "site": {
+              "type": "object", "required": ["origin", "name", "language"],
+              "properties": {
+                "origin": { "type": "string", "format": "uri" },
+                "name": { "type": "string" },
+                "language": { "type": "string" }
+              }
+            },
+            "source": {
+              "type": "object", "required": ["ref", "version", "observedAt", "requestedCursor", "complete", "documents"],
+              "properties": {
+                "ref": { "type": "string" },
+                "version": { "type": "string" },
+                "observedAt": { "type": "string", "format": "date-time" },
+                "requestedCursor": { "type": ["string", "null"] },
+                "complete": { "type": "boolean" },
+                "nextCursor": { "type": ["string", "null"] },
+                "documents": {
+                  "type": "array",
+                  "items": {
+                    "type": "object", "required": ["ref", "version", "title", "schemaType", "openGraphType", "description", "updatedAt", "citations"],
+                    "anyOf": [{ "required": ["sections"] }, { "required": ["bodyMarkdown"] }],
+                    "properties": {
+                      "ref": { "type": "string" },
+                      "version": { "type": "string" },
+                      "title": { "type": "string" },
+                      "schemaType": { "type": "string" },
+                      "openGraphType": { "type": "string" },
+                      "description": { "type": "string" },
+                      "updatedAt": { "type": "string", "format": "date-time" },
+                      "schemaProperties": { "type": "object", "description": "Additional schema.org values from public document DATA; canonical fields are reserved and values are shown as safe text as well as JSON-LD." },
+                      "sections": { "type": "array", "items": { "type": "object" } },
+                      "bodyMarkdown": { "type": "string", "description": "Markdown body from an authorized public source; converted through sectionsFromMarkdown." },
+                      "citations": { "type": "array", "items": { "type": "object", "required": ["url", "label"], "properties": { "url": { "type": "string", "format": "uri" }, "label": { "type": "string" } } } }
+                    }
+                  }
+                }
+              }
+            },
+            "routes": {
+              "type": "array",
+              "items": {
+                "type": "object", "required": ["documentRef", "path"],
+                "properties": { "documentRef": { "type": "string" }, "path": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "output_schema": { "type": "object", "required": ["manifest", "outputs", "diagnostics"], "properties": { "manifest": { "type": "object" }, "outputs": { "type": "object" }, "diagnostics": { "type": "array" } } },
+        "invoke": {
+          "kind": "computer",
+          "workdir": "/opt/publish-content-for-discovery",
+          "stdout": "json",
+          "argv": ["node", "/opt/publish-content-for-discovery/do-work/prepare-from-stdin.mjs"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [
+            { "package": "publish-content-for-discovery", "paths": ["do-work"], "at": "/opt/publish-content-for-discovery" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "package": "export-documents-to-files", "paths": ["do-work/public-page-projection.mjs", "do-work/render-public-page.mjs"], "at": "/opt/export-documents-to-files" },
+            { "package": "ai-readiness", "paths": ["do-work", "read-data"], "at": "/opt/ai-readiness" },
+            { "module": "@noble/hashes", "paths": ["package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] }
+        },
+        "result_selector": "$",
+        "licence_class": "licence:permissive",
+        "placements": ["placement:small-container"],
+        "maker": "maker:publish-content-for-discovery",
+        "provenance": { "source": "Shared projection over content-identity, export-documents-to-files and ai-readiness owners; no destination mutation." },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "site": { "origin": "https://cedar.invalid", "name": "Cedar Field Lab", "language": "en" },
+              "source": {
+                "ref": "source:cedar:public-page",
+                "version": "snapshot:sample-1",
+                "observedAt": "2026-10-31T10:00:00Z",
+                "requestedCursor": null,
+                "complete": true,
+                "nextCursor": null,
+                "documents": [
+                  {
+                    "ref": "document:cedar:guide",
+                    "version": "edition:1",
+                    "title": "A public guide",
+                    "schemaType": "Article",
+                    "openGraphType": "article",
+                    "description": "A short guide from a public source.",
+                    "updatedAt": "2026-10-31T10:00:00Z",
+                    "bodyMarkdown": "## Details\n\nA useful fact.",
+                    "citations": []
+                  }
+                ]
+              },
+              "routes": [{ "documentRef": "document:cedar:guide", "path": "/guides/public-guide" }]
+            },
+            "output_selector": "$.outputs.documents[0].canonicalUrl",
+            "contains": "https://cedar.invalid/guides/public-guide"
+          }
+        ]
+      }
+    }
+  ]
+}

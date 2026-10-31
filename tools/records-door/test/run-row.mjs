@@ -11,9 +11,13 @@ import { startFakeDoor } from './fake-door.mjs';
 const repository = dirname(fileURLToPath(import.meta.resolve('trillion-workshop/package.json')));
 const onThisComputer = word => (typeof word === 'string' && word.startsWith('/opt/') ? join(repository, 'tools', word.slice('/opt/'.length)) : word);
 
-export async function runRow(row, input, { records = [] } = {}) {
+export async function runRow(row, input, { records = [], doorOptions = {} } = {}) {
   const { argv, records: door = null } = row.invoke;
-  const fake = await startFakeDoor({ rights: door?.rights ?? [], mostWrites: door?.most_writes, records });
+  const rights = (door?.rights ?? []).map(right => Object.fromEntries(Object.entries(right).map(([field, value]) => [field,
+    value && typeof value === 'object' && value.fill?.from === 'input'
+      ? value.fill.field.split('.').reduce((at, key) => at?.[key], input)
+      : value])));
+  const fake = await startFakeDoor({ ...doorOptions, rights, mostWrites: door?.most_writes ?? doorOptions.mostWrites, records });
   try {
     const stdio = ['pipe', 'pipe', 'pipe'];
     if (door) stdio[door.fd] = openSync(fake.descriptor, 'r');

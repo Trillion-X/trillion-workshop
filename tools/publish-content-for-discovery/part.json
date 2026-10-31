@@ -1,0 +1,6 @@
+{
+  "public": [
+    "do-work/prepare-content-for-discovery.mjs",
+    "do-work/serve-content-for-discovery.mjs"
+  ]
+}

@@ -8,12 +8,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderRecordPublicationProjection } from '../do-work/render-public-page.mjs';
+import { renderRecordPublicationProjection as renderPureProjection } from '../do-work/public-page-projection.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const python = (...argv) => spawnSync('python3', argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const noPython = python('--version').status === 0 ? false : 'needs python3';
 const renderer = `${folder}do-work/render-structured-file-export.py`;
-const pageTool = `${folder}do-work/render-public-page.mjs`;
+const pageTool = `${folder}do-work/render-public-page-cli.mjs`;
 const starterRules = `${folder}read-data/starter-projection-rules.json`;
 
 const node = (text, children = [], headingLevel) => ({ props: { ...(text === undefined ? {} : { text }), ...(headingLevel ? { heading_level: headingLevel } : {}) }, children });
@@ -135,6 +136,13 @@ function envelope(overrides = {}) {
     ...overrides,
   };
 }
+
+test('pure projection export is the same compatible renderer without CLI I/O', () => {
+  const legacy = renderRecordPublicationProjection(envelope());
+  const pure = renderPureProjection(envelope());
+  assert.deepEqual(pure, legacy);
+  assert.match(pure.artifact.bytes, /canonical/);
+});
 
 test('a page is written from a record and a descriptor, with its address and proof', () => {
   const output = renderRecordPublicationProjection(envelope());

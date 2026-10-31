@@ -38,6 +38,7 @@ A file reference is { "root": name, "path": "relative path" }; `root` is one of 
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -122,7 +123,8 @@ def evaluate(t: Any, rec: dict, ctx: Context):
         if not isinstance(value, str):
             raise ValueError('A content identity needs text or bytes.')
         bridge = Path(__file__).resolve().parents[2] / 'content-identity' / 'do-work' / 'identity-from-stdin.mjs'
-        result = subprocess.run(['node', str(bridge)], input=value.encode('utf-8'), capture_output=True, check=False)
+        result = subprocess.run([os.environ.get('TRILLION_NODE', 'node'), str(bridge)],
+                                input=value.encode('utf-8'), capture_output=True, check=False)
         if result.returncode != 0:
             raise ValueError(f'Content identity failed: {result.stderr.decode("utf-8", errors="replace").strip()}')
         return result.stdout.decode('utf-8').strip()

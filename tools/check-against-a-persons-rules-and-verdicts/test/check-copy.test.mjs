@@ -33,6 +33,59 @@ test('words are read from JSON, a page and a deck, each under its own kind and p
   assert.equal(result.exit, 1);
 });
 
+test('Markdown reads headings, paragraphs, lists, GFM table cells and fenced display text', () => {
+  const result = checkCopy({ rules: RULES, markdown: [{ where: 'book.md', document_heading_level: 1, document_heading_is_metadata: true,
+    text: '# Working manuscript\n\n## Chapter one\n\nA first paragraph\nwrapped onto another line.\n\n- Choose one action.\n\nHeader | Detail\n------- | ------\nOne | Two\n\nThe expression a | b stays in this sentence.\n\n~~~text\nA visible display line.\n~~~' }] });
+  assert.equal(result.exit, 0);
+  assert.deepEqual(result.results.map(unit => unit.text), [
+    'Chapter one', 'A first paragraph wrapped onto another line.', 'Choose one action.', 'Header', 'Detail', 'One', 'Two',
+    'The expression a | b stays in this sentence.', 'A visible display line.',
+  ]);
+  assert.ok(result.results.every(unit => unit.where.startsWith('book.md:')));
+  assert.equal(result.results.find(unit => unit.text === 'Chapter one').facts.markdown_role, 'heading');
+  assert.ok(result.results.find(unit => unit.text === 'A first paragraph wrapped onto another line.').context_requires_review_checks === undefined);
+  assert.ok(result.results.find(unit => unit.text === 'Header').context_requires_review_checks.includes('ends-with-stop'));
+});
+
+test('sentence checks hold on Markdown fragments, but still fail on incomplete paragraph sentences', () => {
+  const result = checkCopy({ rules: [
+    { id: 'sentence-stop', check: 'ends-with-stop', says: 'A sentence ends with punctuation.' },
+    { id: 'sentence-cap', check: 'starts-with-capital', says: 'A sentence starts with a capital.' },
+  ], markdown: [{ where: 'fragments.md', document_heading_level: 1, document_heading_is_metadata: true,
+    text: '# Working manuscript\n\n## A fragment heading\n\nA paragraph sentence\nthat ends without punctuation\n\n```text\nwith precision in the diagram\n```' }] });
+  const byText = Object.fromEntries(result.results.map(unit => [unit.text, unit]));
+  assert.equal(byText['A fragment heading'].verdict, 'uncertain');
+  assert.deepEqual(byText['A fragment heading'].uncertain.map(finding => finding.rule).sort(), ['context-policy-unqualified', 'sentence-stop']);
+  assert.equal(byText['A paragraph sentence that ends without punctuation'].verdict, 'fail');
+  assert.equal(byText['with precision in the diagram'].verdict, 'uncertain');
+  assert.ok(byText['with precision in the diagram'].uncertain.some(finding => finding.rule === 'sentence-cap'));
+  assert.ok(result.results.find(unit => unit.text === 'A paragraph sentence that ends without punctuation').facts.markdown_role === 'paragraph');
+});
+
+test('Markdown fields select the right rule without collapsing identical words from different roles', () => {
+  const result = checkCopy({ rules: [{ id: 'body-only-sparkle', words: ['sparkle'], fields: ['body'], says: 'No sparkle in body copy.' }],
+    markdown: [{ where: 'fielded.md', document_heading_level: 1, document_heading_is_metadata: true, fields: { heading: 'title', paragraph: 'body' },
+      text: '# Sparkle\n\n## Sparkle\n\nSparkle' }] });
+  const same = result.results.filter(unit => unit.text === 'Sparkle');
+  assert.equal(same.length, 2);
+  assert.equal(same.find(unit => unit.facts.markdown_role === 'heading').field, 'title');
+  assert.equal(same.find(unit => unit.facts.markdown_role === 'paragraph').field, 'body');
+  assert.equal(same.find(unit => unit.facts.markdown_role === 'heading').verdict, 'uncertain');
+  assert.equal(same.find(unit => unit.facts.markdown_role === 'paragraph').verdict, 'fail');
+});
+
+test('Markdown quotes and text before a declared document title hold coverage open', () => {
+  const result = checkCopy({ rules: RULES, markdown: [{ where: 'book.md', document_heading_level: 1, document_heading_is_metadata: true,
+    text: 'Unclassified preamble.\n\n# Working manuscript\n\n## Chapter one\n\n> Source quotation.' }] });
+  assert.equal(result.exit, 1);
+  assert.deepEqual(result.problems, ['book.md:1: preamble_content', 'book.md:7: unresolved_quote_role']);
+  assert.ok(!JSON.stringify(result).includes('Source quotation.'));
+});
+
+test('a missing Markdown body is refused, never read as the word "undefined"', () => {
+  assert.throws(() => checkCopy({ rules: RULES, markdown: [{ where: 'empty.md' }] }), CheckCopyRefusal);
+});
+
 test('a source or a deck with no words is refused, never passed', () => {
   assert.throws(() => checkCopy({ rules: RULES, texts: [] }), CheckCopyRefusal);
   assert.throws(() => checkCopy({ rules: RULES, decks: [{ where: 'x', html: '<p>no block</p>' }] }), /no slide-words block/);

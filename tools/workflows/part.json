@@ -1,3 +1,3 @@
 {
-  "public": ["read-data/gate_library.py", "read-data/gate_pieces.py", "read-data/gate_answers.py", "read-data/gate_reports.py", "read-data/gate_runs.py", "read-data/gate_audit.py", "read-data/checklist_rows.py"]
+  "public": ["read-data/gate_library.py", "read-data/gate_pieces.py", "read-data/gate_answers.py", "read-data/gate_reports.py", "read-data/gate_runs.py", "read-data/gate_audit.py", "read-data/checklist_rows.py", "read-data/citation-coverage.mjs", "do-work/measure-citation-coverage.mjs"]
 }

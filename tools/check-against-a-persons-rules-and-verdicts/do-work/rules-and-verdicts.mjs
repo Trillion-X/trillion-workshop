@@ -30,7 +30,7 @@
 //      text, context? }) and takes answers by question id. With no answer a question is unknown, never a pass.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
-import { makeJudge, ruleApplies, valuesAt } from '../../judge-words/do-work/judge-words.mjs';
+import { CHECK_NAMES, makeJudge, ruleApplies, valuesAt } from '../../judge-words/do-work/judge-words.mjs';
 import { artifactRef, foldWith } from '../../where-a-person-stands/do-work/artifact-ref.mjs';
 import WORDS from '../read-data/words.json' with { type: 'json' };
 
@@ -177,15 +177,23 @@ const bounded = value => probability(value) !== null;
  */
 export function check(units, rules, { answers = {}, stands = [], verdictRules = null, stage, fieldsByKind = {}, asOf = null } = {}) {
   if (!Array.isArray(rules) || !rules.length) throw new CheckRefusal(WORDS.refused.rules);
-  if (!Array.isArray(units) || !units.length || units.some(unit => !unit || typeof unit.kind !== 'string'
+  const reviewListsValid = unit => ['context_requires_review_rules', 'context_requires_review_checks'].every(key => unit[key] === undefined
+    || (Array.isArray(unit[key]) && unit[key].every(value => typeof value === 'string')));
+  if (!Array.isArray(units) || !units.length || units.some(unit => !unit || typeof unit.kind !== 'string' || !reviewListsValid(unit)
     || (unit.view === undefined && (typeof unit.text !== 'string' || !unit.text.trim())))) throw new CheckRefusal(WORDS.refused.units);
   if (stage !== undefined && !STAGES.includes(stage)) throw new CheckRefusal(WORDS.refused.stage);
   const judged = rules.filter(rule => !rule.ask), asking = rules.filter(rule => rule.ask);
+  const judgedIds = new Set(judged.map(rule => rule.id));
+  const invalidReviewRules = [...new Set(units.flatMap(unit => unit.context_requires_review_rules ?? []))].filter(id => !judgedIds.has(id));
+  const invalidReviewChecks = [...new Set(units.flatMap(unit => unit.context_requires_review_checks ?? []))].filter(check => !CHECK_NAMES.includes(check));
+  if (invalidReviewRules.length || invalidReviewChecks.length) throw new CheckRefusal(fill(WORDS.refused.context_review, {
+    rules: invalidReviewRules.join(', ') || 'none', checks: invalidReviewChecks.join(', ') || 'none',
+  }));
   const judge = makeJudge(judged), judgedById = new Map(judged.map(rule => [rule.id, rule]));
   const fieldOf = unit => unit.field ?? fieldsByKind[unit.kind] ?? null;
   const itemOf = unit => (unit.view !== undefined ? { kind: unit.kind, value: unit.view, field: fieldOf(unit), path: unit.path ?? [] }
     : { text: unit.text, field: fieldOf(unit), kind: unit.kind, path: unit.path ?? [], value: factsOf(unit) });
-  const readingOf = new Map();
+  const readingOf = new Map(), ruleBreaksByResult = new Map();
   const results = units.map((unit, at) => {
     const item = itemOf(unit);
     const applicableRules = unit.view !== undefined ? [] : rules.filter(rule => ruleApplies(rule, item));   // word rules judge words, never a JSON artifact
@@ -193,6 +201,7 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
     // a row's `held_when` names the units on which its finding only holds, read from the unit's facts
     const holds = finding => { const row = judgedById.get(finding.rule); return Boolean(row?.held_when) && ruleApplies({ when: row.held_when }, item); };
     const breaks = findings.filter(finding => !holds(finding)).map(finding => ({ rule: finding.rule, found: finding.found, says: finding.says, ...(finding.suggest ? { suggest: finding.suggest } : {}) }));
+    ruleBreaksByResult.set(at, new Set(breaks));
     const held = findings.filter(holds).map(finding => ({ rule: finding.rule, found: finding.found, advisory: true,
       says: `${finding.says} ${WORDS.held}`, why: WORDS.held_why }));
     const verdict = verdictRules ? verdictFindings(unit, { compiled: verdictRules, stands, stage, asOf }) : { decided: null, findings: [], reading: [] };
@@ -249,16 +258,25 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
     else if (known.length < scores.length) result.uncertain.push({ ...entry, why: WORDS.ask_no_answer });
     else if (worst.p >= cal.t_pass) result.uncertain.push({ ...entry, why: fill(WORDS.ask_between, { p: worst.p.toFixed(2), t_pass: cal.t_pass, t_fail: cal.t_fail }) });
   }
-  for (const result of results) {
+  for (const [at, result] of results.entries()) {
     const applicable = result.view !== undefined ? [] : rules.filter(rule => ruleApplies(rule, itemOf(result)));
     if (applicable.length && applicable.every(rule => rule.ask?.at_most === 'uncertain')
         && !result.uncertain.some(finding => finding.rule === IDS.uncertain_only)) {
       result.uncertain.push({ rule: IDS.uncertain_only, says: WORDS.uncertain_only.says, found: textOf(result), why: WORDS.uncertain_only.why });
     }
-    if (result.context_requires_review) {
+    const reviewChecks = new Set(result.context_requires_review_checks ?? []);
+    const reviewRules = new Set(result.context_requires_review_rules ?? []);
+    const reviewInContext = finding => {
+      const row = judgedById.get(finding.rule);
+      return row && (reviewRules.has(finding.rule) || reviewChecks.has(row.check));
+    };
+    const contextBreaks = result.context_requires_review ? result.breaks
+      : result.breaks.filter(finding => ruleBreaksByResult.get(at).has(finding) && reviewInContext(finding));
+    if (result.context_requires_review || contextBreaks.length) {
       result.qualification = 'context-unqualified';
-      result.uncertain.push(...result.breaks.map(finding => ({ ...finding, why: WORDS.context_review.finding_why })));
-      result.breaks = [];
+      result.uncertain.push(...contextBreaks.map(finding => ({ ...finding, why: WORDS.context_review.finding_why })));
+      const reviewed = new Set(contextBreaks);
+      result.breaks = result.breaks.filter(finding => !reviewed.has(finding));
       result.uncertain.push({ rule: IDS.context_review, found: textOf(result), says: WORDS.context_review.says, why: WORDS.context_review.why });
     }
     result.verdict = result.breaks.length ? 'fail' : result.uncertain.length ? 'uncertain' : 'pass';

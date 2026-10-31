@@ -79,7 +79,7 @@
     "invoke": {
      "kind": "on-your-computer",
      "get_it": ["clone the Workshop repository (package.json repository.url)"],
-     "run": "node tools/export-documents-to-files/do-work/render-public-page.mjs {envelope} {output}",
+     "run": "node tools/export-documents-to-files/do-work/render-public-page-cli.mjs {envelope} {output}",
      "needs": ["node"],
      "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the envelope from the record the person means and the way they want it published, run `run`, and read the last JSON line. This only writes the file; putting it on a site is a separate step the person must ask for. Tell them the address it was written for and where the file is. If you cannot run commands, give them these steps."
     },
