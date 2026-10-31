@@ -598,6 +598,114 @@
      }
     ]
    }
+  },
+  {
+   "id": "package::check-against-a-persons-rules-and-verdicts::tool::check-copy",
+   "address": "package::check-against-a-persons-rules-and-verdicts::tool::check-copy",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-copy",
+    "label": "Check copy before a person reads it",
+    "status": "active",
+    "job": "Check text, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
+    "description": "Give words as text, texts, value (any JSON; fields names which keys hold words, or \"strings\" for every string), units, sources (JSON with its place), html (pages), decks (a rendered deck's HTML) or pictures with their readings. Give rules (one row each: words, pattern, exact or a named grammar check) or leave them out to use mechanical grammar rows. Optionally give required (locked lines, features, baseline ids, approvals with the person's own words and the text they sit in), audience, offers and counts, and the person's verdict_rules and stands. Nothing about any person is kept here; their rules are input. A source with no words, a required line gone, a row for the wrong audience, a count that is not a published list view, an offer listing fewer lines than the others and a picture with no reading are problems, never passes. Model questions come back as questions; send answers on a second run.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "rules": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["id"] }, "description": "Rule rows, as tool:judge-against-rules takes them, with an optional not_for_kinds list. Left out: mechanical grammar rows." },
+      "kind": { "type": "string", "description": "The kind of every word that names none (default copy)" },
+      "text": { "type": "string" },
+      "texts": { "type": "array", "items": { "type": "string" } },
+      "value": { "description": "Any JSON whose strings a person reads" },
+      "fields": { "description": "Which keys of value hold words, or \"strings\"" },
+      "skip_keys": { "type": "array", "items": { "type": "string" } },
+      "paths": { "type": "array", "items": { "type": "string" } },
+      "units": { "type": "array", "items": { "type": "object", "required": ["text", "kind"] }, "description": "Ready-made units: { text, kind, where, facts }" },
+      "sources": { "type": "array", "items": { "type": "object", "required": ["where", "json"] }, "description": "JSON with its place: { where, json, skip_keys, kind }" },
+      "alt_keys": { "type": "array", "items": { "type": "string" }, "description": "Keys whose strings are picture descriptions (kind alt)" },
+      "html": { "type": "array", "items": { "type": "object", "required": ["where", "html"] }, "description": "Pages: { where, html, kind }" },
+      "decks": { "type": "array", "items": { "type": "object", "required": ["where", "html"] }, "description": "Rendered decks: { where, html }" },
+      "pictures": { "type": "array", "items": { "type": "object", "required": ["path", "blake3"] }, "description": "Pictures that are published" },
+      "readings": { "type": "object", "description": "The words each picture shows, by the BLAKE3 of its bytes: { <blake3>: { text } }" },
+      "kind_aliases": { "type": "object", "description": "A kind a row names also covers these kinds" },
+      "not_for_kinds": { "type": "object", "description": "By row id: kinds the row does not judge" },
+      "facts": { "type": "object", "description": "Facts every unit carries for rows that read them" },
+      "required": { "type": "object", "description": "locked_lines, entries, baseline_ids, approvals" },
+      "audience": { "type": "object", "description": "{ rows: [{ id, audience }], allowed: [] }" },
+      "offers": { "type": "object", "description": "{ offers, list_field, id_field }" },
+      "counts": { "type": "array", "items": { "type": "object", "required": ["label", "document"] } },
+      "counts_schema": { "type": "string" },
+      "verdict_rules": { "type": "object" },
+      "stands": { "type": "array" },
+      "stands_as_of": { "type": "string" },
+      "stage": { "type": "string", "enum": ["review", "final"] },
+      "fields_by_kind": { "type": "object" },
+      "answers": { "type": "object" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["status", "passed", "exit", "results", "problems", "lines"],
+     "properties": {
+      "status": { "type": "string", "enum": ["passed", "failed", "held"] },
+      "passed": { "type": "boolean" },
+      "exit": { "type": "number" },
+      "units": { "type": "number" },
+      "failing": { "type": "number" },
+      "held": { "type": "number" },
+      "advisory": { "type": "number" },
+      "problems": { "type": "array", "items": { "type": "string" } },
+      "results": { "type": "array" },
+      "questions": { "type": "array" },
+      "lines": { "type": "array", "items": { "type": "string" } }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "check-against-a-persons-rules-and-verdicts", "paths": ["do-work", "read-data"], "at": "/opt/check-against-a-persons-rules-and-verdicts" },
+       { "package": "judge-words", "paths": ["do-work"], "at": "/opt/judge-words" },
+       { "package": "where-a-person-stands", "paths": ["do-work", "read-data"], "at": "/opt/where-a-person-stands" },
+       { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+      ]
+     },
+     "workdir": "/opt/check-against-a-persons-rules-and-verdicts",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/check-copy-words.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:check-against-a-persons-rules-and-verdicts",
+    "provenance": { "source": "the copy judge tool:check-copy (parts/judge-words over a rules file), made to take pages, decks and picture readings and to check the whole set; the person's rules, stands and locked lines are input, never kept here" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "rules": [{ "id": "no-sparkle", "words": ["sparkle"], "says": "No sparkle." }],
+       "units": [{ "kind": "page", "text": "Our sparkle is the best." }]
+      },
+      "output_selector": "$.status",
+      "contains": "failed"
+     },
+     {
+      "kind": "sample-run",
+      "input": {
+       "rules": [{ "id": "no-sparkle", "words": ["sparkle"], "says": "No sparkle." }],
+       "units": [{ "kind": "page", "text": "Your files open in any app." }],
+       "required": { "locked_lines": [{ "id": "line", "alternatives": ["Your files open in any app."] }] }
+      },
+      "output_selector": "$.status",
+      "contains": "passed"
+     }
+    ]
+   }
   }
  ]
 }
