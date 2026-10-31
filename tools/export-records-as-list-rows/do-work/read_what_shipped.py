@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Add the newest release of a person's repository to a staged file, with the subjects of the commits since the release before it.
+"""Add the newest release of a person's repository to a staged file, with the subjects of the commits since the release before it, or,
+with the setting each "commit", every commit not read yet as an entry of its own.
 The settings are described at the top of read-data/what_shipped.py; the staged file is what build_record_write.py turns into rows.
 
 Usage:
   python3 -I do-work/read_what_shipped.py --settings FILE --repository DIR --staged FILE
 
-Prints { releases, added } (added is the new release's name, or null when the newest release was already there). Exit 0, or 2 when the
-settings, the repository or the mark could not be read.
+Prints { releases, added, added_count } (added is the name of the newest entry added, or null when nothing new was there). Exit 0, or 2
+when the settings, the repository or the mark could not be read.
 """
 from __future__ import annotations
 

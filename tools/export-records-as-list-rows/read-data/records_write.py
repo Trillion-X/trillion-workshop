@@ -26,10 +26,14 @@ A mapping:
 
 A source makes the rows of one list (`list`). Its `kind` is:
   rows              records already in a JSON file: { file: REF, path: "dotted.path" }; each is a record with an `id`
+  records           records read from a person's Trillion door: { type, prefix?, config: REF }; the builder verifies every
+                    returned record is of that declared type and id prefix before mapping it; `config` names the sender config
+                    (its credential is a keychain handle, never a secret value); optional `each` is a dotted path to an array
+                    in the record, with one mapped row per element (`record` and `item` are available to expressions)
   staged            rows read from files, one `inputs` entry per file or glob; `defaults` is merged under each entry
 
 Per source: `id` (an expression), `keys`, `compute` (then `compute_after`, which every input shares), `values` (`keep_empty`: fields
-kept when their text is empty), `basis`, `fits`, `on_duplicate`. Without `on_duplicate`, a row whose id another row of the list already
+kept when their text or list/object value is empty), `basis`, `fits`, `on_duplicate`. Without `on_duplicate`, a row whose id another row of the list already
 has is refused (choosing silently would drop one). `fill`: the row already made keeps its values and takes only the fields (and bases) it
 lacks from this one; `over`: this row's values win and the row already made fills the fields it lacks. Either way the two are one row,
 and the payload's `merged` names each one with the fields filled and the fields whose two values differed (the value not kept). Per `staged` input (a source may also give `inputs_from`: { file, path, rename } to read the entries from a file, with those keys
@@ -123,7 +127,7 @@ def build_values(source: dict, rec: dict, ctx: Context, limits: dict) -> dict:
         value = evaluate(expr, rec, ctx)
         if field == '...':
             values.update(value or {})
-        elif present(value) or (value == '' and field in source.get('keep_empty', [])):
+        elif present(value) or (field in source.get('keep_empty', []) and value in ('', [], {})):
             values[field] = value
     for field in source.get('fits', []):
         if field in values and len(json.dumps(values[field], ensure_ascii=False)) > limits['text_chars']:
@@ -179,19 +183,21 @@ def add_row(source: dict, rows: list[dict], row: dict, state: dict) -> dict:
 
 
 def commands_of(records: list[dict], limits: dict) -> list[dict]:
-    """The records in order, in commands of at most per_command records and command_bytes bytes (UTF-8 JSON of the records)."""
+    """The records in order, in commands whose compact UTF-8 ``{"records":[...]}`` envelope fits command_bytes."""
     most = limits.get('command_bytes')
     commands: list[list[dict]] = []
-    size = 0
+
+    def envelope_size(items: list[dict]) -> int:
+        return len(json.dumps({'records': items}, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
+
     for record in records:
-        bytes_of = len(json.dumps(record, ensure_ascii=False, separators=(',', ':')).encode('utf-8')) + 1
-        if most is not None and bytes_of > most:
-            raise ValueError(f'{record["id"]} is {bytes_of} bytes, more than a command takes ({most}).')
-        if not commands or len(commands[-1]) >= limits['per_command'] or (most is not None and size + bytes_of > most):
+        single_size = envelope_size([record])
+        if most is not None and single_size > most:
+            raise ValueError(f'{record["id"]} needs {single_size} bytes, more than a command takes ({most}).')
+        if (not commands or len(commands[-1]) >= limits['per_command'] or
+                (most is not None and envelope_size([*commands[-1], record]) > most)):
             commands.append([])
-            size = 0
         commands[-1].append(record)
-        size += bytes_of
     return [{'input': {'records': chunk}} for chunk in commands]
 
 
@@ -277,7 +283,45 @@ def check_rows(state: dict) -> None:
                     raise ValueError(spec['error'].format(id=row['id'], value=target, into=spec['into'], field=spec['field']))
 
 
-def build(mapping: dict, roots: dict[str, Path], at: str | None = None) -> dict:
+def make_records(source: dict, ctx: Context, state: dict, record_reader) -> None:
+    """Read only the declared record type/prefix, then map each returned record through the source's ordinary row rules."""
+    spec = source['records']
+    record_type, prefix = spec.get('type'), spec.get('prefix')
+    if not isinstance(record_type, str) or not record_type:
+        raise ValueError(f'{source.get("name", source["list"])} records source needs a non-empty type.')
+    if prefix is not None and (not isinstance(prefix, str) or not prefix):
+        raise ValueError(f'{source.get("name", source["list"])} records prefix, when given, is non-empty text.')
+    if record_reader is None:
+        raise ValueError(f'{source.get("name", source["list"])} needs a records reader for type {record_type}.')
+    records = record_reader(source)
+    if not isinstance(records, list):
+        raise ValueError(f'{source.get("name", source["list"])} records reader returned no record list.')
+    rows = state['rows'].setdefault(source['list'], [])
+    ctx.rows[source['list']] = rows
+    for record in records:
+        if not isinstance(record, dict) or record.get('type') != record_type or not isinstance(record.get('id'), str):
+            raise ValueError(f'{source.get("name", source["list"])} reader returned a record outside declared type {record_type}.')
+        if prefix and not record['id'].startswith(prefix):
+            raise ValueError(f'{source.get("name", source["list"])} reader returned {record["id"]} outside declared prefix {prefix}.')
+        items = [None]
+        if 'each' in source:
+            items = evaluate({'path': source['each']}, record, ctx)
+            if items is None:
+                items = []
+            if not isinstance(items, list):
+                raise ValueError(f'{source.get("name", source["list"])} each path {source["each"]} is not an array on {record["id"]}.')
+        for item in items:
+            rec = {**record, 'record': record, 'item': item, 'raw': record, 'input': spec,
+                   '_file': None, '_generated': None, '_about': None}
+            for field, expr in source.get('keys', {}).items():
+                rec[field] = evaluate(expr, rec, ctx)
+            rec['id'] = evaluate(source.get('id', {'path': 'id'}), rec, ctx)
+            if not isinstance(rec['id'], str) or not rec['id']:
+                raise ValueError(f'{source.get("name", source["list"])} produced a row with no id from record {record["id"]}.')
+            add_row(source, rows, make_row(source, source.get('compute', {}), rec, ctx, state), state)
+
+
+def build(mapping: dict, roots: dict[str, Path], at: str | None = None, record_reader=None) -> dict:
     """The payload for a mapping: counts, what is pending or diverted, and the commands of records to send in order."""
     at = at or datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
     ctx = Context(roots)
@@ -299,6 +343,8 @@ def build(mapping: dict, roots: dict[str, Path], at: str | None = None) -> dict:
     for source in mapping['sources']:
         if source['kind'] == 'staged':
             make_staged(source, ctx, state)
+        elif source['kind'] == 'records':
+            make_records(source, ctx, state, record_reader)
     first_of_list: set = set()
     for source, own in read:
         made = [] if source['list'] in first_of_list else [r for r in ctx.recs.get(source['list'], []) if id(r) not in file_recs]
