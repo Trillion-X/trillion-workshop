@@ -1,0 +1,54 @@
+{
+  "kind": "package-set-records",
+  "record_set": "media-analysis-tool-rows",
+  "what_this_is": "The Workshop row for the media-analysis folder: a script the person's AI runs on the person's own computer to index what their videos and pictures show and what their talks say, and to search that index by a phrase.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:media-analysis",
+        "label": "Find the moments in my videos, pictures and talks that match a phrase (runs on your computer)",
+        "job": "Find which of my recordings show or mention something, and at what second",
+        "description": "Builds a local index of what a person's videos and pictures look like (frames sampled every few seconds, embedded with a CLIP model) and what their talks say (transcript chunks embedded with a sentence model), then answers a phrase with the best moment in each recording, picture lane and speech lane apart. The script reads one JSON request per line on standard input and prints one reply per line: embed_picture and embed_speech return a value the AI keeps (vectors by the identity it gave), add brings kept values back in so nothing is embedded twice, search takes a phrase. Model names, sampling interval, frame cap and the near-duplicate cut are fields of the request or the config file; the script holds none of a person's recordings, words or settings. Models are read from the local cache and never downloaded by the script, and nothing leaves the computer.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["requests"],
+          "properties": {
+            "requests": { "type": "string", "description": "A file on the person's computer, put where {requests} is in the command: one JSON request per line: {id, op: embed_picture, identity, file, media_kind?: image, duration?, sampling?: {interval_seconds, max_frames, dedup_similarity}}, {id, op: embed_speech, identity, chunks: [{start?, end?, text}]}, {id, op: add, kind: picture or speech, identity, value}, {id, op: search, query, lanes?: [picture, speech], limit?}, {id, op: prepare}." },
+            "config": { "type": "string", "description": "A JSON file, put where {config} is in the command: {picture_model?: {name, pretrained, device?}, speech_model?: {name, query_prefix?}, query_encoders?: a folder to keep each model's text side in so a later start answers a search in seconds, in_order?: true to answer requests one after another so a search sees every recording added before it}. Use in_order true whenever one file both indexes and searches." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "One line per request: {\"id\", \"ok\": true, ...} or {\"id\", \"error\": \"what to change\"}. embed_picture gives {value: {model, dims, dtype, timing, sampling, frames: [{t, v}]}, seconds, frames}; embed_speech gives {value: {model, dims, dtype, chunks: [{start?, end?, text, v}]}, seconds, chunks}; search gives {picture: [{identity, score, t?}], speech: [{identity, score, start?, end?, text}]}. The first line is {\"id\": null, \"ok\": true, \"ready\": true}; the last line is {\"result\": {\"answered\", \"failed\"}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "install ffmpeg (brew install ffmpeg), which brings ffprobe",
+            "python3 -m venv media-env",
+            "media-env/bin/python -m pip install numpy pillow torch open_clip_torch sentence-transformers tokenizers"
+          ],
+          "run": "media-env/bin/python trillion-workshop/tools/media-analysis/do-work/meaning_index.py {config} < {requests}",
+          "needs": [
+            "python 3.10 or later with numpy, pillow, torch, open_clip_torch, sentence-transformers and tokenizers",
+            "ffmpeg and ffprobe",
+            "the two models in the local Hugging Face cache (the script runs offline); fetch them once by running the same command with HF_HUB_OFFLINE=0 in the environment on a request that uses each"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Write the requests file: for each recording to learn, an embed_picture line (its file path and a stable identity you choose) and, when you have its transcript, an embed_speech line; then a search line with the phrase. Write a config file {\"in_order\": true} when the same file indexes and searches. Run `run`, read the replies, and tell the person which recordings matched and at what second (picture hits give t, speech hits give start, end and the words). Keep each embed value you are given under its identity: the next time, send those back as add lines instead of embedding the recording again. A score is a similarity between the phrase and the closest moment, so compare hits of one search with each other, not across searches."
+        },
+        "maker": "maker:media-analysis",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ported from bitfield-packages packages/media-analysis (meaning-index-worker.py with the CLIP query script folded in). Models: open_clip and sentence-transformers, whose weights carry their own licences."
+        }
+      }
+    }
+  ]
+}
