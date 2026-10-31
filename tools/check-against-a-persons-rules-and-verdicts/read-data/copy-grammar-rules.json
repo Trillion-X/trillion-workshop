@@ -1,0 +1,13 @@
+{
+  "about": "The rows tool:check-copy judges when the caller sends no rules of its own: only mechanical grammar, which names no word, no product and no person. A caller with its own rules (word lists, phrases, patterns) sends them as `rules`; they are never kept here. These rows judge typing, so they skip kinds read from pictures.",
+  "rules": [
+    { "id": "sentence-starts-with-capital", "check": "starts-with-capital", "says": "A sentence starts with a capital letter.", "not_for_kinds": ["image-text"] },
+    { "id": "capital-after-full-stop", "check": "capital-after-stop", "says": "A new sentence starts with a capital letter.", "not_for_kinds": ["image-text"] },
+    { "id": "sentence-ends-with-stop", "check": "ends-with-stop", "says": "A sentence ends with a full stop, a question mark or an exclamation mark.", "not_for_kinds": ["image-text"] },
+    { "id": "doubled-word", "check": "doubled-word", "says": "The same word twice in a row.", "not_for_kinds": ["image-text"] },
+    { "id": "a-before-vowel", "check": "a-before-vowel", "says": "\"a\" before a vowel sound is \"an\".", "not_for_kinds": ["image-text"] },
+    { "id": "balanced-brackets", "check": "balanced-brackets", "says": "A bracket or quote is opened and never closed.", "not_for_kinds": ["image-text"] },
+    { "id": "space-before-punctuation", "check": "space-before-punctuation", "says": "No space before a comma or a full stop.", "not_for_kinds": ["image-text"] },
+    { "id": "one-space", "check": "double-space", "says": "One space between words.", "not_for_kinds": ["image-text"] }
+  ]
+}

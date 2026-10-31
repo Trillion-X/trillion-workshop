@@ -1,0 +1,22 @@
+{
+  "about": "Every sentence tool:check-copy says that is not a rule's own: its refusals, its problems and its status words.",
+  "refused": {
+    "no_units": "Nothing to check: send text, texts, value, units, html, decks or pictures.",
+    "bad_rules": "The rules must be a list of rule rows, or left out to use the grammar rows.",
+    "no_checker": "The person's-rules checker could not run: {why}"
+  },
+  "problems": {
+    "approval_unproven": "The approval for {id} is not the person's own words found literally in the source text sent with it.",
+    "baseline_gone": "{id} is in the baseline and is gone, with no approval carrying the person's own words.",
+    "audience": "Row {id} is public with audience {audience}; only {allowed} may publish.",
+    "offer_short": "Offer {id} lists {own} of the {every} lines the offers show; the other offers also show {missing}.",
+    "count_unpublished": "{label} carries counts but is not a published list view (schema {schema} with a source view): a count must resolve to a list published as a file, never to a walk of a folder.",
+    "picture_unread": "{path} has no recorded reading of its words.",
+    "required_missing": "{name} is missing from every public word. {why}"
+  },
+  "required": {
+    "locked": "It is a signature line: add variants beside it, never take it out.",
+    "gap": "The port is missing it ({gap}); a port gap is a port task, so the line stays.",
+    "promised": "It was promised in public; taking it out needs the person's own yes."
+  }
+}

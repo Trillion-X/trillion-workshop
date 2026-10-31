@@ -29,6 +29,12 @@ The last line is `{ "result": { status, passed, results, questions, lines } }`. 
 | `do-work/check-against-their-rules-and-verdicts.mjs` | `tool:check-against-a-persons-rules-and-verdicts`: one JSON request on standard input, `{ result }` or `{ error }` on the last line. |
 | `do-work/examples-from-where-they-stand.mjs` | `tool:make-examples-from-where-a-person-stands`: the person's stands as good and bad examples for their reading rows. |
 | `read-data/words.json` | Every word the tool says: its own finding ids, the words of each finding, the refusals. |
+| `do-work/check-copy.mjs` | `tool:check-copy`: the words of a site, a page, JSON, a deck or a picture reading, and the whole set, checked in one call. Reads units (`do-work/read-words.mjs`), hands them to the checker above, and adds the checks on the whole set that no unit can show: a locked line or promised feature gone (with the approval rule), an id gone from the baseline, a row for the wrong audience, an offer listing fewer lines than the others, a count that is not a published list view, a picture with no recorded reading. Exit 0 passed, 1 failed or a problem, 3 held. |
+| `do-work/check-copy-words.mjs` | The container entry for `tool:check-copy`: one JSON request on standard input, `{ result }` or `{ error }` on the last line. |
+| `do-work/read-words.mjs` | The unit readers: prose strings of any JSON, the visible lines of an HTML page and its JSON-LD, the `slide-words` block of a rendered deck, one unit per distinct (kind, text). Reads no file. |
+| `read-data/copy-grammar-rules.json` | The only rows kept for `tool:check-copy`: mechanical grammar, used when the caller sends no rules. No word list, no product, no person. |
+| `read-data/copy-words.json` | Every sentence `tool:check-copy` says that is not a rule's own: its refusals, problems and required-line wording. |
+| `test/check-copy.test.mjs` | `tool:check-copy` on made-up rules, lines, pages, decks and picture readings. |
 | `part.json` | `do-work/rules-and-verdicts.mjs` is public. |
 | `tool-rows.json` | The two rows. Each packs `tools/judge-words` (`do-work`), `tools/where-a-person-stands` (the one identity of a judged thing) and `@noble/hashes`. |
 | `test/rules-and-verdicts.test.mjs` | Every rule of the order above, on made-up rules, lines and stands. |
