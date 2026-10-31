@@ -1,0 +1,23 @@
+{
+  "what_this_is": "Public scoring rules written as data, so a game is one more row and no code. A match points at one row by ruleId; the row's scoringModel carries how a point, a game, a set and the match are won and how a score is shown. Replace or add to these by passing scoring_rules in a request.",
+  "rules": [
+    {
+      "kind": "scoring-rule",
+      "ruleId": "scoring-rule:tennis-standard",
+      "label": "Tennis",
+      "scoringModel": { "scoreUnit": "game", "setsToWin": 2, "gamesToWinSet": 6, "tiebreakAt": 6, "pointsToWinTiebreak": 7, "winBy": 2, "pointLabels": ["0", "15", "30", "40"], "advantageLabel": "AD" }
+    },
+    {
+      "kind": "scoring-rule",
+      "ruleId": "scoring-rule:pickleball-11",
+      "label": "Pickleball",
+      "scoringModel": { "scoreUnit": "point", "setsToWin": 1, "gamesToWinSet": 11, "tiebreakAt": 0, "pointsToWinTiebreak": 0, "winBy": 2 }
+    },
+    {
+      "kind": "scoring-rule",
+      "ruleId": "scoring-rule:padel-golden-point",
+      "label": "Padel (golden point)",
+      "scoringModel": { "scoreUnit": "game", "setsToWin": 2, "gamesToWinSet": 6, "tiebreakAt": 6, "pointsToWinTiebreak": 7, "winBy": 1, "pointLabels": ["0", "15", "30", "40"] }
+    }
+  ]
+}
