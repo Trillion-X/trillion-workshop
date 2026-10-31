@@ -10,6 +10,7 @@ imports it packs `read-data` beside its own files (with the `@noble/hashes` modu
 | File | Purpose |
 |------|---------|
 | `read-data/identity.mjs` | `makeHashCodeHexFromBytes(bytes)` and `makeHashCodeHexFromChunks(chunks)`. |
+| `do-work/identity-from-stdin.mjs` | Internal bridge: reads exact bytes from stdin and prints their identity for callers that cannot import ESM directly. It reads no file. |
 | `part.json` | `read-data/identity.mjs` is public. |
 | `test/identity.test.mjs` | The published BLAKE3 vectors, and chunked input equal to whole input at every split. |
 

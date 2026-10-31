@@ -67,7 +67,7 @@ A transform is a one-key object, used in `compute` and in `map`.
 
 ## Dependencies
 
-**Depends on:** Python 3.10+; the sender's request keys need the `blake3` module or the `b3sum` command.
+**Depends on:** Python 3.10+; a records mapping that uses the `identity` expression also needs Node 22.6+ and the declared `tools/content-identity` files. The sender's request keys need the `blake3` module or the `b3sum` command.
 
 **Depended on by:** nothing in this repository. A library's own mapping file lives with the library.
 
@@ -79,14 +79,18 @@ A transform is a one-key object, used in `compute` and in `map`.
 python3 -I do-work/build_record_write.py --mapping FILE --out FILE [--root NAME=DIR ...]
 ```
 
+When the mapping reads `kind: records`, `--records-url ADDRESS` can point those reads at another MCP endpoint, such as an isolated clone. It changes only the read destination; the configured credential remains a keychain handle.
+
 `here` is always the folder of the mapping; every other folder the mapping names is given with `--root NAME=DIR`. The output holds the counts (with a per-link breakdown), what is `pending` (an optional staged file not there yet, or naming a row that does not exist yet), any notes diverted from the rows (for example a staged row that only adds a source to a row), and `commands`. Sending a command twice writes the same records again.
 
 - The lists and saved views are the person's rows (`lists_file`); this tool names no list or field.
 - Each source makes the rows of one list from records already in a JSON file (`kind: rows`) or from staged files (`kind: staged`: JSON, or JSON lines, one entry per file or glob; `inputs_from` reads the entries from a file the person keeps).
+- A `kind: records` source reads one declared type and optional id prefix from the person's Trillion door, using `records: { "type": "shared", "prefix": "shared:", "config": { "root": "here", "path": "sender.json" } }`. The config is the existing `send_record_write.py` config, whose credential is a keychain handle. The builder only reads; it sends nothing. The source's `id`, `keys`, `compute`, `values` and `basis` map those records just like other rows. Add `each: "value.items"` to make one row per item in an array; expressions can read the containing record as `record` and current item as `item`. A reader must return the declared type and prefix or the build is refused.
 - A row's values and its `_basis` (reasoning and sources for a value, with the maker and time) are worked out by expressions over the staged row. The expression language and every key of a mapping are described at the top of `read-data/records_write.py` and `read-data/expressions.py`.
 - Refusals name the row: two rows with one id, a slash in an id, a link to a row that does not exist, a value over the text limit, a basis naming too many sources, a row with no web address, a missing folder, one record bigger than a command takes.
 - Two sources may make one row id when the later one says `on_duplicate`: `fill` (the row already made keeps its values and takes the fields it lacks) or `over` (the later values win, the earlier row fills the rest). The payload's `merged` names every merge, the fields filled and each differing value that was not kept.
 - The mapping's `at` (an expression over a row's record, for example the staged file's `_generated`) is the time each basis says it was made, so building the same files again gives byte-identical records.
+- The `identity` expression calls the declared content-identity owner on the exact UTF-8 bytes of its text; it needs Node 22.6+. Other expressions need only Python.
 - Several `rows` sources may feed one list; each builds the records its own file holds. A `rows` source for a list that is never emitted is a lookup table other sources read with `row_of`.
 
 ## Putting the records into the account
@@ -115,13 +119,13 @@ A config with `keep_held: true` writes only the records the account lacks: a rec
 
 ## Noting what shipped
 
-`do-work/read_what_shipped.py` adds the newest release of a person's repository to a staged file, with the subjects of the commits since the release before it, and leaves the file as it is when that release is already there. Where the release is read is the person's setting: a program in the repository that prints JSON naming the released commit (a release script's read verb), or a git ref they move when they ship (see the top of `read-data/what_shipped.py`). The builder makes one row per staged release with the person's mapping, and the sender with `keep_held` writes only the new rows. `tools/workflows/recipes/keep-a-changelog-from-what-shipped.json` runs the three every hour.
+`do-work/read_what_shipped.py` adds a new release to a staged file, with the commit subjects since the release before it, and leaves the file as it is when that release is already there. Where the release is read is the person's setting: a program in the repository that prints JSON naming a release, or a git ref they move when they ship. For a branch whose commits are the source, `each: "commit"` makes one entry per commit after the stored cursor (or the `after` commit on the first run). `skip_subjects` is data that omits commits such as regenerated files. Each entry carries that commit's date, subject and stable commit identity; it does not infer push boundaries or combine same-day commits. The builder makes rows from staged entries with the person's mapping, and the sender with `keep_held` writes only rows the list lacks, preserving every row it already holds. `tools/workflows/recipes/keep-a-changelog-from-what-shipped.json` runs the steps every hour.
 
 ```
 python3 -I do-work/read_what_shipped.py --settings FILE --repository DIR --staged FILE
 ```
 
-Prints `{ releases, added }`. Exit 0, or 2 when the settings, the repository or the mark could not be read.
+Prints `{ releases, added, added_count }`; `added` is the newest entry name, and the count is zero when there is nothing new. Exit 0, or 2 when the settings, the repository or the mark could not be read.
 
 ## Publishing what a saved view shows into a file
 

@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -116,6 +117,15 @@ def evaluate(t: Any, rec: dict, ctx: Context):
         return t
     if 'path' in t:
         return dig(rec, t['path'])
+    if 'identity' in t:
+        value = evaluate(t['identity'], rec, ctx)
+        if not isinstance(value, str):
+            raise ValueError('A content identity needs text or bytes.')
+        bridge = Path(__file__).resolve().parents[2] / 'content-identity' / 'do-work' / 'identity-from-stdin.mjs'
+        result = subprocess.run(['node', str(bridge)], input=value.encode('utf-8'), capture_output=True, check=False)
+        if result.returncode != 0:
+            raise ValueError(f'Content identity failed: {result.stderr.decode("utf-8", errors="replace").strip()}')
+        return result.stdout.decode('utf-8').strip()
     if 'text' in t:
         return t['text'].format_map(list_rows.Safe({k: ('' if v is None else v) for k, v in rec.items() if not isinstance(v, (dict, list))}))
     if 'if' in t:

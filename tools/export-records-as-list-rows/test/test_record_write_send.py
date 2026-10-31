@@ -42,19 +42,28 @@ class Commands(Pantry):
         commands = records_write.commands_of(records, {'per_command': 2, 'command_bytes': 150})
         self.assertEqual([[r['id'] for r in c['input']['records']] for c in commands], [['r0', 'r1'], ['r2'], ['r3', 'r4'], ['r5']])
         for command in commands:
-            size = sum(len(json.dumps(r, separators=(',', ':')).encode()) + 1 for r in command['input']['records'])
+            size = len(json.dumps({'records': command['input']['records']}, ensure_ascii=False,
+                                  separators=(',', ':')).encode('utf-8'))
             self.assertLessEqual(size, 150)
 
     def test_one_record_bigger_than_a_command_takes_is_refused_by_its_id(self):
-        with self.assertRaisesRegex(ValueError, 'r0 is .* bytes, more than a command takes'):
+        with self.assertRaisesRegex(ValueError, 'r0 needs .* bytes, more than a command takes'):
             records_write.commands_of([{'id': 'r0', 'type': 't', 'value': {'w': 'x' * 200}}], {'per_command': 5, 'command_bytes': 150})
+
+    def test_exact_records_envelope_boundary_is_included(self):
+        record = {'id': 'record:goods:é', 'type': 'record:goods', 'value': {'name': '雪'}}
+        envelope_bytes = len(json.dumps({'records': [record]}, ensure_ascii=False, separators=(',', ':')).encode('utf-8'))
+        commands = records_write.commands_of([record], {'per_command': 1, 'command_bytes': envelope_bytes})
+        self.assertEqual(commands, [{'input': {'records': [record]}}])
+        with self.assertRaisesRegex(ValueError, 'record:goods:é needs .* bytes'):
+            records_write.commands_of([record], {'per_command': 1, 'command_bytes': envelope_bytes - 1})
 
     def test_the_payload_is_cut_by_bytes_when_the_mapping_gives_a_limit(self):
         payload = self.build(limits={**self.mapping['limits'], 'per_command': 100, 'command_bytes': 1500})
         self.assertGreater(len(payload['commands']), 1)
         for command in payload['commands']:
-            self.assertLessEqual(sum(len(json.dumps(r, ensure_ascii=False, separators=(',', ':')).encode()) + 1
-                                     for r in command['input']['records']), 1500)
+            self.assertLessEqual(len(json.dumps({'records': command['input']['records']}, ensure_ascii=False,
+                                                separators=(',', ':')).encode('utf-8')), 1500)
 
 
 class StableTime(Pantry):
