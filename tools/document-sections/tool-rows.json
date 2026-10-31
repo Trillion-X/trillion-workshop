@@ -1,0 +1,150 @@
+{
+ "kind": "tool-rows",
+ "record_set": "document-sections-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/document-sections: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::document-sections::tool::place-a-section-in-a-markdown-document",
+   "address": "package::document-sections::tool::place-a-section-in-a-markdown-document",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:place-a-section-in-a-markdown-document",
+    "label": "Put a section into a markdown document",
+    "status": "active",
+    "job": "Put one named section into a markdown document without repeating it: replace the section with the same heading, or add it at the end",
+    "description": "Give the whole markdown document as text and the section as text. The section names itself by its own first heading line. When the document already has that heading, the section from there to the next heading of the same or a higher level is replaced (its deeper subsections go with it, its sibling sections stay); otherwise the section is added at the end. A heading-looking line inside a fenced block never ends a section, so a document that quotes markdown is safe. Placing the same section twice gives the same text. A section with no heading is refused, because it could never be replaced later. Returns the new document text, whether the section was appended or replaced, and its heading.",
+    "input_schema": {
+     "type": "object",
+     "required": ["document_text", "section_text"],
+     "additionalProperties": false,
+     "properties": {
+      "document_text": { "type": "string", "description": "The whole markdown document" },
+      "section_text": { "type": "string", "description": "The section to place, starting with its own heading line" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["text", "placement", "heading"],
+     "properties": {
+      "text": { "type": "string", "description": "The document with the section placed" },
+      "placement": { "type": "string", "enum": ["appended", "replaced"] },
+      "heading": { "type": "string", "description": "The section's heading line" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "document-sections",
+       "paths": ["do-work"],
+       "at": "/opt/document-sections"
+      }
+     },
+     "workdir": "/opt/document-sections",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/place-a-section.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 2, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:document-sections",
+    "provenance": { "source": "ported from bitfield-packages packages/document-sections (place-named-document-section)" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "document_text": "# Notes\n\n## One\n\nOld.\n\n## Two\n\nKeep.\n",
+       "section_text": "## One\n\nNew.\n"
+      },
+      "output_selector": "$.placement",
+      "contains": "replaced"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::document-sections::tool::build-a-quoted-section-from-entries",
+   "address": "package::document-sections::tool::build-a-quoted-section-from-entries",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:build-a-quoted-section-from-entries",
+    "label": "Build a markdown section from entries, word for word",
+    "status": "active",
+    "job": "Write one markdown section out of a list of entries (what people said or wrote), keeping every entry's words exactly as they came in",
+    "description": "Give a heading and one or more sources, each a JSON document holding a list of entries. Every line of an entry's text is written behind a quote marker and nothing else about it is changed (blank lines, trailing spaces, headings and code fences inside an entry stay as they were), so the section is a record and not a paraphrase. Entries keep their order and are grouped by source. The names of the fields to read (the list, the text, a label, a time stamp, a group name) are inputs. A source with no list, an entry without its text field, and sources holding nothing are refused, because an empty section looks the same as one that found nothing. The result is ready for tool:place-a-section-in-a-markdown-document.",
+    "input_schema": {
+     "type": "object",
+     "required": ["heading", "sources"],
+     "additionalProperties": false,
+     "properties": {
+      "heading": { "type": "string", "description": "The section heading; written as a second-level heading unless it already starts with #" },
+      "preamble": { "type": "string", "description": "Text written under the heading before the entries" },
+      "sources": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": ["document"],
+        "properties": {
+         "path": { "type": "string", "description": "A name for the source, used when it has no group name" },
+         "document": { "type": "object", "description": "A JSON document holding the list of entries" }
+        }
+       }
+      },
+      "entries_at": { "type": "string", "description": "The key of the list of entries (default messages)" },
+      "text_field": { "type": "string", "description": "The key of an entry's text (default content)" },
+      "label_field": { "type": "string", "description": "The key of an entry's number or label (default ordinal)" },
+      "stamp_field": { "type": "string", "description": "The key of an entry's time stamp (default timestamp)" },
+      "group_field": { "type": "string", "description": "The key of the group name in the source document (default session_id)" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["text", "entries", "sources"],
+     "properties": {
+      "text": { "type": "string", "description": "The markdown section" },
+      "entries": { "type": "number" },
+      "sources": { "type": "number" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "document-sections",
+       "paths": ["do-work"],
+       "at": "/opt/document-sections"
+      }
+     },
+     "workdir": "/opt/document-sections",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/build-a-section.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 2, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:document-sections",
+    "provenance": { "source": "ported from bitfield-packages packages/document-sections (build-entries-section)" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "heading": "What was said",
+       "sources": [{ "document": { "session_id": "first", "messages": [{ "ordinal": 1, "content": "One line." }] } }]
+      },
+      "output_selector": "$.text",
+      "contains": "> One line."
+     }
+    ]
+   }
+  }
+ ]
+}

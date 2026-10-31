@@ -1,0 +1,3 @@
+{
+  "public": ["do-work/append-section.mjs", "do-work/build-entries-section.mjs"]
+}
