@@ -4,13 +4,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { aroundNow, armAt, holdToIt, isTimed, marksFor, presentAmong, readSettings, tally } from '../read-data/hold-to-it.mjs';
+import { aroundNow, armAt, evidenceFromHeard, holdToIt, isTimed, marksFor, presentAmong, readSettings, tally } from '../read-data/hold-to-it.mjs';
 
 const settings = readSettings();
 const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload).find(payload => payload.id === 'tool:hold-to-it');
 const policy = {
   defaults: { minutes: 30, time_zone: 'UTC', remind_minutes: 10, check_after_minutes: 30 },
-  evidence_before_minutes: 10, evidence_after_minutes: 15, unnamed_prefix: 'Someone (',
+  evidence_before_minutes: 10, evidence_after_minutes: 15, unnamed_prefixes: ['Someone (', 'Unsure ('],
   marks: [
     { id: 'came', label: 'Came', points: 1, when: 'present' },
     { id: 'missed', label: 'Missed the meeting', points: -3, when: 'absent', miss: true },
@@ -134,4 +134,16 @@ test('the row packs what the tool reads and holds only the rights of its three r
   assert.deepEqual(invoke.records.rights.find(item => item.kind === settings.types.policy).operations, ['records:read']);
   const packs = invoke.files.package_files.map(item => item.package ?? item.module);
   for (const name of ['hold-to-it', 'wall-time', 'content-identity', 'records-door', '@noble/hashes']) assert.ok(packs.includes(name), name);
+});
+
+test('a check reads heard turns: the speaker names who came, and voices with no name or several candidates leave nobody marked absent', async () => {
+  await withDoor([], async door => {
+    const { agreement_id: agreementId } = await hold(door, daily);
+    const heard = [{ start: '2026-03-02T09:05:00Z', speaker: 'Priya Shah', me: true, voice: 'p1', score: 0.9, text: 'hello' }, { start: '2026-03-02T09:06:00Z', speaker: 'Unsure (Omar or Lin?)', unsure: ['Omar', 'Lin'], text: 'yes' }];
+    const done = await holdToIt({ policy, group, operation: 'check', agreement_id: agreementId, arranged: true, heard, read_from: ['call'] }, { door, now: at('2026-03-02T10:00:00Z') });
+    assert.deepEqual(done.present, ['Priya Shah']);
+    assert.equal(done.unnamed_voices, 1);
+    assert.deepEqual(done.marks.map(mark => mark.mark), ['came', 'not-counted', 'not-counted']);
+    assert.deepEqual(evidenceFromHeard([{ speaker: ' ', start: 'x' }, { start: 'y' }, { speaker: 'Lin', start: '2026-03-02T09:07:00Z' }]), [{ name: 'Lin', at: '2026-03-02T09:07:00Z' }]);
+  });
 });
