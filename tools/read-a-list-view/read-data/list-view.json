@@ -4,7 +4,7 @@
     "read_page_rows": 50,
     "door_page_rows": 500,
     "rows_per_read": 2000,
-    "row_sources_per_list": 4,
+    "row_sources_per_list": 5,
     "write_rows": 64,
     "write_bytes": 24000,
     "why": "The bounds of a list read and a refresh, kept by the list reader because reading a list is this tool's job (the engine stores and lists records; it reads no list). read_page_rows: rows a page holds when the caller names no limit, and the most one source tool's page asks for. door_page_rows: the most one records:list asks for, the records door's own page (records-door.json list_page; the door cuts any page to one message). rows_per_read: the most rows one view read gathers, including rules or a sort; a refresh streams as many bounded pages as a source needs and is not capped at that view bound. row_sources_per_list: the most row sources one list may declare. write_rows and write_bytes: the most records and bytes one records:write of a refresh sends (the door answers within one 65,536-byte message, and the step-4 sends of export-records-as-list-rows use the same 64 and 24,000)."
