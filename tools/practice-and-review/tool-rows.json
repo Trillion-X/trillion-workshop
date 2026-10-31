@@ -1,0 +1,234 @@
+{
+ "kind": "tool-rows",
+ "record_set": "practice-and-review-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/practice-and-review: when a thing being learned comes back, and what is due now.",
+ "records": [
+  {
+   "id": "package::ai-tool-catalog::tool::schedule-next-review",
+   "address": "package::ai-tool-catalog::tool::schedule-next-review",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:schedule-next-review",
+    "label": "Schedule the next review of something being learned",
+    "status": "active",
+    "job": "Work out when a flashcard, drill, passage or any other thing being learned should come back, from how well the person just recalled it",
+    "description": "Give the grade the person just gave, the item's state from its last review (leave it out the first time) and the person's own spacing policy: the starting ease, the ease floor, the gap after the first and the second success, the recall quality below which an item lapses, and a map from each grade word to a recall quality between 0 and 1. Returns the item's next state to keep and hand back at the next review, when it is due (a time and a date), whether it lapsed and the quality the grade mapped to. The grade is an open word the policy defines. A grade the policy does not list counts as a total lapse and is marked grade_in_policy false. With prompt_id and schedule_id it also returns the next schedule record to keep (the state, the day it is due and state due). The policy may be given as policy or found among rows by policy_kind. There is no default policy: a missing policy or field is refused with its name.",
+    "input_schema": {
+     "type": "object",
+     "required": ["grade"],
+     "properties": {
+      "grade": { "type": "string", "description": "The grade word the person gave: a key of policy.grade_quality." },
+      "reviewed_at": { "type": "string", "description": "When the review happened, as a time such as 2026-01-31T09:00:00Z. Defaults to now." },
+      "prompt_id": { "type": "string", "description": "The item reviewed. Give with schedule_id to also get the next schedule record to keep." },
+      "schedule_id": { "type": "string", "description": "The id for the new schedule record." },
+      "learner": { "type": "string", "description": "Who reviewed; kept on the record." },
+      "rows": { "type": "array", "description": "The person's records. When policy is left out, the first row whose kind is policy_kind is the policy." },
+      "policy_kind": { "type": "string", "description": "The kind the person gave their policy record, used with rows." },
+      "prior": {
+       "type": "object",
+       "description": "The state returned by this item's last review, or the schedule record kept from it. A record with none of the three numbers counts as a new item. Leave out for an item reviewed for the first time.",
+       "properties": {
+        "reps": { "type": "number" },
+        "ease_factor": { "type": "number" },
+        "interval_days": { "type": "number" }
+       }
+      },
+      "policy": {
+       "type": "object",
+       "description": "The person's spacing policy. Every field is required.",
+       "required": ["initial_ease", "min_ease", "first_interval_days", "second_interval_days", "lapse_below_quality", "grade_quality"],
+       "properties": {
+        "initial_ease": { "type": "number", "description": "Ease of an item reviewed for the first time." },
+        "min_ease": { "type": "number", "description": "Ease never falls below this." },
+        "first_interval_days": { "type": "number", "description": "Days until the next review after the first success, and after any lapse." },
+        "second_interval_days": { "type": "number", "description": "Days until the next review after the second success in a row." },
+        "lapse_below_quality": { "type": "number", "description": "A recall quality below this is a lapse." },
+        "grade_quality": { "type": "object", "description": "Each grade word mapped to a recall quality between 0 and 1.", "additionalProperties": { "type": "number" } }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["state", "due_at", "due_on", "lapsed", "quality", "grade_in_policy"],
+     "properties": {
+      "state": {
+       "type": "object",
+       "required": ["reps", "ease_factor", "interval_days"],
+       "properties": {
+        "reps": { "type": "number" },
+        "ease_factor": { "type": "number" },
+        "interval_days": { "type": "number" }
+       }
+      },
+      "due_at": { "type": "string" },
+      "due_on": { "type": "string" },
+      "lapsed": { "type": "boolean" },
+      "quality": { "type": "number" },
+      "grade_in_policy": { "type": "boolean" },
+      "record": { "type": "object" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "practice-and-review",
+       "paths": ["do-work", "read-data"],
+       "at": "/opt/practice-and-review"
+      }
+     },
+     "workdir": "/opt/practice-and-review",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/schedule-next-review.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:practice-and-review",
+    "provenance": { "source": "bitfield-packages packages/spaced-repetition" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "grade": "solid",
+       "reviewed_at": "2026-01-01T12:00:00Z",
+       "policy": {
+        "initial_ease": 2.5,
+        "min_ease": 1.3,
+        "first_interval_days": 1,
+        "second_interval_days": 6,
+        "lapse_below_quality": 0.6,
+        "grade_quality": { "miss": 0, "shaky": 0.6, "solid": 0.8, "instant": 1 }
+       }
+      },
+      "output_selector": "$.due_on",
+      "contains": "2026-01-02"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::tool::list-what-is-due",
+   "address": "package::ai-tool-catalog::tool::list-what-is-due",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:list-what-is-due",
+    "label": "List what is due for review",
+    "status": "active",
+    "job": "See which of the things a person is learning are due for review now, soonest first, from the grades they have given them",
+    "description": "Give the items being learned (each with an id and optional text; anything else on an item is handed back), the grades given so far (the item id, the grade word and when) and the person's own spacing policy. Each item's due time is folded from its grades, oldest first, so the grades are the only record and the queue cannot drift from them. Returns every item with whether it is due now, when it is next due, its state to keep and how many grades went into it. Items never reviewed are due at once. Due items come first, soonest due first, then by text and id. Pass learner to count only that person's grades. The policy may be given as policy or found among rows by policy_kind. There is no default policy: a missing policy or field is refused with its name.",
+    "input_schema": {
+     "type": "object",
+     "required": ["prompts"],
+     "properties": {
+      "prompts": {
+       "type": "array",
+       "description": "The items being learned: [{ id, text? }]. Each id appears once.",
+       "items": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string" }, "text": { "type": "string" } } }
+      },
+      "responses": {
+       "type": "array",
+       "description": "The grades given so far, in any order: [{ prompt_id, grade, at, learner? }].",
+       "items": {
+        "type": "object",
+        "required": ["prompt_id", "grade", "at"],
+        "properties": {
+         "prompt_id": { "type": "string" },
+         "grade": { "type": "string" },
+         "at": { "type": "string" },
+         "learner": { "type": "string" }
+        }
+       }
+      },
+      "now": { "type": "string", "description": "The time to judge against, such as 2026-01-31T09:00:00Z. Defaults to now." },
+      "rows": { "type": "array", "description": "The person's records. When policy is left out, the first row whose kind is policy_kind is the policy." },
+      "policy_kind": { "type": "string", "description": "The kind the person gave their policy record, used with rows." },
+      "learner": { "type": "string", "description": "Count only the grades whose learner is this." },
+      "policy": {
+       "type": "object",
+       "description": "The person's spacing policy, as for tool:schedule-next-review. Every field is required.",
+       "required": ["initial_ease", "min_ease", "first_interval_days", "second_interval_days", "lapse_below_quality", "grade_quality"],
+       "properties": {
+        "initial_ease": { "type": "number" },
+        "min_ease": { "type": "number" },
+        "first_interval_days": { "type": "number" },
+        "second_interval_days": { "type": "number" },
+        "lapse_below_quality": { "type": "number" },
+        "grade_quality": { "type": "object", "additionalProperties": { "type": "number" } }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["now", "due_count", "items"],
+     "properties": {
+      "now": { "type": "string" },
+      "due_count": { "type": "number" },
+      "items": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": ["prompt", "is_due", "review_count", "state", "due_at"],
+        "properties": {
+         "prompt": { "type": "object" },
+         "is_due": { "type": "boolean" },
+         "review_count": { "type": "number" },
+         "state": { "type": ["object", "null"] },
+         "due_at": { "type": ["string", "null"] }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "practice-and-review",
+       "paths": ["do-work", "read-data"],
+       "at": "/opt/practice-and-review"
+      }
+     },
+     "workdir": "/opt/practice-and-review",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/list-what-is-due.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:practice-and-review",
+    "provenance": { "source": "bitfield-packages packages/spaced-repetition" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "prompts": [{ "id": "card-1", "text": "Alpha" }, { "id": "card-2", "text": "Beta" }],
+       "responses": [{ "prompt_id": "card-1", "grade": "solid", "at": "2026-01-01T12:00:00Z" }],
+       "now": "2026-01-01T18:00:00Z",
+       "policy": {
+        "initial_ease": 2.5,
+        "min_ease": 1.3,
+        "first_interval_days": 1,
+        "second_interval_days": 6,
+        "lapse_below_quality": 0.6,
+        "grade_quality": { "miss": 0, "shaky": 0.6, "solid": 0.8, "instant": 1 }
+       }
+      },
+      "output_selector": "$.items[0].prompt.id",
+      "contains": "card-2"
+     }
+    ]
+   }
+  }
+ ]
+}
