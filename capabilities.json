@@ -350,6 +350,17 @@
       "evidence": "README.md:3 search scoped to File pages and metadata lookup of one exact File: title"
     },
     {
+      "capability": "call any endpoint of treg's paid catalog by its id under a cost ceiling, after finding it and reading its price, and read the balance it spends",
+      "owner": ["tools/treg/"],
+      "entry": "tools/treg/tool-rows.json",
+      "evidence": "README.md:3 one row calls any endpoint of treg's catalog by its id; finding an endpoint and reading its price are free; a call spends the person's treg balance through their treg connection under a ceiling",
+      "distinct_from": [
+        {"job": "guard an AI's spending: budgets, reservations, a spend ledger and resets", "why": "that job keeps a budget and ledger of its own across any rail; this one calls one paid catalog, and the spend it reads is treg's own balance and charges"},
+        {"job": "search the Internet Archive and read an item's metadata", "why": "that job reads one free archive; this one calls a catalog of paid endpoints from many providers, each billed to the person's treg balance through a held token"},
+        {"job": "search Wikimedia Commons for files and read a file's reuse metadata", "why": "that job reads one free media library; this one calls a catalog of paid endpoints from many providers, each billed to the person's treg balance through a held token"}
+      ]
+    },
+    {
       "capability": "turn words into the vector a picture model gives pictures that show them",
       "owner": ["tools/words-as-picture-vector/"],
       "entry": "tools/words-as-picture-vector/tool-rows.json",
