@@ -1,0 +1,57 @@
+# tools/research-a-creator-or-topic/
+
+Gathers what a person needs to research a creator or a topic and prepares the request for a profile of them: the latest items of a feed, a channel's latest videos, the words spoken in a video, the results of a public web search, the items in a list the person saved, and the instruction the person's AI writes a profile from. Ported from the research-workspace package (its gather, extract and synthesize steps) and the profile-a-creator-or-topic package (its profile hand-off). The package's connector rows, which held its readers as strings of code inside the old runtime, are now ordinary readers in `do-work/sources.mjs`.
+
+Nothing about any creator or topic ships here. Which feed, channel, query or file, and what a profile should look for (`instruction`), come with each request. The profile itself is written by the person's AI from `instruction_text` and kept in the person's own records; this folder asks no model and stores nothing.
+
+Many channels at once, kept for good: `tool:keep-channels-latest-videos-and-captions` lists the newest videos of each channel, tab or playlist the person names and keeps every new video's captions with the second each line is said, the site's description of it and, when asked, its top comments, never the video. It runs in the engine (internet:true container) and asks the site politely: one request at a time with a wait drawn from a range, a bounded number of requests and seconds per run, and a stop at the first robot check or too-many-requests answer. Every one of those numbers is DATA in `do-work/harvest-settings.json`. A run that stops early answers `again`, the input to send next, and after a refusal `wait_minutes`; the caller repeats until `again` is null. The files are kept in the person's own files by the engine (`invoke.outputs`): `listing` (listing.json), `captions` (captions.jsonl) and `comments` (comments.jsonl). With `rows`, one row per seed or per new video goes into the person's sources list through the records door, written over the row already held so the fields the person keeps by hand stay; which fields, and from which facts, come with the request.
+
+Public posts by link: `tool:keep-public-posts-by-link` is the same queue for a different source, a person's public posts. It asks a third-party public mirror (not the posts' own site) for each post as JSON and keeps its text, counts, author and the addresses of its media, never the media. **It depends on that mirror staying up and answering**; the mirror's address is DATA (`posts.mirror_base` in `do-work/harvest-settings.json`), as are the link pattern, the user agent and the fields kept, and a link the mirror cannot answer is a failed line with its reason. It uses the same limits file as the channel harvest (the wait range, requests and seconds per run, refusal words and pause), keeps `posts.jsonl` in the person's files, and answers `again` and `wait_minutes` the same way. With `rows` (`one_per: "post"`), each post goes into the person's sources list over the row already held.
+
+What a run keeps is chosen by the request, not by this folder. A seed is words or `{ seed, id, newest }`: `id` names the row that seed updates (the fact `row_id` in rows; so rows one per seed update an outlet's existing row, and `rows.id` can be left out when every seed has one) and `newest` is how many of that seed's videos to keep (the top-level `newest` is the default). `between: { from, to }` keeps only videos uploaded on those days; `eras: n` splits the days (or the listed videos' own span) into n equal spans and keeps an equal share of `newest` from each, the newest videos of the span first, a sparse span giving what it has. Both list deeper than `newest` (`window_list_at_most` in the settings) so there is something to choose from, and the site's listing dates are approximate; videos with no date are left out and counted as `undated`. `comment_mix: { videos, read, question, disagreement, oldest, newest }` reads `read` top comments of `videos` of each seed's kept videos (spread evenly across them) and keeps up to the asked number of each kind, each labelled with its kind and counted once; the kinds are chosen from the comments read, so `oldest` and `newest` are of those, each seed in the answer (and in `rows` one per seed) carries `comments_kept`, the comments kept for its videos in this run; and the words that make a disagreement are DATA in the settings (`comment_mix.disagreement_words`, in the language of the comments).
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `do-work/sources.mjs` | The readers: `readCaptionLines` (a caption file as timed lines, `[[second, words]]`), `readFeed` (Atom and RSS), `readChannelListing` and `channelListingUrl` (yt-dlp's listing of a channel), `searchUrl` and `readSearchResults` (a public web search page, at most ten cited results), `readSavedList` (a JSON list of rows), `readBrowserSidebar` (the Arc browser's sidebar file, private-looking addresses withheld), `readCaptionWords`, `readVttWords`, `readCaptionFile` and `captionFileOrder` (json3 and WebVTT captions). Text in, `{ source, items }` out; nothing fetches, runs a program or reads a disk. |
+| `do-work/fetch-text.mjs` | One public page as text, to a size and a time. The engine's public-only proxy judges where it may go. |
+| `do-work/read-a-feed.mjs` | `tool:list-the-latest-items-of-a-feed`. |
+| `do-work/search-the-public-web.mjs` | `tool:search-the-public-web`. |
+| `do-work/write-a-profile-request.mjs` | `tool:write-a-profile-request`. |
+| `do-work/research-from-this-computer.mjs` | `tool:list-a-channels-latest-videos`, `tool:read-a-videos-captions` and `tool:list-the-items-in-a-saved-file`: the steps that run yt-dlp or read a file on the person's own computer. |
+| `do-work/harvest-channels.mjs` | `tool:keep-channels-latest-videos-and-captions` (`keepChannelsLatestVideosAndCaptions`, run by `tools/records-door/do-work/run-an-export.mjs`): the polite queue, the three output files, the rows and `again`. |
+| `do-work/harvest-parts.mjs` | What both polite readers share: the queue (requests, drawn waits, the run's seconds, the refusal check), the plain words that refuse an input, the output file filled to its byte bound, and the rows written over the rows held. |
+| `do-work/harvest-posts.mjs` | `tool:keep-public-posts-by-link` (`keepPublicPostsByLink`, run by `tools/records-door/do-work/run-an-export.mjs`): public posts through a public mirror. |
+| `do-work/harvest-settings.json` | Every setting of that queue: where yt-dlp is looked for, the arguments of each request, the wait range, the refusal words and the pause after one, the requests and seconds of one run, the bounds of the input and of each file, the record type rows are written as, and the fields a caption line and a comment keep. |
+| `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
+| `test/sources.test.mjs` | The readers on made-up feeds, listings, results, lists and sidebars. |
+| `test/commands.test.mjs` | The commands, with the network and yt-dlp stood in for. |
+| `test/harvest-channels.test.mjs` | The queue on a made-up site: newest and skipped videos, waits, the run's budget and request bound, refusals and their doubling pause, file bounds, comments, rows over held rows through the stand-in door, refused input, and that the row and the settings agree. |
+| `test/harvest-posts.test.mjs` | The posts queue on a stand-in mirror: each link once, kept fields only, skipped ids, refusals and their pause, bounds, rows over held rows, refused input, and that the row and the settings agree. |
+| `test/stand-in/yt-dlp` | A stand-in yt-dlp: answers a plan file of made-up listings, descriptions and captions, and logs each call. |
+
+## Key Types / Functions
+
+| Name | Signature / Shape | Role |
+|------|-------------------|------|
+| item | `{ item_id, title, url, published, description }` plus `duration`, `citation`, `source_family`, `source_type`, `container_path`, `license_status`, `lifecycle_status` where the source has them | What every reader returns, so one profile step can take any source. |
+| `channelVideos` | `({ channel, limit, ytDlp, run }) -> { source, subject_ref, listing_url, count, items }` | Runs yt-dlp's flat listing. `run` is `spawnSync` unless a test gives its own. |
+| `videoCaptions` | `({ video, watchBase, langs, ytDlp, run }) -> { video_id, url, has_captions, transcript, status }` | `status` is `ready` or `empty`; a video with no captions is empty, never guessed. |
+| `writeAProfileRequest` | `({ subject_ref, instruction, material, evidence, profile_ref, output_kind }) -> { requests, skipped }` | One request per piece of material; the instruction comes first. |
+| `keepChannelsLatestVideosAndCaptions` | `(input, { door }) -> { stopped, requests, seconds, seeds, captions, comments, settled, rows?, wait_minutes?, again }` | `input`: `seeds`, `newest`, `caption_languages`, and optionally `skip_ids`, `budget_seconds`, `also: ["comments"]` with `comments_per_video`, `refusals_in_a_row` (set by `again`) and `rows: { one_per: "seed" or "video", id, fields }`, each value `{ fact }`, `{ text }` with `{fact}` holes, or `{ value }`. `stopped` is `finished`, `budget`, `requests`, `refusal` or `files`. |
+| caption line | `{ video_id, url, seed, status, language, format, lines: [[second, words]], info, reason? }` | One line of captions.jsonl. `status` is `ready`, `empty` (the video has no captions in the languages asked) or `failed` (`reason`, the site's words); `info` holds only the settings' `info_fields`. |
+
+## What was not carried
+
+- The old package's way of building a request from a connector row (`{param}` substitution into a template, with its fail-closed missing-parameter check), its record writers, its trigger rule and its board screens: they were the old runtime's plumbing around the readers. The screens belong with the screens owner.
+- The browser observation and interaction request builders (an `agent-browser` batch with an allowed host): reading a page that needs a browser, with clicks and typing, is `tools/headless-browser` (`tool:read-a-rendered-page`); the engine's proxy judges the address.
+- The old local-list reader marked every item `artifact_status: blocked`; that was the old board's gate, not research, and is dropped. `license_status` stays and is `unknown` when a row says nothing.
+- Writing a profile and keeping it as a technique with the reason it works is `tools/cross-techniques-with-a-goal`; reading back what a person saved is `tools/saved-examples`. This folder feeds them and does not repeat their jobs.
+
+## Dependencies
+
+**Depends on:** Node 22 or later; `yt-dlp` on the person's computer for the channel and captions steps; `tools/records-door` (run-an-export and the door client), packed by the keep row.
+
+**Depended on by:** `tool-rows.json` and Trillion's deploy (it bundles the files a row names).
+- The library script this came from also downloaded each post's photos next to the post. `tool:keep-public-posts-by-link` keeps the photos' addresses in the post (`media`) and downloads none: the engine's outputs are a fixed list of files, and a file per photo is not one.

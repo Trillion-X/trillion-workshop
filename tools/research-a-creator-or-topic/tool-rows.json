@@ -1,0 +1,1117 @@
+{
+ "kind": "tool-rows",
+ "record_set": "research-a-creator-or-topic-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/research-a-creator-or-topic: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::research-a-creator-or-topic::tool::list-the-latest-items-of-a-feed",
+   "address": "package::research-a-creator-or-topic::tool::list-the-latest-items-of-a-feed",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:list-the-latest-items-of-a-feed",
+    "label": "List the latest items of a feed",
+    "status": "active",
+    "job": "Get the latest posts, videos or episodes of a creator or a topic from their Atom or RSS feed",
+    "description": "Reads one public Atom or RSS feed (at most 2 MB, 15 seconds) and returns its title (source) and its items, each with an item_id (the id the feed gives it, else its link), title, published, url and description. Give limit (1 to 200, 50 when left out) to cut the list. It reaches public sites only and does not sign in. The address of the feed is the person's own: this tool knows no creator and no site.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "url"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "url": {
+       "type": "string",
+       "format": "uri",
+       "description": "The public address of the feed"
+      },
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 200,
+       "description": "How many items at most"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "source",
+      "subject_ref",
+      "count",
+      "items"
+     ],
+     "properties": {
+      "source": {
+       "type": "string"
+      },
+      "subject_ref": {
+       "type": "string"
+      },
+      "count": {
+       "type": "integer"
+      },
+      "items": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "item_id",
+         "title",
+         "url"
+        ]
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/work",
+     "stdout": "json",
+     "argv": [
+      "/usr/local/bin/node",
+      "/opt/research-a-creator-or-topic/do-work/read-a-feed.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": {
+       "package": "research-a-creator-or-topic",
+       "paths": [
+        "do-work/read-a-feed.mjs",
+        "do-work/fetch-text.mjs",
+        "do-work/sources.mjs"
+       ],
+       "at": "/opt/research-a-creator-or-topic"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 15,
+     "network_egress": true,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:research-a-creator-or-topic",
+    "provenance": {
+     "source": "the research-workspace package's feed reader"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "url": "https://example.com"
+      },
+      "output_selector": "$.subject_ref",
+      "contains": "https://example.com"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::research-a-creator-or-topic::tool::search-the-public-web",
+   "address": "package::research-a-creator-or-topic::tool::search-the-public-web",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:search-the-public-web",
+    "label": "Search the public web",
+    "status": "active",
+    "job": "Search the public web for a creator, a topic or a question, and get back at most ten results with the address each one cites",
+    "description": "Sends one query (1 to 500 characters) to a public web search and reads the one results page. Returns at most ten results, each with title, url (the page the result points to, never the search engine's own address), a snippet in description, and a citation { url, retrieved_via }. It follows no result and signs in nowhere; to read a result, read its page with the tool that reads a public page.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "query"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "query": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 500,
+       "description": "What to search for"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "source",
+      "subject_ref",
+      "count",
+      "items"
+     ],
+     "properties": {
+      "source": {
+       "type": "string"
+      },
+      "subject_ref": {
+       "type": "string"
+      },
+      "count": {
+       "type": "integer",
+       "maximum": 10
+      },
+      "items": {
+       "type": "array",
+       "maxItems": 10,
+       "items": {
+        "type": "object",
+        "required": [
+         "title",
+         "url",
+         "citation"
+        ]
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/work",
+     "stdout": "json",
+     "argv": [
+      "/usr/local/bin/node",
+      "/opt/research-a-creator-or-topic/do-work/search-the-public-web.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": {
+       "package": "research-a-creator-or-topic",
+       "paths": [
+        "do-work/search-the-public-web.mjs",
+        "do-work/fetch-text.mjs",
+        "do-work/sources.mjs"
+       ],
+       "at": "/opt/research-a-creator-or-topic"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 15,
+     "network_egress": true,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:research-a-creator-or-topic",
+    "provenance": {
+     "source": "the research-workspace package's public web search reader"
+    }
+   }
+  },
+  {
+   "id": "package::research-a-creator-or-topic::tool::write-a-profile-request",
+   "address": "package::research-a-creator-or-topic::tool::write-a-profile-request",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:write-a-profile-request",
+    "label": "Prepare the request for a profile of a creator or a topic",
+    "status": "active",
+    "job": "Turn what was gathered about a creator or a topic (video words, page text) into the instruction the person's AI writes a profile from",
+    "description": "Give subject_ref (who or what is profiled), instruction (the person's own words on what to look for; they come before the material) and either material (one text) or evidence ([{ id, text }], for example one video's words each). Optional profile_ref (profile:<subject_ref> when left out) and output_kind (profile). Returns one request per piece of material: { kind, status requested, request_id (subject_ref:id), profile_ref, subject_ref, output_kind, instruction_text }, and in skipped the ids whose text was empty (a video with no captions). It asks no model and stores nothing; the AI that called it writes the profile from instruction_text and keeps it in the person's own records.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "subject_ref",
+      "instruction"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "subject_ref": {
+       "type": "string",
+       "minLength": 1
+      },
+      "instruction": {
+       "type": "string",
+       "minLength": 1,
+       "description": "What the writer is to look for, in the person's words"
+      },
+      "material": {
+       "type": "string"
+      },
+      "evidence": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "text"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "text": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "profile_ref": {
+       "type": "string"
+      },
+      "output_kind": {
+       "type": "string"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "subject_ref",
+      "profile_ref",
+      "skipped",
+      "requests"
+     ],
+     "properties": {
+      "subject_ref": {
+       "type": "string"
+      },
+      "profile_ref": {
+       "type": "string"
+      },
+      "skipped": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "requests": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "request_id",
+         "instruction_text"
+        ]
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/work",
+     "stdout": "json",
+     "argv": [
+      "/usr/local/bin/node",
+      "/opt/research-a-creator-or-topic/do-work/write-a-profile-request.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": {
+       "package": "research-a-creator-or-topic",
+       "paths": [
+        "do-work/write-a-profile-request.mjs"
+       ],
+       "at": "/opt/research-a-creator-or-topic"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:research-a-creator-or-topic",
+    "provenance": {
+     "source": "the research-workspace package's profile hand-off and the profile-a-creator-or-topic package's job"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "subject_ref": "a bakery channel",
+       "instruction": "Look for how they open a lesson. Material: ",
+       "material": "Fold the dough."
+      },
+      "output_selector": "$.requests[0].instruction_text",
+      "contains": "Material: Fold the dough."
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::research-a-creator-or-topic::tool::list-a-channels-latest-videos",
+   "address": "package::research-a-creator-or-topic::tool::list-a-channels-latest-videos",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:list-a-channels-latest-videos",
+    "label": "List a channel's latest videos (runs on your computer)",
+    "status": "active",
+    "job": "Get the latest videos of a creator's channel: their titles, dates, lengths and links",
+    "description": "Runs on the person's own computer with yt-dlp, which lists a channel's videos without downloading them: the answer is the channel's name (source) and its latest videos (30 unless --limit says otherwise), each with item_id, title, duration, published (as the site writes it), url and the first 500 characters of the description. The channel is a link, a channel id (UC...) or a @handle. Nothing is sent to Trillion and no key is needed.",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The channel (a link, a channel id or a @handle), put where {input} is in the command."
+      },
+      "output": {
+       "type": "string",
+       "description": "The JSON file to write the answer to, put where {output} is in the command."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "The last line the command prints: {\"result\": {source, subject_ref, listing_url, count, out}}, with the whole answer (and its items) in the file. Or {\"failed\": {code, message}} with exit 2: bad-request, no-yt-dlp or no-listing."
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/Trillion-X/trillion-workshop",
+     "get_it": [
+      "git clone https://github.com/Trillion-X/trillion-workshop.git",
+      "brew install yt-dlp"
+     ],
+     "run": "node trillion-workshop/tools/research-a-creator-or-topic/do-work/research-from-this-computer.mjs channel --channel {input} --out {output}",
+     "needs": [
+      "node",
+      "yt-dlp (from your package manager or https://github.com/yt-dlp/yt-dlp)"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check that node and yt-dlp are installed (get_it has the commands), run `run` with the channel in place of {input} and a new .json file for {output} (add `--limit N` for more or fewer videos, `--yt-dlp PATH` if yt-dlp is not on the path). Read the file and tell the person the channel's name and its newest videos. A failed command prints its code and why on its last line; no-listing means the site gave nothing, so say so rather than guess. If you cannot run commands, give them these steps."
+    },
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "provenance": {
+     "source": "the research-workspace package's channel listing, run with yt-dlp (Unlicense, https://github.com/yt-dlp/yt-dlp)"
+    }
+   }
+  },
+  {
+   "id": "package::research-a-creator-or-topic::tool::read-a-videos-captions",
+   "address": "package::research-a-creator-or-topic::tool::read-a-videos-captions",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-a-videos-captions",
+    "label": "Get the words spoken in a video from its captions (runs on your computer)",
+    "status": "active",
+    "job": "Get the words spoken in a video as text, from the captions the video site holds for it",
+    "description": "Runs on the person's own computer with yt-dlp, which fetches a video's captions (the automatic ones when there are no others) without downloading the video. The answer is { video_id, url, has_captions, char_count, transcript, status }: status ready with the words, or empty (has_captions false, with the reason in stderr_tail) for a video with none. The original spoken language is read first, then plain English. The video is an id or a link; --watch-base sets the address an id is put after. Nothing is sent to Trillion and no key is needed.",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The video (an id or a link), put where {input} is in the command."
+      },
+      "output": {
+       "type": "string",
+       "description": "The JSON file to write the answer to, put where {output} is in the command."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "The last line the command prints: {\"result\": {video_id, url, has_captions, char_count, status, out}}, with the words in the file's transcript. Or {\"failed\": {code, message}} with exit 2: bad-request or no-yt-dlp."
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/Trillion-X/trillion-workshop",
+     "get_it": [
+      "git clone https://github.com/Trillion-X/trillion-workshop.git",
+      "brew install yt-dlp"
+     ],
+     "run": "node trillion-workshop/tools/research-a-creator-or-topic/do-work/research-from-this-computer.mjs captions --video {input} --out {output}",
+     "needs": [
+      "node",
+      "yt-dlp (from your package manager or https://github.com/yt-dlp/yt-dlp)"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check that node and yt-dlp are installed (get_it has the commands), run `run` with the video in place of {input} and a new .json file for {output} (add `--langs en,en-orig` to change the caption languages, `--yt-dlp PATH` if yt-dlp is not on the path, and `--js-runtimes node` when stderr_tail says yt-dlp needs a JavaScript runtime to read the site). Read the transcript in the file. If status is empty, tell the person the video has no captions and why (stderr_tail) instead of guessing its words. If you cannot run commands, give them these steps."
+    },
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "provenance": {
+     "source": "the research-workspace package's caption extraction, run with yt-dlp (Unlicense, https://github.com/yt-dlp/yt-dlp)"
+    }
+   }
+  },
+  {
+   "id": "package::research-a-creator-or-topic::tool::list-the-items-in-a-saved-file",
+   "address": "package::research-a-creator-or-topic::tool::list-the-items-in-a-saved-file",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:list-the-items-in-a-saved-file",
+    "label": "List the items in a list saved on your computer (runs on your computer)",
+    "status": "active",
+    "job": "Read a list the person saved in a file (bookmarks, a source list, an exported set of rows, a browser's saved tabs) into items to research",
+    "description": "Runs on the person's own computer and reads one JSON file: an array of rows, or an object holding rows under sources, bookmarks, items, records, rows or data (shape list, the default), or the sidebar file of the Arc browser (--shape browser-sidebar: pinned and current tabs of its default profile with their folders; an address that looks like an account, admin or sign-in page, or carries a token, is kept as Private page with no address). Each row becomes an item with item_id, title, url, published, description, source_family, source_type, container_path, license_status (unknown when the row says nothing) and lifecycle_status; at most 5000 (--limit cuts it). Nothing leaves the computer.",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file on the person's computer, put where {input} is in the command."
+      },
+      "output": {
+       "type": "string",
+       "description": "The JSON file to write the answer to, put where {output} is in the command."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "The last line the command prints: {\"result\": {source, subject_ref, count, out}}, with the items in the file. Or {\"failed\": {code, message}} with exit 2: bad-request or unreadable-file."
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/Trillion-X/trillion-workshop",
+     "get_it": [
+      "git clone https://github.com/Trillion-X/trillion-workshop.git"
+     ],
+     "run": "node trillion-workshop/tools/research-a-creator-or-topic/do-work/research-from-this-computer.mjs saved-list --file {input} --out {output}",
+     "needs": [
+      "node"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion, and installs nothing beyond node. If you can run commands where they are: run `run` with their file in place of {input} and a new .json file for {output} (add `--shape browser-sidebar` for a browser's sidebar file, `--limit N` to cut the list). Read the items in the file and tell the person what the list holds. If the command fails, its last line says the code and why. If you cannot run commands, give them these steps."
+    },
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "provenance": {
+     "source": "the research-workspace package's local list and browser sidebar readers"
+    }
+   }
+  },
+  {
+   "id": "package::research-a-creator-or-topic::tool::keep-channels-latest-videos-and-captions",
+   "address": "package::research-a-creator-or-topic::tool::keep-channels-latest-videos-and-captions",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:keep-channels-latest-videos-and-captions",
+    "label": "Keep the newest videos of channels and their captions",
+    "status": "active",
+    "job": "List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video",
+    "description": "For each seed (a channel's @handle, id or link, a link to one of its tabs such as /shorts, or a playlist link) lists the newest `newest` videos with yt-dlp on this computer, then fetches the captions (in the first of caption_languages the video has; json3, else WebVTT), the site's description and, with also [\"comments\"], the top comments_per_video comments of every listed video not in skip_ids. It never downloads a video. It asks politely, one request at a time with a drawn wait between requests, at most a set number of requests and budget_seconds per run (the settings file harvest-settings.json in this folder holds every number), and it stops at the first refusal (a robot check or too many requests). It keeps three files in your files: listing (listing.json: every listed video of each seed, with kept_before), captions (captions.jsonl: one line per video settled now, { video_id, url, seed, status ready|empty|failed, language, format, lines [[second, words]], info }) and comments (comments.jsonl). With rows it also writes one row per seed or per settled video into your sources list (record:sources:<id>), each field from a fact ({ fact }), a text with {fact} holes ({ text }) or a value ({ value }); a row you already hold keeps the fields this does not write. Facts of a video: video_id, title, url, published, duration, view_count, seed, listing_url, source, caption_status, caption_language. Facts of a seed: seed, listing_url, source, listed, kept, finished. The answer says what was done and, when anything is left, `again`: the input to send next; after a refusal wait `wait_minutes` first. Repeat until again is null.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "seeds",
+      "newest",
+      "caption_languages"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "seeds": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 50,
+       "items": {
+        "oneOf": [
+         {
+          "type": "string",
+          "minLength": 1
+         },
+         {
+          "type": "object",
+          "required": [
+           "seed"
+          ],
+          "additionalProperties": false,
+          "properties": {
+           "seed": {
+            "type": "string",
+            "minLength": 1
+           },
+           "id": {
+            "type": "string",
+            "minLength": 1
+           },
+           "newest": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500
+           }
+          }
+         }
+        ]
+       },
+       "description": "Channels (@handle, channel id or link), links to a channel's tab, or playlist links; or { seed, id, newest }: id is the row this seed updates when rows are one per seed (no rows.id needed when every seed has one), newest is how many of this seed's videos to keep"
+      },
+      "newest": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 500,
+       "description": "How many of each seed's newest videos to keep; left out only when every seed carries its own newest"
+      },
+      "between": {
+       "type": "object",
+       "minProperties": 1,
+       "additionalProperties": false,
+       "properties": {
+        "from": {
+         "type": "string",
+         "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "to": {
+         "type": "string",
+         "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+       },
+       "description": "Keep only videos uploaded on these days (YYYY-MM-DD, either end alone); videos with no date are left out"
+      },
+      "eras": {
+       "type": "integer",
+       "minimum": 2,
+       "maximum": 20,
+       "description": "Split the days (between, else the listed videos' own span) into this many equal spans and keep the newest of an equal share of newest from each; a span with fewer gives what it has"
+      },
+      "caption_languages": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 8,
+       "items": {
+        "type": "string",
+        "pattern": "^-?[A-Za-z0-9.*+_-]{1,40}$"
+       },
+       "description": "Caption languages in the order wanted, as the site writes them (* for any ending, for example en.*)"
+      },
+      "skip_ids": {
+       "type": "array",
+       "maxItems": 50000,
+       "items": {
+        "type": "string"
+       },
+       "description": "Video ids already kept: listed, never fetched again"
+      },
+      "budget_seconds": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 110,
+       "description": "How long this run may work; 100 when left out"
+      },
+      "also": {
+       "type": "array",
+       "items": {
+        "enum": [
+         "comments"
+        ]
+       },
+       "description": "comments: keep each video's top comments too"
+      },
+      "comments_per_video": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 500,
+       "description": "How many top comments of each video, with also comments"
+      },
+      "comment_mix": {
+       "type": "object",
+       "required": [
+        "videos"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "videos": {
+         "type": "integer",
+         "minimum": 1,
+         "maximum": 200,
+         "description": "Read comments for this many of each seed's kept videos, spread evenly across them"
+        },
+        "read": {
+         "type": "integer",
+         "minimum": 1,
+         "maximum": 500,
+         "description": "How many top comments of each of those videos to read; 200 when left out"
+        },
+        "question": {
+         "type": "integer",
+         "minimum": 0,
+         "maximum": 50,
+         "description": "How many comments with a question mark to keep"
+        },
+        "disagreement": {
+         "type": "integer",
+         "minimum": 0,
+         "maximum": 50,
+         "description": "How many comments that say they disagree (the words are in harvest-settings.json)"
+        },
+        "oldest": {
+         "type": "integer",
+         "minimum": 0,
+         "maximum": 50,
+         "description": "How many of the oldest comments read to keep"
+        },
+        "newest": {
+         "type": "integer",
+         "minimum": 0,
+         "maximum": 50,
+         "description": "How many of the newest comments read to keep"
+        }
+       },
+       "description": "Instead of also comments: a mix of comment kinds from the comments read; each kept comment says its kind, and a comment counts once"
+      },
+      "refusals_in_a_row": {
+       "type": "integer",
+       "minimum": 0,
+       "description": "Set by again after a refusal; doubles the next wait"
+      },
+      "rows": {
+       "type": "object",
+       "required": [
+        "one_per",
+        "fields"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "one_per": {
+         "enum": [
+          "seed",
+          "video"
+         ]
+        },
+        "id": {
+         "type": "object",
+         "description": "The row's id: { fact }, { text } or { value }; an id holding / is refused. Left out only for rows one per seed when every seed carries its own id"
+        },
+        "fields": {
+         "type": "object",
+         "description": "Field of your list -> { fact }, { text } or { value }"
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "stopped",
+      "requests",
+      "seeds",
+      "captions",
+      "settled",
+      "again"
+     ],
+     "properties": {
+      "stopped": {
+       "enum": [
+        "finished",
+        "budget",
+        "requests",
+        "refusal",
+        "files"
+       ]
+      },
+      "requests": {
+       "type": "integer"
+      },
+      "seconds": {
+       "type": "number"
+      },
+      "seeds": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "seed",
+         "finished"
+        ]
+       }
+      },
+      "captions": {
+       "type": "object",
+       "required": [
+        "ready",
+        "empty",
+        "failed"
+       ]
+      },
+      "comments": {
+       "type": "integer"
+      },
+      "settled": {
+       "type": "integer"
+      },
+      "rows": {
+       "type": "object",
+       "required": [
+        "written",
+        "refused"
+       ]
+      },
+      "wait_minutes": {
+       "type": "number"
+      },
+      "again": {
+       "type": [
+        "object",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/opt/research-a-creator-or-topic",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/research-a-creator-or-topic/do-work/harvest-channels.mjs",
+      "keepChannelsLatestVideosAndCaptions"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "most_writes": 64,
+      "rights": [
+       {
+        "kind": "record:sources",
+        "prefix": "record:sources:",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ]
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "research-a-creator-or-topic",
+        "paths": [
+         "do-work/harvest-channels.mjs",
+         "do-work/harvest-parts.mjs",
+         "do-work/harvest-settings.json",
+         "do-work/sources.mjs"
+        ],
+        "at": "/opt/research-a-creator-or-topic"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "outputs": [
+      {
+       "name": "listing",
+       "path": "/opt/research-a-creator-or-topic/out/listing.json",
+       "keep_in": "files",
+       "media_type": "application/json",
+       "max_bytes": 16777216
+      },
+      {
+       "name": "captions",
+       "path": "/opt/research-a-creator-or-topic/out/captions.jsonl",
+       "keep_in": "files",
+       "media_type": "application/x-ndjson",
+       "max_bytes": 16777216
+      },
+      {
+       "name": "comments",
+       "path": "/opt/research-a-creator-or-topic/out/comments.jsonl",
+       "keep_in": "files",
+       "media_type": "application/x-ndjson",
+       "max_bytes": 16777216
+      }
+     ]
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 110,
+     "network_egress": true,
+     "memory_mb": 256,
+     "programs": [
+      "yt-dlp"
+     ]
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:research-a-creator-or-topic",
+    "provenance": {
+     "source": "a polite listing and caption queue run with yt-dlp (Unlicense, https://github.com/yt-dlp/yt-dlp)"
+    }
+   }
+  },
+  {
+   "id": "package::research-a-creator-or-topic::tool::keep-public-posts-by-link",
+   "address": "package::research-a-creator-or-topic::tool::keep-public-posts-by-link",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:keep-public-posts-by-link",
+    "label": "Keep public posts by link",
+    "status": "active",
+    "job": "Keep the text, numbers and media addresses of public posts I name by link, through a public mirror, without opening the posts' site",
+    "description": "For each link to a public post (x.com or twitter.com status links; the link pattern is in harvest-settings.json) asks a third-party public mirror for the post as JSON and keeps its text, counts, author and the addresses of its media, never the media themselves. This depends on that mirror staying up: its address is `posts.mirror_base` in harvest-settings.json and can be changed there. It asks politely with the same limits file as the channel harvest: one request at a time with a drawn wait, a bounded number of requests and budget_seconds per run, a stop at the first refusal. Links already kept (skip_ids) are not asked again. It keeps one file in your files (posts.jsonl: one line per post settled now: user, post_id, link, status ready or failed, the post's kept fields or the reason). A run that stops early answers `again`, the input to send next, and after a refusal `wait_minutes`; repeat until `again` is null. With rows one per post, the posts go into your sources list over the rows already held.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "links"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "links": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 500,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       },
+       "description": "Links to public posts"
+      },
+      "skip_ids": {
+       "type": "array",
+       "maxItems": 50000,
+       "items": {
+        "type": "string"
+       },
+       "description": "Post ids already kept: never asked for again"
+      },
+      "budget_seconds": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 110,
+       "description": "How long this run may work; 100 when left out"
+      },
+      "refusals_in_a_row": {
+       "type": "integer",
+       "minimum": 0,
+       "description": "Set by again after a refusal; doubles the next wait"
+      },
+      "rows": {
+       "type": "object",
+       "required": [
+        "one_per",
+        "id",
+        "fields"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "one_per": {
+         "enum": [
+          "post"
+         ]
+        },
+        "id": {
+         "type": "object",
+         "description": "The row's id: { fact }, { text } or { value }; an id holding / is refused"
+        },
+        "fields": {
+         "type": "object",
+         "description": "Field of your list -> { fact }, { text } or { value }; facts: user, post_id, link, status and every kept field of the post"
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "stopped",
+      "requests",
+      "posts",
+      "settled",
+      "again"
+     ],
+     "properties": {
+      "stopped": {
+       "enum": [
+        "finished",
+        "budget",
+        "requests",
+        "refusal",
+        "files"
+       ]
+      },
+      "requests": {
+       "type": "integer"
+      },
+      "seconds": {
+       "type": "number"
+      },
+      "posts": {
+       "type": "object",
+       "required": [
+        "ready",
+        "failed"
+       ]
+      },
+      "settled": {
+       "type": "integer"
+      },
+      "skipped": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "link",
+         "reason"
+        ]
+       }
+      },
+      "rows": {
+       "type": "object",
+       "required": [
+        "written",
+        "refused"
+       ]
+      },
+      "wait_minutes": {
+       "type": "number"
+      },
+      "again": {
+       "type": [
+        "object",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/opt/research-a-creator-or-topic",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/research-a-creator-or-topic/do-work/harvest-posts.mjs",
+      "keepPublicPostsByLink"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "most_writes": 64,
+      "rights": [
+       {
+        "kind": "record:sources",
+        "prefix": "record:sources:",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ]
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "research-a-creator-or-topic",
+        "paths": [
+         "do-work/harvest-posts.mjs",
+         "do-work/harvest-parts.mjs",
+         "do-work/harvest-settings.json"
+        ],
+        "at": "/opt/research-a-creator-or-topic"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "outputs": [
+      {
+       "name": "posts",
+       "path": "/opt/research-a-creator-or-topic/out/posts.jsonl",
+       "keep_in": "files",
+       "media_type": "application/x-ndjson",
+       "max_bytes": 16777216
+      }
+     ]
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 110,
+     "network_egress": true,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:research-a-creator-or-topic",
+    "provenance": {
+     "source": "the library's fetch-posts script, as a polite queue over a public post mirror (a third-party service the settings name)"
+    }
+   }
+  }
+ ]
+}

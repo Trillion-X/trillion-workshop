@@ -1,0 +1,151 @@
+{
+  "_what": "How tool:keep-channels-latest-videos-and-captions (do-work/harvest-channels.mjs) asks a video site for listings and captions: politely, one request at a time, inside one run's time. Every number here is a setting, not code. `program` names the program and the folders it is looked for in: `places`, then `places_under_home` (folders under the home folder of the account the run is started by), then the run's PATH; the first folder holding an executable file of that name wins. `always` is given to every request, and `js_runtime_option` names the run's own node to the program (null leaves it out). `seconds_between_requests` is a range: each wait is drawn from it. A request whose error words contain one of `refusal_words` (the site asking whether the caller is a robot, or answering too many requests) ends the run, and the caller waits `pause_after_refusal.first_minutes`, doubled for each refusal in a row up to `doublings_at_most` times, before it sends `again`. `requests_per_run_at_most` bounds one run; `budget_seconds` is how long a run works when the caller says nothing (`default`) and at most (`most`), kept under the engine's run deadline; `seconds_kept_for_records` is held back at the end when rows are written; a request starts only when at least `least_seconds_for_a_request` remain, and is stopped when the budget runs out or after `request_seconds_at_most`. `file_bytes_at_most` is the most one output file holds (the row's outputs max_bytes is the same number). `records` is the record type and id start the row's rights name and the most records one write carries (the row's most_writes). `info_fields` are the fields of the site's own description of a video a caption line keeps, and `comment_fields` the fields of each comment. `window_list_at_most` is how many of a seed's newest videos are listed when days (`between`) or `eras` are asked for, so they can be chosen from; `eras_at_most` is the most spans the days may be split into. `comment_mix` holds the bounds of a comment mix (`videos_at_most`, `read_default` comments read per video, `each_at_most` comments of one kind) and `disagreement_words`: the words (matched whole, any case) that make a comment a disagreement, in the language of the comments read. `posts` is the same politeness for tool:keep-public-posts-by-link (do-work/harvest-posts.mjs): `mirror_base` is the address of the third-party public mirror that answers one post as JSON at <mirror_base>/<user>/status/<id> (change it here if the mirror moves or is replaced), `link_pattern` reads the user and id out of a post link, `answer_field` is the field of the mirror's answer that holds the post, `user_agent` is what the run calls itself, `links_at_most` and `skip_ids_at_most` bound the input, `answer_bytes_at_most` the mirror's answer, and `post_fields` the fields of the post that are kept.",
+  "program": {
+    "name": "yt-dlp",
+    "places": [
+      "/opt/homebrew/bin",
+      "/usr/local/bin",
+      "/opt/homebrew/anaconda3/bin",
+      "/opt/anaconda3/bin",
+      "/usr/bin"
+    ],
+    "places_under_home": [
+      ".local/bin"
+    ],
+    "js_runtime_option": "--js-runtimes",
+    "always": [
+      "--ignore-config",
+      "--no-warnings",
+      "--no-progress"
+    ]
+  },
+  "listing_arguments": [
+    "--flat-playlist",
+    "--dump-json",
+    "--extractor-args",
+    "youtubetab:approximate_date"
+  ],
+  "caption_arguments": [
+    "--skip-download",
+    "--write-info-json",
+    "--no-write-playlist-metafiles",
+    "--write-subs",
+    "--write-auto-subs",
+    "--sub-format",
+    "json3/vtt"
+  ],
+  "comment_arguments": [
+    "--write-comments",
+    "--extractor-args",
+    "youtube:max_comments={count},all,0,0;comment_sort=top"
+  ],
+  "watch_address_start": "https://www.youtube.com/watch?v=",
+  "seconds_between_requests": {
+    "least": 6,
+    "most": 12
+  },
+  "pause_after_refusal": {
+    "first_minutes": 30,
+    "doublings_at_most": 3
+  },
+  "refusal_words": [
+    "not a bot",
+    "http error 429",
+    "too many requests"
+  ],
+  "requests_per_run_at_most": 12,
+  "budget_seconds": {
+    "default": 100,
+    "most": 110
+  },
+  "seconds_kept_for_records": 10,
+  "least_seconds_for_a_request": 8,
+  "request_seconds_at_most": 60,
+  "seeds_at_most": 50,
+  "newest_at_most": 500,
+  "window_list_at_most": 500,
+  "eras_at_most": 20,
+  "skip_ids_at_most": 50000,
+  "languages_at_most": 8,
+  "comments_per_video_at_most": 500,
+  "comment_mix": {
+    "videos_at_most": 200,
+    "read_default": 200,
+    "each_at_most": 50,
+    "disagreement_words": [
+      "disagree",
+      "wrong",
+      "incorrect",
+      "not true",
+      "untrue",
+      "false",
+      "misleading",
+      "nonsense",
+      "bs",
+      "debunked",
+      "no it isn't",
+      "that's not how"
+    ]
+  },
+  "file_bytes_at_most": 16777216,
+  "records": {
+    "type": "record:sources",
+    "id_start": "record:sources:",
+    "writes_at_most": 64
+  },
+  "info_fields": [
+    "id",
+    "title",
+    "channel",
+    "channel_id",
+    "uploader_id",
+    "upload_date",
+    "timestamp",
+    "duration",
+    "view_count",
+    "like_count",
+    "comment_count",
+    "webpage_url",
+    "media_type",
+    "description",
+    "tags",
+    "categories",
+    "language"
+  ],
+  "comment_fields": [
+    "id",
+    "parent",
+    "author",
+    "text",
+    "like_count",
+    "timestamp",
+    "is_pinned"
+  ],
+  "posts": {
+    "mirror_base": "https://api.fxtwitter.com",
+    "link_pattern": "^https?://(?:www\\.|mobile\\.)?(?:x|twitter)\\.com/([^/?#]+)/status/(\\d+)",
+    "answer_field": "tweet",
+    "user_agent": "ResearchReader/1.0",
+    "links_at_most": 500,
+    "skip_ids_at_most": 50000,
+    "answer_bytes_at_most": 2000000,
+    "post_fields": [
+      "id",
+      "url",
+      "text",
+      "created_at",
+      "created_timestamp",
+      "lang",
+      "author",
+      "likes",
+      "retweets",
+      "replies",
+      "views",
+      "bookmarks",
+      "media",
+      "quote",
+      "replying_to",
+      "community_note"
+    ]
+  }
+}
