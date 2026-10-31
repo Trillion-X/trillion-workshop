@@ -1,0 +1,5 @@
+{"generated": "2026-01-02", "rows": [
+ {"id": "market:flour", "name": "Flour", "kind": "baking", "category": "dry", "description": "White flour for bread.", "how_to_make": "Sift it.", "source_url": "https://market.test/flour", "count_seen": 4, "existing_ref": {"old list": "lists/old.json"}, "example_urls": ["https://market.test/e1"]},
+ {"id": "market:oats", "name": "Oats", "kind": "breakfast", "description": "Rolled oats.", "source_url": "stock-notes.md", "acts_on": "grain, porridge"},
+ {"id": "market:salt", "name": "Salt", "kind": "dry", "description": "", "source_url": "https://market.test/salt", "acts_on": ["seasoning"]}
+]}

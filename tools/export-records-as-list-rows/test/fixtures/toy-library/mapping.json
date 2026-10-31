@@ -1,0 +1,86 @@
+{
+ "new_lists": [
+  {"list": {"id": "toys", "label": "Toys", "fields": [{"id": "name", "label": "Name", "kind": "text"}]}, "facts": {"shared": false}, "why": "a made-up list that exists only in tests"}
+ ],
+ "sources": [
+  {
+   "name": "toys",
+   "list_id": "toys",
+   "type": "json",
+   "file": "data/toys.json",
+   "path": "toys",
+   "id": "{id}",
+   "map": {
+    "name": {"from": "name"},
+    "tags": {"join": "tags"},
+    "age": {"number": "age"},
+    "pieces": {"number": "pieces"},
+    "state": {"choice": "state", "table": {"in": "Home", "out": "Away"}},
+    "kind": {"const": "Toy"},
+    "loans": {"lines": {"from": "loans", "template": "{member} {place}", "details": {"from": "files", "template": "{path}", "join": "; ", "wrap": " ({})"}}}
+   }
+  },
+  {
+   "name": "titles",
+   "list_id": "books",
+   "type": "tsv",
+   "glob": "shelves/*/index/titles.tsv",
+   "blank_when": [{"field": "title", "starts_with": "(no ", "blank": ["title", "pages"]}],
+   "compute": {
+    "shelf": {"up": 2},
+    "table_file": {"file": true},
+    "scan": {"file_beside": {"dirs": ["scans", "notes"], "exts": [".txt", ".md"], "name_from": "id"}}
+   },
+   "skip_when": [{"field": "id", "empty": true}],
+   "id": "{id}",
+   "on_duplicate": "first",
+   "map": {
+    "title": {"from": "title"},
+    "shelf": {"from": "shelf"},
+    "found_in": {"template": "Read from {table_file}"},
+    "pages": {"number": "pages"},
+    "added": {"date8": "added"},
+    "kind": {"choice": "kind", "table": {"books": "Book", "magazines": "Magazine"}},
+    "scan": {"path_of_file": "scan"},
+    "scan_words": {"words_of_file": "scan"}
+   }
+  },
+  {
+   "name": "items",
+   "list_id": "items",
+   "type": "markdown-table",
+   "file": "INDEX.md",
+   "section": "## Everything",
+   "compute": {
+    "folder_link": {"capture": {"from": "shelf link", "pattern": "\\]\\(shelves/([^)]+?)/?\\)", "group": 1}},
+    "folder": {"last_part": {"from": "folder_link", "sep": "/"}},
+    "item": {"strip": {"from": "item", "chars": "`"}},
+    "post_url": {"capture_template": {"from": "folder", "pattern": "^(?P<who>.+)-(?P<id>\\d{13,16})$", "template": "https://example.test/{who}/{id}"}}
+   },
+   "skip_when": [{"field": "folder", "empty": true}, {"field": "format", "starts_with": "see "}],
+   "id": "it-{item}",
+   "map": {
+    "title": {"from": "item"},
+    "owner": {"from": "owner"},
+    "pages": {"number": "pages"},
+    "link": {"from": "post_url"},
+    "shelf": {"from": "folder"}
+   }
+  },
+  {
+   "name": "owners",
+   "list_id": "owners",
+   "type": "markdown-table",
+   "file": "INDEX.md",
+   "section": "## Everything",
+   "compute": {
+    "folder_link": {"capture": {"from": "shelf link", "pattern": "\\]\\(shelves/([^)]+?)/?\\)", "group": 1}}
+   },
+   "skip_when": [{"field": "folder_link", "empty": true}, {"field": "format", "starts_with": "see "}],
+   "first_per": "owner",
+   "exclude": [{"field": "owner", "in": ["nobody"]}],
+   "id": "holder-{owner}",
+   "map": {"handle": {"from": "owner"}, "first_item": {"from": "item"}}
+  }
+ ]
+}

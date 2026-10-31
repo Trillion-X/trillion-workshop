@@ -1,0 +1,82 @@
+{
+ "lists_file": {"root": "here", "path": "shelf-lists.json"},
+ "limits": {"text_chars": 120, "basis_sources": 10, "per_command": 3},
+ "by": "pantry-build",
+ "confidence": "medium",
+ "payload_note": "A made-up payload for the tests.",
+ "emit": ["stores", "goods"],
+ "breakdown": {"list": "goods", "field": "store", "staged_sources": ["goods"]},
+ "checks": [
+  {"links_resolve": {"list": "goods", "field": "store", "into": "stores", "error": "{id} names store {value}, which has no row."}},
+  {"links_resolve": {"list": "goods", "field": "pairs_with", "into": "goods", "error": "{id} pairs with {value}, which is not a good."}}
+ ],
+ "sources": [
+  {
+   "name": "stores", "list": "stores", "kind": "rows",
+   "rows": {"file": {"root": "here", "path": "stores.json"}, "path": "stores"},
+   "id": {"path": "id"},
+   "compute": {"note_part": {"if": {"set": {"path": "document_note"}}, "then": {"text": " {document_note}"}, "else": ""}},
+   "values": {"...": {"path": "values"}, "stocked": {"count_links": {"list": "goods", "field": "store"}},
+              "notes": {"file_text": {"file": {"path": "document"}, "note": {"path": "document_note"}}}},
+   "fits": ["notes"],
+   "basis": {"notes": {
+     "reasoning": {"if": {"set": {"path": "document"}}, "then": {"text": "Copied when the store was read.{note_part}"}},
+     "sources": {"list": [{"path": "values.url"}, {"ref_label": {"of": {"path": "document"}, "templates": {"data": "pantry {path}"}, "default": "{root} {path}"}}]}}}
+  },
+  {
+   "name": "goods", "list": "goods", "kind": "staged",
+   "inputs_from": {"file": {"root": "here", "path": "inputs.json"}, "path": "inputs", "rename": {"adds_note": "divert_when", "id": "id_from"}},
+   "defaults": {"alias": {"how_to": "how_to_make"}, "carry": ["acts_on", "source_url"], "generated_default": "2026-01-01"},
+   "inputs": [{"root": "here", "path": "extras.json", "flatten": "values", "alias": {}, "staged": false,
+     "compute": {
+      "address": {"first_set": [
+       {"lookup": {"table": {"row_of": {"list": "stores", "id": {"path": "site"}, "get": "address_overrides"}}, "key": {"path": "id"}}},
+       {"row_of": {"list": "stores", "id": {"path": "site"}, "get": "address_for_rows"}},
+       {"path": "raw.basis_sources.0"}]},
+      "raw_point": {"path": "raw.point"},
+      "needs_joined": {"joined": {"of": {"path": "needs"}, "sep": ", "}},
+      "point_part": {"if": {"set": {"path": "raw.point"}}, "then": {"text": "point {raw_point}"}, "else": "the files named"},
+      "needs_part": {"if": {"set": {"path": "needs"}}, "then": {"text": " It needs {needs_joined}."}, "else": ""},
+      "from_text": {"text": "Written from {point_part}.{needs_part}"},
+      "cited": {"path": "raw.basis_sources"}}}],
+   "link": {"field": "store", "into": "stores", "reason": "rows name {field} {value}, which needs a store row"},
+   "file_label": {"ref_label": {"of": {"path": "_file"}, "templates": {"data": "pantry {path}"}, "default": "{root} {path}"}},
+   "divert": {"report_as": "extra_links", "fields": {"target": {"first_set": [{"path": "raw.row_id"}, {"path": "raw.id"}]}, "url": {"path": "raw.source_url"}, "file": {"ref_label": {"of": {"path": "_file"}, "templates": {"data": "pantry {path}"}, "default": "{root} {path}"}}},
+              "exists_in": {"list": "goods", "id": {"first_set": [{"path": "raw.row_id"}, {"path": "raw.id"}]}, "as": "target_made"}},
+   "keys": {"store": {"first_set": [{"path": "input.store"}, {"lookup": {"table": {"path": "input.stores_by_host"}, "key": {"path": "raw.site"}}}, {"path": "raw.site"}]}},
+   "parent_rows": {"list": "stores", "field": "store", "when": {"matches": {"of": {"path": "url"}, "pattern": "^https?://"}}, "id": {"path": "store"},
+                   "rec": {"values": {"object": {"name": {"first_set": [{"path": "title"}, {"path": "store"}]}, "url": {"path": "url"}, "licence": {"cut": {"of": {"path": "licence"}, "max": 3}}}}}},
+   "compute": {
+    "shown": {"ref_label": {"of": {"path": "_file"}, "templates": {"data": "pantry {path}"}, "default": "{root} {path}"}},
+    "pointer": {"if": {"matches": {"of": {"path": "source_url"}, "pattern": "^https?://"}}, "then": null, "else": {"path": "source_url"}},
+    "address": {"first_set": [
+      {"if": {"set": {"path": "pointer"}}, "then": {"first_set": [
+        {"lookup": {"table": {"row_of": {"list": "stores", "id": {"path": "store"}, "get": "address_overrides"}}, "key": {"path": "id"}}},
+        {"row_of": {"list": "stores", "id": {"path": "store"}, "get": "address_for_rows"}}]}, "else": {"path": "source_url"}},
+      {"fail": "{id} has no web address and its store names none."}]},
+    "refs": {"pairs": {"of": {"path": "raw.existing_ref"}, "template": "{key}: {value}"}},
+    "raw_count_seen": {"path": "raw.count_seen"},
+    "pointer_part": {"if": {"set": {"path": "pointer"}}, "then": {"text": "; the note pointed at {pointer}"}, "else": ""},
+    "seen_part": {"if": {"set": {"path": "raw.count_seen"}}, "then": {"text": "; seen {raw_count_seen} times"}, "else": ""},
+    "from_text": {"text": "Read on {_generated}{pointer_part}{seen_part}, in {shown}."},
+    "cited": {"list": [{"path": "address"}, {"path": "shown"}, {"path": "refs"}, {"path": "raw.example_urls"}], "flatten": true}
+   },
+   "compute_after": {
+    "staged_uses": {"split": {"of": {"path": "acts_on"}, "sep": ","}},
+    "uses_words": {"require": {"of": {"first_set": [{"path": "staged_uses"}, {"lookup": {"file": {"root": "here", "path": "uses.json"}, "path": "rows", "key": {"path": "id"}, "get": "acts_on"}}]},
+                    "texts": true, "error": "{id} has no uses: add its row to uses.json."}},
+    "rewritten": {"if": {"empty": {"path": "staged_uses"}}, "then": {"lookup": {"file": {"root": "here", "path": "uses.json"}, "path": "rows", "key": {"path": "id"}, "get": "description"}}},
+    "blurb_kept": {"if": {"set": {"path": "rewritten"}}, "then": {"path": "rewritten"}, "else": {"path": "description"}},
+    "basis_sources": {"list": [{"text": "/lists/stores/{store}"}, {"path": "cited"}], "flatten": true, "unique": true, "limit": 3}
+   },
+   "values": {"name": {"path": "name"}, "kind": {"path": "kind"}, "store": {"list": [{"path": "store"}]}, "uses": {"path": "uses_words"},
+              "blurb": {"path": "blurb_kept"}, "where_to_buy": {"path": "address"}, "pairs_with": {"path": "needs"}},
+   "keep_empty": ["blurb"],
+   "fits": ["blurb"],
+   "basis": {
+    "blurb": {"reasoning": {"if": {"set": {"path": "rewritten"}}, "then": {"text": "{from_text} Reworded; it was: {description}"}, "else": {"path": "from_text"}}, "sources": {"path": "basis_sources"}},
+    "uses": {"reasoning": {"if": {"set": {"path": "staged_uses"}}, "then": "As staged.", "else": "Read from the description."}, "sources": {"path": "basis_sources"}}
+   }
+  }
+ ]
+}

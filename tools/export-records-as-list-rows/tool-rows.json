@@ -1,0 +1,197 @@
+{
+  "kind": "package-set-records",
+  "record_set": "export-records-as-list-rows-tool-rows",
+  "what_this_is": "The Workshop row for the tool in tools/export-records-as-list-rows: turning a person's records on disk (JSON, tab-separated files, markdown tables) into the payloads that put rows into their Trillion lists, by a mapping file the person writes. A script the person's AI runs on the person's own computer.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:export-records-as-list-rows",
+        "label": "Turn my records into rows for my Trillion lists (runs on your computer)",
+        "job": "Take records I keep in files (JSON, spreadsheets saved as tab-separated text, markdown tables) and prepare them as rows for my lists, using a mapping I write once",
+        "description": "Reads a mapping file the person gives: the lists to make and, for each source of records, where the records are, which to drop, what to work out from each and how a row is made from it (fields copied, filled into templates, read as numbers or dates, mapped to a list's choices, joined, counted in a file). Writes make_lists.json, the rows in batches and a manifest into a folder the person names. It sends nothing: the batches are put into the lists afterwards. Row ids are stable, so loading the same rows twice updates them. Rows whose ids are in a skip file are left out, so existing rows are never overwritten. When two records make the same row id the mapping must say which one to keep, because choosing silently would drop a record. A re-run replaces only the files an earlier run wrote. It knows no record kinds: every file, column and list comes from the mapping.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["mapping", "root", "out"],
+          "properties": {
+            "mapping": { "type": "string", "description": "The mapping file on the person's computer (the README describes its keys), put where {mapping} is in the command." },
+            "root": { "type": "string", "description": "The folder the mapping's files and globs are relative to, put where {root} is in the command." },
+            "out": { "type": "string", "description": "The folder to write the payloads into, put where {out} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last JSON the script prints: { <source name>: { list_id, rows } }, the number of rows each source made. The payloads and manifest.json are in the folder; exit status 2 with a reason on standard error when the mapping or a file could not be read."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 -I trillion-workshop/tools/export-records-as-list-rows/do-work/export_records_as_list_rows.py --mapping {mapping} --root {root} --out {out}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, never on Trillion. If they have no mapping yet, write one with them from the README: look at a few of their records, name each list's fields, and say for each source where its records are and how each field is made. Run `run`, read the counts and the manifest in the output folder, and tell the person how many rows each source made. A refusal says what to change, for example which source makes two rows with one id. The script sends nothing; putting the batches into the lists is a separate step they approve. Use `--only SOURCE` to run one source, `--batch N` for the batch size and `--skip-ids FILE` to leave out rows already in the lists."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "Written for the Workshop: a declarative record-to-row mapping, in the way a data-loading tool maps source columns to a target table"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:build-records-to-write",
+        "label": "Prepare my records, with a basis for each value, to write into my lists (runs on your computer)",
+        "job": "Take records I keep in files and prepare everything to put them into my lists as records, each value with where it came from and how sure we are, in batches I can send",
+        "description": "Reads a mapping file the person gives: the lists they have defined (fields, saved views) and, for each source, where its records are (a JSON file, or staged files in any of several shapes) and how each row and each value is worked out, with a basis (reasoning, sources, who made it, when) for the values that need one. Writes one file of counts, anything pending or diverted, and commands of at most 64 records each, in the order to send. It sends nothing. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
+        "status": "active",
+        "input_schema": { "type": "object", "required": ["mapping", "out"], "properties": { "mapping": { "type": "string", "description": "The mapping file (the README describes it), put where {mapping} is in the command." }, "out": { "type": "string", "description": "The file to write the payload to, put where {out} is in the command." }, "roots": { "type": "string", "description": "Each folder the mapping names, as --root NAME=DIR, put where {roots} is in the command." } } },
+        "output_schema": { "type": "object", "description": "The last JSON the script prints: { records, commands, lists, views, rows, breakdown }. The payload file holds the commands; exit status 2 with a reason on standard error when the mapping or a file could not be read." },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": ["git clone https://github.com/Trillion-X/trillion-workshop.git"],
+          "run": "python3 -I trillion-workshop/tools/export-records-as-list-rows/do-work/build_record_write.py --mapping {mapping} {roots} --out {out}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, never on Trillion. Run `run`, read the counts and the pending list, and tell the person how many records and commands it made and what is pending or diverted. A refusal names the row and says what to fix. The script sends nothing; sending each command is a separate step they approve."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Written for the Workshop: a declarative mapping from staged records to write commands, with a basis kept for each derived value" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:send-list-row-batches",
+        "label": "Send prepared batches into my lists, resuming where I stopped (runs on your computer)",
+        "job": "Put the batches of rows I prepared into my lists one at a time, wait and retry when the list is busy, split a batch that is too big, and remember what was already sent",
+        "description": "Reads a config the person gives (the command that writes rows into a list, optionally a command to wake the list first, the errors that mean wait and retry, the errors that mean the batch is too big, the waits and the order). Sends each batch of an export in order, counts what the command kept, writes progress to a status file and skips what it already sent when run again. A batch counts only when every row was kept; a refusal stops the run and the status file names the batch and the reason.",
+        "status": "active",
+        "input_schema": { "type": "object", "required": ["config", "batches", "status"], "properties": { "config": { "type": "string", "description": "The config file, put where {config} is in the command." }, "batches": { "type": "string", "description": "The folder an export wrote, put where {batches} is in the command." }, "status": { "type": "string", "description": "The progress file, put where {status} is in the command." } } },
+        "output_schema": { "type": "object", "description": "The status the script prints: { state: all_batches_sent | stopped_on_refusal, batches_done, last_refusal? }. Exit 0 all sent, 1 refused, 2 unreadable." },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": ["git clone https://github.com/Trillion-X/trillion-workshop.git"],
+          "run": "python3 -I trillion-workshop/tools/export-records-as-list-rows/do-work/send_list_rows.py --config {config} --batches {batches} --status {status}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer and writes into their lists, so run it only when they ask to send. Read the status: how many batches were sent and, if it stopped, which batch and why. A stop can be re-run later; it resumes."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Written for the Workshop: a resumable batch sender with warm-up, retry and halving" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:publish-a-list-view-as-a-file",
+        "label": "Publish what a saved view of my list shows into a file my site shows (runs on your computer)",
+        "job": "Put the rows one saved view of my list shows (a changelog, the articles I marked public) into a file my website renders when it is next deployed, without opening my account to the internet",
+        "description": "Takes what tool:read-a-list-view read for one saved view (one page holding the whole view: the rows its rules keep, in its order, with the list's fields) and a config naming the view's record id, and writes { schema, source: { view, list, blake3 }, fields, rows: [{ id, values }] }. With media in the config, the pictures and recordings the rows name are copied into the site's own static files under the BLAKE3 of their bytes (never twice) and the rows name the site's address. The BLAKE3 of the fields and rows is the file's key, so publishing the same rows again writes nothing. A read that holds only part of the view publishes nothing. It names no list, view or field.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["read", "config", "out"],
+          "properties": {
+            "read": { "type": "string", "description": "The file holding tool:read-a-list-view's answer for the view, put where {read} is in the command." },
+            "config": { "type": "string", "description": "The config file (view, and media when the rows' pictures are carried into the site), put where {config} is in the command." },
+            "out": { "type": "string", "description": "The file the site renders, put where {out} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "What the script prints: { file, rows, of, blake3, media: { copied, kept, not_public }, written }. written is false when the file already held these rows. Exit 0 published or current, 2 unreadable config or read, a read of part of the view, or a missing media file."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "python3 -m pip install -U blake3   # or have the b3sum command"],
+          "run": "python3 -I tools/export-records-as-list-rows/do-work/publish_view_file.py --read {read} --config {config} --out {out}",
+          "needs": ["python", "blake3 (the python module) or the b3sum command"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Read the view first with tool:read-a-list-view (a limit at least the view's rows) into the read file. This writes one file there; nothing goes online until their site is deployed with it, which needs their yes. Tell them how many rows the view showed of how many, and whether the file changed."
+        },
+        "maker": "maker:export-records-as-list-rows",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Written for the Workshop: a one-way publish of a saved list view into a site's data file" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-what-shipped",
+        "label": "Note each new release of my repository with what changed since the last one (runs on your computer)",
+        "job": "Each time I ship, note the release (its commit, name and time) and the subjects of the commits since the release before it, in a file my lists are filled from",
+        "description": "Reads settings the person gives: where their newest release is read (a program in the repository that prints JSON naming the released commit, such as a release script's read verb, or a git ref they move when they ship) and which keys of that JSON hold the commit, name and time. Adds the newest release to a staged file when it is new, with the commit subjects since the release before it (the released commit's own subject for the first one), and leaves the file as it is otherwise. The records builder turns the staged file into rows of the person's list, and the sender with keep_held writes only the rows the list lacks, so a row someone edited stays as they left it. It names no product, list or road.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["settings", "repository", "staged"],
+          "properties": {
+            "settings": { "type": "string", "description": "The settings file (mark, fields, most_subjects), put where {settings} is in the command." },
+            "repository": { "type": "string", "description": "The repository folder, put where {repository} is in the command." },
+            "staged": { "type": "string", "description": "The staged file of releases, put where {staged} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "What the script prints: { releases, added }, added being the new release's name or null. Exit 0, or 2 when the settings, the repository or the mark could not be read."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/export-records-as-list-rows/do-work/read_what_shipped.py --settings {settings} --repository {repository} --staged {staged}",
+          "needs": ["python", "git"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, and only reads their repository. Say whether a new release was noted and its name."
+        },
+        "maker": "maker:export-records-as-list-rows",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Written for the Workshop: releases and their commit subjects as staged records" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:put-records-into-my-account",
+        "label": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer)",
+        "job": "Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
+        "description": "Reads a config the person gives: how to reach their door (an MCP address and a keychain handle for the key, or a program that plays a plan), the list and write operations, page size and command limits, which refusals mean send the halves or send again under the same key, and keep_held (a record the account already holds is never written again). Writes the payload build-records-to-write made, logs each command with the local time, writes a status file and stops at the first refusal. readback counts the records held and those holding the payload's value.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["config", "work", "payload", "status"],
+          "properties": {
+            "config": { "type": "string", "description": "The door config, put where {config} is in the command." },
+            "work": { "type": "string", "description": "A folder for each call's plan and result files, put where {work} is in the command." },
+            "payload": { "type": "string", "description": "The payload build-records-to-write made, put where {payload} is in the command." },
+            "status": { "type": "string", "description": "The status file, put where {status} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: { state: all_written | stopped_on_refusal, to_write, commands, written, last_refusal? }. Exit 0 all written, 1 refused, 2 unreadable config, payload or door."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "python3 -m pip install -U blake3   # or have the b3sum command"],
+          "run": "python3 -I tools/export-records-as-list-rows/do-work/send_record_write.py --config {config} --work {work} send --payload {payload} --status {status}",
+          "needs": ["python", "blake3 (the python module) or the b3sum command"],
+          "say": "This writes into the person's account, so run it only when they asked for this load or a recipe they switched on runs it. Say how many records were written, and if it stopped, which command and why; a re-run resumes and writes nothing twice."
+        },
+        "maker": "maker:export-records-as-list-rows",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Written for the Workshop: the records:write sender that writes only what an account lacks" }
+      }
+    }
+  ]
+}

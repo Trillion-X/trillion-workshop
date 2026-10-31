@@ -1,0 +1,7 @@
+{"toys": [
+ {"id": "T-1", "name": "kite", "state": "in", "tags": ["wind", "outdoor"], "age": "6", "pieces": "1", "loans": [
+   {"member": "owner-a", "place": "park", "files": [{"path": "forms/a1.txt"}, {"path": "forms/a2.txt"}]},
+   {"member": "owner-b", "place": null, "files": []}]},
+ {"id": "T-2", "name": "marble run", "state": "out", "tags": [], "age": "4", "pieces": "1,200", "loans": []},
+ {"id": "T-3", "name": "puppet", "state": "in", "tags": ["indoor"], "age": "", "pieces": "3.5", "loans": [{"member": "owner-c", "place": "school", "files": [{"path": "forms/c1.txt"}]}]}
+]}

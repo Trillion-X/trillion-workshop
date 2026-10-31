@@ -1,0 +1,15 @@
+{
+ "lists": [
+  {"id": "stores", "value": {"label": "Stores", "row_type": "stores", "title_field": "name", "fields": [
+    {"id": "name", "label": "Name", "kind": "text"}, {"id": "url", "label": "Address", "kind": "link-address"},
+    {"id": "stocked", "label": "Stocked", "kind": "number"}, {"id": "notes", "label": "Notes", "kind": "long-text"}]}},
+  {"id": "goods", "value": {"label": "Goods", "row_type": "goods", "title_field": "name", "fields": [
+    {"id": "name", "label": "Name", "kind": "text"}, {"id": "kind", "label": "Kind", "kind": "text"},
+    {"id": "store", "label": "Store", "kind": "link", "links_to": "stores"}, {"id": "uses", "label": "Uses", "kind": "tags"},
+    {"id": "blurb", "label": "Blurb", "kind": "text"}, {"id": "where_to_buy", "label": "Where", "kind": "link-address"},
+    {"id": "pairs_with", "label": "Pairs with", "kind": "link", "links_to": "goods"}]}}
+ ],
+ "views": [
+  {"list": "goods", "order": "V", "view": {"id": "by-store", "label": "By store", "sort": [{"field": "store", "direction": "asc"}]}}
+ ]
+}

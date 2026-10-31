@@ -1,0 +1,3 @@
+{"kind":"new","item":"Plum jam","looks":"Sweet and dark.","steps":"1. Stew plums.","group":["fruit","spread"],"source_url":"https://corner.test/plum","acts_on":"spread"}
+{"kind":"append_source","row_id":"jam-2","source_url":"https://corner.test/other-jam"}
+{"kind":"old","item":"Skipped"}

@@ -1,0 +1,5 @@
+{"stores": [
+ {"id": "corner", "values": {"name": "Corner Store", "url": "https://corner.test/"}, "document": {"root": "data", "path": "documents/corner.md"},
+  "document_note": "Copied from the store's own page.", "address_for_rows": "https://corner.test/stock", "address_overrides": {"jam-2": "https://corner.test/jam"}},
+ {"id": "market", "values": {"name": "Market", "url": "https://market.test/"}, "address_for_rows": "https://market.test/stock"}
+]}
