@@ -153,6 +153,15 @@
       "says": "The words are too long for {platform}. Shorten the caption for {platform} and publish again."
     }
   ],
+  "media": {
+    "_what": "How a post's file reaches a place (read-data/send-a-post.mjs). A place that fetches the file from an address (media_from address) is handed a share of it from the person's files, valid share_seconds, which the place streams. A place that takes the bytes (media_from bytes) is streamed them from the person's files, read_bytes at a time. words are what is said when the file cannot be handed over: gone when the person's files no longer hold it, unreachable when their files could not answer.",
+    "share_seconds": 21600,
+    "read_bytes": 262144,
+    "words": {
+      "gone": "This post's video or picture is no longer in your files, so nothing was sent to {platform}. Choose one that is.",
+      "unreachable": "Your files could not hand {platform} the post's file right now ({code}), so nothing was sent. Send it again shortly."
+    }
+  },
   "outcome_fallback": "{platform} did not publish it: {detail}",
   "not_known_words": "It is not known whether {platform} took the post. Look on {platform}; if it is not there, send it to this account again with resend: true."
 }

@@ -18,6 +18,8 @@
 //      itself: it is resent only when the caller names it (resend: true) after looking at the place.
 //   4. A destination that already took the post is never sent it again.
 //   5. Nothing here names a place, a vendor or a person.
+//   6. A post's file comes only from the person's own files through the run's door: a place is handed a share of it
+//      (a signed link that expires) or its bytes streamed a page at a time. No copy of the file is kept here.
 //
 import { readFileSync } from 'node:fs';
 import { connectedAccountRef, createSocial } from '@opencoredev/social-sdk';
@@ -150,13 +152,51 @@ function overall(post) {
   return 'scheduled';
 }
 
-// What the place is given of the post's file. This run reads no file bytes and makes no public address for one, so a
-// post with a file is refused here until the person's files hand the run one.
-function mediaFor(post, place) {
+// What the place is given of the post's file, from the person's own files through the run's door (its files right):
+// a place that fetches from an address gets a share of the file (share_file: a signed URL it streams, whole or by
+// range, until it expires); a place that takes the bytes gets a stream of them, read from the person's files a page
+// at a time (read_file), so no copy of the file is ever kept here. A file the person's files no longer hold, or files
+// that cannot answer, refuse the send before anything leaves.
+async function mediaFor(post, place, door) {
   if (!post.media) return null;
-  throw new Refused(place.media_from === 'bytes'
-    ? `${place.label} takes the file's bytes, and this run cannot read the person's files yet, so nothing was sent.`
-    : `${place.label} fetches the file from a public address, and this run cannot make one for the person's file yet, so nothing was sent.`);
+  const said = (key, values = {}) => new Refused(fillWords(settings.media.words[key], { platform: place.label, ...values }));
+  const asked = async (operation, input) => {
+    try {
+      return await door.files(operation, input);
+    } catch (error) {
+      if (error?.code === 'namespace_not_found') throw said('gone');
+      throw said('unreachable', { code: error?.code ?? 'refused' });
+    }
+  };
+  const identity = post.media.identity;
+  const mediaType = post.media.media_type ?? 'application/octet-stream';
+  const kind = mediaType.startsWith('image/') ? 'image' : mediaType.startsWith('video/') ? 'video' : 'document';
+  if (place.media_from === 'stream' || place.media_from === 'whole') {
+    const first = await asked('read_file', { name_or_identity: identity, offset: 0, length: settings.media.read_bytes });
+    const size = first.byte_length;
+    const open = () => {
+      let offset = 0;
+      let page = first;
+      return new ReadableStream({
+        async pull(controller) {
+          if (offset >= size) return controller.close();
+          if (!page) page = await asked('read_file', { name_or_identity: identity, offset, length: settings.media.read_bytes });
+          const bytes = page.encoding === 'base64' ? Buffer.from(page.content, 'base64') : new TextEncoder().encode(page.content);
+          page = null;
+          if (bytes.length === 0) return controller.error(said('unreachable', { code: 'file_ended_early' }));
+          offset += bytes.length;
+          controller.enqueue(new Uint8Array(bytes));
+        },
+      });
+    };
+    const facts = { kind, mimeType: first.media_type ?? mediaType, byteSize: size, ...(post.media.name ? { filename: post.media.name.split('/').pop() } : {}) };
+    if (place.media_from === 'stream') return { ...facts, source: { kind: 'stream', open, fingerprint: first.identity } };
+    // A place whose uploader takes the file only as one piece is handed it whole, read through the same stream.
+    const blob = await new Response(open()).blob();
+    return { ...facts, source: { kind: 'blob', blob: new Blob([blob], { type: facts.mimeType }), fingerprint: first.identity } };
+  }
+  const shared = await asked('share_file', { name_or_identity: identity, seconds: settings.media.share_seconds });
+  return { kind, mimeType: shared.media_type ?? mediaType, byteSize: shared.byte_length, source: { kind: 'https-url', url: shared.url } };
 }
 
 /** tool:send-a-post-to-<place>: sends the post to one destination once its time has come, and keeps the outcome. */
@@ -191,7 +231,7 @@ export async function sendAPost({ post_id: postId, account_id: accountId, resend
   }
   try {
     const { social, account } = publisherFor(place, connection, { held: held ?? heldFromDescriptors(place), send, publishers });
-    const media = mediaFor(post, place);
+    const media = await mediaFor(post, place, door);
     const chosen = { ...(place.default_settings ?? {}), ...(post.settings_by_platform?.[place.platform] ?? {}) };
     // Recorded before the send: if the send is cut off, its outcome is not known and it is not resent by itself.
     deliveries[accountId] = { platform: place.platform, label: place.label, status: 'not known', attempt, error: fillWords(settings.not_known_words, { platform: place.label }) };
@@ -207,7 +247,7 @@ export async function sendAPost({ post_id: postId, account_id: accountId, resend
     // it stays not known (invariant 3).
     const refusedHere = ours(error);
     const beforeSending = deliveries[accountId]?.status !== 'not known' || refusedHere || error?.issues?.length || error?.retryDisposition?.kind === 'never';
-    if (beforeSending) deliveries[accountId] = { platform: place.platform, label: place.label, status: 'failed', attempt, error: refusedHere?.message ?? wordsFor(place, { code: error?.code, message: error?.message, retry: error?.retryDisposition?.kind }) };
+    if (beforeSending) deliveries[accountId] = { platform: place.platform, label: place.label, status: 'failed', attempt, error: refusedHere?.message ?? wordsFor(place, { code: error?.code, message: error?.issues?.map(issue => issue.message).join(' ') || error?.message, retry: error?.retryDisposition?.kind }) };
   }
   await keep('send-done');
   const shown = shaped(post);
