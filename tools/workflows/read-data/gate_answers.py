@@ -1,9 +1,9 @@
 """The answers to a checklist and the gate over them.
 
-Answers are rows in an append-only file in the piece (`{ check_id, option_id, answer, evidence, by, at, file_pins, check_pin }`); the newest row for a
-check and item stands. A row pins the BLAKE3 of the files it judged, so a row on other bytes is stale. Checks that a checker answers (a measuring
-tool, a gate) count only on that checker's own rows, and only when the row carries the reviewed pin of the checker that produced it. The gate says which
-routed required checks of the chosen stages still lack a current passing row.
+Answers are rows in an append-only file in the piece (`{ check_id, option_id, answer, evidence, by, at, file_pins, definition_pin, check_pin }`); the newest row for a
+check and item stands. A row pins the canonical BLAKE3 identity of the exact checklist definition and of the files it judged, so a row on changed criteria
+or other bytes is stale. Checks that a checker answers (a measuring tool, a gate) count only on that checker's own rows, and only when the row carries the
+reviewed checker pin that produced it. The gate says which routed required checks of the chosen stages still lack a current passing row.
 """
 from __future__ import annotations
 
@@ -87,6 +87,12 @@ def read_answers(lib: Library, piece: Path, machine: bool | None = None) -> dict
     return rows
 
 
+def definition_pin(check: dict) -> str:
+    """BLAKE3 of this check's stable canonical JSON definition, independent of checker code pins."""
+    canonical = json.dumps(check, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8')
+    return blake3_of(canonical)
+
+
 def record_answer(lib: Library, piece: Path, check_id: str, answer: str, evidence: str, by: str,
                   option: str | None = None, machine: bool = False, check_pin: str | None = None) -> dict:
     cfg = lib.section('answers')
@@ -115,6 +121,7 @@ def record_answer(lib: Library, piece: Path, check_id: str, answer: str, evidenc
         raise ValueError(f'{check_id} is a MUST check and is never n/a: answer pass with the evidence that the set is empty, or fix the piece header')
     covered = [option] if option else routing(lib, piece, all_items_of(lib, piece))[2](check)
     row = {'check_id': check_id, 'option_id': option, 'answer': answer, 'evidence': evidence.strip(), 'by': by.strip(), 'at': now(),
+           'definition_pin': definition_pin(check),
            'file_pins': file_pins(lib, piece, item_files(lib, piece, covered))}
     if machine:
         row['check_pin'] = check_pin
@@ -135,10 +142,13 @@ def answer_command(lib: Library, piece: Path, check: dict, option: str | None) -
 
 # --------------------------------------------------------------------------- staleness
 
-def stale_reason(row: dict, covered: list[str], files: dict[str, list[Path]], pins: dict[str, str]) -> str | None:
+def stale_reason(row: dict, covered: list[str], files: dict[str, list[Path]], pins: dict[str, str],
+                 current_definition_pin: str | None = None) -> str | None:
     """Why a row no longer answers for the files it covers (a per-item row its item, a piece-level row every item it routes to), or None.
-    A row carries the BLAKE3 pins of the files it judged: a covered file whose bytes differ, or that it never judged, makes it stale. A row written
-    before rows carried pins is judged by time: recorded before a covered file last changed."""
+    A row carries the BLAKE3 definition pin of the exact check and the file pins it judged: a changed or absent definition pin, or a covered file whose
+    bytes differ, makes it stale. A row written before file pins existed is judged by time: recorded before a covered file last changed."""
+    if current_definition_pin is not None and row.get('definition_pin') != current_definition_pin:
+        return ('has no check-definition pin' if row.get('definition_pin') is None else 'has a different check-definition pin') + ': re-review the current criterion'
     judged = row.get('file_pins')
     if judged is not None:
         other = [o for o in covered if o in pins and judged.get(o) != pins[o]]
@@ -249,16 +259,17 @@ def gate(lib: Library, piece: Path, stages: list[str], options: list[str], at: s
                 key = (c['id'], opt)
                 if c['id'] in machine:
                     row = machine_rows.get(key)         # only the checker's own result, carrying the reviewed pin of the check that measured it, counts
-                    row = row if row and row.get('check_pin') == required_pin(lib, piece, c['id']) else None
                 else:
                     row = answers.get(key)
                 item = {'id': c['id'], 'option': opt, 'must': c['must'], 'check': c.get('rule') or c['check'],
                         'verify': c['verify'], 'answer_with': answer_command(lib, piece, c, opt)}
                 if opt is None and options:
                     item['for_options'] = routed
-                why_stale = stale_reason(row, [opt] if opt else routed, files, pins) if row is not None else None
+                why_stale = stale_reason(row, [opt] if opt else routed, files, pins, definition_pin(c)) if row is not None else None
                 if why_stale:
                     item['stale'] = why_stale
+                    row = None
+                if row is not None and c['id'] in machine and row.get('check_pin') != required_pin(lib, piece, c['id']):
                     row = None
                 if row is None:
                     (unanswered if c['must'] else unanswered_optional).append(item)
