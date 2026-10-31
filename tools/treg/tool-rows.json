@@ -118,7 +118,7 @@
     "id": "tool:call-a-treg-endpoint",
     "label": "Call a treg endpoint",
     "job": "Call any endpoint in treg's catalog by its id, with its inputs, paid from the person's treg balance, never above a cost ceiling the caller names",
-    "description": "Sends one call to treg for the endpoint id given, with the person's treg token from their treg connection (the token is placed as the request leaves and never shown), and answers the provider's reply as treg relays it (a routed treg.* endpoint answers {output, raw, _treg}). Send the method the catalog names (endpoint.method), its query fields in query and its body fields in body, exactly as tool:read-a-treg-endpoint-and-its-price lists them; a path field goes in query. max_cost_usd is sent as treg's X-Treg-Route-Max-Cost: treg documents that a call it would bill above it is refused with HTTP 402 route_max_cost before anything is charged. This SPENDS the person's treg balance: read the endpoint's price first, say it to the person, and keep max_cost_usd at what they agreed to. A reply outside 2xx is an error that quotes treg: 402 is an empty balance or the ceiling, 503 provider_capacity_unavailable names other providers of the job; failed calls are not billed. treg answers the cost of a call in a reply header this row does not read; read the charge with tool:read-my-treg-balance. A team's own registered tool is called the same way, as <tool-name>/<path>.",
+    "description": "Sends one call to treg for the endpoint id given, with the person's treg token from their treg connection (the token is placed as the request leaves and never shown), and answers the provider's reply as treg relays it (a routed treg.* endpoint answers {output, raw, _treg}). Send the method the catalog names (endpoint.method), its query fields in query and its body fields in body, exactly as tool:read-a-treg-endpoint-and-its-price lists them; a path field goes in query. max_cost_usd is sent as treg's X-Treg-Route-Max-Cost: treg documents that a call it would bill above it is refused with HTTP 402 route_max_cost before anything is charged. This SPENDS the person's treg balance: read the endpoint's price first, say it to the person, and keep max_cost_usd at what they agreed to. A reply outside 2xx is an error that quotes treg: 402 is an empty balance or the ceiling, 503 provider_capacity_unavailable names other providers of the job; failed calls are not billed. The answer's headers (beside the reply, lower case) say what the call cost and how to follow it: x-treg-cost-micro is the charge in millionths of a US dollar (on an asynchronous submission, the amount held until the task finishes, not a charge; on a replay 0, with x-treg-original-cost-micro), x-treg-call-id is the call's id (keep it), x-treg-served-by the provider a routed call used, x-treg-cache a cached answer, and x-treg-async the descriptor of an asynchronous task. Tell the person the cost with each answer. An answer of 202 with _treg.outcome pending is a task still running: follow it with tool:read-a-treg-call and its call id, never by calling again. A team's own registered tool is called the same way, as <tool-name>/<path>.",
     "status": "active",
     "input_schema": {
      "type": "object",
@@ -258,6 +258,53 @@
      "api": "https://treg.to/orgs/<id>/balance",
      "documentation": "https://treg.to/integrate.md",
      "read_on": "2026-10-30"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::tool::read-a-treg-call",
+   "address": "package::ai-tool-catalog::tool::read-a-treg-call",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-a-treg-call",
+    "label": "Read one treg call by its id",
+    "job": "Read one of the person's treg calls by the id it answered: what it cost, and how an asynchronous task it started is going and where its result is",
+    "description": "Give account and call_id, the x-treg-call-id header of a tool:call-a-treg-endpoint answer. Answers treg's own record of that call (GET /calls/<call id>): call (its endpoint, status and cost_charged_micro), async_task when it started an asynchronous task (status pending, settled, released or timed_out; reserved_micro, settled_micro, error, and once settled its result_url, which expires, or fetch_command), ledger (the money entries) and charged_micro. This is how a task is followed: treg itself polls the provider, so after a call answered 202 with _treg.outcome pending (its x-treg-async header says which statuses are final), read the call about 60 seconds later, then every 30 to 60 seconds, until async_task.status is no longer pending. Never send the call again or try another provider while it is pending: the task may still finish and charge. Reads only; spends nothing; the token is never shown.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": ["account", "call_id"],
+     "additionalProperties": false,
+     "properties": {
+      "account": { "type": "string", "pattern": "^service_connection:treg(:[A-Za-z0-9._-]+)?$", "description": "Which of the person's treg connections made the call, by its id: service_connection:treg, or service_connection:treg:<account>" },
+      "call_id": { "type": "string", "pattern": "^[0-9a-f]{32}$", "description": "The x-treg-call-id header of the call's answer" },
+      "team": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "The treg team slug, only when the held token is a person's sign-in token rather than one team's key" }
+     }
+    },
+    "output_schema": { "type": "object", "properties": { "call": { "type": ["object", "null"] }, "async_task": { "type": ["object", "null"] }, "ledger": { "type": "array" }, "charged_micro": { "type": "integer" } }, "additionalProperties": true },
+    "invoke": {
+     "kind": "http",
+     "url": "https://treg.to/calls/{call_id}",
+     "method": "GET",
+     "timeout_seconds": 30,
+     "headers": { "accept": "application/json", "X-Treg-Org": { "from": "team", "optional": true } },
+     "connection": { "vendor": "treg", "from_input": "account" },
+     "credential_injections": [
+      { "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+     ]
+    },
+    "result_selector": "$",
+    "needs": { "expected_seconds": 5, "network_egress": true },
+    "read_only": true,
+    "maker": "maker:treg",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "provenance": {
+     "provider": "treg",
+     "api": "https://treg.to/calls/<call id>",
+     "documentation": "https://treg.to/skill.md (retrying and polling) and treg's source (src/treg/api.py get_call, src/treg/application/asynctasks.py views_for)",
+     "read_on": "2026-10-31"
     }
    }
   }
