@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:137ea89cf3ddea5a305243c385fe82cddc36000d288464b0be2e1f64a7bff3aa"
+  "blake3": "1f:b50138371d81f21b0ed041f5607785eed302d15ad58064963e3e78ae4d7af847"
  },
  "fields": [
   {
@@ -74,6 +74,21 @@
    }
   },
   {
+   "id": "tool:adapt-the-next-training-session",
+   "values": {
+    "title": "Adapt my next training session",
+    "job": "Adapt the next training session from the adjustments my progress rules gave for the session I just did",
+    "description": "Takes a session prescription (or the plan and the id of the session) and the adjustments already worked out by the progress evaluator (its list may be empty). Applies them in order and answers `from` (the prescription as given), `next` (the adapted prescription) and `applied` (how many adjustments). An adjustment's doseScale multiplies every number in dose and its intensityScale every number in intensity (whole numbers stay whole, others round to two places); its note is kept at intensity.note; any other key is ignored and words in dose or intensity pass through. The input is never changed. This tool does not decide which rule fires: run the pick-fired-rules tool of the progress evaluator first and give its adjustments here.",
+    "status": "active",
+    "maker": "maker:training-and-workouts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "training-and-workouts"
+   }
+  },
+  {
    "id": "tool:add-a-customer",
    "values": {
     "title": "Add a customer",
@@ -104,6 +119,21 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:add-to-my-workout-log",
+   "values": {
+    "title": "Add to my workout log",
+    "job": "Add new evidence to my workout log, or confirm, discard, correct, split or merge an entry already in it",
+    "description": "Takes the workout log record, an operation and when it happened (observed_at; the tool holds no clock). `add` needs descriptor_id (how the evidence was captured, part of the atom id unless id is given), a subject with a kind, dimensions (each a number or text, or { value, unit, role, label }), and optionally source, links, confidence, evidence_refs and a raw_artifact. `confirm` and `discard` need target_atom_id and may carry a note. `correct`, `split` and `merge` need target_atom_id, dimensions holding the new values, optionally additional_target_atom_ids (for merge), subject and note. The entry is never edited: a new atom linking to it is added. Answers `log` (the next record to store: every other key of the record is kept as given), the `atom` added, the ids now in the review queue and the count of canonical entries. Adding the same atom id twice keeps one. The record is stored by the person's AI through the records door.",
+    "status": "active",
+    "maker": "maker:training-and-workouts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "training-and-workouts"
    }
   },
   {
@@ -333,6 +363,21 @@
      "placement:small-container"
     ],
     "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
+   "id": "tool:brief-a-triage",
+   "values": {
+    "title": "Brief a triage of one incoming item",
+    "job": "Decide what to do with one incoming item, such as a message, note or finding, by weighing it against what the person cares most about",
+    "description": "Give the item (a ref, an optional version, and what it says), the person's priorities, the dispositions an item can be settled as (each a ref and a label; exactly one is the fallback; blocked_default and needs_objective are optional), the least confidence an answer may have (0 to 1) and, if the person wants limits, the most words the rationale and the objective may have (max_words). Returns what you need to judge it: the item, the priorities, the dispositions, the rules for the answer (including fail closed to the fallback; where a disposition needs an objective, that it is the smallest safe, reversible assignment that produces evidence and may not authorize messages, spending, publishing, promises, credential changes, live changes, anything illegal, deceiving or harassing anyone, or taking what belongs to another party) and the shape of the answer. It asks no model; you judge, then give your answer to tool:settle-a-triage.",
+    "status": "active",
+    "maker": "maker:triage-against-priorities",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "triage-against-priorities"
    }
   },
   {
@@ -819,6 +864,21 @@
    }
   },
   {
+   "id": "tool:check-live-orders-with-the-broker",
+   "values": {
+    "title": "Check live orders with the broker",
+    "job": "Check my live orders with my broker: which are filled, at what price, and which never got there",
+    "description": "Give routes (the same routes the orders were placed with, each with status_request and open_statuses). Every live order still open (sending, unknown, or a status in the route's open_statuses) is asked about at the broker, and its record takes the broker's real status and fill; order_ids checks those orders whatever their status. An order the broker never named and does not know is marked not-placed and its day's spend is given back. Each answer is kept as a trade-order-event. The held live-broker-credentials reach only the request.",
+    "status": "active",
+    "maker": "maker:trading",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "trading"
+   }
+  },
+  {
    "id": "tool:check-match-evidence",
    "values": {
     "title": "Check that a match rests on what people actually said",
@@ -834,6 +894,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:check-paper-orders-with-the-broker",
+   "values": {
+    "title": "Check paper orders with the broker",
+    "job": "Check my paper orders with my broker: which are filled, at what price, and which never got there",
+    "description": "Give routes (the same routes the orders were placed with, each with status_request and open_statuses). Every paper order still open (sending, unknown, or a status in the route's open_statuses) is asked about at the broker, and its record takes the broker's real status and fill; order_ids checks those orders whatever their status. An order the broker never named and does not know is marked not-placed and its day's spend is given back. Each answer is kept as a trade-order-event. The held paper-broker-credentials reach only the request.",
+    "status": "active",
+    "maker": "maker:trading",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "trading"
    }
   },
   {
@@ -948,6 +1023,21 @@
    }
   },
   {
+   "id": "tool:check-writing-against-its-recipe",
+   "values": {
+    "title": "Check writing against its recipe",
+    "job": "Check something written from a recipe before it goes anywhere: it cites only the sources given, it keeps the recipe's rules and reviews, and it is shaped for the next tool",
+    "description": "Give recipe_id or recipe (as tool:compose-a-writing-instruction took), writing (the JSON object you wrote in the recipe's output shape), grounding (the same excerpts), work_item, context and review ({ accepted, verdicts: [{ id, accepted }] } when the recipe requires verdicts). Checks in order and stops at the first refusal: the recipe's source checks (min-grounding-excerpts, cite-or-reject, required-citation-coverage; any other kind is refused, never passed), its rule rows (gate_policy.rules, judged by tool:judge-against-rules' judge over the writing's words and values; passed or held go on), its required verdicts, then builds delivery { tool_id, input } for the tool its delivery_target names (null when it names none). A refusal is { passed: false, reject_code, reason, findings? } and has no delivery: rewrite and check again.",
+    "status": "active",
+    "maker": "maker:write-from-a-recipe",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "write-from-a-recipe"
+   }
+  },
+  {
    "id": "tool:choose-configurations",
    "values": {
     "title": "Choose which options go ahead together",
@@ -1040,6 +1130,21 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "git-changes"
+   }
+  },
+  {
+   "id": "tool:compose-a-writing-instruction",
+   "values": {
+    "title": "Build the instruction to write from",
+    "job": "Build the exact instruction to write something from a writing recipe and the person's material, before writing it",
+    "description": "Give recipe_id (from tool:list-writing-recipes) or your own recipe (instruction_plan.prompt_template: literal text, { block_ref }, { slot: work_item, path }, { slot: schema }, { slot: grounding, label } and conditional segments; optional output_contract, gate_policy, delivery_target, context_retrieval, work_item fields), work_item (the person's text and the answers the recipe asks for; missing answers take the recipe's defaults), grounding (source excerpts, each with its id) and blocks (your own instruction blocks, replacing kept ones of the same id). Returns instruction_text to write from, input_refs, output_kind, output_schema, and the recipe's gate_policy and delivery_target. Write from instruction_text yourself, then hand what you wrote to tool:check-writing-against-its-recipe. Nothing here writes or sends anything.",
+    "status": "active",
+    "maker": "maker:write-from-a-recipe",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "write-from-a-recipe"
    }
   },
   {
@@ -2080,6 +2185,36 @@
    }
   },
   {
+   "id": "tool:keep-channels-latest-videos-and-captions",
+   "values": {
+    "title": "Keep the newest videos of channels and their captions",
+    "job": "List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video",
+    "description": "For each seed (a channel's @handle, id or link, a link to one of its tabs such as /shorts, or a playlist link) lists the newest `newest` videos with yt-dlp on this computer, then fetches the captions (in the first of caption_languages the video has; json3, else WebVTT), the site's description and, with also [\"comments\"], the top comments_per_video comments of every listed video not in skip_ids. It never downloads a video. It asks politely, one request at a time with a drawn wait between requests, at most a set number of requests and budget_seconds per run (the settings file harvest-settings.json in this folder holds every number), and it stops at the first refusal (a robot check or too many requests). It keeps three files in your files: listing (listing.json: every listed video of each seed, with kept_before), captions (captions.jsonl: one line per video settled now, { video_id, url, seed, status ready|empty|failed, language, format, lines [[second, words]], info }) and comments (comments.jsonl). With rows it also writes one row per seed or per settled video into your sources list (record:sources:<id>), each field from a fact ({ fact }), a text with {fact} holes ({ text }) or a value ({ value }); a row you already hold keeps the fields this does not write. Facts of a video: video_id, title, url, published, duration, view_count, seed, listing_url, source, caption_status, caption_language. Facts of a seed: seed, listing_url, source, listed, kept, finished. The answer says what was done and, when anything is left, `again`: the input to send next; after a refusal wait `wait_minutes` first. Repeat until again is null.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
+   "id": "tool:keep-public-posts-by-link",
+   "values": {
+    "title": "Keep public posts by link",
+    "job": "Keep the text, numbers and media addresses of public posts I name by link, through a public mirror, without opening the posts' site",
+    "description": "For each link to a public post (x.com or twitter.com status links; the link pattern is in harvest-settings.json) asks a third-party public mirror for the post as JSON and keeps its text, counts, author and the addresses of its media, never the media themselves. This depends on that mirror staying up: its address is `posts.mirror_base` in harvest-settings.json and can be changed there. It asks politely with the same limits file as the channel harvest: one request at a time with a drawn wait, a bounded number of requests and budget_seconds per run, a stop at the first refusal. Links already kept (skip_ids) are not asked again. It keeps one file in your files (posts.jsonl: one line per post settled now: user, post_id, link, status ready or failed, the post's kept fields or the reason). A run that stops early answers `again`, the input to send next, and after a refusal `wait_minutes`; repeat until `again` is null. With rows one per post, the posts go into your sources list over the rows already held.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
    "id": "tool:keep-where-you-stand",
    "values": {
     "title": "Keep where you stand on something",
@@ -2173,6 +2308,21 @@
      "placement:your-computer"
     ],
     "folder": "track-and-compare-movement"
+   }
+  },
+  {
+   "id": "tool:list-a-channels-latest-videos",
+   "values": {
+    "title": "List a channel's latest videos (runs on your computer)",
+    "job": "Get the latest videos of a creator's channel: their titles, dates, lengths and links",
+    "description": "Runs on the person's own computer with yt-dlp, which lists a channel's videos without downloading them: the answer is the channel's name (source) and its latest videos (30 unless --limit says otherwise), each with item_id, title, duration, published (as the site writes it), url and the first 500 characters of the description. The channel is a link, a channel id (UC...) or a @handle. Nothing is sent to Trillion and no key is needed.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "research-a-creator-or-topic"
    }
   },
   {
@@ -2345,6 +2495,36 @@
    }
   },
   {
+   "id": "tool:list-the-items-in-a-saved-file",
+   "values": {
+    "title": "List the items in a list saved on your computer (runs on your computer)",
+    "job": "Read a list the person saved in a file (bookmarks, a source list, an exported set of rows, a browser's saved tabs) into items to research",
+    "description": "Runs on the person's own computer and reads one JSON file: an array of rows, or an object holding rows under sources, bookmarks, items, records, rows or data (shape list, the default), or the sidebar file of the Arc browser (--shape browser-sidebar: pinned and current tabs of its default profile with their folders; an address that looks like an account, admin or sign-in page, or carries a token, is kept as Private page with no address). Each row becomes an item with item_id, title, url, published, description, source_family, source_type, container_path, license_status (unknown when the row says nothing) and lifecycle_status; at most 5000 (--limit cuts it). Nothing leaves the computer.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
+   "id": "tool:list-the-latest-items-of-a-feed",
+   "values": {
+    "title": "List the latest items of a feed",
+    "job": "Get the latest posts, videos or episodes of a creator or a topic from their Atom or RSS feed",
+    "description": "Reads one public Atom or RSS feed (at most 2 MB, 15 seconds) and returns its title (source) and its items, each with an item_id (the id the feed gives it, else its link), title, published, url and description. Give limit (1 to 200, 50 when left out) to cut the list. It reaches public sites only and does not sign in. The address of the feed is the person's own: this tool knows no creator and no site.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
    "id": "tool:list-what-is-due",
    "values": {
     "title": "List what is due for review",
@@ -2360,6 +2540,21 @@
    }
   },
   {
+   "id": "tool:list-writing-recipes",
+   "values": {
+    "title": "Writing recipes and instruction blocks",
+    "job": "List the ready writing recipes (summarize, translate, rewrite, critique and more) and the instruction blocks a recipe can use",
+    "description": "Give words (every word must be in a recipe's or block's id or label) and section to narrow the list, or nothing for all. Returns recipes, each with id, label, section, needs (the work item fields it must have) and fields (the answers it asks for, with choices and defaults), blocks (id, label, body) and sections. Use a recipe's id as recipe_id in tool:compose-a-writing-instruction.",
+    "status": "active",
+    "maker": "maker:write-from-a-recipe",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "write-from-a-recipe"
+   }
+  },
+  {
    "id": "tool:look-up-a-stripe-checkout",
    "values": {
     "title": "Look up a Stripe checkout",
@@ -2372,6 +2567,36 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:look-up-instruments-at-my-live-broker",
+   "values": {
+    "title": "Look up instruments at my live broker",
+    "job": "Find the instruments my broker lists for trading, such as option contracts, from my live account",
+    "description": "Give route (one broker route with mode \"live\" and its lookups), lookup (a lookup's name) and query (by the names the lookup allows; the lookup's own defaults fill the rest). A lookup is any read the broker answers: its listed instruments, the account (a lookup with one_item reads the one object as one item, for example equity and buying power) or the positions held. Answers the listed items the lookup keeps (for example only tradable ones), numbers read as numbers, sorted as the lookup says, with the next page token. An error answer carries no items. The held live-broker-credentials reach only the request.",
+    "status": "active",
+    "maker": "maker:trading",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "trading"
+   }
+  },
+  {
+   "id": "tool:look-up-instruments-at-my-paper-broker",
+   "values": {
+    "title": "Look up instruments at my paper broker",
+    "job": "Find the instruments my broker lists for trading, such as option contracts, from my paper account",
+    "description": "Give route (one broker route with mode \"paper\" and its lookups), lookup (a lookup's name) and query (by the names the lookup allows; the lookup's own defaults fill the rest). A lookup is any read the broker answers: its listed instruments, the account (a lookup with one_item reads the one object as one item, for example equity and buying power) or the positions held. Answers the listed items the lookup keeps (for example only tradable ones), numbers read as numbers, sorted as the lookup says, with the next page token. An error answer carries no items. The held paper-broker-credentials reach only the request.",
+    "status": "active",
+    "maker": "maker:trading",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "trading"
    }
   },
   {
@@ -2910,6 +3135,36 @@
    }
   },
   {
+   "id": "tool:place-live-orders-from-a-trading-policy",
+   "values": {
+    "title": "Place live orders from a trading policy",
+    "job": "Place the orders of my trading policy at my broker's live (real money) account",
+    "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone), routes (how your broker takes an order, each route with mode \"live\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: false, has no live route, was already sent for this policy version, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held live-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
+    "status": "active",
+    "maker": "maker:trading",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "trading"
+   }
+  },
+  {
+   "id": "tool:place-paper-orders-from-a-trading-policy",
+   "values": {
+    "title": "Place paper orders from a trading policy",
+    "job": "Place the orders of my trading policy at my broker's paper account",
+    "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone), routes (how your broker takes an order, each route with mode \"paper\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: true, has no paper route, was already sent for this policy version, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held paper-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
+    "status": "active",
+    "maker": "maker:trading",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "trading"
+   }
+  },
+  {
    "id": "tool:plan-a-side-by-side-movement-comparison",
    "values": {
     "title": "Plan a side-by-side video of two movements, each framed on its person (runs on your computer)",
@@ -3413,6 +3668,21 @@
    }
   },
   {
+   "id": "tool:read-a-videos-captions",
+   "values": {
+    "title": "Get the words spoken in a video from its captions (runs on your computer)",
+    "job": "Get the words spoken in a video as text, from the captions the video site holds for it",
+    "description": "Runs on the person's own computer with yt-dlp, which fetches a video's captions (the automatic ones when there are no others) without downloading the video. The answer is { video_id, url, has_captions, char_count, transcript, status }: status ready with the words, or empty (has_captions false, with the reason in stderr_tail) for a video with none. The original spoken language is read first, then plain English. The video is an id or a link; --watch-base sets the address an id is put after. Nothing is sent to Trillion and no key is needed.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
    "id": "tool:read-an-office-file",
    "values": {
     "title": "Read a spreadsheet, document or presentation as data (runs on your computer)",
@@ -3585,6 +3855,36 @@
    }
   },
   {
+   "id": "tool:read-my-progression-inputs",
+   "values": {
+    "title": "Read what my plan needs to decide the next session",
+    "job": "Read my stored progression rules and the last session's result from my training plan, ready for the progress evaluator",
+    "description": "Takes the training plan feed (the plan, its stored progression rules and, when there is one, the last session's result with its measured signals). Answers `rules` (each stored rule turned into { id, metricRef, band, adjustment }, a rule with no metric dropped), `signals` (the last result's { metricRef, value } pairs), `session_id` and the `prescription` the result belongs to (the named session, else the last in the plan). With no usable result there are no signals and no prescription: nothing is made up. The rules are then evaluated against the signals by the progress evaluator (the pick-fired-rules tool), and its adjustments go to the adapt-the-next-session tool.",
+    "status": "active",
+    "maker": "maker:training-and-workouts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "training-and-workouts"
+   }
+  },
+  {
+   "id": "tool:read-my-training-plan",
+   "values": {
+    "title": "Read my training plan",
+    "job": "Read my training plan: its goals, phases, weeks and the sessions prescribed in each week",
+    "description": "Takes the training plan record (goals, phases in a goal, week blocks in a phase, session prescriptions in a week, each prescription with an open dose record and an open intensity record) and answers it decoded, with a count of each, and the sessions of one week when week_id is given. Rows with no id are dropped and a missing field reads as empty, never invented. A week's load intent may be a bare word or a record with any fields; it keeps its own identifier.",
+    "status": "active",
+    "maker": "maker:training-and-workouts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "training-and-workouts"
+   }
+  },
+  {
    "id": "tool:read-my-treg-balance",
    "values": {
     "title": "Read my treg balance and recent charges",
@@ -3618,6 +3918,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:read-my-workout-log",
+   "values": {
+    "title": "Read my workout log",
+    "job": "Read my workout log: what still needs checking, my summary views, the rows to export and my progress over time",
+    "description": "Takes the workout log record: a ledger of evidence atoms (each one thing observed, with when, source, subject, measured dimensions, links to other atoms and how sure it is), plus optional sessions, sets and the person's own projection lenses. Nothing is edited in place: an entry is confirmed, discarded, corrected, split or merged by a later atom that links to it. Answers `canonicalEvidenceAtoms` (entries not replaced), `reviewQueue` (not confirmed and not yet decided, newest first), `lensOutputs` (each of the person's lenses run: previous-value, review-queue, progress-summary, export-rows, or a list of matches), `exportRows` (confirmed entries as flat rows), `progressSeries` (the numeric measure with the most points over time, as plain numbers with its summary; null when none) and `diagnostics`. A lens that finds nothing says so. With done_status (the word the person uses for a finished session) it also answers completion_rate.",
+    "status": "active",
+    "maker": "maker:training-and-workouts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "training-and-workouts"
    }
   },
   {
@@ -4469,6 +4784,21 @@
    }
   },
   {
+   "id": "tool:search-the-public-web",
+   "values": {
+    "title": "Search the public web",
+    "job": "Search the public web for a creator, a topic or a question, and get back at most ten results with the address each one cites",
+    "description": "Sends one query (1 to 500 characters) to a public web search and reads the one results page. Returns at most ten results, each with title, url (the page the result points to, never the search engine's own address), a snippet in description, and a citation { url, retrieved_via }. It follows no result and signs in nowhere; to read a result, read its page with the tool that reads a public page.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
    "id": "tool:search-the-treg-catalog",
    "values": {
     "title": "Search treg's catalog of paid endpoints",
@@ -4957,6 +5287,24 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:settle-a-triage",
+   "values": {
+    "title": "Settle a triage of one incoming item",
+    "job": "Keep the decision made about one incoming item only if it holds up against the person's priorities and dispositions, and otherwise hold the item back",
+    "description": "Give the same item, priorities, dispositions and least confidence you were briefed with, and answers: a list holding your one answer ({disposition_ref, confidence, rationale, target_ref, and objective with acceptance_criteria where the disposition needs them}). Returns and keeps one decision record per item and version. If there are no priorities, no answer or more than one, the confidence is not a number, is outside 0 to 1 or is under the least, the rationale or objective has more words than max_words allows, the disposition is not listed, or a needed objective is missing, the decision is the fallback disposition, blocked, with each reason in words. blocked is false only where the disposition's row says blocked_default is false. It does nothing else; whoever owns the disposition acts on the decision.",
+    "status": "active",
+    "maker": "maker:triage-against-priorities",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "triage-against-priorities",
+    "flags": [
+     "keeps-records"
+    ]
    }
   },
   {
@@ -5515,6 +5863,21 @@
      "placement:your-computer"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:write-a-profile-request",
+   "values": {
+    "title": "Prepare the request for a profile of a creator or a topic",
+    "job": "Turn what was gathered about a creator or a topic (video words, page text) into the instruction the person's AI writes a profile from",
+    "description": "Give subject_ref (who or what is profiled), instruction (the person's own words on what to look for; they come before the material) and either material (one text) or evidence ([{ id, text }], for example one video's words each). Optional profile_ref (profile:<subject_ref> when left out) and output_kind (profile). Returns one request per piece of material: { kind, status requested, request_id (subject_ref:id), profile_ref, subject_ref, output_kind, instruction_text }, and in skipped the ids whose text was empty (a video with no captions). It asks no model and stores nothing; the AI that called it writes the profile from instruction_text and keeps it in the person's own records.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "research-a-creator-or-topic"
    }
   },
   {
