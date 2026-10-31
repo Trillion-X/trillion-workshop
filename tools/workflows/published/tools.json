@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:22d27b033ee44961e049cc34db6a775d44d4f61f05d1c5324c6fa2cc190394bd"
+  "blake3": "1f:4dd80872d563dfb51a199ebfc6da866c5b45b7efb4c718cd3e60423f6eeedde3"
  },
  "fields": [
   {
@@ -291,7 +291,7 @@
    "values": {
     "title": "Approve a post",
     "job": "Approve a drafted post exactly as it was reviewed, so it may be set to go",
-    "description": "Give post_id and expected_values (the complete approval_values of the post as it was reviewed); approval is refused when its words, file, destinations or time changed since. A post going nowhere yet is refused. A post that reaches someone (its words name a @handle, or it lists people in reaches) is approved only by the person on their own screen, never by this tool. approved_by names who approved it. Returns post and said.",
+    "description": "Give post_id and expected_values (the complete approval_values of the post as it was reviewed); approval is refused when its words, file, destinations or time changed since. A post going nowhere yet is refused. A post that reaches someone (its words name a @handle, or it lists people in reaches) is approved only by the person on their own screen: only a run their own page starts, which the engine marks in the run's task (origin page), approves it, and an AI's run is refused. approved_by names who approved it. Returns post and said.",
     "status": "active",
     "maker": "maker:social-posts",
     "licence_class": "licence:maker-own",

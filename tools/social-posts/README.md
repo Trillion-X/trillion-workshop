@@ -13,7 +13,7 @@ signs a request with is ever in a record, a row or this code.
 | `tool:list-post-destinations` | The person's accounts a post can go to, each ready or not and why, and each place they have no account for yet | list `connection` |
 | `tool:draft-a-post` | Keeps a draft: words, file, destinations, link, time; changing an approved or scheduled post makes it a draft again. Nothing is posted | read and write `post`, list `connection` |
 | `tool:check-a-post` | Whether the post is ready for each place: what each will refuse, and what could not be checked here | read `post`, list `connection` |
-| `tool:approve-a-post` | Approves the post exactly as it was reviewed (`expected_values`); a post that reaches someone is approved only by the person | read and write `post` |
+| `tool:approve-a-post` | Approves the post exactly as it was reviewed (`expected_values`); a post that reaches someone is approved only by the person, by a run their own page starts (the engine marks it origin page in the run's task, filled as `run_origin`; no input can set it) | read and write `post` |
 | `tool:set-a-post-to-go-at-its-time` | An approved post with a time still ahead, ready for every place, becomes `scheduled`. Nothing is sent now | read and write `post`, list `connection` |
 | `tool:take-back-a-post` | A scheduled post nothing was sent for becomes a draft again, so its time sends nothing | read and write `post` |
 | `tool:check-the-instagram-connection` | Asks Instagram which account one of the person's Instagram connections (`account_id`) signs in as, with its held value placed only as the request leaves. Posts nothing | none (http) |

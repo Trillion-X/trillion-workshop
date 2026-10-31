@@ -120,11 +120,34 @@ test('a post with no time ahead, or not ready for a place, is not set to go', as
   assert.match(notReadySet.result.said, /It was not set to go\..*holds no access token/);
 });
 
-test('a post that names someone is approved only by the person', async () => {
+// The row's standard input as the engine fills it (src/runtime/workshop/fill.rs): each {fill: {from, field}} is that
+// fact of the run's input or task, and a fact that is not there leaves its field out.
+const filledStdin = (template, { input, task }) => Object.fromEntries(Object.entries(template)
+  .map(([name, { fill }]) => [name, (fill.from === 'input' ? input : task)[fill.field]])
+  .filter(([, value]) => value !== undefined));
+
+test('a post that names someone is approved only by a run the person\'s own page starts', async () => {
   const draft = await step('draft-a-post', { caption: 'Thanks @someone for the idea', destinations: ['service_connection:x:second'] }, accounts);
-  const approve = await step('approve-a-post', { post_id: draft.result.post.post_id }, draft.records);
-  assert.equal(approve.status, 1);
-  assert.match(approve.error, /reaches @someone.*approved only by the person/);
+  const { post_id: postId, approval_values: reviewed } = draft.result.post;
+  const approve = row('approve-a-post');
+  assert.deepEqual(approve.invoke.stdin.run_origin, { fill: { from: 'task', field: 'origin' } }, 'the origin comes only from the task the engine attests');
+  assert.equal(approve.input_schema.additionalProperties, false);
+  assert.ok(!('run_origin' in approve.input_schema.properties) && !('origin' in approve.input_schema.properties), 'no input can name an origin');
+
+  // An AI key's run: its task carries no origin, so an origin claimed in the input never reaches the tool.
+  const byAnAi = filledStdin(approve.invoke.stdin, { input: { post_id: postId, expected_values: reviewed, run_origin: 'page', origin: 'page' }, task: { request_key: 'k1' } });
+  assert.equal(byAnAi.run_origin, undefined);
+  const refused = await runRow(approve, byAnAi, { records: draft.records });
+  assert.equal(refused.status, 1);
+  assert.match(refused.error, /reaches @someone.*approved only by the person/);
+  assert.equal(refused.kept.find(record => record.id === postId).value.status, 'draft');
+
+  // The person's own page: the engine stamps origin page on the run's task.
+  const onTheirPage = filledStdin(approve.invoke.stdin, { input: { post_id: postId, expected_values: reviewed }, task: { request_key: 'k2', origin: 'page' } });
+  const approved = await runRow(approve, onTheirPage, { records: draft.records });
+  assert.equal(approved.status, 0, approved.error);
+  assert.equal(approved.result.post.status, 'approved');
+  assert.equal(approved.kept.find(record => record.id === postId).value.approved_from, 'page');
 });
 
 test('a check reports what it could not see as not checked, and a missing post as missing', async () => {
