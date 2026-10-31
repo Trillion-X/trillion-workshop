@@ -1,0 +1,4 @@
+{"weeks": [
+ {"id": "W1", "chores": [{"id": "W1.1", "chore": "Water on the schedule"}, {"id": "W1.2", "chore": "Pull weeds"}]},
+ {"id": "W2", "chores": [{"id": "W2.1", "chore": "Check for slugs"}]}
+]}

@@ -1,0 +1,66 @@
+{
+ "about": "The schema of a made-up greenhouse library, for the tests of keep-a-record-library-valid.",
+ "lock": "data/.library.lock",
+ "pools": {
+  "questions": {"file": "data/questions.json", "path": "questions", "id": "id"},
+  "groups": {"file": "data/care-plans.json", "path": "groups", "id": "id"},
+  "profiles": {"file": "data/care-plans.json", "path": "profiles", "id": "id"},
+  "seasons": {"file": "data/seasons.json", "path": "seasons", "id": "id"},
+  "crops": {"file": "data/crops.json", "path": "crops", "id": "id"},
+  "cards": {"file": "data/crop-cards.json", "path": "cards", "id": "id"},
+  "chores": {"file": "data/chore-list.json", "path": "weeks[].chores", "id": "id"},
+  "findings": {"file": "data/findings.json", "path": "", "id": "id"}
+ },
+ "checks": [
+  {"name": "question_ids_unique", "kind": "ids-unique", "pool": "questions"},
+  {"name": "question_count_matches", "kind": "count-equals", "pool": "questions", "count_in": {"file": "data/questions.json", "path": "count"}},
+  {"name": "crop_count_matches", "kind": "count-equals", "pool": "crops", "count_in": {"file": "data/crops.json", "path": "count"}},
+  {"name": "group_question_ids_resolve", "kind": "references", "from": {"pool": "groups", "field": "questions", "many": true}, "into": ["questions"]},
+  {"name": "group_season_ids_resolve", "kind": "references", "from": {"pool": "groups", "field": "season_id"}, "into": ["seasons"]},
+  {"name": "profile_group_ids_resolve", "kind": "references", "from": {"pool": "profiles", "field": "groups", "many": true}, "into": ["groups"]},
+  {"name": "profile_question_ids_match_groups", "kind": "list-equals-joined", "pool": "profiles", "list": "question_ids", "via": "groups", "through": {"pool": "groups", "list": "questions"}, "count": "selected_questions"},
+  {"name": "same_as_resolves", "kind": "references", "from": {"pool": "questions", "field": "same_as", "only_if_set": true}, "into": ["chores", "questions"], "report": "owners"},
+  {"name": "same_as_not_chained", "kind": "not-chained", "pool": "questions", "field": "same_as"},
+  {"name": "chore_table_matches_same_as", "kind": "text-table-matches-field", "doc": "notes/guide.md", "heading": "## Answered by chores", "row": "^\\| (W\\d+\\.\\d+) \\| (.+?) \\|$", "ids_in_cell": "\\b\\d{3}\\b", "id_prefix": "QN-", "pool": "questions", "field": "same_as", "keys_in": ["chores"]},
+  {"name": "routes_use_known_tags", "kind": "routes-known", "pool": "questions", "field": "routes", "default": "all", "prefixes": ["shade:"], "known": ["all", "outdoor", "indoor", "herb", "root"]},
+  {"name": "card_crop_ids_resolve", "kind": "references", "from": {"pool": "cards", "field": "crop_id"}, "into": ["crops"]},
+  {"name": "card_season_ids_resolve", "kind": "references", "from": {"pool": "cards", "field": "season_id"}, "into": ["seasons"]},
+  {"name": "ids_named_in_notes_resolve", "kind": "ids-named-in-text", "globs": ["notes/*.md"], "pattern": "\\b(QN-\\d{3}|CD-\\d{3}|SN-\\d{2}|CR-\\d{3})\\b", "into": ["questions", "cards", "seasons", "crops"]},
+  {"name": "investigation_ids_resolve", "kind": "investigation-records", "report": "ids"},
+  {"name": "investigation_evidence_shape", "kind": "investigation-records", "report": "shape"},
+  {"name": "findings_ids_unique", "kind": "ids-unique", "pool": "findings"}
+ ],
+ "tables": [
+  {"name": "readings", "globs": ["beds/*/*/readings.tsv"], "vocabulary": "data/shade-vocabulary.json", "extra_columns": {"day": "number", "note": "free_text"}}
+ ],
+ "derived": [
+  {"name": "crop_count_current", "report_as": "stale_derived_files", "command": ["{python}", "-I", "{root}/scripts/crop_count_is_current.py", "{root}"]},
+  {"name": "no_such_file_check", "only_if_exists": "scripts/never-written.py", "command": ["{python}", "{root}/scripts/never-written.py"]}
+ ],
+ "scope": "Structural checks only: references, vocabulary and freshness.",
+ "investigation": {
+  "pools": {"questions": "questions", "profiles": "profiles", "groups": "groups", "checks": "chores", "findings": "findings"},
+  "piece_globs": ["beds/*/investigation.json", "beds/*/*/investigation.json"],
+  "scope_node": {"id": "orient", "question": "Read the bed header and list the files that exist.", "verify_by": "the header file and the listing", "stage": "scope", "group": "orient", "tools": ["ls"]},
+  "selection": {
+   "default_limit": 6,
+   "rule": "The profile's groups in profile order; drop a question that has same_as, whose routes are false for the header, or whose stage the target kind skips; then take one question per group in turn until the limit.",
+   "skip_stages_by_target_kind": {"own": ["orchard-only"], "orchard": []}
+  },
+  "prerequisites": {"rule": "Every question depends on the scope node. A question in a closing stage also depends on every selected question outside the closing stages.", "closing_stages": ["review"]},
+  "target_kinds": {"default": "own", "rules": [{"kind": "orchard", "under": "beds/old-orchard"}]},
+  "piece_header": {"file": "NOTES.md", "heading": "Bed header", "tag_fields": ["kind", "place", "shape", "extras"], "implied_tags": {"raised": ["outdoor"], "shade:*": ["shade"]}},
+  "statuses": ["open", "asked", "executed", "adapted", "not-applicable"],
+  "done_statuses": ["executed", "adapted", "not-applicable"],
+  "claim_labels": ["Seen", "Guessed"],
+  "authority": "Reading the bed's files only. Nothing is planted, picked or bought.",
+  "finding_id_prefix": "FN-",
+  "finding_kinds": {
+   "tip": {
+    "required": ["what_helped", "why"],
+    "match": {"pool": "crops", "field": "crop", "found": "known crop {id}: add this bed to its notes", "missing": "new crop: add it to data/crops.json and raise its count"}
+   },
+   "mistake": {"required": ["assumed", "saw", "cause", "rule"]}
+  }
+ }
+}
