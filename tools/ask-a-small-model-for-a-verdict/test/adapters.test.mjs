@@ -8,6 +8,7 @@ import {tmpdir} from 'node:os'
 import {candidates as hostedCandidates, ask as askHosted} from '../do-work/ask-a-hosted-classifier.mjs'
 import {classifiersFrom, providersIn, whoCanBeAsked} from '../do-work/who-can-be-asked.mjs'
 import {VerdictRefused} from '../do-work/ask-for-a-verdict.mjs'
+import {candidates as localCandidates, ask as askLocal} from '../do-work/ask-a-locally-served-model.mjs'
 
 const keyFile = contents => {
   const path = join(mkdtempSync(join(tmpdir(), 'key-')), 'key.txt')
@@ -63,11 +64,13 @@ test('a row with no address, time limit or sample count is refused naming the fi
   needs({via: 'locally-served', endpoint: 'http://x'}, 'timeout_seconds')
   needs({via: 'locally-served', endpoint: 'http://x', timeout_seconds: '3'}, 'timeout_seconds')
   needs({via: 'locally-served', endpoint: 'http://x', timeout_seconds: 0}, 'timeout_seconds')
+  needs({via: 'locally-served', endpoint: 'http://x', timeout_seconds: 3}, 'protocol')
+  needs({via: 'locally-served', endpoint: 'http://x', timeout_seconds: 3, protocol: 'made-up'}, 'protocol')
   needs({via: 'hosted-classifier', model: 'm', samples: 2}, 'endpoint')
   needs({via: 'hosted-classifier', endpoint: 'https://x', samples: 2}, 'model')
   needs({via: 'hosted-classifier', endpoint: 'https://x', model: 'm'}, 'samples')
   needs({via: 'hosted-classifier', endpoint: 'https://x', model: 'm', samples: 0}, 'samples')
-  const whole = {via: 'locally-served', endpoint: 'http://x', timeout_seconds: 3}
+  const whole = {via: 'locally-served', endpoint: 'http://x', timeout_seconds: 3, protocol: 'ollama'}
   assert.deepEqual(providersIn({ask_in_order: [whole]}), [whole])
 })
 
@@ -88,4 +91,32 @@ test('the one ask sends each question to the adapter that offered the candidate,
   const {candidates, ask} = await classifiersFrom({ask_in_order: [{via: 'hosted-classifier', ...row, needs_no_key: true, samples: 1}]})
   assert.equal(candidates.length, 1)
   assert.throws(() => ask({candidate: {name: 'someone-else'}}), VerdictRefused)
+})
+
+test('an openai-chat server offers only the models its row names, because it loads any model it is asked for', async () => {
+  let listed
+  const row = {endpoint: 'http://synthetic.test', timeout_seconds: 5, protocol: 'openai-chat', models: ['resident-model']}
+  const offered = await localCandidates(row, async url => {
+    listed = url
+    return {data: [{id: 'other-model'}, {id: 'resident-model'}]}
+  })
+  assert.equal(listed, 'http://synthetic.test/v1/models')
+  assert.deepEqual(offered.map(one => one.name), ['resident-model'])
+  await assert.rejects(localCandidates({...row, models: undefined}, async () => ({data: []})), /names the models to ask/)
+})
+
+test('an openai-chat server is asked at its chat-completions path, without a schema, and read from its first choice', async () => {
+  let path, sent
+  const reply = await askLocal({
+    candidate: {name: 'resident-model', reach: {endpoint: 'http://synthetic.test', timeoutSeconds: 5, protocol: 'openai-chat'}},
+    question: 'Is the sample finished?', shape: {kind: 'true-or-false'}, content: 'Sample text.',
+  }, async (url, request) => {
+    path = url
+    sent = JSON.parse(request.body)
+    return {json: async () => ({choices: [{message: {content: 'Sure: {"answer": false}'}}]})}
+  })
+  assert.equal(path, 'http://synthetic.test/v1/chat/completions')
+  assert.equal(sent.format, undefined)
+  assert.match(sent.messages[0].content, /Answer with JSON/)
+  assert.deepEqual(reply, {answer: false, confidence: null, distribution: null})
 })

@@ -17,6 +17,10 @@
 // shape in words and the JSON schema the answer must fit. A caller with a kind of
 // its own adds a row; a row may also carry its own `request` (the body to post)
 // and `readReply` (the answer out of the server's reply).
+//
+// PROTOCOLS is the one table of how a model server is spoken to, named by the
+// provider row's `protocol`: where it lists its models, where it chats, whether it
+// takes the answer's schema, and where its reply keeps the text.
 
 /** Answer kinds: the words that ask for the shape, and the schema the answer must fit. */
 export const KINDS = {
@@ -38,6 +42,38 @@ export const KINDS = {
       shape.levels.map((one, index) => `- ${index}: ${typeof one === 'string' ? one : `${one.name}: ${one.description ?? ''}`}`).join('\n'),
     answer: shape => ({type: 'number', minimum: 0, maximum: shape.levels.length - 1}),
   },
+}
+
+/** How each kind of model server is asked. */
+export const PROTOCOLS = {
+  // Ollama: models with their size, digest and capabilities; chat takes the schema as `format`.
+  ollama: {
+    inventory: '/api/tags',
+    models: served => (served?.models ?? []).map(model => ({name: model.name, size: model.size, digest: model.digest,
+      capabilities: model.capabilities})),
+    chat: '/api/chat',
+    body: ({model, system, content, schema}) => ({model, stream: false, format: schema,
+      messages: [{role: 'system', content: system}, {role: 'user', content}]}),
+    text: body => body?.message?.content,
+  },
+  // An OpenAI chat-completions server (mlx_lm.server). It lists every model it could
+  // load, so the row names the ones to ask (`models`); it takes no schema, so the
+  // shape is asked for in words only, as the kind's instruction already does.
+  'openai-chat': {
+    needsNamedModels: true,
+    inventory: '/v1/models',
+    models: served => (served?.data ?? []).map(model => ({name: model.id})),
+    chat: '/v1/chat/completions',
+    body: ({model, system, content}) => ({model, stream: false, temperature: 0,
+      messages: [{role: 'system', content: system}, {role: 'user', content}]}),
+    text: body => body?.choices?.[0]?.message?.content,
+  },
+}
+
+function protocolOf(name) {
+  const protocol = PROTOCOLS[name]
+  if (!protocol) throw new Error(`unsupported model server protocol: ${name} (${Object.keys(PROTOCOLS).join(', ')})`)
+  return protocol
 }
 
 function kindOf(shape) {
@@ -74,18 +110,24 @@ export async function candidates(settings, read = null) {
   const timeoutSeconds = Number(settings.timeout_seconds)
   if (!Number.isFinite(timeoutSeconds) || timeoutSeconds <= 0 || timeoutSeconds > 60)
     throw new Error('local inventory needs a finite timeout greater than zero and at most 60 seconds')
+  const protocol = protocolOf(settings.protocol)
   const readJson = read ?? (url => fetch(url, {
     signal: AbortSignal.timeout(Math.max(1, Math.ceil(timeoutSeconds * 1000))), redirect: 'error',
   }).then(reply => { if (!reply.ok) throw new Error('inventory unavailable'); return reply.json() }))
   // The reading limit is a fact about the model the person chose, declared on
   // the row; content longer than it is refused, never cut.
   const acceptsCharacters = Number(settings.accepts_characters) > 0 ? {accepts_characters: Number(settings.accepts_characters)} : {}
-  const served = await readJson(`${endpoint}/api/tags`)
+  const served = protocol.models(await readJson(`${endpoint}${protocol.inventory}`))
+  // A server that would load whatever it is asked for is limited to the models the row names.
+  if (protocol.needsNamedModels && !(Array.isArray(settings.models) && settings.models.length > 0))
+    throw new Error(`a ${settings.protocol} row names the models to ask (models): its server loads any model it is asked for`)
+  const named = Array.isArray(settings.models) ? new Set(settings.models) : null
   // Only models that can do what a judge does. An embedding model was offered
   // as a judge, could never answer, and was re-asked on every calibration. What
   // a model can do is what the server says about it, never its name.
   const needs = settings?.needs_capability ?? 'completion'
-  return (served?.models ?? [])
+  return served
+    .filter(model => named === null || named.has(model.name))
     // A server that does not describe capabilities keeps every model.
     .filter(model => !Array.isArray(model.capabilities) || model.capabilities.includes(needs))
     // A model too large to stay loaded and answer inside the few seconds a caller may allow
@@ -96,7 +138,7 @@ export async function candidates(settings, read = null) {
     .sort((left, right) => (left.size ?? 0) - (right.size ?? 0))
     // The digest says which build answers to this name, so a re-pulled model is measured again.
     .map(model => ({name: model.name, size: model.size ?? 0, ...acceptsCharacters,
-      ...(model.digest ? {identity: model.digest} : {}), reach: {endpoint, timeoutSeconds}}))
+      ...(model.digest ? {identity: model.digest} : {}), reach: {endpoint, timeoutSeconds, protocol: settings.protocol}}))
 }
 
 export async function ask({candidate, question, shape, content, content_parts = []}, post = fetch) {
@@ -108,24 +150,19 @@ export async function ask({candidate, question, shape, content, content_parts = 
   }
   const kind = kindOf(shape)
   const {endpoint, timeoutSeconds} = candidate.reach
-  const reply = await post(`${endpoint}/api/chat`, {
+  const protocol = protocolOf(candidate.reach.protocol)
+  const reply = await post(`${endpoint}${protocol.chat}`, {
     method: 'POST', redirect: 'error',
     signal: AbortSignal.timeout(timeoutSeconds * 1000),
     headers: {'content-type': 'application/json'},
-    body: kind.request ? kind.request({content, model: candidate.name, question, shape}) : JSON.stringify({
-      model: candidate.name,
-      stream: false,
-      // Asked for rather than assumed: a model left to its own devices will
-      // narrate, and the narration is what breaks the read.
-      format: answerSchema(shape),
-      messages: [
-        {role: 'system', content: `${question}\n\n${kind.instruction(shape)}`},
-        {role: 'user', content},
-      ],
-    }),
+    // The schema is asked for where the server takes one, rather than assumed: a
+    // model left to its own devices will narrate, and the narration is what breaks the read.
+    body: kind.request ? kind.request({content, model: candidate.name, question, shape}) : JSON.stringify(protocol.body({
+      model: candidate.name, system: `${question}\n\n${kind.instruction(shape)}`, content, schema: answerSchema(shape),
+    })),
   })
   if (kind.readReply) return kind.readReply(reply)
   const body = await reply.json()
-  const read = readAnswer(body?.message?.content)
+  const read = readAnswer(protocol.text(body))
   return read === null ? null : {answer: read.answer, confidence: null, distribution: null}
 }

@@ -67,10 +67,10 @@ test('only models the server says can complete text are offered as judges', asyn
     {name: 'too-big', size: 30, capabilities: ['completion']},
     {name: 'undescribed', size: 3},
   ]}
-  const offered = await localCandidates({endpoint: 'http://x', timeout_seconds: 7, most_bytes: 10}, async () => served)
+  const offered = await localCandidates({endpoint: 'http://x', timeout_seconds: 7, protocol: 'ollama', most_bytes: 10}, async () => served)
   assert.deepEqual(offered.map(one => one.name), ['a-chat-model', 'undescribed'])
-  assert.deepEqual(offered[0].reach, {endpoint: 'http://x', timeoutSeconds: 7})
+  assert.deepEqual(offered[0].reach, {endpoint: 'http://x', timeoutSeconds: 7, protocol: 'ollama'})
   assert.ok(offered.every(one => one.accepts_characters === undefined))
-  const limited = await localCandidates({endpoint: 'http://x', timeout_seconds: 7, accepts_characters: 400}, async () => served)
+  const limited = await localCandidates({endpoint: 'http://x', timeout_seconds: 7, protocol: 'ollama', accepts_characters: 400}, async () => served)
   assert.ok(limited.every(one => one.accepts_characters === 400))
 })
