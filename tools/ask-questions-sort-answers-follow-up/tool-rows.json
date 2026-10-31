@@ -1,7 +1,7 @@
 {
  "kind": "tool-rows",
  "record_set": "ask-questions-sort-answers-follow-up-tool-rows",
- "what_this_is": "The Workshop rows for the tools in tools/ask-questions-sort-answers-follow-up: what each tool does, what it takes and gives back, and how it runs.",
+ "what_this_is": "The Workshop rows for the tools in tools/ask-questions-sort-answers-follow-up: make quiz questions, check a form's answers, score answers into a segment (listed from records.json), and keep forms, answers and decisions as the person's own records through the records door.",
  "records": [
   {
    "id": "package::ai-tool-catalog::tool-row-source::business-question-tools",
@@ -138,6 +138,692 @@
       }
      }
     }
+   }
+  },
+  {
+   "id": "package::ask-questions-sort-answers-follow-up::tool::save-a-form",
+   "address": "package::ask-questions-sort-answers-follow-up::tool::save-a-form",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:ask-questions-sort-answers-follow-up",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "id": "tool:save-a-form",
+    "label": "Save a form",
+    "job": "Keep a form, a list of questions people answer, as one of the person's own records so it can be asked and its answers checked",
+    "description": "Give a form_id, an optional title and presentation, and the questions. Each question needs a questionId and a questionTypeId (a row in the question-type list: text, long text, number, rating, choice, a reference to a file) and may carry a label, required, options, its own validation rules laid over its type's, and an afterSaved hand-off naming an owner and an action. Saving the same form_id again replaces it. Returns the record id and how many questions were kept.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "form_id",
+      "questions"
+     ],
+     "properties": {
+      "form_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The form's name, kept in the record id"
+      },
+      "title": {
+       "type": "string",
+       "description": "The form's title (default: the form_id)"
+      },
+      "presentation": {
+       "type": "object",
+       "description": "How the form is shown: a mode and the words of its Back, Next and Submit buttons"
+      },
+      "questions": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "questionId",
+         "questionTypeId"
+        ]
+       },
+       "description": "The questions, in order"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "saved",
+      "form_id",
+      "record_id",
+      "question_count"
+     ],
+     "properties": {
+      "saved": {
+       "type": "boolean"
+      },
+      "form_id": {
+       "type": "string"
+      },
+      "record_id": {
+       "type": "string"
+      },
+      "question_count": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/ask-questions-sort-answers-follow-up",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/ask-questions-sort-answers-follow-up/do-work/forms-on-the-records-door.mjs",
+      "saveForm"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "question-sequence",
+        "operations": [
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::ask-questions-sort-answers-follow-up::tool::submit-form-answers",
+   "address": "package::ask-questions-sort-answers-follow-up::tool::submit-form-answers",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:ask-questions-sort-answers-follow-up",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "id": "tool:submit-form-answers",
+    "label": "Submit answers to a form",
+    "job": "Check a person's answers against a saved form and, when they are all valid, record them with the score and segment they earn and any follow-up the form hands to its owner",
+    "description": "Give form_id, respondent_id and answers (questionId to value), and optionally submission_id (for a form answered again and again, so each time is kept) and answered_at. The answers are checked against the saved form as check-form-answers does. If any is invalid nothing is written and the first to fix is returned. Otherwise one write keeps an answer fact for each answer the form asks about, one segment assignment (the score rows and segment rows that apply to this form pick the segment; the segment's follow-up sequence is returned), and one request record for each question whose afterSaved names an owner and action, with the answers filled into its input.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "form_id",
+      "respondent_id",
+      "answers"
+     ],
+     "properties": {
+      "form_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The saved form to answer"
+      },
+      "respondent_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "Who is answering; answers of one respondent group together"
+      },
+      "answers": {
+       "type": "object",
+       "description": "Each question's answer, keyed by questionId"
+      },
+      "submission_id": {
+       "type": "string",
+       "description": "Names this time of answering, so a repeated form keeps every time"
+      },
+      "answered_at": {
+       "type": "string",
+       "format": "date-time",
+       "description": "When they answered (default: now)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "accepted"
+     ],
+     "properties": {
+      "accepted": {
+       "type": "boolean"
+      },
+      "first_invalid": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "questions": {
+       "type": "array"
+      },
+      "decision": {
+       "type": "object"
+      },
+      "follow_up": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "written": {
+       "type": "integer"
+      },
+      "action_requests": {
+       "type": "array"
+      },
+      "ignored": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/ask-questions-sort-answers-follow-up",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/ask-questions-sort-answers-follow-up/do-work/forms-on-the-records-door.mjs",
+      "submitFormAnswers"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "question-sequence",
+        "prefix": "question-sequence:",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "score-rule",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "segment-rule",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "follow-up-sequence",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "answer-fact",
+        "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "segment-assignment",
+        "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "owner-action-request",
+        "operations": [
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::ask-questions-sort-answers-follow-up::tool::read-form-results",
+   "address": "package::ask-questions-sort-answers-follow-up::tool::read-form-results",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:ask-questions-sort-answers-follow-up",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "id": "tool:read-form-results",
+    "label": "Form results",
+    "job": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment",
+    "description": "Give a form_id to see one form, or nothing to see every form. Returns rows (respondentId, formId, segmentId, score, decidedAt), newest decision first, and a summary with the total and a count per segment. A person with no decisions yet gets an empty list, never an invented one.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "form_id": {
+       "type": "string",
+       "description": "Only this form"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "rows",
+      "summary"
+     ],
+     "properties": {
+      "rows": {
+       "type": "array"
+      },
+      "summary": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/ask-questions-sort-answers-follow-up",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/ask-questions-sort-answers-follow-up/do-work/forms-on-the-records-door.mjs",
+      "readFormResults"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "segment-assignment",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "output_selector": "$.summary.total",
+      "contains": "0"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::ask-questions-sort-answers-follow-up::tool::read-answer-progress",
+   "address": "package::ask-questions-sort-answers-follow-up::tool::read-answer-progress",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:ask-questions-sort-answers-follow-up",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "id": "tool:read-answer-progress",
+    "label": "Answers over time",
+    "job": "Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer",
+    "description": "Give form_id, respondent_id and field_map (the name you want for each answer, to its questionId), and optionally trend_field (which mapped answer to chart; default the first that is numeric). Returns one row per time answered, oldest first, with the mapped answers and when; the numeric series for the trend; the latest row; and the count. A person who has not answered gets no rows.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "form_id",
+      "respondent_id",
+      "field_map"
+     ],
+     "properties": {
+      "form_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The form"
+      },
+      "respondent_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The person whose answers to read"
+      },
+      "field_map": {
+       "type": "object",
+       "description": "Output field name to questionId"
+      },
+      "trend_field": {
+       "type": "string",
+       "description": "Which output field to chart"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "rows",
+      "trend",
+      "latest",
+      "count"
+     ],
+     "properties": {
+      "rows": {
+       "type": "array"
+      },
+      "trend": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "latest": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "count": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/ask-questions-sort-answers-follow-up",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/ask-questions-sort-answers-follow-up/do-work/forms-on-the-records-door.mjs",
+      "readAnswerProgress"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "answer-fact",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::ask-questions-sort-answers-follow-up::tool::read-latest-answers-as-lines",
+   "address": "package::ask-questions-sort-answers-follow-up::tool::read-latest-answers-as-lines",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:ask-questions-sort-answers-follow-up",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "id": "tool:read-latest-answers-as-lines",
+    "label": "Latest answers as lines",
+    "job": "Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary",
+    "description": "Give form_id and optionally respondent_id. Returns lines: the most recent time the form was answered, one \"Question: answer\" line per non-empty answer (the bare answer when the question's label is not known).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "form_id"
+     ],
+     "properties": {
+      "form_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The form"
+      },
+      "respondent_id": {
+       "type": "string",
+       "description": "Only this person's answers"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "lines"
+     ],
+     "properties": {
+      "lines": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       }
+      ]
+     },
+     "workdir": "/opt/ask-questions-sort-answers-follow-up",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/ask-questions-sort-answers-follow-up/do-work/forms-on-the-records-door.mjs",
+      "readAnswerLines"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "answer-fact",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "question-sequence",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
+    },
+    "result_selector": "$.result"
    }
   }
  ]

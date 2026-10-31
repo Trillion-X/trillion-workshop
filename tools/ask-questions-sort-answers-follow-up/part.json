@@ -1,3 +1,10 @@
 {
-  "public": []
+  "public": [
+    "do-work/check-answers.mjs",
+    "read-data/validate-answer.ts",
+    "read-data/question-descriptor.ts",
+    "read-data/fill-screen-model.ts",
+    "read-data/read-forms-data.ts",
+    "read-data/record-rows.ts"
+  ]
 }
