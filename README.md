@@ -21,6 +21,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 
 | Folder | What it does | Tools |
 |---|---|---|
+| `ask-a-small-model-for-a-verdict` | Asks a small model a yes/no, which-of-a-list or how-much question about some text and trusts the answer only after it got the person's known cases right; picks which of their places holds an answer, scores the models on offer, measures a confidence line, turns a wrong verdict into a known case, recognises a repeat, answers typed questions about a state | `tool:ask-a-small-model-for-a-verdict`, `tool:route-to-the-owner-that-answers`, `tool:see-which-models-can-judge`, `tool:get-the-judges-ready`, `tool:find-where-the-line-should-go`, `tool:tell-it-when-it-was-wrong`, `tool:recognise-a-repeat`, `tool:answer-questions-about-a-state` |
 | `ask-questions-sort-answers-follow-up` | Makes quiz questions from text, checks answers against a form, scores answers and picks a segment | `tool:make-quiz-questions`, `tool:check-form-answers`, `tool:score-answers-and-pick-segment` |
 | `browse-public-page` | Reads a public web page (its title, words, links and card) and reads one link into a card; the engine keeps both to public sites | `tool:read-public-web-page`, `tool:read-a-link` |
 | `content-identity` | A library: the one BLAKE3 identity of exact bytes (`1f:` + 64 hex), whole or in chunks | (none: packed by `where-a-person-stands` and `media-composition`) |
