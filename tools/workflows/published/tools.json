@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:997e918835799034fdc03bfc0ef54a3ce424794cc23836e0c5db31793367083a"
+  "blake3": "1f:a4be0f6cd3df3dadd1303191e639d4e385373e3f22d642d2787b55633602ae3f"
  },
  "fields": [
   {
@@ -2798,6 +2798,22 @@
    }
   },
   {
+   "id": "tool:map-an-apps-screens-and-controls",
+   "values": {
+    "title": "Map an app's screens and controls",
+    "job": "Find the screens of my app and what a person can do on each, so journeys can be written to check it",
+    "description": "Opens the app at app_url in a headless Chromium on the person's own computer and follows its links within the same origin, at most most_screens screens (20 at most). For each screen: its address, title, headings, the same-origin links, every visible control with its role and accessible name, the actions it offers as `do` objects ready to paste into a journey for tool:walk-through-an-app-like-its-users, a picture, and the console errors and failed requests seen while it loaded. not_opened lists links that were found but not opened.",
+    "status": "active",
+    "maker": "maker:walk-through-an-app-like-its-users",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer",
+     "placement:caller-sandbox"
+    ],
+    "folder": "walk-through-an-app-like-its-users"
+   }
+  },
+  {
    "id": "tool:map-who-is-connected",
    "values": {
     "title": "Map who is connected to whom",
@@ -3321,6 +3337,21 @@
    }
   },
   {
+   "id": "tool:practice",
+   "values": {
+    "title": "Keep cards to practise and bring them back on schedule",
+    "job": "Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known",
+    "description": "Operation add keeps a card { prompt, answer, why?, deck?, source_ref? } (adding the same prompt in a deck again keeps its progress and refreshes the answer and why). due { deck?, limit? } lists the cards due now. grade { card_id, grade } records one recall and answers when the card is due next, whether it lapsed and its mastery (0 to 1000, when the policy names how many days count as fully learned). cards { deck? } lists every card with where it stands. remove { card_id } stops a card coming back. remind answers how many are due and a sentence, so a wake or a workflow can tell the person; it sends nothing. Cards and grades are the person's own records; a due time is folded from the grades each time and never stored. The spacing policy (starting ease, the first two gaps, the lapse quality, the grade words and their quality) is the person's record of type record:practice-policy, or comes with the request as policy; there is no default. Ask the person the prompt, let them answer in their own words, then grade it.",
+    "status": "active",
+    "maker": "maker:practice-and-review",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "practice-and-review"
+   }
+  },
+  {
    "id": "tool:prepare-a-match-plan",
    "values": {
     "title": "Prepare the notes a match plan is made from, and record the plan",
@@ -3700,9 +3731,9 @@
   {
    "id": "tool:read-a-list-view",
    "values": {
-    "title": "Read a page of one of my lists or saved views",
-    "job": "Read one page of what one of my lists shows, its own rows and then the rows of each row source it declares (a folder of documents, for one), or what a saved view of it keeps, in its order",
-    "description": "Reads the list (or the saved view and its list) through the person's door. Its own rows come first, then each row source's rows, each source read by running the tool that serves it (read-data/list-view.json), so nothing is copied. A page holds `limit` rows (the lists' read_page_rows when left out, never more than rows_per_read) and answers `next` while more remain. A view with rules keeps the rows the person's rule-filter tool says its rules keep, ordered by its sort. A list with more row sources than its bound, a source no tool serves, or a source that answers no rows is refused, never shown as empty.",
+    "title": "Read a page of one of my lists or saved views, or refresh its row sources",
+    "job": "Read one page of what one of my lists or saved views shows, from my records, or refresh a list's row sources (a folder of documents, for one) into its records",
+    "description": "Reads the list (or the saved view and its list) through the person's door, from records only: the list's rows are the records of its row type, and each row source's rows are among them, written there by the last refresh (row id <source>~<its id>), so a read runs no tool. A page holds `limit` rows (read_page_rows when left out, never more than rows_per_read) and answers `next` while more remain. A view with rules keeps the rows its rules keep, decided in the same process by the rule filter of tools/formulas, ordered by its sort. With `refresh` it runs the tool each row source names (read-data/list-view.json), reads the whole source, and writes its rows as the list's records: only the rows that changed, removing the rows the source no longer has, in bounded writes. A source with more than rows_per_read rows, a source no tool serves, or a source that answers no rows is refused and nothing of it is written.",
     "status": "active",
     "maker": "maker:read-a-list-view",
     "licence_class": "licence:maker-own",
@@ -4171,6 +4202,22 @@
      "placement:deployed-container"
     ],
     "folder": "calendar"
+   }
+  },
+  {
+   "id": "tool:read-what-a-running-app-shows",
+   "values": {
+    "title": "Read what a running app really shows",
+    "job": "Drive my running app through some steps and report what is actually on the screen after each: which controls exist, what a click would land on, errors, timing",
+    "description": "Opens the app at app_url in a headless Chromium on the person's own computer, does each step's `do` (the same actions as a walk: goto, click, fill, press, upload, wait, on a control named by role and name), then reads what the page holds as the step's `observe` asks: `elements` (for each match of a selector: its box, cursor, stacking, opacity, whether it is disabled, what a pointer aimed at its own centre would land on, and `pointer_is_self`, which tells a control that is missing from one a layer covers), `count`, `attributes` (named attributes and the form value), `text`, `global_path` (whether a dotted name exists on the page and its kind) and `media_ready` (milliseconds until a video or audio can play). It asserts nothing and fails nothing: a step that cannot complete comes back with `completed: false` and `blocked_by`, its readings are still taken, and the run goes on. The page is never intercepted or stubbed; requests reach the real server. Page errors and failed requests are listed. Use tool:walk-through-an-app-like-its-users to check that people can do what they came for, with expectations and a verdict; use this to see why something is not working.",
+    "status": "active",
+    "maker": "maker:walk-through-an-app-like-its-users",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer",
+     "placement:caller-sandbox"
+    ],
+    "folder": "walk-through-an-app-like-its-users"
    }
   },
   {
@@ -5872,6 +5919,22 @@
      "placement:deployed-container"
     ],
     "folder": "funnels-and-offers"
+   }
+  },
+  {
+   "id": "tool:walk-through-an-app-like-its-users",
+   "values": {
+    "title": "Walk through an app like its users",
+    "job": "Check that people can still do what they come to my app for after a change: walk each journey in a real browser, keep pictures, a log and a video, and tell my coding agent exactly what to fix, then check the fix",
+    "description": "Opens the app at app_url in a headless Chromium on the person's own computer (so it reaches local, VPN and Tailscale addresses the computer reaches) and walks each journey in a browser context of its own. A journey is DATA: { id, goal, expect_every_step?, steps: [{ id, intent, do?, expect? }] }. `do` is one action a person takes: goto { url }, click { target }, fill { target, value }, press { key }, upload { target, files } (files relative to fixtures_folder) or wait { ms }; a target names a control as a person sees it: { role, name } or { role, name_contains }, with nth when several match. `expect` lists what must then be true: text_visible, text_absent, url_contains, title_contains { text }; control_present, control_absent { target }; field_value { target, equals }; checked { target, equals }; no_console_errors; no_failed_requests. A step with no `do` (or a learned action whose control has gone) stops as needs_decision with the actions the page offers, as `do` objects to copy back; the AI chooses one and runs again with it in `learned` or in the journey. Answers the report: verdict, each step with its pictures (the touched control boxed and numbered), console errors and failed requests, `fixes` (for each failed step: what was expected, what was there, the steps that reproduce it and the evidence), `decisions_needed`, `learned` (the actions that passed, to replay next time) and, given previous_report, `compared_with_previous` (fixed, still_failing, newly_failing, still_passing, now_passing). Every run walks every step again; nothing passes because it passed before. Evidence is written under evidence_folder (or a new folder in the computer's temporary folder) and report_file names the saved report.",
+    "status": "active",
+    "maker": "maker:walk-through-an-app-like-its-users",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer",
+     "placement:caller-sandbox"
+    ],
+    "folder": "walk-through-an-app-like-its-users"
    }
   },
   {
