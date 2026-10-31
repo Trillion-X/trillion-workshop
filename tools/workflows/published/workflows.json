@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "d06730f4cdc20dda155799c3d5719d8c750ab966ddcdba4c82c1613bb6cc959f"
+  "blake3": "d16e0163f938b854b08e47c66fccc0a6931a54f55ce23cd45e14de5388fee701"
  },
  "fields": [
   {
@@ -573,7 +573,7 @@
     "input_schema": "{\"type\":\"object\",\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":10,\"description\":\"What you are deciding, designing or building, in plain words\"}}}",
     "job": "Walk any decision, plan or claim through the method's hardest questions: attack every claim and say how each source found it out, hear every voice and name the least obvious insights, find unexplored ground that fits the person, pick the move with the most result for its time, money and attention (hiring included), let what the pursuit already makes pay for it, have the next need ready before it is asked, and show the result where the person already is.",
     "recipe": "workflow:method-hold-to-the-hardest-test",
-    "source": "{\"from\":\"a decision method\",\"note\":\"Names tools that no tool in the Workshop offers yet: tool:run-price-experiments, tool:who-does-each-step.\"}",
+    "source": "{\"from\":\"a decision method\",\"note\":\"Names a tool that no tool in the Workshop offers yet: tool:who-does-each-step.\"}",
     "title": "Hold any plan to the hardest test"
    }
   },
@@ -855,7 +855,7 @@
     "input_schema": "{\"type\":\"object\",\"properties\":{\"pursuit_id\":{\"type\":\"string\",\"description\":\"The pursuit whose byproducts to sell (pursuit:...); the biggest one when left out\"}}}",
     "job": "Find what a pursuit already produces along the way (footage, notes, a method, a tool, a product, a book), pick what people would pay for without bending the pursuit toward whatever sells, offer it, and test several prices so as many people as possible can get in while the money funds the pursuit.",
     "recipe": "workflow:sell-what-the-pursuit-makes",
-    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps. Names tools that no tool in the Workshop offers yet: tool:run-price-experiments.\"}",
+    "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps. Every tool it names is in the Workshop.\"}",
     "title": "Sell what your pursuit already makes"
    }
   },
@@ -910,6 +910,19 @@
     "recipe": "workflow:test-a-finding",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a subject, field or person: a coach's hunch, a customer complaint, a lab result and a philosophy all run the same steps. The list and its columns are data the workflow makes on first run; another list can be named in the input.\"}",
     "title": "Test what you noticed"
+   }
+  },
+  {
+   "id": "test-prices-and-change-a-page-for-each-visitor",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"page\",\"parts\"],\"properties\":{\"page\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The address of the page that changes\"},\"parts\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"part\",\"versions\"],\"properties\":{\"part\":{\"type\":\"string\",\"minLength\":2,\"description\":\"The part of the page that changes, for example the plan card or the headline\"},\"versions\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":1},\"description\":\"The versions of that part: a price, an offer or words. One version is allowed\"}}},\"description\":\"Each part of the page that changes, with its versions\"},\"channels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The places the page is shared, for example a newsletter or an ad account\"},\"known_facts\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"What the person's tracking and enrichment tools record about a visitor that a rule may read, for example company size\"},\"outcomes\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"What counts as a result, for example signed up or paid\"}}}",
+    "job": "Run price tests and A/B tests on a page for as long as the person wants, and change the page per visitor: write each part of the page that changes (a price card, a headline, an offer) as a set of versions with a rule that picks one, make a tracked link for every place the page is shared so each visit says where it came from, show each visitor one version and keep showing them the same one, credit sign-ups and payments to the version each person saw, and every week read which version did best by source. A price test may hold one price; adding a price or a version is adding one row. The person approves every price, every version's words and every change to what visitors see; the AI drafts and counts.",
+    "recipe": "workflow:test-prices-and-change-a-page-for-each-visitor",
+    "source": "{\"from\":\"Workshop tools\",\"name\":\"tools/run-experiments (choose what a visitor sees, read results, credit outcomes) and tools/traffic-attribution (tracked links, visits and sales by source)\",\"note\":\"Built from the tools' own rows. NOT ADOPTED, with the reason: (1) showing two visitors different prices for the same thing at the same moment without saying the price is being tested, where a place's consumer rules forbid it, so the person names the places the test runs in and the page states the price each visitor will be charged before they pay; (2) reading facts about a visitor that the person has no right to, so a rule reads only facts the person's own tracking and enrichment tools recorded, under the trust names the person lists; (3) changing a live price or a live page without the person's yes, so every change is a draft until the person approves it.\"}",
+    "title": "Test prices and change a page for each visitor"
    }
   },
   {
