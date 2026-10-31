@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:9dd58f58d93db69d29c0b13c5fab8085ba0dd2f16ee00d0856a7bb53ae32ba94"
+  "blake3": "1f:137ea89cf3ddea5a305243c385fe82cddc36000d288464b0be2e1f64a7bff3aa"
  },
  "fields": [
   {
@@ -58,6 +58,21 @@
   }
  ],
  "rows": [
+  {
+   "id": "tool:accept-or-pass-on-a-ranked-record",
+   "values": {
+    "title": "Accept or pass on a ranked record",
+    "job": "Turn a person's accept or pass on one suggestion in a review list into the request that keeps it as their stand, in their own words",
+    "description": "Give the same descriptor and the one record, the id of the action the person took (the descriptor says which stance each action keeps: accept is agree, pass is disagree) and what the person said. Returns the request for the keep-where-you-stand tool, with the stand on the row's own view and answered_by person. Writes nothing; run the returned tool with the returned input only (the other fields are for you): skip it if unchanged is true (the stands you gave already say this) or if you have already run this idempotency_ref, since running it twice makes two versions of the stance record. A record the descriptor leaves out, an unknown or disabled action, or a copy rule that sets anything but why, by or at is refused with the reason.",
+    "status": "active",
+    "maker": "maker:rank-records-for-review",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "rank-records-for-review"
+   }
+  },
   {
    "id": "tool:add-a-customer",
    "values": {
@@ -1210,6 +1225,36 @@
    }
   },
   {
+   "id": "tool:expand-a-reply-template",
+   "values": {
+    "title": "Expand a canned reply template",
+    "job": "Fill a canned reply template with the details of a request, such as a name or a button label, and give back the finished reply",
+    "description": "Give a template (any JSON in which a value to fill is written as {\"$kind\":\"binding\",\"select\":{\"from\":\"dataSource\",\"key\":\"caller_request\",\"path\":\"label\"},\"default\":...}) and the details to fill it from: caller_request, provider_record and data (each top-level entry of data can also be named as a key). If you give no template, the provider_record's template is used. Returns the template with every binding replaced; everything else is kept as it was, whatever its shape. A binding that finds nothing gives its default, else null (select.required changes nothing). An object key named itemTemplate is kept as written. A template that is present and null gives null. A binding that reads from another source or has a transform is refused by name. It sends nothing and keeps nothing; the caller delivers the reply.",
+    "status": "active",
+    "maker": "maker:reply-templates",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reply-templates"
+   }
+  },
+  {
+   "id": "tool:expire-old-holds",
+   "values": {
+    "title": "Expire old holds",
+    "job": "Free the places whose hold time has run out, and offer each to the waitlist",
+    "description": "Ends every confirmed hold whose expiry has passed by this run's clock and, by default, promotes one waiting entry into each freed place. A hold with no expiry is never ended. Run it on a schedule so a place is never held for ever by someone who went quiet.",
+    "status": "active",
+    "maker": "maker:reservations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reservations"
+   }
+  },
+  {
    "id": "tool:export-a-document-to-a-file",
    "values": {
     "title": "Save a document as a Word file, a PDF, Markdown or plain text (runs on your computer)",
@@ -1941,6 +1986,37 @@
    }
   },
   {
+   "id": "tool:hand-a-request-to-its-owner",
+   "values": {
+    "title": "Hand a request to its owner",
+    "job": "Ask an owner to run an action with what a form, a check or a person supplied, once",
+    "description": "action names the owner and what is asked: owner, action_ref (or action_refs, one request each), optionally id, a fixed input, and copy rows { key, from } or { key, value } where from reads request.<field>, answers.<field> or fields.<field> of the context. context has operation_id (asking again with it is the same request), and optionally record_ref, shape_ref, field_values, answers, linked_receipt_refs, receipt_ref and requested_at. Returns { handed, already, said }: the owner-action-request ids kept now and those already kept, which stay as the owner left them.",
+    "status": "active",
+    "maker": "maker:take-requests",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-30T20:00:00Z",
+    "folder": "take-requests"
+   }
+  },
+  {
+   "id": "tool:hold-a-place",
+   "values": {
+    "title": "Hold a place",
+    "job": "Hold a place for someone, or put them on the waitlist when every place is taken",
+    "description": "Holds one place on a capacity ledger for a subject, or adds them to the waitlist when their class has no place left. The same idempotency_key sent again answers the first outcome and holds nothing twice. A hold may expire after a number of seconds from now. Answers held or waitlisted and how full the ledger is.",
+    "status": "active",
+    "maker": "maker:reservations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reservations"
+   }
+  },
+  {
    "id": "tool:hold-back-on-risk",
    "values": {
     "title": "Hold an output back when risk is too high",
@@ -1953,6 +2029,21 @@
      "placement:small-container"
     ],
     "folder": "evaluate-progress"
+   }
+  },
+  {
+   "id": "tool:join-a-waitlist",
+   "values": {
+    "title": "Join a waitlist",
+    "job": "Put someone on the waitlist for a class or table without trying to hold a place first",
+    "description": "Adds a subject to the end of a capacity ledger's waitlist with a reason, even when places are free. The same idempotency_key sent again answers the first entry and adds nothing.",
+    "status": "active",
+    "maker": "maker:reservations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reservations"
    }
   },
   {
@@ -2067,6 +2158,21 @@
     "flags": [
      "has-a-screen"
     ]
+   }
+  },
+  {
+   "id": "tool:line-up-two-movements",
+   "values": {
+    "title": "Line up two movements by their phase, whatever their speed (runs on your computer)",
+    "job": "Match each moment of one movement to the same part of another movement, even when one is slower, starts later or has more frames",
+    "description": "Takes two pose tracks (from tool:read-peoples-poses-from-a-video, or any file in the pose.keypoints.v1 shape) and writes the pairs of frames that show the same phase of the movement: dynamic time warping over each frame's posture, with the joints centred on the hips and scaled by the torso so camera framing and body size do not count. It uses the most confident person in each track. Gamma 0 is hard warping; above 0 is soft warping with a smoother path. The path is monotonic (time never runs backwards), starts at the first pair and ends at the last pair. An empty or torso-less track, or a joint that is not a number, is refused with the reason; nothing is written. The cost grows with the product of the two frame counts: a 10 second clip at 30 frames a second takes seconds, a 10 minute clip does not.",
+    "status": "active",
+    "maker": "maker:track-and-compare-movement",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "track-and-compare-movement"
    }
   },
   {
@@ -2296,6 +2402,21 @@
      "placement:your-computer"
     ],
     "folder": "make-a-lut-for-log-footage"
+   }
+  },
+  {
+   "id": "tool:make-a-referral-code",
+   "values": {
+    "title": "Make a referral code",
+    "job": "Make a referral code that earns a share of the sales of one product or one seller, and give back the event to save",
+    "description": "Makes a short readable code (letters and digits, no I, L, O or U, so it survives being read aloud) or checks the one you chose, and gives back the event that makes it live once the person saves it. You say what the code points at: the sale attribute and the value it must have, from the attributes you allow. A code someone else already made stays theirs when the events are read. Nothing is kept by the tool.",
+    "status": "active",
+    "maker": "maker:referral-codes-and-rewards",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "referral-codes-and-rewards"
    }
   },
   {
@@ -2587,6 +2708,25 @@
    }
   },
   {
+   "id": "tool:my-requests",
+   "values": {
+    "title": "Requests taken and who owes an answer",
+    "job": "List the requests taken, newest first, with their receipts and the ones still waiting on an owner",
+    "description": "Optional owner (only that owner's requests), waiting true (only requests handed to an owner that has given no receipt) and limit (up to 100, default 20). Returns { requests: [{ request_id, text, at, status, disposition, reason, owner_ref, owner_request, receipts, waiting_on_owner }], said }. It changes nothing.",
+    "status": "active",
+    "maker": "maker:take-requests",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-30T20:00:00Z",
+    "folder": "take-requests",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:name-a-voice",
    "values": {
     "title": "Name a voice",
@@ -2617,6 +2757,21 @@
      "placement:your-computer"
     ],
     "folder": "connected-drives"
+   }
+  },
+  {
+   "id": "tool:open-a-capacity-ledger",
+   "values": {
+    "title": "Open a capacity ledger",
+    "job": "Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one",
+    "description": "Opens one capacity ledger as a record in the person's own records: the total number of places, and optionally how many are kept back for a named class (members, guests, VIP). A class that is not named shares what is left. Opening an id that already exists changes nothing and answers how full it is.",
+    "status": "active",
+    "maker": "maker:reservations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reservations"
    }
   },
   {
@@ -2752,6 +2907,21 @@
      "placement:small-container"
     ],
     "folder": "document-sections"
+   }
+  },
+  {
+   "id": "tool:plan-a-side-by-side-movement-comparison",
+   "values": {
+    "title": "Plan a side-by-side video of two movements, each framed on its person (runs on your computer)",
+    "job": "Make the edit for a video that shows two movements next to each other, each cropped to the person doing it, with labels and an optional slow-motion pass",
+    "description": "Takes two clips with their pose tracks (from tool:read-peoples-poses-from-a-video), the second of each clip to centre on, and the look as data: labels and corners, side by side or stacked, a mirror for a clip filmed from the other side, the passes (a full pass and a slow-motion pass, each with its own window), the picture size and an optional narration to replace the sound. It writes an edit for the media-composition tool: for each pass one split segment whose cells are crops of each clip around the joints it found in that window, padded and cut to the cell's shape and kept inside the clip's frame; with no confident joint a centred crop. The window is cut to the shorter clip so both cells stay in step. It renders nothing: hand the edit to the media-composition tool.",
+    "status": "active",
+    "maker": "maker:track-and-compare-movement",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "track-and-compare-movement"
    }
   },
   {
@@ -2891,6 +3061,21 @@
     ],
     "listed_on": "2026-10-06T16:00:00Z",
     "folder": "print-here"
+   }
+  },
+  {
+   "id": "tool:promote-from-the-waitlist",
+   "values": {
+    "title": "Promote from the waitlist",
+    "job": "Move the next waiting person (or one I name) into a place that is free",
+    "description": "Promotes the first waiting entry whose class has a free place, or the waiting entry named, into a hold. Nothing happens when no place is free or nobody waits. The same idempotency_key sent again changes nothing.",
+    "status": "active",
+    "maker": "maker:reservations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reservations"
    }
   },
   {
@@ -3104,6 +3289,21 @@
    }
   },
   {
+   "id": "tool:rank-records-for-review",
+   "values": {
+    "title": "Rank records for review",
+    "job": "Put a list of suggestions, matches or any records in the order a person should review them, showing the fields they asked for on each row and whether they already accepted or passed on it",
+    "description": "Give a descriptor (which fields to show, which records to leave out, how rows relate to other records, which parts of a record name the suggestion a stand is on, and the actions on a row), the records, and optionally related records, the person's stands (their accept or pass records) and a list of upsert or delete events to apply over the records first. Returns the rows smallest rank first (then by record ref; a record with no rank has rank null and comes last), each with its shown values, relationship answers, status keys, actions and the person's newest stand on it (none if their newest version takes the stand back), plus counts. Every word about the domain is in the descriptor; a filter or relationship method the tool does not know is refused.",
+    "status": "active",
+    "maker": "maker:rank-records-for-review",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "rank-records-for-review"
+   }
+  },
+  {
    "id": "tool:re-time-events-tied-to-words",
    "values": {
     "title": "Move events to where their words now play (runs on your computer)",
@@ -3116,6 +3316,21 @@
      "placement:your-computer"
     ],
     "folder": "fill-a-template-without-changing-its-words"
+   }
+  },
+  {
+   "id": "tool:read-a-capacity-ledger",
+   "values": {
+    "title": "Read a capacity ledger",
+    "job": "See who holds the places and who is waiting",
+    "description": "Reads one capacity ledger: every hold and waitlist entry, how full it is, and the ledger as one reservation row (the scope, its state and who holds a place). It changes nothing.",
+    "status": "active",
+    "maker": "maker:reservations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reservations"
    }
   },
   {
@@ -3421,6 +3636,21 @@
    }
   },
   {
+   "id": "tool:read-peoples-poses-from-a-video",
+   "values": {
+    "title": "Read where each person's joints are in a video, frame by frame (runs on your computer)",
+    "job": "Find the people in a video and where their joints are in every frame, so two movements can be compared",
+    "description": "Runs a pose model on a video on the person's own computer and writes one file in the pose.keypoints.v1 shape: for each person (kept as the same id through the clip) and each frame, 17 joints (nose, eyes, ears, shoulders, elbows, wrists, hips, knees, ankles) as x and y in pixels with a confidence from 0 to 1. A joint that is not found or is not a finite number is written as absent (0, 0, 0). A track already written for the same video bytes and the same pose model is reused. The model weights are the person's: a downloaded pose checkpoint passed by path; the script names and fetches none.",
+    "status": "active",
+    "maker": "maker:track-and-compare-movement",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "track-and-compare-movement"
+   }
+  },
+  {
    "id": "tool:read-post-calendar",
    "values": {
     "title": "Posting calendar",
@@ -3593,6 +3823,21 @@
    }
   },
   {
+   "id": "tool:receive-files-over-ftp",
+   "values": {
+    "title": "Receive files pushed by a camera, scanner or printer over FTP (runs on your computer)",
+    "job": "Receive the files a device pushes over FTP, such as a scanner, camera, drone or printer, into a folder on my computer, with nobody there",
+    "description": "Starts a receiver on the person's own computer that speaks FTP (passive mode, and explicit TLS when a certificate is given) for devices that can only push files that way. Each file is streamed into the folder; when it is whole, a note named like the file plus .finished.json is written next to it with content_identity (BLAKE3 of the bytes on disk), byte_length, media_type, finished_at_ms and handed_over_by, and only then is the device told the transfer is done, so a half file is never seen as finished and a device that did not hear the answer sends it again. Only the senders the person puts in the settings file can push (a login, a password and the opaque name written in the notes); there is no built-in sender, and the receiver listens on 127.0.0.1 unless the settings give an address. A path outside the folder, active mode and deleting or renaming a finished file are refused. It runs until it is stopped.",
+    "status": "active",
+    "maker": "maker:receive-files-over-ftp",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "receive-files-over-ftp"
+   }
+  },
+  {
    "id": "tool:recognise-a-repeat",
    "values": {
     "title": "Count how often the same kind of thing has been flagged, even in different words (runs on your computer)",
@@ -3688,6 +3933,22 @@
    }
   },
   {
+   "id": "tool:record-the-owners-receipt",
+   "values": {
+    "title": "Record what the owner gave back",
+    "job": "Link an owner's receipt to the request it answers",
+    "description": "request_id is a request kept by tool:take-a-request; receipt has ref, owner_ref, title and optionally summary, process_ref, observed_at and raw. Returns { request_id, receipt_ref, linked, said }; the same receipt again changes nothing, a receipt that already answers another request is refused, and a request that is not kept is said in words with nothing linked (linked false).",
+    "status": "active",
+    "maker": "maker:take-requests",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-30T20:00:00Z",
+    "folder": "take-requests"
+   }
+  },
+  {
    "id": "tool:reframe-video",
    "values": {
     "title": "Reframe a video to a new shape",
@@ -3748,6 +4009,21 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:release-a-place",
+   "values": {
+    "title": "Release a place",
+    "job": "Give a held place back, and offer it to the next person on the waitlist",
+    "description": "Releases one confirmed hold, named by its hold id or by its subject, and by default promotes the first waiting entry that fits the freed place. The same idempotency_key sent again changes nothing. Answers the released hold and the promoted one, if any.",
+    "status": "active",
+    "maker": "maker:reservations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reservations"
    }
   },
   {
@@ -4037,6 +4313,21 @@
      "placement:small-container"
     ],
     "folder": "person-profile"
+   }
+  },
+  {
+   "id": "tool:save-interest-in-an-email-update",
+   "values": {
+    "title": "Save someone's interest in one email update",
+    "job": "Keep the consent of a person who asked for one email if a course becomes available, without sending anything",
+    "description": "Give email, consent (true only when the person agreed in the words of course.consent_text) and course ({ id, public_origin as an https site root, consent_text, consent_version, capture_only: true }) and source (optional). Records the address with the words, version, time and source of the agreement as pending. Sends nothing, queues nothing; saving the same agreement again changes nothing. Answers { status: interest_saved, already_saved }.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "send-messages"
    }
   },
   {
@@ -4366,6 +4657,21 @@
    }
   },
   {
+   "id": "tool:send-a-message-on-this-mac",
+   "values": {
+    "title": "Send a message in Messages on this Mac",
+    "job": "Send a message to one person or a list from the Messages app on the person's own Mac",
+    "description": "Give recipients (phone numbers or Apple ids Messages knows; to for one) and text. Each recipient is sent to on their own and answered on their own: sent holds { recipient } or { recipient, error }. The text goes to Messages as its own argument, never inside the script. If the Mac has not allowed this to control Messages, nothing is sent and the answer says what to allow in System Settings, Privacy and Security, Automation.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
    "id": "tool:send-a-post-to-facebook",
    "values": {
     "title": "Send a post to Facebook Page",
@@ -4501,6 +4807,81 @@
    }
   },
   {
+   "id": "tool:send-a-text-with-twilio",
+   "values": {
+    "title": "Send a text message with Twilio",
+    "job": "Send a text message, to one number or a list, through my Twilio account",
+    "description": "Give recipients (phone numbers with country code; to for one), from (a number on the Twilio account), account_sid (the account's id) and text (or subject when there is no text). Each number is sent to on its own and answered on its own: sent holds { recipient, messageId } or { recipient, error }. The held auth token reaches the one process on a private pipe; it is never shown.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:send-an-email-with-amazon-ses",
+   "values": {
+    "title": "Send an email with Amazon SES",
+    "job": "Send an email, to one person or a list, through my Amazon SES account",
+    "description": "Give recipients (a list of addresses; to for one), from (an address verified in SES), region (such as us-east-1), and the words: subject and html (text optional), or template (a template name from read-data/message-templates.json, or your own templates) with variables. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error }. The held SES keys reach the one process on private pipes; they are never shown and no sender is assumed.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:send-an-email-with-resend",
+   "values": {
+    "title": "Send an email with Resend",
+    "job": "Send an email, to one person or a list, through my Resend account",
+    "description": "Give recipients (a list of addresses; to for one), from (an address on a domain verified in Resend, see tool:list-email-sending-domains), and the words: subject and html (text optional), or template (a template name from read-data/message-templates.json, or your own templates) with variables. headers can carry In-Reply-To, References or List-Unsubscribe (names are limited to letters, digits and hyphens, values to one line of 4 KiB); idempotencyKey makes a retry safe. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with the provider's own status and reason. The held key reaches the one process on a private pipe; it is never shown and no sender is assumed.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:send-due-email-lessons-with-amazon-ses",
+   "values": {
+    "title": "Send the email lessons that have come due (through Amazon SES)",
+    "job": "Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later",
+    "description": "Optional limit (up to 50 per run), provider (amazon-ses) and region. Finds the queued lessons whose time has passed, sends each to a subscriber who is still signed up and has not had it, marks it sent, and removes the queue entry. A failed send queues its own retry (up to three, each later than the last). Answers results [{ lesson_index, status: sent, already-sent, unsubscribed or failed, why? }] and said.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:send-due-email-lessons-with-resend",
+   "values": {
+    "title": "Send the email lessons that have come due (through Resend)",
+    "job": "Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later",
+    "description": "Optional limit (up to 50 per run) and provider (resend). Finds the queued lessons whose time has passed, sends each to a subscriber who is still signed up and has not had it, marks it sent, and removes the queue entry. A failed send queues its own retry (up to three, each later than the last). Answers results [{ lesson_index, status: sent, already-sent, unsubscribed or failed, why? }] and said.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
    "id": "tool:send-list-row-batches",
    "values": {
     "title": "Send prepared batches into my lists, resuming where I stopped (runs on your computer)",
@@ -4591,6 +4972,51 @@
      "placement:small-container"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:sign-someone-up-for-an-email-course-with-amazon-ses",
+   "values": {
+    "title": "Sign someone up for an email course (sends through Amazon SES)",
+    "job": "Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others",
+    "description": "Give email, consent (true only when the person agreed in the words of course.consent_text), course (id, public_origin as an https site root, checkout_url, from, mailing_address, consent_text, consent_version and 2 to 12 lessons { delay_hours, subject, article_url, text_lines, html_lines } where every lesson carries {{unsubscribeUrl}} and {{mailingAddress}} and the first has delay_hours 0), source (where they signed up, optional), provider (amazon-ses) and region (the SES region). Nothing is sent without consent, a sender and a mailing address. Records the consent with its words, version, time and source; queues each later lesson at its time (tool:send-due-email-lessons-with-amazon-ses sends them); sends lesson 1; signing up again sends nothing twice. Answers { status: enrolled, already_enrolled }.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:sign-someone-up-for-an-email-course-with-resend",
+   "values": {
+    "title": "Sign someone up for an email course (sends through Resend)",
+    "job": "Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others",
+    "description": "Give email, consent (true only when the person agreed in the words of course.consent_text), course (id, public_origin as an https site root, checkout_url, from, mailing_address, consent_text, consent_version and 2 to 12 lessons { delay_hours, subject, article_url, text_lines, html_lines } where every lesson carries {{unsubscribeUrl}} and {{mailingAddress}} and the first has delay_hours 0), source (where they signed up, optional) and provider (resend). Nothing is sent without consent, a sender and a mailing address. Records the consent with its words, version, time and source; queues each later lesson at its time (tool:send-due-email-lessons-with-resend sends them); sends lesson 1 with List-Unsubscribe headers; signing up again sends nothing twice. Answers { status: enrolled, already_enrolled }.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:sort-reservations-by-status",
+   "values": {
+    "title": "Sort reservations by status",
+    "job": "Group my reservations (tables, rooms, visits) by status, the ones that need me first",
+    "description": "Groups reservations by status, with the statuses the person lists in attention_order first and in that order, then any other status in the order seen. Reads the rows given, or the person's own reservation records when none are given. Rows may use camelCase or snake_case; a row with no id is dropped. Also lists the reservations that name no policy.",
+    "status": "active",
+    "maker": "maker:reservations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reservations"
    }
   },
   {
@@ -4700,6 +5126,21 @@
    }
   },
   {
+   "id": "tool:stop-an-email-course",
+   "values": {
+    "title": "Stop sending an email course to someone who unsubscribed",
+    "job": "End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent",
+    "description": "Give token (the unsubscribe token in the link the person was sent). Marks the subscription unsubscribed with the time; an unknown or already used token answers unsubscribed too. Answers { status: unsubscribed }.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
    "id": "tool:string-my-cuts-into-one-reel",
    "values": {
     "title": "Put my finished cuts one after another into one reel to watch (runs on your computer)",
@@ -4745,6 +5186,22 @@
    }
   },
   {
+   "id": "tool:take-a-request",
+   "values": {
+    "title": "Take a request",
+    "job": "Keep one request that arrived, as decided, and ask the owner who should act on it",
+    "description": "request is what arrived: request_id, source_ref, atom_ref, text, origin_ref, optionally message_ref, content_revision and at. Its origin_ref must be one the person accepts (an intake-origins record with id intake-origins:accepted). decision is the caller's: disposition and reason, and hand_to_owner true with owner_ref (an active intake-owner record) and acceptance_criteria when an owner should act; hand_off, required when hand_to_owner is true, names what the owner is asked to run (action_ref or action_refs, optional id, input and copy rows). existing_task_ref is refused (current_task_executor_not_verified): a task reference says nothing about who runs it now. max_text_chars (default 65536) bounds the kept text: a longer text is kept cut to it, or, when it is being handed to an owner, held back. Returns { status, request_id, problems, owner_request, said }. status is handed, recorded, deferred (nothing is kept because the owner is not on file or the text is too long; take it again once fixed), already-taken (the same request again changes nothing) or refused (no accepted origins on file, incomplete, origin not accepted, a decision that names an existing task, or the same id from another source, message, place or version).",
+    "status": "active",
+    "maker": "maker:take-requests",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-30T20:00:00Z",
+    "folder": "take-requests"
+   }
+  },
+  {
    "id": "tool:take-back-a-post",
    "values": {
     "title": "Take back a post",
@@ -4787,6 +5244,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:track-a-selected-object-in-a-video",
+   "values": {
+    "title": "Follow one thing I point at through a video clip and outline it in every frame (runs on your computer)",
+    "job": "Follow an object or a person I pointed at through a clip and get its outline in every frame",
+    "description": "Takes a video, a stretch of up to 30 seconds, the second at which the person pointed, and one to 32 points on that frame, each marked as inside the object or outside it. It runs a point-prompted SAM 2 video model on the person's own computer and writes, in a new folder, a lossless grayscale mask video (mask.mkv), one mask picture and one transparent preview picture per frame, and result.json with how many pixels the object covers in each frame. A frame where the object is hidden has an empty mask: it is kept empty, not filled with a guess. If nothing is found at the pointed spot the run fails and says to choose another point. Frames never leave the computer, the model is read from the local cache and never downloaded, and the video is only read.",
+    "status": "active",
+    "maker": "maker:track-and-compare-movement",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "track-and-compare-movement"
    }
   },
   {
@@ -4896,6 +5368,36 @@
    }
   },
   {
+   "id": "tool:who-agreed-to-get-which-emails",
+   "values": {
+    "title": "Who agreed to get which emails",
+    "job": "Show who agreed to get which email list, in what words, when and from where, and whether they still do",
+    "description": "Optional list (one list's id) and status (active, pending or unsubscribed). Reads every consent in my records: email courses and one-update interest lists. Returns people [{ email, list, kind: course or update, status, consented_at, consent_text, consent_version, source }], agreed (the addresses that can be sent to now, each once) and said. It changes nothing; hand agreed to a send tool as recipients.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:withdraw-a-referral-code",
+   "values": {
+    "title": "Withdraw a referral code",
+    "job": "Stop a referral code from earning, and give back the event to save",
+    "description": "Gives back the event that, once saved, stops a referral code you made from earning. Only the account that made a code can withdraw it; a withdrawal from any other account is ignored when the events are read.",
+    "status": "active",
+    "maker": "maker:referral-codes-and-rewards",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "referral-codes-and-rewards"
+   }
+  },
+  {
    "id": "tool:words-as-picture-vector",
    "values": {
     "title": "Turn words into a picture vector",
@@ -4956,6 +5458,21 @@
    }
   },
   {
+   "id": "tool:work-out-referral-codes",
+   "values": {
+    "title": "Work out referral codes",
+    "job": "See which referral codes are live, which sales a code a buyer typed earns, what share it earns, and how many referrals an account has accepted",
+    "description": "Reads the referral events a person saved (a code made, a code withdrawn, a signup that named a referrer) and works out the codes: who made each one, what it points at, and whether it is still live. The first account to make a code keeps it, in any order the events arrive; only the account that made a code can withdraw it. Give it the codes buyers typed and the sales, and it says for each pair which live code that is, whether the sale earns it (the sale attribute the code points at has the value the code names), and, when you give a share rule (the amount field and basis points), what the sale earns in whole cents. It reads and adds up only: it moves no money and sends nothing.",
+    "status": "active",
+    "maker": "maker:referral-codes-and-rewards",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "referral-codes-and-rewards"
+   }
+  },
+  {
    "id": "tool:work-out-unit-economics",
    "values": {
     "title": "Work out unit economics",
@@ -4983,6 +5500,21 @@
      "placement:small-container"
     ],
     "folder": "lessons-and-learning-paths"
+   }
+  },
+  {
+   "id": "tool:write-a-message-body-from-a-document",
+   "values": {
+    "title": "Turn a document into a message body (runs on your computer)",
+    "job": "Turn a document I wrote (headings, paragraphs, images, a quoted reply) into the HTML and plain-text body of a message, ready to send",
+    "description": "Takes a request file { document_nodes: [{ id, kind, props, children, visible }] or one root node, options? } and writes { body_html, body_text, inline_refs, degraded }. Text and heading kinds become paragraphs and headings with a plain-text line each; image and media blocks become inline_refs { cid, fetch_ref, mime } for the sender to attach; blocks marked as a quote become one blockquote with > lines; hidden subtrees are skipped; a block kind it does not know falls back to its text and is listed in degraded, never dropped silently. options.kind_renderers maps your own block kinds to paragraph, heading1 to heading3 or media. It names no mail provider.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "send-messages"
    }
   },
   {
