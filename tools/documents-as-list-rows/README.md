@@ -41,6 +41,7 @@ How the folder is read:
 - `file.backlinks` needs every document's links, so it is worked out only when `backlinks` is true.
 - `exclude` is an array of globs relative to the source folder. It keeps a broader knowledge source from repeating documents another list already owns.
 - `paths` is an exact positive catalogue of file names under the granted root, read without walking unrelated folders. Every name still goes through the files owner's root and symlink checks. `text_extensions` explicitly declares UTF-8 source extensions such as `py` or `mjs` for that catalogue; ordinary folder scans still select only the document extensions. Source bytes are read as text and never executed.
+- An empty string in `text_extensions` explicitly admits extensionless UTF-8 files such as a named `LICENSE` or prompt. It only affects the positive `paths`/`paths_file` catalogue; a normal folder scan still excludes extensionless files.
 - `paths_file` names a JSON array positive catalogue under that same granted root instead of embedding `paths` in a bounded list record. Its identity is checked, its complete JSON must fit the existing per-document byte read bound, and each selected name still passes the normal root checks.
 - `most_bytes` bounds the answer's JSON: the page ends at the last row that fits, and `next` goes on from there. A caller whose answer travels in a bounded message names its room this way; a door answers a run within one MCP message of 65,536 bytes that carries the answer twice.
 - The documents of a page are read `reads_at_once` at a time (32).

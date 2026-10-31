@@ -75,9 +75,11 @@ async function pieceOf(files, row, part, options, span = null) {
   } } };
 }
 
-async function* rowsOfParent(files, parent, options) {
+async function* rowsOfParent(files, parent, options, firstPart = 0) {
   if (!options.sections) {
-    for (let part = 0; ; part += 1) {
+    // A body cursor already names its next byte piece. Start there instead of reading and discarding every earlier
+    // piece again on each cursor page of a long document. Section cursors still follow the parser's emitted rows.
+    for (let part = firstPart; ; part += 1) {
       const piece = await pieceOf(files, parent, part, options);
       if (!piece.row) return;
       yield piece.row;
@@ -129,9 +131,10 @@ export async function contentRows(files, read, { folder, match, exclude, paths, 
   let next = after ?? null;
   for (const parent of parents) {
     const firstPart = parent.id === cursor.document ? cursor.part : 0;
-    const pieces = rowsOfParent(files, parent, options)[Symbol.asyncIterator]();
+    const start = options.sections ? 0 : firstPart;
+    const pieces = rowsOfParent(files, parent, options, start)[Symbol.asyncIterator]();
     let piece = await pieces.next();
-    for (let part = 0; !piece.done; part += 1) {
+    for (let part = start; !piece.done; part += 1) {
       const row = piece.value;
       piece = await pieces.next();
       if (part < firstPart) continue;

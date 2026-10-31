@@ -387,7 +387,7 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
     const fits = globTest(source?.match);
     if (source?.exclude !== undefined && (!Array.isArray(source.exclude) || source.exclude.some(pattern => typeof pattern !== 'string'))) throw say('bad_input', { what: 'exclude is an array of document-path glob strings.' });
     const excluded = (source?.exclude ?? []).map(globTest);
-    if (source?.text_extensions !== undefined && (!Array.isArray(source.text_extensions) || source.text_extensions.some(extension => typeof extension !== 'string' || !/^[a-z0-9]+$/.test(extension)))) throw say('bad_input', { what: 'text_extensions is an array of lowercase text-file extensions for explicitly named paths.' });
+    if (source?.text_extensions !== undefined && (!Array.isArray(source.text_extensions) || source.text_extensions.some(extension => typeof extension !== 'string' || !/^[a-z0-9]*$/.test(extension)))) throw say('bad_input', { what: 'text_extensions is an array of lowercase text-file extensions for explicitly named paths; an empty string explicitly admits extensionless text files.' });
     const explicitExtensions = new Set(source?.text_extensions ?? data.document_extensions);
     if (source?.paths !== undefined && (!Array.isArray(source.paths) || source.paths.some(name => typeof name !== 'string' || !name.startsWith('/') || !explicitExtensions.has(extensionOf(name).toLowerCase()) || (folder !== '/' && !name.startsWith(`${folder}/`))))) throw say('bad_input', { what: 'paths is an array of exact document names under this source folder, with explicitly declared text extensions.' });
     // An explicit catalogue reads only its named files, without walking unrelated folders. The files owner still
