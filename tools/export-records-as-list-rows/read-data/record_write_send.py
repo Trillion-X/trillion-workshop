@@ -41,6 +41,7 @@ that answers a repeated key with its first answer never writes them twice. Reads
 from __future__ import annotations
 
 import json
+import http.client
 import os
 import shutil
 import subprocess
@@ -154,6 +155,11 @@ class Door:
         try:
             with urllib.request.urlopen(request, timeout=ANSWER_SECONDS) as response:
                 raw, content_type = response.read(), response.headers.get('Content-Type', '')
+        except (http.client.IncompleteRead, http.client.RemoteDisconnected, ConnectionError):
+            # The command may already have committed. Discard every partial byte and let the existing
+            # replay policy recover the original command under the SAME request key; reads may retry.
+            return {'is_error': True, 'answer': {'code': 'resource_outcome_unknown', 'outcome': 'unknown',
+                                               'operation': method, 'reason': 'The HTTP response ended before completion.'}}
         except urllib.error.HTTPError as error:
             # A door that refuses before its answer starts says why in a JSON body under a non-2xx status: that is the answer.
             raw = error.read()

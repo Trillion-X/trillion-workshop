@@ -493,6 +493,33 @@ class McpDoor(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'The door did not answer list'):
             self.door().read_type('record:shelf')
 
+    def test_an_incomplete_http_reply_is_unknown_and_never_keeps_partial_bytes(self):
+        from unittest.mock import MagicMock, patch
+        import http.client
+        response = MagicMock()
+        response.__enter__.return_value = response
+        response.read.side_effect = http.client.IncompleteRead(b'private-partial-body', 10)
+        with patch('urllib.request.urlopen', return_value=response):
+            answer = self.door().play('write', 'stable-original-key', {'records': []})
+        self.assertTrue(answer['is_error'])
+        self.assertEqual(answer['answer']['code'], 'resource_outcome_unknown')
+        self.assertNotIn('private-partial-body', json.dumps(answer))
+
+    def test_an_incomplete_read_retries_only_when_the_page_policy_allows_it(self):
+        from unittest.mock import MagicMock, patch
+        import http.client
+        broken = MagicMock()
+        broken.__enter__.return_value = broken
+        broken.read.side_effect = http.client.IncompleteRead(b'', 1)
+        good = MagicMock()
+        good.__enter__.return_value = good
+        good.headers.get.return_value = 'application/json'
+        good.read.return_value = json.dumps({'result': {'structuredContent': {'records': [], 'next': None}}}).encode()
+        self.config.update({'page_retry_if': ['resource_outcome_unknown'], 'page_retry_wait': 0})
+        with patch('urllib.request.urlopen', side_effect=[broken, good]) as request:
+            self.assertEqual(self.door().read_type('record:shelf'), [])
+        self.assertEqual(request.call_count, 2)
+
 
 if __name__ == '__main__':
     unittest.main()

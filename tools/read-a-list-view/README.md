@@ -58,7 +58,7 @@ The bounds are this tool's own DATA, `limits` in `read-data/list-view.json`. Rea
 - `read_page_rows` (50): a page when no limit is given, and the most one source tool's page asks for.
 - `door_page_rows` (500): the most one records:list asks for, the records door's own page, so 2,000 rows are a few calls rather than forty.
 - `rows_per_read` (2,000): the most rows one view read gathers. Refreshes stream bounded pages until each source ends.
-- `row_sources_per_list` (4): the most row sources one list may declare.
+- `row_sources_per_list` (5): the most row sources one list may declare.
 - `write_rows` (64) and `write_bytes` (24,000): the most records and bytes one write of a refresh sends.
 
 ## Row sources
