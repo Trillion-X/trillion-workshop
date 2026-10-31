@@ -1,0 +1,59 @@
+{
+  "kind": "tool-rows",
+  "record_set": "receive-files-over-ftp-tool-rows",
+  "what_this_is": "The Workshop row that starts the FTP receiver of tools/receive-files-over-ftp on the person's own computer.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:receive-files-over-ftp",
+        "label": "Receive files pushed by a camera, scanner or printer over FTP (runs on your computer)",
+        "job": "Receive the files a device pushes over FTP, such as a scanner, camera, drone or printer, into a folder on my computer, with nobody there",
+        "description": "Starts a receiver on the person's own computer that speaks FTP (passive mode, and explicit TLS when a certificate is given) for devices that can only push files that way. Each file is streamed into the folder; when it is whole, a note named like the file plus .finished.json is written next to it with content_identity (BLAKE3 of the bytes on disk), byte_length, media_type, finished_at_ms and handed_over_by, and only then is the device told the transfer is done, so a half file is never seen as finished and a device that did not hear the answer sends it again. Only the senders the person puts in the settings file can push (a login, a password and the opaque name written in the notes); there is no built-in sender, and the receiver listens on 127.0.0.1 unless the settings give an address. A path outside the folder, active mode and deleting or renaming a finished file are refused. It runs until it is stopped.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "folder",
+            "settings"
+          ],
+          "properties": {
+            "folder": {
+              "type": "string",
+              "description": "The folder on the person's computer files are kept in, put where {folder} is in the command."
+            },
+            "settings": {
+              "type": "string",
+              "description": "The settings file the person (or you, with them) wrote, put where {settings} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The first line the command prints once it is listening: {\"listening\": {\"host\", \"port\"}, \"folder\"}. It keeps running; each finished file appears in the folder with its .finished.json note."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "cd trillion-workshop && npm install"
+          ],
+          "run": "node trillion-workshop/tools/receive-files-over-ftp/do-work/receive-pushed-files.mjs --folder {folder} --settings {settings}",
+          "needs": [
+            "node"
+          ],
+          "say": "This runs on the person's own computer and keeps running until stopped (send it SIGTERM or press Control-C). If you can run commands where they are: ask which folder the files should be kept in and which devices will push; write the settings file with them (see the README of this tool for its fields): a login, a password the person chooses (never invent a weak one for them) and a short name for each device in handed_over_by, and listen_host set to this computer's address on the network the devices are on only if the devices are not on this computer. Run `run` in the background with the folder and the settings file, read its first line for the host and port, and tell the person the host, port, login and password to type into each device (the password only to the person, never into a log or a note). Do not open the port to the internet. Finished files appear in the folder with a note named like the file plus .finished.json; a file with no note is still arriving. If it prints 'cannot start', the line says what to fix. If you cannot run commands, give the person these steps."
+        },
+        "maker": "maker:receive-files-over-ftp",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages receive-files-over-file-transfer-protocol, ported (settings from a file, no built-in sender, loopback by default, BLAKE3 identity of the bytes on disk)"
+        }
+      }
+    }
+  ]
+}
