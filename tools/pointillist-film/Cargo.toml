@@ -1,0 +1,22 @@
+[package]
+name = "pointillist-film"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Square-grid pointillist film frames from a script, targets and a time, as packed bytes"
+autotests = false
+
+[lib]
+name = "pointillist_film_core"
+path = "src/lib.rs"
+
+[[test]]
+name = "composition_gauntlet"
+path = "test/composition_gauntlet.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive", "rc"] }
+thiserror = "1"
+
+[dev-dependencies]
+serde_json = "1"
