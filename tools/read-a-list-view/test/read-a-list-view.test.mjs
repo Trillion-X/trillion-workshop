@@ -96,13 +96,14 @@ test('a second refresh writes only what changed and removes the rows the source 
   assert.ok(records.has('record:chore:sweep'), 'own rows are never touched by a refresh');
 });
 
-test('a refresh asks each source page and each listing for at most read_page_rows, and writes in bounded batches', async () => {
+test('a refresh asks each source page for at most read_page_rows and each listing for at most door_page_rows, and writes in bounded batches', async () => {
   const many = Array.from({ length: 130 }, (_, at) => recipe(`loaf-${String(at).padStart(3, '0')}`, at));
   const { door, runs, writes } = bakery({ folder: many });
   const asked = [];
   const counting = { ...door, list: async query => { asked.push(query.limit); return door.list(query); } };
   await refreshRowSources({ names: NAMES, list: 'chores', source_answer_bytes: 28000 }, counting);
-  assert.ok([...asked, ...runs.map(run => run.input.limit)].every(limit => limit <= limits.read_page_rows));
+  assert.ok(asked.length > 0 && asked.every(limit => limit <= limits.door_page_rows));
+  assert.ok(runs.every(run => run.input.limit <= limits.read_page_rows));
   assert.ok(runs.every(run => run.input.most_bytes === 28000 && run.input.folder === '/recipes'));
   const bytes = rows => rows.reduce((sum, row) => sum + new TextEncoder().encode(JSON.stringify(row)).length, 0);
   assert.ok(writes.every(write => write.rows.length <= limits.write_rows && bytes(write.rows) <= limits.write_bytes));
@@ -132,7 +133,7 @@ test('a source read in part or answering no rows is refused and nothing of it is
   assert.equal(writes.length, 0);
 });
 
-test('the reader\'s own bounds hold: too many or unknown sources are refused, no request asks for more than a page', async () => {
+test('the reader\'s own bounds hold: too many or unknown sources are refused, no listing asks for more than the door\'s page', async () => {
   const many = bakery({ sources: ['/a', '/b', '/c', '/d', '/e'].map(of => ({ source: 'documents', of })) });
   await assert.rejects(read(many.door, { list: 'chores' }), new RegExp(`at most ${limits.row_sources_per_list} row sources`));
   const unknown = bakery({ sources: [{ source: 'weather' }] });
@@ -143,7 +144,7 @@ test('the reader\'s own bounds hold: too many or unknown sources are refused, no
   const counting = { ...door, list: async query => { asked.push(query.limit); return door.list(query); } };
   const page = await read(counting, { list: 'chores', limit: limits.rows_per_read + 1 });
   assert.equal(page.rows.length, 6);
-  assert.ok(asked.every(limit => limit <= limits.read_page_rows));
+  assert.ok(asked.length > 0 && asked.every(limit => limit <= limits.door_page_rows));
 });
 
 test('a sort orders values by their canonical JSON bytes, as the view publish did, and a view says how many rows it read', async () => {

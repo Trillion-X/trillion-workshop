@@ -94,12 +94,12 @@ async function rowPage(door, list, names, sources, { after, limit }) {
   };
 }
 
-/** Rows from `after` on until `room` rows, each request asking for at most read_page_rows: { rows, next }. */
+/** Rows from `after` on until `room` rows, each request asking for at most door_page_rows: { rows, next }. */
 async function rowsFrom(door, list, names, sources, after, room) {
   const rows = [];
   while (rows.length < room) {
-    // The door refuses a bigger page, so one request asks for at most read_page_rows and this loop gathers the rest.
-    const page = await rowPage(door, list, names, sources, { after, limit: Math.min(room - rows.length, limits.read_page_rows) });
+    // The door refuses a bigger page, so one request asks for at most door_page_rows and this loop gathers the rest.
+    const page = await rowPage(door, list, names, sources, { after, limit: Math.min(room - rows.length, limits.door_page_rows) });
     rows.push(...page.rows);
     after = page.next;
     if (!after || !page.rows.length) return { rows, next: null };
@@ -199,7 +199,7 @@ async function sourceRows(door, source, mostBytes) {
 async function writtenRows(door, type, source) {
   const held = new Map();
   for (let after = null; ;) {
-    const page = await door.list({ type, prefix: `${type}:${source}${SOURCE_MARK}`, limit: limits.read_page_rows, ...(after ? { after } : {}) });
+    const page = await door.list({ type, prefix: `${type}:${source}${SOURCE_MARK}`, limit: limits.door_page_rows, ...(after ? { after } : {}) });
     if (!Array.isArray(page?.records)) throw say('records_unanswered', `Listing ${type} answered no records.`);
     for (const record of page.records) held.set(record.id, record.value);
     after = page.records.length ? page.next ?? null : null;

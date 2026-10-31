@@ -2,11 +2,12 @@
   "what_this_is": "The row sources a list may declare (row_sources: [{ source, of, match }]) and the tool that serves each: which tool a refresh runs, the input it is given (`{of}` and `{match}` are the row source's own; an empty one is left as no value; `limit` and `after` are added), and where its answer keeps the rows and the next cursor. A new source is one row here.",
   "limits": {
     "read_page_rows": 50,
+    "door_page_rows": 500,
     "rows_per_read": 2000,
     "row_sources_per_list": 4,
     "write_rows": 64,
     "write_bytes": 24000,
-    "why": "The bounds of a list read and a refresh, kept by the list reader because reading a list is this tool's job (the engine stores and lists records; it reads no list). read_page_rows: rows a page holds when the caller names no limit, and the most one records:list or source page asks for (the door refuses a page of 2,000). rows_per_read: the most rows one read gathers (a view with rules or a sort included), and the most rows a refresh takes from one source. row_sources_per_list: the most row sources one list may declare. write_rows and write_bytes: the most records and bytes one records:write of a refresh sends (the door answers within one 65,536-byte message, and the step-4 sends of export-records-as-list-rows use the same 64 and 24,000)."
+    "why": "The bounds of a list read and a refresh, kept by the list reader because reading a list is this tool's job (the engine stores and lists records; it reads no list). read_page_rows: rows a page holds when the caller names no limit, and the most one source tool's page asks for. door_page_rows: the most one records:list asks for, the records door's own page (records-door.json list_page; the door takes 1..999 and refuses a page of 2,000, and cuts any page to one message), so a read of 2,000 rows is a few calls, not forty. rows_per_read: the most rows one read gathers (a view with rules or a sort included), and the most rows a refresh takes from one source. row_sources_per_list: the most row sources one list may declare. write_rows and write_bytes: the most records and bytes one records:write of a refresh sends (the door answers within one 65,536-byte message, and the step-4 sends of export-records-as-list-rows use the same 64 and 24,000)."
   },
   "row_sources": {
     "documents": {
