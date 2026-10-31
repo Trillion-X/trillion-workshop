@@ -8,7 +8,7 @@ import { mkdir, mkdtemp, readFile, readdir, symlink, writeFile } from 'node:fs/p
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseDocument, readFrontmatter, writeFrontmatter, documentRowSources } from '../read-data/document-properties.mjs';
+import { parseDocument, readFrontmatter, writeFrontmatter, documentRowSources, documentSelection } from '../read-data/document-properties.mjs';
 import { folderFiles } from '../read-data/folder-files.mjs';
 import { changeDocumentRows, readDocumentRows, readNamespaceDocumentRows, splitIntoDocuments } from '../read-data/rows.mjs';
 import { splitDocuments } from '../read-data/split.mjs';
@@ -283,6 +283,29 @@ test('a prefix-grouped paths_file reads exact names while keeping a large catalo
     { prefix: '/chores/../outside', paths: ['secret.md'] },
   ] }));
   await assert.rejects(readDocumentRows({ root, paths_file: '/bad-prefix-catalogue.json' }), /invalid prefix group/);
+});
+
+test('metadata selection and row reads share the bounded catalogue parser and filters without reading selected bodies', async () => {
+  const catalogue = { prefixes: [{ prefix: '/notes', paths: ['keep.md', 'private.md', 'other.md'] }] };
+  const files = {
+    async entry(name) { assert.equal(name, '/catalogue.json'); return { identity: 'catalogue', folder: false }; },
+    async read(identity, bytes, name) { assert.equal(name, '/catalogue.json'); assert.equal(bytes, 262144);
+      return { identity, complete: true, text: JSON.stringify(catalogue) }; },
+    async list() { assert.fail('selection must not list folders'); },
+  };
+  const selection = await documentSelection(files, { paths_file: '/catalogue.json', of: '/notes', match: '*.md', exclude: ['private.md', 'other.md'] });
+  assert.deepEqual(selection.paths, ['/notes/keep.md']);
+  const root = await chores();
+  await writeFile(join(root, 'selection.json'), JSON.stringify({ prefixes: [{ prefix: '/chores', paths: ['chore-1.md'] }] }));
+  const run = spawnSync(process.execPath, [command, 'selection', '--root', root, '--stdin'], {
+    input: JSON.stringify({ source: { paths_file: '/selection.json' } }), encoding: 'utf8',
+  });
+  assert.equal(run.status, 0, run.stderr);
+  assert.deepEqual(JSON.parse(run.stdout).paths, ['/chores/chore-1.md']);
+  assert.deepEqual((await readDocumentRows({ root, paths_file: '/selection.json' })).rows.map(row => row.id), JSON.parse(run.stdout).paths);
+  assert.deepEqual((await documentSelection({}, { paths: ['chores/chore-1.md'] }, { allow_relative_paths: true })).paths, ['/chores/chore-1.md']);
+  await assert.rejects(documentSelection({}, { of: '/chores', paths: ['/chores/../outside.md'] }), /exact document names/);
+  await assert.rejects(documentSelection({ ...files, async read() { return { complete: false }; } }, { paths_file: '/catalogue.json' }), /existing .*bound/);
 });
 
 test('optional content keeps the same parent id and all metadata, with the complete small document', async () => {
