@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, posix, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
 const tools = resolve(root, 'tools');
@@ -67,4 +67,70 @@ test('a row\'s files are in the tool folder it names, and its licence class is a
       for (const path of spec.paths) assert.ok(existsSync(join(tools, spec.package, path)), `${payload.id}: tools/${spec.package}/${path} exists`);
     }
   }
+});
+
+// Where each packed file lands when a row runs: { place in the run → the file here }. A path that is a folder packs
+// every file under it.
+function packedFiles(specs) {
+  const placed = new Map();
+  const lay = (here, there) => {
+    if (!existsSync(here)) return;
+    if (!statSync(here).isDirectory()) { placed.set(there, here); return; }
+    for (const entry of readdirSync(here)) lay(join(here, entry), posix.join(there, entry));
+  };
+  for (const spec of specs) {
+    // A module's files come from the install, which a fresh checkout may not have yet: its places count as packed.
+    if (spec.module !== undefined) {
+      for (const path of spec.paths ?? []) placed.set(posix.join(spec.at, path), null);
+      continue;
+    }
+    for (const path of spec.paths ?? []) lay(join(tools, spec.package, path), posix.join(spec.at, path));
+  }
+  return placed;
+}
+
+// The modules a file asks for: static imports and re-exports, imports for effect, and dynamic imports of a literal.
+// Comments are left out, so an example in a header is not taken for an import.
+function importsOf(text) {
+  const code = text.replace(/\/\*[\s\S]*?\*\//g, '').split('\n').filter(line => !/^\s*\/\//.test(line)).join('\n');
+  const asked = [...code.matchAll(/\b(?:import|export)\s[^'"`;]*?\bfrom\s*['"]([^'"]+)['"]/g),
+    ...code.matchAll(/\bimport\s*['"]([^'"]+)['"]/g), ...code.matchAll(/\bimport\(\s*['"]([^'"]+)['"]\s*\)/g)];
+  return [...new Set(asked.map(match => match[1]))];
+}
+
+// The packages rows pack into a run's node_modules themselves (`module` files), so a run that imports one must pack it.
+const packedModules = new Set(rows.flatMap(({ payload }) => [payload.invoke?.files?.package_files ?? []].flat()
+  .filter(spec => spec.module !== undefined).map(spec => spec.module)));
+// The package a bare import names: `@scope/name/file.js` → `@scope/name`, `name/file.js` → `name`.
+const packageOf = name => name.split('/').slice(0, name.startsWith('@') ? 2 : 1).join('/');
+
+test('every import a row\'s run loads is packed by that row: its relative imports, and the modules rows pack', () => {
+  const missing = [];
+  for (const { payload } of rows) {
+    const specs = [payload.invoke?.files?.package_files ?? []].flat();
+    if (!specs.length) continue;
+    const placed = packedFiles(specs);
+    // A run loads the packed files its argv names, then every file those import, and so on.
+    const loaded = new Set();
+    const load = there => {
+      if (loaded.has(there) || !/\.(m?js|cjs)$/.test(there) || placed.get(there) === null) return;
+      loaded.add(there);
+      for (const name of importsOf(readFileSync(placed.get(there), 'utf8'))) {
+        if (!name.startsWith('.')) {
+          // Node finds a bare import in a node_modules folder beside the importing file or in a folder above it.
+          const owner = packageOf(name);
+          const above = place => posix.dirname(there).startsWith(place.slice(0, place.indexOf(`/node_modules/${owner}/`)) || '/');
+          if (packedModules.has(owner) && ![...placed.keys()].some(place => place.includes(`/node_modules/${owner}/`) && above(place))) {
+            missing.push(`${payload.id}: ${there} imports ${name}, and no node_modules above it holds ${owner}`);
+          }
+          continue;
+        }
+        const wanted = posix.join(posix.dirname(there), name);
+        if (placed.has(wanted)) load(wanted);
+        else missing.push(`${payload.id}: ${there} imports ${name}, and ${wanted} is not packed`);
+      }
+    };
+    for (const word of [payload.invoke?.argv ?? []].flat()) if (typeof word === 'string' && placed.has(word)) load(word);
+  }
+  assert.deepEqual(missing, [], `a run would stop at a missing module:\n${missing.join('\n')}`);
 });

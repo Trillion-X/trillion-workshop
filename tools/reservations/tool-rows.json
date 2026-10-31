@@ -44,7 +44,9 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
           ] },
           "workdir": "/opt/reservations",
           "internet": false,
@@ -106,7 +108,9 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
           ] },
           "workdir": "/opt/reservations",
           "internet": false,
@@ -167,7 +171,9 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
           ] },
           "workdir": "/opt/reservations",
           "internet": false,
@@ -226,7 +232,9 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
           ] },
           "workdir": "/opt/reservations",
           "internet": false,
@@ -284,7 +292,9 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
           ] },
           "workdir": "/opt/reservations",
           "internet": false,
@@ -339,7 +349,9 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
           ] },
           "workdir": "/opt/reservations",
           "internet": false,
@@ -394,7 +406,9 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
           ] },
           "workdir": "/opt/reservations",
           "internet": false,
@@ -444,7 +458,9 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "reservations", "paths": ["do-work", "read-data"], "at": "/opt/reservations" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" }
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
           ] },
           "workdir": "/opt/reservations",
           "internet": false,
