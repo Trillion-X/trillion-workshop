@@ -1,0 +1,154 @@
+{
+ "kind": "tool-rows",
+ "record_set": "published-destinations-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/published-destinations: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::published-destinations::tool::find-a-destination",
+   "address": "package::published-destinations::tool::find-a-destination",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-a-destination",
+    "label": "Find a published destination",
+    "status": "active",
+    "job": "Find the destination screen an owner has published (a progress page, a results page) among saved records, for one person or subject, and read it safely",
+    "description": "Give rows (records shaped {record, payload}, the payload being the decoded destination-descriptor), the destination's ref and, when the descriptor is for one subject, that subject_ref. Returns found, the descriptor read within safe bounds (at most 64 sections, 200 items each; malformed parts dropped) and finished_refs, the items the owner marked to celebrate whose own percent is 100 or more. A descriptor for one subject is never returned when no subject, or another subject, is given. Nothing is added up or ranked here.",
+    "input_schema": {
+     "type": "object",
+     "required": ["rows", "ref"],
+     "additionalProperties": false,
+     "properties": {
+      "rows": { "type": "array", "description": "Records shaped {record, payload}" },
+      "ref": { "type": "string", "description": "The destination's own ref" },
+      "subject_ref": { "type": "string", "description": "The subject the descriptor is for, when it names one" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["found", "descriptor", "finished_refs"],
+     "properties": {
+      "found": { "type": "boolean" },
+      "descriptor": {},
+      "finished_refs": { "type": "array", "items": { "type": "string" } }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "published-destinations",
+       "paths": ["do-work", "read-data"],
+       "at": "/opt/published-destinations",
+       "exclude": ["__tests__"]
+      }
+     },
+     "workdir": "/opt/published-destinations",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/find-a-destination.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:published-destinations",
+    "provenance": { "source": "bitfield-packages packages/destination-surface" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "rows": [
+        {
+         "record": { "address": "a:1" },
+         "payload": {
+          "kind": "destination-descriptor",
+          "ref": "destination:bakery",
+          "subject_ref": "subject:bakery",
+          "statement": "Your week at the bakery",
+          "sections": [
+           { "presentation": "task-list", "items": [{ "ref": "loaf", "title": "Bake a loaf", "percent": 100, "celebrate": true }] }
+          ]
+         }
+        }
+       ],
+       "ref": "destination:bakery",
+       "subject_ref": "subject:bakery"
+      },
+      "output_selector": "$.descriptor.statement",
+      "contains": "Your week at the bakery"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::published-destinations::tool::check-a-destination-is-honest",
+   "address": "package::published-destinations::tool::check-a-destination-is-honest",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-a-destination-is-honest",
+    "label": "Check a destination is honest before it is published",
+    "status": "active",
+    "job": "Check a progress or results screen description before publishing it: it must not ship made-up numbers, ranks, bars or percents before the owner has worked them out",
+    "description": "Give a destination descriptor and, if you want, refuse_keys: keys that may not appear anywhere in it. Returns honest (true when nothing is wrong) and every problem in words: a missing ref, subject_ref or statement, bars, stats, percents, ring labels, ranks, actors or fractions that are filled in instead of starting empty, and any refused key found.",
+    "input_schema": {
+     "type": "object",
+     "required": ["descriptor"],
+     "additionalProperties": false,
+     "properties": {
+      "descriptor": { "type": "object", "description": "The destination descriptor to check" },
+      "refuse_keys": { "type": "array", "items": { "type": "string" }, "description": "Optional: keys that may not appear anywhere in the descriptor" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["honest", "problems"],
+     "properties": {
+      "honest": { "type": "boolean" },
+      "problems": { "type": "array", "items": { "type": "string" } }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "published-destinations",
+       "paths": ["do-work", "read-data"],
+       "at": "/opt/published-destinations",
+       "exclude": ["__tests__"]
+      }
+     },
+     "workdir": "/opt/published-destinations",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/check-a-destination-is-honest.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:published-destinations",
+    "provenance": { "source": "bitfield-packages packages/destination-surface" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "descriptor": {
+        "kind": "destination-descriptor",
+        "ref": "destination:bakery",
+        "subject_ref": "subject:bakery",
+        "statement": "Your week at the bakery",
+        "sections": [{ "presentation": "pulse", "bars": [{ "value": 70 }] }]
+       }
+      },
+      "output_selector": "$.problems",
+      "contains": "bars must start empty"
+     }
+    ]
+   }
+  }
+ ]
+}

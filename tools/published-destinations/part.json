@@ -1,0 +1,6 @@
+{
+  "public": [
+    "read-data/read-destination.mjs",
+    "read-data/check-honest-state.mjs"
+  ]
+}
