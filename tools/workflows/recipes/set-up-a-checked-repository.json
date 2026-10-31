@@ -1,0 +1,70 @@
+{
+  "about": "The recipe for setting up a repository so that its rules are checked at every edit, commit and push: its jobs as capability rows, its DATA pinned by content, its retired paths declared, the repository registered with the person's own checks, and the checks proved on it.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:set-up-a-checked-repository",
+        "label": "Set up a repository whose rules are checked",
+        "job": "Set up a new or existing repository so that its rules are checked at every edit, commit and push. The repository says its jobs as capability rows, from what each folder's README says it does. Its DATA files are pinned by content. Its retired paths are declared. It is registered with the person's own checks, and those checks are shown to pass on it. Every input is the repository's own files or the person's own check settings. The AI writes no job the repository's own README does not say, and changes no check to make it pass.",
+        "produces": "The repository's own capabilities.json, pin file and retired-paths file, its entry in each of the person's check registries, its git hooks installed, and one run of the person's checks that passes on it.",
+        "source": {
+          "from": "setting up a generic engine repository whose edits, commits and pushes are judged by DATA-driven checks",
+          "name": "A repository is checked when its own files say what it does and the checks read them, not when someone remembers the rules",
+          "note": "Not adopted: a template folder copied into every repository (its rows would describe the template, not the repository), and writing capability rows for folders whose README does not say their job."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["repository", "registries", "check_command"],
+          "properties": {
+            "repository": {"type": "string", "minLength": 1, "description": "The repository folder"},
+            "product_folder": {"type": "string", "description": "The folder of DATA files a program reads at run time, under the repository, when it has one"},
+            "pin_file": {"type": "string", "description": "The pin file for that folder, under the repository"},
+            "unpinned_ok": {"type": "array", "items": {"type": "string"}, "description": "Files in the product folder that are never pinned"},
+            "registries": {"type": "array", "minItems": 1, "items": {"type": "string"}, "description": "The person's own check registry files, each with its own schema: where the repository is declared, which commit checks run on it, which folders an agent may write in"},
+            "hook_installer": {"type": "string", "description": "The person's own command that installs their git hooks in a repository, if they have one"},
+            "check_command": {"type": "string", "minLength": 1, "description": "The person's own command that runs their commit checks on a repository's staged files"}
+          }
+        },
+        "steps": [
+          {
+            "id": "read-the-repository",
+            "title": "Read what the repository says it is",
+            "do": "List the repository's top folders and files. Read its README.md and AGENTS.md, and line 3 of each folder's README.md, where a folder says its job in one sentence. A folder with no README line saying its job is listed under unsaid. Write nothing yet.",
+            "submit": {"type": "object", "required": ["folders", "unsaid"], "properties": {"folders": {"type": "array", "items": {"type": "object", "required": ["path", "job"], "properties": {"path": {"type": "string"}, "job": {"type": "string"}}}}, "unsaid": {"type": "array", "items": {"type": "string"}}}}
+          },
+          {
+            "id": "write-capability-rows",
+            "title": "Write the repository's capability rows and places",
+            "do": "Write capabilities.json at the repository's root. Make one row per folder from read-the-repository: capability is the job in the folder README's words, owner is the folder, entry is the file a caller starts at, and evidence is 'README.md:3' with the README's words. Add `places` for folders that hold content rather than a job, such as tests, docs, DATA, build files and local scratch, each with what it holds. When two rows' jobs are close, the second row gets distinct_from with that row's job and why it differs. Ask the person about each unsaid folder; never invent its job.",
+            "submit": {"type": "object", "required": ["rows", "places", "asked"], "properties": {"rows": {"type": "integer", "minimum": 0}, "places": {"type": "integer", "minimum": 0}, "asked": {"type": "array", "items": {"type": "string"}}}}
+          },
+          {
+            "id": "pin-the-data",
+            "title": "Pin the DATA files by content",
+            "do": "When the input names a product_folder and a pin_file, run tool:pin-files-by-content with action check, then with action write, giving the repository as root and the input's unpinned_ok files. Then run check again; it must answer ok true. Copy the last answer. Skip this step when the repository has no product folder.",
+            "submit": {"type": "object", "required": ["skipped"], "properties": {"skipped": {"type": "boolean"}, "pinned": {"type": "integer", "minimum": 0}, "ok": {"type": "boolean"}}}
+          },
+          {
+            "id": "declare-retired-paths",
+            "title": "Declare the paths the repository retired",
+            "do": "Write retired-paths.json at the repository's root: what it is for, and one entry per path the repository no longer uses. Each entry gives the path, the reference patterns that would bring it back, and what replaced it. A new repository writes the file with no entries.",
+            "submit": {"type": "object", "required": ["entries"], "properties": {"entries": {"type": "integer", "minimum": 0}}}
+          },
+          {
+            "id": "register-with-the-checks",
+            "title": "Register the repository with the person's checks",
+            "do": "In each of the input's registries, add the repository in that file's own schema. Read the file's description and one existing entry first, and copy that entry's shape, never another repository's values. Typical entries: the folder agents may write in, the declared repository root with its capabilities and retired-paths files, and the commit checks that run on it, such as building the head, pins matching the staged files, and no silent reverts. Its build command comes from the repository's own build file. Then run the input's hook_installer on the repository, when there is one.",
+            "submit": {"type": "object", "required": ["registries_changed", "hooks_installed"], "properties": {"registries_changed": {"type": "array", "items": {"type": "string"}}, "hooks_installed": {"type": "boolean"}}}
+          },
+          {
+            "id": "prove-the-checks",
+            "title": "Show the checks pass on the repository",
+            "do": "Stage the files the earlier steps wrote in the repository and run the input's check_command on it. Copy each check's verdict. A refusal is fixed in the repository's own files and the command is run again. A check is never changed or skipped to pass. Submit passed true only when every check passed.",
+            "submit": {"type": "object", "required": ["passed", "checks"], "properties": {"passed": {"type": "boolean"}, "checks": {"type": "array", "items": {"type": "object", "required": ["name", "verdict"], "properties": {"name": {"type": "string"}, "verdict": {"type": "string"}}}}}}
+          }
+        ]
+      }
+    }
+  ]
+}
