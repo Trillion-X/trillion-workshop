@@ -1,0 +1,446 @@
+{
+  "_what": "One row per kind of conversation export this folder reads. `reader` names the code that knows the file's FORMAT: `fields` (JSON or JSON lines whose meaning is only field mapping: read_source.py, which documents the getter vocabulary a row's `shape` is written in), `sqlite-rows` (a SQLite file; its query text and column mapping are in the row: read_source.py), `mail` (a message file or a page of message resources: read_mail.py), `session-events` (JSON-lines event streams of an AI coding assistant: read_session_events.py) and `web-capture` (a validated captured web chat page: read_web_capture.py). `shape` says where each thread, speaker, time, text and attachment is. `input_shape` lets a file be matched to its row when the person does not name one (choose_source.py). `recording` names the app the conversations are kept under and which speakers are the person's own words (`person_speakers`) and an assistant's (`ai_speakers`); \"me\" is always the person (for_recording.py). `format_version` records the library or API whose output shape a row pins. A new kind of export is a new row, never new code: a person adds rows in a file of their own (decode_source.py, `sources_file`).",
+  "sources": [
+    {
+      "id": "discord-messages",
+      "label": "Discord channel messages",
+      "reader": "fields",
+      "format_version": "Discord REST API v10 message objects, as GET /channels/{id}/messages pages",
+      "recording": {"app": "Discord"},
+      "unreadable_expected": "readable JSON Discord snapshot",
+      "file": { "format": "json" },
+      "input_shape": { "media_types": ["application/json"], "required_paths": [["threads"]], "message_paths": [["author", "id"], ["content"]] },
+      "shape": {
+        "root_list_key": "threads",
+        "self": { "first": [{ "path": ["self_id"] }, { "path": ["viewer_id"] }] },
+        "threads": { "list": { "path": ["threads"] }, "messages": { "path": ["messages"] } },
+        "thread": {
+          "id": { "first": [{ "path": ["id"] }, { "path": ["channel_id"] }] },
+          "missing_id_rejection": { "violation_path": "thread.id", "expected": "channel id", "got": "missing" },
+          "title": { "first": [{ "path": ["title"] }, { "path": ["name"] }] },
+          "send_ref": { "if": { "equals": [{ "path": ["type"] }, { "const": 1 }] }, "then": { "value": "session_id" } }
+        },
+        "message": {
+          "speaker": {
+            "if": { "equals": [{ "path": ["author", "id"] }, { "value": "self" }] },
+            "then": { "const": "me" },
+            "else": { "first": [{ "path": ["author", "global_name"] }, { "path": ["author", "username"] }, { "path": ["author", "id"], "ops": [{ "op": "string" }] }, { "const": "them" }] }
+          },
+          "text": {
+            "parts": [
+              { "path": ["content"] },
+              {
+                "each": { "path": ["embeds"] },
+                "get": {
+                  "parts": [
+                    { "path": ["author", "name"], "in": "item" },
+                    { "path": ["title"], "in": "item" },
+                    { "path": ["description"], "in": "item" },
+                    { "each": { "path": ["fields"], "in": "item" }, "get": { "pair": [{ "path": ["name"], "in": "item" }, { "path": ["value"], "in": "item" }], "join": ": " } },
+                    { "path": ["footer", "text"], "in": "item" },
+                    { "path": ["url"], "in": "item" },
+                    { "path": ["image", "url"], "in": "item" },
+                    { "path": ["thumbnail", "url"], "in": "item" },
+                    { "path": ["video", "url"], "in": "item" }
+                  ],
+                  "join": "\n"
+                }
+              },
+              {
+                "each": { "path": ["attachments"] },
+                "get": { "parts": [{ "path": ["description"], "in": "item" }, { "path": ["filename"], "in": "item" }, { "path": ["url"], "in": "item" }], "join": "\n", "unique": true }
+              }
+            ],
+            "join": "\n\n"
+          },
+          "at": { "first": [{ "path": ["timestamp"] }, { "path": ["edited_timestamp"] }] },
+          "native_ref": { "path": ["id"] }
+        }
+      }
+    },
+    {
+      "id": "slack-messages",
+      "label": "Slack channel messages",
+      "reader": "fields",
+      "format_version": "Slack Web API conversations.history message objects",
+      "recording": {"app": "Slack"},
+      "unreadable_expected": "readable JSON Slack snapshot",
+      "file": { "format": "json" },
+      "input_shape": { "media_types": ["application/json"], "required_paths": [["channels"]], "message_paths": [["ts"]] },
+      "shape": {
+        "root_list_key": "channels",
+        "self": { "first": [{ "path": ["self_id"] }, { "path": ["viewer_id"] }] },
+        "threads": { "list": { "path": ["channels"] }, "messages": { "path": ["messages"] } },
+        "thread": {
+          "id": { "path": ["id"] },
+          "missing_id_rejection": { "violation_path": "channel.id", "expected": "channel id", "got": "missing" },
+          "title": { "path": ["name"] }
+        },
+        "message": {
+          "index": { "first": [{ "path": ["ts"] }, { "const": 0 }] },
+          "speaker": {
+            "if": { "present": { "path": ["user"] } },
+            "then": {
+              "if": { "equals": [{ "path": ["user"] }, { "value": "self" }] },
+              "then": { "const": "me" },
+              "else": { "first": [{ "path": ["user_profile", "real_name"] }, { "path": ["real_name"] }, { "path": ["user"], "ops": [{ "op": "string" }] }] }
+            },
+            "else": {
+              "if": { "present": { "path": ["bot_id"] } },
+              "then": {
+                "if": { "equals": [{ "path": ["bot_id"] }, { "value": "self" }] },
+                "then": { "const": "me" },
+                "else": { "first": [{ "path": ["username"] }, { "path": ["bot_profile", "name"] }, { "path": ["name"] }, { "path": ["bot_id"], "ops": [{ "op": "string" }] }] }
+              },
+              "else": { "const": "them" }
+            }
+          },
+          "text": { "path": ["text"], "ops": [{ "op": "nonempty-text" }] },
+          "at": { "first": [{ "path": ["edited", "ts"] }, { "path": ["ts"] }], "ops": [{ "op": "time", "from": "decimal-seconds" }] }
+        }
+      }
+    },
+    {
+      "id": "telegram-messages",
+      "label": "Telegram chats",
+      "reader": "fields",
+      "format_version": "Telegram Bot API Message objects",
+      "recording": {"app": "Telegram"},
+      "unreadable_expected": "readable JSON Telegram snapshot",
+      "file": { "format": "json" },
+      "input_shape": { "media_types": ["application/json"], "required_paths": [["threads"]], "message_paths": [["message_id"], ["date"]] },
+      "shape": {
+        "root_list_key": "threads",
+        "self": { "first": [{ "path": ["self_id"] }, { "path": ["viewer_id"] }] },
+        "threads": { "list": { "path": ["threads"] }, "messages": { "path": ["messages"] } },
+        "thread": {
+          "id": { "first": [{ "path": ["id"] }, { "path": ["chat_id"] }] },
+          "missing_id_rejection": { "violation_path": "thread.id", "expected": "chat id", "got": "missing" },
+          "title": { "first": [{ "path": ["title"] }, { "path": ["name"] }] },
+          "send_ref": {
+            "if": { "every": { "path": ["messages"] }, "get": { "path": ["chat", "type"], "in": "item" }, "equals": "private" },
+            "then": { "value": "session_id" }
+          }
+        },
+        "message": {
+          "index": { "first": [{ "path": ["message_id"] }, { "const": 0 }] },
+          "speaker": {
+            "if": { "present": { "path": ["from"] } },
+            "then": {
+              "if": { "equals": [{ "path": ["from", "id"] }, { "value": "self" }] },
+              "then": { "const": "me" },
+              "else": { "first": [{ "all": [{ "path": ["from", "first_name"] }, { "path": ["from", "last_name"] }], "join": " " }, { "path": ["from", "username"] }, { "path": ["from", "first_name"] }, { "path": ["from", "id"], "ops": [{ "op": "string" }] }, { "const": "them" }] }
+            },
+            "else": { "first": [{ "path": ["chat", "title"] }, { "path": ["chat", "username"] }, { "path": ["chat", "id"], "ops": [{ "op": "string" }] }, { "const": "them" }] }
+          },
+          "text": { "first": [{ "path": ["text"] }, { "path": ["caption"] }], "ops": [{ "op": "nonempty-text" }] },
+          "at": { "first": [{ "path": ["edit_date"] }, { "path": ["date"] }], "ops": [{ "op": "time", "from": "epoch-seconds" }] }
+        }
+      }
+    },
+    {
+      "id": "signal-messages",
+      "label": "Signal conversations",
+      "reader": "fields",
+      "format_version": "signal-cli JSON messages",
+      "recording": {"app": "Signal"},
+      "unreadable_expected": "readable JSON Signal snapshot",
+      "file": { "format": "json" },
+      "input_shape": { "media_types": ["application/json"], "required_paths": [["threads"]], "message_paths": [["timestamp"], ["body"]] },
+      "shape": {
+        "root_list_key": "threads",
+        "self": { "first": [{ "path": ["self_id"] }, { "path": ["account_ref"] }] },
+        "threads": { "list": { "path": ["threads"] }, "messages": { "path": ["messages"] } },
+        "thread": {
+          "id": { "path": ["id"] },
+          "missing_id_rejection": { "violation_path": "thread.id", "expected": "thread id", "got": "missing" },
+          "title": { "first": [{ "path": ["title"] }, { "path": ["name"] }] }
+        },
+        "message": {
+          "index": { "first": [{ "path": ["id"] }, { "path": ["timestamp"] }, { "const": 0 }] },
+          "speaker": {
+            "if": { "present": { "path": ["from"] } },
+            "then": { "if": { "equals": [{ "path": ["from"] }, { "value": "self" }] }, "then": { "const": "me" }, "else": { "path": ["from"] } },
+            "else": { "first": [{ "path": ["threadName"] }, { "const": "them" }] }
+          },
+          "text": { "first": [{ "path": ["body"] }, { "path": ["text"] }], "ops": [{ "op": "nonempty-text" }] },
+          "at": { "first": [{ "path": ["editedTimestamp"] }, { "path": ["timestamp"] }], "ops": [{ "op": "time", "from": "epoch-ms" }] }
+        }
+      }
+    },
+    {
+      "id": "instagram-direct-messages",
+      "label": "Instagram direct messages",
+      "reader": "fields",
+      "format_version": "instagrapi DirectThread / DirectMessage JSON (timestamps in epoch microseconds)",
+      "recording": {"app": "Instagram"},
+      "unreadable_expected": "readable JSON DM snapshot",
+      "file": { "format": "json" },
+      "input_shape": { "media_types": ["application/json"], "required_paths": [["threads"]], "message_paths": [["user_id"]] },
+      "shape": {
+        "root_list_key": "threads",
+        "self": { "first": [{ "path": ["self_pk"] }, { "path": ["viewer_id"] }, { "path": ["self_id"] }] },
+        "threads": { "list": { "first": [{ "path": ["threads"] }, { "path": ["inbox", "threads"] }] }, "messages": { "first": [{ "path": ["messages"] }, { "path": ["items"] }] } },
+        "thread": {
+          "id": { "first": [{ "path": ["id"] }, { "path": ["thread_id"] }, { "path": ["pk"] }, { "path": ["thread_v2_id"] }] },
+          "missing_id_rejection": { "violation_path": "thread.id", "expected": "thread id", "got": "missing" },
+          "self": { "first": [{ "path": ["viewer_id"] }, { "value": "self" }] },
+          "people": {
+            "list": { "first": [{ "path": ["users"] }, { "path": ["members"] }] },
+            "id": { "first": [{ "path": ["pk"], "in": "item" }, { "path": ["id"], "in": "item" }, { "path": ["user_id"], "in": "item" }] },
+            "label": { "first": [{ "path": ["username"], "in": "item" }, { "path": ["full_name"], "in": "item" }] }
+          },
+          "title": { "first": [{ "path": ["thread_title"] }, { "others": "people", "join": ", " }] },
+          "send_ref": { "sole_other": "people" }
+        },
+        "message": {
+          "speaker": {
+            "if": { "equals": [{ "first": [{ "path": ["user_id"] }, { "path": ["sender_id"] }, { "path": ["sender"] }] }, { "value": "self" }] },
+            "then": { "const": "me" },
+            "else": {
+              "if": { "present": { "first": [{ "path": ["user_id"] }, { "path": ["sender_id"] }, { "path": ["sender"] }] } },
+              "then": {
+                "first": [
+                  { "lookup": { "path": [], "in": "people" }, "key": { "first": [{ "path": ["user_id"] }, { "path": ["sender_id"] }, { "path": ["sender"] }], "ops": [{ "op": "string" }] } },
+                  { "first": [{ "path": ["user_id"] }, { "path": ["sender_id"] }, { "path": ["sender"] }], "ops": [{ "op": "string" }] }
+                ]
+              },
+              "else": { "const": "them" }
+            }
+          },
+          "text": { "path": ["text"], "ops": [{ "op": "nonempty-text" }] },
+          "at": { "first": [{ "path": ["timestamp"] }, { "path": ["created_at"] }, { "path": ["at"] }], "ops": [{ "op": "time", "from": "epoch-auto" }] }
+        }
+      }
+    },
+    {
+      "id": "whatsapp-messages",
+      "label": "WhatsApp chats",
+      "reader": "fields",
+      "format_version": "Baileys v7 WAMessage JSON (messageTimestamp in epoch seconds or a {low, high} long)",
+      "recording": {"app": "WhatsApp"},
+      "unreadable_expected": "readable JSON WhatsApp snapshot",
+      "file": { "format": "json" },
+      "input_shape": { "media_types": ["application/json"], "required_paths": [["messages"]], "message_paths": [["key", "remoteJid"]] },
+      "shape": {
+        "root_list_key": "messages",
+        "threads": {
+          "chats_or_group": {
+            "list": { "path": ["chats"] },
+            "messages": { "path": ["messages"] },
+            "group": { "messages": { "path": ["messages"] }, "by": { "path": ["key", "remoteJid"] }, "position": "in-group" }
+          }
+        },
+        "thread": {
+          "id": { "first": [{ "path": ["id"] }, { "path": ["jid"] }, { "value": "group_key" }] },
+          "skip_without_id": true,
+          "title": {
+            "first": [
+              { "path": ["name"] },
+              { "path": ["subject"] },
+              { "lookup": { "path": ["contacts"], "in": "snapshot" }, "key": { "value": "session_id" } },
+              { "lookup": { "path": ["contacts"], "in": "snapshot" }, "key": { "value": "session_id", "ops": [{ "op": "before", "sep": "@" }] } },
+              { "first_other_speaker": true },
+              { "value": "session_id", "ops": [{ "op": "before", "sep": "@" }] }
+            ]
+          }
+        },
+        "message": {
+          "speaker": {
+            "if": { "truthy": { "path": ["key", "fromMe"] } },
+            "then": { "const": "me" },
+            "else": {
+              "if": { "present": { "first": [{ "path": ["key", "participant"] }, { "path": ["key", "remoteJid"] }] } },
+              "then": {
+                "first": [
+                  { "lookup": { "path": ["contacts"], "in": "snapshot" }, "key": { "first": [{ "path": ["key", "participant"] }, { "path": ["key", "remoteJid"] }] } },
+                  { "lookup": { "path": ["contacts"], "in": "snapshot" }, "key": { "first": [{ "path": ["key", "participant"] }, { "path": ["key", "remoteJid"] }], "ops": [{ "op": "before", "sep": "@" }] } },
+                  { "path": ["pushName"] },
+                  { "first": [{ "path": ["key", "participant"] }, { "path": ["key", "remoteJid"] }], "ops": [{ "op": "before", "sep": "@" }] }
+                ]
+              },
+              "else": { "first": [{ "path": ["pushName"] }, { "const": "them" }] }
+            }
+          },
+          "text": {
+            "first": [
+              { "path": ["message", "conversation"], "ops": [{ "op": "text" }] },
+              { "any": { "path": ["message"] }, "get": { "first": [{ "path": ["text"], "in": "item", "ops": [{ "op": "text" }] }, { "path": ["caption"], "in": "item", "ops": [{ "op": "text" }] }] } }
+            ]
+          },
+          "at": { "first": [{ "path": ["messageTimestamp"] }, { "path": ["timestamp"] }], "ops": [{ "op": "time", "from": "epoch-auto" }] }
+        }
+      }
+    },
+    {
+      "id": "gemini-cli-logs",
+      "label": "Gemini CLI chat logs",
+      "reader": "fields",
+      "format_version": "Gemini CLI logs.json records",
+      "recording": {"app": "Gemini", "person_speakers": ["user"], "ai_speakers": ["assistant"]},
+      "unreadable_expected": "readable json array",
+      "file": { "format": "json" },
+      "input_shape": { "media_types": ["application/json"], "extensions": [".json"], "required_json_keys": ["sessionId", "type", "message"] },
+      "window_any_thread": true,
+      "summary": { "order": "newest-first", "most": 64 },
+      "shape": {
+        "root_list_key": "records",
+        "root_object_key": "records",
+        "threads": { "group": { "messages": { "path": ["records"] }, "by": { "first": [{ "path": ["sessionId"] }, { "file": "stem" }] } } },
+        "thread": {
+          "id": { "value": "group_key" },
+          "title_from_messages": { "speaker_in": ["user"], "skip_prefix": "<", "max": 240 }
+        },
+        "message": {
+          "keep_latest": { "by": { "path": ["messageId"] }, "order": [{ "path": ["timestamp"] }] },
+          "sort": [{ "get": { "path": ["messageId"] }, "numeric_first": true }, { "get": { "path": ["timestamp"] } }],
+          "include_when": { "in": { "first": [{ "path": ["type"] }, { "path": ["role"] }] }, "values": ["user", "assistant"] },
+          "speaker": { "first": [{ "path": ["type"] }, { "path": ["role"] }] },
+          "text": { "path": ["message"], "ops": [{ "op": "block-text", "list": "first" }, { "op": "text" }] },
+          "at": { "path": ["timestamp"] },
+          "native_ref": { "path": ["messageId"] },
+          "attachments": { "path": ["attachments"] }
+        }
+      }
+    },
+    {
+      "id": "agent-session-lines",
+      "label": "Agent chat session (one JSON line per message)",
+      "reader": "fields",
+      "format_version": "JSON lines with top-level role and content",
+      "recording": {"app": "AI session", "person_speakers": ["user"], "ai_speakers": ["assistant"]},
+      "unreadable_expected": "readable",
+      "file": { "format": "jsonl" },
+      "input_shape": { "extensions": [".jsonl"], "line_paths": [["role"], ["content"]] },
+      "window_any_thread": true,
+      "shape": {
+        "threads": { "one": { "path": ["lines"] } },
+        "thread": {
+          "id": { "file": "stem" },
+          "title_from_messages": { "speaker_in": ["user"], "skip_prefix": "<", "strip_pattern": "^(?:<[@#][!&]?\\d+>\\s*)+", "max": 240 }
+        },
+        "message": {
+          "include_when": { "in": { "path": ["role"] }, "values": ["user", "assistant"] },
+          "speaker": { "path": ["role"] },
+          "text": { "path": ["content"], "ops": [{ "op": "text" }] },
+          "at": { "path": ["timestamp"], "ops": [{ "op": "nonempty-text" }] },
+          "native_ref": { "first": [{ "path": ["id"] }, { "path": ["uuid"] }, { "path": ["message_id"] }] }
+        }
+      }
+    },
+    {
+      "id": "imessage-database",
+      "label": "Messages on this Mac",
+      "reader": "sqlite-rows",
+      "format_version": "macOS Messages chat.db (chat, message, handle, chat_message_join; attributedBody typedstream)",
+      "recording": {"app": "Messages"},
+      "unreadable_expected": "readable sqlite chat.db",
+      "input_shape": { "extensions": [".db"], "sqlite_tables": ["chat", "message", "handle", "chat_message_join"] },
+      "sqlite": {
+        "unreadable_expected": "readable sqlite chat.db",
+        "schema_expected": "chat.db schema (chat/message/handle/chat_message_join)",
+        "thread_key": "chat_id",
+        "optional_columns": {
+          "table": "message",
+          "alias": "m",
+          "columns": ["is_sent", "is_delivered", "date_delivered", "is_read", "date_read", "date_edited", "date_retracted", "error"]
+        },
+        "thread": {
+          "id": { "path": ["guid"] },
+          "id_without_rows": "chat-{key}",
+          "id_fallback_prefix": "chat-",
+          "title": { "path": ["title"] },
+          "counterparty": { "if": { "truthy": { "path": ["is_from_me"] } }, "then": { "const": null }, "else": { "path": ["handle"] } },
+          "time": "apple-epoch"
+        },
+        "message": {
+          "native_ref": { "first": [{ "path": ["msg_guid"] }, { "path": ["msg_rowid"], "ops": [{ "op": "template", "text": "imsg-rowid:{value}" }] }] },
+          "speaker": { "if": { "truthy": { "path": ["is_from_me"] } }, "then": { "const": "me" }, "else": { "first": [{ "path": ["handle"] }, { "const": "them" }] } },
+          "text": { "first": [{ "path": ["text"], "ops": [{ "op": "text" }] }, { "path": ["attributedBody"], "ops": [{ "op": "typedstream-text" }] }, { "const": "" }] },
+          "at": { "path": ["date"], "ops": [{ "op": "time", "from": "apple-epoch" }] }
+        },
+        "state_events_when": { "truthy": { "path": ["is_from_me"] } },
+        "state_events": [
+          { "key": "sent", "when": { "truthy": { "path": ["is_sent"] } }, "raw": "is_sent=1" },
+          { "key": "delivered", "when": { "truthy": { "path": ["is_delivered"] } }, "at": { "path": ["date_delivered"], "ops": [{ "op": "time", "from": "apple-epoch" }] }, "raw": "is_delivered=1" },
+          { "key": "read", "when": { "truthy": { "path": ["is_read"] } }, "at": { "path": ["date_read"], "ops": [{ "op": "time", "from": "apple-epoch" }] }, "raw": "is_read=1" },
+          { "key": "failed", "when": { "truthy": { "path": ["error"] } }, "raw": { "path": ["error"], "ops": [{ "op": "template", "text": "error={value}" }] } },
+          { "key": "edited", "when": { "truthy": { "path": ["date_edited"] } }, "at": { "path": ["date_edited"], "ops": [{ "op": "time", "from": "apple-epoch" }] }, "raw": "date_edited" },
+          { "key": "retracted", "when": { "truthy": { "path": ["date_retracted"] } }, "at": { "path": ["date_retracted"], "ops": [{ "op": "time", "from": "apple-epoch" }] }, "raw": "date_retracted" }
+        ],
+        "reaction": {
+          "native_ref": { "first": [{ "path": ["native_guid"] }, { "path": ["native_rowid"], "ops": [{ "op": "template", "text": "imsg-rowid:{value}" }] }] },
+          "speaker": { "if": { "truthy": { "path": ["is_from_me"] } }, "then": { "const": "me" }, "else": { "first": [{ "path": ["handle"] }, { "const": "them" }] } },
+          "at": { "path": ["date"], "ops": [{ "op": "time", "from": "apple-epoch" }] },
+          "symbol": {
+            "first": [
+              { "path": ["emoji"] },
+              { "lookup": { "const": { "2000": "love", "2001": "like", "2002": "dislike", "2003": "laugh", "2004": "emphasis", "2005": "question" } }, "key": { "path": ["amt"], "ops": [{ "op": "fold-at-least", "at_least": 3000, "minus": 1000 }, { "op": "string" }] } },
+              { "path": ["amt"], "ops": [{ "op": "fold-at-least", "at_least": 3000, "minus": 1000 }, { "op": "template", "text": "code:{value}" }] }
+            ]
+          },
+          "reaction_kind": { "if": { "at_least": { "path": ["amt"] }, "value": 3000 }, "then": { "const": "removed" }, "else": { "const": "added" } },
+          "raw": { "path": ["amt"], "ops": [{ "op": "template", "text": "amt={value}" }] },
+          "target": { "path": ["assoc_guid"], "ops": [{ "op": "strip-prefixes", "prefixes": [{ "prefix": "p:", "through": "/" }, { "prefix": "bp:" }] }] }
+        },
+        "queries": {
+          "messages": { "sql": "SELECT c.ROWID AS chat_id, COALESCE(NULLIF(c.display_name, ''), c.chat_identifier, c.guid) AS title, c.guid AS guid, m.guid AS msg_guid, m.ROWID AS msg_rowid, m.text AS text, m.attributedBody AS attributedBody, m.date AS date, m.is_from_me AS is_from_me, h.id AS handle{optional} FROM chat c JOIN chat_message_join cmj ON cmj.chat_id = c.ROWID JOIN message m ON m.ROWID = cmj.message_id LEFT JOIN handle h ON h.ROWID = m.handle_id WHERE ((m.text IS NOT NULL AND TRIM(m.text) <> '') OR m.attributedBody IS NOT NULL) ORDER BY c.ROWID, m.date" },
+          "reactions": {
+            "requires_columns": ["associated_message_type", "associated_message_guid"],
+            "when_column": { "associated_message_emoji": ", m.associated_message_emoji AS emoji" },
+            "sql": "SELECT c.ROWID AS chat_id, m.guid AS native_guid, m.ROWID AS native_rowid, m.date AS date, m.is_from_me AS is_from_me, h.id AS handle, m.associated_message_guid AS assoc_guid, m.associated_message_type AS amt{associated_message_emoji} FROM chat c JOIN chat_message_join cmj ON cmj.chat_id = c.ROWID JOIN message m ON m.ROWID = cmj.message_id LEFT JOIN handle h ON h.ROWID = m.handle_id WHERE m.associated_message_guid IS NOT NULL AND m.associated_message_type IS NOT NULL AND m.associated_message_type != 0 ORDER BY c.ROWID, m.date"
+          },
+          "summary_rows": { "sql": "WITH bodied AS (SELECT c.ROWID AS chat_id, COALESCE(NULLIF(c.display_name, ''), c.chat_identifier, c.guid) AS title, c.guid AS guid, m.guid AS msg_guid, m.ROWID AS msg_rowid, m.text AS text, m.attributedBody AS attributedBody, m.date AS date, m.is_from_me AS is_from_me, h.id AS handle{optional}, ROW_NUMBER() OVER (PARTITION BY c.ROWID ORDER BY m.date DESC, m.ROWID DESC) AS rn FROM chat c JOIN chat_message_join cmj ON cmj.chat_id = c.ROWID JOIN message m ON m.ROWID = cmj.message_id LEFT JOIN handle h ON h.ROWID = m.handle_id WHERE ((m.text IS NOT NULL AND TRIM(m.text) <> '') OR m.attributedBody IS NOT NULL)) SELECT * FROM bodied WHERE rn <= ? ORDER BY chat_id ASC, date ASC, msg_rowid ASC" },
+          "summary_send": { "sql": "SELECT c.ROWID AS chat_id, COUNT(DISTINCT h.id) AS nh, MIN(h.id) AS one_handle FROM chat c JOIN chat_message_join cmj ON cmj.chat_id = c.ROWID JOIN message m ON m.ROWID = cmj.message_id LEFT JOIN handle h ON h.ROWID = m.handle_id WHERE m.is_from_me = 0 AND h.id IS NOT NULL AND ((m.text IS NOT NULL AND TRIM(m.text) <> '') OR m.attributedBody IS NOT NULL) GROUP BY c.ROWID" },
+          "summary_stats": { "sql": "SELECT c.ROWID AS chat_id, COUNT(*) AS total, MIN(m.date) AS first_date, MAX(m.date) AS last_date FROM chat c JOIN chat_message_join cmj ON cmj.chat_id = c.ROWID JOIN message m ON m.ROWID = cmj.message_id WHERE ((m.text IS NOT NULL AND TRIM(m.text) <> '') OR m.attributedBody IS NOT NULL) GROUP BY c.ROWID" },
+          "window_thread": { "sql": "SELECT ROWID AS key, COALESCE(NULLIF(display_name,''), chat_identifier, guid) AS title FROM chat WHERE guid = ?" },
+          "window_thread_by_key": { "sql": "SELECT ROWID AS key, COALESCE(NULLIF(display_name,''), chat_identifier, guid) AS title FROM chat WHERE ROWID = ?" },
+          "window_count": { "sql": "SELECT COUNT(*) AS total FROM chat_message_join cmj JOIN message m ON m.ROWID = cmj.message_id WHERE cmj.chat_id = ? AND ((m.text IS NOT NULL AND TRIM(m.text) <> '') OR m.attributedBody IS NOT NULL)" },
+          "window_rows": { "sql": "SELECT m.guid AS msg_guid, m.ROWID AS msg_rowid, m.text AS text, m.attributedBody AS attributedBody, m.date AS date, m.is_from_me AS is_from_me, h.id AS handle{optional} FROM chat_message_join cmj JOIN message m ON m.ROWID = cmj.message_id LEFT JOIN handle h ON h.ROWID = m.handle_id WHERE cmj.chat_id = ? AND ((m.text IS NOT NULL AND TRIM(m.text) <> '') OR m.attributedBody IS NOT NULL) ORDER BY m.date ASC, m.ROWID ASC LIMIT ? OFFSET ?" },
+          "window_reactions": {
+            "requires_columns": ["associated_message_type", "associated_message_guid"],
+            "when_column": { "associated_message_emoji": ", m.associated_message_emoji AS emoji" },
+            "sql": "SELECT m.guid AS native_guid, m.ROWID AS native_rowid, m.date AS date, m.is_from_me AS is_from_me, h.id AS handle, m.associated_message_guid AS assoc_guid, m.associated_message_type AS amt{associated_message_emoji} FROM chat_message_join cmj JOIN message m ON m.ROWID = cmj.message_id LEFT JOIN handle h ON h.ROWID = m.handle_id WHERE cmj.chat_id = ? AND m.associated_message_guid IS NOT NULL AND m.associated_message_type IS NOT NULL AND m.associated_message_type != 0 ORDER BY m.date ASC, m.ROWID ASC"
+          }
+        }
+      }
+    },
+    {
+      "id": "mail-message",
+      "label": "One email message (.eml)",
+      "reader": "mail",
+      "format_version": "RFC 5322 with MIME parts",
+      "recording": {"app": "Mail"},
+      "input_shape": { "extensions": [".eml"], "media_types": ["message/rfc822"] },
+      "mail": { "wire": "rfc5322", "needs": ["mailbox_address"] }
+    },
+    {
+      "id": "gmail-page",
+      "label": "A page of Gmail messages",
+      "reader": "mail",
+      "format_version": "Gmail API v1 users.messages resources (format=full)",
+      "recording": {"app": "Gmail"},
+      "input_shape": { "media_types": ["application/json"], "required_paths": [["messages"]], "message_paths": [["payload", "headers"]] },
+      "unreadable_expected": "readable message page JSON",
+      "mail": { "wire": "mime-part-tree", "needs": ["mailbox_address"] }
+    },
+    {
+      "id": "agent-session-events",
+      "label": "AI coding-agent session events (one JSON line per event)",
+      "reader": "session-events",
+      "format_version": "JSON-lines session event streams: flat response items with function calls, or messages with content blocks",
+      "recording": {"app": "AI coding session", "person_speakers": ["user"], "ai_speakers": ["assistant"]},
+      "input_shape": { "extensions": [".jsonl"], "line_paths": [["type"], ["payload"]] },
+      "session_events": { "title": { "skip_prefixes": ["<"], "max": 240 } }
+    },
+    {
+      "id": "web-conversation-capture",
+      "label": "A captured page of web AI conversations",
+      "reader": "web-capture",
+      "format_version": "authenticated-web-conversation-page snapshots",
+      "recording": {"app": "Web AI chat", "person_speakers": ["user"], "ai_speakers": ["assistant"]},
+      "input_shape": { "media_types": ["application/json"], "required_paths": [["capture_binding"], ["conversations"]] },
+      "web_capture": { "binding_fields": ["captured_by", "surface", "authorization"] }
+    }
+  ]
+}

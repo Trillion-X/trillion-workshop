@@ -1,0 +1,15 @@
+{
+  "public": [
+    "read-data/decode_source.py",
+    "read-data/read_source.py",
+    "read-data/read_mail.py",
+    "read-data/read_session_events.py",
+    "read-data/read_web_capture.py",
+    "read-data/transcript_mapper.py",
+    "read-data/content_identity.py",
+    "read-data/choose_source.py",
+    "read-data/for_recording.py",
+    "read-data/snapshot_fold.py",
+    "read-data/sources.json"
+  ]
+}
