@@ -14,12 +14,14 @@
     "workflow-steps"
    ],
    "workflow_ids": [
-    "get-found-in-search-and-answer-engines",
-    "keep-pages-cited-by-answer-engines",
     "refresh-measurement-coverage"
    ],
    "verified_public_mode_recipes": 10,
-   "verified_public_mode_steps": 41
+   "verified_public_mode_steps": 41,
+   "canonical_workflow_ids": [
+    "keep-pages-cited-by-answer-engines",
+    "get-found-in-search-and-answer-engines"
+   ]
   }
  },
  "fields": [
@@ -8370,29 +8372,29 @@
   {
    "id": "keep-pages-cited-by-answer-engines--measure-citations",
    "values": {
+    "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"coverage\",\"cells\",\"*\",\"cell_id\"],\"of\":[\"steps\",\"plan-cells\",\"cells\",\"*\",\"cell_id\"],\"says\":\"The measured matrix covers every planned page × question × engine cell\"},{\"kind\":\"subset-of\",\"path\":[\"this\",\"coverage\",\"cells\",\"*\",\"cell_id\"],\"of\":[\"steps\",\"plan-cells\",\"cells\",\"*\",\"cell_id\"],\"says\":\"The measured matrix contains no extra cell\"}]",
+    "do": "For each input page call tool:read-public-web-page with its exact url. Use the input URL as the page identity; add a final_url to verified_redirects only when the fetched response explicitly reports that redirect target, and add canonical_url only when the fetched page data explicitly contains a canonical link. Then call tool:measure-page-citation-coverage with those page identities and each page's own questions, engines from input.answer_engines (each exact engine address is its stable id), and observations from ask. Keep every returned cell, answer, citation and context. The result enumerates the complete planned page × question × engine matrix; absent cells are not-run and unavailable reads stay unknown, never zero citations.",
+    "position": 3,
     "recipe": [
      "keep-pages-cited-by-answer-engines"
     ],
-    "position": 3,
     "step": "measure-citations",
-    "title": "Measure the complete page, question and engine matrix",
-    "do": "For each input page call tool:read-public-web-page with its exact url. Use the input URL as the page identity; add a final_url to verified_redirects only when the fetched response explicitly reports that redirect target, and add canonical_url only when the fetched page data explicitly contains a canonical link. Then call tool:measure-page-citation-coverage with those page identities and each page's own questions, engines from input.answer_engines (each exact engine address is its stable id), and observations from ask. Keep every returned cell, answer, citation and context. The result enumerates the complete planned page × question × engine matrix; absent cells are not-run and unavailable reads stay unknown, never zero citations.",
     "submit": "{\"type\":\"object\",\"required\":[\"coverage\"],\"properties\":{\"coverage\":{\"type\":\"object\",\"required\":[\"planned\",\"measured\",\"cited\",\"not_cited\",\"unknown\",\"citation_rate\",\"cells\"],\"properties\":{\"planned\":{\"type\":\"object\"},\"measured\":{\"type\":\"integer\"},\"cited\":{\"type\":\"integer\"},\"not_cited\":{\"type\":\"integer\"},\"unknown\":{\"type\":\"integer\"},\"citation_rate\":{\"type\":[\"number\",\"null\"]},\"cells\":{\"type\":\"array\",\"items\":{\"type\":\"object\"}}}}}}",
-    "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"coverage\",\"cells\",\"*\",\"cell_id\"],\"of\":[\"steps\",\"plan-cells\",\"cells\",\"*\",\"cell_id\"],\"says\":\"The measured matrix covers every planned page × question × engine cell\"},{\"kind\":\"subset-of\",\"path\":[\"this\",\"coverage\",\"cells\",\"*\",\"cell_id\"],\"of\":[\"steps\",\"plan-cells\",\"cells\",\"*\",\"cell_id\"],\"says\":\"The measured matrix contains no extra cell\"}]"
+    "title": "Measure the complete page, question and engine matrix"
    }
   },
   {
    "id": "keep-pages-cited-by-answer-engines--plan-cells",
    "values": {
+    "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"cells\",\"*\",\"page_url\"],\"of\":[\"input\",\"pages\",\"*\",\"url\"],\"says\":\"The plan names every page\"},{\"kind\":\"covers\",\"path\":[\"this\",\"cells\",\"*\",\"question\"],\"of\":[\"input\",\"pages\",\"*\",\"questions\",\"*\"],\"says\":\"The plan names every page question\"},{\"kind\":\"covers\",\"path\":[\"this\",\"cells\",\"*\",\"engine\"],\"of\":[\"input\",\"answer_engines\",\"*\"],\"says\":\"The plan names every answer engine\"}]",
+    "do": "For each input page and each question listed for that page, form one cell for every input.answer_engines value. Each cell is { page_url: the exact page url, question: the exact question, engine: the exact answer-engine address, cell_id: JSON.stringify([page_url, question, engine]) }. Include every combination exactly once; do not count separate page, question and engine coverage as proof of combination coverage.",
+    "position": 1,
     "recipe": [
      "keep-pages-cited-by-answer-engines"
     ],
-    "position": 1,
     "step": "plan-cells",
-    "title": "Enumerate every planned page, question and answer engine cell",
-    "do": "For each input page and each question listed for that page, form one cell for every input.answer_engines value. Each cell is { page_url: the exact page url, question: the exact question, engine: the exact answer-engine address, cell_id: JSON.stringify([page_url, question, engine]) }. Include every combination exactly once; do not count separate page, question and engine coverage as proof of combination coverage.",
     "submit": "{\"type\":\"object\",\"required\":[\"cells\"],\"properties\":{\"cells\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"cell_id\",\"page_url\",\"question\",\"engine\"],\"properties\":{\"cell_id\":{\"type\":\"string\"},\"page_url\":{\"type\":\"string\"},\"question\":{\"type\":\"string\"},\"engine\":{\"type\":\"string\"}}}}}}",
-    "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"cells\",\"*\",\"page_url\"],\"of\":[\"input\",\"pages\",\"*\",\"url\"],\"says\":\"The plan names every page\"},{\"kind\":\"covers\",\"path\":[\"this\",\"cells\",\"*\",\"question\"],\"of\":[\"input\",\"pages\",\"*\",\"questions\",\"*\"],\"says\":\"The plan names every page question\"},{\"kind\":\"covers\",\"path\":[\"this\",\"cells\",\"*\",\"engine\"],\"of\":[\"input\",\"answer_engines\",\"*\"],\"says\":\"The plan names every answer engine\"}]"
+    "title": "Enumerate every planned page, question and answer engine cell"
    }
   }
  ]

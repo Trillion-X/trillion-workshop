@@ -1,5 +1,5 @@
 {
-  "about": "Generated from local workflow row patch data layered over published views by do-work/rebuild-recipes.mjs; canonical account rows have not been synchronized or read back. The account row owner remains the source of truth.",
+  "about": "Generated from published workflow views by do-work/rebuild-recipes.mjs; canonical account rows have been read back where synchronized. Pending account workflow rows: refresh-measurement-coverage. The account row owner remains the source of truth.",
   "records": [
     {
       "payload": {
