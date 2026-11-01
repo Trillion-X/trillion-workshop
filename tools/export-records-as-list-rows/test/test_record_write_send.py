@@ -363,6 +363,26 @@ class Door(Pantry):
         with self.assertRaisesRegex(ValueError, 'repeated continuation cursor'):
             door.read_type('record:stores')
 
+    def test_each_page_has_its_own_bounded_retry_allowance(self):
+        self.config.update(page_retry_if=['temporary'], page_retries=1, page_retry_wait=0)
+        door = self.door()
+        calls = []
+        replies = iter([
+            {'is_error': True, 'answer': {'code': 'temporary'}},
+            {'answer': {'records': [], 'next': 'second'}},
+            {'is_error': True, 'answer': {'code': 'temporary'}},
+            {'answer': {'records': [{'id': 'record:stores:one', 'type': 'record:stores', 'value': {}}], 'next': None}},
+        ])
+        def answer(method, key, given):
+            calls.append(given.get('after'))
+            return next(replies)
+        door.play = answer
+        self.assertEqual(len(door.read_type('record:stores')), 1)
+        self.assertEqual(calls, [None, None, 'second', 'second'])
+        door.play = lambda *args: {'is_error': True, 'answer': {'code': 'temporary'}}
+        with self.assertRaisesRegex(ValueError, 'was refused'):
+            door.read_type('record:stores')
+
     def test_cli_baseline_plan_send_and_readback_share_refresh_semantics(self):
         record = {'id': 'record:stores:one', 'type': 'record:stores', 'value': {'name': 'One'}}
         baseline = {'commands': [{'input': {'records': [record]}}]}
