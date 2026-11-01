@@ -36,13 +36,13 @@ test('a row can reach the internet only to talk to Stripe with the person\'s own
   }
 });
 
-const usageWriters = new Set(['tool:manage-usage-pricing', 'tool:keep-resource-usage-observation', 'tool:settle-shared-resource-cost', 'tool:correct-resource-usage-settlement']);
+const usageWriters = new Set(['tool:manage-usage-pricing', 'tool:keep-resource-usage-observation', 'tool:settle-shared-resource-cost', 'tool:correct-resource-usage-settlement', 'tool:report-resource-usage', 'tool:reconcile-resource-usage-report', 'tool:cancel-prepared-resource-usage-report']);
 test('payment rows only read; usage writers can append only their declared accounting/configuration records', () => {
   for (const row of rows) {
     for (const right of row.invoke.records?.rights ?? []) {
       const allowed = usageWriters.has(row.id) ? ['records:list', 'records:read', 'records:write'] : ['records:list', 'records:read'];
       assert.ok(right.operations.every(operation => allowed.includes(operation)), `${row.id} respects its record action scope`);
-      if (right.operations.includes('records:write')) assert.match(right.kind, /^(usage-pricing-rule(?:-version)?|resource-usage-(observation|settlement(?:-version|-evidence)?|allocation|receipt))$/, `${row.id} cannot write another feature's records`);
+      if (right.operations.includes('records:write')) assert.match(right.kind, /^(usage-pricing-rule(?:-version)?|resource-usage-(observation|settlement(?:-version|-evidence)?|allocation|receipt|cash|applied-source|provider-report))$/, `${row.id} cannot write another feature's records`);
     }
   }
 });

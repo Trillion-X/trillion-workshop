@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { openSync, closeSync } from 'node:fs';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { resolveUsagePricing, settleResourcePool, priceUsageTree, cashClearing, compareAmounts, addAmounts, resourceReservationQuote } from '../read-data/resource-usage.mjs';
+import { resolveUsagePricing, settleResourcePool, priceUsageTree, cashClearing, compareAmounts, addAmounts, resourceReservationQuote, multiplyAmounts, divideAmounts } from '../read-data/resource-usage.mjs';
 import { manageUsagePricing, priceResourceUsage, keepResourceUsageObservation, settleSharedResourceCost, correctResourceUsageSettlement, readResourceUsageSettlement, usageRecordTypes } from '../do-work/resource-usage.mjs';
 
 const key = { supplier_pool: 'pool:a', tariff_version: 'tariff:1', cost_class: 'source-transfer', invoice_period: '2026-10', currency: 'usd', resource_id: 'resource:source-bytes' };
@@ -124,7 +124,7 @@ function memoryDoor() {
   const records = new Map(); const keys = new Map(); const writes = []; let failAfterCommit = false;
   const door = {
     async read(type, id) { const row = records.get(id); return row?.type === type ? structuredClone(row.value) : null; },
-    async *list({ type, prefix = '', above } = {}) { for (const [id, row] of [...records].sort(([a], [b]) => a.localeCompare(b))) if (row.type === type && id.startsWith(prefix) && (!above || id > above)) yield { id, ...structuredClone(row) }; },
+    async *list({ type, prefix = '', above, below, reverse = true } = {}) { if (!reverse) throw new Error('Native unordered kind reads require descending id order.'); for (const [id, row] of [...records].sort(([a], [b]) => b.localeCompare(a))) if (row.type === type && id.startsWith(prefix) && (!above || id > above) && (!below || id < below)) yield { id, ...structuredClone(row) }; },
     async write(rows, { key: requestKey } = {}) {
       if (keys.has(requestKey)) return keys.get(requestKey);
       assert.ok(Buffer.byteLength(JSON.stringify(rows)) < 60000, 'bounded record write does not reproduce the 413 boundary');
@@ -237,11 +237,18 @@ test('the actual Marketplace export runner uses the mounted records capability, 
     assert.equal(settled.code, 0, settled.answer.error); assert.equal(settled.answer.result.settlement.result.state, 'reconciled');
     const read = await throughRunner('readResourceUsageSettlement', { settlement_id: 'runner' }, server.descriptor);
     assert.equal(read.code, 0); equal(read.answer.result.allocations[0].charged, '0.13');
-    assert.ok(server.calls.some(call => call.method === 'records:list' && call.input.reverse === false), 'pagination direction is explicit');
+    assert.ok(server.calls.some(call => call.method === 'records:list' && call.input.reverse === true), 'pagination direction is explicit');
   } finally { await server.close(); }
   const readOnly = await startFakeDoor({ rights: Object.values(usageRecordTypes).map(kind => ({ kind, operations: ['records:read', 'records:list'] })) });
   try {
     const refused = await throughRunner('manageUsagePricing', { action: 'save', rule_id: 'refused', expected_version: 0, request_key: 'refused', rule: rule('refused') }, readOnly.descriptor);
     assert.equal(refused.code, 1); assert.match(refused.answer.error, /may not reach/); assert.equal(readOnly.kept.size, 0);
   } finally { await readOnly.close(); }
+});
+
+
+test('exact component projection multiplies and divides without cash rounding', () => {
+  equal(multiplyAmounts('0.015', {n:'1',d:'30'}), '0.0005');
+  equal(divideAmounts('0.02', '30'), {n:'1',d:'1500'});
+  assert.throws(() => divideAmounts('1', '0'), /nonpositive/);
 });

@@ -35,7 +35,7 @@ export async function manageUsagePricing(input, { door }) {
   if (input.action === 'list') {
     const limit = input.limit ?? 50; if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('List from 1 to 100 pricing rules.');
     const rules = []; let next = null;
-    for await (const record of door.list({ type, reverse: false, ...(input.after ? { above: input.after } : {}) })) {
+    for await (const record of door.list({ type, reverse: true, ...(input.after ? { below: input.after } : {}) })) {
       if (rules.length === limit) { next = rules.at(-1).record_id; break; }
       rules.push({ record_id: record.id, ...record.value });
     }
@@ -177,7 +177,7 @@ export const correctResourceUsageSettlement = (input, context) => settle(input, 
 async function allocationsOf(door, record) {
   if (Array.isArray(record.result.allocations)) return record.result.allocations;
   const rows = []; let count = 0;
-  for await (const row of door.list({ type: usageRecordTypes.allocation, prefix: record.allocation_prefix, reverse: false })) {
+  for await (const row of door.list({ type: usageRecordTypes.allocation, prefix: record.allocation_prefix, reverse: true })) {
     if (++count > 20000) throw new Error('This settlement exceeds the bounded correction input; reconcile it in separate scopes.');
     if (row.value.kind !== 'removed') rows.push(row.value);
   }
@@ -192,7 +192,7 @@ export async function readResourceUsageSettlement(input, { door }) {
   const limit = input.limit ?? 50; if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('Read from 1 to 100 settlement allocations per page.');
   if (input.after && !input.after.startsWith(record.allocation_prefix)) throw new Error('The allocation cursor is for another settlement version.');
   const allocations = []; let next = null;
-  for await (const row of door.list({ type: usageRecordTypes.allocation, prefix: record.allocation_prefix, reverse: false, ...(input.after ? { above: input.after } : {}) })) {
+  for await (const row of door.list({ type: usageRecordTypes.allocation, prefix: record.allocation_prefix, reverse: true, ...(input.after ? { below: input.after } : {}) })) {
     if (allocations.length === limit) { next = allocations.at(-1).record_id; break; }
     allocations.push({ record_id: row.id, ...row.value });
   }

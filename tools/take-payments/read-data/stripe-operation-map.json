@@ -1,5 +1,5 @@
 {
-  "description": "Stripe operation wire-shape map — DATA consumed by do-work/stripe-request-mapper.mjs. Each row tells the generic mapper how one operation_id becomes an HTTP request shape: method, the vendor's published endpoint as a template ({provider_object_ref} substituted from input_facts[object_ref_key]), and which input-fact key carries the request subject, and optionally `acts_for_account` ({input_fact, header}): the header that makes the request act for the account named by that input fact. Each row carries the WHOLE address the vendor answers on rather than a fragment composed onto a base, because the vendor serves more than one versioned namespace and a shared prefix could only ever be right for some of them. Adding a Stripe operation = adding ONE row here ; the mapper enumerates nothing (L090 / enum-dissolution).",
+  "description": "Stripe operation wire-shape map \u2014 DATA consumed by do-work/stripe-request-mapper.mjs. Each row tells the generic mapper how one operation_id becomes an HTTP request shape: method, the vendor's published endpoint as a template ({provider_object_ref} substituted from input_facts[object_ref_key]), and which input-fact key carries the request subject, and optionally `acts_for_account` ({input_fact, header}): the header that makes the request act for the account named by that input fact. Each row carries the WHOLE address the vendor answers on rather than a fragment composed onto a base, because the vendor serves more than one versioned namespace and a shared prefix could only ever be right for some of them. Adding a Stripe operation = adding ONE row here ; the mapper enumerates nothing (L090 / enum-dissolution).",
   "current_api_version": "2026-05-27.dahlia",
   "operations": [
     {
@@ -252,6 +252,27 @@
       "endpoint": "https://api.stripe.com/v1/customers",
       "subject_key": "operation_subject",
       "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:read-stripe-account",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/account",
+      "subject_key": null,
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-invoice-item",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/invoiceitems",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:read-invoice-item",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/invoiceitems/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
     }
   ]
 }

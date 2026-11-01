@@ -33,9 +33,10 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       return { structuredContent: { id, type, value: held?.type === type ? held.value : null } };
     },
     // `limit` bounds the rows read; `where` keeps those whose named fields equal it (as JSON), `fields` narrows each value.
-    'records:list': ({ type, prefix, order, limit = 50, after, fields, where }) => {
+    'records:list': ({ type, prefix, order, limit = 50, after, fields, where, above, below, reverse = true }) => {
       if (!may(type, 'records:list', { prefix, order })) return refuse(OUTSIDE);
-      const ids = [...kept.values()].filter(record => record.type === type && (!prefix || record.id.startsWith(prefix))).map(record => record.id).sort().reverse();
+      if (!order && !reverse) return refuse('original_input_refused');
+      const ids = [...kept.values()].filter(record => record.type === type && (!prefix || record.id.startsWith(prefix)) && (above === undefined || record.id > above) && (below === undefined || record.id < below)).map(record => record.id).sort().reverse();
       const from = after === undefined ? 0 : ids.indexOf(after) + 1;
       const size = Math.min(limit, pageCut ?? limit);
       const page = ids.slice(from, from + size);

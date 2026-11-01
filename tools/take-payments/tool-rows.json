@@ -4210,6 +4210,846 @@
         "verify": [],
         "kind": "ai-tool-descriptor"
       }
+    },
+    {
+      "payload": {
+        "status": "active",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "reportResourceUsage"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "resource-usage-settlement",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-version",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-allocation",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "usage-billing-agreement",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-cash",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-applied-source",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-provider-report",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "Existing payment sender and exact resource settlement; purchased agreement-owner projection, never a new grant."
+        },
+        "id": "tool:report-resource-usage",
+        "label": "Report resource usage",
+        "job": "Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery",
+        "description": "Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "settlement_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "settlement_version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "payer_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "agreement_ref": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "settlement_id",
+            "settlement_version",
+            "payer_id",
+            "agreement_ref"
+          ],
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "report_id",
+            "state",
+            "payer_id",
+            "currency",
+            "cash_amount",
+            "payment_state"
+          ],
+          "properties": {
+            "report_id": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "prepared",
+                "reporting",
+                "outcome_unknown",
+                "reconciliation_required",
+                "provider_accepted",
+                "accrued_no_cash_report",
+                "cancelled_before_dispatch"
+              ]
+            },
+            "payer_id": {
+              "type": "string"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "cash_amount": {
+              "type": "object"
+            },
+            "payment_state": {
+              "const": "not_proved_collected"
+            }
+          }
+        },
+        "verify": [],
+        "kind": "ai-tool-descriptor"
+      }
+    },
+    {
+      "payload": {
+        "status": "active",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "readResourceUsageReport"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "resource-usage-settlement",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-version",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-allocation",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "usage-billing-agreement",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-cash",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-applied-source",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-provider-report",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "Existing payment sender and exact resource settlement; purchased agreement-owner projection, never a new grant."
+        },
+        "id": "tool:read-resource-usage-report",
+        "label": "Read resource usage report",
+        "job": "Read a usage report and distinguish provider acceptance from actual payment collection",
+        "description": "Read a usage report and distinguish provider acceptance from actual payment collection",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "report_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "report_id"
+          ],
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "report"
+          ],
+          "properties": {
+            "report": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "report_id",
+                    "state",
+                    "payer_id",
+                    "currency",
+                    "cash_amount",
+                    "payment_state"
+                  ],
+                  "properties": {
+                    "report_id": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "prepared",
+                        "reporting",
+                        "outcome_unknown",
+                        "reconciliation_required",
+                        "provider_accepted",
+                        "accrued_no_cash_report",
+                        "cancelled_before_dispatch"
+                      ]
+                    },
+                    "payer_id": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "cash_amount": {
+                      "type": "object"
+                    },
+                    "payment_state": {
+                      "const": "not_proved_collected"
+                    }
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "verify": [],
+        "kind": "ai-tool-descriptor"
+      }
+    },
+    {
+      "payload": {
+        "status": "active",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "reconcileResourceUsageReport"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "resource-usage-settlement",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-version",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-allocation",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "usage-billing-agreement",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-cash",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-applied-source",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-provider-report",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "Existing payment sender and exact resource settlement; purchased agreement-owner projection, never a new grant."
+        },
+        "id": "tool:reconcile-resource-usage-report",
+        "label": "Reconcile resource usage report",
+        "job": "Recover an unknown usage charge by reading the exact provider invoice item without sending it again",
+        "description": "Recover an unknown usage charge by reading the exact provider invoice item without sending it again",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "report_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "provider_invoice_item_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "report_id",
+            "provider_invoice_item_id"
+          ],
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "report_id",
+            "state",
+            "payer_id",
+            "currency",
+            "cash_amount",
+            "payment_state"
+          ],
+          "properties": {
+            "report_id": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "prepared",
+                "reporting",
+                "outcome_unknown",
+                "reconciliation_required",
+                "provider_accepted",
+                "accrued_no_cash_report",
+                "cancelled_before_dispatch"
+              ]
+            },
+            "payer_id": {
+              "type": "string"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "cash_amount": {
+              "type": "object"
+            },
+            "payment_state": {
+              "const": "not_proved_collected"
+            }
+          }
+        },
+        "verify": [],
+        "kind": "ai-tool-descriptor"
+      }
+    },
+    {
+      "payload": {
+        "status": "active",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "cancelPreparedResourceUsageReport"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "resource-usage-settlement",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-settlement-version",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-allocation",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "usage-billing-agreement",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "resource-usage-cash",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-applied-source",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-provider-report",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "provenance": {
+          "source": "Existing payment sender and exact resource settlement; purchased agreement-owner projection, never a new grant."
+        },
+        "id": "tool:cancel-prepared-resource-usage-report",
+        "label": "Cancel prepared resource usage report",
+        "job": "Release only an unsent usage report; retain possible provider charges for reconciliation",
+        "description": "Release only an unsent usage report; retain possible provider charges for reconciliation",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "report_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "report_id"
+          ],
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "report_id",
+            "state",
+            "payer_id",
+            "currency",
+            "cash_amount",
+            "payment_state"
+          ],
+          "properties": {
+            "report_id": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "prepared",
+                "reporting",
+                "outcome_unknown",
+                "reconciliation_required",
+                "provider_accepted",
+                "accrued_no_cash_report",
+                "cancelled_before_dispatch"
+              ]
+            },
+            "payer_id": {
+              "type": "string"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "cash_amount": {
+              "type": "object"
+            },
+            "payment_state": {
+              "const": "not_proved_collected"
+            }
+          }
+        },
+        "verify": [],
+        "kind": "ai-tool-descriptor"
+      }
     }
   ]
 }
