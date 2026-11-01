@@ -88,21 +88,36 @@ export function wordsOfMarkdown(markdown, where = 'markdown', {
   const lines = markdown.split(/\r?\n/u);
   let documentHeadingSeen = document_heading_level === null;
   let fence = null, paragraph = [], paragraphLine = null, inTable = false, bodyUnits = 0, displayBlocks = 0;
-  const add = (text, unitKind, line, role) => {
+  const listStack = [];
+  let paragraphRole = 'paragraph', paragraphListDepth = null;
+  const add = (text, unitKind, line, role, listDepth = null) => {
     const clean = text.trim();
     if (!clean) return;
     const checks = role === 'paragraph' ? [] : ['starts-with-capital', 'capital-after-stop', 'ends-with-stop'];
-    units.push({ text: clean, kind: unitKind, where: `${where}:${line}`, facts: { markdown_role: role },
+    units.push({ text: clean, kind: unitKind, where: `${where}:${line}`,
+      facts: { markdown_role: role, ...(listDepth === null ? {} : { markdown_list_depth: listDepth }) },
       ...(fields[role] ? { field: fields[role] } : {}),
       ...(checks.length ? { context_requires_review_checks: checks } : {}),
       ...(context_requires_review_rules.length ? { context_requires_review_rules } : {}) });
     bodyUnits++;
   };
   const flush = () => {
-    if (paragraph.length) add(paragraph.join(' '), kind, paragraphLine, 'paragraph');
+    if (paragraph.length) add(paragraph.join(' '), kind, paragraphLine, paragraphRole, paragraphListDepth);
     paragraph = [];
     paragraphLine = null;
+    paragraphRole = 'paragraph';
+    paragraphListDepth = null;
   };
+  const indentation = raw => {
+    let column = 0;
+    for (const char of raw) {
+      if (char === ' ') column++;
+      else if (char === '\t') column += 4 - (column % 4);
+      else break;
+    }
+    return column;
+  };
+  const clearLists = () => { flush(); listStack.length = 0; };
   const cellsFor = value => {
     if (!value.includes('|')) return null;
     let row = value.trim();
@@ -120,15 +135,18 @@ export function wordsOfMarkdown(markdown, where = 'markdown', {
       continue;
     }
     if (!line) { flush(); inTable = false; continue; }
+    const indent = indentation(raw);
     const open = /^(`{3,}|~{3,})/u.exec(line);
     if (open) {
-      flush(); inTable = false;
+      if (indent === 0) clearLists(); else flush();
+      inTable = false;
       if (!documentHeadingSeen) { issues.push({ kind: 'preamble_content', line: number }); continue; }
       fence = { marker: open[1][0], length: open[1].length };
       displayBlocks++;
       continue;
     }
     if (!documentHeadingSeen) {
+      if (indent === 0) listStack.length = 0;
       const title = new RegExp(`^#{${document_heading_level}}\\s+(.+?)\\s*#*\\s*$`, 'u').exec(line);
       if (title) {
         documentHeadingSeen = true;
@@ -138,7 +156,7 @@ export function wordsOfMarkdown(markdown, where = 'markdown', {
     }
     const heading = /^(#{1,6})\s+(.+?)\s*#*\s*$/u.exec(line);
     if (line.startsWith('#')) {
-      flush(); inTable = false;
+      clearLists(); inTable = false;
       if (!heading) { issues.push({ kind: 'unknown_heading_shape', line: number }); continue; }
       if (document_heading_level !== null && heading[1].length < document_heading_level) {
         issues.push({ kind: 'repeated_document_heading', line: number }); continue;
@@ -147,27 +165,56 @@ export function wordsOfMarkdown(markdown, where = 'markdown', {
       continue;
     }
     if (line.startsWith('>')) {
-      flush(); inTable = false;
+      clearLists(); inTable = false;
       if (quote_kind) add(line.replace(/^>\s?/u, ''), quote_kind, number, 'quote');
       else issues.push({ kind: 'unresolved_quote_role', line: number });
       continue;
     }
+    const list = /^(?:[-*+]\s+|\d+[.)]\s+)/u.exec(line);
+    if (list) {
+      flush(); inTable = false;
+      while (listStack.length && indent < listStack.at(-1).contentIndent) listStack.pop();
+      if (!listStack.length && indent > 3) {
+        issues.push({ kind: 'indented_code_or_unclassified_block', line: number });
+        continue;
+      }
+      while (listStack.length && indent <= listStack.at(-1).markerIndent) listStack.pop();
+      let contentColumn = indent;
+      for (const char of list[0]) {
+        if (char === '\t') contentColumn += 4 - (contentColumn % 4);
+        else contentColumn++;
+      }
+      listStack.push({ markerIndent: indent, contentIndent: contentColumn });
+      add(line.slice(list[0].length), kind, number, 'list_item', listStack.length);
+      continue;
+    }
+    while (listStack.length && indent < listStack.at(-1).contentIndent) listStack.pop();
+    const activeList = listStack.at(-1);
     const cells = cellsFor(line);
     const nextCells = index + 1 < lines.length ? cellsFor(lines[index + 1].trim()) : null;
     if (inTable && cells) { for (const cell of cells) add(cell, kind, number, 'table_cell'); continue; }
     inTable = false;
     if (cells?.length > 1 && cells.length === nextCells?.length && delimiter(nextCells)) {
-      flush();
+      if (indent === 0) clearLists(); else flush();
       for (const cell of cells) add(cell, kind, number, 'table_cell');
       index++;
       inTable = true;
       continue;
     }
-    if (/^(?:-{3,}|\*{3,}|_{3,})$/u.test(line)) { flush(); inTable = false; continue; }
-    if (/^<\/?[A-Za-z!]/u.test(line)) { flush(); inTable = false; issues.push({ kind: 'unclassified_markup', line: number }); continue; }
-    const list = /^(?:[-*+]\s+|\d+[.)]\s+)/u.exec(line);
-    if (list) { flush(); inTable = false; add(line.slice(list[0].length), kind, number, 'list_item'); continue; }
-    if (/^(?: {4,}|\t)/u.test(raw)) { flush(); inTable = false; issues.push({ kind: 'indented_code_or_unclassified_block', line: number }); continue; }
+    if (/^(?:-{3,}|\*{3,}|_{3,})$/u.test(line)) { clearLists(); inTable = false; continue; }
+    if (/^<\/?[A-Za-z!]/u.test(line)) { clearLists(); inTable = false; issues.push({ kind: 'unclassified_markup', line: number }); continue; }
+    if (activeList && indent >= activeList.contentIndent) {
+      if (indent >= activeList.contentIndent + 4) {
+        flush(); inTable = false; issues.push({ kind: 'indented_code_or_unclassified_block', line: number }); continue;
+      }
+      if (paragraph.length && paragraphRole !== 'list_item') flush();
+      if (paragraphLine === null) paragraphLine = number;
+      paragraphRole = 'list_item';
+      paragraphListDepth = listStack.length;
+      paragraph.push(line);
+      continue;
+    }
+    if (indent >= 4) { clearLists(); inTable = false; issues.push({ kind: 'indented_code_or_unclassified_block', line: number }); continue; }
     if (paragraphLine === null) paragraphLine = number;
     paragraph.push(line);
   }

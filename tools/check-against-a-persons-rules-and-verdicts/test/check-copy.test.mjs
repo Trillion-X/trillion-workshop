@@ -21,6 +21,19 @@ test('without rules the grammar rows judge, and nothing about words is kept', ()
   assert.equal(checkCopy({ text: 'the the file opens.' }).status, 'failed');
 });
 
+test('default a-before-vowel grammar allows consonant sounds and catches vowel sounds', () => {
+  const result = checkCopy({ texts: [
+    'A useful guide opens.', 'A usable tool helps.', 'A user chooses.', 'A use case matters.',
+    'A useless switch fails.', 'A one-time choice lasts.', 'A eulogy ends.',
+    'A unusual event happens.', 'A onerous rule applies.', 'A apple falls.', 'A unidentified object appears.',
+  ] });
+  const vowelSoundFindings = result.results.filter(unit =>
+    unit.breaks.some(finding => finding.rule === 'a-before-vowel'));
+  assert.deepEqual(vowelSoundFindings.map(unit => unit.text).sort(), [
+    'A apple falls.', 'A onerous rule applies.', 'A unidentified object appears.', 'A unusual event happens.',
+  ]);
+});
+
 test('words are read from JSON, a page and a deck, each under its own kind and place', () => {
   const result = checkCopy({ rules: RULES,
     sources: [{ where: 'pages.json', json: { pages: [{ heading: 'A sparkle for you', alt: 'A sparkle on a desk', id: 'home-page' }] } }],
@@ -45,6 +58,26 @@ test('Markdown reads headings, paragraphs, lists, GFM table cells and fenced dis
   assert.equal(result.results.find(unit => unit.text === 'Chapter one').facts.markdown_role, 'heading');
   assert.ok(result.results.find(unit => unit.text === 'A first paragraph wrapped onto another line.').context_requires_review_checks === undefined);
   assert.ok(result.results.find(unit => unit.text === 'Header').context_requires_review_checks.includes('ends-with-stop'));
+});
+
+test('Markdown reads indented nested-list flow paragraphs and keeps indented code uncovered', () => {
+  const result = checkCopy({ rules: RULES, markdown: [
+    { where: 'nested.md', document_heading_level: 1, document_heading_is_metadata: true,
+      text: '# Working manuscript\n\n## Steps\n\n- First step.\n\n  - Nested step.\n\n    This paragraph continues the nested step.\n    It wraps onto another line.\n\n        const hidden = true;\n\n    Back to flow text.\n\n    - Another nested step.\n\n      Its continuation stays with it.' },
+    { where: 'standalone.md', document_heading_level: 1, document_heading_is_metadata: true,
+      text: '# Working manuscript\n\n## Notes\n\nA regular paragraph.\n\n    const standalone = true;' },
+  ] });
+  const values = Object.fromEntries(result.results.map(unit => [unit.text, unit]));
+  assert.ok(values['This paragraph continues the nested step. It wraps onto another line.']);
+  assert.ok(values['Back to flow text.']);
+  assert.ok(values['Its continuation stays with it.']);
+  assert.ok(values['A regular paragraph.']);
+  assert.deepEqual(result.problems, [
+    'nested.md:12: indented_code_or_unclassified_block',
+    'standalone.md:7: indented_code_or_unclassified_block',
+  ]);
+  assert.equal(values['This paragraph continues the nested step. It wraps onto another line.'].facts.markdown_role, 'list_item');
+  assert.equal(values['This paragraph continues the nested step. It wraps onto another line.'].facts.markdown_list_depth, 2);
 });
 
 test('sentence checks hold on Markdown fragments, but still fail on incomplete paragraph sentences', () => {
