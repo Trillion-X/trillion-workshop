@@ -1,12 +1,19 @@
 import { createInterface } from 'node:readline';
 const mode = process.argv[2];
 const kept = new Map();
+let firstKey;
 for await (const line of createInterface({ input: process.stdin })) {
   const { id, params } = JSON.parse(line);
   if (mode === 'exit') process.exit(0);
   if (mode === 'wait') continue;
   if (mode === 'invalid') { console.log('invalid-json'); continue; }
   const { method, input, request_key } = params.arguments;
+  if (mode === 'busy-once' && firstKey === undefined) {
+    firstKey = request_key;
+    console.log(JSON.stringify({ id, result: { isError: true, structuredContent: { code: 'selected_owner_unavailable', outcome: 'not_started' } } }));
+    continue;
+  }
+  if (mode === 'busy-once' && request_key !== firstKey) throw new Error('retry key changed');
   let structuredContent;
   if (mode === 'refuse') { console.log(JSON.stringify({ id, result: { isError: true, structuredContent: { code: 'current_workspace_rights_refused', outcome: 'not_started' } } })); continue; }
   if (method === 'records:write') {
