@@ -112,6 +112,11 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
     }
   }
 
+  return recordsDoorFromCall(call, { filesResource, resource });
+}
+
+// Shared record operations for a bearer door or an operator's authenticated MCP client.
+export function recordsDoorFromCall(call, { filesResource, resource } = {}) {
   async function readRecord(type, id) {
     const record = await call('records:read', { id, type }, undefined, resource, true);
     return record.value === null || record.value === undefined ? null : { type: record.type, value: record.value };

@@ -1,1 +1,1 @@
-{"public": ["read-data/records-door.mjs", "read-data/byte-pages.mjs"]}
+{"public": ["read-data/records-door.mjs", "read-data/byte-pages.mjs", "read-data/stdio-mcp-door.mjs"]}
