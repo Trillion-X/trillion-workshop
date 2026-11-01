@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:0d7d144d8ddc15d1be9a540a376e0593e5b5c7635ad3c74b3ce0ba82e1521f8d"
+  "blake3": "1f:37fef2bc777ece7fe1c2ab3082e72f3524843a6329b9a361a9a88fa10d95bc84"
  },
  "fields": [
   {
@@ -541,6 +541,21 @@
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
+    ],
+    "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:cancel-prepared-resource-usage-report",
+   "values": {
+    "title": "Cancel prepared resource usage report",
+    "job": "Release only an unsent usage report; retain possible provider charges for reconciliation",
+    "description": "Release only an unsent usage report; retain possible provider charges for reconciliation",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
     ],
     "folder": "take-payments"
    }
@@ -1314,6 +1329,21 @@
     ],
     "listed_on": "2026-10-05T08:00:00Z",
     "folder": "copy-a-site"
+   }
+  },
+  {
+   "id": "tool:correct-resource-usage-settlement",
+   "values": {
+    "title": "Correct a resource usage settlement",
+    "job": "Append a corrected supplier-cost settlement under the original purchased terms, retaining the old version and the exact customer refund, credit or additional-authority obligations",
+    "description": "Append a corrected supplier-cost settlement under the original purchased terms, retaining the old version and the exact customer refund, credit or additional-authority obligations",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
    }
   },
   {
@@ -2833,6 +2863,21 @@
    }
   },
   {
+   "id": "tool:keep-resource-usage-observation",
+   "values": {
+    "title": "Keep a resource usage observation",
+    "job": "Keep an attributed measured source attempt once, or preserve its unknown outcome, with a correcting event instead of rewriting history",
+    "description": "Keep an attributed measured source attempt once, or preserve its unknown outcome, with a correcting event instead of rewriting history",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
+   }
+  },
+  {
    "id": "tool:keep-where-you-stand",
    "values": {
     "title": "Keep where you stand on something",
@@ -3380,6 +3425,21 @@
      "placement:deployed-container"
     ],
     "folder": "traffic-attribution"
+   }
+  },
+  {
+   "id": "tool:manage-usage-pricing",
+   "values": {
+    "title": "Manage usage pricing",
+    "job": "Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms",
+    "description": "Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
    }
   },
   {
@@ -4047,6 +4107,21 @@
     "title": "Price a sale",
     "job": "Work out what a buyer would pay for one of my offers and one of its prices: what is due today, what repeats and when, with a trial, a per-unit count, a code or an amount they choose",
     "description": "Give offerId, priceOptionId, checkoutAttemptId and checkoutStartedAt, and optionally checkoutCode, unitCount, customerSelectedAmountCents or chargeDimensions. Your offers and code adjustments are read from your own records (or pass offers and adjustments). Nothing is charged; this only works out the quote.",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:price-resource-usage",
+   "values": {
+    "title": "Price resource usage",
+    "job": "Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice",
+    "description": "Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice",
     "status": "active",
     "maker": "maker:take-payments",
     "licence_class": "licence:maker-own",
@@ -4955,6 +5030,36 @@
    }
   },
   {
+   "id": "tool:read-resource-usage-report",
+   "values": {
+    "title": "Read resource usage report",
+    "job": "Read a usage report and distinguish provider acceptance from actual payment collection",
+    "description": "Read a usage report and distinguish provider acceptance from actual payment collection",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:read-resource-usage-settlement",
+   "values": {
+    "title": "Read a resource usage settlement",
+    "job": "Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
+    "description": "Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
+   }
+  },
+  {
    "id": "tool:read-spend-rails",
    "values": {
     "title": "Read spend rails",
@@ -5106,6 +5211,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:reconcile-resource-usage-report",
+   "values": {
+    "title": "Reconcile resource usage report",
+    "job": "Recover an unknown usage charge by reading the exact provider invoice item without sending it again",
+    "description": "Recover an unknown usage charge by reading the exact provider invoice item without sending it again",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
    }
   },
   {
@@ -5404,6 +5524,21 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:report-resource-usage",
+   "values": {
+    "title": "Report resource usage",
+    "job": "Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery",
+    "description": "Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
    }
   },
   {
@@ -6351,6 +6486,21 @@
     "flags": [
      "keeps-records"
     ]
+   }
+  },
+  {
+   "id": "tool:settle-shared-resource-cost",
+   "values": {
+    "title": "Settle shared resource cost",
+    "job": "Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; nothing is sent to a payment provider",
+    "description": "Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; nothing is sent to a payment provider",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
    }
   },
   {
