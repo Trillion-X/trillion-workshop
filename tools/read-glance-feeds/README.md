@@ -4,6 +4,11 @@ Reads one glance feed or an ordered surface of feeds from the person's own recor
 record type, prefix, row path, filters, order and displayed fields are DATA in `read-data/glance-feeds.json`; the reader
 contains no feed IDs, product-specific record types or API routes.
 
+A source may instead name a packaged reader with `{ module, export, input?, rows }`. The relative module and export
+come only from trusted package DATA, never the action input. That function receives `(input, { door })`; `rows` selects
+its returned array. This composes an existing record-layout owner without copying its migration rules into each feed.
+Missing readers, wrong shapes, denied reads and the source-row bound still return an unavailable feed.
+
 ## Call
 
 The Workshop action is `tool:read-glance-feeds`.
@@ -22,9 +27,11 @@ feed is invalid rather than partially returned.
 
 ## Current data coverage
 
-The live feeds read `record:habit`, `record:waiting-on-you`, `record:pursuit`, `told-the-person:<seq>`, and waiting
-`ai-job` records, each under a matching prefix right. The `told` row path is `value.item`, matching the Workshop
-notices record shape. The historical `running`, `today`, `needle-mover` and `decisions` feeds remain in the surface DATA
+The feeds read `record:habit`, `record:waiting-on-you`, `record:pursuit`, and waiting `ai-job` records under matching
+prefix rights. `told` and `running` compose the existing told reader, which owns the legacy whole-head and current
+indexed notice layouts. They require the same notice-kind list right as the notices tool. Current index membership is
+preserved, so orphaned old item records never reappear as live notices. Running reports retain their actual progress.
+The historical `today`, `needle-mover` and `decisions` feeds remain in the surface DATA
 and return `unavailable` with an explicit reason because their current record contracts are not adopted here. A failed
 read of one source also returns that feed as unavailable while successful siblings are returned in DATA order.
 

@@ -93,21 +93,22 @@ test('the current told feed reads only notice records and returns a valid empty 
   const queries = [];
   const door = { async *list(query) { queries.push(query); } };
   const answer = await readGlanceFeeds({ surface: 'watch' }, { door });
-  assert.equal(queries.length, 4);
-  assert.ok(queries.some(query => query.type === 'told-the-person' && query.prefix === 'told-the-person:'));
+  assert.equal(queries.length, 5);
+  assert.ok(queries.some(query => query.type === 'told-the-person' && query.prefix === undefined));
   assert.ok(queries.some(query => query.type === 'record:habit' && query.prefix === 'record:habit:'));
   assert.ok(queries.some(query => query.type === 'record:pursuit' && query.prefix === 'record:pursuit:'));
   assert.deepEqual(answer.feeds.map(({ id, status }) => [id, status]), [
     ['habits', 'ready'], ['pursuits', 'ready'], ['told', 'ready'], ['ai-work', 'ready'],
-    ['running', 'unavailable'], ['decisions', 'unavailable'],
+    ['running', 'ready'], ['decisions', 'unavailable'],
   ]);
   assert.equal(answer.feeds.find(feed => feed.id === 'told').empty, 'Nothing new.');
-  assert.equal(answer.feeds.find(feed => feed.id === 'running').error.code, 'source_unavailable');
+  assert.deepEqual(answer.feeds.find(feed => feed.id === 'running').rows, []);
 });
 
 test('the registered action reads through its narrow records-door right and refuses another record kind', async () => {
   const row = rowOf(toolRows, 'tool:read-glance-feeds');
   const records = [
+    { id: 'told-the-person', type: 'told-the-person', value: { seqs: [1, 2] } },
     { id: 'told-the-person:1', type: 'told-the-person', value: { item: { seq: 1, title: 'A notice', read: false, open: '/jobs/1' } } },
     { id: 'told-the-person:2', type: 'told-the-person', value: { item: { seq: 2, title: 'Second notice', read: true, open: '/jobs/2' } } },
     { id: 'other:1', type: 'other', value: { item: { seq: 2, title: 'Private row' } } },
@@ -121,6 +122,42 @@ test('the registered action reads through its narrow records-door right and refu
     'record:habit', 'record:waiting-on-you', 'record:pursuit', 'told-the-person', 'ai-job',
   ]);
   assert.ok(!allowed.result.feeds[0].rows.some(item => item.title === 'Private row'));
+});
+
+test('notice feeds reuse legacy/current index rules and running progress without resurrecting orphaned rows', async () => {
+  const row = rowOf(toolRows, 'tool:read-glance-feeds');
+  const running = { seq: 1, kind: 'work', state: 'running', title: 'Rendering', body: 'Frames', source: 'Renderer', progress: { done: 2, total: 4 }, open: '/jobs/render' };
+  const finished = { seq: 2, kind: 'work', state: 'done', title: 'Finished' };
+  const needsPerson = { seq: 3, kind: 'needs-you', state: 'running', title: 'Choose a frame' };
+  const orphan = { id: 'told-the-person:9', type: 'told-the-person', value: { item: { ...running, seq: 9, title: 'Orphaned old report' } } };
+  for (const records of [
+    [{ id: 'told-the-person', type: 'told-the-person', value: { items: [running, finished, needsPerson] } }, orphan],
+    [{ id: 'told-the-person', type: 'told-the-person', value: { seqs: [1, 2, 3] } },
+      ...[running, finished, needsPerson].map(item => ({ id: `told-the-person:${item.seq}`, type: 'told-the-person', value: { item } })), orphan],
+  ]) {
+    const answer = await runRow(row, { feed: 'running' }, { records, doorOptions: { pageCut: 1 } });
+    assert.equal(answer.status, 0, answer.error);
+    assert.equal(answer.result.feeds[0].status, 'ready');
+    assert.deepEqual(answer.result.feeds[0].rows.map(item => [item.id, item.title, item.fraction, item.open]), [['told:1', 'Rendering', 0.5, '/jobs/render']]);
+    const told = await runRow(row, { feed: 'told' }, { records });
+    assert.deepEqual(told.result.feeds[0].rows.map(item => item.id), ['told:3', 'told:2', 'told:1']);
+    assert.ok(answer.kept.every(record => records.some(original => original.id === record.id)));
+  }
+});
+
+test('packaged sources keep missing exports, denied reads and row bounds as errors', async () => {
+  const data = definition();
+  data.feeds[0].read = { module: '../../tell-the-person/read-data/told.mjs', export: 'readKeptNotices', rows: [] };
+  const denial = Object.assign(new Error('denied'), { code: 'current_workspace_rights_refused' });
+  const denied = await readGlanceFeeds({ feed: 'newest' }, { door: { async *list() { throw denial; } }, data });
+  assert.equal(denied.feeds[0].error.code, denial.code);
+  data.feeds[0].read.export = 'missingReader';
+  const missing = await readGlanceFeeds({ feed: 'newest' }, { door: { async *list() {} }, data });
+  assert.equal(missing.feeds[0].error.code, 'bad_feed');
+  data.feeds[0].read.export = 'readKeptNotices';
+  data.limits = { most_source_records: 1 };
+  const bounded = await readGlanceFeeds({ feed: 'newest' }, { door: { async *list() { yield { id: 'told-the-person', value: { items: [{ seq: 1 }, { seq: 2 }] } }; } }, data });
+  assert.equal(bounded.feeds[0].error.code, 'source_bound');
 });
 
 test('the actual product record models project their current fields and actions without feed-specific branches', async () => {

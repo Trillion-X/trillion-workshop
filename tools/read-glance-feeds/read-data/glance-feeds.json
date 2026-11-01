@@ -33,7 +33,12 @@
       "id": "running",
       "label": "Running now",
       "about": "Work the records say is running.",
-      "unavailable": "No current Workshop record contract for a running-work feed is adopted yet."
+      "read": { "module": "../../tell-the-person/read-data/told.mjs", "export": "readKeptNotices", "rows": [] },
+      "where": [{ "field": ["state"], "equals": "running" }, { "field": ["kind"], "none_of": ["needs-you", "needs-you-now"] }],
+      "row_id": { "prefix": "told:", "field": ["seq"] },
+      "order": { "field": ["seq"], "direction": "desc" },
+      "show": { "title": ["title"], "detail": ["body"], "note": ["source"], "done": ["progress", "done"], "total": ["progress", "total"], "open": { "path": ["open"] } },
+      "empty": "Nothing is running."
     },
     {
       "id": "today",
@@ -67,11 +72,7 @@
       "id": "told",
       "label": "What you were told",
       "about": "The newest things you were told, read or not.",
-      "read": {
-        "type": "told-the-person",
-        "prefix": "told-the-person:",
-        "rows": ["value", "item"]
-      },
+      "read": { "module": "../../tell-the-person/read-data/told.mjs", "export": "readKeptNotices", "rows": [] },
       "row_id": { "prefix": "told:", "field": ["seq"] },
       "order": { "field": ["seq"], "direction": "desc" },
       "show": {

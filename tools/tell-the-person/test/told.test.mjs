@@ -2,6 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
+import { readKeptNotices } from '../read-data/told.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const row = rowOf(rows, 'tool:my-notices');
@@ -13,6 +14,16 @@ const told = items => [
   { id: 'told-the-person', type: 'told-the-person', value: { seqs: items.map(item => item.seq) } },
   ...items.map(item => ({ id: `told-the-person:${item.seq}`, type: 'told-the-person', value: { item } })),
 ];
+
+test('the shared kept-notice reader returns both current per-item and legacy whole-head records', async () => {
+  for (const records of [
+    told([notice(1, 'report'), notice(2, 'report')]),
+    [{ id: 'told-the-person', type: 'told-the-person', value: { items: [notice(1, 'report'), notice(2, 'report')] } }],
+  ]) {
+    const door = { async *list({ type }) { for (const record of records.filter(item => item.type === type)) yield record; } };
+    assert.deepEqual(await readKeptNotices({}, { door }), [notice(1, 'report'), notice(2, 'report')]);
+  }
+});
 
 test('the newest notices come first, the kind is applied before the newest are taken, and seen ones are counted', async () => {
   const items = [

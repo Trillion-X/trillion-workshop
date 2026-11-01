@@ -48,6 +48,7 @@
           "internet": false,
           "files": { "package_files": [
             { "package": "read-glance-feeds", "paths": ["do-work", "read-data"], "at": "/opt/read-glance-feeds" },
+            { "package": "tell-the-person", "paths": ["read-data"], "at": "/opt/tell-the-person" },
             { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
             { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
             { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
@@ -60,11 +61,11 @@
             { "kind": "record:habit", "prefix": "record:habit:", "operations": ["records:list"] },
             { "kind": "record:waiting-on-you", "prefix": "record:waiting-on-you:", "operations": ["records:list"] },
             { "kind": "record:pursuit", "prefix": "record:pursuit:", "operations": ["records:list"] },
-            { "kind": "told-the-person", "prefix": "told-the-person:", "operations": ["records:list"] },
+            { "kind": "told-the-person", "operations": ["records:list"] },
             { "kind": "ai-job", "prefix": "ai-job:", "operations": ["records:list"] }
           ] }
         },
-        "provenance": { "source": "Workshop tell-the-person/read-data/told.mjs record layout ({item} rows under told-the-person:<seq>) and the record-backed generic feed projection in this package" },
+        "provenance": { "source": "Workshop tell-the-person/read-data/told.mjs owns current and legacy notice reads; the record-backed generic feed projection remains in this package" },
         "verify": [],
         "result_selector": "$.result"
       }
