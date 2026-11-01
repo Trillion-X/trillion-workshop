@@ -3,39 +3,23 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "b3b79181913aa5560472061011f8248287dc9c7aba837f4ab87be5ac058fb5a7",
+  "blake3": "b1d9cced25d77bee466fd081fb8734fe380fa6a62283fb1e35db0f5802a54b24",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
    "canonical_rows_readback": false,
-   "reason": "The two SEO workflow candidates remain pending account synchronization. Incorporation recipe and all thirteen steps were read from the current account with complete cursor pagination for this publication.",
+   "reason": "Named local workflow candidates remain pending account synchronization. All other rows are complete current public-view readbacks; restored modes keep their canonical account identities and private Cambrian is excluded.",
    "target_lists": [
     "workflows",
     "workflow-steps"
    ],
    "workflow_ids": [
     "get-found-in-search-and-answer-engines",
-    "keep-pages-cited-by-answer-engines"
+    "keep-pages-cited-by-answer-engines",
+    "refresh-measurement-coverage"
    ],
-   "verified_workflow_ids": [
-    "turn-something-shared-into-what-you-can-use"
-   ],
-   "verified_account_rows": [
-    "record:workflow-recipe:turn-something-shared-into-what-you-can-use",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--write-recipes",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--use",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--tell",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--split",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--read",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--prove",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--place",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--not-adopted",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--make-generic",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--gather",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--free-instead-of-paid",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--derive-outcomes",
-    "record:workflow-step:turn-something-shared-into-what-you-can-use--check-what-exists"
-   ]
+   "verified_public_mode_recipes": 10,
+   "verified_public_mode_steps": 41
   }
  },
  "fields": [
@@ -263,6 +247,32 @@
    }
   },
   {
+   "id": "first-win",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"request\",\"scope\",\"constraints\",\"authorized_actions\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":30000},\"scope\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":5000},\"constraints\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"authorized_actions\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"source_id\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":1000}}}",
+    "job": "Help an intended customer reach one meaningful, independently verified first result with the least avoidable effort.",
+    "recipe": "workflow:first-win",
+    "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:first-win\",\"version\":1,\"aliases\":[\"First Win Mode\",\"Get the first customer result\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
+    "title": "First Win Mode"
+   }
+  },
+  {
+   "id": "follow-through",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"request\",\"scope\",\"constraints\",\"authorized_actions\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":30000},\"scope\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":5000},\"constraints\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"authorized_actions\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"source_id\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":1000}}}",
+    "job": "Carry dependencies and commitments through to independently checked outcomes, with a clear owner and recovery path for every unresolved item.",
+    "recipe": "workflow:follow-through",
+    "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:follow-through\",\"version\":1,\"aliases\":[\"Follow Through Mode\",\"Finish the chain\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
+    "title": "Follow Through Mode"
+   }
+  },
+  {
    "id": "follow-up-with-people-who-engaged",
    "values": {
     "flags": [
@@ -344,6 +354,19 @@
    }
   },
   {
+   "id": "infinity",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"request\",\"scope\",\"constraints\",\"authorized_actions\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":30000},\"scope\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":5000},\"constraints\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"authorized_actions\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"source_id\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":1000}}}",
+    "job": "Keep improving quality, depth, breadth, scale, granularity and continuity while driving energy, effort, cost, latency and setup toward zero against observed reality.",
+    "recipe": "workflow:infinity",
+    "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:infinity\",\"version\":3,\"aliases\":[\"Infinity Mode\",\"Infinite Mode\",\"Keep expanding\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
+    "title": "Infinity Mode"
+   }
+  },
+  {
    "id": "keep-a-changelog-from-what-shipped",
    "values": {
     "flags": [
@@ -356,6 +379,19 @@
     "source": "{\"from\":\"a working changelog list that filled itself from what each release shipped\",\"name\":\"The work fills the list: each landing writes its own row, nobody types a changelog line twice\",\"note\":\"Not adopted: rewriting a row someone edited, and writing public words from commit subjects without a person's review.\"}",
     "title": "Keep a changelog from what shipped",
     "wakes": "[{\"id\":\"hourly\",\"on\":{\"time\":{\"every_ms\":3600000,\"from_ms\":0}},\"budget\":{\"steps\":10,\"wall_ms\":600000},\"input\":{\"start_at\":\"read-release\"}}]"
+   }
+  },
+  {
+   "id": "keep-it-working",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"request\",\"scope\",\"constraints\",\"authorized_actions\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":30000},\"scope\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":5000},\"constraints\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"authorized_actions\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"source_id\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":1000}}}",
+    "job": "Preserve a verified customer result over time by detecting meaningful change, repairing regressions and continuing within bounded resources.",
+    "recipe": "workflow:keep-it-working",
+    "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:keep-it-working\",\"version\":1,\"aliases\":[\"Keep It Working Mode\",\"Maintain the result\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
+    "title": "Keep It Working Mode"
    }
   },
   {
@@ -464,6 +500,19 @@
     "recipe": "workflow:make-it-once-for-everyone",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a person, product or field: a bakery owner asking for a loyalty card, a coach asking for a drill sheet and a founder asking for an email footer run the same steps.\"}",
     "title": "Build a feature, tool or page once, for everyone"
+   }
+  },
+  {
+   "id": "make-it-perform",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"request\",\"scope\",\"constraints\",\"authorized_actions\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":30000},\"scope\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":5000},\"constraints\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"authorized_actions\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"source_id\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":1000}}}",
+    "job": "Improve discoverability, conversion and useful performance across search, answer engines, social channels and the live experience using current evidence.",
+    "recipe": "workflow:make-it-perform",
+    "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:make-it-perform\",\"version\":1,\"aliases\":[\"Make It Perform Mode\",\"Improve discovery and performance\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
+    "title": "Make It Perform Mode"
    }
   },
   {
@@ -689,6 +738,19 @@
    }
   },
   {
+   "id": "personalized-reach-out",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"request\",\"scope\",\"constraints\",\"authorized_actions\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":30000},\"scope\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":5000},\"constraints\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"authorized_actions\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"source_id\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":1000}}}",
+    "job": "Identify relevant people and deliver individually useful, truthful outreach through suitable connected channels.",
+    "recipe": "workflow:personalized-reach-out",
+    "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:personalized-reach-out\",\"version\":1,\"aliases\":[\"Personalized Reach Out Mode\",\"Reach the right people\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
+    "title": "Personalized Reach Out Mode"
+   }
+  },
+  {
    "id": "plan-a-launch-as-a-content-campaign",
    "values": {
     "flags": [
@@ -758,6 +820,19 @@
    }
   },
   {
+   "id": "put-it-in-the-world",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"request\",\"scope\",\"constraints\",\"authorized_actions\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":30000},\"scope\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":5000},\"constraints\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"authorized_actions\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"source_id\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":1000}}}",
+    "job": "Turn a supported opportunity into a real, accessible offer or experience and verify that intended people can reach it.",
+    "recipe": "workflow:put-it-in-the-world",
+    "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:put-it-in-the-world\",\"version\":1,\"aliases\":[\"Put It in the World Mode\",\"Launch the useful thing\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
+    "title": "Put It in the World Mode"
+   }
+  },
+  {
    "id": "put-it-where-it-belongs",
    "values": {
     "flags": [
@@ -784,6 +859,19 @@
    }
   },
   {
+   "id": "quintillion",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"request\",\"scope\",\"constraints\",\"authorized_actions\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":30000},\"scope\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":5000},\"constraints\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"authorized_actions\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"source_id\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":1000}}}",
+    "job": "Compose research, creation, distribution, customer follow-through and continued improvement into the best verified outcome for a real customer.",
+    "recipe": "workflow:quintillion",
+    "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:quintillion\",\"version\":3,\"aliases\":[\"Quintillion Mode\",\"Quintillion\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
+    "title": "Quintillion Mode"
+   }
+  },
+  {
    "id": "read-the-week-and-make-more-of-what-won",
    "values": {
     "flags": [
@@ -796,6 +884,19 @@
     "source": "{\"from\":\"a cited principles registry mined from video captions\",\"name\":\"Treat performance as the market's verdict; run a weekly loop that feeds results back at the angle level; commit to a minimum run before judging a format; use organic content as the ad test\",\"principles\":[\"P-026\",\"P-052\",\"P-048\",\"P-017\"],\"note\":\"Adopted: weekly ranking against the creator's own median, briefs for the top 3, kill an angle after 3 failures, no kill before the declared minimum run, organic winners above a multiple become paid candidates. Not adopted: any automatic spend or boost; paid spend is the person's own decision on each candidate, in their own ad account.\"}",
     "title": "Read the week and make more of what won",
     "wakes": "[{\"id\":\"monday\",\"on\":{\"time\":{\"every_ms\":604800000,\"from_ms\":378000000}},\"budget\":{\"steps\":60,\"wall_ms\":3600000},\"input\":{\"start_at\":\"read-pieces\"}}]"
+   }
+  },
+  {
+   "id": "real-life-cases",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"request\",\"scope\",\"constraints\",\"authorized_actions\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":30000},\"scope\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":5000},\"constraints\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"authorized_actions\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"source_id\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":1000}}}",
+    "job": "Discover real situations, people’s actual jobs and recurring friction that reveal a valuable outcome to improve.",
+    "recipe": "workflow:real-life-cases",
+    "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:real-life-cases\",\"version\":1,\"aliases\":[\"Real Life Cases Mode\",\"Find real cases\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
+    "title": "Real Life Cases Mode"
    }
   },
   {
@@ -969,6 +1070,19 @@
     "recipe": "workflow:trace-to-first-principles",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"The chain is data: the person's own framework file, so someone else's chain (the scientific method, OODA, a coach's model) runs the same steps. workflow:bring-in-a-framework turns a written chain into such a file.\"}",
     "title": "Trace something back to first principles"
+   }
+  },
+  {
+   "id": "trillion-x-mode",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"request\",\"scope\",\"constraints\",\"authorized_actions\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":30000},\"scope\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":5000},\"constraints\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"authorized_actions\":{\"type\":\"array\",\"maxItems\":100,\"items\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\"}},\"source_id\":{\"type\":\"string\",\"minLength\":1,\"pattern\":\"\\\\S\",\"maxLength\":1000}}}",
+    "job": "Apply the full execution standard to an authorized objective, with checked evidence, scope and reusable mechanisms.",
+    "recipe": "workflow:trillion-x-mode",
+    "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"version\":7,\"aliases\":[\"Hardcore mode\",\"Hard-core Mode\"],\"by_default\":true,\"source_owner\":\"execution-mode-records.json\",\"restoration\":\"Original stage behavior retained; legacy requirement field labels were migrated consistently with their schema checks and app-specific examples generalized. Full original definitions, aliases, source references and private quotations remain in private recovery evidence. Existing runs retain their original identities and definitions.\"}",
+    "title": "Trillion X mode"
    }
   },
   {
