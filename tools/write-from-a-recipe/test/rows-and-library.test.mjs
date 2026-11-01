@@ -30,6 +30,8 @@ test('the file checker declares a computer run with only the explicit folder rea
   assert.equal(row.invoke.kind, 'computer');
   assert.deepEqual(row.invoke.capabilities, ['read-a-folder']);
   assert.equal(row.invoke.argv.at(-1).fill.field, 'grants.read-a-folder.folder');
+  assert.ok(row.invoke.files.package_files[0].paths.includes('package.json'));
+  assert.equal(JSON.parse(readFileSync(resolve(folder, 'package.json'), 'utf8')).type, 'module');
   assert.equal(JSON.parse(readFileSync(resolve(folder, 'read-data/write-file-limits.json'), 'utf8')).max_bytes, 8 * 1024 * 1024);
 });
 

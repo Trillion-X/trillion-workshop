@@ -51,7 +51,7 @@
      "stdin": { "fill": { "from": "input" } },
      "files": {
       "package_files": [
-       { "package": "write-from-a-recipe", "paths": ["do-work", "read-data"], "at": "/opt/write-from-a-recipe" },
+       { "package": "write-from-a-recipe", "paths": ["package.json", "do-work", "read-data"], "at": "/opt/write-from-a-recipe" },
        { "package": "judge-words", "paths": ["do-work"], "at": "/opt/judge-words" },
        { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
        { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
