@@ -15,6 +15,266 @@
   ],
   "capabilities": [
     {
+      "capability": "reconcile generic execution receipts with source, meter and provider-price revisions so missing evidence makes forecast coverage visibly incomplete or stale",
+      "owner": [
+        "tools/keep-measurements-current/"
+      ],
+      "entry": "tools/keep-measurements-current/tool-rows.json",
+      "evidence": "The bounded collector discovers generic operation catalogs, source revisions and execution receipts, then invokes one canonical coverage evaluator; workflow and account-record owners schedule and persist its neutral outputs.",
+      "distinct_from": [
+        {
+          "job": "keep unit-safe cost observations, corrections, versioned forecasts and billing comparisons in generic account records",
+          "why": "The measurement ledger owns account record schemas, append-once history, billing comparisons and dimensional aggregation; this package discovers current operations and source/price/receipt coverage, invokes one evaluator, and returns neutral rows for that storage owner."
+        },
+        {
+          "job": "guard an AI's spending: budgets, reservations, a spend ledger and resets",
+          "why": "This owner measures forecast freshness and missing evidence; it never reserves money, enforces a budget or replaces actual spend records."
+        },
+        {
+          "job": "evaluate measures over a person's facts to band and gate their progress",
+          "why": "That owner computes progress bands; this owner reconciles operation-level cost measurements and source revisions without progress scores."
+        },
+        {
+          "job": "run experiments and personalization: A/B tests, feature flags and bandits over what each viewer saw",
+          "why": "That owner records treatment assignment and viewer outcomes; this owner measures neutral operation receipts and prices with no experiment or viewer logic."
+        },
+        {
+          "job": "measure traffic by where it came from: tracked links, visitors, leads and sales by source, ad return, conversions sent back to ad platforms",
+          "why": "That owner attributes acquisition and conversions; this owner reconciles arbitrary execution operation measurements and has no campaign, visitor or sales concepts."
+        },
+        {
+          "job": "write or check the pin file of a folder of DATA files: each file's byte count and BLAKE3, so a program that reads them can refuse one that changed after it was pinned",
+          "why": "That owner manages portable DATA-folder pin manifests; this collector binds source/package revisions and receipt contents into forecasts and does not write a pin manifest."
+        },
+        {
+          "job": "read and write records for tools: the generic record journal, queries, values and record models",
+          "why": "That owner stores and queries records; this package discovers arbitrary operation receipts and checks whether measurements cover current source, meter and price revisions."
+        },
+        {
+          "job": "take requests through forms and route each to its owner with a receipt",
+          "why": "That owner routes human-submitted requests; this collector processes generic execution receipts and does not create forms, tasks or owner routing."
+        },
+        {
+          "job": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort",
+          "why": "That owner reads and renders Lists; this package computes coverage and returns immutable observation/forecast records without presenting or ordering a view."
+        },
+        {
+          "job": "check a port or replica against the source it copies",
+          "why": "That owner compares semantic fidelity of copied software; this collector pins source revisions only to detect stale measurement coverage and does not judge a replica."
+        },
+        {
+          "job": "plan a piece of content from source material and a format, check the plan is ready, choose a style and decide which audience questions go in",
+          "why": "That owner plans authored content; this package discovers runtime operation DATA and reconciles measured units without creating content."
+        },
+        {
+          "job": "report documents that fell behind the source they describe",
+          "why": "That owner checks document freshness; this package checks operation receipt and price freshness and has no document content model."
+        },
+        {
+          "job": "export a markdown manuscript to word and verify it against its source",
+          "why": "That owner renders and verifies manuscripts; this package calculates neutral operation measurement coverage and produces no document export."
+        },
+        {
+          "job": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends",
+          "why": "That owner searches and ranks people; this collector discovers operation names and receipts and has no person model or ranking behavior."
+        },
+        {
+          "job": "score titled videos as outliers against their source median",
+          "why": "That owner compares video performance against a content median; this collector reconciles execution measurements to source and price revisions and has no video scoring."
+        },
+        {
+          "job": "verify quoted source spans by blake3 and byte range",
+          "why": "That owner verifies human-reviewed quotations; this collector pins machine source and receipt contents but neither checks quotations nor makes review claims."
+        },
+        {
+          "job": "project an authorized public document collection into consistent routes, rendered pages, Markdown, structured data and discovery feeds, and serve those projections against current source visibility",
+          "why": "That owner prepares public document projections; this collector handles neutral execution measurement coverage and creates no public content."
+        },
+        {
+          "job": "import Markdown into the maintained editable composition-document scene tree, preserving headings, nested lists, tables, code fences, source-byte provenance and strict semantic round trips",
+          "why": "That owner parses and converts Markdown documents; this collector parses generic JSON receipts and operation DATA, not authored documents."
+        },
+        {
+          "job": "report source files that break a rule written down as DATA",
+          "why": "That owner checks source files against human-authored rules; this collector reconciles measured operation coverage from generic DATA and checks no source coding rules."
+        },
+        {
+          "job": "ask a live source and fall back to its last good answer",
+          "why": "That owner calls an online source and serves cached answers; this collector reads bounded local roots and emits unknown when discovery is incomplete."
+        },
+        {
+          "job": "call any endpoint of treg's paid catalog by its id under a cost ceiling, after finding it and reading its price, and read the balance it spends",
+          "why": "That owner executes paid endpoints under authorization; this package only measures generic receipts and never calls a paid endpoint or authorizes spend."
+        }
+      ]
+    },
+    {
+      "capability": "keep unit-safe cost observations, corrections, versioned forecasts and billing comparisons in generic account records",
+      "owner": [
+        "tools/measurement-ledger/"
+      ],
+      "entry": "tools/measurement-ledger/DATA.json",
+      "evidence": "The package validates and aggregates cost measurement semantics over the existing account records door; it creates no product client or storage engine.",
+      "distinct_from": [
+        {
+          "job": "read and write records for tools: the generic record journal, queries, values and record models",
+          "why": "That owner handles durable record storage and generic query mechanics; this package defines cost observation dimensions, correction lineage, forecast completeness and billing reconciliation over those records."
+        },
+        {
+          "job": "reach a person's own records from a tool run: the records door client every records tool uses",
+          "why": "That owner transports and authorizes records-door calls; this package validates neutral cost records and delegates persistence to that client."
+        },
+        {
+          "job": "keep data durably: the one storage engine (S2h) and the database supplies under it",
+          "why": "That owner is the storage substrate; this package defines cost record semantics and unit-safe aggregation above the substrate, with no database or persistence engine."
+        },
+        {
+          "job": "learn from everyone's results: add and withdraw randomized results and shared situations in a pool, keep the words that enter it safe to show strangers, and answer only aggregates over enough people",
+          "why": "That owner pools privacy-filtered multi-person outcomes; this ledger stores a person's own operation cost evidence and never combines or releases cohort data."
+        },
+        {
+          "job": "decide with a method: start a decision, ask and answer its method's questions, make it, report how it turned out, bring back the person's similar past decisions, and make a decided one safe to share",
+          "why": "That owner guides human choices and records reasoning; this ledger stores measurements, forecast versions and billing comparisons without making decisions."
+        },
+        {
+          "job": "show everything a person's account runs on its own: each schedule and trigger, its last and next run, and a switch",
+          "why": "That owner observes and controls schedules; this ledger stores cost evidence and forecast state, and neither schedules nor enables work."
+        },
+        {
+          "job": "turn records on disk (JSON, tab-separated files, markdown tables) into rows of a person's lists",
+          "why": "That owner imports disk formats into lists; this ledger validates immutable account-owned cost records and does not read or convert files."
+        },
+        {
+          "job": "keep principles taken from videos, each backed by a quote checked against that video's captions",
+          "why": "That owner validates educational claims against video captions; this ledger validates numeric measurement semantics and source revisions with no quote or lesson model."
+        },
+        {
+          "job": "search, read, organize, trash and restore a person's Gmail mail and threads, keep and send drafts and set their send-as signature, as the Google account the run names",
+          "why": "That owner operates a mail account; this ledger stores neutral numeric cost observations and has no mail, account identity or send actions."
+        },
+        {
+          "job": "tell who is in a recording or a picture: keep a person's voice or face print only with the consent words that say who agreed and how, name the voices of a transcript against those prints, and find and name faces in a picture or video",
+          "why": "That owner performs consent-scoped media identity; this ledger records operation costs and has no biometric, media or identity data."
+        },
+        {
+          "job": "keep the video-packaging ledger",
+          "why": "That owner tracks video packaging production; this ledger tracks generic provider and operation cost evidence with no media project lifecycle."
+        },
+        {
+          "job": "keep a piece's own words as a template, fill only its slots, and catch changed words in a rewrite",
+          "why": "That owner preserves template wording during document edits; this ledger stores numeric operation measurements and does not edit content."
+        },
+        {
+          "job": "pull a person's messages and saved items from connected accounts (Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks, Pinterest) into snapshot records",
+          "why": "That owner imports connected-account content; this ledger records measurement metadata only and reads no messages or saved items."
+        },
+        {
+          "job": "call any endpoint of treg's paid catalog by its id under a cost ceiling, after finding it and reading its price, and read the balance it spends",
+          "why": "That owner executes paid endpoints under authorization and a ceiling; this ledger records measured costs after work and cannot execute calls, authorize spending or read balances."
+        },
+        {
+          "job": "rank a person's records in the order they should review them, and keep their accept or pass as their stand",
+          "why": "That owner ranks records and captures a person's decision; this ledger groups numeric cost evidence and does not recommend or capture review choices."
+        },
+        {
+          "job": "show everything waiting on a person that only they can do, gathered from the places they keep it into one list of cards",
+          "why": "That owner gathers human blockers; this ledger stores operation measurements and forecast state, not waiting items or cards."
+        },
+        {
+          "job": "guard an AI's spending: budgets, reservations, a spend ledger and resets",
+          "why": "That owner authorizes, reserves and settles actual spending; this package records observations and forecasts and cannot authorize or alter a charge."
+        },
+        {
+          "job": "evaluate measures over a person's facts to band and gate their progress",
+          "why": "That owner evaluates progress thresholds; this package preserves provider/operation cost lineage and unit-safe aggregation without progress bands."
+        },
+        {
+          "job": "read a list and one of its saved views",
+          "why": "That owner reads and renders account lists and views; this package defines immutable cost record types and aggregates without owning a view."
+        }
+      ]
+    },
+    {
+      "capability": "compose unit-safe measurement, forecast and billing records into saved account lists and a generic runtime-authored screen",
+      "owner": [
+        "tools/measurement-workspace/"
+      ],
+      "entry": "tools/measurement-workspace/DATA.json",
+      "evidence": "Derives list/view definitions from canonical measurement-ledger DATA and emits generic saved screen request bindings; no product route or engine dependency.",
+      "distinct_from": [
+        {
+          "job": "keep unit-safe cost observations, corrections, versioned forecasts and billing comparisons in generic account records",
+          "why": "That owner validates, persists and aggregates measurement records; this owner composes saved views and screen requests over them."
+        },
+        {
+          "job": "reconcile generic execution receipts with source, meter and provider-price revisions so missing evidence makes forecast coverage visibly incomplete or stale",
+          "why": "That owner discovers measurements and coverage; this owner displays the recorded evidence."
+        },
+        {
+          "job": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort",
+          "why": "That owner reads generic list views; this owner produces reusable list/view DATA and an account-authored overview."
+        },
+        {
+          "job": "turn a look's colour, size and font tokens into concrete values and the stylesheet a document carries, with its font faces",
+          "why": "That owner hosts generic screens; this owner supplies screen DATA and module content without a renderer."
+        }
+      ]
+    },
+    {
+      "capability": "import Markdown into the maintained editable composition-document scene tree, preserving headings, nested lists, tables, code fences, source-byte provenance and strict semantic round trips",
+      "owner": [
+        "tools/import-markdown-to-editable-document/"
+      ],
+      "entry": "tools/import-markdown-to-editable-document/tool-rows.json",
+      "evidence": "README.md: imports to the same Container/Text/Image scene-node shape consumed by Documents; uses the maintained editing-rules and document-import-formats DATA; checks source-byte spans and the maintained importer/exporter round trip",
+      "distinct_from": [
+        {
+          "job": "show a folder of markdown documents as the rows of a list, each document's frontmatter its fields, a field changed by rewriting that document's frontmatter, and split one long document into one document per item",
+          "why": "This imports one Markdown body into the editable Documents scene model; it does not list or mutate files."
+        },
+        {
+          "job": "turn a document written as a tree of text blocks into a Word (docx) file, a PDF, a Markdown file or a plain text file",
+          "why": "This reads Markdown into editable scene nodes; the export owner serializes an already editable document tree."
+        },
+        {
+          "job": "write a markdown section out of a list of entries",
+          "why": "This parses a full Markdown document into editable scene nodes instead of composing one section from records."
+        },
+        {
+          "job": "export a document tree to Word, PDF or other file formats",
+          "why": "The exporter starts with a document tree and renders files. This importer starts with Markdown and produces an editable scene tree."
+        },
+        {
+          "job": "verify quoted source spans by blake3 and byte range",
+          "why": "That owner validates external reviewed quotes and bindings. This parser generates token spans from its captured input and checks its own output invariant; it does not adjudicate review quotes or replace the copy gate."
+        },
+        {
+          "job": "put one named section into a markdown document without repeating it",
+          "why": "That owner places authored sections in an existing Markdown document. This owner parses a complete source into editable nodes and does not place or replace sections."
+        },
+        {
+          "job": "find things by meaning, picture or words across a person's files",
+          "why": "Search ranks matches across files. This deterministic conversion imports one supplied Markdown source without a search index or ranking."
+        },
+        {
+          "job": "write or check the pin file of a folder of DATA files: each file's byte count and BLAKE3, so a program that reads them can refuse one that changed after it was pinned",
+          "why": "That owner maintains folder pin manifests. This importer uses the shared content-identity owner for one captured source and creates no folder pin manifest."
+        },
+        {
+          "job": "load content-library provenance into lists",
+          "why": "That loader writes provenance records to lists. This importer returns a scene artifact and source-token locations without any record or list writes."
+        },
+        {
+          "job": "decide with a method: start a decision, ask and answer its method's questions, make it, report how it turned out, bring back the person's similar past decisions, and make a decided one safe to share",
+          "why": "The decision owner handles human choices and their evidence. This parser checks deterministic conversion invariants and makes no decision or outcome judgment."
+        },
+        {
+          "job": "hold a body of work as a tree: roll up what is really finished, add requested items, check the proof behind finished work",
+          "why": "That owner maintains work items and completion evidence. This tree is editable document content; it has no work-item or completion state."
+        }
+      ]
+    },
+    {
       "capability": "project an authorized public document collection into consistent routes, rendered pages, Markdown, structured data and discovery feeds, and serve those projections against current source visibility",
       "owner": ["tools/publish-content-for-discovery/"],
       "entry": "tools/publish-content-for-discovery/tool-rows.json",
