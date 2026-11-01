@@ -730,6 +730,19 @@
       "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, each a row of the person's list of workflows"
     },
     {
+      "capability": "score outside candidates on weighted signals of need (age, mention counts, recent shares) under signal-source rows, filter and rank them",
+      "owner": ["tools/find-signals-of-need/"],
+      "entry": "tools/find-signals-of-need/tool-rows.json",
+      "evidence": "tools/find-signals-of-need/README.md: one finder; where candidates come from, how they map, what is kept and what scores are DATA rows, and a new measure is a row in signal-measures.json",
+      "distinct_from": [
+        {"job": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends", "why": "That owner searches records the person already holds and ranks people by activity points. This owner scores new candidates from a source row on dated and counted facts and keeps nothing."},
+        {"job": "evaluate formulas over rows", "why": "That owner keeps the rows that match a rule tree and labels records. This owner adds weighted signals into a score and ranks; it applies no rule tree and labels nothing."},
+        {"job": "rank a person's records in the order they should review them, and keep their accept or pass as their stand", "why": "That owner orders records the person already holds and keeps their decision. This owner scores new candidates from a source and keeps nothing."},
+        {"job": "measure traffic by where it came from: tracked links, visitors, leads and sales by source, ad return, conversions sent back to ad platforms", "why": "That owner measures visits and sales a business already has. This owner scores outside candidates before any contact and reads no visit."},
+        {"job": "research a creator or topic: gather its latest items and transcripts, and write a profile of it", "why": "That owner gathers the latest items of one feed or channel and prepares a profile request. This owner filters and scores many candidates on declared signals and gathers or profiles nothing."}
+      ]
+    },
+    {
       "capability": "draw ink marks on any page or picture and erase them",
       "lives_at": ["bitfield-packages/packages/addressed-marks/"],
       "moves_to": "tools/draw-ink-marks/",
@@ -1022,7 +1035,7 @@
       "lives_at": ["bitfield-packages/packages/how-someone-does-their-thing/"],
       "moves_to": "tools/how-someone-does-their-thing/",
       "entry": "bitfield-packages/packages/how-someone-does-their-thing/",
-      "evidence": "how-someone-does-their-thing README.md:1 a profile record for a creator style, a user's voice or any reference pattern"
+      "evidence": "how-someone-does-their-thing README.md:1 a profile record for a creator style, a user's voice or any reference pattern; tools/how-someone-does-their-thing/README.md also holds the layered writing style (base, niche, group, person as DATA) and the finder of repeated edits that propose candidate rules"
     },
     {
       "capability": "generate images from a prompt with a chosen model",
@@ -1126,7 +1139,7 @@
       "lives_at": ["bitfield-packages/packages/research-workspace/", "bitfield-packages/packages/profile-a-creator-or-topic/"],
       "moves_to": "tools/research-a-creator-or-topic/",
       "entry": "bitfield-packages/packages/research-workspace/",
-      "evidence": "research-workspace README.md:1 paste a source, gather its latest items, extract transcripts, synthesize a creator profile"
+      "evidence": "research-workspace README.md:1 paste a source, gather its latest items, extract transcripts, synthesize a creator profile; tools/research-a-creator-or-topic/README.md: the same profile hand-off researches a prospect (a company or business to sell to) and tool:keep-a-prospect keeps its profile as one row of the prospect list, whose fields and statuses are data in do-work/prospect-list.json"
     },
     {
       "capability": "evaluate measures over a person's facts to band and gate their progress",

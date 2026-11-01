@@ -19,6 +19,8 @@ What a run keeps is chosen by the request, not by this folder. A seed is words o
 | `do-work/read-a-feed.mjs` | `tool:list-the-latest-items-of-a-feed`. |
 | `do-work/search-the-public-web.mjs` | `tool:search-the-public-web`. |
 | `do-work/write-a-profile-request.mjs` | `tool:write-a-profile-request`. |
+| `do-work/prospects.mjs` | `tool:brief-a-prospect` (`briefAProspect`: the prospect instruction, filled from the list definition and sent through `writeAProfileRequest`) and `tool:keep-a-prospect` (`keepAProspect`, run by `tools/records-door/do-work/run-an-export.mjs`: keep, mark, read and remove one prospect row; rows are written by `writeRows` of `harvest-parts.mjs`, over the row already held). |
+| `do-work/prospect-list.json` | DATA: the prospect list. The record type and id start the row's rights name, the statuses, the fields and who fills each (`finder`, `research` or `person`), the bounds of each entries field, and the words of the instruction. Adding a field or a status, or changing what a profile looks for, is an edit here. |
 | `do-work/research-from-this-computer.mjs` | `tool:list-a-channels-latest-videos`, `tool:read-a-videos-captions` and `tool:list-the-items-in-a-saved-file`: the steps that run yt-dlp or read a file on the person's own computer. |
 | `do-work/harvest-channels.mjs` | `tool:keep-channels-latest-videos-and-captions` (`keepChannelsLatestVideosAndCaptions`, run by `tools/records-door/do-work/run-an-export.mjs`): the polite queue, the three output files, the rows and `again`. |
 | `do-work/harvest-parts.mjs` | What both polite readers share: the queue (requests, drawn waits, the run's seconds, the refusal check), the plain words that refuse an input, the output file filled to its byte bound, and the rows written over the rows held. |
@@ -29,6 +31,7 @@ What a run keeps is chosen by the request, not by this folder. A seed is words o
 | `test/commands.test.mjs` | The commands, with the network and yt-dlp stood in for. |
 | `test/harvest-channels.test.mjs` | The queue on a made-up site: newest and skipped videos, waits, the run's budget and request bound, refusals and their doubling pause, file bounds, comments, rows over held rows through the stand-in door, refused input, and that the row and the settings agree. |
 | `test/harvest-posts.test.mjs` | The posts queue on a stand-in mirror: each link once, kept fields only, skipped ids, refusals and their pause, bounds, rows over held rows, refused input, and that the row and the settings agree. |
+| `test/prospects.test.mjs` | Both prospect tools on the stand-in records door with exactly the rights of the row: the brief, a found prospect then its research written over the same row (hand-kept fields stay), refusals that name each problem, stated quotations checked against the material, mark, read, remove, and that the row and the definition agree. |
 | `test/stand-in/yt-dlp` | A stand-in yt-dlp: answers a plan file of made-up listings, descriptions and captions, and logs each call. |
 
 ## Key Types / Functions
@@ -41,6 +44,10 @@ What a run keeps is chosen by the request, not by this folder. A seed is words o
 | `writeAProfileRequest` | `({ subject_ref, instruction, material, evidence, profile_ref, output_kind }) -> { requests, skipped }` | One request per piece of material; the instruction comes first. |
 | `keepChannelsLatestVideosAndCaptions` | `(input, { door }) -> { stopped, requests, seconds, seeds, captions, comments, settled, rows?, wait_minutes?, again }` | `input`: `seeds`, `newest`, `caption_languages`, and optionally `skip_ids`, `budget_seconds`, `also: ["comments"]` with `comments_per_video`, `refusals_in_a_row` (set by `again`) and `rows: { one_per: "seed" or "video", id, fields }`, each value `{ fact }`, `{ text }` with `{fact}` holes, `{ value }`, or `{ choose: { fact, texts, otherwise } }` (a text with holes chosen by what one fact says). `stopped` is `finished`, `budget`, `requests`, `refusal` or `files`. |
 | caption line | `{ video_id, url, seed, status, language, format, lines: [[second, words]], info, reason? }` | One line of captions.jsonl. `status` is `ready`, `empty` (the video has no captions in the languages asked) or `failed` (`reason`, the site's words); `info` holds only the settings' `info_fields`. |
+
+## Research a prospect
+
+A prospect (a company or a business to sell to) is researched the way a creator or a topic is: the material is gathered with this folder's readers, `tool:search-the-public-web`, `tool:list-the-latest-items-of-a-feed` or `tools/browse-public-page` (a job post, the company's pages, its reviews); `tool:brief-a-prospect` turns it and the person's criteria into the instruction; the person's AI writes the profile as one JSON object; `tool:keep-a-prospect` checks it against `do-work/prospect-list.json` and keeps it as one row of the prospect list (`record:prospects:<key>`, the key being the same in every action). Each problem, trigger and channel is `stated` (it quotes the material word for word; a quotation not in the material sent with the profile is refused) or `inferred` (a reading, with what it is read from), so evidence and inference stay apart. A finder's facts (`tools/find-signals-of-need`) arrive as `found`; status and notes are the person's, changed only by `mark`. Nothing here contacts anyone.
 
 ## What was not carried
 
