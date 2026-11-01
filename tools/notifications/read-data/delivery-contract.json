@@ -1,0 +1,5 @@
+{
+  "_what": "Package data consumed by the generic notification sender. These names are the receiving app's wire contract, not sender branches. Keep them aligned with the app's notification payload reader and ActivityAttributes declaration.",
+  "apns_payload_key": "notification",
+  "apns_category_prefix": "notification"
+}

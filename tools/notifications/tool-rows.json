@@ -1,236 +1,1972 @@
 {
- "kind": "tool-rows",
- "record_set": "notifications-tool-rows",
- "what_this_is": "The Workshop rows for a person's notification choices and the notices recorded for them, in tools/notifications, kept in their own records through the run's records door.",
- "records": [
-  {
-   "id": "package::notifications::tool::my-notification-choice",
-   "address": "package::notifications::tool::my-notification-choice",
-   "path": ["current-item", "published-record"],
-   "payload": {
-    "kind": "ai-tool-descriptor",
-    "status": "active",
-    "read_only": true,
-    "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
-    "maker": "maker:notifications",
-    "needs": { "expected_seconds": 1, "network_egress": false },
-    "id": "tool:my-notification-choice",
-    "listed_on": "2026-10-30T20:00:00Z",
-    "label": "How I chose to be notified",
-    "job": "Show the options a notification setting offers this person and which one they chose",
-    "description": "setting is the name of a setting the person described in their own records. Returns { setting, heading, explanation, options: [{ id, label, description, current }], current, status, said }. status is ready, empty (the setting describes no options), missing (the person has described no such setting; said tells how) or invalid (the saved choice is not one of the options; it is reported, not corrected). It changes nothing.",
-    "input_schema": {
-     "type": "object",
-     "required": ["setting"],
-     "additionalProperties": false,
-     "properties": { "setting": { "type": "string", "minLength": 1, "description": "The setting's name" } }
+  "kind": "tool-rows",
+  "record_set": "notifications-tool-rows",
+  "what_this_is": "The Workshop rows for a person's notification choices and the notices recorded for them, in tools/notifications, kept in their own records through the run's records door.",
+  "records": [
+    {
+      "id": "package::notifications::tool::my-notification-choice",
+      "address": "package::notifications::tool::my-notification-choice",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notifications",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:my-notification-choice",
+        "listed_on": "2026-10-30T20:00:00Z",
+        "label": "How I chose to be notified",
+        "job": "Show the options a notification setting offers this person and which one they chose",
+        "description": "setting is the name of a setting the person described in their own records. Returns { setting, heading, explanation, options: [{ id, label, description, current }], current, status, said }. status is ready, empty (the setting describes no options), missing (the person has described no such setting; said tells how) or invalid (the saved choice is not one of the options; it is reported, not corrected). It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "setting"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "setting": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The setting's name"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "setting",
+            "options",
+            "status",
+            "said"
+          ],
+          "properties": {
+            "setting": {
+              "type": "string"
+            },
+            "heading": {
+              "type": "string"
+            },
+            "explanation": {
+              "type": "string"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "label",
+                  "current"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "current": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "current": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "ready",
+                "empty",
+                "missing",
+                "invalid"
+              ]
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/notifications",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notifications/read-data/notifications.mjs",
+            "myNotificationChoice"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "notification-setting",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "notification-choice",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "bitfield-packages notifications read-data/read-notifications-policy.ts (option list, current value, empty and invalid status), ported to the records door without its modes or its action route"
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.setting",
+            "input_field": "setting"
+          }
+        ],
+        "result_selector": "$.result"
+      }
     },
-    "output_schema": {
-     "type": "object",
-     "required": ["setting", "options", "status", "said"],
-     "properties": {
-      "setting": { "type": "string" },
-      "heading": { "type": "string" },
-      "explanation": { "type": "string" },
-      "options": { "type": "array", "items": { "type": "object", "required": ["id", "label", "current"], "properties": { "id": { "type": "string" }, "label": { "type": "string" }, "description": { "type": "string" }, "current": { "type": "boolean" } } } },
-      "current": { "type": ["string", "null"] },
-      "status": { "type": "string", "enum": ["ready", "empty", "missing", "invalid"] },
-      "said": { "type": "string" }
-     }
+    {
+      "id": "package::notifications::tool::choose-my-notification-choice",
+      "address": "package::notifications::tool::choose-my-notification-choice",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notifications",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:choose-my-notification-choice",
+        "listed_on": "2026-10-30T20:00:00Z",
+        "label": "Choose how I am notified",
+        "job": "Keep one of a notification setting's options as this person's choice",
+        "description": "setting is the setting's name and choice one option id from tool:my-notification-choice. A choice that is not one of the options is refused with the options named. A setting that is not described, or describes no options, has nothing to choose from: it returns changed false and says so in said, and keeps nothing. Returns { setting, choice, previous, changed, said }; choosing what is already chosen changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "setting",
+            "choice"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "setting": {
+              "type": "string",
+              "minLength": 1
+            },
+            "choice": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "setting",
+            "choice",
+            "changed",
+            "said"
+          ],
+          "properties": {
+            "setting": {
+              "type": "string"
+            },
+            "choice": {
+              "type": "string"
+            },
+            "previous": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "changed": {
+              "type": "boolean"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/notifications",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notifications/read-data/notifications.mjs",
+            "chooseMyNotificationChoice"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "notification-setting",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "notification-choice",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "bitfield-packages notifications do-work/save-setting.ts (insert the chosen option id), ported to a records-door write of the choice after checking it is a described option"
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.setting",
+            "input_field": "setting"
+          }
+        ],
+        "result_selector": "$.result"
+      }
     },
-    "invoke": {
-     "kind": "container",
-     "files": {
-      "package_files": [
-       { "package": "notifications", "paths": ["read-data"], "at": "/opt/notifications" },
-       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-       {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-       {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
-      ]
-     },
-     "workdir": "/opt/notifications",
-     "internet": false,
-     "stdout": "json",
-     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/notifications/read-data/notifications.mjs", "myNotificationChoice"],
-     "stdin": { "fill": { "from": "input" } },
-     "records": { "fd": 3, "rights": [
-      { "kind": "notification-setting", "operations": ["records:read"] },
-      { "kind": "notification-choice", "operations": ["records:read"] }
-     ] }
+    {
+      "id": "package::notifications::tool::record-a-notification",
+      "address": "package::notifications::tool::record-a-notification",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notifications",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:record-a-notification",
+        "listed_on": "2026-10-30T20:00:00Z",
+        "label": "Record a notice for someone",
+        "job": "Record one notification event for the audience the caller names, so it is kept and can be read back; nothing is delivered",
+        "description": "Pass the event: notification_id, kind, conversation_ref, privacy_class, title, body, occurred_at (words) and audience_refs, source_refs, proof_refs (each at least one reference). Optional actions are preserved in the told notice as its offered action definitions, including post:{path,body}, open:{surface_id,...} and press. operationId, transitionId and idempotencyKey are optional. No audience is inferred and no field has a default. If the person saved a notification-event-rules record (kinds, privacy_classes), kind and privacy_class must be among those it lists; with none, any words are accepted. The same event again changes nothing; a different event under the same notification_id is refused. Returns { notification_id, recorded, said }.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "notification_id",
+            "kind",
+            "audience_refs",
+            "conversation_ref",
+            "privacy_class",
+            "title",
+            "body",
+            "occurred_at",
+            "source_refs",
+            "proof_refs"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "notification_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "type": "string",
+              "minLength": 1
+            },
+            "audience_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "conversation_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "privacy_class": {
+              "type": "string",
+              "minLength": 1
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1
+            },
+            "occurred_at": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "proof_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "open": {
+              "type": "string",
+              "pattern": "^/(?!/)[^\\\\]*$"
+            },
+            "actions": {
+              "type": "array",
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "label"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "press": {
+                    "type": "boolean"
+                  },
+                  "open": {
+                    "type": "object"
+                  },
+                  "post": {
+                    "type": "object",
+                    "required": [
+                      "path"
+                    ],
+                    "properties": {
+                      "path": {
+                        "type": "string",
+                        "pattern": "^/(?!/)[^\\\\]*$"
+                      },
+                      "body": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "operationId": {
+              "type": "string"
+            },
+            "transitionId": {
+              "type": "string"
+            },
+            "idempotencyKey": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "notification_id",
+            "recorded",
+            "said"
+          ],
+          "properties": {
+            "notification_id": {
+              "type": "string"
+            },
+            "recorded": {
+              "type": "boolean"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/notifications",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notifications/read-data/notifications.mjs",
+            "recordANotification"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "notification-event",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "notification-event-rules",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "bitfield-packages notifications things-to-store-and-run.json action record-notification-event (its input schema and the record it wrote), ported to the records door"
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.notification_id",
+            "input_field": "notification_id"
+          }
+        ],
+        "result_selector": "$.result"
+      }
     },
-    "provenance": { "source": "bitfield-packages notifications read-data/read-notifications-policy.ts (option list, current value, empty and invalid status), ported to the records door without its modes or its action route" },
-    "verify": [{ "kind": "output-contains-input", "output_selector": "$.setting", "input_field": "setting" }],
-    "result_selector": "$.result"
-   }
-  },
-  {
-   "id": "package::notifications::tool::choose-my-notification-choice",
-   "address": "package::notifications::tool::choose-my-notification-choice",
-   "path": ["current-item", "published-record"],
-   "payload": {
-    "kind": "ai-tool-descriptor",
-    "status": "active",
-    "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
-    "maker": "maker:notifications",
-    "needs": { "expected_seconds": 1, "network_egress": false },
-    "id": "tool:choose-my-notification-choice",
-    "listed_on": "2026-10-30T20:00:00Z",
-    "label": "Choose how I am notified",
-    "job": "Keep one of a notification setting's options as this person's choice",
-    "description": "setting is the setting's name and choice one option id from tool:my-notification-choice. A choice that is not one of the options is refused with the options named. A setting that is not described, or describes no options, has nothing to choose from: it returns changed false and says so in said, and keeps nothing. Returns { setting, choice, previous, changed, said }; choosing what is already chosen changes nothing.",
-    "input_schema": {
-     "type": "object",
-     "required": ["setting", "choice"],
-     "additionalProperties": false,
-     "properties": { "setting": { "type": "string", "minLength": 1 }, "choice": { "type": "string", "minLength": 1 } }
+    {
+      "id": "package::notifications::tool::my-notification-events",
+      "address": "package::notifications::tool::my-notification-events",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notifications",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:my-notification-events",
+        "listed_on": "2026-10-30T20:00:00Z",
+        "label": "Notices recorded for me",
+        "job": "List the notification events recorded for one audience, newest first",
+        "description": "audience is the reference the events name in audience_refs; limit is optional (up to 100, default 20). Returns { audience, events, said }, each event exactly as it was recorded. It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "audience"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "audience": {
+              "type": "string",
+              "minLength": 1
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "audience",
+            "events",
+            "said"
+          ],
+          "properties": {
+            "audience": {
+              "type": "string"
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/notifications",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notifications/read-data/notifications.mjs",
+            "myNotificationEvents"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "notification-event",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "bitfield-packages notifications notification-events feed, read back by audience through the records door"
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.audience",
+            "input_field": "audience"
+          }
+        ],
+        "result_selector": "$.result"
+      }
     },
-    "output_schema": {
-     "type": "object",
-     "required": ["setting", "choice", "changed", "said"],
-     "properties": { "setting": { "type": "string" }, "choice": { "type": "string" }, "previous": { "type": ["string", "null"] }, "changed": { "type": "boolean" }, "said": { "type": "string" } }
+    {
+      "id": "package::notifications::tool::my-notification-devices",
+      "address": "package::notifications::tool::my-notification-devices",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notifications",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:my-notification-devices",
+        "listed_on": "2026-10-31T00:00:00Z",
+        "label": "My notification devices",
+        "job": "List the devices registered to show or read my notices",
+        "description": "Returns each registered device by opaque device_id, route, label and status. Push tokens and addresses are never returned.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "devices",
+            "said"
+          ],
+          "properties": {
+            "devices": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "files": {
+            "package_files": [
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/notifications",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notifications/read-data/device-notifications.mjs",
+            "listMyNotificationDevices"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "notification-device",
+                "prefix": "notification-device:",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "registered"
+          }
+        ],
+        "result_selector": "$.result"
+      }
     },
-    "invoke": {
-     "kind": "container",
-     "files": {
-      "package_files": [
-       { "package": "notifications", "paths": ["read-data"], "at": "/opt/notifications" },
-       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-       {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-       {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
-      ]
-     },
-     "workdir": "/opt/notifications",
-     "internet": false,
-     "stdout": "json",
-     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/notifications/read-data/notifications.mjs", "chooseMyNotificationChoice"],
-     "stdin": { "fill": { "from": "input" } },
-     "records": { "fd": 3, "rights": [
-      { "kind": "notification-setting", "operations": ["records:read"] },
-      { "kind": "notification-choice", "operations": ["records:read", "records:write"] }
-     ] }
+    {
+      "id": "package::notifications::tool::register-my-notification-device",
+      "address": "package::notifications::tool::register-my-notification-device",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notifications",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:register-my-notification-device",
+        "listed_on": "2026-10-31T00:00:00Z",
+        "label": "Register my notification device",
+        "job": "Register this device to receive or read my notices",
+        "description": "Pass route (web-push, apns, apns-activity or live) and the address its app received. For web-push, address is {endpoint,keys:{p256dh,auth}}; APNs routes use a hex token. Apple routes also need app (the bundle id); apns-activity also requires attributes_type, the receiving app’s exact Swift ActivityAttributes type and may set environment (sandbox or production). Optional label, can_show, turn_on and present describe this device. The stable device_id is returned; its private address is kept in your records and never returned. Repeating the same registration keeps its id. At most 40 devices are kept.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "route",
+            "address"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "route": {
+              "type": "string"
+            },
+            "address": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "app": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string",
+              "enum": [
+                "sandbox",
+                "production"
+              ]
+            },
+            "can_show": {
+              "type": "string",
+              "enum": [
+                "allowed",
+                "denied",
+                "not-asked",
+                "quiet"
+              ]
+            },
+            "turn_on": {
+              "type": "string"
+            },
+            "present": {
+              "type": "string",
+              "enum": [
+                "here",
+                "away"
+              ]
+            },
+            "attributes_type": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Required for apns-activity: the exact native Swift ActivityAttributes type, optionally module-qualified."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "device_id",
+            "changed",
+            "devices",
+            "said"
+          ],
+          "properties": {
+            "device_id": {
+              "type": "string"
+            },
+            "changed": {
+              "type": "boolean"
+            },
+            "devices": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "files": {
+            "package_files": [
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/notifications",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notifications/read-data/device-notifications.mjs",
+            "registerMyNotificationDevice"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "notification-device",
+                "prefix": "notification-device:",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "route": "live",
+              "address": "device-a-12345678"
+            },
+            "output_selector": "$.said",
+            "contains": "registered"
+          }
+        ],
+        "result_selector": "$.result"
+      }
     },
-    "provenance": { "source": "bitfield-packages notifications do-work/save-setting.ts (insert the chosen option id), ported to a records-door write of the choice after checking it is a described option" },
-    "verify": [{ "kind": "output-contains-input", "output_selector": "$.setting", "input_field": "setting" }],
-    "result_selector": "$.result"
-   }
-  },
-  {
-   "id": "package::notifications::tool::record-a-notification",
-   "address": "package::notifications::tool::record-a-notification",
-   "path": ["current-item", "published-record"],
-   "payload": {
-    "kind": "ai-tool-descriptor",
-    "status": "active",
-    "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
-    "maker": "maker:notifications",
-    "needs": { "expected_seconds": 1, "network_egress": false },
-    "id": "tool:record-a-notification",
-    "listed_on": "2026-10-30T20:00:00Z",
-    "label": "Record a notice for someone",
-    "job": "Record one notification event for the audience the caller names, so it is kept and can be read back; nothing is delivered",
-    "description": "Pass the event: notification_id, kind, conversation_ref, privacy_class, title, body, occurred_at (words) and audience_refs, source_refs, proof_refs (each at least one reference). operationId, transitionId and idempotencyKey are optional. No audience is inferred and no field has a default. If the person saved a notification-event-rules record (kinds, privacy_classes), kind and privacy_class must be among those it lists; with none, any words are accepted. The same event again changes nothing; a different event under the same notification_id is refused. Returns { notification_id, recorded, said }.",
-    "input_schema": {
-     "type": "object",
-     "required": ["notification_id", "kind", "audience_refs", "conversation_ref", "privacy_class", "title", "body", "occurred_at", "source_refs", "proof_refs"],
-     "additionalProperties": false,
-     "properties": {
-      "notification_id": { "type": "string", "minLength": 1 },
-      "kind": { "type": "string", "minLength": 1 },
-      "audience_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
-      "conversation_ref": { "type": "string", "minLength": 1 },
-      "privacy_class": { "type": "string", "minLength": 1 },
-      "title": { "type": "string", "minLength": 1 },
-      "body": { "type": "string", "minLength": 1 },
-      "occurred_at": { "type": "string", "minLength": 1 },
-      "source_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
-      "proof_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
-      "operationId": { "type": "string" },
-      "transitionId": { "type": "string" },
-      "idempotencyKey": { "type": "string" }
-     }
+    {
+      "id": "package::notifications::tool::remove-my-notification-device",
+      "address": "package::notifications::tool::remove-my-notification-device",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notifications",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:remove-my-notification-device",
+        "listed_on": "2026-10-31T00:00:00Z",
+        "label": "Remove my notification device",
+        "job": "Stop sending or queueing notices for one of my devices",
+        "description": "Pass the opaque device_id from my-notification-devices. The private address is removed from this person’s records. A device that later registers again receives its own id.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "device_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "device_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "device_id",
+            "removed",
+            "said"
+          ],
+          "properties": {
+            "device_id": {
+              "type": "string"
+            },
+            "removed": {
+              "type": "boolean"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "files": {
+            "package_files": [
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/notifications",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notifications/read-data/device-notifications.mjs",
+            "removeMyNotificationDevice"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "notification-device",
+                "prefix": "notification-device:",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "device_id": "missing"
+            },
+            "output_selector": "$.said",
+            "contains": "not registered"
+          }
+        ],
+        "result_selector": "$.result"
+      }
     },
-    "output_schema": {
-     "type": "object",
-     "required": ["notification_id", "recorded", "said"],
-     "properties": { "notification_id": { "type": "string" }, "recorded": { "type": "boolean" }, "said": { "type": "string" } }
+    {
+      "id": "package::notifications::tool::register-my-live-activity",
+      "address": "package::notifications::tool::register-my-live-activity",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notifications",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:register-my-live-activity",
+        "listed_on": "2026-10-31T00:00:00Z",
+        "label": "Register or end my Live Activity",
+        "job": "Keep this iPhone Live Activity token so this account can update or end it",
+        "description": "Pass board_key, the activity push token, app bundle id and environment. ended=true removes the token when the activity ends. Tokens stay private in your own records; the answer never returns them.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "board_key",
+            "token",
+            "app"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "board_key": {
+              "type": "string",
+              "minLength": 1
+            },
+            "token": {
+              "type": "string",
+              "minLength": 32
+            },
+            "app": {
+              "type": "string",
+              "minLength": 1
+            },
+            "environment": {
+              "type": "string",
+              "enum": [
+                "sandbox",
+                "production"
+              ]
+            },
+            "ended": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "board_key",
+            "kept",
+            "ended",
+            "said"
+          ],
+          "properties": {
+            "board_key": {
+              "type": "string"
+            },
+            "kept": {
+              "type": "boolean"
+            },
+            "ended": {
+              "type": "boolean"
+            },
+            "changed": {
+              "type": "boolean"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "files": {
+            "package_files": [
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/notifications",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notifications/read-data/device-notifications.mjs",
+            "registerMyLiveActivity"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "notification-live-activity",
+                "prefix": "notification-live-activity:",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "board_key": "running",
+              "token": "0123456789abcdef0123456789abcdef",
+              "app": "com.example.app"
+            },
+            "output_selector": "$.said",
+            "contains": "registered"
+          }
+        ],
+        "result_selector": "$.result"
+      }
     },
-    "invoke": {
-     "kind": "container",
-     "files": {
-      "package_files": [
-       { "package": "notifications", "paths": ["read-data"], "at": "/opt/notifications" },
-       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-       {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-       {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
-      ]
-     },
-     "workdir": "/opt/notifications",
-     "internet": false,
-     "stdout": "json",
-     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/notifications/read-data/notifications.mjs", "recordANotification"],
-     "stdin": { "fill": { "from": "input" } },
-     "records": { "fd": 3, "rights": [
-      { "kind": "notification-event", "operations": ["records:read", "records:write"] },
-      { "kind": "notification-event-rules", "operations": ["records:read"] }
-     ] }
+    {
+      "id": "package::notifications::tool::send-notification-to-my-devices",
+      "address": "package::notifications::tool::send-notification-to-my-devices",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notifications",
+        "needs": {
+          "expected_seconds": 15,
+          "network_egress": true
+        },
+        "id": "tool:send-notification-to-my-devices",
+        "listed_on": "2026-10-31T00:00:00Z",
+        "label": "Send a recorded notification to my devices",
+        "job": "Send one already-recorded notice through my registered Apple devices",
+        "description": "Pass notification_id and the audience reference that the recorded event names. The notice is first kept in told-the-person; APNs and browser push attempts are recorded before sending, accepted is never treated as read, and an unknown network result is not blindly retried. Set retry_failed only after a definite failure. Device-pull registrations get the notice queued for their next read; per-device route results identify which registered devices received or may read it.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "notification_id",
+            "audience"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "notification_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "audience": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retry_failed": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "notification_id",
+            "recorded",
+            "delivered",
+            "stage",
+            "said"
+          ],
+          "properties": {
+            "notification_id": {
+              "type": "string"
+            },
+            "recorded": {
+              "type": "boolean"
+            },
+            "delivered": {
+              "type": "boolean"
+            },
+            "stage": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "files": {
+            "package_files": [
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/notifications",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notifications/read-data/device-notifications.mjs",
+            "sendNotificationWithHeldApnsKey"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "notification-signing-keys",
+              "fd": 4
+            }
+          ],
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "notification-event",
+                "prefix": "notification-event:",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "told-the-person",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "told-the-person",
+                "id": "told-the-person",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "told-the-person",
+                "prefix": "told-the-person:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "notification-device",
+                "prefix": "notification-device:",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "notification_id": "missing",
+              "audience": "person:me"
+            },
+            "output_selector": "$.said",
+            "contains": "Record it first"
+          }
+        ],
+        "result_selector": "$.result"
+      }
     },
-    "provenance": { "source": "bitfield-packages notifications things-to-store-and-run.json action record-notification-event (its input schema and the record it wrote), ported to the records door" },
-    "verify": [{ "kind": "output-contains-input", "output_selector": "$.notification_id", "input_field": "notification_id" }],
-    "result_selector": "$.result"
-   }
-  },
-  {
-   "id": "package::notifications::tool::my-notification-events",
-   "address": "package::notifications::tool::my-notification-events",
-   "path": ["current-item", "published-record"],
-   "payload": {
-    "kind": "ai-tool-descriptor",
-    "status": "active",
-    "read_only": true,
-    "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
-    "maker": "maker:notifications",
-    "needs": { "expected_seconds": 1, "network_egress": false },
-    "id": "tool:my-notification-events",
-    "listed_on": "2026-10-30T20:00:00Z",
-    "label": "Notices recorded for me",
-    "job": "List the notification events recorded for one audience, newest first",
-    "description": "audience is the reference the events name in audience_refs; limit is optional (up to 100, default 20). Returns { audience, events, said }, each event exactly as it was recorded. It changes nothing.",
-    "input_schema": {
-     "type": "object",
-     "required": ["audience"],
-     "additionalProperties": false,
-     "properties": { "audience": { "type": "string", "minLength": 1 }, "limit": { "type": "integer", "minimum": 1, "maximum": 100 } }
+    {
+      "id": "package::notifications::tool::send-live-activity-update",
+      "address": "package::notifications::tool::send-live-activity-update",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notifications",
+        "needs": {
+          "expected_seconds": 15,
+          "network_egress": true
+        },
+        "id": "tool:send-live-activity-update",
+        "listed_on": "2026-10-31T00:00:00Z",
+        "label": "Update my Live Activity",
+        "job": "Start, update or end the one Live Activity board for running work",
+        "description": "Pass a stable update_id, board_key and up to four items. Push-to-start uses each device’s registered attributes_type; missing or invalid registration refuses delivery without guessing a native type. Running items update existing activity tokens or push-to-start when none has returned yet; an empty running set ends active tokens. Apple acceptance does not prove the person saw it. Reusing update_id returns its durable result; unknown outcomes are never sent again. Definite failures may be retried with retry_failed=true.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "update_id",
+            "board_key",
+            "items"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "update_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "board_key": {
+              "type": "string",
+              "minLength": 1
+            },
+            "items": {
+              "type": "array",
+              "maxItems": 4,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "title",
+                  "state"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "running",
+                      "done",
+                      "failed",
+                      "stopped"
+                    ]
+                  },
+                  "open": {
+                    "type": "string",
+                    "pattern": "^/(?!/)[^\\\\]*$"
+                  },
+                  "progress": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "done",
+                      "total"
+                    ],
+                    "properties": {
+                      "done": {
+                        "type": "number"
+                      },
+                      "total": {
+                        "type": "number"
+                      },
+                      "unit": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "source": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "retry_failed": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "board_key",
+            "update_id",
+            "state",
+            "accepted",
+            "attempted",
+            "said"
+          ],
+          "properties": {
+            "board_key": {
+              "type": "string"
+            },
+            "update_id": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "accepted": {
+              "type": "integer"
+            },
+            "attempted": {
+              "type": "integer"
+            },
+            "uncertain": {
+              "type": "boolean"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "files": {
+            "package_files": [
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/notifications",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notifications/read-data/device-notifications.mjs",
+            "sendLiveActivityWithHeldApnsKey"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "notification-signing-keys",
+              "fd": 4
+            }
+          ],
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "notification-device",
+                "prefix": "notification-device:",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "notification-live-activity",
+                "prefix": "notification-live-activity:",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "notification-live-activity-start",
+                "prefix": "notification-live-activity-start:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "notification-live-activity-delivery",
+                "prefix": "notification-live-activity-delivery:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "update_id": "empty-sample",
+              "board_key": "running",
+              "items": []
+            },
+            "output_selector": "$.said",
+            "contains": "Nothing is running"
+          }
+        ],
+        "result_selector": "$.result"
+      }
     },
-    "output_schema": {
-     "type": "object",
-     "required": ["audience", "events", "said"],
-     "properties": { "audience": { "type": "string" }, "events": { "type": "array", "items": { "type": "object" } }, "said": { "type": "string" } }
-    },
-    "invoke": {
-     "kind": "container",
-     "files": {
-      "package_files": [
-       { "package": "notifications", "paths": ["read-data"], "at": "/opt/notifications" },
-       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-       {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-       {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
-      ]
-     },
-     "workdir": "/opt/notifications",
-     "internet": false,
-     "stdout": "json",
-     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/notifications/read-data/notifications.mjs", "myNotificationEvents"],
-     "stdin": { "fill": { "from": "input" } },
-     "records": { "fd": 3, "rights": [{ "kind": "notification-event", "operations": ["records:list"] }] }
-    },
-    "provenance": { "source": "bitfield-packages notifications notification-events feed, read back by audience through the records door" },
-    "verify": [{ "kind": "output-contains-input", "output_selector": "$.audience", "input_field": "audience" }],
-    "result_selector": "$.result"
-   }
-  }
- ]
+    {
+      "id": "package::notifications::tool::my-browser-push-application-key",
+      "address": "package::notifications::tool::my-browser-push-application-key",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notifications",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "id": "tool:my-browser-push-application-key",
+        "listed_on": "2026-10-31T00:00:00Z",
+        "label": "My browser push application key",
+        "job": "Get the public key browsers need to register for notices",
+        "description": "Returns only the base64url P-256 public applicationServerKey derived from the web_push field of the held notification-signing-keys bundle. The private signing scalar and contact stay on the credential pipe.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "applicationServerKey",
+            "said"
+          ],
+          "properties": {
+            "applicationServerKey": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "files": {
+            "package_files": [
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/notifications",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notifications/read-data/device-notifications.mjs",
+            "myBrowserPushApplicationServerKeyFromHeldCredential"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "notification-signing-keys",
+              "fd": 4
+            }
+          ]
+        },
+        "provenance": {
+          "source": "The public Web Push application key derived from the held credential used by tools/notifications/read-data/web-push.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "ready"
+          }
+        ],
+        "result_selector": "$.result"
+      }
+    }
+  ]
 }
