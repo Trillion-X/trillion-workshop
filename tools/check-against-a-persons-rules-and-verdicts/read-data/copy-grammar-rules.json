@@ -5,7 +5,7 @@
     { "id": "capital-after-full-stop", "check": "capital-after-stop", "says": "A new sentence starts with a capital letter.", "not_for_kinds": ["image-text"] },
     { "id": "sentence-ends-with-stop", "check": "ends-with-stop", "says": "A sentence ends with a full stop, a question mark or an exclamation mark.", "not_for_kinds": ["image-text"] },
     { "id": "doubled-word", "check": "doubled-word", "says": "The same word twice in a row.", "not_for_kinds": ["image-text"] },
-    { "id": "a-before-vowel", "check": "a-before-vowel", "says": "\"a\" before a vowel sound is \"an\".", "not_for_kinds": ["image-text"] },
+    { "id": "a-before-vowel", "check": "a-before-vowel", "says": "\"a\" before a vowel sound is \"an\".", "vowel_letters_with_consonant_sound": ["use", "usab", "eulog", "one-"], "not_for_kinds": ["image-text"] },
     { "id": "balanced-brackets", "check": "balanced-brackets", "says": "A bracket or quote is opened and never closed.", "not_for_kinds": ["image-text"] },
     { "id": "space-before-punctuation", "check": "space-before-punctuation", "says": "No space before a comma or a full stop.", "not_for_kinds": ["image-text"] },
     { "id": "one-space", "check": "double-space", "says": "One space between words.", "not_for_kinds": ["image-text"] }
