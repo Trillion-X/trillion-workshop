@@ -1,3 +1,10 @@
 {
-  "public": ["read-data/resolve-screen-look-palette.js", "read-data/look-document-css.js"]
+  "public": [
+    "read-data/resolve-screen-look-palette.js",
+    "read-data/look-document-css.js",
+    "read-data/device-look-tokens.js",
+    "read-data/look-time-zone.js",
+    "read-data/look-over-time.ts",
+    "read-data/look-scheme.ts"
+  ]
 }
