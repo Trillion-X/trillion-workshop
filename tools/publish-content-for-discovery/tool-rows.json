@@ -24,7 +24,8 @@
               "properties": {
                 "origin": { "type": "string", "format": "uri" },
                 "name": { "type": "string" },
-                "language": { "type": "string" }
+                "language": { "type": "string" },
+                "trailingSlash": { "type": "boolean", "description": "The site's declared URL form. True when the host serves routes with a trailing slash; false or absent means none. Canonical, og:url, JSON-LD, sitemap, feed and llms links all use this form, and a route is normalised to it." }
               }
             },
             "source": {

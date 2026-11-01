@@ -165,13 +165,16 @@ function normalizeSnapshot(input) {
     if (doc.schemaProperties?.datePublished != null && (typeof doc.schemaProperties.datePublished !== 'string' || !Number.isFinite(Date.parse(doc.schemaProperties.datePublished)))) throw new TypeError(`Document ${ref} datePublished must be a valid date string.`);
     docs.set(ref, doc);
   }
+  if (input.site.trailingSlash != null && typeof input.site.trailingSlash !== 'boolean') throw new TypeError('site.trailingSlash must be a boolean when declared.');
+  const trailingSlash = input.site.trailingSlash === true;
   const paths = new Set();
   const routeByRef = new Map();
   for (const route of input.routes) {
     if (!isObject(route)) throw new TypeError('Each route must be an object.');
     const ref = requiredText(route.documentRef, 'route.documentRef');
     if (!docs.has(ref) || routeByRef.has(ref)) throw new TypeError(`Route has an unknown or duplicate document reference: ${ref}`);
-    const path = requiredText(route.path, `route ${ref} path`);
+    const declaredPath = requiredText(route.path, `route ${ref} path`);
+    const path = declaredPath.length > 1 && declaredPath.endsWith('/') !== trailingSlash ? (trailingSlash ? `${declaredPath}/` : declaredPath.replace(/\/+$/, '')) : declaredPath;
     if (!path.startsWith('/') || path.startsWith('//') || /[?#\s\\]/.test(path)) throw new TypeError(`Route ${ref} must be an origin-relative path without query, fragment, whitespace, or backslash.`);
     const normalizedPath = new URL(path, origin).pathname;
     if (normalizedPath !== path || paths.has(path)) throw new TypeError(`Duplicate or non-canonical route: ${path}`);
@@ -179,7 +182,7 @@ function normalizeSnapshot(input) {
     routeByRef.set(ref, path);
   }
   if (routeByRef.size !== docs.size) throw new TypeError('Every document in this source page must have exactly one route.');
-  return { origin, site: { name: publicText(input.site.name, 'site.name'), language: requiredText(input.site.language, 'site.language') }, sourceRef, sourceVersion, observedAt, requestedCursor, complete: source.complete, nextCursor: source.nextCursor ?? null, docs, routeByRef };
+  return { origin, trailingSlash, site: { name: publicText(input.site.name, 'site.name'), language: requiredText(input.site.language, 'site.language') }, sourceRef, sourceVersion, observedAt, requestedCursor, complete: source.complete, nextCursor: source.nextCursor ?? null, docs, routeByRef };
 }
 
 function safeSections(sections) {
@@ -235,7 +238,7 @@ export function prepareContentForDiscovery(input) {
     const page = renderRecordPublicationProjection({
       publication_descriptor: {
         descriptor_ref: `projection:${ref}:${sourceDoc.version}`,
-        artifact: { kind: 'public-content-page', mime_type: 'text/html', url: { scheme: 'https', domain: new URL(normalized.origin).host, path_segments: path.split('/').filter(Boolean) }, integrity_policy: { untrusted_content: 'escaped' } },
+        artifact: { kind: 'public-content-page', mime_type: 'text/html', url: { scheme: 'https', domain: new URL(normalized.origin).host, path_segments: path.split('/').filter(Boolean), trailing_slash: normalized.trailingSlash }, integrity_policy: { untrusted_content: 'escaped' } },
         proof: { materialized_input_ref: normalized.sourceVersion, process_session_ref: normalized.observedAt },
         view: { title, description, language: normalized.site.language, metadata: [{ property: 'og:type', value: sourceDoc.openGraphType }], sections: renderSections, schema_graph: { context: 'https://schema.org', nodes: [jsonLd] } },
       },
@@ -261,6 +264,6 @@ export function prepareContentForDiscovery(input) {
   const sitemap = { kind: 'urlset-page', complete: normalized.complete, nextCursor: normalized.nextCursor, urls: documents.map(doc => ({ loc: doc.canonicalUrl, lastmod: doc.updatedAt })) };
   const rss = { kind: 'rss-channel-page', title: normalized.site.name, link: normalized.origin, complete: normalized.complete, nextCursor: normalized.nextCursor, items: documents.map(doc => ({ title: doc.title, link: doc.canonicalUrl, guid: doc.canonicalUrl, description: doc.description, pubDate: new Date(doc.updatedAt).toUTCString(), sources: doc.citations })) };
   const llms = [`# ${normalized.site.name}`, '', ...documents.flatMap(doc => [`## ${doc.title}`, doc.canonicalUrl, doc.description, ...Object.entries(doc.schemaProperties).map(([key, value]) => visibleSchemaProperty(key, value)), ...doc.citations.map(citation => `Source: ${citation.label} (${citation.url})`), ''])].join('\n');
-  const manifest = { kind: 'public-content-discovery-manifest', source: { version: normalized.sourceVersion, observedAt: normalized.observedAt, requestedCursor: normalized.requestedCursor, complete: normalized.complete, continuation: normalized.nextCursor }, site: { ...normalized.site, origin: normalized.origin }, documents: documents.map(({ path, canonicalUrl, title, description, updatedAt, openGraphType, schemaProperties, citations, identity }) => ({ path, canonicalUrl, title, description, updatedAt, openGraphType, schemaProperties, citations, identity })) };
+  const manifest = { kind: 'public-content-discovery-manifest', source: { version: normalized.sourceVersion, observedAt: normalized.observedAt, requestedCursor: normalized.requestedCursor, complete: normalized.complete, continuation: normalized.nextCursor }, site: { ...normalized.site, origin: normalized.origin, trailingSlash: normalized.trailingSlash }, documents: documents.map(({ path, canonicalUrl, title, description, updatedAt, openGraphType, schemaProperties, citations, identity }) => ({ path, canonicalUrl, title, description, updatedAt, openGraphType, schemaProperties, citations, identity })) };
   return { manifest, outputs: { documents, sitemap, rss, llms }, diagnostics: [] };
 }
