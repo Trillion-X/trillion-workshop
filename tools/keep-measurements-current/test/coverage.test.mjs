@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { refreshCoverage } from '../read-data/coverage.mjs';
+
+const packagedMeters = JSON.parse(await readFile(new URL('../read-data/meter-definitions.json', import.meta.url), 'utf8'));
 
 const base = () => ({
   sources: [{ id: 'native-cli', revision: 'r1' }],
@@ -56,6 +59,31 @@ test('unknown meter, dropped observation and failed useful work stay unknown', (
   const dropped = refreshCoverage({ ...x, prior });
   assert.equal(dropped.stale_sources, true);
   assert.equal(dropped.total_cost, null);
+});
+
+test('packaged applicable meters expose a dropped native observation', () => {
+  const x = base();
+  x.meters = packagedMeters;
+  x.prices = [];
+  x.receipts[0].measurements = [{ meter: 'native.cli_wall_ms', unit: 'ms', value: 10 }];
+  const result = refreshCoverage(x);
+  const dropped = result.rows.find(row => row.operation === 'tool-session' && row.provider === 'native-cli' && row.meter === 'native.response_bytes');
+  assert.ok(dropped, 'native.response_bytes is declared applicable to tool operations');
+  assert.equal(dropped.status, 'missing-observation');
+  assert.equal(dropped.value, null);
+  assert.equal(result.rows.some(row => row.meter.startsWith('codex.') || row.meter.startsWith('collector.')), false);
+  assert.equal(result.status, 'stale-or-incomplete');
+});
+
+test('a newly added meter without applicability metadata is included by default', () => {
+  const x = base();
+  x.operations = ['newly-added-operation'];
+  x.receipts = [];
+  x.meters = [...packagedMeters, { id: 'new.meter', unit: 'unit' }];
+  const row = refreshCoverage(x).rows.find(candidate => candidate.operation === 'newly-added-operation' && candidate.meter === 'new.meter');
+  assert.ok(row);
+  assert.equal(row.status, 'missing-observation');
+  assert.equal(row.value, null);
 });
 
 test('retry records and process restart are resumable and idempotent', () => {
