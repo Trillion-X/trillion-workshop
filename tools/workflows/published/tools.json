@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:16900f6f6b5b2cd6149db3d4434834147b13dd87f937a4daae1ec5f75972932c"
+  "blake3": "1f:c197af94a9e23028197f3e2d29e2eead06c13bd76c2bf556fc0983f30ecd1566"
  },
  "fields": [
   {
@@ -2053,7 +2053,7 @@
    "values": {
     "title": "Run a read-only checklist gate on my files (runs on your computer)",
     "job": "Before I am shown anything I made, list the required checks that apply to it and identify which answers are open, stale or failed, without changing my files",
-    "description": "Reads the person's checklist (stages, checks and routes), schema and piece from one folder they grant. It runs the existing checklist gate read-only: every required check that applies to the piece is listed with its current answer state, file identity and criterion pins. It accepts `gate`, `scope`, `audit` without `--hold`, and read-only `checklist` commands. It does not create a lock file, first-gate record or pin cache, and it cannot answer checks, run write-producing sweeps or hold files. The same generic checklist consumer still refuses empty or unknown scopes, reports stale answers and requires exact BLAKE3 file and definition pins. A separate write-grant tool handles commands that change the library. Nothing about a person's checklist or piece is known by this tool; the schema owns those details.",
+    "description": "Reads the person's checklist (stages, checks and routes), schema and piece from one folder they grant. It runs the existing checklist gate read-only: every required check that applies to the piece is listed with its current answer state, file identity and criterion pins. It accepts `gate`, `scope`, `audit` without `--hold`, read-only `checklist`, and `library-pending` for the next bounded source-assessment batch in the schema's current work context. It does not create a lock file, first-gate record or pin cache, and it cannot answer checks, run write-producing sweeps or hold files. The same generic checklist consumer still refuses empty or unknown scopes, reports stale answers and requires exact BLAKE3 file and definition pins. A separate write-grant tool handles commands that change the library. Nothing about a person's checklist or piece is known by this tool; the schema owns those details.",
     "status": "active",
     "maker": "maker:gate-a-piece-against-a-checklist",
     "licence_class": "licence:maker-own",
@@ -5468,7 +5468,7 @@
    "values": {
     "title": "Record a checklist answer or run its checked steps (runs on your computer)",
     "job": "Record a checklist answer or run a declared checker or gate, with the required folder change grant",
-    "description": "Uses the same checklist consumer as the read-only gate, but only after the person grants this tool permission to change one folder. It records the person's answer, imports a checker report under the reviewed checker pins, runs the schema's sweeps or gates, holds files only when requested, or writes the checklist generated from the person's text. The existing consumer still checks criteria definitions, BLAKE3 file pins, checker pins, scopes and stale rows; this tool adds no alternate answer or bypass.",
+    "description": "Uses the same checklist consumer as the read-only gate, but only after the person grants this tool permission to change one folder. It records the person's answer, imports a checker report under the reviewed checker pins, runs the schema's sweeps or gates, holds files only when requested, writes the checklist generated from the person's text, or records and removes source assessments in the existing applications DATA through `library-assess` and `library-remove`. Assessments require current source and work-context pins and preserve other contexts. The existing consumer still checks criteria definitions, BLAKE3 file pins, checker pins, scopes and stale rows; this tool adds no alternate answer or bypass.",
     "status": "active",
     "maker": "maker:gate-a-piece-against-a-checklist",
     "licence_class": "licence:maker-own",

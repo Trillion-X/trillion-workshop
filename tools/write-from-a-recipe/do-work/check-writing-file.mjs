@@ -15,13 +15,20 @@ try {
   const candidatePath = typeof error?.path === 'string'
     ? error.path
     : String(error?.message ?? '').match(/\/opt\/[A-Za-z0-9_./@+-]*package\.json/)?.[0];
-  const packagePath = typeof candidatePath === 'string'
-    && candidatePath.startsWith('/opt/')
-    && candidatePath.endsWith('/package.json')
-    && !candidatePath.includes('..')
-    ? candidatePath
+  const packedPath = typeof candidatePath === 'string'
+    ? candidatePath.match(/(?:^|\/)opt\/([A-Za-z0-9_./@+-]*package\.json)$/)?.[1]
     : undefined;
-  gateLoadDiagnostic = { code, ...(packagePath ? { package_path: packagePath } : {}) };
+  const knownPackages = [
+    ['write-from-a-recipe/package.json', 'write-from-a-recipe'],
+    ['judge-words/package.json', 'judge-words'],
+    ['content-identity/package.json', 'content-identity'],
+    ['node_modules/@noble/hashes/package.json', '@noble/hashes'],
+  ];
+  const packageId = knownPackages.find(([suffix]) => packedPath?.endsWith(suffix))?.[1];
+  const packageScope = packedPath && !packedPath.includes('..')
+    ? packageId ? `packed:${packageId}` : 'other-packed-package'
+    : 'outside-packed-tree-or-unmapped';
+  gateLoadDiagnostic = { code, package_scope: packageScope };
 }
 
 const refuse = code => { throw Object.assign(new Error(code), { code }); };
