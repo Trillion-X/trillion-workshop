@@ -17,6 +17,7 @@ Ported from bitfield-packages `packages/content-generation` (its recipe composer
 
 | File | Purpose |
 |------|---------|
+| `package.json` | Declares this packed package folder as an ESM scope, so the native run does not inherit a package scope above its private tree. |
 | `read-data/compose-instruction.mjs` | `composeRunRequest`: renders a recipe's `instruction_plan.prompt_template`. Copied from content-generation `compose-run-request-lib.mjs`; the one change is the `{ line: [...] }` segment. |
 | `read-data/check-writing.mjs` | `evaluateGate` (the source checks), `requiredVerdictsMet`, `buildOwnerDelivery` (the handoff, with a derived summary and body). From content-generation `gate-and-build-owner-delivery-lib.mjs` and its command. |
 | `read-data/evidence-contract.mjs` | Optional source-backed claim validation. Reuses `content-identity` BLAKE3 identities and `judge-words` exact UTF-8 source-span coverage. It binds the review but cannot authenticate a reviewer, establish semantic truth, verify licences, or grant release authority. A strict delivery must map `evidence_provenance: { from: "context", field: "evidence_provenance" }` to the next owner; it carries rights metadata but omits source bytes and quotes. |

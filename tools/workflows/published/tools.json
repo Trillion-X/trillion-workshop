@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:76c6c802c83526af70afb6f94c7f4ed988eeb561a93ddbae879acb5ca26baba6"
+  "blake3": "1f:fd428c1f12289fd1155434d8bfcacca28f0632c5d07e1cf2b030b5a2a1a0232b"
  },
  "fields": [
   {
@@ -3662,6 +3662,25 @@
    }
   },
   {
+   "id": "tool:my-browser-push-application-key",
+   "values": {
+    "title": "My browser push application key",
+    "job": "Get the public key browsers need to register for notices",
+    "description": "Returns only the base64url P-256 public applicationServerKey derived from the web_push field of the held notification-signing-keys bundle. The private signing scalar and contact stay on the credential pipe.",
+    "status": "active",
+    "maker": "maker:notifications",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-31T00:00:00Z",
+    "folder": "notifications",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:my-device-notices",
    "values": {
     "title": "Notices for this device",
@@ -3712,6 +3731,25 @@
      "placement:small-container"
     ],
     "listed_on": "2026-10-30T20:00:00Z",
+    "folder": "notifications",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:my-notification-devices",
+   "values": {
+    "title": "My notification devices",
+    "job": "List the devices registered to show or read my notices",
+    "description": "Returns each registered device by opaque device_id, route, label and status. Push tokens and addresses are never returned.",
+    "status": "active",
+    "maker": "maker:notifications",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-31T00:00:00Z",
     "folder": "notifications",
     "flags": [
      "read-only"
@@ -5338,7 +5376,7 @@
    "values": {
     "title": "Record a notice for someone",
     "job": "Record one notification event for the audience the caller names, so it is kept and can be read back; nothing is delivered",
-    "description": "Pass the event: notification_id, kind, conversation_ref, privacy_class, title, body, occurred_at (words) and audience_refs, source_refs, proof_refs (each at least one reference). operationId, transitionId and idempotencyKey are optional. No audience is inferred and no field has a default. If the person saved a notification-event-rules record (kinds, privacy_classes), kind and privacy_class must be among those it lists; with none, any words are accepted. The same event again changes nothing; a different event under the same notification_id is refused. Returns { notification_id, recorded, said }.",
+    "description": "Pass the event: notification_id, kind, conversation_ref, privacy_class, title, body, occurred_at (words) and audience_refs, source_refs, proof_refs (each at least one reference). Optional actions are preserved in the told notice as its offered action definitions, including post:{path,body}, open:{surface_id,...} and press. operationId, transitionId and idempotencyKey are optional. No audience is inferred and no field has a default. If the person saved a notification-event-rules record (kinds, privacy_classes), kind and privacy_class must be among those it lists; with none, any words are accepted. The same event again changes nothing; a different event under the same notification_id is refused. Returns { notification_id, recorded, said }.",
     "status": "active",
     "maker": "maker:notifications",
     "licence_class": "licence:maker-own",
@@ -5442,6 +5480,38 @@
    }
   },
   {
+   "id": "tool:register-my-live-activity",
+   "values": {
+    "title": "Register or end my Live Activity",
+    "job": "Keep this iPhone Live Activity token so this account can update or end it",
+    "description": "Pass board_key, the activity push token, app bundle id and environment. ended=true removes the token when the activity ends. Tokens stay private in your own records; the answer never returns them.",
+    "status": "active",
+    "maker": "maker:notifications",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-31T00:00:00Z",
+    "folder": "notifications"
+   }
+  },
+  {
+   "id": "tool:register-my-notification-device",
+   "values": {
+    "title": "Register my notification device",
+    "job": "Register this device to receive or read my notices",
+    "description": "Pass route (web-push, apns, apns-activity or live) and the address its app received. For web-push, address is {endpoint,keys:{p256dh,auth}}; APNs routes use a hex token. Apple routes also need app (the bundle id); apns-activity also requires attributes_type, the receiving app’s exact Swift ActivityAttributes type and may set environment (sandbox or production). Optional label, can_show, turn_on and present describe this device. The stable device_id is returned; its private address is kept in your records and never returned. Repeating the same registration keeps its id. At most 40 devices are kept.",
+    "status": "active",
+    "maker": "maker:notifications",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-31T00:00:00Z",
+    "folder": "notifications"
+   }
+  },
+  {
    "id": "tool:regroup-a-plans-segments",
    "values": {
     "title": "Regroup the segments of my plans (runs on your computer)",
@@ -5518,6 +5588,22 @@
     ],
     "listed_on": "2026-09-30T07:12:34Z",
     "folder": "saved-examples"
+   }
+  },
+  {
+   "id": "tool:remove-my-notification-device",
+   "values": {
+    "title": "Remove my notification device",
+    "job": "Stop sending or queueing notices for one of my devices",
+    "description": "Pass the opaque device_id from my-notification-devices. The private address is removed from this person’s records. A device that later registers again receives its own id.",
+    "status": "active",
+    "maker": "maker:notifications",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-31T00:00:00Z",
+    "folder": "notifications"
    }
   },
   {
@@ -6492,6 +6578,38 @@
      "placement:your-computer"
     ],
     "folder": "export-records-as-list-rows"
+   }
+  },
+  {
+   "id": "tool:send-live-activity-update",
+   "values": {
+    "title": "Update my Live Activity",
+    "job": "Start, update or end the one Live Activity board for running work",
+    "description": "Pass a stable update_id, board_key and up to four items. Push-to-start uses each device’s registered attributes_type; missing or invalid registration refuses delivery without guessing a native type. Running items update existing activity tokens or push-to-start when none has returned yet; an empty running set ends active tokens. Apple acceptance does not prove the person saw it. Reusing update_id returns its durable result; unknown outcomes are never sent again. Definite failures may be retried with retry_failed=true.",
+    "status": "active",
+    "maker": "maker:notifications",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-31T00:00:00Z",
+    "folder": "notifications"
+   }
+  },
+  {
+   "id": "tool:send-notification-to-my-devices",
+   "values": {
+    "title": "Send a recorded notification to my devices",
+    "job": "Send one already-recorded notice through my registered Apple devices",
+    "description": "Pass notification_id and the audience reference that the recorded event names. The notice is first kept in told-the-person; APNs and browser push attempts are recorded before sending, accepted is never treated as read, and an unknown network result is not blindly retried. Set retry_failed only after a definite failure. Device-pull registrations get the notice queued for their next read; per-device route results identify which registered devices received or may read it.",
+    "status": "active",
+    "maker": "maker:notifications",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-31T00:00:00Z",
+    "folder": "notifications"
    }
   },
   {
