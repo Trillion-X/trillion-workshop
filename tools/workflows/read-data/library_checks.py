@@ -10,7 +10,11 @@ from __future__ import annotations
 
 import copy
 import json
-from gate_library import blake3_of, dotted_get
+from gate_library import blake3_of, dotted_get, values_at
+from library_applications import context_state, identity_of, live_source_current, pending_applications, record_applications
+
+# Keep callers of the original optional application helpers on their shared owner.
+source_identity_of = identity_of
 
 
 def _words(value, name):
@@ -24,13 +28,21 @@ def _rows(lib, spec):
     if path.suffix == '.jsonl':
         rows = [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()]
     else:
-        rows = dotted_get(json.loads(path.read_text(encoding='utf-8')), spec.get('path', '')) if spec.get('path') else json.loads(path.read_text(encoding='utf-8'))
+        document = json.loads(path.read_text(encoding='utf-8'))
+        if spec.get('row_groups'):
+            groups = values_at(document, spec['row_groups'])
+            if any(not isinstance(group, list) for group in groups):
+                raise ValueError('library_checks row_groups must select arrays')
+            rows = [row for group in groups for row in group]
+        else:
+            rows = dotted_get(document, spec['path']) if spec.get('path') else document
     if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
         raise ValueError('library_checks sources must contain a list of objects')
-    return rows
+    rows = [row for row in rows if all(dotted_get(row, key) == value for key, value in spec.get('where', {}).items())]
+    return [row for row in rows if dotted_get(row, spec.get('fields', {}).get('id', 'id')) not in spec.get('exclude_ids', [])]
 
 
-def with_library_checks(lib, base):
+def with_library_checks(lib, base, application_rows=None):
     cfg = lib.section('library_checks')
     doc = copy.deepcopy(base)
     stages = {stage['id']: stage for stage in doc['stages']}
@@ -42,25 +54,33 @@ def with_library_checks(lib, base):
             identity = _words(dotted_get(row, fields['id']), 'source id')
             if identity in sources:
                 raise ValueError(f'library_checks has duplicate source id {identity}')
-            sources[identity] = (row, fields, spec.get('citation', {}))
-    selections = _rows(lib, cfg['applications'])
+            sources[identity] = (row, fields, spec.get('citation', {}), spec)
+    selections = _rows(lib, cfg['applications']) if application_rows is None else application_rows
+    context = context_state(lib)
+    if context:
+        selections = [row for row in selections if row.get('context_id') == context['id']]
+    else:
+        selections = [row for row in selections if row.get('context_id') is None]
     selected = set()
     coverage = {'available': len(sources), 'applied': [], 'held': [], 'not_applicable': [], 'unassessed': []}
     for selection in selections:
         identity = _words(selection.get('source_id'), 'source_id')
         if identity in selected:
             raise ValueError(f'library_checks repeats application {identity}')
-        selected.add(identity)
         if identity not in sources:
             raise ValueError(f'library_checks source not found: {identity}')
+        context_current = (not context or selection.get('assessed_context_identity') == context['identity']) and live_source_current(lib, sources[identity][0], sources[identity][3])
+        if context and selection.get('disposition') == 'not-applicable' and (not context_current or selection.get('assessed_source_identity') != identity_of(sources[identity][0])):
+            continue
+        selected.add(identity)
         disposition = selection.get('disposition')
         if disposition not in ('apply', 'held', 'not-applicable'):
             raise ValueError(f'library_checks {identity} must be apply, held or not-applicable')
         because = _words(selection.get('because'), 'because')
-        row, fields, citation = sources[identity]
+        row, fields, citation, _ = sources[identity]
         canonical = json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode()
         source_identity = blake3_of(canonical)
-        assessed = selection.get('assessed_source_identity') == source_identity
+        assessed = context_current and selection.get('assessed_source_identity') == source_identity
         if disposition == 'not-applicable' and not assessed:
             raise ValueError(f'library_checks {identity}: applicability assessment is missing or stale; review the current source identity')
         if disposition == 'not-applicable':
@@ -74,7 +94,7 @@ def with_library_checks(lib, base):
             raise ValueError(f'library_checks repeats check id {check_id}')
         used.add(check_id)
         claim = _words(dotted_get(row, fields['statement']), 'source statement')
-        evidence = dotted_get(row, fields['sources'])
+        evidence = [row] if citation.get('row') is True else dotted_get(row, fields['sources'])
         if not isinstance(evidence, list) or not evidence:
             raise ValueError(f'library_checks {identity} has no source citations')
         support = selection.get('support') or {}
@@ -95,7 +115,8 @@ def with_library_checks(lib, base):
                  'routes': _words(selection.get('routes'), 'routes'), 'kind': 'source-cited application',
                  'library_application': {'source_id': identity, 'source_identity': source_identity,
                     'statement': claim, 'sources': evidence, 'because': because,
-                    'disposition': effective, 'support': support, 'assessed_source_identity': selection.get('assessed_source_identity')}}
+                    'disposition': effective, 'support': support, 'assessed_source_identity': selection.get('assessed_source_identity'),
+                    **({'context': context} if context else {})}}
         if selection.get('per_option'):
             check['per_option'] = True
             check['rule_id'] = check_id

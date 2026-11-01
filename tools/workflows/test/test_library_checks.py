@@ -11,6 +11,7 @@ import bakery
 import checklist_rows
 from gate_library import Library, blake3_of
 from gate_answers import record_answer, gate
+from library_checks import pending_applications, record_applications, context_state, source_identity_of
 
 class LibraryCheckCase(unittest.TestCase):
     def setUp(self):
@@ -110,5 +111,92 @@ class LibraryCheckCase(unittest.TestCase):
         self.assertEqual(self.lib().checklist['library_coverage']['unassessed'], ['bake-1', 'bake-2'])
         self.assertNotIn('L1.1', self.lib().checks())
         self.assertEqual(json.loads((self.root / 'checklist.json').read_text())['stages'][-1]['checks'], [])
+
+    def context(self, identity='monday'):
+        schema = json.loads(self.schema.read_text())
+        schema['library_checks']['context'] = {'id': identity, 'targets': ['target.json'], 'purpose': 'Prepare this actual sandwich batch.'}
+        self.write('target.json', {'batch': 'monday'})
+        self.write('schema.json', schema)
+
+    def judgment(self, item, disposition='not-applicable'):
+        return {'source_id': item['source_id'], 'assessed_source_identity': item['source_identity'],
+                'prior_identity': item['prior_identity'], 'disposition': disposition,
+                'because': 'This is a preparation-only task; slicing is outside this target.',
+                'review': {'assessment': 'The source speaks about slicing a cooled loaf, not preparation.', 'evidence': 'https://example.org/lesson#30, continuous source read'}}
+
+    def submit(self, batch, judgments):
+        return record_applications(self.lib(), {'context_identity': batch['context']['identity'], 'by': 'baker-reviewer', 'judgments': judgments})
+
+    def test_pending_advances_without_a_cursor_and_changes_reopen_exclusions(self):
+        self.context()
+        first = pending_applications(self.lib(), 1)
+        self.assertEqual(first['batch'][0]['source_id'], 'bake-1')
+        self.submit(first, [self.judgment(first['batch'][0])])
+        second = pending_applications(self.lib(), 1)
+        self.assertEqual(second['batch'][0]['source_id'], 'bake-2')
+        self.assertEqual(second['pending_count'], 1)
+        self.rows[0]['statement'] = 'Wash hands before preparation.'
+        (self.root / 'sources.jsonl').write_text('\n'.join(json.dumps(r) for r in self.rows))
+        self.assertEqual(pending_applications(self.lib(), 1)['batch'][0]['source_id'], 'bake-1')
+        self.assertIn('bake-1', self.lib().checklist['library_coverage']['unassessed'])
+        self.rows[0]['statement'] = 'Let a loaf cool before slicing.'
+        (self.root / 'sources.jsonl').write_text('\n'.join(json.dumps(r) for r in self.rows))
+        self.write('target.json', {'batch': 'tuesday'})
+        self.assertEqual(pending_applications(self.lib(), 1)['batch'][0]['source_id'], 'bake-1')
+
+    def test_other_context_live_edit_and_retry_survive_a_bounded_submission(self):
+        self.context()
+        first = pending_applications(self.lib(), 1)
+        judgment = self.judgment(first['batch'][0])
+        other = {'source_id': 'bake-1', 'context_id': 'other', 'because': 'Keep this independent live edit.'}
+        self.write('applications.json', [self.selection, other])
+        self.submit(first, [judgment])
+        before = json.loads((self.root / 'applications.json').read_text())
+        self.submit(first, [judgment])
+        after = json.loads((self.root / 'applications.json').read_text())
+        self.assertEqual(before, after)
+        self.assertIn(other, after)
+        self.context('another-work-context')
+        self.assertEqual(pending_applications(self.lib(), 1)['batch'][0]['source_id'], 'bake-1')
+
+    def test_stale_source_target_or_same_context_edit_is_refused_before_write(self):
+        for changed in ('source', 'target', 'application'):
+            self.setUp()
+            self.context()
+            first = pending_applications(self.lib(), 1)
+            judgment = self.judgment(first['batch'][0])
+            if changed == 'source':
+                self.rows[0]['statement'] = 'Changed claim.'
+                (self.root / 'sources.jsonl').write_text('\n'.join(json.dumps(r) for r in self.rows))
+            elif changed == 'target':
+                self.write('target.json', {'batch': 'changed'})
+            else:
+                self.write('applications.json', [{'source_id': 'bake-1', 'context_id': 'monday', 'because': 'Another reviewer saved this.'}])
+            before = (self.root / 'applications.json').read_bytes()
+            with self.assertRaisesRegex(ValueError, 'changed'):
+                self.submit(first, [judgment])
+            self.assertEqual(before, (self.root / 'applications.json').read_bytes())
+
+    def test_target_change_holds_an_applied_check_instead_of_silently_removing_it(self):
+        self.context()
+        first = pending_applications(self.lib(), 1)
+        judgment = {**self.selection, 'prior_identity': first['batch'][0]['prior_identity'], 'review': {'assessment': 'Read continuous cooling advice.', 'evidence': 'https://example.org/lesson#30'}}
+        self.submit(first, [judgment])
+        self.assertEqual(self.lib().checklist['library_coverage']['applied'][0]['id'], 'L1.1')
+        self.write('target.json', {'batch': 'new'})
+        self.assertEqual(self.lib().checklist['library_coverage']['held'][0]['id'], 'L1.1')
+        with self.assertRaisesRegex(ValueError, 'is held'):
+            record_answer(self.lib(), self.piece, 'L1.1', 'pass', 'An old answer is no longer evidence for this changed batch.', 'baker')
+
+    def test_limits_missing_context_and_read_only_are_refused(self):
+        with self.assertRaisesRegex(ValueError, 'context'):
+            pending_applications(self.lib())
+        self.context()
+        for limit in (0, 257, True):
+            with self.assertRaises(ValueError):
+                pending_applications(self.lib(), limit)
+        first = pending_applications(self.lib(), 1)
+        with self.assertRaisesRegex(ValueError, 'read-only'):
+            record_applications(Library(self.root, self.schema, read_only=True), {'context_identity': first['context']['identity'], 'by': 'baker', 'judgments': [self.judgment(first['batch'][0])]})
 if __name__ == '__main__':
     unittest.main()

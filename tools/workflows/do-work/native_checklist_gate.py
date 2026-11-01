@@ -21,9 +21,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from checklist_gate import main as gate_main
 
 
-READ_ONLY_COMMANDS = {'gate', 'scope', 'audit', 'checklist'}
-ALL_COMMANDS = READ_ONLY_COMMANDS | {'answer', 'answers-from-report', 'sweep', 'run-gates', 'run-files'}
-WRITE_COMMANDS = {'answer', 'answers-from-report', 'sweep', 'run-gates', 'run-files'}
+READ_ONLY_COMMANDS = {'gate', 'scope', 'audit', 'checklist', 'library-pending'}
+WRITE_COMMANDS = {'answer', 'answers-from-report', 'sweep', 'run-gates', 'run-files', 'library-assess', 'library-remove'}
+ALL_COMMANDS = READ_ONLY_COMMANDS | WRITE_COMMANDS
 
 
 def arguments(payload: dict, allow_writes: bool) -> list[str]:
