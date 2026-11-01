@@ -8,6 +8,7 @@
 //   const door = openRecordsDoor();                       reads descriptor 3
 //   await door.readRecord('post', 'post:abc')              -> { type, value }, or null
 //   await door.read('post', 'post:abc')                   -> the value, or null
+//   await door.readWorkspace(['screen-look'])               -> { records: { 'screen-look': rawValue } }
 //   for await (const record of door.list({ type: 'post' })) ...   every record of a kind, page after page
 //                                                          (`fields: [..]` narrows each value to those top-level fields;
 //                                                          `where: { field: value }` keeps the rows whose fields equal it)
@@ -32,6 +33,7 @@ const WORDS = {
   current_workspace_rights_refused: 'This tool may not reach those records.',
   original_input_refused: 'The records door refused the request as written.',
   original_workspace_source_unavailable: 'The person\'s records cannot be reached right now.',
+  original_workspace_read_unavailable: 'The selected workspace returned a read answer this tool could not verify.',
   selected_owner_unavailable: 'The person\'s records stayed busy; try again shortly.',
   capability_gone: 'This run\'s records door has closed.',
   no_files: 'This run was not handed the person\'s files: its row declares no files right.',
@@ -94,8 +96,34 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
     return record.value === null || record.value === undefined ? null : { type: record.type, value: record.value };
   }
 
+  // The selected workspace has its own source and admission owner, reached through the same run bearer at this door.
+  // Keep this operation explicit: every call must name a nonempty set of exact labels, with no prefix or whole-view
+  // fallback. The server's content is JSON text inside its established HTTP result envelope.
+  async function readWorkspace(labels) {
+    if (!Array.isArray(labels) || labels.length < 1 || labels.length > 64
+      || labels.some(label => typeof label !== 'string' || !label || label.length > 300)
+      || new Set(labels).size !== labels.length) {
+      throw new RecordsDoorError('original_input_refused', WORDS.original_input_refused, 'not_started');
+    }
+    const answer = await call('workspace:read', { selection: { labels, prefixes: [] } });
+    if (!answer || answer.status !== 200 || typeof answer.content_type !== 'string'
+      || !/^application\/json(?:\s*;|$)/i.test(answer.content_type) || typeof answer.text !== 'string') {
+      throw new RecordsDoorError('original_workspace_read_unavailable', 'The selected workspace returned an invalid read answer.', 'unknown');
+    }
+    let body;
+    try { body = JSON.parse(answer.text); }
+    catch { throw new RecordsDoorError('original_workspace_read_unavailable', 'The selected workspace returned invalid JSON.', 'unknown'); }
+    if (!body || typeof body !== 'object' || Array.isArray(body) || !body.records
+      || typeof body.records !== 'object' || Array.isArray(body.records)
+      || Object.keys(body.records).some(label => !labels.includes(label))) {
+      throw new RecordsDoorError('original_workspace_read_unavailable', 'The selected workspace returned an invalid record set.', 'unknown');
+    }
+    return body;
+  }
+
   return {
     readRecord,
+    readWorkspace,
     async read(type, id) {
       return (await readRecord(type, id))?.value ?? null;
     },

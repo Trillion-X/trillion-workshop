@@ -28,6 +28,71 @@ test('read, list and write go through the door with the bearer capability and th
   } finally { await door.close(); }
 });
 
+test('workspace reads send only exact labels through the run bearer and preserve raw arrays, objects and missing labels', async () => {
+  const values = {
+    'screen-look': [{ id: 'warm', name: 'Warm' }],
+    'workspace-preference:where-looks-apply': { everywhere_else: 'warm', rules: [{ host: 'docs.test' }] },
+  };
+  const labels = Object.keys(values).concat('workspace-preference:missing');
+  const rights = labels.map(id => ({ kind: '@own-records', id, operations: ['workspace:read'] }));
+  const door = await startFakeDoor({ rights, workspaceRecords: values, eventStream: true });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor, wait: noWait });
+    assert.deepEqual(await client.readWorkspace(labels), { records: values });
+    assert.deepEqual(door.calls.map(call => call.method), ['workspace:read']);
+    assert.deepEqual(door.calls[0].input, { selection: { labels, prefixes: [] } });
+    assert.equal(door.calls[0].authorization, `Bearer ${door.capability}`);
+    assert.equal(door.calls[0].protocol, '2025-06-18');
+  } finally { await door.close(); }
+});
+
+test('workspace reads reject ungranted sibling labels, invalid selections and unverified result envelopes', async () => {
+  const door = await startFakeDoor({
+    rights: [{ kind: '@own-records', id: 'screen-look', operations: ['workspace:read'] }],
+    workspaceRecords: { 'screen-look': [] },
+  });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor, wait: noWait });
+    await assert.rejects(client.readWorkspace(['screen-look', 'screen-look-own-themes']), { code: 'current_workspace_rights_refused' });
+    for (const labels of [[], ['screen-look', 'screen-look'], [''], [3], Array.from({ length: 65 }, (_, i) => `look-${i}`)]) {
+      await assert.rejects(client.readWorkspace(labels), { code: 'original_input_refused' });
+    }
+    assert.equal(door.calls.length, 1, 'invalid requests are refused before network access');
+  } finally { await door.close(); }
+
+  for (const workspaceEnvelope of [
+    { status: 403 },
+    { content_type: 'text/html' },
+    { text: '{broken' },
+    { text: JSON.stringify({ records: { other: { leaked: true } } }) },
+  ]) {
+    const bad = await startFakeDoor({
+      rights: [{ kind: '@own-records', id: 'screen-look', operations: ['workspace:read'] }],
+      workspaceRecords: { 'screen-look': [] }, workspaceEnvelope,
+    });
+    try {
+      await assert.rejects(openRecordsDoor({ descriptor: bad.descriptor, wait: noWait }).readWorkspace(['screen-look']),
+        { code: 'original_workspace_read_unavailable', outcome: 'unknown' });
+    } finally { await bad.close(); }
+  }
+});
+
+test('workspace read byte pages are joined and authenticated by the shared byte-pages owner', async () => {
+  const values = { 'screen-look': { theme: 'w'.repeat(1600), nested: { exact: [1, true, null] } } };
+  const door = await startFakeDoor({
+    rights: [{ kind: '@own-records', id: 'screen-look', operations: ['workspace:read'] }],
+    workspaceRecords: values, bytePage: 128,
+  });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor, wait: noWait });
+    assert.deepEqual(await client.readWorkspace(['screen-look']), { records: values });
+    const pages = door.calls.filter(call => call.method === 'workspace:read');
+    assert.ok(pages.length > 3);
+    assert.ok(pages.slice(1).every((call, at) => call.input.after_byte === (at + 1) * 128));
+    assert.ok(pages.every(call => call.input.selection.labels[0] === 'screen-look' && call.input.selection.prefixes.length === 0));
+  } finally { await door.close(); }
+});
+
 test('a whole-record expected snapshot makes conditional writes atomic and leaves ordinary writes unconditional', async () => {
   const original = { words: 'before', nested: { count: 1 } };
   const second = { words: 'second before' };

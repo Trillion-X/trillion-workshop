@@ -11,7 +11,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 // Engine-wide cap on the records one write carries (own-record-writes.json maxItems); a row may declare fewer.
 const WRITE_CAP = 256;
 
-export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null } = {}) {
+export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null } = {}) {
   const capability = 'run_fake_capability';
   const kept = new Map(records.map(record => [record.id, record]));
   const receipts = new Map();
@@ -31,6 +31,18 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       if (!type || !may(type, 'records:read', { id })) return refuse(OUTSIDE);
       const held = kept.get(id);
       return { structuredContent: { id, type, value: held?.type === type ? held.value : null } };
+    },
+    'workspace:read': ({ selection }) => {
+      const labels = selection?.labels, prefixes = selection?.prefixes;
+      if (!Array.isArray(labels) || !labels.length || labels.length > 64 || !Array.isArray(prefixes) || prefixes.length !== 0
+        || labels.some(label => typeof label !== 'string' || !label || label.length > 300) || new Set(labels).size !== labels.length) {
+        return refuse('original_input_refused');
+      }
+      if (!labels.every(id => may('@own-records', 'workspace:read', { id }))) return refuse(OUTSIDE);
+      const result = { records: Object.fromEntries(labels.filter(id => Object.hasOwn(workspaceRecords, id)).map(id => [id, workspaceRecords[id]])) };
+      return { structuredContent: {
+        content_type: 'application/json', status: 200, text: JSON.stringify(result), request_key: 'workspace-key', ...workspaceEnvelope,
+      } };
     },
     // `limit` bounds the rows read; `where` keeps those whose named fields equal it (as JSON), `fields` narrows each value.
     'records:list': ({ type, prefix, order, limit = 50, after, fields, where, above, below, reverse = true }) => {
