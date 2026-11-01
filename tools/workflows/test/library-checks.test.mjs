@@ -8,3 +8,9 @@ test('a scoped source application runs through the existing checklist gate', () 
   const run = spawnSync('python3', ['-I', script], {encoding:'utf8'});
   assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
 });
+
+test('pending applications resume through the same gate and managed grant adapters', () => {
+  const script = fileURLToPath(new URL('./test_pending_applications.py', import.meta.url));
+  const run = spawnSync('python3', ['-I', script], {encoding:'utf8'});
+  assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
+});

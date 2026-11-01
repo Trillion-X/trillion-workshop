@@ -28,13 +28,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'read-data'))
 
 import checklist_rows  # noqa: E402
+import library_applications  # noqa: E402
 import gate_answers  # noqa: E402
 import gate_audit  # noqa: E402
 import gate_reports  # noqa: E402
 import gate_runs  # noqa: E402
 from gate_library import PROGRAM, Library, comma_list  # noqa: E402
 
-UNLOCKED = ('sweep', 'run-gates', 'run-files', 'checklist')      # a sweep runs a checker for minutes: it locks only while it records, so the gate stays answerable
+UNLOCKED = ('sweep', 'run-gates', 'run-files', 'checklist', 'library-pending', 'library-assess', 'library-remove')  # application consumers lock their own owner
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -85,10 +86,20 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument('--check', action='store_true', help='write nothing; exit 1, naming the differing checks, when the file is not what the text generates')
     mode.add_argument('--write', action='store_true', help='write the generated document to the checklist file')
     mode.add_argument('--problems', action='store_true', help='check the checklist file on disk for what a typo breaks; exit 1 when it finds any')
+    lp = sub.add_parser('library-pending', help='next bounded source assessments for this work context')
+    lp.add_argument('--limit', type=int, default=8)
+    lp.add_argument('--source-id', action='append', help='select fetched sources without changing total coverage')
+    for command in ('library-assess', 'library-remove'):
+        parser = sub.add_parser(command, help='merge or remove current-context source assessments')
+        parser.add_argument('--json', required=True, type=Path)
     return ap
 
 
 def run(lib: Library, a: argparse.Namespace):
+    if a.cmd == 'library-pending':
+        return library_applications.pending_applications(lib, a.limit, a.source_id)
+    if a.cmd in ('library-assess', 'library-remove'):
+        return library_applications.record_applications(lib, json.loads(a.json.read_text(encoding='utf-8')), remove=a.cmd == 'library-remove')
     if a.cmd == 'gate':
         return gate_answers.gate(lib, a.piece, comma_list(a.stage), comma_list(a.option), a.at, start_first_record=not a.read_only)
     if a.cmd == 'answer':
