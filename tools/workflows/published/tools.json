@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:c197af94a9e23028197f3e2d29e2eead06c13bd76c2bf556fc0983f30ecd1566"
+  "blake3": "1f:acbe76e678274053277fed3f9f679cf6240ba6ec83db25e53ed10e2cf1e44cf0"
  },
  "fields": [
   {
@@ -1360,6 +1360,18 @@
      "placement:small-container"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:cost-measurement-ledger",
+   "values": {
+    "title": "Keep and review cost measurements",
+    "job": "Append cost observations once, keep forecasts by version, and aggregate only comparable measured units",
+    "description": "Writes provider and operation level measurements through the existing records door, preserves corrections and unknown coverage, and reads grouped history with scenario, currency, source revision and time windows kept distinct.",
+    "status": "active",
+    "maker": "maker:measurement-ledger",
+    "licence_class": "licence:maker-own",
+    "folder": "measurement-ledger"
    }
   },
   {
@@ -2894,6 +2906,21 @@
    }
   },
   {
+   "id": "tool:keep-measurements-current",
+   "values": {
+    "title": "Collect current measurement coverage",
+    "job": "Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage",
+    "description": "Reads the configured measurement_source_config account record through the records door, resolves bounded source and receipt roots plus the configured meter book, and collects with a freshly returned provider-qualified price book. New operations under those roots are discovered automatically. Receipt content and source, meter and price revisions are pinned. Missing values, unknown meters, failed work, missing prices, unconfigured roots and incomplete discovery stay unknown. The scheduled workflow persists returned history through the measurement-ledger owner.",
+    "status": "active",
+    "maker": "maker:keep-measurements-current",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-measurements-current"
+   }
+  },
+  {
    "id": "tool:keep-public-posts-by-link",
    "values": {
     "title": "Keep public posts by link",
@@ -3641,6 +3668,24 @@
      "placement:small-container"
     ],
     "folder": "workflows"
+   }
+  },
+  {
+   "id": "tool:measurement-workspace",
+   "values": {
+    "title": "Cost measurements",
+    "job": "Review provider and operation usage, forecasts, unknown coverage, and billed history in my account",
+    "description": "Shows the account's saved measurement Lists with a live overview, run history, provider and operation filters, versioned forecasts, billed records, source revisions, retries and errors. It keeps units, currencies, scenarios and measured, assumed and unknown values distinct. It includes no private measurements in the screen code.",
+    "status": "active",
+    "maker": "maker:measurement-workspace",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "measurement-workspace",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
@@ -5507,6 +5552,36 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:refresh-measurement-history",
+   "values": {
+    "title": "Keep measurement history current",
+    "job": "Collect configured operation evidence and save current history directly on a timed or record wake without an AI",
+    "description": "Reads account source configuration, packaged qualified price DATA and prior forecast state, runs the canonical collector and ledger directly, and reads back append-once observations and forecast. It creates no AI job. Missing or stale measurements remain incomplete. Each physical refresh appends real OS CPU, wall and peak-memory observations. Final persistence overhead and monetary cost remain unknown. Replaying a native request does not run a second child.",
+    "status": "active",
+    "maker": "maker:keep-measurements-current",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-measurements-current"
+   }
+  },
+  {
+   "id": "tool:refresh-provider-prices",
+   "values": {
+    "title": "Refresh provider price book",
+    "job": "Read the current version of the declared provider price DATA and return provider-qualified unit prices with source revisions",
+    "description": "Reads the dated provider-price-source DATA through its owner. It returns only scalar prices explicitly marked eligible for unconditional evaluation, preserves provider, meter, currency, source and revision, and lists conditional rates as excluded. It does not infer account plans, invoices, usage or billed amounts.",
+    "status": "active",
+    "maker": "maker:keep-measurements-current",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-measurements-current"
    }
   },
   {
