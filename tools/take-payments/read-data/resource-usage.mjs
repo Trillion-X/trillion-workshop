@@ -34,6 +34,8 @@ export const exactAmount = value => ({ n: value.n.toString(), d: value.d.toStrin
 export const compareAmounts = (a, b) => cmp(rational(a, 'left', { signed: true }), rational(b, 'right', { signed: true }));
 export const addAmounts = (a, b) => exactAmount(add(rational(a, 'left', { signed: true }), rational(b, 'right', { signed: true })));
 export const subtractAmounts = (a, b) => exactAmount(sub(rational(a, 'left', { signed: true }), rational(b, 'right', { signed: true })));
+export const multiplyAmounts = (a, b) => exactAmount(mul(rational(a, 'left', { signed: true }), rational(b, 'right', { signed: true })));
+export const divideAmounts = (a, b) => exactAmount(div(rational(a, 'left', { signed: true }), rational(b, 'right')));
 
 /** Decimal text is for display only. The rational remains the billing authority. */
 export function displayAmount(value, digits = 8) {
