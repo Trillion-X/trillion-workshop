@@ -1,4 +1,7 @@
 import test from 'node:test';
+import { spawn } from 'node:child_process';
+import { openSync, closeSync, readFileSync } from 'node:fs';
+import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import assert from 'node:assert/strict';
 import { reportResourceUsage, readResourceUsageReport, reconcileResourceUsageReport, cancelPreparedResourceUsageReport, settlementCashPlan, usageReportingTypes as types } from '../do-work/resource-usage-reporting.mjs';
 import { settleSharedResourceCost, correctResourceUsageSettlement } from '../do-work/resource-usage.mjs';
@@ -84,4 +87,17 @@ test('a removed payer gets a negative invoice credit through original purchased 
 });
 test('malformed provider success remains unknown and unrelated receipt cannot settle it',async()=>{
  const s=await setup();await s.source();s.p.bad();const out=await reportResourceUsage(s.input(),s.context);assert.equal(out.state,'outcome_unknown');s.p.objects.set('ii:wrong',{...s.p.objects.get('ii:1'),id:'ii:wrong',subscription:'sub:other'});await assert.rejects(reconcileResourceUsageReport({report_id:out.report_id,provider_invoice_item_id:'ii:wrong'},s.context),/exact frozen/);assert.equal((await readResourceUsageReport({report_id:out.report_id},s.context)).report.state,'outcome_unknown');
+});
+
+function throughRunner(name, input, descriptor) {
+ return new Promise((resolve,reject)=>{const fd=openSync(descriptor,'r');const child=spawn(process.execPath,[new URL('../../records-door/do-work/run-an-export.mjs',import.meta.url).pathname,new URL('../do-work/take-payments.mjs',import.meta.url).pathname,name],{stdio:['pipe','pipe','pipe',fd]});let stdout='',stderr='';child.stdout.on('data',x=>stdout+=x);child.stderr.on('data',x=>stderr+=x);child.on('error',reject);child.on('close',code=>{closeSync(fd);try{resolve({code,answer:JSON.parse(stdout.trim().split('\n').at(-1)),stderr});}catch(error){reject(error);}});child.stdin.end(JSON.stringify(input));});
+}
+test('actual Marketplace export reads mounted agreement and accrues with declared rights; denied cash writes refuse',async()=>{
+ const s=await setup();await s.source('a',{n:'3',d:'650'});
+ const records=[...s.records].map(([id,row])=>({id,...row}));records.push({id:'purchase:one',type:types.agreement,value:s.agreement});
+ const rows=JSON.parse(readFileSync(new URL('../tool-rows.json',import.meta.url),'utf8')).records;const rights=rows.find(r=>r.payload.id==='tool:report-resource-usage').payload.invoke.records.rights;
+ const server=await startFakeDoor({rights,records,unknownFirst:1,eventStream:true,pageCut:1});
+ try{const out=await throughRunner('reportResourceUsage',s.input('a'),server.descriptor);assert.equal(out.code,0,out.answer.error);assert.equal(out.answer.result.state,'accrued_no_cash_report');equal(out.answer.result.carry_after,'0.006');const replay=await throughRunner('reportResourceUsage',s.input('a'),server.descriptor);assert.deepEqual(replay.answer,out.answer);assert.ok(server.calls.some(c=>c.method==='records:write'&&server.calls.filter(o=>o.key===c.key).length>1));}finally{await server.close();}
+ const readOnly=await startFakeDoor({rights:rights.map(r=>({...r,operations:r.operations.filter(x=>x!=='records:write')})),records});
+ try{const refused=await throughRunner('reportResourceUsage',s.input('a'),readOnly.descriptor);assert.equal(refused.code,1);assert.match(refused.answer.error,/may not reach/);assert.equal(readOnly.kept.size,records.length);}finally{await readOnly.close();}
 });
