@@ -224,6 +224,9 @@ class Door:
             for record in answer['records']:
                 if not isinstance(record, dict) or not isinstance(record.get('id'), str) or 'value' not in record or record.get('type') != record_type or (prefix and not record['id'].startswith(prefix)):
                     raise ValueError(f'Reading {record_type} returned a record outside its requested type/prefix.')
+            # The retry allowance belongs to this page, not the whole walk.
+            # A long healthy walk can recover an interruption on each later page.
+            tried = 0
             records += answer['records']
             after = answer.get('next')
             if not after:
