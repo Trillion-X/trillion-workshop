@@ -5,7 +5,7 @@ import { resolveScreenLookPalette, resolveScreenLookButton } from '../read-data/
 import { deviceLook } from '../read-data/device-look-tokens.js';
 import { compileRules, ruleVocabulary } from '../../formulas/do-work/compile-rules.mjs';
 import { filterRows } from '../../formulas/do-work/evaluate-binding.mjs';
-import { blendLookValues, lookAtTime, readLookPlan } from '../read-data/look-over-time.ts';
+import { blendLookValues, lookAtTime, readLookPlan } from '../read-data/look-over-time.mjs';
 import { timeZoneName } from '../read-data/look-time-zone.js';
 
 const WORN = 'screen-look';

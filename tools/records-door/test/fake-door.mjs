@@ -11,13 +11,14 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 // Engine-wide cap on the records one write carries (own-record-writes.json maxItems); a row may declare fewer.
 const WRITE_CAP = 256;
 
-export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null } = {}) {
+export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false } = {}) {
   const capability = 'run_fake_capability';
   const kept = new Map(records.map(record => [record.id, record]));
   const receipts = new Map();
   const calls = [];
   let busy = busyFirst;
   let unknown = unknownFirst;
+  let partialBodies = partialBodyFirst;
   // A rights item names a kind, optionally narrowed to one id or an id prefix; a call passes when any item allows it.
   // An id right never lists; a prefix right lists only with no order and a prefix that starts with its own.
   const may = (kind, operation, { id, prefix, order } = {}) => rights.some(item => item.kind === kind && item.operations.includes(operation)
@@ -113,6 +114,14 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
           base64: part.toString('base64'), next_after_byte: offset + part.length < whole.length ? offset + part.length : null } } };
       }
       const answer = JSON.stringify({ jsonrpc: '2.0', id: body.id, result });
+      if (partialBodyAlways || partialBodies > 0) {
+        if (partialBodies > 0) partialBodies -= 1;
+        reply.writeHead(200, { 'content-type': 'application/json' });
+        reply.flushHeaders();
+        reply.write(answer.slice(0, Math.max(1, Math.floor(answer.length / 2))));
+        setTimeout(() => reply.destroy(), 10);
+        return;
+      }
       if (eventStream) reply.writeHead(200, { 'content-type': 'text/event-stream' }).end(`event: message\ndata: ${answer}\n\n`);
       else reply.writeHead(200, { 'content-type': 'application/json' }).end(answer);
     });

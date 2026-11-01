@@ -11,7 +11,7 @@ A look is tokens; this resolves them into concrete colours and fonts and one sty
 | `read-data/look-document-css.js` | `lookDocumentCss(palette, faces)`: a `@font-face` (bytes as a data: address) for each face whose family the look's font variables name, then the look's variables as one `:root` rule. Unsafe names, values and faces are left out. |
 | `do-work/resolve-a-look.mjs` | `node do-work/resolve-a-look.mjs <request.json> [--css <out.css>]`: reads the look and the face files, prints the values, writes the stylesheet. |
 | `do-work/read-current-worn-look.mjs` | `readCurrentWornLook(input, { door })`: reads the current screen-look and own-theme records plus the day plan and look rules; returns `DeviceLooks` tokens, current blend, ahead changes and next read time. |
-| `read-data/look-over-time.ts`, `read-data/look-scheme.ts` | Pure schedule placement/blending and colour/readability behavior used by the account look reader. |
+| `read-data/look-over-time.mjs`, `read-data/look-scheme.mjs` | Pure schedule placement/blending and colour/readability behavior used by the account look reader; `.d.mts` files preserve TypeScript signatures. |
 | `tool-rows.json` | `tool:resolve-a-look`, an `on-your-computer` row. |
 | `part.json` | Public palette, stylesheet and look DATA for other tools to import. |
 | `test/resolve-a-look.test.mjs` | A made-up look and made-up face bytes: concrete values, only the named faces, unsafe values refused. |
