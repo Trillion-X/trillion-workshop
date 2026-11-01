@@ -1,8 +1,95 @@
 {
   "kind": "package-set-records",
   "record_set": "screen-looks-tool-rows",
-  "what_this_is": "The Workshop row for the screen-looks folder: one command the person's AI runs on the person's own computer to turn a look's tokens into concrete values and the stylesheet a page, an email or a slide carries.",
+  "what_this_is": "The Workshop rows for screen looks: resolve a supplied look for documents, and read the person's current worn look and schedule as native device tokens through the person's records door.",
   "records": [
+    {
+      "id": "package::screen-looks::tool::read-current-worn-look",
+      "address": "package::screen-looks::tool::read-current-worn-look",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-current-worn-look",
+        "label": "Read my current screen look",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:screen-looks",
+        "needs": { "expected_seconds": 1, "network_egress": false },
+        "job": "Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw",
+        "description": "Reads this person's current worn screen look and returns the token payload native screens draw: every wearable look, the look now (including a scheduled blend), upcoming changes for twelve hours, and when to read again. `app_data` is the calling app owner's current look DATA: its starting look and themes, plan anchors/presets, and rule facts. Those values are supplied at runtime, never chosen by this generic reader. time_zone is required and must be an IANA zone. host, device, device_id and place are the facts this native screen says about itself; only saved rules matching those facts select another look. A missing personal choice uses `app_data.looks.start_with`. A workspace refusal or unverified answer is an error, never an empty record. Returns `{ worn, worn_record, now, ahead, looks, read_again_at }` in the DeviceLooks token format.",
+        "input_schema": {
+          "type": "object",
+          "required": ["time_zone", "app_data"],
+          "additionalProperties": false,
+          "properties": {
+            "time_zone": { "type": "string", "minLength": 1, "description": "The native device's IANA time zone, such as America/Denver" },
+            "host": { "type": "string", "description": "The app or place where the native screen is drawn, from the saved look rules' hosts" },
+            "device": { "type": "string", "description": "The device kind, from the saved look rules' devices" },
+            "device_id": { "type": "string", "description": "The particular device id, when the native host has one" },
+            "place": { "type": "string", "description": "The screen or area of the app, when the native host knows it" },
+            "app_data": {
+              "type": "object",
+              "required": ["looks", "look_over_time", "where_looks_apply"],
+              "properties": {
+                "looks": { "type": "object", "required": ["start_with", "themes"], "properties": { "start_with": { "type": "string" }, "themes": { "type": "array", "items": { "type": "object" } } } },
+                "look_over_time": { "type": "object", "required": ["record_key", "most_points", "keep_readable", "anchors", "presets"], "properties": { "record_key": { "type": "string" }, "most_points": { "type": "integer", "minimum": 1 }, "keep_readable": { "type": "object", "required": ["ground", "least_contrast"], "properties": { "ground": { "type": "string" }, "least_contrast": { "type": "number" } } }, "anchors": { "type": "array", "items": { "type": "object" } }, "presets": { "type": "array", "items": { "type": "object" } } } },
+                "where_looks_apply": { "type": "object", "required": ["record_key", "facts"], "properties": { "record_key": { "type": "string" }, "facts": { "type": "array", "items": { "type": "object", "required": ["id", "kind"], "properties": { "id": { "type": "string" }, "kind": { "type": "string" }, "turns": { "type": "string" } } } } } }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["worn", "worn_record", "now", "ahead", "looks", "read_again_at"],
+          "properties": {
+            "worn": { "type": "string" },
+            "worn_record": { "type": "object", "required": ["address", "payload"] },
+            "now": { "$ref": "#/$defs/device_look" },
+            "ahead": { "type": "array", "items": { "type": "object", "required": ["at", "look"], "properties": { "at": { "type": "string" }, "look": { "$ref": "#/$defs/device_look" } } } },
+            "looks": { "type": "array", "items": { "$ref": "#/$defs/device_look" } },
+            "read_again_at": { "type": ["string", "null"] }
+          },
+          "$defs": {
+            "device_look": {
+              "type": "object",
+              "required": ["look_id", "name", "colors", "lengths", "faces", "button"],
+              "properties": {
+                "look_id": { "type": "string" }, "name": { "type": "string" },
+                "colors": { "type": "object", "additionalProperties": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "number", "minimum": 0, "maximum": 1 } } },
+                "lengths": { "type": "object", "additionalProperties": { "type": "number" } },
+                "faces": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } },
+                "button": { "type": "object" }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "screen-looks", "paths": ["do-work", "read-data"], "at": "/opt/screen-looks" },
+            { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] },
+          "workdir": "/opt/screen-looks",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/screen-looks/do-work/read-current-worn-look.mjs", "readCurrentWornLook"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [
+            { "kind": "@own-records", "id": "screen-look", "operations": ["workspace:read"] },
+            { "kind": "@own-records", "id": "screen-look-own-themes", "operations": ["workspace:read"] },
+            { "kind": "@own-records", "id": "workspace-preference:screen-look-over-time", "operations": ["workspace:read"] },
+            { "kind": "@own-records", "id": "workspace-preference:where-looks-apply", "operations": ["workspace:read"] }
+          ] }
+        },
+        "provenance": { "source": "src/looks.mjs device(), src/workspace/inputs.json and parts/screen-look/read-data; generic reader consumes app-owned look, schedule and rule DATA supplied by its caller" },
+        "result_selector": "$.result"
+      }
+    },
     {
       "payload": {
         "kind": "ai-tool-descriptor",
