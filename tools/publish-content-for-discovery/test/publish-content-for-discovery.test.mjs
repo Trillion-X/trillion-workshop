@@ -172,3 +172,34 @@ test('declared stdin tool entrypoint returns prepared JSON', () => {
   const output = JSON.parse(result.stdout);
   assert.equal(output.manifest.documents[0].canonicalUrl, 'https://cedar.invalid/guides/public-guide');
 });
+
+test('a site declares its trailing-slash policy and every output follows it', () => {
+  const base = inputFor({ name: 'Cedar Field Lab', origin: 'https://cedar.invalid' });
+  for (const [trailingSlash, declared, served] of [[true, '/guides/public-guide', '/guides/public-guide/'], [true, '/guides/public-guide/', '/guides/public-guide/'], [false, '/guides/public-guide/', '/guides/public-guide'], [undefined, '/guides/public-guide', '/guides/public-guide']]) {
+    const input = structuredClone(base);
+    input.site.trailingSlash = trailingSlash;
+    input.routes[0].path = declared;
+    const result = prepareContentForDiscovery(input);
+    const url = `https://cedar.invalid${served}`;
+    const doc = result.outputs.documents[0];
+    assert.equal(doc.path, served);
+    assert.equal(doc.canonicalUrl, url);
+    assert.ok(doc.html.includes(`<link rel="canonical" href="${url}" />`));
+    assert.ok(doc.html.includes(`<meta property="og:url" content="${url}" />`));
+    assert.ok(doc.html.includes(`"mainEntityOfPage":"${url}"`));
+    assert.equal(doc.jsonLd.mainEntityOfPage, url);
+    assert.equal(result.outputs.sitemap.urls[0].loc, url);
+    assert.equal(result.outputs.rss.items[0].link, url);
+    assert.equal(result.outputs.rss.items[0].guid, url);
+    assert.ok(result.outputs.llms.split('\n').includes(url));
+    assert.equal(result.manifest.documents[0].canonicalUrl, url);
+    assert.equal(result.manifest.site.trailingSlash, trailingSlash === true);
+  }
+  const root = structuredClone(base);
+  root.site.trailingSlash = true;
+  root.routes[0].path = '/';
+  assert.equal(prepareContentForDiscovery(root).outputs.documents[0].canonicalUrl, 'https://cedar.invalid/');
+  const invalid = structuredClone(base);
+  invalid.site.trailingSlash = 'yes';
+  assert.throws(() => prepareContentForDiscovery(invalid), /trailingSlash/);
+});

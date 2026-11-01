@@ -193,7 +193,7 @@ function buildCanonicalUrl(url, context) {
     .map((part) => part.replace(/^\/|\/$/g, ''))
     .filter(Boolean)
     .join('/');
-  return `${scheme}://${domain}/${path}`;
+  return `${scheme}://${domain}/${path}${path && descriptor.trailing_slash === true ? '/' : ''}`;
 }
 
 function buildMetadata(operations, title, description, canonicalUrl, context) {
