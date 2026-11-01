@@ -124,7 +124,7 @@ function memoryDoor() {
   const records = new Map(); const keys = new Map(); const writes = []; let failAfterCommit = false;
   const door = {
     async read(type, id) { const row = records.get(id); return row?.type === type ? structuredClone(row.value) : null; },
-    async *list({ type, prefix = '', above, below, reverse = true } = {}) { if (!reverse) throw new Error('Native unordered kind reads require descending id order.'); for (const [id, row] of [...records].sort(([a], [b]) => b.localeCompare(a))) if (row.type === type && id.startsWith(prefix) && (!above || id > above) && (!below || id < below)) yield { id, ...structuredClone(row) }; },
+    async *list({ type, prefix = '', above, below, reverse } = {}) { if (!reverse) throw new Error('Native unordered kind reads require descending id order.'); for (const [id, row] of [...records].sort(([a], [b]) => b.localeCompare(a))) if (row.type === type && id.startsWith(prefix) && (!above || id > above) && (!below || id < below)) yield { id, ...structuredClone(row) }; },
     async write(rows, { key: requestKey } = {}) {
       if (keys.has(requestKey)) return keys.get(requestKey);
       assert.ok(Buffer.byteLength(JSON.stringify(rows)) < 60000, 'bounded record write does not reproduce the 413 boundary');

@@ -67,7 +67,7 @@ export async function manageUsagePricing(input, { door }) {
  * price or changes an existing subscription. */
 export async function priceResourceUsage(input, context) {
   let rules = input.rules;
-  if (!rules) { rules = []; for await (const row of context.door.list({ type: usageRecordTypes.ruleVersion })) { if (rules.length >= 10000) throw new Error('Narrow this pricing rule set before pricing usage.'); rules.push(row.value); } }
+  if (!rules) { rules = []; for await (const row of context.door.list({ type: usageRecordTypes.ruleVersion, reverse: true })) { if (rules.length >= 10000) throw new Error('Narrow this pricing rule set before pricing usage.'); rules.push(row.value); } }
   if (input.tree) return { tree: priceUsageTree({ ...input, rules }) };
   return { terms: resolveUsagePricing({ ...input, rules }) };
 }
