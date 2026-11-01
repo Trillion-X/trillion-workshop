@@ -197,7 +197,7 @@ class Door:
             raise ValueError(f'The call program did not answer {method} ({arguments["request_key"]}): exit {done.returncode} {done.stderr[-300:]}')
         return line
 
-    def read_type(self, record_type: str, prefix: str | None = None) -> list[dict]:
+    def read_type(self, record_type: str, prefix: str | None = None, fields: list[str] | None = None) -> list[dict]:
         """Every record of the type the door lists (only ids starting with prefix, when given), page by page."""
         self.reads += 1
         records, after, page, limit, cursors = [], None, 0, self.config['page_limit'], set()
@@ -206,6 +206,7 @@ class Door:
         while True:
             page += 1
             input_ = {'type': record_type, 'limit': limit, **({'prefix': prefix} if prefix else {}),
+                      **({'fields': fields} if fields is not None else {}),
                       **({'after': after} if after is not None else {})}
             key = f'{self.config["request_key_prefix"]}-read-{self.run}-{slug(record_type, 60)}-{self.reads}-{page}'
             line = self.play(self.config['list_method'], key, input_)
@@ -222,7 +223,7 @@ class Door:
                     continue
                 raise ValueError(f'Reading {record_type} page {page} was refused: {text[:300]}')
             for record in answer['records']:
-                if not isinstance(record, dict) or not isinstance(record.get('id'), str) or 'value' not in record or record.get('type') != record_type or (prefix and not record['id'].startswith(prefix)):
+                if not isinstance(record, dict) or not isinstance(record.get('id'), str) or (fields != [] and 'value' not in record) or record.get('type') != record_type or (prefix and not record['id'].startswith(prefix)):
                     raise ValueError(f'Reading {record_type} returned a record outside its requested type/prefix.')
             # The retry allowance belongs to this page, not the whole walk.
             # A long healthy walk can recover an interruption on each later page.
@@ -240,7 +241,7 @@ def records_of(payload: dict) -> list[dict]:
     return [record for command in payload['commands'] for record in command['input']['records']]
 
 
-def held_by_type(door: Door, records: list[dict]) -> dict[str, dict]:
+def held_by_type(door: Door, records: list[dict], fields: list[str] | None = None) -> dict[str, dict]:
     """{id: value} the account holds, for every type the records name."""
     held: dict[str, dict] = {}
     for record_type in sorted({record['type'] for record in records if record.get('type')}):
@@ -249,7 +250,7 @@ def held_by_type(door: Door, records: list[dict]) -> dict[str, dict]:
         if prefixes != [None] and any(not any(target.startswith(prefix) for prefix in prefixes) for target in targets):
             raise ValueError(f'read_prefixes does not cover every target of {record_type}.')
         for prefix in prefixes:
-            for record in door.read_type(record_type, prefix):
+            for record in door.read_type(record_type, prefix, **({'fields': fields} if fields is not None else {})):
                 held[record['id']] = record.get('value')
     return held
 
@@ -439,6 +440,72 @@ def send(door: Door, payload: dict, status_file: Path, log=print, baseline: dict
             return status
     status['state'] = 'written_with_conflicts' if conflicts else 'all_written'
     save()
+    return status
+
+
+def add_and_compare(door: Door, payload: dict, status_file: Path, log=print) -> dict:
+    """Create absent objects only, then verify every exact current type/value using the owner's atomic
+    expected-value condition and an identical no-op value. Existing differences and removals are refused.
+    Unlike readback this transfers expected values to the owner, not actual bodies back to the caller.
+    The door must enforce `expected` and report changed:false/write_count:0 for a successful comparison.
+    Every verification invocation uses fresh request identities; retries preserve each original key."""
+    records = records_of(payload)
+    if any(not isinstance(r, dict) or not isinstance(r.get('id'), str) or not r['id']
+           or not isinstance(r.get('type'), str) or not r['type'] or not isinstance(r.get('value'), dict)
+           or 'expected' in r for r in records):
+        raise ValueError('add-and-compare accepts typed objects only; it never removes a record.')
+    if len({r['id'] for r in records}) != len(records):
+        raise ValueError('add-and-compare refuses duplicate record ids.')
+    expected = [{**r, 'expected': {'type': r['type'], 'value': r['value']}} for r in records]
+    comparison_commands = write_commands(door.config, expected)
+    held = held_by_type(door, records, fields=[])
+    missing = [{**r, 'expected': None} for r in records if r['id'] not in held]
+    status = {'state': 'adding', 'created': 0, 'verified': 0, 'method': 'owner-exact-no-op-comparison', 'by_type': {}}
+    def save():
+        temporary = status_file.with_suffix(status_file.suffix + '.tmp')
+        temporary.write_text(json.dumps(status, indent=1))
+        temporary.replace(status_file)
+    def call(batch, phase):
+        config = {**door.config, 'request_key_prefix': door.config['request_key_prefix'] + '-' + phase
+                  + ('-' + door.run if phase == 'compare' else '')}
+        key = command_key(config, batch)
+        for attempt in range(door.config.get('write_replays', 2) + 1):
+            line = door.play(door.config['write_method'], key, {'records': batch})
+            answer = line.get('answer') or {}
+            if not isinstance(answer, dict):
+                answer = {'code': 'malformed_owner_answer', 'outcome': 'unknown'}
+            if not line.get('is_error'):
+                return answer
+            if not any(word in json.dumps(answer) for word in door.config.get('write_replay_if', [])):
+                break
+            time.sleep(door.config.get('write_replay_wait', 0))
+        status.update(state='stopped_on_refusal', phase=phase,
+                      refusal={k: answer.get(k) for k in ('code', 'outcome')})
+        save()
+        raise ValueError(f"{phase} refused: {answer.get('code', 'unknown')} ({answer.get('outcome', 'unknown')})")
+    save()
+    for command in write_commands(door.config, missing):
+        batch = command['input']['records']
+        call(batch, 'add')
+        status['created'] += len(batch)
+        save()
+    status['state'] = 'comparing'
+    for command in comparison_commands:
+        batch = command['input']['records']
+        answer = call(batch, 'compare')
+        if answer.get('changed') is not False or type(answer.get('write_count')) is not int or answer['write_count'] != 0:
+            status.update(state='comparison_not_proved', phase='compare')
+            save()
+            raise ValueError('The owner did not prove an exact no-op comparison; nothing is marked verified.')
+        for record in batch:
+            entry = status['by_type'].setdefault(record['type'], {'payload': 0, 'held': 0, 'equal': 0, 'missing': [], 'differing': []})
+            for field in ('payload', 'held', 'equal'):
+                entry[field] += 1
+        status['verified'] += len(batch)
+        save()
+    status['state'] = 'all_equal'
+    save()
+    log(json.dumps({k: v for k, v in status.items() if k != 'by_type'}))
     return status
 
 

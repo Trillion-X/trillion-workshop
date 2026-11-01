@@ -22,12 +22,18 @@ for step in json.load(open(plan))['requests']:
         page = ids[start:start + given['limit']]
         more = start + given['limit'] < len(ids)
         answer, error = {'records': [{'id': i, **state['records'][i]} for i in page], 'next': page[-1] if more else None}, False
+        if 'fields' in given:
+            answer['records'] = [{'id': r['id'], 'type': r['type'],
+                                 **({'value': {k: v for k, v in r['value'].items() if k in given['fields']}} if given['fields'] else {})}
+                                for r in answer['records']]
     elif key in state['keys']:
         answer, error = {**state['keys'][key], 'replayed': True}, False
     elif any(r['id'] == state.get('refuse_id') for r in given['records']):
         answer, error = {'code': 'record_refused', 'outcome': 'not_started'}, True
     elif len(given['records']) > state.get('slow_over', 10 ** 9):
         answer, error = {'code': 'too_slow', 'outcome': 'not_started'}, True
+    elif any('expected' in r and state['records'].get(r['id']) != r['expected'] for r in given['records']):
+        answer, error = {'code': 'original_command_conflict', 'outcome': 'not_started'}, True
     else:
         changed = 0
         for record in given['records']:
@@ -37,8 +43,8 @@ for step in json.load(open(plan))['requests']:
             else:
                 changed += before is None or before['value'] != record['value']
                 state['records'][record['id']] = {'type': record['type'], 'value': record['value']}
-        answer, error = {'changed': changed, 'write_count': len(given['records']), 'replayed': False}, False
-        state['keys'][key] = {'changed': changed, 'write_count': len(given['records'])}
+        answer, error = {'changed': bool(changed), 'write_count': changed, 'replayed': False}, False
+        state['keys'][key] = {'changed': bool(changed), 'write_count': changed}
         if state.get('unknown_first') and not state.get('was_unknown'):
             state['was_unknown'] = True
             answer, error = {'code': 'outcome_unknown', 'outcome': 'unknown'}, True

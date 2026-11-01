@@ -383,6 +383,59 @@ class Door(Pantry):
         with self.assertRaisesRegex(ValueError, 'was refused'):
             door.read_type('record:stores')
 
+    def test_add_and_compare_creates_only_absent_records_and_proves_exact_noops(self):
+        record = {'id': 'record:stores:one', 'type': 'record:stores', 'value': {'name': 'One', 'body': 'full text'}}
+        payload = {'commands': [{'input': {'records': [record]}}]}
+        status = sender.add_and_compare(self.door(), payload, self.tmp / 'compare.json', log=lambda _: None)
+        self.assertEqual((status['state'], status['created'], status['verified']), ('all_equal', 1, 1))
+        self.assertEqual(status['by_type']['record:stores']['equal'], 1)
+        status = sender.add_and_compare(self.door(), payload, self.tmp / 'compare.json', log=lambda _: None)
+        self.assertEqual((status['created'], status['verified']), (0, 1))
+        held = self.held(); held['records'][record['id']]['value']['body'] = 'independent edit'
+        self.account.write_text(json.dumps(held))
+        with self.assertRaisesRegex(ValueError, 'original_command_conflict'):
+            sender.add_and_compare(self.door(), payload, self.tmp / 'compare.json', log=lambda _: None)
+        self.assertEqual(self.held()['records'][record['id']]['value']['body'], 'independent edit')
+        self.assertEqual(json.loads((self.tmp / 'compare.json').read_text())['state'], 'stopped_on_refusal')
+
+    def test_add_and_compare_never_removes_or_discards_a_callers_condition(self):
+        for record in [
+            {'id': 'a', 'type': 't', 'value': None},
+            {'id': 'a', 'type': 't', 'value': {}, 'expected': None},
+        ]:
+            with self.assertRaisesRegex(ValueError, 'typed objects only'):
+                sender.add_and_compare(self.door(), {'commands': [{'input': {'records': [record]}}]}, self.tmp / 'compare.json')
+        self.assertEqual(self.held()['calls'], [])
+
+    def test_add_and_compare_refuses_an_answer_that_does_not_prove_no_effect(self):
+        door = self.door()
+        record = {'id': 'record:stores:one', 'type': 'record:stores', 'value': {}}
+        door.play = lambda method, key, given: {'answer': {'records': [{'id': record['id'], 'type': record['type']}], 'next': None}} if method == 'list' else {'answer': {'changed': True, 'write_count': 1}}
+        with self.assertRaisesRegex(ValueError, 'did not prove an exact no-op'):
+            sender.add_and_compare(door, {'commands': [{'input': {'records': [record]}}]}, self.tmp / 'compare.json')
+        self.assertEqual(json.loads((self.tmp / 'compare.json').read_text())['verified'], 0)
+
+    def test_cli_add_and_compare_and_uncertain_creation_replay(self):
+        state = self.held(); state['unknown_first'] = True
+        self.account.write_text(json.dumps(state))
+        self.config.update(write_replay_if=['outcome_unknown'], write_replays=2)
+        (self.tmp / 'config.json').write_text(json.dumps(self.config))
+        code, out, err = self.run_cli('add-and-compare', '--payload', str(self.tmp / 'payload.json'), '--status', str(self.status))
+        self.assertEqual(code, 0, err)
+        result = json.loads(out.splitlines()[-1])
+        self.assertEqual((result['state'], result['verified']), ('all_equal', len(sender.records_of(self.payload))))
+        self.assertTrue(self.held()['was_unknown'])
+        code, _, err = self.run_cli('add-and-compare', '--payload', str(self.tmp / 'payload.json'), '--status', str(self.status), '--baseline', str(self.tmp / 'payload.json'))
+        self.assertEqual(code, 2)
+        self.assertIn('does not refresh a baseline', err)
+
+    def test_comparison_envelope_must_fit_before_any_record_is_created(self):
+        record = {'id': 'record:stores:one', 'type': 'record:stores', 'value': {'body': 'x' * 300}}
+        self.config['command_bytes'] = 600
+        with self.assertRaisesRegex(ValueError, 'more than a command takes'):
+            sender.add_and_compare(self.door(), {'commands': [{'input': {'records': [record]}}]}, self.tmp / 'compare.json')
+        self.assertEqual(self.held()['calls'], [])
+
     def test_cli_baseline_plan_send_and_readback_share_refresh_semantics(self):
         record = {'id': 'record:stores:one', 'type': 'record:stores', 'value': {'name': 'One'}}
         baseline = {'commands': [{'input': {'records': [record]}}]}
