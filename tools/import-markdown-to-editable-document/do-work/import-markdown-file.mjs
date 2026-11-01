@@ -1,7 +1,6 @@
 import { open, realpath, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { importMarkdown } from './import-markdown.mjs';
 
 const MAX_INPUT_BYTES = 500_000;
 const MAX_OUTPUT_BYTES = 50_000_000;
@@ -39,6 +38,10 @@ export async function importMarkdownFile({ source_path, output_path, granted_fol
     if (before.size !== after.size || before.mtimeMs !== after.mtimeMs || before.ino !== after.ino) throw new Error('Source changed while being read; retry with a stable file.');
     markdown = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   } finally { await sourceHandle.close(); }
+  // Load the parser only after the CLI has entered its error boundary. The native
+  // computer runner may have an incomplete ancestor package tree; module-load
+  // failures must be returned as actionable errors instead of Node's raw stack.
+  const { importMarkdown } = await import('./import-markdown.mjs');
   const result = importMarkdown(markdown, document_id, { maxResultBytes: MAX_OUTPUT_BYTES });
   const bytes = Buffer.from(JSON.stringify(result));
   if (bytes.length > MAX_OUTPUT_BYTES) throw new Error(`Editable result exceeds ${MAX_OUTPUT_BYTES} bytes.`);
