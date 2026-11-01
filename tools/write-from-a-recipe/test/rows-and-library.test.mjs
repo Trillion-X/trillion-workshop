@@ -30,7 +30,7 @@ test('the file checker declares a computer run with only the explicit folder rea
   assert.equal(row.invoke.kind, 'computer');
   assert.deepEqual(row.invoke.capabilities, ['read-a-folder']);
   assert.equal(row.invoke.argv.at(-1).fill.field, 'grants.read-a-folder.folder');
-  assert.equal(JSON.parse(readFileSync(resolve(folder, 'read-data/write-file-limits.json'), 'utf8')).max_bytes, 2 * 1024 * 1024);
+  assert.equal(JSON.parse(readFileSync(resolve(folder, 'read-data/write-file-limits.json'), 'utf8')).max_bytes, 8 * 1024 * 1024);
 });
 
 test('a refused request answers { error } on the last line and exits 1', () => {

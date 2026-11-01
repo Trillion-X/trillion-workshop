@@ -3,12 +3,37 @@
 import { constants, closeSync, fstatSync, openSync, readFileSync, readSync, realpathSync } from 'node:fs';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { text } from 'node:stream/consumers';
-import { checkWritingAgainstItsRecipe } from './check-writing-against-its-recipe.mjs';
+
+// Keep package loading inside a catch: on a native computer runner a broken
+// package closure must become a small, source-free tool error, not a Node stack.
+let checkWritingAgainstItsRecipe;
+let gateLoadDiagnostic;
+try {
+  ({ checkWritingAgainstItsRecipe } = await import('./check-writing-against-its-recipe.mjs'));
+} catch (error) {
+  const code = typeof error?.code === 'string' ? error.code : 'unknown';
+  const candidatePath = typeof error?.path === 'string'
+    ? error.path
+    : String(error?.message ?? '').match(/\/opt\/[A-Za-z0-9_./@+-]*package\.json/)?.[0];
+  const packagePath = typeof candidatePath === 'string'
+    && candidatePath.startsWith('/opt/')
+    && candidatePath.endsWith('/package.json')
+    && !candidatePath.includes('..')
+    ? candidatePath
+    : undefined;
+  gateLoadDiagnostic = { code, ...(packagePath ? { package_path: packagePath } : {}) };
+}
 
 const refuse = code => { throw Object.assign(new Error(code), { code }); };
 const limits = JSON.parse(readFileSync(new URL('../read-data/write-file-limits.json', import.meta.url), 'utf8'));
 
 export function checkWritingFile(input, { folder, maxBytes = limits.max_bytes } = {}) {
+  if (!checkWritingAgainstItsRecipe) {
+    throw Object.assign(new Error('writing_file_gate_unavailable'), {
+      code: 'writing_file_gate_unavailable',
+      diagnostic: gateLoadDiagnostic,
+    });
+  }
   if (typeof input?.file !== 'string' || !input.file || isAbsolute(input.file)) refuse('writing_file_needs_relative_path');
   if (!Number.isSafeInteger(maxBytes) || maxBytes < 1) refuse('writing_file_needs_byte_bound');
   const root = realpathSync(folder);
@@ -48,7 +73,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const input = JSON.parse((await text(process.stdin)) || '{}');
     console.log(JSON.stringify({ result: checkWritingFile(input, { folder: process.argv[2] }) }));
   } catch (error) {
-    console.log(JSON.stringify({ error: error.code ?? 'writing_file_check_failed' }));
+    console.log(JSON.stringify({
+      error: error.code ?? 'writing_file_check_failed',
+      ...(error.diagnostic ? { diagnostic: error.diagnostic } : {}),
+    }));
     process.exitCode = 1;
   }
 }
