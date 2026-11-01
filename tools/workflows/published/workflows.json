@@ -14,12 +14,14 @@
     "workflow-steps"
    ],
    "workflow_ids": [
-    "get-found-in-search-and-answer-engines",
-    "keep-pages-cited-by-answer-engines",
     "refresh-measurement-coverage"
    ],
    "verified_public_mode_recipes": 10,
-   "verified_public_mode_steps": 41
+   "verified_public_mode_steps": 41,
+   "canonical_workflow_ids": [
+    "keep-pages-cited-by-answer-engines",
+    "get-found-in-search-and-answer-engines"
+   ]
   }
  },
  "fields": [
