@@ -45,7 +45,7 @@ It prints one JSON line `{ palette, families, faces_written, faces_missing, css_
 
 ## Dependencies
 
-**Depends on:** Node's standard library. The records-door action also composes the shared `formulas` rule evaluator and the `records-door` runner. Its `app_data` input is the app owner's `{ looks, look_over_time, where_looks_apply }` DATA; it must name a starting look, and the two settings records must use `screen-look-over-time` and `where-looks-apply` as their record keys.
+**Depends on:** Node's standard library and the shared `wall-time` zone validator. The records-door action also composes the shared `formulas` rule evaluator and the `records-door` runner. Its `app_data` input is the app owner's `{ looks, look_over_time, where_looks_apply }` DATA; it must name a starting look, and the two settings records must use `screen-look-over-time` and `where-looks-apply` as their record keys.
 
 **Depended on by:** Native device hosts for their current look; `tools/turn-frames-into-slides` and `tools/workflows/recipes/make-a-brand-book-and-decks.json` for resolved document styles.
 

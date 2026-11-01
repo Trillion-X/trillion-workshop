@@ -69,6 +69,7 @@
           "kind": "container",
           "files": { "package_files": [
             { "package": "screen-looks", "paths": ["do-work", "read-data"], "at": "/opt/screen-looks" },
+            { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
             { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
             { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
             { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
