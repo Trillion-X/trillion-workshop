@@ -38,8 +38,8 @@
         "invoke": {
           "kind": "container",
           "files": { "package_files": [
-            { "package": "import-markdown-to-editable-document", "paths": ["do-work", "read-data"], "at": "/opt/import-markdown-to-editable-document" },
-            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "package": "import-markdown-to-editable-document", "paths": ["package.json", "do-work", "read-data"], "at": "/opt/import-markdown-to-editable-document" },
+            { "package": "content-identity", "paths": ["package.json", "read-data"], "at": "/opt/content-identity" },
             { "module": "marked", "paths": ["LICENSE", "package.json", "lib/marked.esm.js"], "at": "/opt/node_modules/marked" },
             { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
           ] },
@@ -100,8 +100,8 @@
           "argv": ["node", "/opt/import-markdown-to-editable-document/do-work/import-markdown-file.mjs", { "fill": { "from": "task", "field": "grants.change-a-folder.folder" } }],
           "stdin": { "fill": { "from": "input" } },
           "files": { "package_files": [
-            { "package": "import-markdown-to-editable-document", "paths": ["do-work", "read-data"], "at": "/opt/import-markdown-to-editable-document" },
-            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "package": "import-markdown-to-editable-document", "paths": ["package.json", "do-work", "read-data"], "at": "/opt/import-markdown-to-editable-document" },
+            { "package": "content-identity", "paths": ["package.json", "read-data"], "at": "/opt/content-identity" },
             { "module": "marked", "paths": ["LICENSE", "package.json", "lib/marked.esm.js"], "at": "/opt/node_modules/marked" },
             { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
           ] }
