@@ -1,0 +1,3 @@
+{
+  "public": ["do-work/import-markdown.mjs", "do-work/import-markdown-file.mjs", "do-work/imported-document.mjs"]
+}

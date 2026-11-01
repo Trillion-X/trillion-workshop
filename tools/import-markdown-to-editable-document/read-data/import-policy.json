@@ -1,0 +1,9 @@
+{
+  "heading_styles": {
+    "1": { "font_size": 30, "font_weight": 700 },
+    "2": { "font_size": 22, "font_weight": 600 },
+    "3": { "font_size": 18, "font_weight": 600 }
+  },
+  "body_style": { "font_size": 16, "font_weight": 400 },
+  "max_list_indent": 8
+}

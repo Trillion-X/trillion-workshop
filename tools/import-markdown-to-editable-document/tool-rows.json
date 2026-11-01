@@ -1,0 +1,117 @@
+{
+  "kind": "tool-rows",
+  "record_set": "import-markdown-to-editable-document-tool-rows",
+  "what_this_is": "Import one Markdown document as the editable scene tree used by Documents, retaining structure and source provenance.",
+  "records": [
+    {
+      "id": "package::import-markdown-to-editable-document::tool::import-markdown-as-editable-document",
+      "address": "package::import-markdown-to-editable-document::tool::import-markdown-as-editable-document",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:import-markdown-as-editable-document",
+        "label": "Import Markdown as an editable document",
+        "status": "active",
+        "job": "Turn Markdown into the editable document scene tree, keeping its headings, lists, tables, code and source spans",
+        "description": "Provide Markdown text for a bounded result, or use the file adapter with a folder grant for a large editable tree. The result is a Documents page made from the same Container, Text and Image scene nodes used by the editable document model, plus each visible block's exact source token and UTF-8 byte span. The importer uses its declared editing rules for list shortcuts and inline marks, and verifies that exporting and importing the resulting tree preserves its semantic revision. Markdown source byte spans point into the original UTF-8 input; they are evidence distinct from canonicalized output bytes.",
+        "input_schema": {
+          "type": "object",
+          "required": ["markdown"],
+          "additionalProperties": false,
+          "properties": {
+            "markdown": { "type": "string", "description": "The UTF-8 Markdown document text" },
+            "document_id": { "type": "string", "description": "Optional stable page identity; otherwise an identity is derived from the source bytes" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["kind", "page", "block_count", "source_identity", "source_provenance", "round_trip"],
+          "properties": {
+            "kind": { "type": "string", "const": "editable-document-import" },
+            "page": { "type": "object", "required": ["id", "kind", "children"] },
+            "block_count": { "type": "number" },
+            "source_identity": { "type": "string" },
+            "source_provenance": { "type": "array", "items": { "type": "object" } },
+            "round_trip": { "type": "string", "const": "passed" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "import-markdown-to-editable-document", "paths": ["do-work", "read-data"], "at": "/opt/import-markdown-to-editable-document" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "marked", "paths": ["LICENSE", "package.json", "lib/marked.esm.js"], "at": "/opt/node_modules/marked" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] },
+          "workdir": "/opt/import-markdown-to-editable-document",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/import-markdown.mjs"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:import-markdown-to-editable-document",
+        "provenance": { "source": "ported from the maintained Documents importer and editing DATA; external runtime references are repointed to Workshop owners" },
+        "verify": [{ "kind": "sample-run", "input": { "markdown": "# Sample\n\nA paragraph.\n" }, "output_selector": "$.kind", "equals": "editable-document-import" }]
+      }
+    },
+    {
+      "id": "package::import-markdown-to-editable-document::tool::import-markdown-file-as-editable-document",
+      "address": "package::import-markdown-to-editable-document::tool::import-markdown-file-as-editable-document",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:import-markdown-file-as-editable-document",
+        "label": "Import a Markdown file as an editable document",
+        "status": "active",
+        "job": "Turn a Markdown file into the editable document scene tree, keeping its structure and source spans",
+        "description": "Reads one Markdown file inside the folder you grant, imports it through the maintained editable Documents parser, and writes the full editable scene tree plus checked UTF-8 source spans to a new private JSON file inside the same folder. It returns only a small summary. Source and output paths are relative to your granted folder. It never overwrites an existing output. Inputs are limited to 500,000 bytes.",
+        "input_schema": {
+          "type": "object",
+          "required": ["source_path", "output_path"],
+          "additionalProperties": false,
+          "properties": {
+            "source_path": { "type": "string", "minLength": 1, "description": "Markdown file path relative to the folder granted for reading and writing" },
+            "output_path": { "type": "string", "minLength": 1, "description": "New JSON artifact path relative to the same granted folder" },
+            "document_id": { "type": "string", "description": "Optional stable page identity" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["kind", "output_path", "output_bytes", "block_count", "source_identity", "round_trip"],
+          "properties": {
+            "kind": { "type": "string", "const": "editable-document-import-file" },
+            "output_path": { "type": "string" },
+            "output_bytes": { "type": "integer" },
+            "block_count": { "type": "integer" },
+            "source_identity": { "type": "string" },
+            "round_trip": { "type": "string", "const": "passed" }
+          }
+        },
+        "needs": { "expected_seconds": 10, "network_egress": false },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["change-a-folder"],
+          "workdir": "/opt/import-markdown-to-editable-document",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/import-markdown-to-editable-document/do-work/import-markdown-file.mjs", { "fill": { "from": "task", "field": "grants.change-a-folder.folder" } }],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [
+            { "package": "import-markdown-to-editable-document", "paths": ["do-work", "read-data"], "at": "/opt/import-markdown-to-editable-document" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "marked", "paths": ["LICENSE", "package.json", "lib/marked.esm.js"], "at": "/opt/node_modules/marked" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] }
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:import-markdown-to-editable-document",
+        "provenance": { "source": "Same maintained Markdown parser and Documents scene serializer as the bounded text importer; large tree is written under the folder grant." }
+      }
+    }
+  ]
+}
