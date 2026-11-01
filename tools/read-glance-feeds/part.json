@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/glance-feeds.mjs", "read-data/glance-feeds.json"]
+}

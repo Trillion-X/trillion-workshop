@@ -1,0 +1,98 @@
+{
+  "what_this_is": "Feed definitions for small glance surfaces. Each feed names an authorized records-door query, the path to its rows, optional row filters and ordering, and the parts a surface displays. A new record-backed feed is a data row; this reader names no product record type or feed.",
+  "limits": { "default_rows_per_feed": 50, "most_rows_per_feed": 200, "most_source_records": 2000 },
+  "surfaces": {
+    "watch": ["habits", "pursuits", "told", "ai-work", "running", "decisions"],
+    "widgets": ["habits", "waiting", "running", "today", "needle-mover", "pursuits", "decisions", "told", "ai-work"]
+  },
+  "feeds": [
+    {
+      "id": "habits",
+      "label": "Things you want to do",
+      "about": "Actions that serve your pursuits, each opening at the moment it matters.",
+      "read": { "type": "record:habit", "prefix": "record:habit:", "rows": [] },
+      "where": [
+        { "field": ["value", "state"], "none_of": ["Stopped", "Established"] },
+        { "field": ["value", "entry_path"], "present": true }
+      ],
+      "row_id": { "field": ["id"] },
+      "show": { "title": ["value", "habit"], "detail": ["value", "cue"], "note": ["value", "easier_path"], "open": { "path": ["value", "entry_path"] } },
+      "empty": "No action is ready yet."
+    },
+    {
+      "id": "waiting",
+      "label": "Waiting on you",
+      "about": "What only you can do now, with why it needs you.",
+      "read": { "type": "record:waiting-on-you", "prefix": "record:waiting-on-you:", "rows": [] },
+      "where": { "field": ["value", "status"], "equals": "Waiting" },
+      "row_id": { "field": ["id"] },
+      "show": { "title": ["value", "what"], "detail": ["value", "why"], "note": ["value", "do_it_in"], "open": { "path": ["value", "where"] } },
+      "empty": "Nothing is waiting on you."
+    },
+    {
+      "id": "running",
+      "label": "Running now",
+      "about": "Work the records say is running.",
+      "unavailable": "No current Workshop record contract for a running-work feed is adopted yet."
+    },
+    {
+      "id": "today",
+      "label": "Today",
+      "about": "Today's events, with when each starts.",
+      "unavailable": "No current Workshop record contract for the event feed is adopted yet."
+    },
+    {
+      "id": "needle-mover",
+      "label": "Your needle mover",
+      "about": "The one pursuit that moves the others most.",
+      "unavailable": "Current pursuit records do not declare a needle-mover field."
+    },
+    {
+      "id": "pursuits",
+      "label": "Your pursuits",
+      "about": "What you are pursuing.",
+      "read": { "type": "record:pursuit", "prefix": "record:pursuit:", "rows": [] },
+      "where": { "field": ["value", "archived_at"], "present": false },
+      "row_id": { "field": ["id"] },
+      "show": { "title": ["value", "title"], "detail": ["value", "status"], "open": { "fill": "/pursuits/{value.id}" } },
+      "empty": "No pursuits yet."
+    },
+    {
+      "id": "decisions",
+      "label": "Decisions waiting",
+      "about": "Decisions still waiting to be made.",
+      "unavailable": "No current Workshop record contract for the decisions feed is adopted yet."
+    },
+    {
+      "id": "told",
+      "label": "What you were told",
+      "about": "The newest things you were told, read or not.",
+      "read": {
+        "type": "told-the-person",
+        "prefix": "told-the-person:",
+        "rows": ["value", "item"]
+      },
+      "row_id": { "prefix": "told:", "field": ["seq"] },
+      "order": { "field": ["seq"], "direction": "desc" },
+      "show": {
+        "title": ["title"],
+        "detail": ["body"],
+        "note": ["kind"],
+        "read": ["read"],
+        "actions": ["actions"],
+        "open": { "path": ["open"] }
+      },
+      "empty": "Nothing new."
+    },
+    {
+      "id": "ai-work",
+      "label": "Work for your AIs",
+      "about": "Jobs waiting for one of your AIs to take them.",
+      "read": { "type": "ai-job", "prefix": "ai-job:", "rows": [] },
+      "where": { "field": ["value", "status"], "equals": "waiting" },
+      "row_id": { "field": ["id"] },
+      "show": { "title": ["value", "label"], "detail": ["value", "cause"], "open": { "fill": "/jobs/{id}" } },
+      "empty": "No work is waiting."
+    }
+  ]
+}

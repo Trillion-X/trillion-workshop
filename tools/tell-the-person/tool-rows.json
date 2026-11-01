@@ -85,6 +85,8 @@
            "null"
           ]
          },
+         "body": { "type": "string" },
+         "actions": { "type": "array", "items": { "type": "object" } },
          "read": {
           "type": "boolean"
          },
@@ -167,6 +169,377 @@
       "contains": "notice"
      }
     ],
+    "result_selector": "$.result"
+   }
+  },  {
+    "id": "package::tell-the-person::tool::my-device-notices",
+    "address": "package::tell-the-person::tool::my-device-notices",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "kind": "ai-tool-descriptor",
+      "status": "active",
+      "read_only": true,
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:small-container"
+      ],
+      "maker": "maker:tell-the-person",
+      "needs": {
+        "expected_seconds": 1,
+        "network_egress": false
+      },
+      "id": "tool:my-device-notices",
+      "listed_on": "2026-10-31T00:00:00Z",
+      "label": "Notices for this device",
+      "job": "Read the newest notices kept for one registered device, oldest first after its cursor",
+      "description": "Pass the device_id returned by notification-device registration. channel must match its route: device-pull for live, web-push or apns; omitted channel uses the registered route. after is the last cursor seen. Returns only notices queued or positively delivered to that device, oldest first, including body and offered actions. It changes nothing.",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "device_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "channel": {
+            "type": "string",
+          "enum": ["device-pull", "mac-app", "mac-voice", "web-push", "apns"]
+          },
+          "after": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "device_id",
+          "channel",
+          "cursor",
+          "notices",
+          "said"
+        ],
+        "properties": {
+          "device_id": {
+            "type": "string"
+          },
+          "channel": { "type": "string" },
+          "cursor": { "type": "integer" },
+          "notices": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "said": {
+            "type": "string"
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "files": {
+          "package_files": [
+            {
+              "package": "tell-the-person",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/tell-the-person"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            }
+          ]
+        },
+        "workdir": "/opt/tell-the-person",
+        "internet": false,
+        "stdout": "json",
+        "argv": [
+          "node",
+          "/opt/records-door/do-work/run-an-export.mjs",
+          "/opt/tell-the-person/read-data/told.mjs",
+          "myDeviceNotices"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        },
+        "records": {
+          "fd": 3,
+          "rights": [
+            {
+              "kind": "notification-device",
+              "prefix": "notification-device:",
+              "operations": [
+                "records:read"
+              ]
+            },
+            {
+              "kind": "told-the-person",
+              "operations": [
+                "records:list"
+              ]
+            }
+          ]
+        }
+      },
+      "provenance": {
+        "source": "tell-the-person GET /tell/notices and POST /tell/notices/read behavior, ported through the Workshop records door"
+      },
+      "verify": [],
+      "result_selector": "$.result"
+    }
+  },
+  {
+    "id": "package::tell-the-person::tool::mark-my-notices-read",
+    "address": "package::tell-the-person::tool::mark-my-notices-read",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "kind": "ai-tool-descriptor",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:small-container"
+      ],
+      "maker": "maker:tell-the-person",
+      "needs": {
+        "expected_seconds": 1,
+        "network_egress": false
+      },
+      "id": "tool:mark-my-notices-read",
+      "listed_on": "2026-10-31T00:00:00Z",
+      "label": "Mark my notices read",
+      "job": "Record which notices this person has read and the first surface they saw them on",
+      "description": "Pass ids such as told:12, or a notification key, and optionally read=false to undo. on.channel names the surface (in-app, browser, watch, apns or device-pull); device_id says which registered device saw it. The first read surface is retained, so repeated reads never move it. Returns ids, read, changed, on and said.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ids": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "pattern": "^told:[0-9]+$"
+            }
+          },
+          "key": {
+            "type": "string"
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "on": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "string",
+                "enum": ["in-app", "this-computer", "phone", "watch", "browser", "mac-app", "mac-voice", "device-pull", "apns", "web-push"]
+              },
+              "here": {
+                "type": "boolean"
+              },
+              "device_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "ids",
+          "read",
+          "changed",
+          "said"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "on": {
+            "type": "object"
+          },
+          "said": {
+            "type": "string"
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "files": {
+          "package_files": [
+            {
+              "package": "tell-the-person",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/tell-the-person"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            }
+          ]
+        },
+        "workdir": "/opt/tell-the-person",
+        "internet": false,
+        "stdout": "json",
+        "argv": [
+          "node",
+          "/opt/records-door/do-work/run-an-export.mjs",
+          "/opt/tell-the-person/read-data/told.mjs",
+          "markMyNoticesRead"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        },
+        "records": {
+          "fd": 3,
+          "rights": [
+            {
+              "kind": "told-the-person",
+              "operations": [
+                "records:list"
+              ]
+            },
+            {
+              "kind": "told-the-person",
+              "id": "told-the-person",
+              "operations": [
+                "records:read",
+                "records:write"
+              ]
+            },
+            {
+              "kind": "told-the-person",
+              "prefix": "told-the-person:",
+              "operations": [
+                "records:read",
+                "records:write"
+              ]
+            }
+          ],
+          "most_writes": 100
+        }
+      },
+      "provenance": {
+        "source": "tell-the-person GET /tell/notices and POST /tell/notices/read behavior, ported through the Workshop records door"
+      },
+      "verify": [],
+      "result_selector": "$.result"
+    }
+  },
+  {
+   "id": "package::tell-the-person::tool::act-on-my-notice",
+   "address": "package::tell-the-person::tool::act-on-my-notice",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:tell-the-person",
+    "needs": {"expected_seconds": 1, "network_egress": false},
+    "id": "tool:act-on-my-notice",
+    "listed_on": "2026-10-31T00:00:00Z",
+    "label": "Act on one of my notices",
+    "job": "Perform one action explicitly offered by one of this person’s kept notices",
+    "description": "Pass a notice id (told:<seq>) and the exact action id it offers; include text and a stable submission_id UUID for a reply. An explicit local open action returns done=true and its local path. Actions whose effect belongs to another source owner are refused unless that owner is available to this run; this tool never claims a post or agent action ran without its owner’s result.",
+    "input_schema": {"type": "object", "required": ["id", "action"], "additionalProperties": false, "properties": {"id": {"type": "string", "pattern": "^told:[0-9]+$"}, "action": {"type": "string", "minLength": 1}, "text": {"type": "string"}, "submission_id": {"type": "string", "format": "uuid"}}},
+    "output_schema": {"type": "object", "required": ["done", "said"], "properties": {"done": {"type": "boolean"}, "asked": {"type": "boolean"}, "said": {"type": "string"}, "open": {"type": "string"}}},
+    "invoke": {
+     "kind": "container",
+     "files": {"package_files": [{"package": "tell-the-person", "paths": ["read-data"], "at": "/opt/tell-the-person"}, {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"}, {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"}, {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}]},
+     "workdir": "/opt/tell-the-person",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/tell-the-person/read-data/told.mjs", "actOnMyNotice"],
+     "stdin": {"fill": {"from": "input"}},
+     "records": {"fd": 3, "rights": [{"kind": "told-the-person", "operations": ["records:list"]}, {"kind": "told-the-person", "id": "told-the-person", "operations": ["records:read", "records:write"]}, {"kind": "told-the-person", "prefix": "told-the-person:", "operations": ["records:read", "records:write"]}], "most_writes": 1}
+    },
+    "provenance": {"source": "src/tell-the-person.mjs act() semantics; explicit open behavior is portable through the records door, while source action roads and agent events require their own owner."},
+    "verify": [],
     "result_selector": "$.result"
    }
   }
