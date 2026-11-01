@@ -10,7 +10,7 @@ Records are immutable by event/version identity:
 - `record:cost-measurement-forecast`: `record:cost-measurement-forecast:<encoded forecast_id>:v<version>`.
 - `record:cost-measurement-billing`: `record:cost-measurement-billing:<encoded billing_id>:v<version>`.
 
-`DATA.json` contains full schema proposals for `list:cost-measurements`, `list:cost-forecasts`, and `list:cost-billing-reconciliation`. On 2026-10-31, `@own-records` was checked: no cost history lists or records existed. `list:write-cost-probe-2026-10-21` was a throwaway list and is excluded. The actual Lists have not been created; the root lane owns account writes and exact readback.
+`DATA.json` contains full schema proposals for `list:cost-measurements`, `list:cost-forecasts`, and `list:cost-billing-reconciliation`. Create and read back these Lists through the account's existing records owner; source files do not establish that an account has installed them.
 
 ## Correctness
 
@@ -24,4 +24,6 @@ Forecast versions may be incomplete and remain visible with `completeness: "inco
 
 `read-data/import-audit.mjs` converts caller-supplied run, case, and privacy-safe usage evidence into granular observations. `do-work/prepare-import.mjs` reads a manifest and writes prepared JSON for the account route. With an optional append request key, it writes the exact `{action: "append", request_key, observations}` input consumed by this package's row. The row splits it within the write cap and byte limit, uses absent-ID preconditions, reads back each record, and treats exact replay as idempotent. The 2026-10-31 manifest imports 60 simulation runs, 40 provider/scenario sensitivity cells, six Codex worker usage streams, local inference attempts, current native/collector receipts, and local provider unit probes. It preserves separate counters, provider-reported tokens, measured local wall time, unknown retry/error coverage, and explicit unknown CPU or price. Traffic subtotals with unpriced components are partial; every alternative provider scenario remains isolated. No native/hosted values are inferred where source evidence is absent.
 
-Prior audit provenance is session `9756a26f-464e-44f0-8e17-ba9b27c8a58e`; source artifacts are listed in `DATA.json`. Customer content, prompts, transcripts and secret values are prohibited in evidence fields.
+Keep historical provenance in the caller's private manifest and account records. Customer content, prompts, transcripts and secret values are prohibited in evidence fields.
+
+`read-data/verify-import.mjs` reconciles every prepared observation with real account readback. It reports exact, missing and different records separately, including changed field names; a partial import cannot report completion. It makes no writes.

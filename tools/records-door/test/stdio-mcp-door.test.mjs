@@ -5,6 +5,12 @@ import { openStdioRecordsDoor } from '../read-data/stdio-mcp-door.mjs';
 const fixture = fileURLToPath(new URL('./stdio-client-fixture.mjs', import.meta.url));
 const open = (mode, options = {}) => openStdioRecordsDoor({ argv: [process.execPath, fixture, mode ?? 'normal'], ...options });
 
+test('a busy account retries with the same write key and input', async () => {
+  const door = open('busy-once');
+  try { assert.deepEqual(await door.write([{ id: 'note:retry', type: 'note', value: { n: 1 } }], { key: 'stable-write' }), { write_count: 1, request_key: 'stable-write' }); }
+  finally { await door.close(); }
+});
+
 test('real stdio client preserves exact record values, stable write keys and short-page continuation', async () => {
   const door = open();
   try {

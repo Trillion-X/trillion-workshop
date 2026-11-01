@@ -45,7 +45,13 @@ export function openStdioRecordsDoor({ argv, resource = '@own-records', timeout_
     });
   }
   async function once(method, input, request_key, address) {
-    const answer = await request({ method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key, input } } });
+    let answer;
+    for (let attempt = 0; ; attempt++) {
+      answer = await request({ method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key, input } } });
+      const failure = answer.result?.isError ? answer.result.structuredContent : null;
+      if (attempt >= 5 || !(failure?.code === 'selected_owner_unavailable' || failure?.outcome === 'unknown')) break;
+      await new Promise(resolve => setTimeout(resolve, 200 * 2 ** attempt));
+    }
     if (answer.error) throw new RecordsDoorError('mcp_transport_error', 'The MCP client could not reach the account.', 'unknown');
     const result = answer.result;
     if (!result || typeof result !== 'object') throw new RecordsDoorError('mcp_invalid_answer', 'The MCP client returned no operation result.', 'unknown');
