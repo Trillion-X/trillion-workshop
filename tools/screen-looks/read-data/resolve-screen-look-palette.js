@@ -328,7 +328,7 @@
   }
 
   // Depth. A look is dark when white words read better on its ground than black ones (the same test as
-  // look-scheme.ts). Things stand off the ground in three surface steps and four elevations:
+  // look-scheme.mjs). Things stand off the ground in three surface steps and four elevations:
   //   - on a dark ground a shadow cannot show (black on black), so each step is the ground moved toward the ink, and
   //     every elevation carries a lit top edge (a 1px inside line of the ink) above its drop (Linear's dark recipe);
   //   - on a light ground the steps run from the look's surface to white, and each elevation is two soft drops tinted

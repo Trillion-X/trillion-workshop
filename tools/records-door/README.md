@@ -65,6 +65,9 @@ A row asks for the door in its invoke, with one rights item per record kind:
   - `selected_owner_unavailable`: busy.
 - A busy answer (HTTP 503 or `selected_owner_unavailable`), and any call whose outcome is `unknown`, is sent again
   with the same request key after a growing wait, never a new key. HTTP 401 means the run's capability is gone.
+- `readRecord`, `readWorkspace` and each `list` page retry fetch failures and response-body transport failures up to
+  five times, with the identical request body and request key. HTTP refusals, malformed JSON, and envelope or byte-page
+  integrity failures are returned immediately. Transport retries do not apply to writes or Namespace files calls.
 - An id right reads and writes only that id and never lists. A prefix right reads and writes ids under it, and lists
   only with no order and a `prefix` that starts with its own. A call passes when any rights item of its kind allows it.
 

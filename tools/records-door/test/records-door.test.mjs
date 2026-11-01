@@ -93,6 +93,120 @@ test('workspace read byte pages are joined and authenticated by the shared byte-
   } finally { await door.close(); }
 });
 
+test('safe reads retry partial response bodies with the same request key and input', async () => {
+  const cases = [
+    { method: 'records:read', rights: [{ kind: 'note', operations: ['records:read'] }], input: ['note', 'note:1'], expected: { type: 'note', value: { words: 'one' } }, records: [{ id: 'note:1', type: 'note', value: { words: 'one' } }] },
+    { method: 'records:list', rights: [{ kind: 'note', operations: ['records:list'] }], expected: { id: 'note:1', type: 'note', value: { words: 'one' } }, records: [{ id: 'note:1', type: 'note', value: { words: 'one' } }] },
+    { method: 'workspace:read', rights: [{ kind: '@own-records', id: 'screen-look', operations: ['workspace:read'] }], expected: { records: { 'screen-look': { theme: 'warm' } } }, workspaceRecords: { 'screen-look': { theme: 'warm' } } },
+  ];
+  for (const item of cases) {
+    const door = await startFakeDoor({ rights: item.rights, records: item.records, workspaceRecords: item.workspaceRecords, partialBodyFirst: 1 });
+    try {
+      const client = openRecordsDoor({ descriptor: door.descriptor, wait: noWait });
+      let result;
+      if (item.method === 'records:read') result = await client.readRecord(...item.input);
+      if (item.method === 'records:list') result = (await client.list({ type: 'note' }).next()).value;
+      if (item.method === 'workspace:read') result = await client.readWorkspace(['screen-look']);
+      assert.deepEqual(result, item.expected);
+      const calls = door.calls.filter(call => call.method === item.method);
+      assert.equal(calls.length, 2, `${item.method} retries once after a body transport failure`);
+      assert.equal(calls[0].key, calls[1].key, `${item.method} retries with the same request key`);
+      assert.deepEqual(calls[0].input, calls[1].input, `${item.method} retries with identical input`);
+    } finally { await door.close(); }
+  }
+});
+
+test('safe read transport retries stop after five retries and report a stable error code', async () => {
+  const door = await startFakeDoor({
+    rights: [{ kind: 'note', operations: ['records:read'] }],
+    partialBodyAlways: true,
+  });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor, wait: noWait });
+    await assert.rejects(client.readRecord('note', 'note:1'), { code: 'transport_unavailable' });
+    assert.equal(door.calls.length, 6, 'one initial attempt and five retries');
+    assert.ok(door.calls.every(call => call.key === door.calls[0].key));
+    assert.ok(door.calls.every(call => JSON.stringify(call.input) === JSON.stringify(door.calls[0].input)));
+  } finally { await door.close(); }
+});
+
+test('a retried transport failure stops immediately on HTTP 401', async () => {
+  const door = await startFakeDoor({
+    rights: [{ kind: 'note', operations: ['records:read'] }],
+    partialBodyFirst: 1,
+  });
+  try {
+    let attempts = 0;
+    const client = openRecordsDoor({
+      descriptor: door.descriptor,
+      wait: noWait,
+      fetchImpl: async (url, options) => {
+        attempts += 1;
+        if (attempts === 1) return fetch(url, options);
+        return new Response(null, { status: 401 });
+      },
+    });
+    await assert.rejects(client.readRecord('note', 'note:1'), { code: 'capability_gone' });
+    assert.equal(attempts, 2, 'the 401 response is terminal');
+  } finally { await door.close(); }
+});
+
+test('fetch transport failures retry safe reads, while malformed JSON fails immediately', async () => {
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ['records:read'] }] });
+  try {
+    let fetchAttempts = 0;
+    const client = openRecordsDoor({
+      descriptor: door.descriptor,
+      wait: noWait,
+      fetchImpl: async (url, options) => {
+        fetchAttempts += 1;
+        if (fetchAttempts === 1) throw new TypeError('socket closed');
+        return fetch(url, options);
+      },
+    });
+    assert.equal(await client.readRecord('note', 'note:missing'), null);
+    assert.equal(fetchAttempts, 2);
+    assert.equal(door.calls.length, 1);
+
+    let malformedAttempts = 0;
+    const malformed = openRecordsDoor({
+      descriptor: door.descriptor,
+      wait: noWait,
+      fetchImpl: async () => {
+        malformedAttempts += 1;
+        return new Response('{broken', { status: 200, headers: { 'content-type': 'application/json' } });
+      },
+    });
+    await assert.rejects(malformed.readRecord('note', 'note:missing'), SyntaxError);
+    assert.equal(malformedAttempts, 1, 'JSON parse failures do not retry');
+
+    let programmerAttempts = 0;
+    const programmerError = new ReferenceError('fetch implementation bug');
+    const broken = openRecordsDoor({
+      descriptor: door.descriptor,
+      wait: noWait,
+      fetchImpl: async () => {
+        programmerAttempts += 1;
+        throw programmerError;
+      },
+    });
+    await assert.rejects(broken.readRecord('note', 'note:missing'), error => error === programmerError);
+    assert.equal(programmerAttempts, 1, 'programmer errors are not treated as transport failures');
+
+    let writeAttempts = 0;
+    const writeClient = openRecordsDoor({
+      descriptor: door.descriptor,
+      wait: noWait,
+      fetchImpl: async () => {
+        writeAttempts += 1;
+        throw new TypeError('socket closed');
+      },
+    });
+    await assert.rejects(writeClient.write([{ id: 'note:1', type: 'note', value: {} }]), TypeError);
+    assert.equal(writeAttempts, 1, 'writes do not gain transport retries');
+  } finally { await door.close(); }
+});
+
 test('a whole-record expected snapshot makes conditional writes atomic and leaves ordinary writes unconditional', async () => {
   const original = { words: 'before', nested: { count: 1 } };
   const second = { words: 'second before' };

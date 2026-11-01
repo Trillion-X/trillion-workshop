@@ -4,7 +4,9 @@
     "read-data/look-document-css.js",
     "read-data/device-look-tokens.js",
     "read-data/look-time-zone.js",
-    "read-data/look-over-time.ts",
-    "read-data/look-scheme.ts"
+    "read-data/look-over-time.mjs",
+    "read-data/look-over-time.d.mts",
+    "read-data/look-scheme.mjs",
+    "read-data/look-scheme.d.mts"
   ]
 }

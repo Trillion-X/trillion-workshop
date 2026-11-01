@@ -17,8 +17,8 @@
 //                                                          descriptor holds when the row declares a `files` right
 //
 // A busy account (503, or selected_owner_unavailable) and a call whose outcome is unknown are sent again with the same
-// request key after a growing wait. A refusal comes back as RecordsDoorError with the door's code and outcome. An
-// answer too big for one message comes as pages of its own bytes, which are read and joined (read-data/byte-pages.mjs).
+// request key after a growing wait. Safe reads also retry fetch/body transport failures; writes do not. A refusal comes
+// back as RecordsDoorError with the door's code and outcome. Large answers use byte pages (read-data/byte-pages.mjs).
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { wholeAnswer } from './byte-pages.mjs';
@@ -57,6 +57,13 @@ function answerOf(text, contentType) {
   return JSON.parse(data.slice(5).trim());
 }
 
+function isTransportFailure(error) {
+  if (!(error instanceof TypeError) && error?.name !== 'AbortError' && error?.name !== 'TimeoutError') return false;
+  const code = error?.cause?.code;
+  if (['ERR_INVALID_URL', 'ERR_INVALID_ARG_TYPE', 'ERR_INVALID_PROTOCOL', 'ERR_INVALID_HEADER_VALUE', 'ERR_HTTP_INVALID_HEADER_VALUE'].includes(code)) return false;
+  return !/failed to parse url|invalid url|invalid argument|invalid header/i.test(String(error?.message ?? ''));
+}
+
 export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms => new Promise(done => setTimeout(done, ms)) } = {}) {
   const { url, resource, capability, files_resource: filesResource } = JSON.parse(readFileSync(descriptor, 'utf8'));
   if (typeof url !== 'string' || typeof resource !== 'string' || typeof capability !== 'string') {
@@ -64,23 +71,37 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
   }
 
   // A record too big for one message comes as pages of its own bytes; the same call with after_byte reads on.
-  async function call(method, input, key = `${method}:${randomUUID()}`, address = resource) {
-    return wholeAnswer(await callOnce(method, input, key, address), after => callOnce(method, { ...input, after_byte: after }, `${method}:${randomUUID()}`, address));
+  async function call(method, input, key = `${method}:${randomUUID()}`, address = resource, retryTransport = false) {
+    return wholeAnswer(await callOnce(method, input, key, address, retryTransport), after => callOnce(method, { ...input, after_byte: after }, `${method}:${randomUUID()}`, address, retryTransport));
   }
 
-  async function callOnce(method, input, key, address) {
+  async function callOnce(method, input, key, address, retryTransport = false) {
     const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: key, input } } });
     for (let attempt = 0; ; attempt += 1) {
-      const response = await fetchImpl(url, {
-        method: 'POST',
-        headers: { authorization: `Bearer ${capability}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': PROTOCOL },
-        body,
-      });
       const again = attempt < BUSY_RETRIES;
+      let response;
+      try {
+        response = await fetchImpl(url, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${capability}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': PROTOCOL },
+          body,
+        });
+      } catch (error) {
+        if (retryTransport && isTransportFailure(error) && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
+        if (retryTransport && isTransportFailure(error)) throw new RecordsDoorError('transport_unavailable', 'The records door connection failed after repeated attempts.');
+        throw error;
+      }
       if (response.status === 503 && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
       if (response.status === 401) throw new RecordsDoorError('capability_gone', WORDS.capability_gone);
       if (!response.ok) throw new RecordsDoorError(`http_${response.status}`, `The records door answered ${response.status}.`);
-      const answer = answerOf(await response.text(), response.headers.get('content-type'));
+      let text;
+      try { text = await response.text(); }
+      catch (error) {
+        if (retryTransport && isTransportFailure(error) && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
+        if (retryTransport && isTransportFailure(error)) throw new RecordsDoorError('transport_unavailable', 'The records door response could not be read after repeated attempts.');
+        throw error;
+      }
+      const answer = answerOf(text, response.headers.get('content-type'));
       if (answer.error) throw new RecordsDoorError('rpc_error', String(answer.error.message ?? WORDS.refused));
       const result = answer.result ?? {};
       if (!result.isError) return result.structuredContent;
@@ -92,7 +113,7 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
   }
 
   async function readRecord(type, id) {
-    const record = await call('records:read', { id, type });
+    const record = await call('records:read', { id, type }, undefined, resource, true);
     return record.value === null || record.value === undefined ? null : { type: record.type, value: record.value };
   }
 
@@ -105,7 +126,7 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
       || new Set(labels).size !== labels.length) {
       throw new RecordsDoorError('original_input_refused', WORDS.original_input_refused, 'not_started');
     }
-    const answer = await call('workspace:read', { selection: { labels, prefixes: [] } });
+    const answer = await call('workspace:read', { selection: { labels, prefixes: [] } }, undefined, resource, true);
     if (!answer || answer.status !== 200 || typeof answer.content_type !== 'string'
       || !/^application\/json(?:\s*;|$)/i.test(answer.content_type) || typeof answer.text !== 'string') {
       throw new RecordsDoorError('original_workspace_read_unavailable', 'The selected workspace returned an invalid read answer.', 'unknown');
@@ -131,7 +152,7 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
     async *list({ type, order, prefix, above, below, reverse, fields, where, limit = PAGE } = {}) {
       const query = Object.fromEntries(Object.entries({ type, order, prefix, above, below, reverse, fields, where, limit }).filter(([, value]) => value !== undefined));
       for (let after; ;) {
-        const page = await call('records:list', after === undefined ? query : { ...query, after });
+        const page = await call('records:list', after === undefined ? query : { ...query, after }, undefined, resource, true);
         yield* page.records;
         if (page.next === null || page.next === undefined) return;
         after = page.next;
