@@ -21,6 +21,11 @@ async function keptNotices(door) {
   return (head.seqs ?? []).map(seq => held.get(`${HEAD}:${seq}`)?.item).filter(Boolean);
 }
 
+/** Read this account's notices in their kept order, including legacy whole-head records. */
+export async function readKeptNotices(_input = {}, { door }) {
+  return keptNotices(door);
+}
+
 async function keptRows(door) {
   const held = new Map();
   for await (const record of door.list({ type: KIND })) held.set(record.id, record);

@@ -109,6 +109,13 @@ function shown(row, descriptor) {
 }
 
 function validateSource(source) {
+  if (source?.module !== undefined) {
+    if (typeof source.module !== 'string' || !/^\.\.?\//.test(source.module)
+      || typeof source.export !== 'string' || !source.export || !Array.isArray(source.rows)) {
+      throw fail('bad_feed', 'A packaged source needs a relative module, export and rows path.');
+    }
+    return;
+  }
   if (!source || typeof source !== 'object' || typeof source.type !== 'string' || !source.type || !Array.isArray(source.rows)) {
     throw fail('bad_feed', 'A feed read needs a record type and rows path.');
   }
@@ -122,6 +129,20 @@ function validateSource(source) {
 async function readRows(feed, door, limits = defaultData.limits) {
   validateSource(feed.read);
   const most = limits?.most_source_records ?? 2000;
+  // The source is trusted package DATA, never a caller-selected module. Composing its exported reader keeps
+  // record layouts and migration rules with their existing owner instead of duplicating them in each feed.
+  if (feed.read.module !== undefined) {
+    const source = await import(new URL(feed.read.module, import.meta.url));
+    const read = source[feed.read.export];
+    if (typeof read !== 'function') throw fail('bad_feed', 'The packaged feed reader is unavailable.');
+    const answer = await read(feed.read.input ?? {}, { door });
+    const rows = feed.read.rows.length ? at(answer, feed.read.rows) : answer;
+    if (!Array.isArray(rows) || rows.some(row => !row || typeof row !== 'object' || Array.isArray(row))) {
+      throw fail('source_shape', `Feed ${feed.id} reader did not return its declared rows.`);
+    }
+    if (rows.length > most) throw fail('source_bound', `Feed ${feed.id} exceeds its ${most}-row read bound.`);
+    return rows;
+  }
   const query = { type: feed.read.type, ...(feed.read.prefix ? { prefix: feed.read.prefix } : {}),
     ...(feed.read.fields ? { fields: feed.read.fields } : {}), ...(feed.read.where ? { where: feed.read.where } : {}) };
   const rows = [];
