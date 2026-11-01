@@ -1,5 +1,7 @@
 # workflows
 
+For a committed publication, `node tools/workflows/do-work/publish-tool-catalog.mjs TOOLS_FOLDER --git-ref COMMIT` reads only that exact Git tree. It includes listed row sources and leaves working files unchanged. Without `--git-ref`, it reads the working folder as before.
+
 Shared playbooks that any person's AI can follow step by step. Each playbook is a row of the person's list of workflows (its steps are rows of their list of workflow steps); the public ones are published into `published/` and made into `recipes/workflows.json`; the workflow engine that runs them is arriving here from `crates/workflow-engine` in the main Trillion repository.
 
 ## Files

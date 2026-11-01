@@ -35,8 +35,8 @@ function values({ folder, payload }) {
 }
 
 // One row per tool, by tool id, in id order.
-export function toolCatalog(tools) {
-  const rows = workshopRows(tools)
+export function toolCatalog(tools, reader) {
+  const rows = workshopRows(tools, reader)
     .filter(({ payload }) => payload.kind === 'ai-tool-descriptor')
     .map(row => ({ id: row.payload.id, values: values(row) }))
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
@@ -48,11 +48,11 @@ const canonical = value => (Array.isArray(value) ? `[${value.map(canonical).join
   : value && typeof value === 'object' ? `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonical(value[key])}`).join(',')}}`
   : JSON.stringify(value));
 
-export function catalogDocument(tools) {
-  const body = toolCatalog(tools);
+export function catalogDocument(tools, reader) {
+  const body = toolCatalog(tools, reader);
   const key = makeHashCodeHexFromBytes(new TextEncoder().encode(canonical(body)));
   return { schema: 'list-view-file/v1', source: { view: 'tool-catalog', list: 'tools', blake3: key }, ...body };
 }
 
 // The text of published/tools.json.
-export const catalogText = tools => `${JSON.stringify(catalogDocument(tools), null, 1)}\n`;
+export const catalogText = (tools, reader) => `${JSON.stringify(catalogDocument(tools, reader), null, 1)}\n`;
