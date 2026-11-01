@@ -7,6 +7,7 @@ Usage:
   python3 -I do-work/send_record_write.py --config FILE --work DIR [--url ADDRESS] [--key-prefix TEXT] plan --payload FILE
   python3 -I do-work/send_record_write.py --config FILE --work DIR send --payload FILE --status FILE
   python3 -I do-work/send_record_write.py --config FILE --work DIR readback --payload FILE
+  python3 -I do-work/send_record_write.py --config FILE --work DIR add-and-compare --payload FILE --status FILE
   python3 -I do-work/send_record_write.py --config FILE --work DIR export --type TYPE [--prefix ID_START] --out DIR
 
 `send` prints one JSON line per command (records written, its request key, the local time) and the status at the end. Exit 0 when
@@ -33,11 +34,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--key-prefix', help='another start for every request key (one config shared by several loads, each with keys of its own)')
     ap.add_argument('--read-prefix', action='append', default=[], metavar='TYPE=PREFIX', help='bound reads of a type to a prefix; repeat for several prefixes; every target must be covered')
     sub = ap.add_subparsers(dest='command', required=True)
-    for name in ('plan', 'send', 'readback'):
+    for name in ('plan', 'send', 'readback', 'add-and-compare'):
         one = sub.add_parser(name)
         one.add_argument('--payload', required=True, type=Path)
         one.add_argument('--baseline', type=Path, help='previous imported payload; refresh only source fields whose live value has not been edited')
-        if name == 'send':
+        if name in ('send', 'add-and-compare'):
             one.add_argument('--status', required=True, type=Path)
     out = sub.add_parser('export')
     out.add_argument('--type', required=True)
@@ -64,6 +65,12 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         payload = json.loads(a.payload.read_text())
         baseline = json.loads(a.baseline.read_text()) if a.baseline else None
+        if a.command == 'add-and-compare':
+            if baseline is not None:
+                raise ValueError('add-and-compare does not refresh a baseline or replace existing values.')
+            result = sender.add_and_compare(door, payload, a.status)
+            print(json.dumps(result))
+            return 0 if result['state'] == 'all_equal' else 1
         if a.command == 'plan':
             print(json.dumps(sender.plan(door, payload, baseline)))
             return 0

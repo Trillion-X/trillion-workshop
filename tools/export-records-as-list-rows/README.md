@@ -13,6 +13,18 @@ python3 -I do-work/export_records_as_list_rows.py --mapping FILE --root DIR --ou
 - A re-run removes only the files the previous run listed in its manifest; other files in the folder are left alone.
 - Exit 0 on success, 2 with a reason on standard error when the mapping or a file could not be read.
 
+## Add-only transfer with an exact owner comparison
+
+For large immutable source copies, the manual sender also provides:
+
+```
+python3 -I do-work/send_record_write.py --config FILE --work DIR add-and-compare --payload FILE --status FILE
+```
+
+It reads only existing IDs, creates missing objects with `expected: null`, then submits each full expected type/value as an atomic condition with the identical value. A verification passes only when the owner answers `changed: false` and `write_count: 0`. This checks the current stored value without downloading the body again. The door must enforce exact `expected` conditions; test a wrong expectation before adopting this mode on another transport. Existing different values are refused and preserved. Removal payloads, caller-supplied conditions and baseline refresh are refused. Verification calls use fresh request identities; uncertain retries preserve the original command key. These comparisons may still create the owner's command audit/receipt metadata; the record values do not change.
+
+Ordinary `readback` remains available when the caller needs the actual stored bodies. `add-and-compare` reports `all_equal`, the number created, the number verified, and per-type equality counts; it never labels an unsupported or effectful reply as verified.
+
 ## The mapping
 
 `{ "new_lists": [{ "list": {...}, "facts": {...}, "why": "..." }], "sources": [source] }`. `new_lists` are written to `make_lists.json` as they are, without `why`. A source:
