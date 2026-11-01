@@ -1,10 +1,2 @@
-// The time-zone name check used by the account's look plan reader.
-export function timeZoneName(value) {
-  if (typeof value !== 'string' || !value.trim()) return null;
-  try {
-    new Intl.DateTimeFormat('en-US', { timeZone: value.trim() });
-    return value.trim();
-  } catch {
-    return null;
-  }
-}
+// Screen-look plans use the same canonical zone check as every other Workshop time owner.
+export { timeZoneName } from '../../wall-time/read-data/wall-time.mjs';

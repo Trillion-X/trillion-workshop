@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
 import { readCurrentWornLook } from '../do-work/read-current-worn-look.mjs';
+import { timeZoneName } from '../read-data/look-time-zone.js';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const fixed = () => new Date('2026-10-31T12:00:00.000Z');
@@ -119,6 +120,17 @@ test('a current schedule blends look tokens, returns ahead changes and asks agai
 
 test('refuses an invalid device time zone', async () => {
   await assert.rejects(readCurrentWornLook({ time_zone: 'not/a-zone', app_data: appData }, { door: doorWith(new Map()), now: fixed }), /not a time zone/);
+});
+
+test('screen-look zones use wall-time canonical spelling and rejection rules', () => {
+  assert.equal(timeZoneName('Europe/London'), 'Europe/London');
+  assert.equal(timeZoneName('UTC'), 'UTC');
+  assert.equal(timeZoneName('america/new_york'), 'America/New_York');
+  for (const invalid of ['+05:00', '-0800', 'GMT+5', 'Mars/Olympus', 'Not a zone', '', '   ', null, undefined, 5, 'A'.repeat(81), 'Europe/../London']) {
+    assert.equal(timeZoneName(invalid), null, String(invalid));
+  }
+  const packed = rowOf(rows, 'tool:read-current-worn-look').invoke.files.package_files;
+  assert.ok(packed.some(item => item.package === 'wall-time' && item.paths.includes('read-data')), 'the native bundle carries the imported shared owner');
 });
 
 test('the declared native action reads the same records and returns its full device contract', async () => {
