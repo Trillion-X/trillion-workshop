@@ -2,6 +2,11 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 
 const bytes = value => new TextEncoder().encode(JSON.stringify(value));
 const pin = value => makeHashCodeHexFromBytes(bytes(value));
+function meterAppliesToOperation(meter, operation) {
+  if (!Array.isArray(meter.operation_patterns)) return meter.required_for_all_operations !== false;
+  return meter.operation_patterns.some(pattern => typeof pattern === 'string'
+    && (pattern.endsWith('*') ? operation.startsWith(pattern.slice(0, -1)) : operation === pattern));
+}
 /** Reconcile generic execution receipts with the current meter and price books.
  * Operations are discovered from receipts and the current catalog; no operation
  * names or product cases are built into this reader. */
@@ -37,7 +42,7 @@ export function refreshCoverage(input) {
       const workSucceeded = successful.length > 0;
       const workStatus = workSucceeded ? 'succeeded' : opReceipts.some(r => r.useful_work?.status === 'failed') ? 'failed' : 'unknown';
       const names = new Set(opReceipts.flatMap(r => (r.measurements ?? []).map(m => m.meter)));
-      const relevantMeters = new Set([...names, ...meters.filter(m => m.required_for_all_operations).map(m => m.id)]);
+      const relevantMeters = new Set([...names, ...meters.filter(m => meterAppliesToOperation(m, operation)).map(m => m.id)]);
       if (!relevantMeters.size) relevantMeters.add('(no-meter-observed)');
       for (const meterId of [...relevantMeters].sort()) {
         const meter = meterById.get(meterId);

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "workshop-ai-tools",
+    "filename": "tool-rows.json",
+    "records_path": "records",
+    "kind_path": "payload.kind",
+    "kind_value": "ai-tool-descriptor",
+    "id_path": "payload.id"
+  },
+  {
+    "id": "workload-operation-catalog",
+    "filename_pattern": "(?:workload|operation|catalog).*\\.json$",
+    "items_path": "operations",
+    "id_path": "id"
+  }
+]

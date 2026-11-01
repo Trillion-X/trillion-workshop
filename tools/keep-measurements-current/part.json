@@ -1,0 +1,19 @@
+{
+  "name": "keep-measurements-current",
+  "public_files": [
+    "do-work/keep-measurements-current.mjs",
+    "do-work/collect-and-persist.mjs",
+    "do-work/refresh-provider-prices.mjs",
+    "read-data/collect.mjs",
+    "read-data/coverage.mjs",
+    "read-data/source-config.mjs",
+    "read-data/measurement-source-config.json",
+    "read-data/provider-price-source.json",
+    "read-data/meter-definitions.json",
+    "read-data/receipt-adapters.json",
+    "read-data/catalog-adapters.json",
+    "../../content-identity/read-data/identity.mjs",
+    "do-work/refresh-and-save.mjs",
+    "read-data/provider-prices.mjs"
+  ]
+}

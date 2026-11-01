@@ -1,0 +1,10 @@
+{
+  "name": "measurement-workspace",
+  "private": true,
+  "type": "module",
+  "description": "Runtime-authored measurement screen; peer modules are supplied by the generic screen host.",
+  "peerDependencies": {
+    "@trillion/ui": "*",
+    "react": "*"
+  }
+}

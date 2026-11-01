@@ -1,0 +1,591 @@
+{
+  "id": "measurement-workspace",
+  "label": "Cost measurements",
+  "time_zone": "America/Denver",
+  "record_types": {
+    "observations": "record:cost-measurement-observation",
+    "forecasts": "record:cost-measurement-forecast",
+    "billing": "record:cost-measurement-billing"
+  },
+  "lists": {
+    "observations": {
+      "id": "cost-measurements",
+      "label": "Measured usage",
+      "about": "Provider and operation observations with original units, source revision, run timing, retries, errors, and measured, assumed, or unknown scope.",
+      "row_type": "cost-measurement-observation",
+      "title_field": "event_id",
+      "fields": [
+        {
+          "id": "event_id",
+          "kind": "text",
+          "label": "Observation"
+        },
+        {
+          "id": "provider",
+          "kind": "text",
+          "label": "Provider"
+        },
+        {
+          "id": "operation",
+          "kind": "text",
+          "label": "Operation"
+        },
+        {
+          "id": "metric",
+          "kind": "text",
+          "label": "Metric"
+        },
+        {
+          "id": "metric_kind",
+          "kind": "text",
+          "label": "Metric semantics"
+        },
+        {
+          "id": "aggregation",
+          "kind": "text",
+          "label": "Aggregation"
+        },
+        {
+          "id": "unit",
+          "kind": "text",
+          "label": "Unit / currency"
+        },
+        {
+          "id": "currency",
+          "kind": "text",
+          "label": "Currency"
+        },
+        {
+          "id": "value",
+          "kind": "number",
+          "label": "Value"
+        },
+        {
+          "id": "scope",
+          "kind": "choice",
+          "label": "Evidence",
+          "choices": [
+            "measured",
+            "assumed",
+            "unknown"
+          ]
+        },
+        {
+          "id": "scenario_id",
+          "kind": "text",
+          "label": "Scenario"
+        },
+        {
+          "id": "window_start",
+          "kind": "text",
+          "label": "Window start"
+        },
+        {
+          "id": "window_end",
+          "kind": "text",
+          "label": "Window end"
+        },
+        {
+          "id": "observed_at",
+          "kind": "text",
+          "label": "Observed"
+        },
+        {
+          "id": "run_id",
+          "kind": "text",
+          "label": "Run"
+        },
+        {
+          "id": "source_revision",
+          "kind": "text",
+          "label": "Source revision"
+        },
+        {
+          "id": "coverage",
+          "kind": "text",
+          "label": "Coverage"
+        },
+        {
+          "id": "retry_count",
+          "kind": "number",
+          "label": "Retries"
+        },
+        {
+          "id": "error_count",
+          "kind": "number",
+          "label": "Errors"
+        },
+        {
+          "id": "evidence",
+          "kind": "text",
+          "label": "Evidence reference"
+        },
+        {
+          "id": "corrects_event_id",
+          "kind": "text",
+          "label": "Corrects observation"
+        }
+      ],
+      "views": [
+        {
+          "id": "all",
+          "label": "All observations",
+          "columns": [
+            "provider",
+            "operation",
+            "metric",
+            "unit",
+            "currency",
+            "value",
+            "scope",
+            "observed_at",
+            "run_id",
+            "source_revision",
+            "retry_count",
+            "error_count"
+          ],
+          "sort": [
+            {
+              "field": "observed_at",
+              "direction": "desc"
+            }
+          ]
+        },
+        {
+          "id": "measured",
+          "label": "Measured",
+          "filter": {
+            "field": "scope",
+            "operator": "is_any_of",
+            "values": [
+              "measured"
+            ]
+          },
+          "columns": [
+            "provider",
+            "operation",
+            "metric",
+            "unit",
+            "value",
+            "observed_at",
+            "source_revision"
+          ]
+        },
+        {
+          "id": "assumed",
+          "label": "Assumptions",
+          "filter": {
+            "field": "scope",
+            "operator": "is_any_of",
+            "values": [
+              "assumed"
+            ]
+          },
+          "columns": [
+            "provider",
+            "operation",
+            "metric",
+            "unit",
+            "value",
+            "observed_at",
+            "source_revision",
+            "evidence"
+          ]
+        },
+        {
+          "id": "unknown",
+          "label": "Unknown coverage",
+          "filter": {
+            "field": "scope",
+            "operator": "is_any_of",
+            "values": [
+              "unknown"
+            ]
+          },
+          "columns": [
+            "provider",
+            "operation",
+            "metric",
+            "unit",
+            "scope",
+            "observed_at",
+            "source_revision",
+            "retry_count",
+            "error_count"
+          ]
+        },
+        {
+          "id": "provider-operation",
+          "label": "Provider and operation",
+          "group_by": [
+            "provider",
+            "operation",
+            "metric",
+            "metric_kind",
+            "aggregation",
+            "unit",
+            "currency",
+            "scope",
+            "scenario_id",
+            "source_revision",
+            "run_id",
+            "window_start",
+            "window_end"
+          ],
+          "columns": [
+            "provider",
+            "operation",
+            "metric",
+            "unit",
+            "currency",
+            "value",
+            "scope",
+            "source_revision",
+            "run_id",
+            "window_start",
+            "window_end"
+          ]
+        }
+      ]
+    },
+    "forecasts": {
+      "id": "cost-forecasts",
+      "label": "Forecast history",
+      "about": "Versioned forecast records. Predicted components remain separate from measured observations and billing.",
+      "row_type": "cost-measurement-forecast",
+      "title_field": "forecast_id",
+      "fields": [
+        {
+          "id": "forecast_id",
+          "kind": "text",
+          "label": "Scenario"
+        },
+        {
+          "id": "version",
+          "kind": "number",
+          "label": "Version"
+        },
+        {
+          "id": "source_revision",
+          "kind": "text",
+          "label": "Source revision"
+        },
+        {
+          "id": "created_at",
+          "kind": "text",
+          "label": "Created"
+        },
+        {
+          "id": "completeness",
+          "kind": "text",
+          "label": "Coverage"
+        },
+        {
+          "id": "component_count",
+          "kind": "number",
+          "label": "Components (open for detail)"
+        }
+      ],
+      "views": [
+        {
+          "id": "history",
+          "label": "Version history",
+          "columns": [
+            "forecast_id",
+            "version",
+            "source_revision",
+            "created_at",
+            "completeness",
+            "component_count"
+          ],
+          "sort": [
+            {
+              "field": "created_at",
+              "direction": "desc"
+            }
+          ]
+        }
+      ]
+    },
+    "billing": {
+      "id": "cost-billing-reconciliation",
+      "label": "Billing records",
+      "about": "Provider billing is kept separately from measured usage and predicted forecasts.",
+      "row_type": "cost-measurement-billing",
+      "title_field": "billing_id",
+      "fields": [
+        {
+          "id": "billing_id",
+          "kind": "text",
+          "label": "Billing record"
+        },
+        {
+          "id": "provider",
+          "kind": "text",
+          "label": "Provider"
+        },
+        {
+          "id": "version",
+          "kind": "number",
+          "label": "Version"
+        },
+        {
+          "id": "billing_period_start",
+          "kind": "text",
+          "label": "Period starts"
+        },
+        {
+          "id": "billing_period_end",
+          "kind": "text",
+          "label": "Period ends"
+        },
+        {
+          "id": "amount",
+          "kind": "number",
+          "label": "Billed amount"
+        },
+        {
+          "id": "currency",
+          "kind": "text",
+          "label": "Currency"
+        },
+        {
+          "id": "unit",
+          "kind": "text",
+          "label": "Billed unit"
+        },
+        {
+          "id": "scope",
+          "kind": "text",
+          "label": "Evidence"
+        },
+        {
+          "id": "source_revision",
+          "kind": "text",
+          "label": "Source revision"
+        },
+        {
+          "id": "observed_at",
+          "kind": "text",
+          "label": "Observed"
+        },
+        {
+          "id": "evidence",
+          "kind": "text",
+          "label": "Invoice reference"
+        }
+      ],
+      "views": [
+        {
+          "id": "reconciliation",
+          "label": "Billing reconciliation",
+          "columns": [
+            "provider",
+            "billing_period_start",
+            "billing_period_end",
+            "amount",
+            "currency",
+            "unit",
+            "scope",
+            "source_revision",
+            "observed_at",
+            "evidence"
+          ],
+          "sort": [
+            {
+              "field": "billing_period_end",
+              "direction": "desc"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "interface": {
+    "tool_id": "tool:measurement-workspace",
+    "workflow_id": "measurement-workspace",
+    "screen_file": "screen.mjs",
+    "route": "/lists/cost-measurements",
+    "views": [
+      "all",
+      "measured",
+      "assumed",
+      "unknown",
+      "provider-operation",
+      "history",
+      "reconciliation"
+    ],
+    "requests": {
+      "read-observations": {
+        "resource_operation": "records:list",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_key"
+          ],
+          "properties": {
+            "request_key": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "after": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          }
+        },
+        "bind": {
+          "type": "record:cost-measurement-observation",
+          "prefix": "record:cost-measurement-observation:",
+          "limit": 500
+        }
+      },
+      "read-forecasts": {
+        "resource_operation": "records:list",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_key"
+          ],
+          "properties": {
+            "request_key": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "after": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          }
+        },
+        "bind": {
+          "type": "record:cost-measurement-forecast",
+          "prefix": "record:cost-measurement-forecast:",
+          "limit": 500
+        }
+      },
+      "read-billing": {
+        "resource_operation": "records:list",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_key"
+          ],
+          "properties": {
+            "request_key": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "after": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          }
+        },
+        "bind": {
+          "type": "record:cost-measurement-billing",
+          "prefix": "record:cost-measurement-billing:",
+          "limit": 500
+        }
+      },
+      "manage-pricing": {
+        "resource_operation": "tools:run",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_key",
+            "action",
+            "rule"
+          ],
+          "properties": {
+            "request_key": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "list",
+                "save"
+              ]
+            },
+            "expected_version": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "rule": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "effective_at": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "markup_percent": {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                "scope": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "resource_id": {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    "plan_id": {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    "client_id": {
+                      "type": "string",
+                      "maxLength": 200
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "body": {
+          "tool": "tool:manage-usage-pricing",
+          "input": {
+            "action": {
+              "from": "action"
+            },
+            "request_key": {
+              "from": "request_key"
+            },
+            "rule": {
+              "from": "rule"
+            }
+          }
+        }
+      }
+    }
+  },
+  "integrity": {
+    "never_sum_across": [
+      "record_type",
+      "unit",
+      "currency",
+      "scope",
+      "source_revision"
+    ],
+    "unknown_value": null,
+    "stale_coverage": "Only mark stale when an explicit expected cadence is recorded. Missing coverage is unknown, never zero.",
+    "aggregation_source": "Stored record:cost-measurement-observation rows only; summary values reconcile to granular rows under identical dimensions."
+  }
+}

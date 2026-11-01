@@ -1,0 +1,37 @@
+[
+  {
+    "id": "native-cli-attempts-v1",
+    "format": "json",
+    "schema": "native-execution-observation-v1",
+    "records_path": "attempts",
+    "operation_field": "operation",
+    "default_operation": "tool-session",
+    "source_field": "source_id",
+    "provider_field": "provider",
+    "time_field": "observed_at",
+    "replayed_field": "replayed",
+    "conditional_exclusions": [
+      { "when": { "field": "replayed", "equals": true }, "metrics": ["tool_elapsed_ms"] }
+    ],
+    "metric_prefix": "native.",
+    "excluded_metrics": ["exit_code", "tool_exit_code", "process_id"],
+    "unit_suffixes": {"_ms":"ms", "_s":"s", "_bytes":"byte", "_tokens":"token"},
+    "useful_work": {"checks":[
+      {"source":"record", "path":"exit_code", "equals":0},
+      {"source":"record", "path":"tool_exit_code", "equals":0},
+      {"source":"document", "path":"negative_control.one_child_effect_only", "equals":true}
+    ]}
+  },
+  {
+    "id": "codex-cli-turn-usage",
+    "format": "jsonl",
+    "match": {"field":"type", "value":"turn.completed"},
+    "operation": "codex.turn.completed",
+    "provider": "codex-cli",
+    "time_field": "at",
+    "metric_prefix": "codex.usage.",
+    "fields_path": "usage",
+    "unit": "token",
+    "useful_work": "unknown"
+  }
+]

@@ -1,0 +1,3 @@
+{
+  "public": ["DATA.json", "read-data/composition.mjs", "screen.mjs", "main.mjs", "do-work/prepare-tool-save.mjs"]
+}

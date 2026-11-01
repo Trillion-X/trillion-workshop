@@ -1,0 +1,82 @@
+{
+  "kind": "package-set-records",
+  "record_set": "measurement-workspace-tool-row",
+  "what_this_is": "A private account screen over cost measurement Lists; the screen reads only the account's declared measurement record types.",
+  "records": [{
+    "payload": {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:measurement-workspace",
+      "label": "Cost measurements",
+      "status": "active",
+      "maker": "maker:measurement-workspace",
+      "licence_class": "licence:maker-own",
+      "placements": ["placement:deployed-container"],
+      "job": "Review provider and operation usage, forecasts, unknown coverage, and billed history in my account",
+      "description": "Shows the account's saved measurement Lists with a live overview, run history, provider and operation filters, versioned forecasts, billed records, source revisions, retries and errors. It keeps units, currencies, scenarios and measured, assumed and unknown values distinct. It includes no private measurements in the screen code.",
+      "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
+      "output_schema": { "type": "object", "required": ["screen", "opens"], "properties": { "screen": { "type": "string" }, "opens": { "type": "string" } } },
+      "invoke": { "kind": "container", "workdir": "/work", "stdout": "json", "internet": false, "argv": ["node", "main.mjs"] },
+      "result_selector": "$",
+      "verify": [{ "kind": "sample-run", "input": {}, "output_selector": "$.screen", "contains": "Cost measurements" }],
+      "screen": {
+        "kind": "module",
+        "asked": ["show my measured provider usage and cost history", "review my cost measurements"],
+        "module": { "file": "screen.mjs", "files": ["ledger.mjs"] },
+        "requests": {
+          "read-observations": {
+            "resource_operation": "records:list",
+            "input_schema": { "type": "object", "additionalProperties": false, "required": ["request_key"], "properties": { "request_key": { "type": "string", "minLength": 1, "maxLength": 200 }, "after": { "type": "string", "maxLength": 2000 } } },
+            "bind": { "type": "record:cost-measurement-observation", "prefix": "record:cost-measurement-observation:", "limit": 500 }
+          },
+          "read-forecasts": {
+            "resource_operation": "records:list",
+            "input_schema": { "type": "object", "additionalProperties": false, "required": ["request_key"], "properties": { "request_key": { "type": "string", "minLength": 1, "maxLength": 200 }, "after": { "type": "string", "maxLength": 2000 } } },
+            "bind": { "type": "record:cost-measurement-forecast", "prefix": "record:cost-measurement-forecast:", "limit": 500 }
+          },
+          "read-billing": {
+            "resource_operation": "records:list",
+            "input_schema": { "type": "object", "additionalProperties": false, "required": ["request_key"], "properties": { "request_key": { "type": "string", "minLength": 1, "maxLength": 200 }, "after": { "type": "string", "maxLength": 2000 } } },
+            "bind": { "type": "record:cost-measurement-billing", "prefix": "record:cost-measurement-billing:", "limit": 500 }
+          },
+          "manage-pricing": {
+            "resource_operation": "tools:run",
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["request_key", "action", "rule"],
+              "properties": {
+                "request_key": { "type": "string", "minLength": 1, "maxLength": 200 },
+                "action": { "type": "string", "enum": ["list", "save"] },
+                "rule": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "effective_at": { "type": "string", "maxLength": 200 },
+                    "markup_percent": { "type": "string", "maxLength": 40 },
+                    "scope": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "resource_id": { "type": "string", "maxLength": 200 },
+                        "plan_id": { "type": "string", "maxLength": 200 },
+                        "client_id": { "type": "string", "maxLength": 200 }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "body": {
+              "tool": "tool:manage-usage-pricing",
+              "input": {
+                "action": { "from": "action" },
+                "request_key": { "from": "request_key" },
+                "rule": { "from": "rule" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }]
+}
