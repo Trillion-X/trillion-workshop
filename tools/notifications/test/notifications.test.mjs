@@ -94,6 +94,14 @@ test('a choice that is not an option is refused, and a setting that is missing o
   assert.match(blank.error, /Say what to choose/);
 });
 
+test('an operation without the declared write right is refused by the records door', async () => {
+  const denied = { ...chooseRow, invoke: { ...chooseRow.invoke, records: { ...chooseRow.invoke.records, rights: [] } } };
+  const answer = await runRow(denied, { setting: 'order-alerts', choice: 'every-order' }, { records: [setting(options)] });
+  assert.equal(answer.status, 1);
+  assert.match(answer.error, /may not reach those records/i);
+  assert.equal(answer.kept.some(record => record.type === 'notification-choice'), false);
+});
+
 test('an event is recorded as given, delivers nothing, and the same event again changes nothing', async () => {
   const first = await runRow(recordRow, event('n1'));
   assert.equal(first.status, 0, first.error);
@@ -105,6 +113,22 @@ test('an event is recorded as given, delivers nothing, and the same event again 
   assert.equal(again.calls.filter(call => call.method === 'records:write').length, 0);
   const reordered = Object.fromEntries(Object.entries(event('n1')).reverse());
   assert.equal((await runRow(recordRow, reordered, { records: first.kept })).result.recorded, false);
+});
+
+test('notice actions keep their native payload intact and reject duplicate or unusable actions', async () => {
+  const actions = [
+    { id: 'accept', label: 'Accept', post: { path: '/work/api/spaces/invitations/answer', body: { request_id: '{request_id}', accept: true } } },
+    { id: 'open', label: 'Open pursuit', press: true, open: { surface_id: 'app.space', input: { id: '{space_id}' } } },
+  ];
+  const accepted = await runRow(recordRow, event('with-actions', { actions }));
+  assert.equal(accepted.status, 0, accepted.error);
+  assert.deepEqual(kept(accepted, 'notification-event:with-actions').value.actions, actions);
+  const duplicate = await runRow(recordRow, event('duplicate-actions', { actions: [actions[0], actions[0]] }));
+  assert.equal(duplicate.status, 1);
+  assert.match(duplicate.error, /duplicate id/);
+  const noEffect = await runRow(recordRow, event('empty-action', { actions: [{ id: 'noop', label: 'No action' }] }));
+  assert.equal(noEffect.status, 1);
+  assert.match(noEffect.error, /must offer/);
 });
 
 test('a different event under a recorded id is refused and the first one stays', async () => {

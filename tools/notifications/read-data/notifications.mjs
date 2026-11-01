@@ -101,6 +101,28 @@ async function ruleProblems(event, door) {
 const REQUIRED_TEXT = ['notification_id', 'kind', 'conversation_ref', 'privacy_class', 'title', 'body', 'occurred_at'];
 const REQUIRED_LISTS = ['audience_refs', 'source_refs', 'proof_refs'];
 const OPTIONAL_TEXT = ['operationId', 'transitionId', 'idempotencyKey'];
+const OPTIONAL_PATH = ['open'];
+
+function checkedActions(actions) {
+  if (actions === undefined) return [];
+  if (!Array.isArray(actions) || actions.length > 8) return ['actions must be a list of at most eight actions.'];
+  const problems = [];
+  const ids = new Set();
+  for (const [index, action] of actions.entries()) {
+    if (!object(action)) { problems.push(`actions[${index}] must be an object.`); continue; }
+    if (typeof action.id !== 'string' || !action.id.trim() || action.id.length > 120) problems.push(`actions[${index}].id must be non-empty text of at most 120 characters.`);
+    if (typeof action.label !== 'string' || !action.label.trim() || action.label.length > 100) problems.push(`actions[${index}].label must be non-empty text of at most 100 characters.`);
+    if (action.press !== undefined && typeof action.press !== 'boolean') problems.push(`actions[${index}].press must be true or false.`);
+    if (action.open !== undefined && !object(action.open)) problems.push(`actions[${index}].open must be a destination object.`);
+    if (action.post !== undefined) {
+      if (!object(action.post) || typeof action.post.path !== 'string' || !/^\/(?![/\\])[^\\]*$/.test(action.post.path) || action.post.body !== undefined && !object(action.post.body)) problems.push(`actions[${index}].post must name a local app path and an optional body object.`);
+    }
+    if (typeof action.id === 'string' && ids.has(action.id)) problems.push(`actions contains the duplicate id ${action.id}.`);
+    if (typeof action.id === 'string') ids.add(action.id);
+    if (action.open === undefined && action.post === undefined && action.press !== true) problems.push(`actions[${index}] must offer an open, post or press action.`);
+  }
+  return problems;
+}
 
 function eventProblems(event) {
   if (!object(event)) return ['Pass the event as an object.'];
@@ -110,7 +132,9 @@ function eventProblems(event) {
     if (!Array.isArray(event[key]) || event[key].length === 0 || !event[key].every(text)) problems.push(`${key} is required and must list at least one non-empty reference.`);
   }
   for (const key of OPTIONAL_TEXT) if (key in event && typeof event[key] !== 'string') problems.push(`${key} must be words when given.`);
-  const known = new Set([...REQUIRED_TEXT, ...REQUIRED_LISTS, ...OPTIONAL_TEXT]);
+  for (const key of OPTIONAL_PATH) if (key in event && (typeof event[key] !== 'string' || !/^\/(?![/\\])[^\\]*$/.test(event[key]))) problems.push(`${key} must be a local app path beginning with one slash when given.`);
+  problems.push(...checkedActions(event.actions));
+  const known = new Set([...REQUIRED_TEXT, ...REQUIRED_LISTS, ...OPTIONAL_TEXT, ...OPTIONAL_PATH, 'actions']);
   for (const key of Object.keys(event)) if (!known.has(key)) problems.push(`${key} is not a field of a notification event.`);
   return problems;
 }
