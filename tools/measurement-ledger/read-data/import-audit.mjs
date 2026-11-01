@@ -20,8 +20,8 @@ export function importStorageRuns(runs, { dataset, sourceRevision, evidenceRoot,
           const definition = fieldDefinitions[metric] ?? {};
           const event_id = `audit:${dataset}:${runId}:${metric}`;
           records.push(observationRecord({ event_id, provider: run.provider ?? dataset, operation: path.join('.') || 'simulation', metric,
-            metric_kind: /retry|fail|attempt|count|visit|ack|duplicate|skip|unsupported/i.test(key) ? 'counter_delta' : 'sample',
-            aggregation: /retry|fail|attempt|count|visit|ack|duplicate|skip|unsupported/i.test(key) ? 'counter_delta' : 'sample',
+            metric_kind: definition.metric_kind ?? (/retry|fail|attempt|count|visit|ack|duplicate|skip|unsupported/i.test(key) ? 'counter_delta' : 'sample'),
+            aggregation: definition.aggregation ?? definition.metric_kind ?? (/retry|fail|attempt|count|visit|ack|duplicate|skip|unsupported/i.test(key) ? 'counter_delta' : 'sample'),
             unit: definition.unit ?? 'unknown', currency: definition.currency ?? 'none', evidence_kind: 'executed-simulation', scenario_id: scenario, source_revision: sourceRevision, run_id: runId,
             window_start: run.window_start ?? observedAt, window_end: run.window_end ?? observedAt, observed_at: run.observed_at ?? observedAt,
             scope: 'measured', value: child, ...(Number.isInteger(run.retry_count) ? { retry_count: run.retry_count, retry_status: 'measured' } : { retry_count: null, retry_status: 'unknown' }),
@@ -44,8 +44,9 @@ export function importTrafficCases(cases, { sourceRevision, evidence, fieldDefin
     const knownMetrics = Object.keys(row).filter(k => num(row[k]));
     for (const metric of knownMetrics) {
       const def = fieldDefinitions[metric] ?? {};
-      const money = /cost|price|total|monthly|usd|amount/i.test(metric);
-      const currency = money ? (def.currency ?? row.currency ?? 'unknown') : 'none';
+      const money = def.metric_kind === 'money_sum' || def.aggregation === 'money_sum'
+        || (def.currency !== undefined && def.currency !== 'none') || /cost|price|total|monthly|usd|amount/i.test(metric);
+      const currency = def.currency ?? (money ? (row.currency ?? 'unknown') : 'none');
       const unit = def.unit ?? (money ? currency : 'unit-unspecified');
       const metricKind = def.metric_kind ?? (money ? 'money_sum' : 'sample');
       records.push(observationRecord({ event_id: `audit:traffic:${slug(provider)}:${slug(scenario)}:${metric}:${index + 1}`,
