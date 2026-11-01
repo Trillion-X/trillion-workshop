@@ -1,0 +1,73 @@
+{
+  "kind": "package-set-records",
+  "record_set": "read-glance-feeds-tool-rows",
+  "what_this_is": "The Workshop row for reading one current, record-backed glance feed or ordered surface through the person's records door.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-glance-feeds",
+        "status": "active",
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "maker": "maker:read-glance-feeds",
+        "placements": ["placement:small-container"],
+        "needs": { "expected_seconds": 1, "network_egress": false },
+        "label": "Read a glance feed",
+        "job": "Read one feed or an ordered set of feeds for a glance surface",
+        "description": "Give feed or surface and optionally limit (a positive whole number, default 50 per feed). Reads the record queries declared in Workshop DATA, applies each feed's row path, filters, order and displayed fields, and returns { surface?, feeds: [{ id, label, about, status, empty?, rows?, error? }] }. status is ready with empty and rows (an empty rows array is a successful empty read), or unavailable with error { code, message }; one failed feed does not discard available siblings. A row carries its displayed title, optional detail, note, open address, time and progress fraction, flagged and read booleans, actions when declared, and source, the unchanged row. Current data covers habits, waiting, pursuits, told and waiting AI jobs; other historical feeds are explicitly marked unavailable until their record contracts exist.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "feed": { "type": "string", "minLength": 1, "description": "One feed id." },
+            "surface": { "type": "string", "minLength": 1, "description": "A surface name whose DATA lists the feed ids in display order." },
+            "limit": { "type": "integer", "minimum": 1, "description": "Most rows returned per feed; defaults to 50." }
+          },
+          "oneOf": [
+            { "required": ["feed"], "not": { "required": ["surface"] } },
+            { "required": ["surface"], "not": { "required": ["feed"] } }
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["feeds"],
+          "properties": {
+            "surface": { "type": "string" },
+            "feeds": { "type": "array", "items": { "type": "object", "required": ["id", "label", "about", "status"], "properties": {
+              "id": { "type": "string" }, "label": { "type": "string" }, "about": { "type": "string" }, "status": { "type": "string", "enum": ["ready", "unavailable"] }, "empty": { "type": "string" }, "error": { "type": "object" },
+              "rows": { "type": "array", "items": { "type": "object", "required": ["id", "title", "source", "flagged"], "properties": {
+                "id": { "type": "string" }, "title": { "type": "string" }, "detail": { "type": "string" }, "note": { "type": "string" },
+                "open": { "type": "string" }, "time": { "type": "string" }, "fraction": { "type": "number" }, "flagged": { "type": "boolean" }, "read": { "type": "boolean" }, "actions": { "type": "array" }, "source": { "type": "object" }
+              } } }
+            } } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "files": { "package_files": [
+            { "package": "read-glance-feeds", "paths": ["do-work", "read-data"], "at": "/opt/read-glance-feeds" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] },
+          "workdir": "/opt/read-glance-feeds",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/read-glance-feeds/do-work/read-glance-feeds.mjs", "readGlanceFeeds"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [
+            { "kind": "record:habit", "prefix": "record:habit:", "operations": ["records:list"] },
+            { "kind": "record:waiting-on-you", "prefix": "record:waiting-on-you:", "operations": ["records:list"] },
+            { "kind": "record:pursuit", "prefix": "record:pursuit:", "operations": ["records:list"] },
+            { "kind": "told-the-person", "prefix": "told-the-person:", "operations": ["records:list"] },
+            { "kind": "ai-job", "prefix": "ai-job:", "operations": ["records:list"] }
+          ] }
+        },
+        "provenance": { "source": "Workshop tell-the-person/read-data/told.mjs record layout ({item} rows under told-the-person:<seq>) and the record-backed generic feed projection in this package" },
+        "verify": [],
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
