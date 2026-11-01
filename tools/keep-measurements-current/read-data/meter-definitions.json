@@ -1,0 +1,20 @@
+[
+    { "id": "native.cli_wall_ms", "unit": "ms", "aggregation": "duration" },
+    { "id": "native.tool_elapsed_ms", "unit": "ms", "aggregation": "duration" },
+    { "id": "native.request_frame_bytes", "unit": "byte", "aggregation": "sum" },
+    { "id": "native.response_bytes", "unit": "byte", "aggregation": "sum" },
+    { "id": "native.sqlite_file_bytes_after_close", "unit": "byte", "aggregation": "gauge" },
+    { "id": "native.time_command_cpu_user_s", "unit": "s", "aggregation": "duration" },
+    { "id": "native.time_command_cpu_system_s", "unit": "s", "aggregation": "duration" },
+    { "id": "native.time_command_real_s", "unit": "s", "aggregation": "duration" },
+    { "id": "native.time_command_max_rss_bytes", "unit": "byte", "aggregation": "gauge" },
+    { "id": "native.tool_observed_output_bytes", "unit": "byte", "aggregation": "sum" },
+    { "id": "codex.usage.input_tokens", "unit": "token", "aggregation": "sum" },
+    { "id": "codex.usage.output_tokens", "unit": "token", "aggregation": "sum" },
+    { "id": "codex.usage.total_tokens", "unit": "token", "aggregation": "sum" },
+    { "id": "collector.wall_ms", "unit": "ms", "aggregation": "duration" },
+    { "id": "collector.cpu_user_ms", "unit": "ms", "aggregation": "duration" },
+    { "id": "collector.cpu_system_ms", "unit": "ms", "aggregation": "duration" },
+    { "id": "collector.files_seen", "unit": "file", "aggregation": "sum" },
+    { "id": "collector.bytes_seen", "unit": "byte", "aggregation": "sum" }
+]

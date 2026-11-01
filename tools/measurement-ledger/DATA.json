@@ -1,0 +1,405 @@
+{
+  "package": "measurement-ledger",
+  "record_types": {
+    "observation": "record:cost-measurement-observation",
+    "forecast": "record:cost-measurement-forecast",
+    "billing": "record:cost-measurement-billing"
+  },
+  "list_schemas": {
+    "observations": {
+      "id": "list:cost-measurements",
+      "type": "list",
+      "value": {
+        "label": "Cost measurements",
+        "about": "Granular provider and operation observations, with source, run, scenario, timing, unit and completeness retained.",
+        "row_type": "cost-measurement-observation",
+        "title_field": "metric",
+        "fields": [
+          {
+            "id": "provider",
+            "kind": "text",
+            "label": "Provider"
+          },
+          {
+            "id": "operation",
+            "kind": "text",
+            "label": "Operation"
+          },
+          {
+            "id": "metric",
+            "kind": "text",
+            "label": "Metric"
+          },
+          {
+            "id": "metric_kind",
+            "kind": "text",
+            "label": "Metric kind"
+          },
+          {
+            "id": "aggregation",
+            "kind": "text",
+            "label": "Aggregation"
+          },
+          {
+            "id": "unit",
+            "kind": "text",
+            "label": "Unit"
+          },
+          {
+            "id": "currency",
+            "kind": "text",
+            "label": "Currency"
+          },
+          {
+            "id": "scenario_id",
+            "kind": "text",
+            "label": "Scenario"
+          },
+          {
+            "id": "source_revision",
+            "kind": "text",
+            "label": "Source revision"
+          },
+          {
+            "id": "run_id",
+            "kind": "text",
+            "label": "Run"
+          },
+          {
+            "id": "window_start",
+            "kind": "text",
+            "label": "Window start"
+          },
+          {
+            "id": "window_end",
+            "kind": "text",
+            "label": "Window end"
+          },
+          {
+            "id": "observed_at",
+            "kind": "text",
+            "label": "Observed at"
+          },
+          {
+            "id": "scope",
+            "kind": "text",
+            "label": "Measured, assumed or unknown"
+          },
+          {
+            "id": "value",
+            "kind": "number",
+            "label": "Value"
+          },
+          {
+            "id": "coverage",
+            "kind": "text",
+            "label": "Coverage"
+          },
+          {
+            "id": "retry_count",
+            "kind": "number",
+            "label": "Retries"
+          },
+          {
+            "id": "retry_status",
+            "kind": "text",
+            "label": "Retry coverage"
+          },
+          {
+            "id": "error_count",
+            "kind": "number",
+            "label": "Errors"
+          },
+          {
+            "id": "error_status",
+            "kind": "text",
+            "label": "Error coverage"
+          },
+          {
+            "id": "corrects_event_id",
+            "kind": "text",
+            "label": "Corrects event"
+          },
+          {
+            "id": "evidence",
+            "kind": "text",
+            "label": "Evidence reference"
+          },
+          {
+            "id": "evidence_kind",
+            "kind": "text",
+            "label": "Evidence source"
+          }
+        ]
+      }
+    },
+    "forecasts": {
+      "id": "list:cost-forecasts",
+      "type": "list",
+      "value": {
+        "label": "Cost forecasts",
+        "about": "Versioned forecast components with explicit incomplete status, scenario, unit, currency, source revision and evidence.",
+        "row_type": "cost-measurement-forecast",
+        "title_field": "forecast_id",
+        "fields": [
+          {
+            "id": "forecast_id",
+            "kind": "text",
+            "label": "Forecast"
+          },
+          {
+            "id": "version",
+            "kind": "number",
+            "label": "Version"
+          },
+          {
+            "id": "operation",
+            "kind": "text",
+            "label": "Operation"
+          },
+          {
+            "id": "metric",
+            "kind": "text",
+            "label": "Metric"
+          },
+          {
+            "id": "unit",
+            "kind": "text",
+            "label": "Unit"
+          },
+          {
+            "id": "currency",
+            "kind": "text",
+            "label": "Currency"
+          },
+          {
+            "id": "scenario_id",
+            "kind": "text",
+            "label": "Scenario"
+          },
+          {
+            "id": "source_revision",
+            "kind": "text",
+            "label": "Source revision"
+          },
+          {
+            "id": "created_at",
+            "kind": "text",
+            "label": "Created"
+          },
+          {
+            "id": "completeness",
+            "kind": "text",
+            "label": "Completeness"
+          },
+          {
+            "id": "value",
+            "kind": "number",
+            "label": "Value"
+          },
+          {
+            "id": "evidence",
+            "kind": "text",
+            "label": "Evidence reference"
+          },
+          {
+            "id": "component_count",
+            "kind": "number",
+            "label": "Components"
+          }
+        ]
+      }
+    },
+    "billing": {
+      "id": "list:cost-billing-reconciliation",
+      "type": "list",
+      "value": {
+        "label": "Cost billing reconciliation",
+        "about": "Provider invoices and billing units linked to measurements and forecasts; every currency and billing period stays separate.",
+        "row_type": "cost-measurement-billing",
+        "title_field": "provider",
+        "fields": [
+          {
+            "id": "provider",
+            "kind": "text",
+            "label": "Provider"
+          },
+          {
+            "id": "billing_id",
+            "kind": "text",
+            "label": "Billing record"
+          },
+          {
+            "id": "billing_period_start",
+            "kind": "text",
+            "label": "Period start"
+          },
+          {
+            "id": "billing_period_end",
+            "kind": "text",
+            "label": "Period end"
+          },
+          {
+            "id": "currency",
+            "kind": "text",
+            "label": "Currency"
+          },
+          {
+            "id": "amount",
+            "kind": "number",
+            "label": "Amount"
+          },
+          {
+            "id": "unit",
+            "kind": "text",
+            "label": "Billed unit"
+          },
+          {
+            "id": "scope",
+            "kind": "text",
+            "label": "Measured or unknown"
+          },
+          {
+            "id": "source_revision",
+            "kind": "text",
+            "label": "Source revision"
+          },
+          {
+            "id": "evidence",
+            "kind": "text",
+            "label": "Invoice reference"
+          }
+        ]
+      }
+    }
+  },
+  "id_patterns": {
+    "observation": "record:cost-measurement-observation:<encodeURIComponent(event_id)>",
+    "forecast": "record:cost-measurement-forecast:<encodeURIComponent(forecast_id)>:v<version>",
+    "billing": "record:cost-measurement-billing:<encodeURIComponent(billing_id)>:v<version>"
+  },
+  "observation_required": [
+    "event_id",
+    "provider",
+    "operation",
+    "metric",
+    "metric_kind",
+    "aggregation",
+    "unit",
+    "currency",
+    "scenario_id",
+    "source_revision",
+    "run_id",
+    "window_start",
+    "window_end",
+    "observed_at",
+    "scope",
+    "value"
+  ],
+  "forecast_required": [
+    "forecast_id",
+    "version",
+    "source_revision",
+    "created_at",
+    "completeness",
+    "components"
+  ],
+  "forecast_component_required": [
+    "operation",
+    "metric",
+    "unit",
+    "currency",
+    "scenario_id",
+    "scope",
+    "value"
+  ],
+  "billing_required": [
+    "provider",
+    "billing_id",
+    "version",
+    "billing_period_start",
+    "billing_period_end",
+    "currency",
+    "unit",
+    "source_revision",
+    "observed_at",
+    "scope",
+    "amount"
+  ],
+  "scope_values": [
+    "measured",
+    "assumed",
+    "unknown"
+  ],
+  "aggregation_values": [
+    "counter_delta",
+    "gauge",
+    "duration_distribution",
+    "money_sum",
+    "sample"
+  ],
+  "sample_records": [
+    {
+      "id": "record:cost-measurement-observation:example-observation",
+      "type": "record:cost-measurement-observation",
+      "value": {
+        "schema": 2,
+        "event_id": "example-observation",
+        "provider": "example-provider",
+        "operation": "example-operation",
+        "metric": "requests",
+        "metric_kind": "counter_delta",
+        "aggregation": "counter_delta",
+        "unit": "request",
+        "currency": "none",
+        "scenario_id": "example-only",
+        "source_revision": "example-source",
+        "run_id": "example-run",
+        "window_start": "unknown-time",
+        "window_end": "unknown-time",
+        "observed_at": "unknown-time",
+        "scope": "unknown",
+        "value": null,
+        "coverage": "partial",
+        "evidence": "example-only"
+      }
+    },
+    {
+      "id": "record:cost-measurement-forecast:example-forecast:v1",
+      "type": "record:cost-measurement-forecast",
+      "value": {
+        "schema": 2,
+        "forecast_id": "example-forecast",
+        "version": 1,
+        "source_revision": "example-source",
+        "created_at": "unknown-time",
+        "completeness": "incomplete",
+        "components": [
+          {
+            "operation": "example-operation",
+            "metric": "requests",
+            "unit": "unknown",
+            "currency": "unknown",
+            "scenario_id": "example-only",
+            "scope": "unknown",
+            "value": null
+          }
+        ]
+      }
+    }
+  ],
+  "semantics": {
+    "unknown": "value must be null; never interpreted as zero",
+    "append_once": "deterministic event ID plus content equality; exact replay is idempotent; same event ID with different content raises conflict. Records-door contract confirms expected:null as atomic absent-ID precondition; exact readback distinguishes concurrent replay from conflicting content",
+    "corrections": "a new event links by corrects_event_id; active aggregation excludes original after replacement, rejects missing target and ambiguous forks, and retains source rows",
+    "aggregation": "Default dimensions separate provider, operation, metric semantics, unit, currency, scenario, source revision, run, and measurement window. Counter deltas and money sum; gauges select latest observed; duration distributions expose count/min/max/sum; unknown mixed with known returns partial, never complete.",
+    "forecasts": "incomplete versions remain visible with completeness=incomplete; caller cannot label a forecast complete when any component is unknown",
+    "retention": "records are account-owned; corrections append; no deletion or expiry is implied",
+    "retries_errors": "retry/error counts may be null with an explicit unknown status; absent metrics are never summed as zero. Aggregate counts include completeness fields",
+    "privacy": "evidence is a source locator only; never store prompts, transcripts, credentials, or customer payloads"
+  },
+  "provenance": {
+    "source": "Generic measurement schemas with synthetic examples only. Private observations and discovery state are supplied through account records."
+  },
+  "samples_are_synthetic": true
+}

@@ -1,0 +1,481 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-measurements-current-tool-rows",
+  "what_this_is": "A generic Workshop tool that discovers measured operations and keeps their coverage current.",
+  "records": [
+    {
+      "id": "package::keep-measurements-current::tool::keep-measurements-current",
+      "address": "package::keep-measurements-current::tool::keep-measurements-current",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-measurements-current",
+        "label": "Collect current measurement coverage",
+        "job": "Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage",
+        "description": "Reads the configured measurement_source_config account record through the records door, resolves bounded source and receipt roots plus the configured meter book, and collects with a freshly returned provider-qualified price book. New operations under those roots are discovered automatically. Receipt content and source, meter and price revisions are pinned. Missing values, unknown meters, failed work, missing prices, unconfigured roots and incomplete discovery stay unknown. The scheduled workflow persists returned history through the measurement-ledger owner.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "action"
+          ],
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "read_source_config",
+                "collect_from_config"
+              ]
+            },
+            "config_id": {
+              "type": "string"
+            },
+            "prices": {
+              "type": "object",
+              "required": [
+                "source_revision",
+                "observed_at",
+                "prices"
+              ],
+              "properties": {
+                "source_revision": {
+                  "type": "string"
+                },
+                "observed_at": {
+                  "type": "string"
+                },
+                "prices": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "prior": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "limits": {
+              "type": "object"
+            },
+            "measure_self": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "workdir": "/work",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-measurements-current/do-work/keep-measurements-current.mjs",
+            "run",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-measurements-current",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/keep-measurements-current"
+              },
+              {
+                "package": "measurement-ledger",
+                "paths": [
+                  "read-data/ledger.mjs",
+                  "read-data/aggregation.mjs"
+                ],
+                "at": "/opt/measurement-ledger"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "measurement_source_config",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
+          "capabilities": [
+            "read-a-folder"
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:keep-measurements-current",
+        "provenance": {
+          "source": "Generic source/package revisions and execution receipts reconciled against current meter and price DATA; content identities use the Workshop BLAKE3 owner."
+        }
+      }
+    },
+    {
+      "id": "package::keep-measurements-current::tool::refresh-provider-prices",
+      "address": "package::keep-measurements-current::tool::refresh-provider-prices",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:refresh-provider-prices",
+        "label": "Refresh provider price book",
+        "job": "Read the current version of the declared provider price DATA and return provider-qualified unit prices with source revisions",
+        "description": "Reads the dated provider-price-source DATA through its owner. It returns only scalar prices explicitly marked eligible for unconditional evaluation, preserves provider, meter, currency, source and revision, and lists conditional rates as excluded. It does not infer account plans, invoices, usage or billed amounts.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "format",
+            "source_revision",
+            "observed_at",
+            "prices",
+            "excluded"
+          ],
+          "properties": {
+            "format": {
+              "const": "provider-price-input/1"
+            },
+            "source_revision": {
+              "type": "string"
+            },
+            "observed_at": {
+              "type": "string"
+            },
+            "prices": {
+              "type": "array"
+            },
+            "excluded": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/work",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/keep-measurements-current/do-work/refresh-provider-prices.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-measurements-current",
+                "paths": [
+                  "do-work/refresh-provider-prices.mjs",
+                  "read-data/provider-price-source.json",
+                  "read-data/provider-prices.mjs"
+                ],
+                "at": "/opt/keep-measurements-current"
+              }
+            ]
+          }
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 32
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:keep-measurements-current",
+        "provenance": {
+          "source": "Dated public provider tariff DATA, filtered by the source-owned unconditional-rate eligibility flag; no customer invoice or plan evidence."
+        }
+      }
+    },
+    {
+      "id": "package::keep-measurements-current::tool::refresh-measurement-history",
+      "address": "package::keep-measurements-current::tool::refresh-measurement-history",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:refresh-measurement-history",
+        "label": "Keep measurement history current",
+        "job": "Collect configured operation evidence and save current history directly on a timed or record wake without an AI",
+        "description": "Reads account source configuration, packaged qualified price DATA and prior forecast state, runs the canonical collector and ledger directly, and reads back append-once observations and forecast. It creates no AI job. Missing or stale measurements remain incomplete. Each physical refresh appends real OS CPU, wall and peak-memory observations. Final persistence overhead and monetary cost remain unknown. Replaying a native request does not run a second child.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "config_id": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "workdir": "/work",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-measurements-current/do-work/refresh-and-save.mjs",
+            "run",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            },
+            {
+              "fill": {
+                "from": "task",
+                "field": "request_key"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-measurements-current",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/keep-measurements-current"
+              },
+              {
+                "package": "measurement-ledger",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/measurement-ledger"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "measurement_source_config",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:cost-measurement-observation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "record:cost-measurement-forecast",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "capabilities": [
+            "read-a-folder"
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:keep-measurements-current",
+        "provenance": {
+          "source": "Generic source/package revisions and execution receipts reconciled against current meter and price DATA; content identities use the Workshop BLAKE3 owner."
+        },
+        "wakes": [
+          {
+            "id": "hourly",
+            "on": {
+              "time": {
+                "every_ms": 3600000
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 120000
+            }
+          },
+          {
+            "id": "config-changed",
+            "on": {
+              "record": {
+                "resource": "own-records",
+                "kind": "measurement_source_config"
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 120000
+            }
+          },
+          {
+            "id": "receipt-arrived",
+            "on": {
+              "record": {
+                "resource": "own-records",
+                "kind": "execution_observation"
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 120000
+            }
+          },
+          {
+            "id": "source-changed",
+            "on": {
+              "record": {
+                "resource": "own-records",
+                "kind": "source_package_revision"
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 120000
+            }
+          },
+          {
+            "id": "price-changed",
+            "on": {
+              "record": {
+                "resource": "own-records",
+                "kind": "provider_price_source"
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 120000
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

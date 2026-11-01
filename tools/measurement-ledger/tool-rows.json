@@ -1,0 +1,47 @@
+{
+  "kind": "package-set-records",
+  "record_set": "measurement-ledger-tool-rows",
+  "what_this_is": "Generic, unit-aware cost evidence operations over the person's existing account records door.",
+  "records": [{
+    "id": "package::measurement-ledger::tool::cost-measurement-ledger",
+    "address": "package::measurement-ledger::tool::cost-measurement-ledger",
+    "path": ["current-item", "published-record"],
+    "payload": {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:cost-measurement-ledger",
+      "label": "Keep and review cost measurements",
+      "status": "active",
+      "job": "Append cost observations once, keep forecasts by version, and aggregate only comparable measured units",
+      "description": "Writes provider and operation level measurements through the existing records door, preserves corrections and unknown coverage, and reads grouped history with scenario, currency, source revision and time windows kept distinct.",
+      "input_schema": {
+        "type": "object", "required": ["action"], "additionalProperties": false,
+        "properties": {
+          "action": {"type": "string", "enum": ["append", "aggregate", "save_forecast", "save_billing", "read_latest_refresh_state"]},
+          "request_key": {"type": "string", "description": "Stable key reused exactly for retries of one write."},
+          "observations": {"type": "array", "items": {"type": "object"}, "description": "Validated observations; never include customer content."},
+          "forecast": {"type": "object", "description": "Versioned forecast; incomplete history is saved as incomplete."},
+          "billing": {"type": "object", "description": "Versioned provider billing evidence; unknown invoice values remain null."},
+          "group_by": {"type": "array", "items": {"type": "string"}, "description": "Optional dimensions to group by; default preserves all identity and billing scope dimensions."}
+        }
+      },
+      "output_schema": {"type": "object"},
+      "invoke": {
+        "kind": "container", "workdir": "/opt/measurement-ledger", "stdout": "json", "internet": false,
+        "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/measurement-ledger/do-work/ledger-tool.mjs", "run"],
+        "stdin": {"fill": {"from": "input"}}, "records": {"fd": 3, "most_writes": 128, "rights": [
+          {"kind": "record:cost-measurement-observation", "operations": ["records:read", "records:list", "records:write"]},
+          {"kind": "record:cost-measurement-forecast", "operations": ["records:read", "records:list", "records:write"]},
+          {"kind": "record:cost-measurement-billing", "operations": ["records:read", "records:list", "records:write"]}
+        ]},
+        "files": {"package_files": [
+          {"package": "measurement-ledger", "paths": ["do-work", "read-data"], "at": "/opt/measurement-ledger"},
+          {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"},
+          {"package": "content-identity", "paths": ["do-work", "read-data"], "at": "/opt/tools/content-identity"},
+          {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+          {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+        ]}
+      },
+      "result_selector": "$.result", "licence_class": "licence:maker-own", "maker": "maker:measurement-ledger"
+    }
+  }]
+}

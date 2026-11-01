@@ -1,0 +1,70 @@
+{
+  "schema": "hosted-provider-source/1",
+  "source_revision": "hosted-read-only-sources-2026-11-01",
+  "vault_helper": "../../../../bitfield-packages/packages/credentials-vault/read-data/ask-the-vault-for-one-secret.mjs",
+  "providers": [
+    {
+      "id": "cloudflare",
+      "origin": "https://api.cloudflare.com",
+      "token_holder": "cloudflare-api-token",
+      "account_endpoint_holder": "cloudflare-r2-endpoint",
+      "account_endpoint_field": "endpoint",
+      "requests": [
+        {
+          "id": "token-verification",
+          "method": "GET",
+          "path": "/client/v4/user/tokens/verify",
+          "projection": { "kind": "status_only", "status_path": "success" }
+        },
+        {
+          "id": "account-verification",
+          "method": "GET",
+          "path": "/client/v4/accounts/{account_id}",
+          "projection": { "kind": "status_only", "status_path": "success" }
+        },
+        {
+          "id": "subscriptions",
+          "method": "GET",
+          "path": "/client/v4/accounts/{account_id}/subscriptions",
+          "projection": { "kind": "status_only", "status_path": "success" }
+        },
+        {
+          "id": "workers-invocations-24h",
+          "method": "POST",
+          "path": "/client/v4/graphql",
+          "graphql": "query HostedWorkers24h($accountTag: String!, $start: Time!, $end: Time!) { viewer { accounts(filter: {accountTag: $accountTag}) { workersInvocationsAdaptive(limit: 1000, filter: {datetime_geq: $start, datetime_leq: $end}) { sum { requests errors } quantiles { cpuTimeP50 cpuTimeP99 } } } } }",
+          "window_hours": 24,
+          "projection": { "kind": "workers_adaptive", "data_path": "data.viewer.accounts.0.workersInvocationsAdaptive", "sum_fields": ["requests", "errors"], "quantile_fields": ["cpuTimeP50", "cpuTimeP99"] },
+          "unit_notes": ["requests are invocation counts", "CPU fields are provider quantiles in milliseconds, not a summed CPU billing total"]
+        },
+        {
+          "id": "r2-operations-24h",
+          "method": "POST",
+          "path": "/client/v4/graphql",
+          "graphql": "query HostedR2Operations24h($accountTag: String!, $start: Time!, $end: Time!) { viewer { accounts(filter: {accountTag: $accountTag}) { r2OperationsAdaptiveGroups(limit: 10000, filter: {datetime_geq: $start, datetime_leq: $end}) { dimensions { actionType } sum { requests } } } } }",
+          "window_hours": 24,
+          "projection": { "kind": "sum_groups", "data_path": "data.viewer.accounts.0.r2OperationsAdaptiveGroups", "value_path": "sum.requests", "category_path": "dimensions.actionType" },
+          "unit_notes": ["request counts by provider operation category", "no bucket name is requested or emitted"]
+        },
+        {
+          "id": "r2-storage-24h",
+          "method": "POST",
+          "path": "/client/v4/graphql",
+          "graphql": "query HostedR2Storage24h($accountTag: String!, $start: Time!, $end: Time!) { viewer { accounts(filter: {accountTag: $accountTag}) { r2StorageAdaptiveGroups(limit: 10000, filter: {datetime_geq: $start, datetime_leq: $end}, orderBy: [datetime_DESC]) { dimensions { bucketName datetime } max { objectCount uploadCount payloadSize metadataSize } } } } }",
+          "window_hours": 24,
+          "projection": { "kind": "latest_per_private_group_then_sum", "data_path": "data.viewer.accounts.0.r2StorageAdaptiveGroups", "group_path": "dimensions.bucketName", "time_path": "dimensions.datetime", "value_paths": ["max.objectCount", "max.uploadCount", "max.payloadSize", "max.metadataSize"], "labels": ["objects", "uploads", "payload_bytes", "metadata_bytes"] },
+          "unit_notes": ["payload and metadata sizes are bytes as reported by R2 analytics", "bucket identifiers are consumed in memory only and never emitted"]
+        },
+        {
+          "id": "r2-bandwidth-24h",
+          "method": "POST",
+          "path": "/client/v4/graphql",
+          "graphql": "query HostedR2Bandwidth24h($accountTag: String!, $start: Time!, $end: Time!) { viewer { accounts(filter: {accountTag: $accountTag}) { r2BandwidthUsageAdaptiveGroups(limit: 1000, filter: {datetime_geq: $start, datetime_lt: $end}, orderBy: [datetimeHour_ASC]) { sum { bytesUpload bytesDownload } dimensions { datetimeHour } } } } }",
+          "window_hours": 24,
+          "projection": { "kind": "sum_groups", "data_path": "data.viewer.accounts.0.r2BandwidthUsageAdaptiveGroups", "sum_fields": ["sum.bytesUpload", "sum.bytesDownload"] },
+          "unit_notes": ["bytes are provider-reported upload/download totals", "R2 bandwidth analytics exclude transfers smaller than 100 KiB"]
+        }
+      ]
+    }
+  ]
+}
