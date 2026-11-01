@@ -1,0 +1,1 @@
+{ "public": ["read-data/signals.mjs", "sources.json", "signal-measures.json"] }

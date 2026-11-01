@@ -1,0 +1,96 @@
+{
+  "kind": "tool-rows",
+  "record_set": "find-signals-of-need-tool-rows",
+  "what_this_is": "The Workshop row for the tool in tools/find-signals-of-need: what it does, what it takes and gives back, and how it runs.",
+  "records": [
+    {
+      "id": "package::find-signals-of-need::tool::find-signals-of-need",
+      "address": "package::find-signals-of-need::tool::find-signals-of-need",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-signals-of-need",
+        "label": "Find candidates that show a need",
+        "status": "active",
+        "job": "Find the companies, businesses or people whose own public facts show they need help (a job post open for weeks, reviews that name a delay, a burst of new reviews), score each on signals, and rank them",
+        "description": "Reads one signal-source row (source, or your own source_row): how an item maps to fields, which items to keep (filters) and which signals add to a score. Candidates come from items (give them when they come from your connection tool, such as a map data or job board connection) or, for a source row that declares a public request, from its address filled with parameters. Returns the kept candidates best score first, each with its key, name, address, place, the signals that fired with their evidence (the value measured and up to three matching snippets), score and rank, and the items it left out with the reason. A field an item lacks refuses a filter and keeps a signal quiet; it never counts as zero. It sends, posts and keeps nothing, holds no credential, and knows no site: sources.json ships two sample rows (open-job-posts, local-businesses-by-place) and every number and word in them is yours to change. A new measure is a row in signal-measures.json.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": { "type": "string", "description": "The id of a signal-source row" },
+            "source_row": { "type": "object", "description": "Your own signal-source row, used instead of a shipped one" },
+            "items": { "type": "array", "items": { "type": "object" }, "description": "The candidates, as your connection tool returned them" },
+            "parameters": { "type": "object", "description": "Fills the {holes} of a row's public address" },
+            "now": { "type": "string", "description": "The date ages are counted from, such as 2026-11-01; today when left out" },
+            "limit": { "type": "integer", "minimum": 1, "maximum": 500, "description": "How many candidates to return, 50 when left out" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["source", "count", "prospects", "skipped", "said"],
+          "properties": {
+            "source": { "type": "string" },
+            "count": { "type": "integer" },
+            "prospects": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["key", "name", "url", "place", "fields", "signals", "score", "rank"],
+                "properties": {
+                  "key": { "type": "string" },
+                  "name": { "type": ["string", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "place": { "type": ["string", "null"] },
+                  "fields": { "type": "object" },
+                  "signals": {
+                    "type": "array",
+                    "items": { "type": "object", "required": ["id", "says", "weight", "evidence"] }
+                  },
+                  "score": { "type": "number" },
+                  "rank": { "type": "integer" }
+                }
+              }
+            },
+            "skipped": { "type": "array", "items": { "type": "object", "required": ["key", "reason"] } },
+            "said": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/find-signals-of-need",
+          "stdout": "json",
+          "argv": ["/usr/local/bin/node", "do-work/find-signals-of-need.mjs"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "find-signals-of-need", "paths": ["do-work", "read-data", "sources.json", "signal-measures.json"], "at": "/opt/find-signals-of-need" },
+              { "package": "research-a-creator-or-topic", "paths": ["do-work/fetch-text.mjs"], "at": "/opt/research-a-creator-or-topic" }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 20, "network_egress": true, "memory_mb": 128 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:find-signals-of-need",
+        "provenance": { "source": "two outreach methods shared by people who sell to companies with an open job post and to local businesses by their reviews, generalised into one data-driven finder" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "source": "open-job-posts",
+              "now": "2026-11-01",
+              "items": [
+                { "id": "post-1", "company": "Example Freight", "url": "https://example.com/jobs/1", "location": "Springfield", "employees": 40, "posted_at": "2026-09-20", "title": "Dispatcher" }
+              ]
+            },
+            "output_selector": "$.prospects[0].signals[0].id",
+            "contains": "open-a-month"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "about": "Signal sources as DATA: how an item maps to fields, which items are kept (filters) and which signals of need add to a score. Every number and word is a knob of the row; a person's own rows replace these through `source_row`. A source with a `request` reads one public address; candidates behind a login arrive as `items` from the person's connection tool, and no row holds a credential.",
+  "records": [
+    {
+      "kind": "signal-source",
+      "id": "open-job-posts",
+      "label": "Companies whose job post has stayed open",
+      "meaning": "A role that has stayed open for weeks at a small company shows a problem it has not solved inside, and budget set aside for it. The post's own list of day-to-day duties says what is broken.",
+      "fields": { "key": "id", "name": "company", "url": "url", "place": "location", "size": "employees", "posted_at": "posted_at", "role": "title" },
+      "filters": [
+        { "of": "size", "measure": "value", "test": { "between": [10, 200] } },
+        { "of": "posted_at", "measure": "age-days", "test": { "at_least": 21 } }
+      ],
+      "signals": [
+        { "id": "open-a-month", "says": "The post has been open for 30 days or more.", "weight": 2, "of": "posted_at", "measure": "age-days", "test": { "at_least": 30 } },
+        { "id": "open-three-weeks", "says": "The post has been open for 21 days or more.", "weight": 1, "of": "posted_at", "measure": "age-days", "test": { "at_least": 21 } }
+      ]
+    },
+    {
+      "kind": "signal-source",
+      "id": "local-businesses-by-place",
+      "label": "Local businesses in a place, scored by what their reviews say",
+      "meaning": "A business whose customers keep naming one delay, or whose reviews suddenly pick up, has told you what it needs. Candidates for a place come from the person's map data connection as `items`.",
+      "fields": {
+        "key": "place_id", "name": "name", "url": "website", "place": "address", "category": "category", "email": "email",
+        "reviews": { "path": "reviews", "each": { "text": "text", "date": "date" } }
+      },
+      "filters": [],
+      "signals": [
+        { "id": "slow-quotes", "says": "Reviews mention slow quotes.", "weight": 3, "of": "reviews", "measure": "count-matching", "matching": ["slow quote", "slow to quote", "never sent a quote", "waited for a quote", "quote took"], "test": { "at_least": 2 } },
+        { "id": "review-spike", "says": "A large share of the reviews are from the last 90 days.", "weight": 2, "of": "reviews", "measure": "share-within-days", "within_days": 90, "test": { "at_least": 0.4 } },
+        { "id": "new-reviews", "says": "At least 5 reviews came in during the last 90 days.", "weight": 1, "of": "reviews", "measure": "count-within-days", "within_days": 90, "test": { "at_least": 5 } }
+      ]
+    }
+  ]
+}

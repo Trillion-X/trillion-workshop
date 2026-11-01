@@ -1,0 +1,19 @@
+{
+  "about": "The measurements a signal or a filter can take of one field, as DATA. A measure is a list of steps from the closed set below (the finder's read-data/signals.mjs does each one); adding a measure is adding a row here, and the finder runs it with no code edit. `needs` names the signal fields the measure reads besides `of`.",
+  "steps": [
+    { "step": "read", "meaning": "Take the value of the field named by `of`. A field the item lacks makes the whole measure missing." },
+    { "step": "matching", "meaning": "Keep the entries of a list whose words contain any word of `matching`, ignoring capitals." },
+    { "step": "within-days", "meaning": "Keep the entries of a list dated within `within_days` days before now." },
+    { "step": "count", "meaning": "Replace the list with how many entries it holds." },
+    { "step": "share", "meaning": "Replace the list with the part of the whole list it makes: entries kept divided by entries read." },
+    { "step": "age-days", "meaning": "Replace a date with how many whole days ago it was." },
+    { "step": "number", "meaning": "Read the value as a number; text that is not a number makes the measure missing." }
+  ],
+  "measures": [
+    { "measure": "value", "meaning": "The field as a number, such as a head count.", "steps": ["read", "number"], "needs": [] },
+    { "measure": "age-days", "meaning": "How many days ago the dated field was, such as how long a post has been open.", "steps": ["read", "age-days"], "needs": [] },
+    { "measure": "count-matching", "meaning": "How many entries of a list mention any of the words.", "steps": ["read", "matching", "count"], "needs": ["matching"] },
+    { "measure": "count-within-days", "meaning": "How many dated entries of a list fall in the last days.", "steps": ["read", "within-days", "count"], "needs": ["within_days"] },
+    { "measure": "share-within-days", "meaning": "The part of a list's dated entries that fall in the last days.", "steps": ["read", "within-days", "share"], "needs": ["within_days"] }
+  ]
+}
