@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { createFilePlaces } from '../computer/drive-tools/file-places.mjs';
+import { createFilePlaces } from '../read-data/file-places.mjs';
 
 const identityOf = async file => `test:${await import('node:fs/promises').then(fs => fs.readFile(file, 'utf8'))}`;
 

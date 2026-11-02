@@ -1,34 +1,37 @@
-// computer/drive-tools/drives.mjs
+// tools/work-on-connected-drives/read-data/drives.mjs
 //
 // PURPOSE
-//   The drive tools a person's Mac keeps for their Trillion (the Workshop rows in records/workshop-drives-tool-records.json
-//   on placement:your-computer), each a plain function from the tool's input to its answer. Ported from an earlier
-//   standalone server (enumerateDevices, identifyDrive, ejectDrive and its /api/drives,
-//   /api/drives/*, /api/work, /api/work/control and /api/transfers routes), so the Mac no longer needs that app open.
-//   Which tool id calls which function is DATA (computer/mac-tools.json `tools`); computer/mac-tools.mjs runs them.
+//   The drive tools a person's computer keeps (tool-rows.json, on placement:your-computer), each a plain function from
+//   the tool's input to its answer: list the drives, read a drive's icon, kinds of file and folders, name what holds a
+//   drive, list and pause/resume/stop the long file work on drives, copy or move between drives, and eject. The host
+//   that keeps them (the Trillion app's computer/mac-tools.mjs) imports this module once and calls each exported function
+//   as fn(input, context), so every tool shares one state: eject stops this computer's own transfers first, and
+//   transfers paused or due to resume at a time are found again after a restart.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Only a drive the Mac mounts under /Volumes, that Finder shows (not mounted nobrowse) and diskutil says is not
 //      internal, is a drive here; the system disk never is. Every path a tool is given must be on such a drive
-//      (drive-folder.mjs driveOf).
+//      (tools/connected-drives/read-data/drive-folder.mjs driveOf).
 //   2. Eject stops this Mac's own work on the drive at its next chunk first (drive-work.mjs stopHolding), asks every other
 //      program holding it to quit, and only then runs `diskutil eject`; work paused before stays paused after.
 //   3. A transfer copies, checks each copy by its BLAKE3 and only then names it (file-transfer.mjs); a move sends the
 //      source to the Trash only after every copy was checked.
-//   4. A failure carries `status` and words the person can read; computer/mac-tools.mjs answers it as `error`.
+//   4. A failure carries `status` and words the person can read; the host answers it as `error`.
+//   5. What only the host knows is handed in the context, never imported: `drive_sync` and `note_written` are
+//      { module, export } (a module's file URL and the function it exports), so this folder reads no host file.
 //
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
-import { parseDiskIdentity, resolveDriveIdentity } from './drive-identity.mjs';
-import { driveFileHolders, readProcessRows } from './drive-processes.mjs';
+import { parseDiskIdentity, resolveDriveIdentity } from '../../connected-drives/read-data/drive-identity.mjs';
+import { driveFileHolders, readProcessRows } from '../../connected-drives/read-data/drive-processes.mjs';
 import { createDriveIcons, iconSize } from './drive-icon.mjs';
 import { createDriveInventory } from './drive-inventory.mjs';
-import { listFolder } from './drive-folder.mjs';
+import { listFolder } from '../../connected-drives/read-data/drive-folder.mjs';
+import { hiddenIn } from '../../connected-drives/read-data/drives.mjs';
 import { createDriveWork } from './drive-work.mjs';
 import { createTransfers } from './file-transfer.mjs';
-import { readDriveSync } from '../drive-sync-status.mjs';
 
 const VOLUMES_ROOT = '/Volumes';
 const fail = (status, message) => Object.assign(new Error(message), { status });
@@ -121,16 +124,8 @@ function flattenProfilerItems(items, found = []) {
   return found;
 }
 
-/** The mount points macOS hides from Finder in `mount`'s output (mounted `nobrowse`: simulator runtimes, system
- *  images); never a drive here. */
-export function hiddenIn(mountOutput) {
-  const hidden = new Set();
-  for (const line of String(mountOutput).split('\n')) {
-    const found = /^.+? on (.+) \(([^)]*)\)$/.exec(line);
-    if (found && found[2].split(',').map(flag => flag.trim()).includes('nobrowse')) hidden.add(found[1]);
-  }
-  return hidden;
-}
+// The mount points macOS hides from Finder (mounted `nobrowse`): tools/connected-drives' one reading of `mount`.
+export { hiddenIn };
 
 async function hiddenMounts() {
   const result = await collectSpawn('/sbin/mount');
@@ -232,13 +227,27 @@ const connectedDrive = async mount => {
   return device;
 };
 
-/** Each drive tool, by the name computer/mac-tools.json gives it: (input) -> its answer. */
+/** A host function the context names ({ module, export }), or null when it names none. */
+export function handedFunction(given) {
+  if (!given || typeof given.module !== 'string' || typeof given.export !== 'string') return null;
+  if (!given.module.startsWith('file:')) throw fail(400, 'A handed function must be a file on this computer.');
+  return { module: given.module, export: given.export };
+}
+/** What a host function the context names answers now, or undefined when the context names none. */
+async function handed(given) {
+  const named = handedFunction(given);
+  if (!named) return undefined;
+  const fn = (await import(named.module))[named.export];
+  if (typeof fn !== 'function') throw fail(500, `${named.export} is not a function the host offers.`);
+  return fn();
+}
+
+/** Each drive tool, by its short name: (input, context) -> its answer. The exports below are what rows call. */
 export const driveTools = {
-  async drives() {
-    const [listed, trillion_drive] = await Promise.all([enumerateDevices(),
-      readDriveSync({ settings: JSON.parse(fs.readFileSync(new URL('../trillion-drive.json', import.meta.url), 'utf8')) })]);
+  async drives(_input, context = {}) {
+    const [listed, trillion_drive] = await Promise.all([enumerateDevices(), handed(context.drive_sync)]);
     const devices = listed.map(device => ({ ...device, state: device.mount ? 'connected' : 'disconnected' }));
-    return { generated_at: new Date().toISOString(), devices, trillion_drive };
+    return { generated_at: new Date().toISOString(), devices, ...(trillion_drive === undefined ? {} : { trillion_drive }) };
   },
   async icon({ mount, size }) {
     const device = await connectedDrive(String(mount ?? ''));
@@ -266,8 +275,8 @@ export const driveTools = {
     }
     return driveWork.control(id, action, resume_at ?? null);
   },
-  async transfer({ sources, destinations, mode, check }) {
-    const request = { sources, destinations, mode, devices: await connectedDrives() };
+  async transfer({ sources, destinations, mode, check }, context = {}) {
+    const request = { sources, destinations, mode, devices: await connectedDrives(), note_written: handedFunction(context.note_written) };
     return check === true ? transfers.preview(request) : transfers.start(request);
   },
   async eject({ mount, check }) {
@@ -275,3 +284,14 @@ export const driveTools = {
     return ejectDrive(String(mount ?? ''));
   },
 };
+
+// The host calls each tool by its exported name, as fn(input, context) (tool-rows.json names which).
+export const listDrives = (input = {}, context) => driveTools.drives(input, context);
+export const getADriveIcon = (input = {}) => driveTools.icon(input);
+export const seeWhatKindsOfFileADriveHolds = (input = {}) => driveTools.kinds(input);
+export const listADriveFolder = (input = {}) => driveTools.folder(input);
+export const nameWhatHoldsThisDrive = (input = {}) => driveTools.holders(input);
+export const listDriveWork = () => driveTools.work();
+export const controlDriveWork = (input = {}) => driveTools.workControl(input);
+export const copyOrMoveBetweenDrives = (input = {}, context) => driveTools.transfer(input, context);
+export const ejectADrive = (input = {}) => driveTools.eject(input);

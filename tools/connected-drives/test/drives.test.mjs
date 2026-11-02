@@ -95,3 +95,11 @@ test('draws a drive icon at an allowed size only, through osascript with the pat
   assert.deepEqual(drawn[0].slice(3, 5), [mac.drive, '64']);
   await assert.rejects(getADriveIcon({ mount: mac.drive, size: 4 }, {}, { ...mac.deps, exec }), /from 32 to 512/);
 });
+
+test('a process is named the way the person knows it: a script by its script, a program by its whole name', async () => {
+  const { readProcessRows } = await import('../read-data/drive-processes.mjs');
+  const rows = readProcessRows(
+    ' 41 /usr/local/bin/node /Volumes/Card/Copy Tools/copy-cards.mjs --to Backup\n 52 /Applications/Long Program Name.app/Contents/MacOS/Long Program Name\n',
+    ' 41 /usr/local/bin/node\n 52 /Applications/Long Program Name.app/Contents/MacOS/Long Program Name\n');
+  assert.deepEqual(rows.map(row => [row.pid, row.name]), [[41, 'copy-cards.mjs'], [52, 'Long Program Name']]);
+});

@@ -1,4 +1,4 @@
-// computer/drive-tools/work-control.mjs (carried over unchanged from an earlier standalone app)
+// tools/work-on-connected-drives/read-data/work-control.mjs
 //
 // Purpose: the one way a person pauses, stops or resumes long-running work (the cloud copy, a card's copy, a file
 // transfer). Every such job keeps its own state folder; this module owns one file in it, <state>/control.json:

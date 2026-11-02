@@ -1,4 +1,4 @@
-// computer/drive-tools/file-places.mjs
+// tools/work-on-connected-drives/read-data/file-places.mjs
 //
 // Finds every connected-drive path and Trillion-space name that holds the same bytes as one file. This is a
 // deliberately read-only projection: copy/move is owned by file-transfer.mjs, and archive/delete/restore is owned by
@@ -114,3 +114,5 @@ export function createFilePlaces({ devices = connectedDevices, identityOf = cont
 }
 
 export const filePlaceTools = { places: createFilePlaces() };
+// The host calls it by this name, as fn(input, context); context { origin, key } is the account the space is read from.
+export const findEveryPlaceAFileIs = (input = {}, context = {}) => filePlaceTools.places(input, context);

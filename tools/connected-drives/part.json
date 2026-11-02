@@ -1,3 +1,10 @@
 {
-  "public": []
+  "public": [
+    "read-data/drive-folder.mjs",
+    "read-data/drive-identity.mjs",
+    "read-data/drive-processes.mjs",
+    "read-data/drives.mjs",
+    "read-data/file-kinds.mjs",
+    "read-data/file-kinds.json"
+  ]
 }

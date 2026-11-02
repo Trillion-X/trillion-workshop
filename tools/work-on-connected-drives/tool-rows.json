@@ -1,0 +1,458 @@
+{
+ "records": [
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:work-on-connected-drives",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:trillion-media-drives",
+    "listed_on": "2026-09-30T23:55:41Z",
+    "label": "Drives on my computers",
+    "job": "List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected",
+    "description": "Runs on the person's computer while the Trillion app is open there. Returns devices: each with name, mount, size_bytes, free_bytes, kind, internal, ejectable and state.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:trillion-media-drives"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:work-on-connected-drives",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:trillion-media-drive-icon",
+    "listed_on": "2026-09-30T23:55:41Z",
+    "label": "A drive's icon",
+    "job": "Get the icon Finder shows for one drive connected to this person's computer, as a PNG picture",
+    "description": "Runs on the person's computer. Returns mount, media_type and base64 (the PNG).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "mount": {
+       "type": "string",
+       "description": "Where the drive is mounted on the computer, as tool:trillion-media-drives lists it, like /Volumes/Drive"
+      },
+      "size": {
+       "type": "integer",
+       "minimum": 32,
+       "maximum": 512,
+       "description": "The icon's width in pixels"
+      }
+     },
+     "required": [
+      "mount"
+     ]
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:trillion-media-drive-icon"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:work-on-connected-drives",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "id": "tool:trillion-media-drive-kinds",
+    "listed_on": "2026-09-30T23:55:41Z",
+    "label": "What is on a drive",
+    "job": "Tell what is on one drive connected to this person's computer by kind of file (videos, pictures, sound, documents), with how many of each and how much space they take",
+    "description": "Runs on the person's computer; the first read of a drive runs in the background, and a kept read is used for 6 hours.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "mount": {
+       "type": "string",
+       "description": "Where the drive is mounted on the computer, as tool:trillion-media-drives lists it, like /Volumes/Drive"
+      }
+     },
+     "required": [
+      "mount"
+     ]
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:trillion-media-drive-kinds"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:work-on-connected-drives",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:trillion-media-drive-folder",
+    "listed_on": "2026-09-30T23:55:41Z",
+    "label": "Look inside a folder on a drive",
+    "job": "List the files and folders in one folder on a drive connected to this person's computer, a page at a time",
+    "description": "Runs on the person's computer. hidden \"1\" includes hidden files; offset and limit page through a long folder.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "path": {
+       "type": "string",
+       "description": "A full path on a connected drive, like /Volumes/Drive/DCIM"
+      },
+      "offset": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 500
+      },
+      "hidden": {
+       "type": "string",
+       "enum": [
+        "1"
+       ],
+       "description": "\"1\" to include hidden files"
+      }
+     },
+     "required": [
+      "path"
+     ]
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:trillion-media-drive-folder"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:work-on-connected-drives",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "id": "tool:trillion-media-drive-holders",
+    "listed_on": "2026-09-30T23:55:41Z",
+    "label": "What is using a drive",
+    "job": "Name the programs on this person's computer that are using one drive right now, which would stop it from ejecting",
+    "description": "Runs on the person's computer. Returns mount and processes (each pid and name).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "mount": {
+       "type": "string",
+       "description": "Where the drive is mounted on the computer, as tool:trillion-media-drives lists it, like /Volumes/Drive"
+      }
+     },
+     "required": [
+      "mount"
+     ]
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:trillion-media-drive-holders"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:work-on-connected-drives",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false
+    },
+    "id": "tool:trillion-media-file-places",
+    "listed_on": "2026-09-30T23:55:41Z",
+    "label": "Where else a file is",
+    "job": "Find every other place one file on this person's computer also is (a duplicate): on their other connected drives and in their Trillion space",
+    "description": "Runs on the person's computer. path is the file on a connected drive.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "path": {
+       "type": "string",
+       "description": "A full path on a connected drive, like /Volumes/Drive/DCIM"
+      }
+     },
+     "required": [
+      "path"
+     ]
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:trillion-media-file-places"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:work-on-connected-drives",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:trillion-media-work",
+    "listed_on": "2026-09-30T23:55:41Z",
+    "label": "Drive work in progress",
+    "job": "List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now",
+    "description": "Runs on the person's computer. Returns work: each job with its id, what it is doing and the controls it takes now.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:trillion-media-work"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:work-on-connected-drives",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:trillion-media-work-control",
+    "listed_on": "2026-09-30T23:55:41Z",
+    "label": "Pause, resume or stop drive work",
+    "job": "Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time",
+    "description": "Runs on the person's computer. id is the job from tool:trillion-media-work; action is one of the controls it lists; check true only says whether that control is ready.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "action": {
+       "type": "string",
+       "description": "A control tool:trillion-media-work lists for this job, like pause, resume or stop"
+      },
+      "resume_at": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "When to resume, as an ISO time"
+      },
+      "check": {
+       "type": "boolean",
+       "description": "true only looks: says what would happen and changes nothing"
+      }
+     },
+     "required": [
+      "id",
+      "action"
+     ]
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:trillion-media-work-control"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:work-on-connected-drives",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "id": "tool:trillion-media-transfer",
+    "listed_on": "2026-09-30T23:55:41Z",
+    "label": "Copy or move files between drives",
+    "job": "Copy or move files and folders to one or more folders on drives connected to this person's computer, as a long job that can be paused and stopped",
+    "description": "Runs on the person's computer. sources are full paths; destinations are folders on connected drives; mode is copy or move. check true previews what would be copied and changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "sources": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "string"
+       }
+      },
+      "destinations": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "string"
+       }
+      },
+      "mode": {
+       "type": "string",
+       "description": "copy or move"
+      },
+      "check": {
+       "type": "boolean",
+       "description": "true only looks: says what would happen and changes nothing"
+      }
+     },
+     "required": [
+      "sources",
+      "destinations"
+     ]
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:trillion-media-transfer"
+    },
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:work-on-connected-drives",
+    "needs": {
+     "expected_seconds": 15,
+     "network_egress": false
+    },
+    "id": "tool:trillion-media-eject",
+    "listed_on": "2026-09-30T23:55:41Z",
+    "label": "Eject a drive",
+    "job": "Eject one drive connected to this person's computer safely, so it can be unplugged",
+    "description": "Runs on the person's computer. check true only names anything still using the drive and ejects nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "mount": {
+       "type": "string",
+       "description": "Where the drive is mounted on the computer, as tool:trillion-media-drives lists it, like /Volumes/Drive"
+      },
+      "check": {
+       "type": "boolean",
+       "description": "true only looks: says what would happen and changes nothing"
+      }
+     },
+     "required": [
+      "mount"
+     ]
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:trillion-media-eject"
+    },
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}

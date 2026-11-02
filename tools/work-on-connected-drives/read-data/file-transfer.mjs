@@ -1,11 +1,13 @@
-// computer/drive-tools/file-transfer.mjs (carried over unchanged from an earlier standalone app)
+// tools/work-on-connected-drives/read-data/file-transfer.mjs
 //
 // Purpose: copy or move files and folders the person chose to one or more folders on connected drives, checked by
 // content, pausable and stoppable at any moment.
 //
 // Two halves in one file:
 //   - the worker, run as its own utility-priority process:  node file-transfer.mjs --state <folder>
-//     <state>/job.json is the request { id, sources, destinations, mode: "copy" | "move", created_at }.
+//     <state>/job.json is the request { id, sources, destinations, mode: "copy" | "move", created_at, note_written? }.
+//     note_written, when the host gave one, is { module, export }: a function of the host (a file URL and its export)
+//     told each path this transfer wrote, so a host watching those folders does not read its own copy as new.
 //     1. The first start plans it into <state>/plan.json: every file under every source, and for each source and
 //        destination the name it gets there (its own name, or "<name> 2", "<name> 3" ... when that name is taken; a
 //        folder source keeps its structure under its own name). A restart reuses the plan, so names never shift.
@@ -28,7 +30,6 @@
 // - A source is never removed unless every one of its copies was verified by content.
 // - Nothing is written under its final name before it is verified.
 // - Identities are BLAKE3 (never SHA-256).
-import { noteOwnWrite } from '../own-writes.mjs';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
@@ -37,7 +38,7 @@ import { execFile, spawn } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { WorkStopped, createCheckpoint, isAlive, readPid } from './work-control.mjs';
-import { driveOf } from './drive-folder.mjs';
+import { driveOf } from '../../connected-drives/read-data/drive-folder.mjs';
 
 const CHUNK_BYTES = 8 * 1024 * 1024;
 const PROGRESS_EVERY_MS = 500;
@@ -102,6 +103,14 @@ const hashFile = async file => {
 
 const moveToTrash = file => new Promise((resolve, reject) => execFile('/usr/bin/trash', [file], error => error ? reject(new Error(`${path.basename(file)} could not be moved to the Trash.`)) : resolve()));
 
+// The host's function told each written path, or nothing when the job names none. A host that cannot be loaded is
+// never a reason to stop the copy: the path is then simply not noted.
+async function writtenNoter(given) {
+  if (!given || typeof given.module !== 'string' || !given.module.startsWith('file:') || typeof given.export !== 'string') return () => {};
+  try { const fn = (await import(given.module))[given.export]; if (typeof fn === 'function') return target => { try { fn(target); } catch {} }; } catch {}
+  return () => {};
+}
+
 export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash }) {
   const job = readJson(path.join(stateDir, 'job.json'));
   if (!job) throw new Error('This transfer has no request.');
@@ -116,6 +125,7 @@ export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash 
     progress.updated_at = new Date().toISOString();
     await writeAtomic(path.join(stateDir, 'progress.json'), progress);
   };
+  const noteOwnWrite = await writtenNoter(job.note_written);
   const pass = createCheckpoint(stateDir, { pollMs, onState: async state => { progress.state = state; await write(true); } });
   await write(true);
   const planFile = path.join(stateDir, 'plan.json');
@@ -234,9 +244,10 @@ export function createTransfers({ folder, spawnWorker = defaultSpawnWorker }) {
 
   async function start(input) {
     const { sources: realSources, destinations: realDestinations, mode } = await validate(input);
+    const note_written = input.note_written ? { module: input.note_written.module, export: input.note_written.export } : undefined;
     const id = crypto.randomUUID();
     await fsp.mkdir(stateOf(id), { recursive: true });
-    await writeAtomic(path.join(stateOf(id), 'job.json'), { id, sources: realSources, destinations: realDestinations, mode, created_at: new Date().toISOString() });
+    await writeAtomic(path.join(stateOf(id), 'job.json'), { id, sources: realSources, destinations: realDestinations, mode, created_at: new Date().toISOString(), ...(note_written ? { note_written } : {}) });
     spawnWorker(stateOf(id));
     return { id };
   }
