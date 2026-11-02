@@ -149,6 +149,17 @@
            "string",
            "null"
           ]
+         },
+         "rule": {
+          "type": "string",
+          "description": "A rule id: with agree on an exact text, waives that one rule on that one line and judges nothing else"
+         },
+         "by": {
+          "type": [
+           "string",
+           "null"
+          ],
+          "description": "Who took the stand; only the person's (by person, or left out) waives a rule"
          }
         }
        },
@@ -670,6 +681,9 @@
       "sources": { "type": "array", "items": { "type": "object", "required": ["where", "json"] }, "description": "JSON with its place: { where, json, skip_keys, kind }" },
       "alt_keys": { "type": "array", "items": { "type": "string" }, "description": "Keys whose strings are picture descriptions (kind alt)" },
       "html": { "type": "array", "items": { "type": "object", "required": ["where", "html"] }, "description": "Pages: { where, html, kind }" },
+      "sections": { "type": "array", "items": { "type": "object", "required": ["text", "profile"] }, "description": "Markdown made of declared sections: { text, where, profile: { title_kind, sections: [{ heading, kind, heading_kind?, keeps_headings? }], required?, fields? } }. Preamble and source quotes are counted and never judged; an unknown section, a missing required section, a missing title or an empty body is a problem." },
+      "cue_narration": { "type": "array", "items": { "type": "object", "required": ["text", "profile"] }, "description": "Narration split into cue headings: { text, where, profile: { kind, field?, cue_heading_level, cue_id_pattern, frontmatter?: { fields: { name: string|number }, required? } } }. Each unit keeps its cue_id; quotes, code, lists, text outside a cue, empty or repeated cues and unreadable frontmatter are problems." },
+      "json_roles": { "type": "array", "items": { "type": "object", "required": ["json", "owner"] }, "description": "JSON whose words an owner declares: { json, where, owner: { paths, kind, field?, roles?: [{ paths, kind, field, context_requires_review? }] } }. Only the owner's paths are read; a string two roles claim, or that no role claims, is a problem." },
       "decks": { "type": "array", "items": { "type": "object", "required": ["where", "html"] }, "description": "Rendered decks: { where, html }" },
       "pictures": { "type": "array", "items": { "type": "object", "required": ["path", "blake3"] }, "description": "Pictures that are published" },
       "readings": { "type": "object", "description": "The words each picture shows, by the BLAKE3 of its bytes: { <blake3>: { text } }" },

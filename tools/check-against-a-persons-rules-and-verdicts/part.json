@@ -2,6 +2,7 @@
   "public": [
     "do-work/rules-and-verdicts.mjs",
     "do-work/check-copy.mjs",
-    "do-work/read-words.mjs"
+    "do-work/read-words.mjs",
+    "do-work/spoken-origins.mjs"
   ]
 }
