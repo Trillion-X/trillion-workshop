@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-TOOL = Path(__file__).resolve().parents[1]
+TOOL = Path(__file__).resolve().parents[1] / "do-work"
 sys.path.insert(0, str(TOOL))
 
 import blake3  # noqa: E402

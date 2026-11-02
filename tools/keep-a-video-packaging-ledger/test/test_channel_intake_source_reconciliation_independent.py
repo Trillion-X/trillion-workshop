@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-TOOL = Path(__file__).resolve().parents[1]
+TOOL = Path(__file__).resolve().parents[1] / "do-work"
 sys.path.insert(0, str(TOOL))
 
 import blake3  # noqa: E402
@@ -15,8 +15,8 @@ import ingest_channel_intake  # noqa: E402
 
 class SourceReconciliationFixture(unittest.TestCase):
     SOURCE_KEY = "fixture-source-reconciliation"
-    DAN_ID = "RPVxwzJtp4o"
-    OPEN_ID = "qFeOhqiQfCk"
+    AMBER_ID = "AMBERVID001"
+    OPEN_ID = "COPPERVID02"
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -26,20 +26,20 @@ class SourceReconciliationFixture(unittest.TestCase):
         (self.root / "catalogs").mkdir()
         (self.root / "images").mkdir()
         (self.root / "reviews").mkdir()
-        self.dan_metadata = self.root / "metadata" / "dan.json"
-        self.dan_metadata.write_text(json.dumps({
-            "id": self.DAN_ID, "title": "Dan title", "channel": "Dan Channel",
-            "channel_id": "UC-DAN", "description": "Dan source description",
+        self.amber_metadata = self.root / "metadata" / "amber.json"
+        self.amber_metadata.write_text(json.dumps({
+            "id": self.AMBER_ID, "title": "Amber title", "channel": "Amber Channel",
+            "channel_id": "UC-AMBER", "description": "Amber source description",
         }) + "\n")
         self.open_metadata = self.root / "metadata" / "open.json"
         self.open_metadata.write_text(json.dumps({
-            "id": self.OPEN_ID, "title": "Open title", "channel": "Open Residency",
+            "id": self.OPEN_ID, "title": "Open title", "channel": "Copper Lane",
             "channel_id": "UC-OPEN", "description": "Open source description",
         }) + "\n")
-        self.catalog = self.root / "catalogs" / "UC-DAN.catalog.json"
+        self.catalog = self.root / "catalogs" / "UC-AMBER.catalog.json"
         self.catalog.write_text(json.dumps({
-            "channel_id": "UC-DAN", "channel_name": "Dan Channel",
-            "entries": [{"video_id": self.DAN_ID, "title": "Dan title"}],
+            "channel_id": "UC-AMBER", "channel_name": "Amber Channel",
+            "entries": [{"video_id": self.AMBER_ID, "title": "Amber title"}],
         }) + "\n")
         self.image = self.root / "images" / "open.png"
         self.image.write_bytes(b"fixture-image-bytes\x00\x01")
@@ -58,12 +58,12 @@ class SourceReconciliationFixture(unittest.TestCase):
                 "title_relation": "Title supplies context",
             }],
         }, ensure_ascii=False) + "\n")
-        self.dan_row = {
-            "video_id": self.DAN_ID, "source_key": self.SOURCE_KEY,
-            "channel": "Dan Channel", "metadata_title": "Dan title",
-            "metadata_source_path": "metadata/dan.json", "metadata_source_identity": None,
+        self.amber_row = {
+            "video_id": self.AMBER_ID, "source_key": self.SOURCE_KEY,
+            "channel": "Amber Channel", "metadata_title": "Amber title",
+            "metadata_source_path": "metadata/amber.json", "metadata_source_identity": None,
             "source_channel_id": None, "description": None,
-            "caption_sources": ["captions/dan.json3"],
+            "caption_sources": ["captions/amber.json3"],
             "opening_hook_evidence": [{"source_event_index": 2, "opaque": True}],
             "internal_hook_evidence": [{"source_event_index": 4, "opaque": True}],
             "manual_annotation": {"keep": ["exact"]},
@@ -71,7 +71,7 @@ class SourceReconciliationFixture(unittest.TestCase):
         }
         self.open_row = {
             "video_id": self.OPEN_ID, "source_key": self.SOURCE_KEY,
-            "channel": "Open Residency", "metadata_title": "Open title",
+            "channel": "Copper Lane", "metadata_title": "Open title",
             "metadata_source_path": "metadata/open.json", "metadata_source_identity": None,
             "source_channel_id": "UC-OPEN", "description": None,
             "thumbnail_image_path": str(self.image),
@@ -93,9 +93,9 @@ class SourceReconciliationFixture(unittest.TestCase):
                 "other": "leave untouched",
             },
         }
-        self.rows = [self.dan_row, self.open_row]
+        self.rows = [self.amber_row, self.open_row]
         self.original_lines = [
-            (json.dumps(self.dan_row, ensure_ascii=False, separators=(",", ":")) + "\r\n").encode(),
+            (json.dumps(self.amber_row, ensure_ascii=False, separators=(",", ":")) + "\r\n").encode(),
             (json.dumps(self.open_row, ensure_ascii=False, separators=(",", ":")) + "\n").encode(),
             b'{ "video_id" : "unrelated", "source_key" : "other", "raw" : [1, 2] } \r\n',
         ]
@@ -115,11 +115,11 @@ class SourceReconciliationFixture(unittest.TestCase):
         if updates is None:
             updates = [
                 {
-                    "video_id": self.DAN_ID,
+                    "video_id": self.AMBER_ID,
                     "operations": ["channel_id_from_metadata"],
                     "expected_prior_fields": {"source_channel_id": None},
-                    "metadata_identity": self.identity(self.dan_metadata),
-                    "channel_catalog": {"path": "catalogs/UC-DAN.catalog.json", "identity": self.identity(self.catalog)},
+                    "metadata_identity": self.identity(self.amber_metadata),
+                    "channel_catalog": {"path": "catalogs/UC-AMBER.catalog.json", "identity": self.identity(self.catalog)},
                 },
                 {
                     "video_id": self.OPEN_ID,
@@ -144,18 +144,18 @@ class SourceReconciliationFixture(unittest.TestCase):
             prospective or self.prospective, False,
         )
 
-    def test_dan_channel_and_open_residency_description_status_stage_exactly(self):
+    def test_amber_channel_and_copper_lane_description_status_stage_exactly(self):
         original = self.ledger.read_bytes()
         self.run_update()
         self.assertEqual(self.ledger.read_bytes(), original)
         lines = self.prospective.read_bytes().splitlines(keepends=True)
-        dan, opened = [json.loads(line) for line in lines[:2]]
-        self.assertEqual(dan["source_channel_id"], "UC-DAN")
+        amber, opened = [json.loads(line) for line in lines[:2]]
+        self.assertEqual(amber["source_channel_id"], "UC-AMBER")
         self.assertEqual(opened["description"], "Open source description")
         self.assertEqual(opened["field_status"]["description"], "retained open.json description; uploader-supplied and not independently verified")
         self.assertEqual(opened["field_status"]["thumbnail_image"], "retained original image; BLAKE3 checked; directly reviewed")
         self.assertEqual(opened["field_status"]["thumbnail_words"], "directly reviewed from the retained original; visible text and roles retained")
-        for before, after in zip(self.rows, (dan, opened)):
+        for before, after in zip(self.rows, (amber, opened)):
             for key in ("caption_sources", "opening_hook_evidence", "internal_hook_evidence", "manual_annotation"):
                 self.assertEqual(after[key], before[key])
         self.assertEqual(lines[2], self.original_lines[2])
@@ -174,7 +174,7 @@ class SourceReconciliationFixture(unittest.TestCase):
         self.assertFalse(self.readback.exists())
         self.assertFalse(self.preimage.exists())
 
-        self.dan_metadata.write_text(self.dan_metadata.read_text().replace("Dan source description", "Changed metadata"))
+        self.amber_metadata.write_text(self.amber_metadata.read_text().replace("Amber source description", "Changed metadata"))
         with self.assertRaisesRegex(SystemExit, "primary metadata BLAKE3 or byte-count differs from its pin"):
             self.run_update()
         self.assertEqual(self.ledger.read_bytes(), original)
@@ -182,7 +182,7 @@ class SourceReconciliationFixture(unittest.TestCase):
         self.assertFalse(self.preimage.exists())
 
     def test_contradictory_existing_channel_id_refuses(self):
-        row = copy.deepcopy(self.dan_row)
+        row = copy.deepcopy(self.amber_row)
         row["source_channel_id"] = "UC-CONTRADICTION"
         lines = list(self.original_lines)
         lines[0] = (json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\r\n").encode()
@@ -222,14 +222,14 @@ class SourceReconciliationFixture(unittest.TestCase):
 
     def test_catalog_must_uniquely_own_the_selected_video_and_title(self):
         for entries in (
-            [{"video_id": self.DAN_ID, "title": "Wrong title"}],
+            [{"video_id": self.AMBER_ID, "title": "Wrong title"}],
             [],
-            [{"video_id": self.DAN_ID, "title": "Dan title"}, {"video_id": self.DAN_ID, "title": "Dan title"}],
+            [{"video_id": self.AMBER_ID, "title": "Amber title"}, {"video_id": self.AMBER_ID, "title": "Amber title"}],
         ):
             fixture = type(self)()
             fixture.setUp()
             self.addCleanup(fixture.temp.cleanup)
-            catalog = {"channel_id": "UC-DAN", "channel_name": "Dan Channel", "entries": entries}
+            catalog = {"channel_id": "UC-AMBER", "channel_name": "Amber Channel", "entries": entries}
             fixture.catalog.write_text(json.dumps(catalog) + "\n")
             updates = json.loads(fixture.contract.read_text())["updates"]
             updates[0]["channel_catalog"]["identity"] = fixture.identity(fixture.catalog)

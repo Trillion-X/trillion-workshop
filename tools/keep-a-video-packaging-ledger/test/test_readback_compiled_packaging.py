@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 import sys
 
-TOOL = Path(__file__).resolve().parents[1]
+TOOL = Path(__file__).resolve().parents[1] / "do-work"
 sys.path.insert(0, str(TOOL))
 
 import blake3  # noqa: E402
@@ -25,7 +25,7 @@ class LegacyCompiledPreservation(unittest.TestCase):
         self.caption_digest = blake3.blake3(self.caption_bytes).hexdigest()
         self.row = {
             "video_id": "OLD12345678",
-            "source_key": "ch-dankoe-intake-videos",
+            "source_key": "ch-sample-intake-videos",
             "metadata_title": "Old title",
             "opening_hook_evidence": [{
                 "start_s": 0.08,
@@ -76,6 +76,7 @@ class LegacyCompiledPreservation(unittest.TestCase):
             self.before_ledger,
             [self.row],
             {record["id"]: record for record in records},
+            "ch-sample-intake-videos",
         )
 
     def test_corrected_locator_and_old_fields_pass(self):

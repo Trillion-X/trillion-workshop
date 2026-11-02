@@ -205,12 +205,12 @@ def event_times(event):
     return start, end
 
 
-def compare_legacy_package(root, before_compiled, before_ledger, current_rows, current_by_id):
+def compare_legacy_package(root, before_compiled, before_ledger, current_rows, current_by_id, source_key):
     """Compare old raw records to current semantics, migrating only caption text to locators."""
     old_records, old_by_id = records_from_compiled(json.loads(before_compiled.read_text()))
     old_rows_all = ledger_rows(before_ledger)
-    key = next((row.get("source_key") for row in old_rows_all if row.get("source_key") == "ch-dankoe-intake-videos"), None)
-    require(key is not None, "before ledger lacks ch-dankoe-intake-videos")
+    key = next((row.get("source_key") for row in old_rows_all if row.get("source_key") == source_key), None)
+    require(key is not None, f"before ledger lacks {source_key}")
     old_rows = {row["video_id"]: row for row in old_rows_all if row.get("source_key") == key}
     current_by_video = {row["video_id"]: row for row in current_rows}
     require(set(old_rows) <= set(current_by_video), "one or more preexisting source-key rows are missing from current ledger")
@@ -276,7 +276,7 @@ def compare_legacy_package(root, before_compiled, before_ledger, current_rows, c
     }
 
 
-def check_ledger_prefix(current_ledger, before_ledger, expected_new_ids):
+def check_ledger_prefix(current_ledger, before_ledger, expected_new_ids, source_key):
     before_bytes = before_ledger.read_bytes()
     current_bytes = current_ledger.read_bytes()
     require(current_bytes.startswith(before_bytes), "current ledger does not preserve exact pre-adoption byte prefix")
@@ -286,8 +286,8 @@ def check_ledger_prefix(current_ledger, before_ledger, expected_new_ids):
     require(len(current_ids) == len(set(current_ids)), "current ledger contains duplicate video IDs")
     additions = [row for row in current_rows if row["video_id"] not in old_ids]
     actual_new_ids = {row["video_id"] for row in additions}
-    require(actual_new_ids == set(expected_new_ids), f"ledger additions differ from declared six IDs: {sorted(actual_new_ids)}")
-    require(all(row.get("source_key") == "ch-dankoe-intake-videos" for row in additions), "a new ledger row is under an undeclared source key")
+    require(actual_new_ids == set(expected_new_ids), f"ledger additions differ from the declared IDs: {sorted(actual_new_ids)}")
+    require(all(row.get("source_key") == source_key for row in additions), "a new ledger row is under an undeclared source key")
     return {
         "status": "pass",
         "before_bytes": len(before_bytes),
@@ -525,11 +525,11 @@ def validate(root, source_key, ledger_path, compiled_path, selected_ids=None,
     if bool(before_compiled) != bool(before_ledger):
         fail("--before-compiled and --before-ledger must be supplied together")
     if before_compiled and before_ledger:
-        preservation = compare_legacy_package(root, before_compiled, before_ledger, all_rows, by_id)
+        preservation = compare_legacy_package(root, before_compiled, before_ledger, all_rows, by_id, source_key)
     ledger_prefix = None
     if expected_new_ids:
         require(before_ledger is not None, "--before-ledger is required with --expected-new-video-id")
-        ledger_prefix = check_ledger_prefix(ledger_path, before_ledger, expected_new_ids)
+        ledger_prefix = check_ledger_prefix(ledger_path, before_ledger, expected_new_ids, source_key)
     return {
         "schema": "compiled-youtube-packaging-readback@2",
         "source_key": source_key,
