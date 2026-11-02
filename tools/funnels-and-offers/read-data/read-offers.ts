@@ -1,3 +1,5 @@
+import { resolveOfferVariants } from './offer-variants.mjs';
+
 export type CommercialPriceOption = {
   amount_cents?: number;
   compare_at_amount_cents?: number;
@@ -44,6 +46,9 @@ export type CommercialPriceOption = {
    */
   charges?: Array<{ amount_cents: number; days_after_signup?: number }>;
   repeat?: { amount_cents: number; interval: string };
+  /** How many a buyer may pick at checkout ({ minimum, maximum }); `seats` is the older name for the same range. */
+  quantity?: { minimum?: number; maximum?: number };
+  seats?: { minimum?: number; maximum?: number };
 };
 
 export type CommercialChargeDimension = {
@@ -77,6 +82,10 @@ export type CommercialCurriculumGroup = {
 export type CheckoutOffer = {
   /** Prospective selection only; superseded offer terms remain readable for settlement. */
   supersedes_offer_ids?: string[];
+  /** `false` retires the offer: what people bought keeps working, but nobody new is sold it (prospective selection only). */
+  for_sale?: false;
+  /** The line a buyer reads beside the pay button: what they agree to by paying. */
+  checkout_note?: string;
   fulfillment_mode?: 'payment_record_only';
   access_refs: string[];
   benefits: string[];
@@ -469,6 +478,8 @@ function readPriceOptions(value: unknown): CommercialPriceOption[] {
       ...(voluntaryAmountPolicy ? { voluntary_amount_policy: voluntaryAmountPolicy } : {}),
       ...(Array.isArray(option.charges) ? { charges: option.charges } : {}),
       ...(isRecord(option.repeat) ? { repeat: option.repeat } : {}),
+      ...(isRecord(option.quantity) ? { quantity: option.quantity } : {}),
+      ...(isRecord(option.seats) ? { seats: option.seats } : {}),
     }] : [];
   });
 }
@@ -498,7 +509,7 @@ export function readCheckoutOffers(
   projection: CheckoutOfferProjection,
   options: { includeSuperseded?: boolean } = {},
 ): CheckoutOffer[] {
-  const rows = recordList(projection);
+  const rows = resolveOfferVariants(recordList(projection));
   const offers = rows
     .flatMap((record) => {
       if (!isRecord(record) || record.kind !== 'commercial-offer') return [];
@@ -507,11 +518,14 @@ export function readCheckoutOffers(
       if (!id || !label) return [];
       const postPurchaseRoutePath = readString(record.post_purchase_route_path);
       const publicOfferId = readString(record.public_offer_id);
+      const checkoutNote = readString(record.checkout_note);
       return [{
         ...(Array.isArray(record.supersedes_offer_ids)
           ? { supersedes_offer_ids: readStringArray(record.supersedes_offer_ids) } : {}),
         ...(record.fulfillment_mode === 'payment_record_only'
           ? { fulfillment_mode: 'payment_record_only' as const } : {}),
+        ...(record.for_sale === false ? { for_sale: false as const } : {}),
+        ...(checkoutNote ? { checkout_note: checkoutNote } : {}),
         access_refs: readStringArray(record.access_refs),
         benefits: readStringArray(record.benefits),
         content_refs: readStringArray(record.content_refs),
@@ -536,7 +550,7 @@ export function readCheckoutOffers(
   }
   if (options.includeSuperseded) return offers;
   const superseded = new Set(offers.flatMap((offer) => offer.supersedes_offer_ids ?? []));
-  const selected = offers.filter((offer) => !superseded.has(offer.id));
+  const selected = offers.filter((offer) => !superseded.has(offer.id) && offer.for_sale !== false);
   for (const offer of selected) {
     if (offer.public_offer_id) findCheckoutOfferBySelector(selected, offer.public_offer_id);
   }

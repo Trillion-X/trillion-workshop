@@ -112,6 +112,21 @@
       "object_ref_key": "provider_object_ref"
     },
     {
+      "operation_id": "operation:update-product",
+      "comment": "Rewords a product when its offer row is reworded, so the checkout page shows the offer's current name.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/products/{provider_object_ref}",
+      "subject_key": "operation_subject",
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:update-promotion-code",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/promotion_codes/{provider_object_ref}",
+      "subject_key": "operation_subject",
+      "object_ref_key": "provider_object_ref"
+    },
+    {
       "operation_id": "operation:find-promotion-codes",
       "method": "GET",
       "endpoint": "https://api.stripe.com/v1/promotion_codes",
