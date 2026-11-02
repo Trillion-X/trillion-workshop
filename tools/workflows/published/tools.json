@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:43582983b8ce4bb11bdb7eb87ccc315abd661a2d1649c2830a0b0c8cddff92f8"
+  "blake3": "1f:71ecba90e0083c2ef8b405ec47ebb8eed32e6e31fed6fd6e8f4b67416c441dff"
  },
  "fields": [
   {
@@ -168,6 +168,21 @@
    }
   },
   {
+   "id": "tool:add-decision-evidence",
+   "values": {
+    "title": "Add evidence to a decision",
+    "job": "Add evidence to a decision I am making, at any time, so that its answers can cite it, or bring it in from another of my decisions",
+    "description": "Adds evidence rows to a decision in the person's own records: each { ref, claim }, or { ref, from: { decision_id, ref } } to bring in another of the person's decisions' evidence as it stood. Each row is kept with when it came in. Rows can be added at any time, also after a decision is made; an answer may cite them at once. The same rows again replay; a ref that already says something else in the decision is refused. Returns the rows added and how many evidence rows the decision has.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
    "id": "tool:add-to-my-workout-log",
    "values": {
     "title": "Add to my workout log",
@@ -246,8 +261,8 @@
    "id": "tool:answer-a-decision-question",
    "values": {
     "title": "Answer a decision's question",
-    "job": "Answer the question my method is asking about a decision, with each of its checks",
-    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. Keeps the answer as its own step record and returns the next question.",
+    "job": "Answer the question my method is asking about a decision, with each of its checks; change an answer I gave before with its reason; confirm an answer that must be asked again; or bring in an answer from another of my decisions",
+    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. revise changes an answer already given: it names because (why, in a few words) and keeps the old version, and every later answer of the decision is marked to be asked again, so the next question is the earliest of them. confirm, alone, keeps a re-asked answer unchanged. from, instead of answer, brings in another of the person's decisions' answer to the same step as it stood (its version, or the current one), with the evidence it cites, and checks it as a typed answer. A decided decision's answers change only after a failed result. Keeps the answer as its own step record and returns the next question.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -3937,7 +3952,7 @@
    "values": {
     "title": "Read a decision's next question",
     "job": "See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions",
-    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out.",
+    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. A question that asks for a recheck says which step was revised and the version of its answer. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out. With versions_of (a step id) it returns that step's versions, oldest first, each with who gave it, when, why it was revised and its answer.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -7643,6 +7658,21 @@
      "placement:deployed-container"
     ],
     "folder": "legal-document-builder"
+   }
+  },
+  {
+   "id": "tool:write-public-share-files",
+   "values": {
+    "title": "Write the public files of my share links",
+    "job": "Write the public files of every share link of mine that anyone may open, into the folder my public server serves, and remove the files of links I revoked or that expired",
+    "description": "Reads the person's sharing rows (each link grant), the Lists those links share (a whole List, or one row of it), the List's rows and the files its shown rows name, through this run's records door, and writes into the folder the person granted: <code>.json (and <name>.json for a link with a readable address) in the shape { kind: \"list\", title, about, changed, fields, rows: [{ id, title, address, url, values }], files: [{ identity, name, url, media_type }] }, whole and never paged; <name>/index.html for the List and <name>/<row address>/index.html for each row; files/<identity> for each file a shown row names; sitemap.xml and llms.txt over every listed link; and manifest.json, every file with its BLAKE3 content identity and the files this run removed. A link has public files only while it is published, not revoked, not expired and open to anyone; a link for named people, an email, an audience or an access code has none. What leaves is the List's share rule less the fields the person left out, only the rows whose own rules hold and only the files they name. A link with its own condition, a match-only field, or a row rule that counts opens or reads the clock is left out with its reason, because a file on a public server cannot check it at each open. Runs on its own when a sharing row or a List changes, and again at the earliest expiry of a published link. Returns written, unchanged, removed, published, left_out, ended and next_change_at.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "write-public-share-files"
    }
   }
  ]
