@@ -1,0 +1,3 @@
+{
+  "public": ["do-work/relate.mjs", "read-data/read-around.mjs", "read-data/find-connections.mjs", "read-data/graph-walk.mjs", "read-data/record-graph.json"]
+}

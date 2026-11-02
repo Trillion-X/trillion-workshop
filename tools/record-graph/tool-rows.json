@@ -1,0 +1,1206 @@
+{
+  "kind": "tool-rows",
+  "record_set": "record-graph-tool-rows",
+  "what_this_is": "The Workshop rows for the tools in tools/record-graph: what each tool does, what it takes and gives back, and how it runs.",
+  "records": [
+    {
+      "id": "package::record-graph::tool::relate-records",
+      "address": "package::record-graph::tool::relate-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:relate-records",
+        "label": "Say how things in your records are related",
+        "job": "Keep how things in the person's records are related, with the role as data, and what happened between them, as relation and activity records",
+        "description": "Each relation says subject is the role of object (\"record:crm:pat\" is the \"dad\" of \"me\"; a contact is a \"member\" of \"organisation:Example Club\"); subject and object are record ids, me, or <kind>:<name> for an organisation, group or place, made once by its name. said keeps the words it was read from. Each end keeps its own order of its relations of one role: a new one goes last on both ends, and order { subject: { after }, object: { after } } places it after another relation of that end (null: first). alive false ends a relation and keeps its places, so relating it again puts it back there. activities are things that happened (kind, at, participants each with a role, optional summary, direction, source, said). Saying the same thing again writes nothing. Returns every relation as kept (id, both order keys, alive), the entities made, and the activities.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "relations": {
+              "type": "array",
+              "maxItems": 500,
+              "items": {
+                "type": "object",
+                "required": [
+                  "subject",
+                  "role",
+                  "object"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "subject": {
+                    "type": "string",
+                    "description": "A record id (a list row is record:<row type>:<row id>), me (the person), or <entity kind>:<name> for a organisation, group, place made once by its name"
+                  },
+                  "role": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "What subject is of object, in a few words (dad, member, sister)"
+                  },
+                  "object": {
+                    "type": "string",
+                    "description": "A record id (a list row is record:<row type>:<row id>), me (the person), or <entity kind>:<name> for a organisation, group, place made once by its name"
+                  },
+                  "said": {
+                    "type": "string",
+                    "description": "The words it was read from"
+                  },
+                  "alive": {
+                    "type": "boolean",
+                    "description": "false ends it, keeping its places"
+                  },
+                  "order": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "subject": {
+                        "type": "object",
+                        "required": [
+                          "after"
+                        ],
+                        "properties": {
+                          "after": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "A relation id of the same subject and role to go after, or null for first"
+                          }
+                        }
+                      },
+                      "object": {
+                        "type": "object",
+                        "required": [
+                          "after"
+                        ],
+                        "properties": {
+                          "after": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "A relation id of the same object and role to go after, or null for first"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "entities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "organisation",
+                      "group",
+                      "place"
+                    ]
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "activities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "at",
+                  "participants"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "email",
+                      "call",
+                      "meeting",
+                      "message",
+                      "introduction",
+                      "note"
+                    ]
+                  },
+                  "at": {
+                    "type": "string",
+                    "description": "When it was, a date-time"
+                  },
+                  "participants": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "record"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "record": {
+                          "type": "string",
+                          "description": "A record id (a list row is record:<row type>:<row id>), me (the person), or <entity kind>:<name> for a organisation, group, place made once by its name"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "participant",
+                            "sender",
+                            "recipient",
+                            "caller",
+                            "attendee",
+                            "organiser",
+                            "introducer",
+                            "introduced"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "summary": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "direction": {
+                    "type": "string",
+                    "maxLength": 80
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "said": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "relations",
+            "entities"
+          ],
+          "properties": {
+            "relations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "subject",
+                  "role",
+                  "object",
+                  "alive",
+                  "subject_order",
+                  "object_order"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "object": {
+                    "type": "string"
+                  },
+                  "alive": {
+                    "type": "boolean"
+                  },
+                  "subject_order": {
+                    "type": "string"
+                  },
+                  "object_order": {
+                    "type": "string"
+                  },
+                  "said": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "entities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "activities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "kind",
+                  "at",
+                  "participants"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "type": "string"
+                  },
+                  "participants": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "record",
+                        "role"
+                      ],
+                      "properties": {
+                        "record": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "summary": {
+                    "type": "string"
+                  },
+                  "direction": {
+                    "type": "string"
+                  },
+                  "said": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "as": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "record-graph",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/record-graph"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/record-graph",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/record-graph/do-work/relate.mjs",
+            "relateRecords"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "relation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "activity",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "organisation",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "group",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "place",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:record-graph",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion src/record-model-tools.mjs (relate, orderedRelations, contactHistory, the relate_records and read_model tools) over src/record-model.json, ported to the records door; the graph walks are new"
+        }
+      }
+    },
+    {
+      "id": "package::record-graph::tool::read-the-graph-around-a-record",
+      "address": "package::record-graph::tool::read-the-graph-around-a-record",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-the-graph-around-a-record",
+        "label": "Read everything one record is connected to",
+        "job": "Read everything one of the person's records is connected to: its relations by side and role in order, everything that happened with it and when they were last in touch, and the records a few steps away",
+        "description": "Give any record id (or me). relations groups what it is related to by side (subject: the relations it is the subject of; object: the ones naming it as the role) and role, each group in that end's own order with its order keys; side and role narrow it, ended adds ended relations. history is everything that happened with it, newest first, each saying the roles it took (as), with last_contact; history { with, kinds, role, since, until, limit } narrows it, false leaves it out. hops (1 to 4) adds every record within that many steps through relations and activities, nearest first, each with the step that reached it. complete false means a bound cut a part, so what is not shown is not known yet.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "A record id, or me"
+            },
+            "side": {
+              "type": "string",
+              "enum": [
+                "subject",
+                "object"
+              ],
+              "description": "Only the relations read from this end"
+            },
+            "role": {
+              "type": "string",
+              "description": "Only relations of this role"
+            },
+            "ended": {
+              "type": "boolean",
+              "description": "Also ended relations (alive false)"
+            },
+            "history": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "with": {
+                      "type": "string",
+                      "description": "Only activities another record (or me) also took part in: a pair's shared history"
+                    },
+                    "kinds": {
+                      "type": "string",
+                      "description": "Only these kinds, comma separated: email, call, meeting, message, introduction, note"
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "participant",
+                        "sender",
+                        "recipient",
+                        "caller",
+                        "attendee",
+                        "organiser",
+                        "introducer",
+                        "introduced"
+                      ],
+                      "description": "Only activities this record took part in under this role"
+                    },
+                    "since": {
+                      "type": "string",
+                      "description": "Only activities at or after this date-time"
+                    },
+                    "until": {
+                      "type": "string",
+                      "description": "Only activities at or before this date-time; last_contact is then as of this time"
+                    },
+                    "limit": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 1000
+                    }
+                  }
+                },
+                {
+                  "const": false
+                }
+              ],
+              "description": "Narrow the activity history, or false to leave it out"
+            },
+            "hops": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4,
+              "description": "Also the records within this many steps"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "description": "At most this many neighbours"
+            },
+            "roles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Walk only relations of these roles"
+            },
+            "kinds": {
+              "type": "string",
+              "description": "Walk only activities of these kinds, comma separated"
+            },
+            "activities": {
+              "type": "boolean",
+              "description": "false leaves activities out of the walk (relations only)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "id",
+            "relations",
+            "complete"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "relations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "side",
+                  "role",
+                  "relations",
+                  "complete"
+                ],
+                "properties": {
+                  "side": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "relations": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "subject",
+                        "role",
+                        "object",
+                        "alive",
+                        "subject_order",
+                        "object_order"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "subject": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string"
+                        },
+                        "object": {
+                          "type": "string"
+                        },
+                        "alive": {
+                          "type": "boolean"
+                        },
+                        "subject_order": {
+                          "type": "string"
+                        },
+                        "object_order": {
+                          "type": "string"
+                        },
+                        "said": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "complete": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "history": {
+              "type": "object",
+              "required": [
+                "id",
+                "activities",
+                "count",
+                "last_contact",
+                "complete"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "activities": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "kind",
+                      "at",
+                      "participants"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "at": {
+                        "type": "string"
+                      },
+                      "participants": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "record",
+                            "role"
+                          ],
+                          "properties": {
+                            "record": {
+                              "type": "string"
+                            },
+                            "role": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      },
+                      "direction": {
+                        "type": "string"
+                      },
+                      "said": {
+                        "type": "string"
+                      },
+                      "source": {
+                        "type": "string"
+                      },
+                      "as": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "last_contact": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "complete": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "neighbours": {
+              "type": "object",
+              "required": [
+                "hops",
+                "records",
+                "count",
+                "complete"
+              ],
+              "properties": {
+                "hops": {
+                  "type": "integer"
+                },
+                "records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "distance",
+                      "via"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "distance": {
+                        "type": "integer"
+                      },
+                      "via": {
+                        "type": "object",
+                        "required": [
+                          "from",
+                          "to",
+                          "by",
+                          "kind",
+                          "role",
+                          "side"
+                        ],
+                        "properties": {
+                          "from": {
+                            "type": "string"
+                          },
+                          "to": {
+                            "type": "string"
+                          },
+                          "by": {
+                            "type": "string",
+                            "description": "The relation or activity id the step goes through"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "relation",
+                              "activity"
+                            ]
+                          },
+                          "role": {
+                            "type": "string"
+                          },
+                          "side": {
+                            "type": "string",
+                            "enum": [
+                              "subject",
+                              "object",
+                              "participant",
+                              "activity"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "complete": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "complete": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "record-graph",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/record-graph"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/record-graph",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/record-graph/read-data/read-around.mjs",
+            "readAround"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "relation",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "activity",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:record-graph",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion src/record-model-tools.mjs (relate, orderedRelations, contactHistory, the relate_records and read_model tools) over src/record-model.json, ported to the records door; the graph walks are new"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "id": "me",
+              "history": {
+                "limit": 1
+              }
+            },
+            "output_selector": "$.id",
+            "contains": "record:person:me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::record-graph::tool::find-how-records-connect",
+      "address": "package::record-graph::tool::find-how-records-connect",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-how-records-connect",
+        "label": "Find how records connect",
+        "job": "Find how two of the person's records connect through relations and things that happened, or what several records all relate to and who else shares it",
+        "description": "With from and to: the paths between them, shortest first, each at most max_length steps (default 4, at most 6), each step one relation or one record to an activity it took part in, with the relation or activity it goes through and the role. With of (or from alone): the hubs every one of them relates to (a group, an organisation, a meeting, a person) with how each holds it, and the members: every other record related to those hubs, most hubs shared first. roles, kinds, activities and ended narrow what is walked. It reads the graph once, bounded (at most 20000 records of each kind, 10 paths); complete false says a bound cut it.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "A record id, or me"
+            },
+            "to": {
+              "type": "string",
+              "description": "With from: the record to find paths to"
+            },
+            "of": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 20,
+              "items": {
+                "type": "string"
+              },
+              "description": "Records to find what they all relate to, and who else shares it"
+            },
+            "max_length": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 6
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "description": "At most this many hubs and members"
+            },
+            "roles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Walk only relations of these roles"
+            },
+            "kinds": {
+              "type": "string",
+              "description": "Walk only activities of these kinds, comma separated"
+            },
+            "activities": {
+              "type": "boolean",
+              "description": "false leaves activities out of the walk (relations only)"
+            },
+            "ended": {
+              "type": "boolean",
+              "description": "Also walk ended relations (alive false)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "complete"
+          ],
+          "properties": {
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            },
+            "paths": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "length",
+                  "records",
+                  "steps"
+                ],
+                "properties": {
+                  "length": {
+                    "type": "integer"
+                  },
+                  "records": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "from",
+                        "to",
+                        "by",
+                        "kind",
+                        "role",
+                        "side"
+                      ],
+                      "properties": {
+                        "from": {
+                          "type": "string"
+                        },
+                        "to": {
+                          "type": "string"
+                        },
+                        "by": {
+                          "type": "string",
+                          "description": "The relation or activity id the step goes through"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "relation",
+                            "activity"
+                          ]
+                        },
+                        "role": {
+                          "type": "string"
+                        },
+                        "side": {
+                          "type": "string",
+                          "enum": [
+                            "subject",
+                            "object",
+                            "participant",
+                            "activity"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "of": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hubs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "held"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "held": {
+                    "type": "array"
+                  }
+                }
+              }
+            },
+            "members": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "hubs",
+                  "through"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "hubs": {
+                    "type": "integer"
+                  },
+                  "through": {
+                    "type": "array"
+                  }
+                }
+              }
+            },
+            "complete": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "record-graph",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/record-graph"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/record-graph",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/record-graph/read-data/find-connections.mjs",
+            "findConnections"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "relation",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "activity",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": false,
+          "memory_mb": 512
+        },
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:record-graph",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion src/record-model-tools.mjs (relate, orderedRelations, contactHistory, the relate_records and read_model tools) over src/record-model.json, ported to the records door; the graph walks are new"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "of": [
+                "me"
+              ],
+              "limit": 1
+            },
+            "output_selector": "$.of[0]",
+            "contains": "record:person:me"
+          }
+        ]
+      }
+    }
+  ]
+}

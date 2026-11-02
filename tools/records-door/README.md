@@ -92,3 +92,4 @@ A row asks for the door in its invoke, with one rights item per record kind:
 - `tools/meaning-search` and `tools/documents-as-list-rows`: their rows pack this folder and read the person's files with `door.files`;
 - `tools/read-a-list-view`: its door joins byte pages with `read-data/byte-pages.mjs`, and its refresh cuts writes with `read-data/write-batches.mjs`;
 - `tools/decide-with-a-method`: its rows pack this folder, and a decision too large for one write is cut with `read-data/write-batches.mjs`.
+- `tools/record-graph`: its rows pack this folder, `relate` cuts its writes with `read-data/write-batches.mjs`, and its tests use `test/fake-door.mjs` and `test/run-row.mjs`.
