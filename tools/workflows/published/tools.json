@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:6096f51ba0ee63adabbffd59d9d4a0b93d0b48b07429e19bf946d919f3f119aa"
+  "blake3": "1f:14818eaf158ff4c2f73c7c073ec1bd8a51dde8977bc1eff20931e2e75e9f89f2"
  },
  "fields": [
   {
@@ -5333,6 +5333,21 @@
      "placement:small-container"
     ],
     "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
+   "id": "tool:read-what-is-on-screen",
+   "values": {
+    "title": "Read what is on my screen",
+    "job": "Read what the person is doing on their Mac as text from the front window (app, window title, page address and visible words), when they switch apps or windows and every minute, for a short watch, so their AIs keep continuity across the day. Never reads password managers, Keychain, Settings or private browser windows, and removes passwords, keys and card numbers on the Mac before anything leaves it. After a window's first read, later reads carry only the lines that changed. Uses no screenshots.",
+    "description": "Runs on the person's own Mac for `watch_seconds`. It reads the front window's accessibility text (never a picture) when the front app or its window title changes and again after `tick_seconds` of the same window, and answers one capture per read: when, app, bundle id, window title, page address and `reason` (changed or tick). A window's first capture in the run carries its whole `text`; later captures of it carry only the lines `added` and `removed`. An app listed in the rules' never-read apps, a window whose title holds a never-read word, and a page whose address holds a never-read word are skipped before any text is read. Text matching the rules' secret patterns (private keys, API keys and tokens, card numbers, `password:` values) is replaced with [removed] on the Mac before it is returned. When Accessibility is off the answer is needs_access with the words that say what to turn on. Every list in this behaviour is the tool's rules file, read-data/rules.json. The run needs the accessibility-reading capability granted to this tool.",
+    "status": "active",
+    "maker": "maker:read-what-is-on-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "read-what-is-on-screen"
    }
   },
   {
