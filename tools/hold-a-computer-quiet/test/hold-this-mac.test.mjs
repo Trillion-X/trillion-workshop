@@ -1,15 +1,19 @@
-// test/hold-this-mac.test.mjs
+// tools/hold-a-computer-quiet/test/hold-this-mac.test.mjs
 //
-// Holding the Mac quiet for a session (computer/hold-this-mac.mjs) on a pretend Mac: a hold closes the named open apps
+// Holding the Mac quiet for a session (read-data/hold-this-mac.mjs) on a pretend Mac: a hold closes the named open apps
 // politely (ending one only when the polite way is refused), never closes an always-open app, turns Focus on through
 // its shortcut, ends by itself at its time (Focus off with it), is capped so it can never keep the person out, and is
 // picked up again after the helper restarts. A hold naming `only` closes every app but those and the always-open ones. A Mac without the Focus shortcut gets it signed and opened to add.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { appsUsing, closableApps, closedBy, holdSettings, keptIdentities, makeHolds, pidsUsing, placeRows, runningApps, untilOf } from '../computer/hold-this-mac.mjs';
+import { appsUsing, closableApps, closedBy, holdSettings, keptIdentities, makeHolds, pidsUsing, placeRows, runningApps, untilOf } from '../read-data/hold-this-mac.mjs';
+
+// The computer's places, as its tool host hands them to a run.
+const PLACES = JSON.parse(readFileSync(new URL('./fixtures/keep-open-rows.json', import.meta.url), 'utf8')).rows;
 
 const LSAPPINFO = [
   ' 1) "Finder" ASN:0x0-0x1001: ',
@@ -130,7 +134,7 @@ test('a hold naming only closes every other app, never the kept or always-open o
 // whose executable is superconductor, Arc, Cursor, plus a call in a meeting app and a plain distraction.
 const AGENT_MAC = [
   ' 1) "ChatGPT" ASN:0x0-0x1: ', '    bundleID="com.openai.codex"', '    bundle path="/Applications/ChatGPT.app"', '    executable path="/Applications/ChatGPT.app/Contents/MacOS/ChatGPT"', '    pid = 1001 type="Foreground" flavor=3',
-  ' 2) "superconductor" ASN:0x0-0x2: ', '    bundleID="com.zarifpour.superconductor"', '    bundle path="/Applications/super.engineering.app"', '    executable path="/Applications/super.engineering.app/Contents/MacOS/superconductor"', '    pid = 1002 type="Foreground" flavor=3',
+  ' 2) "superconductor" ASN:0x0-0x2: ', '    bundleID="com.example.superconductor"', '    bundle path="/Applications/super.engineering.app"', '    executable path="/Applications/super.engineering.app/Contents/MacOS/superconductor"', '    pid = 1002 type="Foreground" flavor=3',
   ' 3) "Arc" ASN:0x0-0x3: ', '    bundleID="company.thebrowser.Browser"', '    bundle path="/Applications/Arc.app"', '    executable path="/Applications/Arc.app/Contents/MacOS/Arc"', '    pid = 1003 type="Foreground" flavor=3',
   ' 4) "Cursor" ASN:0x0-0x4: ', '    bundle path="/Applications/Cursor.app"', '    pid = 1004 type="Foreground" flavor=3',
   ' 5) "zoom.us" ASN:0x0-0x5: ', '    bundle path="/Applications/zoom.us.app"', '    pid = 1005 type="Foreground" flavor=3',
@@ -148,11 +152,12 @@ const ASSERTIONS = [
 const PS = ['1 0', '1001 1', '1002 1', '1003 1', '1004 1', '1005 1', '1105 1005', '1006 1', '1007 1'].join('\n');
 
 test('no hold ever closes the apps the AIs run in (found by kind), and a live call waits; the rest close', async () => {
-  const rows = placeRows(settings);
+  const rows = placeRows({ keep_open_rows: PLACES });
+  assert.ok(rows.some(row => row.id === 'notes') && !keptIdentities(settings, rows, '/work/sample', () => ({})).has('notes'), 'a place that runs no AI is handed in but not kept');
   // What each installed bundle declares in its Info.plist, as on the person's Mac.
-  const facts = path => ({ '/Applications/super.engineering.app': { executable: 'superconductor', bundle_id: 'com.zarifpour.superconductor' }, '/Applications/ChatGPT.app': {} }[path] ?? {});
+  const facts = path => ({ '/Applications/super.engineering.app': { executable: 'superconductor', bundle_id: 'com.example.superconductor' }, '/Applications/ChatGPT.app': {} }[path] ?? {});
   const kept = keptIdentities(settings, rows, '/work/sample', facts);
-  for (const id of ['/applications/chatgpt.app', 'super.engineering', 'superconductor', 'com.zarifpour.superconductor', '/applications/arc.app', 'cursor', 'claude', 'terminal']) assert.ok(kept.has(id), id);
+  for (const id of ['/applications/chatgpt.app', 'super.engineering', 'superconductor', 'com.example.superconductor', '/applications/arc.app', 'cursor', 'claude', 'terminal']) assert.ok(kept.has(id), id);
   assert.deepEqual([...pidsUsing(ASSERTIONS, settings.spare_while_using)], [1105]);
   assert.deepEqual([...appsUsing(runningApps(AGENT_MAC), new Set([1105]), PS)], [1005]);
   const home = await mkdtemp(join(tmpdir(), 'trillion-hold-'));
@@ -179,4 +184,19 @@ test('no hold ever closes the apps the AIs run in (found by kind), and a live ca
   assert.deepEqual(named.closed, ['zoom.us', 'Netflix']);
   assert.deepEqual(named.hold.apps, ['Netflix'], 'the answer never says an AI app will close, by any of its names');
   assert.ok(!calls.some(call => call[0] === 'osascript' && /ChatGPT|superconductor|Arc|Cursor|Trillion/.test(call[2])));
+});
+
+test('each row runs on the person\'s computer with only its one capability, and names a function this folder exports', async () => {
+  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const module = await import('../read-data/hold-this-mac.mjs');
+  assert.deepEqual(rows.map(row => row.id).sort(), ['tool:device-holds', 'tool:focus', 'tool:hold-a-device-quiet', 'tool:release-a-device']);
+  for (const row of rows) {
+    assert.equal(row.invoke.kind, 'computer');
+    assert.deepEqual(row.invoke.capabilities, ['close-apps-and-switch-focus']);
+    assert.notEqual(row.invoke.internet, true);
+    assert.deepEqual(row.placements, ['placement:your-computer']);
+    assert.equal(row.result_selector, '$.result');
+    assert.equal(typeof module[row.invoke.argv.at(-1)], 'function', row.id);
+  }
+  assert.equal(typeof module.resumeHolds, 'function', 'the tool host resumes holds that still last when it starts');
 });

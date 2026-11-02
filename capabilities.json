@@ -683,6 +683,15 @@
       "evidence": "README.md:3 prints a file from the person's files on a printer their Mac already has, and says which printers it has"
     },
     {
+      "capability": "keep distracting apps closed and Focus on, on the person's computer, until a set time",
+      "owner": ["tools/hold-a-computer-quiet/"],
+      "entry": "tools/hold-a-computer-quiet/tool-rows.json",
+      "evidence": "README.md:3 keeps the apps a hold names closed whenever they open, and Focus on, until the hold's own end time",
+      "distinct_from": [
+        { "job": "keep a group's agreements, remind and score who kept them", "why": "hold-to-it keeps agreements between people and scores them; this closes apps and switches Focus on one computer until a time, and knows nothing of agreements." }
+      ]
+    },
+    {
       "capability": "say how long Recently Deleted and Archived keep a person's files, by their own setting",
       "owner": ["tools/recently-deleted/"],
       "entry": "tools/recently-deleted/tool-rows.json",

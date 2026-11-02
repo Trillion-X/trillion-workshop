@@ -1,0 +1,103 @@
+{
+  "_what": "A computer's places as its tool host hands them to a run (context.keep_open_rows): the AI apps and a browser marked runs_ais, which no hold closes, and one other app, which a hold may close.",
+  "rows": [
+    {
+      "id": "claude",
+      "label": "Claude",
+      "category": "AI",
+      "look": {
+        "paths": [
+          "/Applications/Claude.app",
+          "~/Applications/Claude.app",
+          "~/.claude"
+        ]
+      }
+    },
+    {
+      "id": "chatgpt",
+      "label": "ChatGPT",
+      "category": "AI",
+      "look": {
+        "paths": [
+          "/Applications/ChatGPT.app",
+          "~/Library/Application Support/com.openai.chat"
+        ]
+      }
+    },
+    {
+      "id": "codex",
+      "label": "Codex",
+      "category": "AI",
+      "look": {
+        "paths": [
+          "~/.codex",
+          "/Applications/Codex.app"
+        ]
+      }
+    },
+    {
+      "id": "cursor",
+      "label": "Cursor",
+      "category": "AI",
+      "look": {
+        "paths": [
+          "/Applications/Cursor.app",
+          "~/.cursor"
+        ]
+      }
+    },
+    {
+      "id": "super-engineering",
+      "label": "super.engineering",
+      "category": "AI",
+      "look": {
+        "paths": [
+          "/Applications/super.engineering.app",
+          "~/Applications/super.engineering.app"
+        ]
+      }
+    },
+    {
+      "id": "chatgpt-classic",
+      "label": "ChatGPT Classic",
+      "category": "AI",
+      "look": {
+        "paths": [
+          "/Applications/ChatGPT Classic.app"
+        ]
+      }
+    },
+    {
+      "id": "arc",
+      "label": "Arc",
+      "category": "Browsers",
+      "runs_ais": true,
+      "look": {
+        "paths": [
+          "/Applications/Arc.app",
+          "~/Applications/Arc.app"
+        ]
+      }
+    },
+    {
+      "id": "gemini",
+      "label": "Gemini",
+      "category": "AI",
+      "look": {
+        "paths": [
+          "~/.gemini"
+        ]
+      }
+    },
+    {
+      "id": "notes",
+      "label": "Notes",
+      "category": "Notes and documents",
+      "look": {
+        "paths": [
+          "/System/Applications/Notes.app"
+        ]
+      }
+    }
+  ]
+}
