@@ -1,18 +1,16 @@
-// test/list-copy.test.mjs
+// tools/write-public-share-files/test/list-copy.test.mjs (moved from Trillion's test/list-copy.test.mjs)
 //
-// What of a list leaves through a share link (src/list-copy.mjs), decided by the real formula engine: a row shows only
-// while its own Shown when rule holds at the moment the link is read (a date in the future hides it, a number of opens
-// reveals it), an unfinished rule hides its row, the rule field itself never leaves, and only files that shown rows
-// name leave, each by its identity.
+// What of a list leaves through a share link (read-data/list-copy.mjs), decided by the Workshop's formula engine
+// (tools/formulas): a row shows only while its own Shown when rule holds at the moment the link is read (a date in the
+// future hides it, a number of opens reveals it), an unfinished rule hides its row, the rule field itself never leaves,
+// and only files that shown rows name leave, each by its identity. A saved view leaves only through the view projection
+// its caller hands in; with none, no view leaves (Trillion's own test of this file runs it with Trillion's projection).
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../parts/formula-engine/rules/filter-rows-by-rules.mjs';
-import { listCopy } from '../src/list-copy.mjs';
+import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { listCopy } from '../read-data/list-copy.mjs';
 
-const wasm = () => readFileSync(new URL('../parts/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
-const { filterRowsByRules: filterRows } = makeRowFilter({ operators, wasm });
+const filterRows = ({ tree, fields, rows }) => { const { matches, incomplete } = filterRecords({ tree, fields, records: rows }); return { matches, incomplete }; };
 const NOW = Date.parse('2026-10-04T12:00:00Z');
 const rule = (field, operator, value) => ({ kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field, operator, params: { value } }] });
 const files = new Map([
@@ -55,6 +53,7 @@ test('list-wide sharing rule hides unapproved rows and their media even when row
 });
 
 test('a list copy shows rows only while their own rule holds, and only the files those rows name', async () => {
+  assert.equal((await copyAt(1)).names_clock, true, 'a rule that reads the clock is named, so a static copy is never left to go stale');
   const first = await copyAt(1);
   assert.deepEqual(first.rows.map(row => row.id), ['r1', 'r2']);
   assert.deepEqual(first.fields.map(field => field.id), ['name', 'picture'], 'the rule field never leaves');
@@ -94,13 +93,20 @@ test('a list copy retains only approved preview identities from the file-sharing
   assert.doesNotMatch(JSON.stringify(copy), /private_detail|must stay out/);
 });
 
-test('a saved view that says how it is drawn leaves with only the rows that are shown, and its rules and search stay behind', async () => {
+test('a saved view that says how it is drawn leaves only through a view projection; with none, no view leaves', async () => {
   const copy = await listCopy({ fields, rows, views: viewsOf(), facts: { now: NOW, opened: 1 }, filterRows, fileOf: name => files.get(name) ?? null });
-  assert.deepEqual(copy.shown_views.map(view => view.id), ['v-chart', 'v-search'], 'a view with no display is absent, and a view over the rule field that does not leave is left out');
-  assert.deepEqual(copy.shown_views[0], { id: 'v-chart', label: 'Chart of the shown', display: { as: 'chart', settings: { mark: 'bar' } }, row_ids: ['r2', 'r1'] }, 'only rows that are shown, in the view\'s order');
-  assert.deepEqual(copy.shown_views[1].row_ids, ['r2']);
-  for (const view of copy.shown_views) assert.deepEqual(Object.keys(view).sort(), ['display', 'id', 'label', 'row_ids'], 'no rule, search or sort leaves');
-  assert.ok(copy.shown_views.every(view => view.row_ids.every(id => ['r1', 'r2'].includes(id))), 'a row that is not shown is in no view');
+  assert.deepEqual(copy.shown_views, [], 'never shown unfiltered');
+  const seen = [];
+  const projected = await listCopy({ fields, rows, views: viewsOf(), facts: { now: NOW, opened: 1 }, filterRows, fileOf: name => files.get(name) ?? null,
+    projectView: async ({ view, fields: shown, rows: kept }) => {
+      seen.push({ view: view.id, fields: shown.map(field => field.id), rows: kept.map(row => row.id) });
+      if (view.rules) throw new Error('a rule over a field that does not leave');
+      return { rows: [...kept].reverse(), rules: 'never leaves' };
+    } });
+  assert.deepEqual(projected.shown_views.map(view => view.id), ['v-chart', 'v-search'], 'a view with no display is absent, and a view whose rules cannot be checked is left out');
+  assert.deepEqual(projected.shown_views[0], { id: 'v-chart', label: 'Chart of the shown', display: { as: 'chart', settings: { mark: 'bar' } }, row_ids: ['r2', 'r1'] });
+  for (const view of projected.shown_views) assert.deepEqual(Object.keys(view).sort(), ['display', 'id', 'label', 'row_ids'], 'no rule, search or sort leaves');
+  assert.ok(seen.every(call => call.rows.every(id => ['r1', 'r2'].includes(id)) && !call.fields.includes('shown')), 'a view only ever sees the rows and fields that leave');
 });
 
 test('a list copy with no saved views, or none drawn another way, carries an empty list of shown views', async () => {

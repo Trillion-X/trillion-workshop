@@ -1,0 +1,212 @@
+{
+  "what_this_is": "The DATA tools/write-public-share-files reads. Moved from Trillion's src/record-sharing.json (addresses: readable row addresses, sitemap and llms.txt words and bounds), src/space-settings.json (share_from_private.list: the fields a shared List lets out, at every depth) and src/lists.json (field_kinds: which kind of field is a rule that decides what shows, which holds a file, and how the formula engine compares its value). Nothing in code names a field, kind, list or person; these rows do.",
+  "list_kind": "list",
+  "row_part": {
+    "segment": "rows",
+    "about": "A link to one row of a List names the record list:<id>:rows:<row id> (record-sharing.json parts); only that row and the files it names leave."
+  },
+  "addresses": {
+    "pattern": "^[a-z0-9](?:[a-z0-9-]{1,62}[a-z0-9])$",
+    "first_words": 5,
+    "longest": 48,
+    "sitemap_limit": 50000,
+    "crawler_document_byte_limit": 1000000,
+    "date_kinds": [
+      "date"
+    ],
+    "address_kinds": [
+      "link-address"
+    ],
+    "summary_kinds": [
+      "long-text"
+    ],
+    "llms_heading": "Pages people published with Trillion",
+    "llms_about": "Lists and records their owners chose to publish. Each entry links to its page; every page names who shared it.",
+    "rows_heading": "In this list",
+    "back": "Back to {title}"
+  },
+  "share_from_private": {
+    "list": {
+      "title": [
+        "label"
+      ],
+      "fields": [
+        "label",
+        "about",
+        "fields",
+        "rows",
+        "files",
+        "public_page",
+        "shown_views"
+      ],
+      "nested": {
+        "fields": {
+          "items": {
+            "fields": [
+              "id",
+              "label",
+              "kind",
+              "choices",
+              "media"
+            ]
+          }
+        },
+        "rows": {
+          "items": {
+            "fields": [
+              "id",
+              "title",
+              "values"
+            ]
+          }
+        },
+        "files": {
+          "items": {
+            "fields": [
+              "identity",
+              "media_type",
+              "name"
+            ]
+          }
+        },
+        "shown_views": {
+          "items": {
+            "fields": [
+              "id",
+              "label",
+              "display",
+              "row_ids"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "field_kinds": [
+    {
+      "id": "text",
+      "ruleKind": "text",
+      "value": "text"
+    },
+    {
+      "id": "long-text",
+      "ruleKind": "text",
+      "value": "text"
+    },
+    {
+      "id": "record",
+      "ruleKind": "text",
+      "value": "text"
+    },
+    {
+      "id": "number",
+      "ruleKind": "number",
+      "value": "number"
+    },
+    {
+      "id": "date",
+      "ruleKind": "date",
+      "value": "text"
+    },
+    {
+      "id": "choice",
+      "ruleKind": "choice",
+      "value": "text"
+    },
+    {
+      "id": "tags",
+      "ruleKind": "tags",
+      "value": "texts"
+    },
+    {
+      "id": "email",
+      "ruleKind": "text",
+      "value": "text"
+    },
+    {
+      "id": "phone",
+      "ruleKind": "text",
+      "value": "text"
+    },
+    {
+      "id": "link-address",
+      "ruleKind": "text",
+      "value": "text"
+    },
+    {
+      "id": "link",
+      "ruleKind": "tags",
+      "value": "row-ids"
+    },
+    {
+      "id": "formula",
+      "ruleKind": "text",
+      "value": "computed"
+    },
+    {
+      "id": "progress",
+      "ruleKind": "text",
+      "value": "computed"
+    },
+    {
+      "id": "file",
+      "ruleKind": "text",
+      "value": "text",
+      "media": true
+    },
+    {
+      "id": "shown-when",
+      "ruleKind": "text",
+      "value": "rule"
+    },
+    {
+      "id": "applies-when",
+      "ruleKind": "text",
+      "value": "rule",
+      "rule_over": "place-facts"
+    },
+    {
+      "id": "checked-by",
+      "ruleKind": "text",
+      "value": "rule",
+      "rule_over": "device-facts"
+    },
+    {
+      "id": "done-when-rule",
+      "ruleKind": "text",
+      "value": "done-rule",
+      "rule_over": "done-when-facts"
+    },
+    {
+      "id": "rollup",
+      "ruleKind": "text",
+      "value": "computed"
+    },
+    {
+      "id": "relationship",
+      "ruleKind": "text",
+      "value": "computed"
+    },
+    {
+      "id": "history",
+      "ruleKind": "text",
+      "value": "computed"
+    },
+    {
+      "id": "button",
+      "ruleKind": "text",
+      "value": "computed"
+    }
+  ],
+  "words": {
+    "not_public": "Only a link anyone may open has public files; this one is for named people, an audience or an access code.",
+    "ended": "This link is revoked, expired or not published, so its files are removed.",
+    "when": "This link opens only while its own condition holds, which a file on a public server cannot check at each open.",
+    "counts_opens": "A row of this list shows only after a number of opens, which a file on a public server cannot count.",
+    "clock": "A row of this list shows or hides by the time of day or date, which a file on a public server cannot check at each open.",
+    "match_only": "This link shares a field to match only, which needs the matching service; it is left out rather than shown.",
+    "not_a_list": "Only a List, or one row of it, has public files from this tool.",
+    "missing": "The shared List is no longer in the person's records.",
+    "rows_not_granted": "This List's rows are a kind this run was not granted to read, so it has no files in this folder."
+  }
+}

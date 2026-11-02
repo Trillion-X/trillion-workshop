@@ -288,6 +288,16 @@
       ]
     },
     {
+      "capability": "write the public files of a person's share links that anyone may open into one folder a public server serves, and remove the files of links that were revoked, expired or narrowed",
+      "owner": ["tools/write-public-share-files/"],
+      "entry": "tools/write-public-share-files/tool-rows.json",
+      "evidence": "tools/write-public-share-files/README.md: <code>.json, <name> and row pages, files/<identity>, sitemap.xml, llms.txt and a BLAKE3 manifest, from the person's sharing, List and row records read through the run's records door; moved from Trillion's src/record-share-pages.mjs, src/record-sharing.mjs and src/list-copy.mjs",
+      "distinct_from": [
+        {"job": "project an authorized public document collection into consistent routes, rendered pages, Markdown, structured data and discovery feeds, and serve those projections against current source visibility", "why": "That owner projects a document collection the current public-view owner has already authorized; this one is that owner for share links: it decides from each link grant and the person's share rules what of a List may leave, and writes and removes the share's own files."},
+        {"job": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort", "why": "That owner reads a page of a List for the person; this one writes what of a List anyone may see through a public link, with its rules, hidden fields and ended links applied, as files."}
+      ]
+    },
+    {
       "capability": "keep and read the standing instruction rows an AI receives when it connects, with their fill declarations and default order",
       "owner": [
         "tools/tell-ais-how-to-act/"
