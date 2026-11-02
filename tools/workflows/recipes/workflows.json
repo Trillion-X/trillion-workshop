@@ -28648,7 +28648,7 @@
           {
             "id": "style",
             "title": "Build the sender's writing style",
-            "do": "With tool:layer-a-writing-style build the sender's style from input.style_layers (base, niche, group, person) and hand back its instruction_text, the levels it was built from and the keys of the kept prospects it will be written for.",
+            "do": "With tool:read-voice read the sender's voice profiles: the person's own and the base, niche and group profiles its builds_on names, earliest first, using input.style_layers for any layer not saved yet; write the instruction_text from them, each later one overriding the earlier, and hand back that instruction_text, the profile kinds it was built from (levels) and the keys of the kept prospects it will be written for.",
             "submit": {
               "type": "object",
               "required": [
@@ -28659,7 +28659,7 @@
               ],
               "properties": {
                 "tool": {
-                  "const": "tool:layer-a-writing-style"
+                  "const": "tool:read-voice"
                 },
                 "instruction_text": {
                   "type": "string",
@@ -28686,7 +28686,7 @@
             "checks": [
               {
                 "kind": "exists",
-                "says": "The step ran tool:layer-a-writing-style, a tool the account has",
+                "says": "The step ran tool:read-voice, a tool the account has",
                 "path": [
                   "this",
                   "tool"
@@ -30009,7 +30009,7 @@
           {
             "id": "style",
             "title": "Build the sender's writing style",
-            "do": "With tool:layer-a-writing-style build the sender's style from input.style_layers and hand back its instruction_text, its levels and the keys it will be written for.",
+            "do": "With tool:read-voice read the sender's voice profiles: the person's own and the base, niche and group profiles its builds_on names, earliest first, using input.style_layers for any layer not saved yet; write the instruction_text from them, each later one overriding the earlier, and hand back that instruction_text, the profile kinds it was built from (levels) and the keys it will be written for.",
             "submit": {
               "type": "object",
               "required": [
@@ -30020,7 +30020,7 @@
               ],
               "properties": {
                 "tool": {
-                  "const": "tool:layer-a-writing-style"
+                  "const": "tool:read-voice"
                 },
                 "instruction_text": {
                   "type": "string",
@@ -30047,7 +30047,7 @@
             "checks": [
               {
                 "kind": "exists",
-                "says": "The step ran tool:layer-a-writing-style, a tool the account has",
+                "says": "The step ran tool:read-voice, a tool the account has",
                 "path": [
                   "this",
                   "tool"
@@ -35120,7 +35120,7 @@
           {
             "id": "voice-guide",
             "title": "Layer the voice guide",
-            "do": "With tool:layer-a-writing-style layer input.style_layers (base, niche, group) under a person layer made from the voice brief, and hand back the instruction_text: the voice guide.",
+            "do": "With tool:save-voice keep each layer of input.style_layers (base, niche, group) as its own profile and a person profile made from the voice brief whose builds_on names them, earliest first; hand back the instruction_text written from those profiles, each later one overriding the earlier: the voice guide.",
             "submit": {
               "type": "object",
               "required": [
@@ -35131,7 +35131,7 @@
               ],
               "properties": {
                 "tool": {
-                  "const": "tool:layer-a-writing-style"
+                  "const": "tool:save-voice"
                 },
                 "from_brief": {
                   "type": "string",
@@ -35154,7 +35154,7 @@
             "checks": [
               {
                 "kind": "exists",
-                "says": "The step ran tool:layer-a-writing-style, a tool the account has",
+                "says": "The step ran tool:save-voice, a tool the account has",
                 "path": [
                   "this",
                   "tool"
@@ -36167,7 +36167,7 @@
           {
             "id": "edits-to-rules",
             "title": "Turn recurring edits into rule proposals",
-            "do": "Pair each post's draft with what the person approved or published, and with tool:find-repeated-edits find the changes they made in several different drafts (min_distinct_drafts at least 2). Each becomes a proposed rule for the voice guide, shown to the person with the drafts it came from; nothing changes the guide until they accept it.",
+            "do": "With tool:find-repeated-voice-edits (kind post, min_distinct_drafts at least 2) find the word changes the person kept making to the drafts of these posts, in several different drafts. Each becomes a proposed rule for the voice guide, shown to the person with the drafts it came from; nothing changes the guide until they accept it.",
             "submit": {
               "type": "object",
               "required": [
@@ -36177,7 +36177,7 @@
               ],
               "properties": {
                 "tool": {
-                  "const": "tool:find-repeated-edits"
+                  "const": "tool:find-repeated-voice-edits"
                 },
                 "pairs_from": {
                   "type": "array",
@@ -36220,7 +36220,7 @@
             "checks": [
               {
                 "kind": "exists",
-                "says": "The step ran tool:find-repeated-edits, a tool the account has",
+                "says": "The step ran tool:find-repeated-voice-edits, a tool the account has",
                 "path": [
                   "this",
                   "tool"

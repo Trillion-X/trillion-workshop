@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "dae11c587de965efcea420320bb2e08f06743e858021bd18be81973862d27e5e",
+  "blake3": "91f82cead40136806d4cb25fcb33c8a0c069394c6903c7fef7763ac59f3f1132",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -8702,9 +8702,9 @@
     ],
     "position": 5,
     "step": "style",
-    "do": "With tool:layer-a-writing-style build the sender's style from input.style_layers (base, niche, group, person) and hand back its instruction_text, the levels it was built from and the keys of the kept prospects it will be written for.",
-    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"instruction_text\",\"levels\",\"for_keys\"],\"properties\":{\"tool\":{\"const\":\"tool:layer-a-writing-style\"},\"instruction_text\":{\"type\":\"string\",\"minLength\":20},\"levels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"for_keys\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1}}}",
-    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:layer-a-writing-style, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"covers\",\"says\":\"The style is built for every kept prospect\",\"path\":[\"this\",\"for_keys\"],\"of\":[\"steps\",\"keep\",\"kept\",\"*\",\"key\"]}]"
+    "do": "With tool:read-voice read the sender's voice profiles: the person's own and the base, niche and group profiles its builds_on names, earliest first, using input.style_layers for any layer not saved yet; write the instruction_text from them, each later one overriding the earlier, and hand back that instruction_text, the profile kinds it was built from (levels) and the keys of the kept prospects it will be written for.",
+    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"instruction_text\",\"levels\",\"for_keys\"],\"properties\":{\"tool\":{\"const\":\"tool:read-voice\"},\"instruction_text\":{\"type\":\"string\",\"minLength\":20},\"levels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"for_keys\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1}}}",
+    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:read-voice, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"covers\",\"says\":\"The style is built for every kept prospect\",\"path\":[\"this\",\"for_keys\"],\"of\":[\"steps\",\"keep\",\"kept\",\"*\",\"key\"]}]"
    }
   },
   {
@@ -8923,9 +8923,9 @@
     ],
     "position": 6,
     "step": "style",
-    "do": "With tool:layer-a-writing-style build the sender's style from input.style_layers and hand back its instruction_text, its levels and the keys it will be written for.",
-    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"instruction_text\",\"levels\",\"for_keys\"],\"properties\":{\"tool\":{\"const\":\"tool:layer-a-writing-style\"},\"instruction_text\":{\"type\":\"string\",\"minLength\":20},\"levels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"for_keys\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1}}}",
-    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:layer-a-writing-style, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"covers\",\"says\":\"The style is built for every business with an opening\",\"path\":[\"this\",\"for_keys\"],\"of\":[\"steps\",\"versions\",\"assignments\",\"*\",\"key\"]}]"
+    "do": "With tool:read-voice read the sender's voice profiles: the person's own and the base, niche and group profiles its builds_on names, earliest first, using input.style_layers for any layer not saved yet; write the instruction_text from them, each later one overriding the earlier, and hand back that instruction_text, the profile kinds it was built from (levels) and the keys it will be written for.",
+    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"instruction_text\",\"levels\",\"for_keys\"],\"properties\":{\"tool\":{\"const\":\"tool:read-voice\"},\"instruction_text\":{\"type\":\"string\",\"minLength\":20},\"levels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"for_keys\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1}}}",
+    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:read-voice, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"covers\",\"says\":\"The style is built for every business with an opening\",\"path\":[\"this\",\"for_keys\"],\"of\":[\"steps\",\"versions\",\"assignments\",\"*\",\"key\"]}]"
    }
   },
   {
@@ -9110,9 +9110,9 @@
     ],
     "position": 2,
     "step": "voice-guide",
-    "do": "With tool:layer-a-writing-style layer input.style_layers (base, niche, group) under a person layer made from the voice brief, and hand back the instruction_text: the voice guide.",
-    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"from_brief\",\"levels\",\"instruction_text\"],\"properties\":{\"tool\":{\"const\":\"tool:layer-a-writing-style\"},\"from_brief\":{\"type\":\"string\",\"minLength\":1},\"levels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"instruction_text\":{\"type\":\"string\",\"minLength\":40}}}",
-    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:layer-a-writing-style, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"subset-of\",\"says\":\"The person layer comes from the voice brief\",\"path\":[\"this\",\"from_brief\"],\"of\":[\"steps\",\"voice-sources\",\"brief_ref\"]},{\"kind\":\"covers\",\"says\":\"The person's own layer is in the guide\",\"path\":[\"this\",\"levels\"],\"values\":[\"person\"]}]"
+    "do": "With tool:save-voice keep each layer of input.style_layers (base, niche, group) as its own profile and a person profile made from the voice brief whose builds_on names them, earliest first; hand back the instruction_text written from those profiles, each later one overriding the earlier: the voice guide.",
+    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"from_brief\",\"levels\",\"instruction_text\"],\"properties\":{\"tool\":{\"const\":\"tool:save-voice\"},\"from_brief\":{\"type\":\"string\",\"minLength\":1},\"levels\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"instruction_text\":{\"type\":\"string\",\"minLength\":40}}}",
+    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:save-voice, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"subset-of\",\"says\":\"The person layer comes from the voice brief\",\"path\":[\"this\",\"from_brief\"],\"of\":[\"steps\",\"voice-sources\",\"brief_ref\"]},{\"kind\":\"covers\",\"says\":\"The person's own layer is in the guide\",\"path\":[\"this\",\"levels\"],\"values\":[\"person\"]}]"
    }
   },
   {
@@ -9314,9 +9314,9 @@
     ],
     "position": 14,
     "step": "edits-to-rules",
-    "do": "Pair each post's draft with what the person approved or published, and with tool:find-repeated-edits find the changes they made in several different drafts (min_distinct_drafts at least 2). Each becomes a proposed rule for the voice guide, shown to the person with the drafts it came from; nothing changes the guide until they accept it.",
-    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"pairs_from\",\"proposals\"],\"properties\":{\"tool\":{\"const\":\"tool:find-repeated-edits\"},\"pairs_from\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"proposals\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"rule\",\"drafts\",\"status\"],\"properties\":{\"rule\":{\"type\":\"string\",\"minLength\":1},\"drafts\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":2},\"status\":{\"const\":\"proposed\"}}}}}}",
-    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:find-repeated-edits, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"subset-of\",\"says\":\"Edits come from posts that ran\",\"path\":[\"this\",\"pairs_from\"],\"of\":[\"steps\",\"attribute\",\"posts_read\"]}]"
+    "do": "With tool:find-repeated-voice-edits (kind post, min_distinct_drafts at least 2) find the word changes the person kept making to the drafts of these posts, in several different drafts. Each becomes a proposed rule for the voice guide, shown to the person with the drafts it came from; nothing changes the guide until they accept it.",
+    "submit": "{\"type\":\"object\",\"required\":[\"tool\",\"pairs_from\",\"proposals\"],\"properties\":{\"tool\":{\"const\":\"tool:find-repeated-voice-edits\"},\"pairs_from\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1},\"proposals\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"rule\",\"drafts\",\"status\"],\"properties\":{\"rule\":{\"type\":\"string\",\"minLength\":1},\"drafts\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":2},\"status\":{\"const\":\"proposed\"}}}}}}",
+    "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:find-repeated-voice-edits, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"subset-of\",\"says\":\"Edits come from posts that ran\",\"path\":[\"this\",\"pairs_from\"],\"of\":[\"steps\",\"attribute\",\"posts_read\"]}]"
    }
   }
  ]
