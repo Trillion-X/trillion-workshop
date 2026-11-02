@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:dce00179e403c81a8f5735a08ce9ed8f2ec10bce40e8aeb80e78ae895db2aa15"
+  "blake3": "1f:bd60a6a2996dc78600a7883f7aa8b50907e9d3e9149828628da2adec94ab9187"
  },
  "fields": [
   {
@@ -1496,6 +1496,22 @@
    }
   },
   {
+   "id": "tool:device-holds",
+   "values": {
+    "title": "What holds a device",
+    "job": "See which holds are keeping apps closed on the person's computer and when each ends",
+    "description": "Answers every hold still lasting.",
+    "status": "active",
+    "maker": "maker:hold-a-computer-quiet",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T20:00:00Z",
+    "folder": "hold-a-computer-quiet"
+   }
+  },
+  {
    "id": "tool:draft-a-funnel",
    "values": {
     "title": "Draft a funnel",
@@ -2040,6 +2056,22 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:focus",
+   "values": {
+    "title": "Turn Focus on or off",
+    "job": "Switch Do Not Disturb on the person's computer on or off",
+    "description": "on true turns Focus on, false turns it off.",
+    "status": "active",
+    "maker": "maker:hold-a-computer-quiet",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T20:00:00Z",
+    "folder": "hold-a-computer-quiet"
    }
   },
   {
@@ -2780,6 +2812,22 @@
     ],
     "listed_on": "2026-10-30T20:00:00Z",
     "folder": "take-requests"
+   }
+  },
+  {
+   "id": "tool:hold-a-device-quiet",
+   "values": {
+    "title": "Keep a device quiet until a time",
+    "job": "Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime",
+    "description": "Give until (a date and time) or minutes. apps names the apps to keep closed (a short default list of messaging and video apps when left out); only instead names the apps that stay open, and every other app is closed whenever it opens, for a session where the one thing is all that is left; Finder, Trillion, terminals and Shortcuts are never closed. focus false leaves Focus as it is. The hold ends by itself at its time (at most 12 hours away), so the person is never kept out of their own computer. The first time, the computer opens a Shortcuts window and the person presses Add Shortcut once.",
+    "status": "active",
+    "maker": "maker:hold-a-computer-quiet",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T20:00:00Z",
+    "folder": "hold-a-computer-quiet"
    }
   },
   {
@@ -5707,6 +5755,22 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:release-a-device",
+   "values": {
+    "title": "Free a held device again",
+    "job": "End a hold on the person's computer now: apps can open again and Focus turns off",
+    "description": "Give id to end one hold, or nothing to end every hold.",
+    "status": "active",
+    "maker": "maker:hold-a-computer-quiet",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T20:00:00Z",
+    "folder": "hold-a-computer-quiet"
    }
   },
   {
