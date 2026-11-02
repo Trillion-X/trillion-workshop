@@ -2,7 +2,7 @@
 
 Word-level templates, so changed words cannot hide inside rewritten chunks. A template keeps the author's literal words (and every other measured value) of any piece of content: a spoken script, a post, a slide, an article section, a page. Only the author's own specifics become typed slots. A fill may change slots only, every change is visible word by word, and events tied to words (a transition, a graphic, a caption, a section break) follow those words when the script is rewritten.
 
-Four commands, run by the person's AI on the person's own computer. Python 3, standard library only.
+Four commands, run by the person's AI on the person's own computer, and `build.py`, which keeps a whole library of templates and drift reports up to date. Python 3, standard library only.
 
 ## Files
 
@@ -13,13 +13,14 @@ Four commands, run by the person's AI on the person's own computer. Python 3, st
 | `do-work/make_template.py` | `make_template.py <spec.json or one measurement> <out.template.json>`: measures a piece into a template and writes `<out>.md` beside it. |
 | `do-work/fill.py` | `fill.py <template.json> <fills.json> <out.md> [--piece out.piece.json]`: fills the slots from sourced values. |
 | `do-work/drift.py` | `drift.py <template.json> <script.md or piece.json> [--check] [--exceptions exc.json] [--json report.json]`: judges a piece against the template, dimension by dimension. |
+| `do-work/build.py` | `build.py <discovery.json> [--registry R] [--only TEXT] [--force]`: rebuilds every template, fill and drift a discovery file describes, only where an input changed, and writes an INDEX. |
 | `do-work/retime.py` | `retime.py <piece.json> <new-transcript.json> <out.piece.json> [--report]`: moves every token bound to words to where those words now play. |
 | `read-data/wt_core.py` | Errors, words, source checks and the readers (the only per-format code). |
 | `read-data/wt_ops.py` | The operations, drift and metrics. |
 | `read-data/wt_render.py` | The template markdown, the fill markdown and the drift text. |
 | `read-data/dimensions.json` | The generic registry (data): value kinds, media, readers, slot rules, tokenizer and 25 dimensions for words, layout and colour. A craft's own dimensions are the person's registry file, passed with `--registry`. |
-| `test/test_word_template.py`, `test/test_bound_to.py` | Unit tests: operation matrix, a data-only dimension, a data-only medium and value kind, flipped assumptions, binding and re-timing. |
-| `test/sample_registry.py` | The registry the tests use: the shipped one plus invented tasting-sample dimensions, so no one person's vocabulary is in the repository. |
+| `test/test_word_template.py`, `test/test_bound_to.py` | Unit tests: operation matrix, a data-only dimension, a data-only medium and value kind, flipped assumptions, every reader, incremental library builds, binding and re-timing. |
+| `test/sample_registry.py` | The registry the tests use: the shipped one plus invented tasting-sample dimensions and a few sound and rhythm dimensions, so no one person's vocabulary is in the repository. |
 | `test/fill-a-template.test.mjs` | Runs the Python tests under `npm test`, then the four commands end to end on a written example. |
 
 ## How to run it
@@ -29,10 +30,28 @@ python3 -I tools/fill-a-template-without-changing-its-words/do-work/make_templat
 python3 -I tools/fill-a-template-without-changing-its-words/do-work/fill.py  <TEMPLATE.json> <fills.json> <out.md> [--piece out.piece.json]
 python3 -I tools/fill-a-template-without-changing-its-words/do-work/drift.py <TEMPLATE.json> <script.md | any piece.json> [--check] [--exceptions exc.json] [--json r.json]
 python3 -I tools/fill-a-template-without-changing-its-words/do-work/retime.py <piece.json> <new-transcript.json> <out.piece.json> [--report]
+python3 -I tools/fill-a-template-without-changing-its-words/do-work/build.py <discovery.json> [--registry dimensions.json] [--only TEXT] [--force]
 python3 -I tools/fill-a-template-without-changing-its-words/test/test_word_template.py
 ```
 
 Each command prints one summary line and exits 0, or prints `name: what is wrong, and how to fix it` on standard error and exits 2 (`drift.py --check` exits 1 when a judged dimension misses its threshold). `tesseract` is needed only to read images (the `ocr_images` reader); when it is missing those dimensions are `pending` with the reason.
+
+## A whole library (`build.py`)
+
+`build.py` reads a discovery file (JSON, paths relative to its `root`) and rebuilds, one piece at a time, only what changed: each output's inputs (sources, spec, fill, registry and the tool's own code) are stamped by size and modification time in the manifest, so a second run with nothing changed rebuilds nothing.
+
+| key | holds |
+|---|---|
+| `references` | a group or list of groups `{glob, items?: "directories" \| "files", skip_names?, medium, out, spec?, sources}`: every folder (or file) the glob finds becomes a reference template. `{dir}`, `{parent_dir}`, `{id}`, `{path}`, `{name}` are filled in `out`, `spec` and `sources`; a source may be `{from_file, regex, path}` to take a path out of another file. Entries no longer found are retired from the manifest; their files stay. |
+| `templates` | `[{spec, out}]`: more templates built from specs. |
+| `fill_values` | `{glob, template, suffix?}`: each fill-values file filled into its template (`fill.py`), written beside it as `.md` and `.piece.json`. |
+| `fills` | `{glob, template, out, skip_dir_prefix?, skip_names?}`: each filled script judged against its template (`drift.py`). |
+| `films` | a JSON file `{"films": [{film, reference_template, script?, column?, render?: {medium, sources}, render_template?, why?}]}`: a finished piece judged against its reference, by its script, a measured render, or both; `why` is shown while nothing can be judged yet. |
+| `manifest`, `index` | where the stamps and summaries are kept, and where the INDEX (Markdown counts and tables) is written. |
+| `film_drifts`, `renders` | folders for film drift reports and render measurements (default `drift/films` and `renders` beside the manifest). |
+| `registry` | the person's registry (or `--registry`). |
+
+The last line printed is the run's counts: `{templates_built, templates_unchanged, templates_failed, drifts_built, drifts_unchanged, drifts_failed, seconds}`.
 
 ## Model
 
@@ -70,7 +89,7 @@ Seeded: 25 generic dimensions across 11 media (video, carousel, static, text pos
 
 **Your own dimensions are your data.** Nothing here names one person's craft: the fields of a tasting sheet, a sound timeline, a checklist or a house style are dimensions in a registry file the person keeps, passed with `--registry FILE` (the template remembers it, so `fill.py` and `drift.py` use the same one). A registry row is `{id, media, region, value_kind, measure: [{reader, field, token}], drift}`; a reader row may set `id_prefix` for the ids it gives rows that have no id column (default `row`).
 
-Readers shipped: `transcript_words` (a word-timed transcript JSON), `segment_captions` (`[seconds] text` rows), `json3_captions` (JSON3 caption events), `tsv_rows` (a table of units), `post_json` (a post as a public-post service returns it), `html_json_records` (an inert JSON script block in an HTML file), `ocr_images` (a folder of images read with `tesseract`).
+Readers shipped: `transcript_words` (a word-timed transcript JSON), `segment_captions` (`[seconds] text` rows), `json3_captions` (JSON3 caption events), `filmcraft_project_captions` (the enabled caption cues of one FilmCraft project sequence, named by the source's `sequence_id`), `tsv_rows` (a table of units), `rhythm_segments` (a motion-rhythm JSON: one record per segment and a summary), `scan_events` (a temporal-scan JSON of change and flash candidates), `earshot_events` and `earshot_sections` (an earshot timeline text: its event lines, and its sections with loudness, true peak and tempo), `post_json` (a post as a public-post service returns it), `html_json_records` (an inert JSON script block in an HTML file), `ocr_images` (a folder of images read with `tesseract`). The sound and rhythm readers come with no dimensions in the shipped registry: the person's registry names which fields it measures (the tests' sample registry shows how).
 
 ## Slot rules (checkable)
 
@@ -168,4 +187,5 @@ A reader that measures something with automatic labels can set `ctx["<name>_prov
 - Event times are absolute. A piece shorter or longer than its reference cannot match its event times, and the report shows that.
 - A fill piece carries the template's KEEP values for dimensions it did not change (durations, event times). Only a measured render proves them.
 - difflib is quadratic in the worst case. A 30,000-word piece drifts in seconds in the test, but highly repetitive text is the slow case.
-- No reader ships for specialised analysis files. A dimension measured from one stays `pending` until a reader is added (one function in `wt_core.py` and one `readers` row) or the records are given as data.
+- A dimension measured from an analysis file no shipped reader knows stays `pending` until a reader is added (one function in `wt_core.py` and one `readers` row) or the records are given as data.
+- The FilmCraft reader reads `schema_version` 16 project files only, and never guesses the sequence: the source names it. It measures the editable project, not the exported pixels.

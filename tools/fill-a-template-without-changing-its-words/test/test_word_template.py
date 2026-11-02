@@ -145,6 +145,83 @@ class SourceQualifications(unittest.TestCase):
         self.assertLess(fill_md.index("## Source qualifications"), fill_md.index("## Script"))
 
 
+class SoundAndRhythmReaders(unittest.TestCase):
+    def test_earshot_labels_are_qualified_while_measured_values_remain_keep(self):
+        fx = Fixture()
+        try:
+            source = fx.write("measure/earshot-timeline.txt", """video.mp4: 0:00.00-0:10.00. Loudness -18.0 LUFS integrated, true peak -1.0 dBTP; ~120 BPM.
+
+SECTIONS
+ 0:00.00-0:10.00 house music?, vocal chop | voice: voice-over narration -18 LUFS [AST music 0.60, speech 0.50]
+
+TRANSCRIPT   time  kind   what
+ 0:01.00  WHOOSH  whoosh (CLAP tag)  -8.0 dBFS  +4.0 dB  120 ms
+""")
+            piece = ops.tokenize({
+                "piece": {"id": "earshot-qualified", "medium": "video"},
+                "sources": {"earshot_events": str(source), "earshot_sections": str(source)},
+            }, REG)
+            events = piece["notes"]["earshot_events_provenance"]
+            sections = piece["notes"]["earshot_sections_provenance"]
+            self.assertEqual(events["reader"], "earshot_events")
+            self.assertEqual(sections["reader"], "earshot_sections")
+            self.assertEqual(events["source_path"], str(source.resolve()))
+            self.assertIn("not listening-confirmed", events["qualification"])
+            self.assertIn("temporal proximity does not establish editorial intent", events["qualification"])
+            self.assertIn("not listening-confirmed", sections["qualification"])
+            self.assertIn("do not represent stem proportions", sections["qualification"])
+
+            values = {dim: [(token["dims"][dim], token["mark"])
+                            for token in piece["tokens"] if dim in token["dims"]]
+                      for dim in ("sound.sfx", "music.section", "loudness.lufs")}
+            self.assertEqual(values["sound.sfx"], [("WHOOSH", "KEEP")])
+            self.assertEqual(values["music.section"], [("house music?, vocal chop | voice: voice-over narration", "KEEP")])
+            self.assertEqual(values["loudness.lufs"], [(-18.0, "KEEP")])
+
+            markdown = render_template_md(piece, REG)
+            self.assertIn("## Source qualifications", markdown)
+            self.assertIn("`earshot_events_provenance`", markdown)
+            self.assertIn(str(source.resolve()), markdown)
+            self.assertIn("temporal proximity does not establish editorial intent", markdown)
+            self.assertIn("do not represent stem proportions", markdown)
+            self.assertLess(markdown.index("## Source qualifications"), markdown.index("## Region"))
+            filled = ops.fill(piece, {"fills": {}}, REG)
+            fill_md = render_fill_md(filled, {"title": "Qualified example"}, REG)
+            self.assertIn(events["qualification"], fill_md)
+            self.assertIn(sections["qualification"], fill_md)
+            self.assertLess(fill_md.index("## Source qualifications"), fill_md.index("## Script"))
+        finally:
+            fx.close()
+
+    def test_rhythm_segments_and_scan_events_become_timed_records(self):
+        fx = Fixture()
+        try:
+            rhythm = fx.write("measure/rhythm.json", {
+                "shots": [{"start": 0.0, "end": 1.5, "camera": "static", "zoom": 1.0},
+                          {"start": 1.5, "end": 4.0, "camera": "pan", "zoom": 1.1}],
+                "summary": {"cuts_per_min": 15.0, "median_hold_s": 2.0}})
+            scan = fx.write("measure/scan.json", {"events": [{"seconds": 1.5, "kind": "change_candidate", "strength": 0.9},
+                                                            {"seconds": 3.2, "kind": "flash_candidate", "strength": 0.7},
+                                                            {"kind": "no time"}]})
+            records = READERS["rhythm_segments"](rhythm, {"opts": {"summary_key": "summary"}})
+            self.assertEqual([(r["id"], r.get("t0"), r["fields"].get("cut"), r["fields"].get("hold_s")) for r in records],
+                             [("seg-01", 0.0, "start", 1.5), ("seg-02", 1.5, "cut", 2.5), ("rhythm-summary", None, None, None)])
+            self.assertEqual(records[-1]["fields"], {"cuts_per_min": 15.0, "median_hold_s": 2.0})
+            self.assertEqual([(r["id"], r["t0"], r["fields"]["kind"]) for r in READERS["scan_events"](scan, {})],
+                             [("scan-000", 1.5, "change_candidate"), ("scan-001", 3.2, "flash_candidate")])
+            piece = ops.tokenize({"piece": {"id": "rhythm", "medium": "video"}, "auto_slot_rules": False,
+                                  "sources": {"rhythm_segments": {"path": str(rhythm), "summary_key": "summary"},
+                                              "scan_events": str(scan)}}, REG)
+            values = {dim: [(t["dims"][dim], t.get("t")) for t in piece["tokens"] if dim in t["dims"]]
+                      for dim in ("cut.time", "cut.hold_s", "pacing.cuts_per_min", "cut.flash")}
+            self.assertEqual(values["cut.time"], [("cut", 1.5)], "the opening segment is not a cut")
+            self.assertEqual(sorted(values["cut.hold_s"], key=lambda v: v[1]), [(1.5, 0.0), (2.5, 1.5)])
+            self.assertEqual([v for v, _ in values["pacing.cuts_per_min"]], [15.0])
+            self.assertEqual(values["cut.flash"], [("flash_candidate", 3.2)])
+        finally:
+            fx.close()
+
+
 class RenderScaling(unittest.TestCase):
     def test_renderers_build_one_token_index_per_piece(self):
         piece = ops.tokenize({
@@ -501,6 +578,108 @@ class Json3Captions(unittest.TestCase):
                 READERS["json3_captions"](path, {})
         path = self.fx.write("empty.json3", {"events": []})
         self.assertEqual(READERS["json3_captions"](path, {}), [])
+
+
+class FilmCraftProjectCaptions(unittest.TestCase):
+    def setUp(self):
+        self.fx = Fixture()
+
+    def tearDown(self):
+        self.fx.close()
+
+    def project(self):
+        style = {"font": "SF Pro Text", "size": 24.0, "color": [254, 181, 3, 255],
+                 "background": False, "background_color": [0, 0, 0, 191], "align": "Left",
+                 "anchor": "Top", "margin": 0.045, "line_spacing": 1.25, "outline": 1.5,
+                 "outline_color": [23, 20, 17, 255]}
+        cue = {"id": 71, "start": 0, "duration": 254_016_000_000, "text": "Why was it icy?",
+               "speaker": None, "cue_id": None, "settings": "line:15% align:end"}
+        return {"format": "filmcraft.project", "schema_version": 16,
+                "project": {"items": {
+                    "7": {"kind": {"Sequence": {"caption_tracks": [
+                        {"id": 60, "name": "Chapter labels", "format": "Subtitle", "language": "en",
+                         "style": style, "enabled": True, "captions": [cue]},
+                        {"id": 61, "name": "Disabled", "format": "Subtitle", "language": "en",
+                         "style": style, "enabled": False, "captions": [{"malformed": True}]},
+                    ]}}},
+                    "39": {"kind": {"Sequence": {"caption_tracks": []}}},
+                }}, "view": {"active_sequence": 7}}
+
+    def test_sequence_selection_is_explicit_and_enabled_caption_cue_provenance_is_retained(self):
+        path = self.fx.write("native.fcproj", self.project())
+        with self.assertRaises(WTError) as err:
+            READERS["filmcraft_project_captions"](path, {})
+        self.assertIn("explicit sequence_id", err.exception.what)
+        ctx = {"opts": {"sequence_id": "7"}}
+        records = READERS["filmcraft_project_captions"](path, ctx)
+        self.assertEqual(len(records), 1, "disabled track's cues must not enter the reader")
+        self.assertEqual((records[0]["t0"], records[0]["t1"]), (0.0, 1.0))
+        self.assertEqual(records[0]["fields"]["text"], "Why was it icy?")
+        self.assertEqual(records[0]["fields"]["card"]["style"]["font"], "SF Pro Text")
+        self.assertEqual(records[0]["fields"]["card"]["cue_settings"], "line:15% align:end")
+        provenance = ctx["filmcraft_caption_provenance"][records[0]["id"]]
+        self.assertEqual((provenance["track_id"], provenance["caption_id"], provenance["start_ticks"]), (60, 71, 0))
+        self.assertEqual(ctx["filmcraft_caption_source"]["ticks_per_second"], 254_016_000_000)
+        self.assertIn("no per-cue enabled flag", ctx["filmcraft_caption_source"]["visibility_semantics"])
+
+    def test_word_template_measures_source_text_and_timed_styled_cards_not_spoken_words(self):
+        path = self.fx.write("native.fcproj", self.project())
+        piece = ops.tokenize({"piece": {"id": "native", "medium": "video"},
+                              "sources": {"filmcraft_project_captions": {"path": str(path), "sequence_id": "7"}}})
+        cards = [t for t in piece["tokens"] if "caption.card" in t["dims"]]
+        words = [t for t in piece["tokens"] if "onscreen.word" in t["dims"]]
+        self.assertEqual(len(cards), 1)
+        self.assertEqual([t["dims"]["onscreen.word"] for t in words], ["Why", "was", "it", "icy?"])
+        self.assertTrue(all("speech.word" not in t["dims"] for t in piece["tokens"]))
+        self.assertEqual((cards[0]["t"], cards[0]["t1"]), (0.0, 1.0), "zero start must not be lost")
+        self.assertTrue(all((t["t"], t["t1"]) == (0.0, 1.0) for t in words),
+                        "split words inherit only the whole card exposure interval")
+        self.assertEqual(cards[0]["dims"]["caption.card"]["duration_ticks"], 254_016_000_000)
+        self.assertEqual(piece["notes"]["filmcraft_caption_source"]["sequence_id"], "7")
+        self.assertIn("never a per-word onset", piece["notes"]["filmcraft_caption_source"]["time_semantics"])
+
+    def test_bad_selection_version_or_enabled_cue_refuses_instead_of_guessing(self):
+        path = self.fx.write("native.fcproj", self.project())
+        with self.assertRaises(WTError):
+            READERS["filmcraft_project_captions"](path, {"opts": {"sequence_id": "nope"}})
+        empty_ctx = {"opts": {"sequence_id": "39"}}
+        self.assertEqual(READERS["filmcraft_project_captions"](path, empty_ctx), [])
+        self.assertEqual(empty_ctx["filmcraft_caption_status"], "selected sequence has no enabled caption cues")
+        empty_piece = ops.tokenize({"piece": {"id": "empty-native", "medium": "video"},
+                                    "sources": {"filmcraft_project_captions": {"path": str(path), "sequence_id": "39",
+                                                                                 "required": True, "allow_empty": True}}})
+        self.assertFalse(any(item["dim"] == "caption.card" for item in empty_piece["pending"]))
+        bad_version = self.project()
+        bad_version["schema_version"] = 17
+        with self.assertRaises(WTError):
+            READERS["filmcraft_project_captions"](self.fx.write("future.fcproj", bad_version), {"opts": {"sequence_id": "7"}})
+        bad_cue = self.project()
+        bad_cue["project"]["items"]["7"]["kind"]["Sequence"]["caption_tracks"][0]["captions"][0]["start"] = -1
+        with self.assertRaises(WTError):
+            READERS["filmcraft_project_captions"](self.fx.write("bad-time.fcproj", bad_cue), {"opts": {"sequence_id": "7"}})
+
+    def test_duplicate_native_record_id_refuses_before_provenance_can_be_overwritten(self):
+        duplicate = self.project()
+        cues = duplicate["project"]["items"]["7"]["kind"]["Sequence"]["caption_tracks"][0]["captions"]
+        cues.append({**cues[0], "start": 254_016_000_000})
+        with self.assertRaises(WTError) as err:
+            READERS["filmcraft_project_captions"](self.fx.write("duplicate.fcproj", duplicate),
+                                                   {"opts": {"sequence_id": "7"}})
+        self.assertIn("duplicate FilmCraft caption record id", err.exception.what)
+
+    def test_required_unreadable_source_fails_while_optional_source_stays_pending(self):
+        broken = self.fx.write("broken.fcproj", {"format": "filmcraft.project", "schema_version": 99})
+        required = {"piece": {"id": "required", "medium": "video"},
+                    "sources": {"filmcraft_project_captions": {"path": str(broken), "sequence_id": "39", "required": True}}}
+        with self.assertRaises(WTError) as err:
+            ops.tokenize(required)
+        self.assertIn("required source", err.exception.what)
+        self.assertIn("schema_version 16", err.exception.what)
+        optional = {"piece": {"id": "optional", "medium": "video"},
+                    "sources": {"filmcraft_project_captions": {"path": str(broken), "sequence_id": "39"}}}
+        piece = ops.tokenize(optional)
+        self.assertTrue(any(item["dim"] == "caption.card" and "schema_version 16" in item["reason"]
+                            for item in piece["pending"]))
 
 
 class MakeFillDrift(unittest.TestCase):
@@ -1071,6 +1250,131 @@ class FlippedAssumptions(unittest.TestCase):
                            auto_slot_rules=False)
         rep = ops.drift(ref, render, REG)["notes"]["drift"]
         self.assertEqual(rep["dims"]["speech.word"]["inserted"] + rep["dims"]["speech.word"]["replaced"], 1)
+
+
+class Build(unittest.TestCase):
+    def test_file_groups_keep_sources_separate_and_retire_removed_entries(self):
+        fx = Fixture()
+        try:
+            fx.write("formats/a/channel-corpus/FORMAT.md", "A corpus, not one film")
+            first = fx.write("formats/a/channel-corpus/transcripts/same.txt", "[0:00] First source words.\n")
+            second = fx.write("formats/b/channel-corpus/transcripts/same.txt", "[0:00] Other source words.\n")
+            fx.write("films.json", {"films": []})
+            directory_group = {"glob": "formats/*/*/", "medium": "video", "out": "{dir}TEMPLATE.json",
+                               "sources": {"segment_captions": "{dir}missing.txt"}}
+            config = {"root": str(fx.dir), "references": directory_group,
+                      "fills": {"glob": "absent/*.md", "template": "absent/{fill_dir}.json", "out": "out/{stem}"},
+                      "films": "films.json", "manifest": "out/manifest.json", "index": "out/INDEX.md"}
+            disc = fx.write("disc.json", config)
+            def run(only=None):
+                args = [sys.executable, "-I", str(DO_WORK / "build.py"), str(disc)]
+                if only:
+                    args += ["--only", only]
+                return json.loads(subprocess.run(args, capture_output=True, text=True, check=True).stdout.strip())
+            run()
+            config["references"] = [dict(directory_group, skip_names=["channel-corpus"]),
+                                    {"glob": "formats/*/channel-corpus/transcripts/*.txt", "items": "files",
+                                     "medium": "video", "out": "{parent_dir}templates/{id}.json",
+                                     "sources": {"segment_captions": "{path}"}}]
+            fx.write("disc.json", config)
+            counts = run()
+            self.assertEqual((counts["templates_built"], counts["templates_failed"]), (2, 0))
+            outputs = [fx.dir / f"formats/{author}/channel-corpus/templates/same.json" for author in ("a", "b")]
+            pieces = [json.loads(p.read_text()) for p in outputs]
+            texts = [[t["dims"]["speech.word"] for t in p["tokens"] if "speech.word" in t["dims"]] for p in pieces]
+            self.assertEqual(texts, [["First", "source", "words."], ["Other", "source", "words."]])
+            for p, source in zip(pieces, (first, second)):
+                self.assertEqual(p["piece"]["built_from"][0]["path"], str(source))
+                self.assertFalse(any(t.get("t") is not None for t in p["tokens"]))
+            manifest = lambda: json.loads((fx.dir / "out/manifest.json").read_text())
+            self.assertEqual(len([k for k in manifest() if k.startswith("ref:")]), 2)
+            self.assertTrue((fx.dir / "formats/a/channel-corpus/TEMPLATE.json").exists())
+            self.assertEqual(run()["templates_unchanged"], 2)
+            first.write_text("[0:00] Changed source words.\n")
+            counts = run()
+            self.assertEqual((counts["templates_built"], counts["templates_unchanged"]), (1, 1))
+            second.unlink()
+            run("formats/a/")
+            self.assertEqual(len([k for k in manifest() if k.startswith("ref:")]), 2,
+                             "filtered build retired an unrelated source")
+            run()
+            self.assertEqual(len([k for k in manifest() if k.startswith("ref:")]), 1)
+            self.assertTrue(outputs[1].exists(), "removed source's historical template should be recoverable")
+        finally:
+            fx.close()
+
+    def test_incremental(self):
+        fx = Fixture()
+        try:
+            item = fx.dir / "library/formats/me/me-1"
+            item.mkdir(parents=True)
+            (item / "shots.tsv").write_text(TSV)
+            fx.write("library/transcripts/me-1.json", transcript(SENT))
+            fx.write("library/fills/me-1/a.md", "```dim:speech.word\n" + " ".join(SENT) + "\n```\n")
+            fx.write("library/films.json", {"films": []})
+            disc = fx.write("disc.json", {
+                "root": str(fx.dir),
+                "references": {"glob": "library/formats/*/*/", "medium": "video", "out": "{dir}TEMPLATE.json",
+                               "spec": "specs/{id}.json",
+                               "sources": {"transcript_words": "library/transcripts/{id}.json", "tsv_rows": "{dir}shots.tsv"}},
+                "fills": {"glob": "library/fills/*/*.md", "template": "library/formats/*/{fill_dir}/TEMPLATE.json",
+                          "out": "out/{fill_dir}.{stem}"},
+                "films": "library/films.json", "manifest": "out/manifest.json", "index": "out/INDEX.md"})
+            run = lambda: json.loads(subprocess.run([sys.executable, "-I", str(DO_WORK / "build.py"), str(disc)],
+                                                    capture_output=True, text=True, check=True).stdout.strip().splitlines()[-1])
+            c1 = run()
+            self.assertEqual((c1["templates_built"], c1["drifts_built"]), (1, 1))
+            c2 = run()
+            self.assertEqual((c2["templates_built"], c2["drifts_built"]), (0, 0))
+            time.sleep(0.01)
+            (item / "shots.tsv").write_text(TSV.replace("warm", "cool"))
+            c3 = run()
+            self.assertEqual(c3["templates_built"], 1)
+            self.assertIn("100.0% of", (fx.dir / "out/INDEX.md").read_text())
+            film = {"film": "own", "reference_template": "library/formats/me/me-1/TEMPLATE.json",
+                    "why": "render measurement not available yet"}
+            fx.write("library/films.json", {"films": [film]})
+            run()
+            self.assertIn("film:own", json.loads((fx.dir / "out/manifest.json").read_text()))
+            render_source = fx.write("library/render.json", transcript(SENT))
+            render = {"medium": "video", "sources": {"transcript_words": "library/render.json"}}
+            film["render"] = render
+            fx.write("library/films.json", {"films": [film]})
+            run()
+            manifest = json.loads((fx.dir / "out/manifest.json").read_text())
+            self.assertIn("film:own:render", manifest)
+            self.assertFalse("film:own" in manifest, "obsolete unmeasured-film note survived a render measurement")
+            index = (fx.dir / "out/INDEX.md").read_text()
+            self.assertIn("(+0 with nothing measurable yet)", index)
+            self.assertFalse("render measurement not available yet" in index,
+                             "obsolete unmeasured-film note is still displayed")
+            film.pop("render")
+            fx.write("library/films.json", {"films": [film]})
+            run()
+            manifest = json.loads((fx.dir / "out/manifest.json").read_text())
+            self.assertIn("film:own", manifest)
+            self.assertFalse("film:own:render" in manifest or "render:own" in manifest,
+                             "removed render measurement is still presented as current")
+            self.assertTrue((fx.dir / "out/renders/own.render.json").exists(),
+                            "historical measurement should remain recoverable")
+            film["render"] = render
+            fx.write("library/films.json", {"films": [film]})
+            run()
+            render_source.write_text("not valid JSON")
+            run()
+            manifest = json.loads((fx.dir / "out/manifest.json").read_text())
+            failed = manifest["film:own:render"]
+            self.assertFalse(failed["summary"]["pass"], "unreadable source with no judged dimensions passed")
+            self.assertEqual(failed["summary"]["dims"], "")
+            film["render"]["medium"] = "unregistered-medium"
+            fx.write("library/films.json", {"films": [film]})
+            run()
+            manifest = json.loads((fx.dir / "out/manifest.json").read_text())
+            failed = manifest["film:own:render"]
+            self.assertIn("error", failed)
+            self.assertFalse("summary" in failed, "failed replacement retained an old successful measurement")
+        finally:
+            fx.close()
 
 
 if __name__ == "__main__":
