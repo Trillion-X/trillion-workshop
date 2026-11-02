@@ -7,24 +7,28 @@ The ops plan is plain JSON a person can read and change before it runs:
      placeholder ({"placeholder": "...", "seconds": 14.2, "track": "V1"}).
   2. one assemble op: the new_order rows as source ranges, minus each row's
      inner_cuts, minus pause trims measured from the word timings. A row
-     "INSERT-<id>" places insert <id>; an insert inside a source range rides along.
+     "INSERT-<id>" (or --insert-prefix) places insert <id>; an insert inside a source range rides along.
 
 Pause trim: a gap between two words longer than --pause-over seconds keeps
 --pause-keep seconds (half after the last word, half before the next). Pauses
 in --protect rows or --protect-window ranges are kept, and so is a pause holding
-an insert's "anchor" ({"clip": "C9942", "src": 85.544}: where it sits in its
+an insert's "anchor" ({"clip": "A002", "src": 12.5}: where it sits in its
 source), so an insert never loses its place. An insert's "resume"
-({"clip": "C9940", "frame": 14192}: its freeze frame) sets the start of the row
+({"clip": "A001", "frame": 300}: its freeze frame) sets the start of the row
 after it, so the picture resumes on exactly that frame.
 
+Word timings: DIR/<clip>.json holding {"words": [{"type": "word", "start": s, "end": s}, ...]}.
+
 usage: python3 -I compile_edit_plan.py EDIT-PLAN.json --transcripts DIR --output OUT.prproj
-         --plan-out OPS.json [--inserts INSERTS.json] [--protect N03] [--protect-window C9940:519:527]
+         --plan-out OPS.json [--inserts INSERTS.json] [--protect ROW] [--protect-window A001:20:24]
+         [--insert-prefix INSERT-] [--fps 24000/1001] [--project IN.prproj]
 """
 import argparse
 import json
 import os
 
-FPS = 24000 / 1001
+FPS = 24000 / 1001  # the sequence frame rate; --fps sets it
+PREFIX = 'INSERT-'  # a new_order row id starting with this places an insert; --insert-prefix sets it
 
 
 def words(transcripts, clip):
@@ -73,7 +77,14 @@ def main():
     ap.add_argument('--protect-window', action='append', default=[], help='CLIP:FROM:TO seconds whose pauses stay')
     ap.add_argument('--pause-over', type=float, default=0.9)
     ap.add_argument('--pause-keep', type=float, default=0.4)
+    ap.add_argument('--insert-prefix', default=PREFIX, help='new_order row id prefix that places an insert')
+    ap.add_argument('--fps', default='24000/1001', help='sequence frame rate, as N or N/D')
+    ap.add_argument('--project', help='the input .prproj (overrides the EDIT-PLAN "project")')
     args = ap.parse_args()
+    global FPS
+    num, _, den = args.fps.partition('/')
+    FPS = float(num) / float(den or 1)
+    prefix = args.insert_prefix
     plan = json.load(open(args.edit_plan))
     rows = plan['new_order']
     inserts = json.load(open(args.inserts)) if args.inserts else plan.get('inserts', [])
@@ -95,7 +106,7 @@ def main():
     resume = {i['id']: i['resume'] for i in inserts if 'resume' in i}
     rows = [dict(r) for r in rows]
     for prev, r in zip(rows, rows[1:]):
-        ins_id = prev['id'].split('INSERT-', 1)[1] if prev['id'].startswith('INSERT-') else None
+        ins_id = prev['id'].split(prefix, 1)[1] if prev['id'].startswith(prefix) else None
         if ins_id in resume and r.get('clip') == resume[ins_id]['clip']:
             frame = resume[ins_id]['frame']
             if abs(frame / FPS - r['src_in']) > 0.1:
@@ -105,8 +116,8 @@ def main():
     entries, total_trim = [], 0.0
     cache = {}
     for r in rows:
-        if r['id'].startswith('INSERT-'):
-            ins_id = r['id'].split('INSERT-', 1)[1]
+        if r['id'].startswith(prefix):
+            ins_id = r['id'].split(prefix, 1)[1]
             if ins_id in made:
                 entries.append({'insert': ins_id, 'label': r['id']})
             else:
@@ -135,7 +146,7 @@ def main():
     out = {
         'about': f'Compiled from {args.edit_plan} by compile_edit_plan.py. Edit this file to change the cut, '
                  'then run premiere_insert.py on it.',
-        'project': plan['project'],
+        'project': args.project or plan['project'],
         'output': args.output,
         'sequence': plan.get('sequence'),
         'timecodes': 'original',

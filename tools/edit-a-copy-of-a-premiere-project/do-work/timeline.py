@@ -13,7 +13,7 @@ move(a, b, to)   = assemble with [a, b) taken out and put back at `to`
 assemble(ranges) = the ranges, in the given order; anything not in a range is deleted
 
 Ranges can be given as sequence timecodes, as a source range of a clip
-({"clip": "C9940", "src_in": 14.24, "src_out": 21.83}, seconds) or as an
+({"clip": "A001", "src_in": 14.24, "src_out": 21.83}, seconds) or as an
 insert made earlier in the plan ({"insert": "c1"}).
 """
 import re

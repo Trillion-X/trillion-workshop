@@ -6,7 +6,12 @@ piece (a file, or a labelled black placeholder) is placed on its track.
 cut / move / assemble: see timeline.py; one remap engine does all three and
 carries every track, the adjustment layer and the captions along.
 
-usage: python3 -I premiere_insert.py PLAN.json [--project IN.prproj] [--output OUT.prproj]
+usage: python3 -I premiere_insert.py PLAN.json [--project IN.prproj] [--output OUT.prproj] [--written WRITTEN.json]
+
+--written names the record of the outputs this tool wrote (path -> BLAKE3). It belongs with the person's
+film, not with the tool. An existing output is replaced only when the record says this tool wrote exactly
+that file; without --written an existing output is always refused and nothing is recorded.
+The last line printed is {"result": {...}} or {"error": "what to change"}.
 
 PLAN.json holds "ops" (or the older "inserts" list, one insert with "pieces", or
 a shot file carrying an "insert" object). See README.md.
@@ -18,6 +23,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import uuid
 
 sys.dont_write_bytecode = True
@@ -26,8 +32,6 @@ from prproj import Project, TPS, parse_tc, read_text, tc, write_project  # noqa:
 from validate import check  # noqa: E402
 import timeline  # noqa: E402
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-WRITTEN = os.path.join(HERE, 'written.json')
 FILE_IMPORTER = '1fa18bfa-255c-44b1-ad73-56bcd99fceaf'  # Premiere's file importer (mp4, mov, wav, mp3)
 STEREO = '[{"channellabel":100},{"channellabel":101}]'
 LABELS = {'video': ('BE.Prefs.LabelColors.1', 6769408), 'audio': ('BE.Prefs.LabelColors.2', 480554)}
@@ -593,27 +597,44 @@ def run_ops(ed, plan, project_dir):
 
 
 def b3(path):
-    return subprocess.run(['b3sum', '--no-names', path], capture_output=True, text=True, check=True).stdout.strip()
+    try:
+        import blake3
+    except ImportError:
+        return subprocess.run(['b3sum', '--no-names', path], capture_output=True, text=True, check=True).stdout.strip()
+    return blake3.blake3(open(path, 'rb').read()).hexdigest()
 
 
-def written_record():
-    return json.load(open(WRITTEN)) if os.path.exists(WRITTEN) else {}
+def written_record(path):
+    return json.load(open(path)) if path and os.path.exists(path) else {}
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('plan')
-    ap.add_argument('--project')
-    ap.add_argument('--output')
-    args = ap.parse_args()
+def put_aside(path):
+    """Move a replaced output to the Trash, or beside itself when there is no `trash` command."""
+    if shutil.which('trash'):
+        subprocess.run(['trash', path], check=True)
+        return 'trash'
+    aside = f'{path}.replaced-{time.strftime("%Y%m%d-%H%M%S")}'
+    shutil.move(path, aside)
+    return aside
+
+
+class Refused(Exception):
+    pass
+
+
+def run(args):
     plan = load_plan(args.plan)
+    if not (args.project or plan.get('project')) or not (args.output or plan.get('output')):
+        raise Refused('name the input project and the output: "project" and "output" in the plan, or --project and --output')
     src = os.path.abspath(args.project or plan['project'])
     dst = os.path.abspath(args.output or plan['output'])
     if src == dst:
-        sys.exit('refused: output must be a new file, never the input project')
-    record = written_record()
+        raise Refused('output must be a new file, never the input project; give another --output')
+    written = os.path.abspath(args.written) if args.written else None
+    record = written_record(written)
     if os.path.exists(dst) and record.get(dst) != b3(dst):
-        sys.exit(f'refused: {dst} exists and is not the file this tool last wrote (someone may have edited it)')
+        raise Refused(f'{dst} exists and is not the file this tool last wrote (someone may have edited it, or no '
+                      '--written record names it); write to a new name')
 
     original = read_text(src)
     ed = Editor(original, plan.get('sequence'))
@@ -630,17 +651,35 @@ def main():
     new_problems = [x for x in problems if x not in base]
     print('\n'.join(ed.log))
     if new_problems:
-        sys.exit('NOT WRITTEN, the result fails checks:\n' + '\n'.join(new_problems))
-    if os.path.exists(dst):
-        subprocess.run(['trash', dst], check=True)
+        raise Refused('NOT WRITTEN, the result fails checks: ' + '; '.join(new_problems))
+    replaced = put_aside(dst) if os.path.exists(dst) else None
     tmp = dst + '.writing'
     write_project(tmp, ed.p.text)
     if read_text(tmp) != ed.p.text:
-        sys.exit('NOT WRITTEN: gzip round trip differs')
+        raise Refused('NOT WRITTEN: gzip round trip differs')
     shutil.move(tmp, dst)
-    record[dst] = b3(dst)
-    json.dump(record, open(WRITTEN, 'w'), indent=1)
+    digest = b3(dst)
+    if written:
+        record[dst] = digest
+        json.dump(record, open(written, 'w'), indent=1)
     print(f'checks passed; wrote {dst}')
+    return {'output': dst, 'blake3': digest, 'written': written, 'replaced': replaced,
+            'length': tc(end, ed.tpf), 'inserts': sorted(ed.insert_items), 'log': ed.log}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('plan')
+    ap.add_argument('--project')
+    ap.add_argument('--output')
+    ap.add_argument('--written', help='the JSON record of outputs this tool wrote (path -> BLAKE3), kept with the film')
+    args = ap.parse_args()
+    try:
+        result = run(args)
+    except (Refused, ValueError, KeyError, FileNotFoundError, RuntimeError) as e:
+        print(json.dumps({'error': str(e)}))
+        sys.exit(1)
+    print(json.dumps({'result': result}))
 
 
 if __name__ == '__main__':
