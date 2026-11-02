@@ -81,6 +81,24 @@
       "at": {
        "type": "string",
        "description": "When they said it, as an ISO time (default: now)"
+      },
+      "rule": {
+       "type": "string",
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+       "description": "One rule of the person's that this stand names: an agree on an exact text then waives that rule on that text alone. Its own record."
+      },
+      "source_text": {
+       "type": "string",
+       "description": "The whole text of the file the words were said in (a chat export, a transcript, a note). Given, why must appear in it literally, or nothing is kept, and the record names where (said_from)."
+      },
+      "source": {
+       "type": "string",
+       "description": "The name of that file; a name ending .jsonl is read as JSON lines, where words are kept escaped"
+      },
+      "after_line": {
+       "type": "integer",
+       "minimum": 1,
+       "description": "The words must be at or after this line of source_text (default 1)"
       }
      }
     },
@@ -514,7 +532,7 @@
     "label": "Plan moving kept stands into stance records",
     "status": "active",
     "job": "Turn stands a person took that were kept somewhere else into their stance records, with every earlier stand as an earlier version, and show what would change before anything is written",
-    "description": "Give stances (rows: kind, text, contains or view, stance, why, by, at, earlier as [{stance, why, at}], and the old ref if there was one) and fold, how the owner of the rules says two texts are the same. Returns writes, the record versions to send one at a time in order (each record's earlier stands first, oldest first), and summary: rows, records and versions by kind, refs_changed (rows whose identity differs from their old ref) and collisions (records two or more rows became under the fold, with each row's text and time). summary_only true leaves the writes out. It writes nothing.",
+    "description": "Give stances (rows: kind, text, contains or view, stance, why, by, at, earlier as [{stance, why, at}], and the old ref if there was one) and fold, how the owner of the rules says two texts are the same. Returns writes, the record versions to send one at a time in order (each record's earlier stands first, oldest first), and summary: rows, records and versions by kind, refs_changed (rows whose identity differs from their old ref) collisions (records two or more rows became under the fold, with each row's text and time), already (versions in kept, not written again) and unverified (rows whose words are not in their source, never written). A row may name a rule (a waiver stand) and a source with after_line, checked against sources. summary_only true leaves the writes out. It writes nothing.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -541,6 +559,17 @@
       "summary_only": {
        "type": "boolean",
        "description": "True: only the summary"
+      },
+      "sources": {
+       "type": "object",
+       "description": "The whole text of each source a row names in its source field: { <name>: <text> }. A row whose why is not literally in its source (at or after its after_line) is listed in summary.unverified and not written."
+      },
+      "kept": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "Versions an earlier run already wrote ({ id, stance, why, at }); the same version is not written again and is counted in summary.already"
       }
      }
     },
