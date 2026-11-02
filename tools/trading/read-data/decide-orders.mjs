@@ -12,7 +12,7 @@
 //   one policy version is one order, and two different orders never share a key.
 // - Paper and live never mix. A run has one mode; an order's `live` must say that mode and its route must declare it.
 // - Limits are the policy's, never this file's: max_order_notional per order, max_daily_notional per day with the
-//   orders accepted earlier in the same run counted.
+//   orders accepted earlier in the same run counted, and, when the policy gives allowed_symbols, only those symbols.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { canonicalJson, isObject, listOf, missing, numberOf, objectOf } from './values.mjs';
 
@@ -44,7 +44,7 @@ function referencePrice(instrument, prices) {
 /**
  * decide({ mode, policy, routes, prices, existing, dayUsed })
  *   mode      "paper" or "live": the run's mode.
- *   policy    { policy_version, decided_at?, orders: [...], risk: { max_order_notional, max_daily_notional } }
+ *   policy    { policy_version, decided_at?, orders: [...], risk: { max_order_notional, max_daily_notional, allowed_symbols? } }
  *   routes    { <route_ref>: route }, each route with its own `mode`.
  *   prices    { <symbol>: price }, for orders with no limit_price.
  *   existing  idempotency keys this policy version already has.
@@ -56,6 +56,8 @@ export function decide({ mode, policy, routes = {}, prices = {}, existing = [], 
   const risk = objectOf(policy.risk);
   const maxOrder = numberOf(risk.max_order_notional);
   const maxDaily = numberOf(risk.max_daily_notional);
+  // A list the policy gives closes trading to every other symbol; an empty list trades nothing. No list, no such limit.
+  const allowedSymbols = Array.isArray(risk.allowed_symbols) ? new Set(risk.allowed_symbols) : null;
   const keys = new Set(existing);
   let used = numberOf(dayUsed) ?? 0;
   const orders = [];
@@ -70,6 +72,7 @@ export function decide({ mode, policy, routes = {}, prices = {}, existing = [], 
     const skip = reason => skipped.push({ instrument, side: given(side), reason, idempotency_key: idempotencyKey });
 
     if (Object.keys(instrument).length === 0) { skip('no instrument'); continue; }
+    if (allowedSymbols && !allowedSymbols.has(instrument.symbol)) { skip(`symbol ${instrument.symbol ?? '(none)'} is not in policy allowed_symbols`); continue; }
     // A side must be there; which sides exist is the broker's to say.
     if (missing(side)) { skip('side missing'); continue; }
     const qty = numberOf(order.qty);

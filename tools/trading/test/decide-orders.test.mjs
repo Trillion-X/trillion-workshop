@@ -89,3 +89,18 @@ test('a contract multiplier counts in the notional', () => {
   const contract = order({ instrument: { kind: 'option', symbol: 'BREAD-C-10', contract_multiplier: 100 }, order_type: 'limit', limit_price: 1.5 });
   assert.equal(run(policy({ orders: [contract] })).orders[0].notional, 300);
 });
+
+test('a policy\'s allowed_symbols skips every other symbol with its reason; an empty list trades nothing; no list allows any', () => {
+  const bread = order();
+  const salt = order({ instrument: { kind: 'equity', symbol: 'SALT' } });
+  const prices = { BREAD: 100, SALT: 100 };
+  const allowing = (orders, allowed) => { const given = policy({ orders }); given.risk.allowed_symbols = allowed; return given; };
+  const limited = run(allowing([bread, salt], ['BREAD']), { prices });
+  assert.deepEqual(limited.orders.map(placed => placed.instrument.symbol), ['BREAD']);
+  assert.equal(limited.skipped.length, 1);
+  assert.match(limited.skipped[0].reason, /symbol SALT is not in policy allowed_symbols/);
+  const none = run(allowing([bread], []), { prices });
+  assert.deepEqual(none.orders, []);
+  assert.match(none.skipped[0].reason, /not in policy allowed_symbols/);
+  assert.equal(run(policy({ orders: [bread, salt] }), { prices }).orders.length, 2);
+});

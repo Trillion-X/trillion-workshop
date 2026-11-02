@@ -20,12 +20,14 @@ Ask a live source. If it answers, keep that answer. If it does not, hand back th
 | `keepTheLastGoodAnswer` | `({ askTheSource, readWhatWasKept?, keepThisAnswer? }) -> () -> Promise<Answer>` | Builds the holder. Throws `TypeError` without `askTheSource`. |
 | `Answer` | `{ origin, value, sourceFailure, keepFailure, keptFailure }` | All five keys are always present, null when they do not apply. Failures are returned, never raised and never logged. |
 | `FROM_THE_SOURCE` / `FROM_WHAT_WAS_KEPT` / `NOTHING_TO_GIVE` | strings | Where the answer came from; the caller never has to guess. |
-| `askAndKeep` | `(input, { door, fetch?, now? }) -> { origin, answer, kept_at, source_failure, keep_failure, kept_failure, said }` | The row's function. `input` is `{ address, key, wait_seconds? }`. |
+| `askAndKeep` | `(input, { door, fetch?, now? }) -> { origin, answer, kept_at, source_failure, keep_failure, kept_failure, retry_after_seconds, said }` | The row's function. `input` is `{ address, key, wait_seconds? }`. |
+| `retryAfterSeconds` | `(header, now?) -> number \| null` | Reads a `Retry-After` header: whole seconds or an HTTP date, a past date is 0, held to a day; null when missing or unreadable. |
 
 ## Invariants
 
 - A source that answers with nothing has not answered, and never replaces a good kept answer. `0`, `''`, `false` and `[]` are answers.
 - Failing to keep never fails the answer. A kept answer that cannot be read is the same as none kept.
+- A source that answers 429 or 503 with `Retry-After` has its wait returned (`retry_after_seconds`) and said; the tool never waits or asks again itself. The idea comes from the MIT-licensed `bloxwap/smart-hyperevm` and `bloxwap/smart-solana` transports (see `references/rea-intake-2026-11-01/`); the code here is written fresh.
 - Nothing logs. Timeouts and retries belong to the ask, the only party that knows what a slow answer means.
 
 ## Dependencies
