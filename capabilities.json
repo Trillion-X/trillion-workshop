@@ -16,7 +16,7 @@
   ],
   "capabilities": [
     {
-      "capability": "free the files and folders a person's own list says can be got back (a source address that still answers, a fetch source, or recipe files that are tracked, unchanged and pushed), checking each way back at run time and moving them to the Trash, as a dry run unless asked",
+      "capability": "free the files and folders a person's own list says can be got back (a source address that still answers, a fetch source, or recipe files that are tracked, unchanged and pushed), checking each way back at run time and removing them, as a dry run unless asked",
       "owner": [
         "tools/free-what-the-list-says-can-be-got-back/"
       ],
@@ -25,7 +25,7 @@
       "distinct_from": [
         {
           "job": "search, read, organize, trash and restore a person's Gmail mail and threads, keep and send drafts and set their send-as signature",
-          "why": "That row trashes mail in the person's mailbox through Gmail; this one moves files on the person's computer to the Trash after proving each can be got back."
+          "why": "That row trashes mail in the person's mailbox through Gmail; this one deletes files on the person's computer after proving each can be got back."
         },
         {
           "job": "browse, upload, open, rename, move and delete my files and folders: list, card and board views, a folders tree, a file opened in its own tab, drag-and-drop upload with progress",

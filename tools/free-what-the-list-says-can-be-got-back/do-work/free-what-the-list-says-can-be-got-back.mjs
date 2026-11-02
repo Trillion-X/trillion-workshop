@@ -1,7 +1,7 @@
 // tools/free-what-the-list-says-can-be-got-back/do-work/free-what-the-list-says-can-be-got-back.mjs
 //
 // Purpose: Judge, row by row, which files or folders on the person's computer can go because their own list says how to
-// get them back, check that way back NOW, and (only when asked) move them to the Trash. Mechanism only: the list's field
+// get them back, check that way back NOW, and (only when asked) remove them. Mechanism only: the list's field
 // names, its state words and how a source is asked are DATA (read-data/); no folder, film, tool or person is named here.
 //
 // Invariants:
@@ -11,13 +11,13 @@
 //   and no file under it is tracked by git; at least one proof exists and every proof holds: each source address answers,
 //   and each recipe file is tracked, unchanged since its last commit, and pushed; nothing under the path changed in the
 //   quiet hours. Anything else stays, with the reason.
-// - Removal is a move into the Trash of the path's own volume (a same-volume rename, never a copy and never rm). A refused
-//   move is reported; there is no fallback.
+// - Removal is direct and permanent: the path is deleted the way the Mac's disk-guard deletes (its header: "Nothing goes
+//   to the Trash: agents cannot empty it (TCC), so v1's move-to-Trash freed nothing"). The run-time way-back check above is
+//   the safety, so there is no Trash step. A refused delete is reported; the path is then not marked freed.
 // - Each freed answer row carries `next_value`: the row's value with its state set to the freed word, for the caller to
-//   write back after reading the move back as gone. The tool does not write the list.
+//   write back after reading the removal back as gone. The tool does not write the list.
 import { execFileSync } from 'node:child_process';
-import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, renameSync, statSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, rmSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -155,22 +155,10 @@ export async function judgeRow(row, { folder, shape, now = Date.now(), answers =
   return { id: row.id, free: true, bytes: bytesUnder(path), path };
 }
 
-/** The Trash folder on the path's own volume, so the move is a rename, never a copy. */
-export function trashFor(path) {
-  const home = homedir();
-  const device = p => statSync(p).dev;
-  if (device(path) === device(home)) return join(home, '.Trash');
-  let mount = dirname(path);
-  while (dirname(mount) !== mount && device(dirname(mount)) === device(path)) mount = dirname(mount);
-  return join(mount, '.Trashes', String(process.getuid()));
-}
-
-export function moveToTrash(path, stamp = Date.now(), trash = trashFor(path)) {
-  mkdirSync(trash, { recursive: true });
-  const dest = join(trash, `${basename(path)} ${stamp}`);
-  renameSync(path, dest);
-  if (existsSync(path)) throw new Refusal(`the move did not take ${path} out of its place`);
-  return dest;
+/** Delete the path (a file, or a folder and everything in it; links inside are removed, never followed). */
+export function removePath(path) {
+  rmSync(path, { recursive: true, force: false });
+  if (existsSync(path)) throw new Refusal(`the delete did not take ${path} out of its place`);
 }
 
 export async function run(folder, request, deps = {}) {
@@ -187,13 +175,13 @@ export async function run(folder, request, deps = {}) {
     if (verdict.reason) answer.reason = verdict.reason;
     if (verdict.free && !dryRun) {
       try {
-        answer.moved_to = moveToTrash(verdict.path, Date.now(), deps.trash);
+        removePath(verdict.path);
         answer.freed = true;
         freed += verdict.bytes;
         answer.next_value = { ...row.value, [shape.fields.state]: shape.states.freed, [shape.fields.checked]: new Date().toISOString().slice(0, 10) };
       } catch (error) {
         answer.freed = false;
-        answer.reason = `the move to the Trash was refused: ${error.message}`;
+        answer.reason = `the delete was refused: ${error.message}`;
       }
     }
     results.push(answer);

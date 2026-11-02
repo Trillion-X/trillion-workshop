@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "free-what-the-list-says-can-be-got-back-tool-rows",
-  "what_this_is": "Free the files and folders a person's own list says can be got back: each way back is checked at run time and a file moves to the Trash only on a real run.",
+  "what_this_is": "Free the files and folders a person's own list says can be got back: each way back is checked at run time and a file is removed only on a real run.",
   "records": [
     {
       "id": "package::free-what-the-list-says-can-be-got-back::tool::free-what-the-list-says-can-be-got-back",
@@ -25,7 +25,7 @@
         },
         "label": "Free the files my list says I can get back",
         "job": "Free disk space by removing the files and folders my own list says I can get back, after checking each way back is still good",
-        "description": "Give rows (1 to 100 rows of the person's list, each { id, value }) and the folder the person granted for change. A row is freed only if its state says the way back is saved, nothing is written as holding it back, it names a file or folder inside the granted folder that is not a link and that git does not track, and every proof holds now: each source address or fetch source answers, and each recipe file is tracked, unchanged since its last commit and pushed. dry_run is true unless you send false: a dry run moves nothing and says, per row, whether it could be freed and why not. A real run moves each freed path to the Trash of its own volume and returns next_value, the row with its state set to freed, for you to write back. Space comes back when the Trash is emptied. The list's field names and state words are the defaults in read-data/kept-file-shape.json; send shape with only the names that differ.",
+        "description": "Give rows (1 to 100 rows of the person's list, each { id, value }) and the folder the person granted for change. A row is freed only if its state says the way back is saved, nothing is written as holding it back, it names a file or folder inside the granted folder that is not a link and that git does not track, and every proof holds now: each source address or fetch source answers, and each recipe file is tracked, unchanged since its last commit and pushed. dry_run is true unless you send false: a dry run removes nothing and says, per row, whether it could be freed and why not. A real run deletes each freed path directly (there is no Trash step, so the space comes back at once) and returns next_value, the row with its state set to freed, for you to write back. The list's field names and state words are the defaults in read-data/kept-file-shape.json; send shape with only the names that differ.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -56,7 +56,7 @@
             },
             "dry_run": {
               "type": "boolean",
-              "description": "true (the default) moves nothing; send false to move the freed paths to the Trash"
+              "description": "true (the default) removes nothing; send false to delete the freed paths"
             },
             "shape": {
               "type": "object",
@@ -102,9 +102,6 @@
                   },
                   "freed": {
                     "type": "boolean"
-                  },
-                  "moved_to": {
-                    "type": "string"
                   },
                   "next_value": {
                     "type": "object"

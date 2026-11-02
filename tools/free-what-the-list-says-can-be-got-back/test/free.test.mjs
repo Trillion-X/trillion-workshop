@@ -55,14 +55,32 @@ test('a folder whose recipe is tracked, unchanged and pushed can be freed; a dry
   assert.ok(existsSync(join(work, 'scratch', 'dough-1.bin')));
 });
 
-test('a real run moves the folder into the trash and returns the row with its state freed', async t => {
-  const { work, trash } = bakery(t);
-  const out = await run(work, { rows: [row(work, 'scratch')], dry_run: false }, { trash });
+test('a real run deletes the folder directly (no Trash) and returns the row with its state freed', async t => {
+  const { work } = bakery(t);
+  const out = await run(work, { rows: [row(work, 'scratch')], dry_run: false });
   assert.equal(out.rows[0].freed, true);
   assert.equal(existsSync(join(work, 'scratch')), false);
-  assert.ok(existsSync(out.rows[0].moved_to));
+  assert.equal(out.rows[0].moved_to, undefined);
   assert.equal(out.rows[0].next_value.state, 'Mac copy freed');
   assert.equal(out.freed_count, 1);
+  assert.ok(existsSync(join(work, 'bake.json')), 'the recipe stays');
+});
+
+test('a real run removes only rows whose check passed; a row that fails stays in place and is not marked freed', async t => {
+  const { work } = bakery(t);
+  mkdirSync(join(work, 'kept'));
+  writeFileSync(join(work, 'kept', 'loaf.bin'), 'k');
+  utimesSync(join(work, 'kept', 'loaf.bin'), OLD, OLD); utimesSync(join(work, 'kept'), OLD, OLD);
+  const out = await run(work, { rows: [row(work, 'scratch'), row(work, 'kept', { hold_reason: 'needs the originals' })], dry_run: false });
+  assert.equal(out.rows[0].freed, true);
+  assert.equal(out.rows[1].free, false);
+  assert.equal(out.rows[1].next_value, undefined);
+  assert.ok(existsSync(join(work, 'kept', 'loaf.bin')));
+});
+
+test('the tool never touches the Trash: no Trash step exists in the code', () => {
+  const code = readFileSync(resolve(folder, 'do-work', 'free-what-the-list-says-can-be-got-back.mjs'), 'utf8').replace(/^\s*\/\/.*$/gm, '');
+  assert.doesNotMatch(code, /Trash|renameSync/);
 });
 
 test('every refusal leaves the path where it is and says why', async t => {
