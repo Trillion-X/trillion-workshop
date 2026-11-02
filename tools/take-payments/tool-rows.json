@@ -117,7 +117,7 @@
             "fd": 3,
             "rights": [
               {
-                "kind": "commercial-offer",
+                "kind": "record:commercial-offer",
                 "operations": [
                   "records:list"
                 ]
@@ -327,7 +327,7 @@
             "fd": 3,
             "rights": [
               {
-                "kind": "commercial-offer",
+                "kind": "record:commercial-offer",
                 "operations": [
                   "records:list"
                 ]
@@ -479,7 +479,7 @@
             "fd": 3,
             "rights": [
               {
-                "kind": "commercial-offer",
+                "kind": "record:commercial-offer",
                 "operations": [
                   "records:list"
                 ]
@@ -1470,7 +1470,7 @@
             "fd": 3,
             "rights": [
               {
-                "kind": "commercial-offer",
+                "kind": "record:commercial-offer",
                 "operations": [
                   "records:list"
                 ]
@@ -1716,7 +1716,7 @@
             "fd": 3,
             "rights": [
               {
-                "kind": "commercial-offer",
+                "kind": "record:commercial-offer",
                 "operations": [
                   "records:list"
                 ]
@@ -1863,7 +1863,7 @@
             "fd": 3,
             "rights": [
               {
-                "kind": "commercial-offer",
+                "kind": "record:commercial-offer",
                 "operations": [
                   "records:list"
                 ]

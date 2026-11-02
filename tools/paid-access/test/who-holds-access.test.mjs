@@ -76,7 +76,7 @@ const doorOf = (byType, { failOn } = {}) => ({
 });
 
 test('rows the request does not carry are listed from the person\'s records; rows it carries replace them', async () => {
-  const door = doorOf({ 'payment-event': [classBought], 'commercial-offer': offers });
+  const door = doorOf({ 'payment-event': [classBought], 'record:commercial-offer': offers });
   assert.deepEqual((await readHeldAccess({ subject: ana }, { door, nowMs: NOW })).held_access_refs, ['access:bread-class', 'access:recipes-free']);
   assert.deepEqual((await readHeldAccess({ subject: ana, payment_events: [] }, { door, nowMs: NOW })).held_access_refs, ['access:recipes-free']);
   assert.deepEqual(await heldAccessRefsOf(ana, { door, nowMs: NOW }), ['access:bread-class', 'access:recipes-free']);

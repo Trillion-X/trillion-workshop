@@ -3,8 +3,8 @@
 // Who holds which paid access now: the one answer every gate in this folder asks. It folds, for one buyer,
 //   - their payment events (`payment-event` records, as tools/take-payments keeps them) through the person's
 //     `access-effect-rule` rows into effects (payment-effects.mjs),
-//   - those effects into purchase episodes and the capabilities of the offers (`commercial-offer` rows) the buyer
-//     holds now (effect-lifecycle.mjs), and
+//   - those effects into purchase episodes and the capabilities of the offers (the rows of the person's offers list,
+//     `record:commercial-offer` records) the buyer holds now (effect-lifecycle.mjs), and
 //   - the grants the person wrote by hand (`access-grant` records: a gift, a pass with an end date; read-granted-access-
 //     refs.ts)
 // into one sorted list of access refs. A person with no rule and no lifecycle record of their own gets
@@ -17,7 +17,7 @@ import { effectsFromPaymentEvents } from './payment-effects.mjs';
 import { currentCapabilityState } from './effect-lifecycle.mjs';
 import { grantedAccessProjectionFromEffects } from './read-granted-access-refs.ts';
 
-export const RECORD_TYPES = { paymentEvent: 'payment-event', offer: 'commercial-offer', grant: 'access-grant', rule: 'access-effect-rule', lifecycle: 'effect-lifecycle' };
+export const RECORD_TYPES = { paymentEvent: 'payment-event', offer: 'record:commercial-offer', grant: 'access-grant', rule: 'access-effect-rule', lifecycle: 'effect-lifecycle' };
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);

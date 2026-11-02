@@ -52,18 +52,22 @@ const object = value => value !== null && typeof value === 'object' && !Array.is
 const STRIPE_KEY_DESCRIPTOR = 4;
 const WEBHOOK_SECRET_DESCRIPTOR = 5;
 
-/** The records of one kind, as the values the readers take. A record without a `kind` takes its type as its kind. */
-async function recordsOf(door, type) {
+// The person's offers are the rows of their offers list, whose rows are commercial offers (row type commercial-offer,
+// so each row is a record of type record:commercial-offer). A row made in the list itself may carry no `kind`.
+const OFFER_ROWS = { type: 'record:commercial-offer', kind: 'commercial-offer' };
+
+/** The records of one type, as the values the readers take. A record without a `kind` takes `kind` (its type unless named). */
+async function recordsOf(door, type, kind = type) {
   const values = [];
   for await (const record of door.list({ type })) {
-    if (object(record.value)) values.push({ kind: type, ...record.value });
+    if (object(record.value)) values.push({ kind, ...record.value });
   }
   return values;
 }
 
-/** The offers: the request's own `offers` rows when it carries them, else the person's commercial-offer records. */
+/** The offers: the request's own `offers` rows when it carries them, else the rows of the person's offers list. */
 async function offersOf(input, context, options) {
-  const rows = Array.isArray(input.offers) ? input.offers : await recordsOf(context.door, 'commercial-offer');
+  const rows = Array.isArray(input.offers) ? input.offers : await recordsOf(context.door, OFFER_ROWS.type, OFFER_ROWS.kind);
   return readCheckoutOffers(rows, options);
 }
 
