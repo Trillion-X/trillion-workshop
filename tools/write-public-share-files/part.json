@@ -1,0 +1,7 @@
+{
+  "public": [
+    "do-work/share-files.mjs",
+    "read-data/list-copy.mjs",
+    "read-data/shareable-copy.mjs"
+  ]
+}
