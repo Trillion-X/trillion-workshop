@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "b1d9cced25d77bee466fd081fb8734fe380fa6a62283fb1e35db0f5802a54b24",
+  "blake3": "b9d6706f95899587d91e6d8470b0761bde223c8b4466e000b0598efe090a469a",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -14,7 +14,10 @@
     "workflow-steps"
    ],
    "workflow_ids": [
-    "refresh-measurement-coverage"
+    "refresh-measurement-coverage",
+    "reach-companies-with-a-long-open-job-post",
+    "reach-local-businesses-by-zip-code",
+    "run-a-linkedin-content-system"
    ],
    "verified_public_mode_recipes": 10,
    "verified_public_mode_steps": 41,
@@ -1237,6 +1240,48 @@
     "recipe": "workflow:write-product-words",
     "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Names tools that no tool in the Workshop offers yet: tool:check-copy.\"}",
     "title": "Write product words people enjoy reading"
+   }
+  },
+  {
+   "id": "reach-companies-with-a-long-open-job-post",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "title": "Reach companies whose job post has stayed open",
+    "recipe": "workflow:reach-companies-with-a-long-open-job-post",
+    "job": "Find companies of 10 to 200 people whose job post has been open 21 days or more, read the day-to-day section of each post, name its three biggest problems, and send each a four-sentence observation that cites the role and how long it has been open, paced from a separate inbox, with every reply and bounce handled and the funnel measured.",
+    "produces": "A list of researched prospects with a sent, judged four-sentence observation each, and the outreach funnel from found to customer.",
+    "input_schema": "{\"type\":\"object\",\"required\":[\"offer\",\"from\",\"time_zone\",\"product_id\"],\"properties\":{\"offer\":{\"type\":\"string\",\"minLength\":3,\"description\":\"What the person helps with, in their own words; the criteria a prospect is researched against.\"},\"items\":{\"type\":\"array\",\"items\":{\"type\":\"object\"},\"description\":\"Job posts from the person's job board connection, as it gives them. Without items the source row's own public request is read.\"},\"from\":{\"type\":\"string\",\"pattern\":\"^[^@\\\\s]+@[^@\\\\s]+\\\\.[^@\\\\s]+$\",\"description\":\"The separate sending identity: an address on a domain that is not the person's main domain.\"},\"time_zone\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The sending inbox's IANA time zone.\"},\"product_id\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The product in the person's customer list these steps are recorded under.\"},\"style_layers\":{\"type\":\"object\",\"description\":\"The layers of the sender's writing style: base, niche, group, person.\"},\"rules\":{\"type\":\"array\",\"items\":{\"type\":\"object\"},\"description\":\"The person's own rule rows every message is judged by.\"},\"limit\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":200}}}",
+    "source": "{\"from\":\"an outreach method people share for selling to companies whose job post stays open: the open role shows an unsolved problem and a budget, and its day-to-day section says what is broken\",\"not_adopted\":[{\"part\":\"sending from the main inbox at volume\",\"why\":\"sends go from a separate identity at the pace of tool:pace-sends-from-an-inbox\"}]}"
+   }
+  },
+  {
+   "id": "reach-local-businesses-by-zip-code",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "title": "Reach local businesses by zip code",
+    "recipe": "workflow:reach-local-businesses-by-zip-code",
+    "job": "Find the local businesses of one kind in a zip code from the person's map data connection, score them on what their reviews say (complaints about slow quotes, a spike in new reviews in the last 90 days), write to their gmail or info@ address from a separate sending identity with one local detail in the first line, send on Saturday, then call the same list, with replies, bounces and calls recorded and the two openings compared.",
+    "produces": "A scored list of local businesses, a judged email with a local first line sent to each on Saturday, a call to each after, and which opening drew more replies.",
+    "input_schema": "{\"type\":\"object\",\"required\":[\"zip_code\",\"category\",\"items\",\"from\",\"main_domain\",\"time_zone\",\"product_id\",\"region\"],\"properties\":{\"zip_code\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The zip or postal code to look in.\"},\"category\":{\"type\":\"string\",\"minLength\":2,\"description\":\"The kind of business, as the map data names it.\"},\"items\":{\"type\":\"array\",\"items\":{\"type\":\"object\"},\"description\":\"The businesses from the person's map data connection (such as Google Maps) for the zip code and category, with their reviews, as it gives them.\"},\"from\":{\"type\":\"string\",\"pattern\":\"^[^@\\\\s]+@[^@\\\\s]+\\\\.[^@\\\\s]+$\",\"description\":\"The separate sending identity: an address on a domain that is not the person's main domain.\"},\"main_domain\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The person's main domain, which outreach never sends from.\"},\"time_zone\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The businesses' IANA time zone; Saturday and the calling hours are read in it.\"},\"product_id\":{\"type\":\"string\",\"minLength\":1},\"region\":{\"type\":\"string\",\"minLength\":3,\"description\":\"The Amazon SES region the sending identity is verified in.\"},\"versions\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":2,\"description\":\"The opening versions to compare; default detail-then-review and detail-then-question.\"},\"style_layers\":{\"type\":\"object\"},\"rules\":{\"type\":\"array\",\"items\":{\"type\":\"object\"}}}}",
+    "source": "{\"from\":\"an outreach method people share for selling to local businesses found by zip code on a map: score them on review complaints and a burst of new reviews, write to the owner's own inbox from a separate identity with a local first line on Saturday, then call the same list\",\"not_adopted\":[{\"part\":\"scraping the map site\",\"why\":\"businesses come from the person's own map data connection as items\"},{\"part\":\"guessing personal addresses\",\"why\":\"only the gmail or info@ address a business publishes is used\"}]}"
+   }
+  },
+  {
+   "id": "run-a-linkedin-content-system",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "title": "Run a LinkedIn content system",
+    "recipe": "workflow:run-a-linkedin-content-system",
+    "job": "Build a voice guide from the person's real posts and transcripts, mine the questions buyers ask on calls, keep an outreach research desk, write posts that answer the objections of stalled deals, review each on a 100-point rubric where invented evidence blocks it, attribute results honestly (tracked conversions apart from influence), and turn the edits the person keeps making into rule proposals.",
+    "produces": "Approved, scheduled LinkedIn posts that each answer a stalled-deal objection, their tracked conversions and influence kept apart, and proposed voice rules from the person's own edits.",
+    "input_schema": "{\"type\":\"object\",\"required\":[\"posts\",\"transcripts\",\"call_transcripts\",\"linkedin_account\",\"landing_page\",\"project\"],\"properties\":{\"posts\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1,\"description\":\"The person's own published posts, as file names in their files.\"},\"transcripts\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1,\"description\":\"Transcripts of the person speaking (talks, podcasts, videos), as file names.\"},\"call_transcripts\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1},\"minItems\":1,\"description\":\"Sales or discovery call transcripts, as file names.\"},\"target_accounts\":{\"type\":\"array\",\"items\":{\"type\":\"object\"},\"description\":\"The accounts the research desk studies, as the person's list holds them.\"},\"style_layers\":{\"type\":\"object\",\"description\":\"Base, niche and group layers; the person layer comes from their posts and transcripts.\"},\"linkedin_account\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The LinkedIn destination id, as tool:list-post-destinations names it.\"},\"landing_page\":{\"type\":\"string\",\"minLength\":8,\"description\":\"The page tracked links point at.\"},\"project\":{\"type\":\"string\",\"minLength\":1,\"description\":\"The traffic project the links and sales are counted in.\"},\"stalled_days\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"Days without a step after which a deal counts as stalled; default 21.\"},\"min_score\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":100,\"description\":\"The least rubric score a post may be published at; default 80.\"},\"rules\":{\"type\":\"array\",\"items\":{\"type\":\"object\"}}}}",
+    "source": "{\"from\":\"a LinkedIn content system people share: a voice guide from the person's own words, buyer questions from calls, a research desk, posts aimed at what stalls deals, a scored review, attribution and edits turned into rules\",\"not_adopted\":[{\"part\":\"counting every mention as a conversion\",\"why\":\"tracked conversions and influence are kept apart\"},{\"part\":\"applying edit rules automatically\",\"why\":\"repeated edits become proposals the person accepts or not\"}]}"
    }
   }
  ]

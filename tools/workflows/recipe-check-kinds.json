@@ -55,6 +55,14 @@
       ]
     },
     {
+      "kind": "differs-from",
+      "meaning": "No value at path is also a value at of, such as a sending domain that must not be the main domain.",
+      "fields": [
+        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
+        { "field": "of", "shape": "path", "required": true, "refusal": "is required." }
+      ]
+    },
+    {
       "kind": "exists",
       "meaning": "Every id at path names something that exists in the catalog.",
       "fields": [
