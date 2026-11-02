@@ -560,8 +560,9 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
       if (gone.conflict) throw say('document_changed', { document: name, expected, current: gone.current ?? 'nothing' });
       removed.push(name);
     }
-    // What each changed document now says, read back once for all of them.
-    const after = new Map(kept.length ? (await read({ source, row_ids: kept.map(row => row.name) })).rows.map(row => [row.id, row.values]) : []);
+    // What each changed document now says, read back once for all of them, by name: a folder that holds far more
+    // (a home folder, a whole repository) is never walked for it.
+    const after = new Map(kept.length ? (await read({ source: { ...source, paths: kept.map(row => row.name) }, row_ids: kept.map(row => row.name) })).rows.map(row => [row.id, row.values]) : []);
     return { kept: kept.map(row => ({ id: row.name, values: after.get(row.name) ?? {}, identity: row.identity })), removed };
   };
   return { sources: { [data.source]: read } };
