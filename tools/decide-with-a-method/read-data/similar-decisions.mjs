@@ -46,7 +46,7 @@ export function closest(record, goals, limit) {
 export function broughtBack(other) {
   return {
     case_id: other.id, goal: other.input?.goal ?? '', method: methodOf(other),
-    decision: other.decision ? other.input?.options?.find(option => option.id === other.decision.option_id)?.label ?? null : null,
+    decision: other.decision ? (other.input?.options ?? other.candidates)?.find(option => option.id === other.decision.option_id)?.label ?? null : null,
     next_action: other.decision?.next_action ?? null, status: decisionStatus(other, precedence) ?? null,
     observed: (other.observations ?? []).map(item => ({ result: item.result, summary: item.summary ?? null })),
     reported: (other.reports ?? []).map(item => ({ result: item.result, summary: item.summary })),
