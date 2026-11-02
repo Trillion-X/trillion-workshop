@@ -93,7 +93,7 @@ test('comparison evidence rows stay out of sitemap and llms listings', async () 
 });
 
 test('links for named people, an email, an audience or an access code have no public files', async () => {
-  for (const scope of [{ kind: 'email', value: 'bo@example.com' }, { kind: 'people', value: ['relay:a'] }, { kind: 'audience', value: 'audience:members' }, { kind: 'code', value: 'secret' }]) {
+  for (const scope of [{ kind: 'email', value: 'bo@people.example' }, { kind: 'people', value: ['relay:a'] }, { kind: 'audience', value: 'audience:members' }, { kind: 'code', value: 'secret' }]) {
     const out = await run([share({ grant: grantOf({ scope, address: 'bakery-compared', listed: true }) })]);
     assert.deepEqual(out.published, []);
     assert.equal(out.left_out.length, 1);
