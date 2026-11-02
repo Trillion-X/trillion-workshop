@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:ed2c3cb54ed740a30cd3690dd6f484d5990b5431a217a10d37ff0e3320491e13"
+  "blake3": "1f:affed72cb3cb11375ba2d01cc0fb6ea7cafd2aa4d5e9e569db55605201132473"
  },
  "fields": [
   {
@@ -3303,6 +3303,21 @@
      "placement:your-computer"
     ],
     "folder": "listen-for-a-while"
+   }
+  },
+  {
+   "id": "tool:look-at-screen",
+   "values": {
+    "title": "Look at my screen",
+    "job": "See what is on the person's Mac screen right now: a picture of every display, the main one first, each with its size in pixels so an AI can point at an exact spot. Looks only when run; nothing is captured in the background or kept on the Mac. Says plainly when Screen Recording is off.",
+    "description": "Runs on the person's own Mac. Asks the system whether Screen Recording is allowed and, if it is not, answers needs_access with the words that say what to turn on; nothing is captured. Otherwise it captures every display with the system's screen capture (the pointer too when `cursor` is true), shrinks each to at most `long_edge` pixels on its longest side, and answers one picture per display, the main display first, each with its width and height in pixels, its media type and its bytes as base64. The pictures are made smaller together until the whole answer fits what one run may return; the sizes in the answer are those of the pictures sent. The folder the pictures are made in is removed before the run ends, so nothing is kept on the Mac. The run needs the screen-recording capability granted to this tool.",
+    "status": "active",
+    "maker": "maker:look-at-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "look-at-screen"
    }
   },
   {
