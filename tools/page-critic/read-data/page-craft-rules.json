@@ -30,6 +30,7 @@
     "overflow_ignored": "[aria-hidden='true'], [hidden]",
     "eyebrow_candidates": "p, span, div, small",
     "text": "h1, h2, h3, h4, p, li, a, button, span",
+    "text_fields": "input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='range']):not([type='color']):not([type='file']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']), textarea, select",
     "anchors": "a[href^='#']",
     "links": "a[href]",
     "cards": "[class*='card'], [data-card]",
@@ -107,6 +108,24 @@
         "390",
         "1280"
       ]
+    },
+    {
+      "id": "input_zoom",
+      "says": "The field \"{text}\" shows {px}px text; a phone zooms the whole page when it is tapped. Give fields at least {min_px}px text.",
+      "min_px": 16,
+      "widths": [
+        "390"
+      ],
+      "from": "Emil Kowalski's mobile-native skill (MIT, github.com/emilkowalski/skills): inputs that zoom the page"
+    },
+    {
+      "id": "sticky_hover",
+      "says": "The hover look of \"{text}\" also applies on touch screens, where it sticks after a tap; put it inside @media (hover: hover).",
+      "hover_media": "\\(\\s*(any-)?hover\\s*:\\s*hover\\s*\\)|\\(\\s*(any-)?pointer\\s*:\\s*fine\\s*\\)",
+      "widths": [
+        "390"
+      ],
+      "from": "Emil Kowalski's mobile-native skill (MIT, github.com/emilkowalski/skills): sticky hover states"
     },
     {
       "id": "overflow_outside_container",
