@@ -173,6 +173,120 @@
      }
     ]
    }
+  },
+  {
+   "id": "package::judge-words::tool::make-a-plain-work-title",
+   "address": "package::judge-words::tool::make-a-plain-work-title",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:make-a-plain-work-title",
+    "label": "Give a job a short plain title",
+    "status": "active",
+    "job": "Give a piece of work a short plain title from its own words, so a person sees what it is at a glance",
+    "description": "Give the job's words (job), and optionally the title someone already said (said) and the words to show when the job holds no sentence a person reads (fallback). A nonblank said is kept, trimmed. Otherwise the first sentence a person would read becomes the title: links keep their words, web addresses, folder paths, record ids, long hex ids and markdown marks are taken out, a leading 'Label:' is dropped, a sentence holding a program word (like list_items) or a short heading is skipped, the first letter is put in capitals and the title is cut at a word to at most 80 UTF-16 units with an ellipsis. Returns title and from (said, job or fallback).",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "job"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "job": {
+       "type": "string",
+       "description": "The work's own words"
+      },
+      "said": {
+       "type": "string",
+       "description": "A title someone already gave; kept when not blank"
+      },
+      "fallback": {
+       "type": "string",
+       "description": "The title when the job holds no sentence a person reads; 'Sent to your AIs' when not given"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "title",
+      "from"
+     ],
+     "properties": {
+      "title": {
+       "type": "string",
+       "maxLength": 80
+      },
+      "from": {
+       "type": "string",
+       "enum": [
+        "said",
+        "job",
+        "fallback"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "judge-words",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/judge-words"
+      }
+     },
+     "workdir": "/opt/judge-words",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/make-a-plain-work-title.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false,
+     "memory_mb": 64
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:judge-words",
+    "provenance": {
+     "source": "moved from the Trillion engine's src/work_title.rs (the Rust port of the original src/work-title.mjs), with its tests"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "job": "Handoff: fix h_4677423f69aed1fb495164bc so the [login](https://x.com/a) page works."
+      },
+      "output_selector": "$.title",
+      "contains": "Fix so the login page works"
+     },
+     {
+      "kind": "sample-run",
+      "input": {
+       "job": "Use list_pursuits first. Draft the launch post for Friday."
+      },
+      "output_selector": "$.title",
+      "contains": "Draft the launch post for Friday"
+     }
+    ]
+   }
   }
  ]
 }
