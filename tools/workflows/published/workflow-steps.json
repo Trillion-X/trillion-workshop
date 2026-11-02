@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "76b4e3bd6014f32c86c49acfc57a7d321e1e491b1480457692198f398dfe8474",
+  "blake3": "f2d682ec8fc441f25e07aa403e793f09467d90c51ca8ca36fc20c683050d4985",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -8528,6 +8528,134 @@
     "step": "proof",
     "submit": "{\"type\":\"object\",\"required\":[\"writer\",\"reader\",\"both\",\"file\",\"file_matched\",\"change_reached_list\",\"removed\"],\"properties\":{\"writer\":{\"type\":\"string\",\"minLength\":2},\"reader\":{\"type\":\"string\",\"minLength\":2},\"both\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The writer and the reader\"},\"file\":{\"type\":\"string\",\"minLength\":2},\"file_matched\":{\"type\":\"boolean\",\"enum\":[true]},\"change_reached_list\":{\"type\":\"boolean\",\"enum\":[true]},\"removed\":{\"type\":\"boolean\",\"enum\":[true]}}}",
     "title": "Prove a memory one AI wrote is read by another"
+   }
+  },
+  {
+   "id": "set-up-your-checks--connect-this-ai",
+   "values": {
+    "step": "connect-this-ai",
+    "title": "Connect this AI to your Trillion",
+    "do": "Call the tool run_resource_operation with address @own-records, method records:list, a new request_key, and input {\"type\":\"list\",\"limit\":5}. If the call works, this AI is connected: go on. If this AI has no tool named run_resource_operation, it is not connected yet: follow the workflow \"Connect every AI to one memory list\" (workflow:connect-every-ai-to-one-memory-list) first, then come back to this step.",
+    "submit": "{\"type\":\"object\",\"required\":[\"connected\"],\"properties\":{\"connected\":{\"type\":\"boolean\"},\"lists_seen\":{\"type\":\"integer\",\"minimum\":0}}}",
+    "recipe": [
+     "set-up-your-checks"
+    ],
+    "position": 1,
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "set-up-your-checks--find-the-check-tools",
+   "values": {
+    "step": "find-the-check-tools",
+    "title": "Find the check tools",
+    "do": "For each of these ids, call run_resource_operation with address @workshop-tools, method tools:list and input {\"tool\":\"<the id>\"}: tool:check-against-a-persons-rules-and-verdicts (judges words against rule rows and the person's own verdicts) and tool:judge-against-rules (judges words against rule rows only). An answer with that id and an input_schema means the tool is there. If one is missing and this Trillion runs on the person's own computer, call tools:run with input {\"tool\":\"tool:keep-the-workshop-current\",\"input\":{}} once, then ask tools:list again. Report each id and whether it was found.",
+    "submit": "{\"type\":\"object\",\"required\":[\"tools\"],\"properties\":{\"tools\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id\",\"found\"],\"properties\":{\"id\":{\"type\":\"string\"},\"found\":{\"type\":\"boolean\"}}}}}}",
+    "recipe": [
+     "set-up-your-checks"
+    ],
+    "position": 2,
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "set-up-your-checks--make-the-word-checks-list",
+   "values": {
+    "step": "make-the-word-checks-list",
+    "title": "Make the list Word checks",
+    "do": "Call records:read at @own-records with input {\"id\":\"list:word-checks\"}. If its value is not null, the list is there: go on. If it is null, call records:write at @own-records with input {\"records\":[{\"id\":\"list:word-checks\",\"type\":\"list\",\"value\":{\"label\":\"Word checks\",\"row_type\":\"word-check\",\"title_field\":\"says\",\"judged_by\":\"tool:check-against-a-persons-rules-and-verdicts\",\"about\":\"My rules for every line a person reads, one row each. Every AI reads them here.\",\"fields\":[{\"id\":\"id\",\"kind\":\"text\",\"label\":\"Rule\"},{\"id\":\"says\",\"kind\":\"long-text\",\"label\":\"Says\"},{\"id\":\"words\",\"kind\":\"tags\",\"label\":\"Words\"},{\"id\":\"exact\",\"kind\":\"tags\",\"label\":\"Exact lines\"},{\"id\":\"pattern\",\"kind\":\"text\",\"label\":\"Pattern\"},{\"id\":\"check\",\"kind\":\"text\",\"label\":\"Grammar check\"},{\"id\":\"kinds\",\"kind\":\"tags\",\"label\":\"Kinds\"},{\"id\":\"because\",\"kind\":\"tags\",\"label\":\"Because\"},{\"id\":\"on\",\"kind\":\"choice\",\"label\":\"On\",\"choices\":[\"On\",\"Off\"]},{\"id\":\"why_off\",\"kind\":\"long-text\",\"label\":\"Why off\"},{\"id\":\"switched_by\",\"kind\":\"text\",\"label\":\"Switched by\"},{\"id\":\"switched_at\",\"kind\":\"date\",\"label\":\"Switched at\"}]}}]}. Then call records:read again and confirm the value is there.",
+    "submit": "{\"type\":\"object\",\"required\":[\"list\",\"made_now\"],\"properties\":{\"list\":{\"type\":\"string\"},\"made_now\":{\"type\":\"boolean\"}}}",
+    "recipe": [
+     "set-up-your-checks"
+    ],
+    "position": 3,
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "set-up-your-checks--add-the-starter-rows",
+   "values": {
+    "step": "add-the-starter-rows",
+    "title": "Add the published starter rows",
+    "do": "Read the starter rows the Workshop publishes: the file https://raw.githubusercontent.com/Trillion-X/trillion-workshop/main/tools/check-against-a-persons-rules-and-verdicts/read-data/copy-grammar-rules.json, its rules array (mechanical grammar only: capitals, full stops, doubled words and the like; no word of any person). For each row, call records:read at @own-records with input {\"id\":\"record:word-check:<the row's id>\",\"type\":\"record:word-check\"}; if that value is null, write the row as it is: records:write with input {\"records\":[{\"id\":\"record:word-check:<the row's id>\",\"type\":\"record:word-check\",\"value\":<the row>}]}. Never overwrite a row that is already there: the person may have changed it. Report how many rows were added and how many were already there.",
+    "submit": "{\"type\":\"object\",\"required\":[\"added\",\"already_there\"],\"properties\":{\"added\":{\"type\":\"integer\",\"minimum\":0},\"already_there\":{\"type\":\"integer\",\"minimum\":0}}}",
+    "recipe": [
+     "set-up-your-checks"
+    ],
+    "position": 4,
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "set-up-your-checks--add-your-own-rule",
+   "values": {
+    "step": "add-your-own-rule",
+    "title": "Add a rule of your own",
+    "do": "Use the person's words from own_rule_words. Make an id from them: lower case, words joined by dashes, starting with no- (for example no-artisanal). Write one row: records:write at @own-records with input {\"records\":[{\"id\":\"record:word-check:<that id>\",\"type\":\"record:word-check\",\"value\":{\"id\":\"<that id>\",\"says\":\"<own_rule_says, or: Not a word I use. Say the plain thing.>\",\"words\":<own_rule_words>,\"because\":[\"<the person's own words when they asked for this rule, and the date>\"]}}]}. Then read the row back with records:read and show the person the row as it is kept.",
+    "submit": "{\"type\":\"object\",\"required\":[\"rule_id\"],\"properties\":{\"rule_id\":{\"type\":\"string\",\"minLength\":1}}}",
+    "recipe": [
+     "set-up-your-checks"
+    ],
+    "position": 5,
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "set-up-your-checks--connect-each-ai",
+   "values": {
+    "step": "connect-each-ai",
+    "title": "Let each of your AIs run the check",
+    "do": "Every AI runs the same two calls before it shows the person words it wrote: (1) records:list at @own-records with input {\"type\":\"record:word-check\",\"limit\":500}, again with after set to the answer's next until next is null, keeping every row whose on is not Off; (2) tools:run at @workshop-tools with input {\"tool\":\"tool:check-against-a-persons-rules-and-verdicts\",\"input\":{\"rules\":<the values of the kept rows>,\"units\":[{\"text\":\"<each line>\",\"kind\":\"copy\"}],\"stage\":\"final\"}}. On a computer (Claude Code, Codex, Cursor), run the command trillion setup --harness claude-code,codex,cursor once in a terminal, so each of them reaches the person's Trillion, then tell each of them in its own instructions to run these two calls before showing copy. On the web or a phone (ChatGPT, Claude, Grok), connect Trillion as that AI's connector (workflow:connect-every-ai-to-one-memory-list) and tell it the same. A line the answer marks FAIL is rewritten before it is shown.",
+    "submit": "{\"type\":\"object\",\"required\":[\"ais\"],\"properties\":{\"ais\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"name\",\"ran_the_check\"],\"properties\":{\"name\":{\"type\":\"string\"},\"ran_the_check\":{\"type\":\"boolean\"}}}}}}",
+    "recipe": [
+     "set-up-your-checks"
+    ],
+    "position": 6,
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "set-up-your-checks--switch-a-check-off",
+   "values": {
+    "step": "switch-a-check-off",
+    "title": "Switch one check off, only when the person says so",
+    "do": "An AI never switches a check off on its own, and never to make its own words pass. Only when the person asks for it in this conversation: read the row with records:read, then write it back with records:write with the same value plus on: \"Off\", why_off: the person's own words, switched_by: the person's name, switched_at: the time now (for example 2026-11-02T09:30:00Z). To switch it on again, write on: \"On\". Tell the person which check is off, since when and why, every time a check they switched off would have failed a line.",
+    "submit": "{\"type\":\"object\",\"required\":[\"switched\"],\"properties\":{\"switched\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"rule_id\",\"on\",\"why_off\"],\"properties\":{\"rule_id\":{\"type\":\"string\"},\"on\":{\"type\":\"string\",\"enum\":[\"On\",\"Off\"]},\"why_off\":{\"type\":\"string\"}}}}}}",
+    "recipe": [
+     "set-up-your-checks"
+    ],
+    "position": 7,
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "set-up-your-checks--prove-a-changed-rule-is-used",
+   "values": {
+    "step": "prove-a-changed-rule-is-used",
+    "title": "Prove a changed rule is the rule used",
+    "do": "Run the two calls of connect-each-ai on test_line. Its answer must say FAIL with the id from add-your-own-rule. Then change that rule in the list: records:write the row with one more word in words (the person picks it). Run the two calls again on a line holding only the new word: it must say FAIL with the same id. That shows the check reads the list as it is now, not a copy. Show the person both answers.",
+    "submit": "{\"type\":\"object\",\"required\":[\"first_failed_on\",\"after_change_failed_on\"],\"properties\":{\"first_failed_on\":{\"type\":\"string\"},\"after_change_failed_on\":{\"type\":\"string\"}}}",
+    "recipe": [
+     "set-up-your-checks"
+    ],
+    "position": 8,
+    "flags": [
+     "public"
+    ]
    }
   }
  ]
