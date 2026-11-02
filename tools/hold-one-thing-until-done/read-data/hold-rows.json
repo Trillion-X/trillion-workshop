@@ -1,0 +1,23 @@
+{
+  "_what": "Where the hold reads and keeps the person's own rows, and how a row of their must-do list becomes a card the hold ranks. Every name here is a record kind or id the rows in tool-rows.json are granted; the hold's rules (what holds, for how long, the asides, the hand-back ways, the stakes and their words) are the person's own row, never shipped here.",
+  "state": { "type": "setting", "id": "setting:needs_you_hold", "_why": "The person's hold setting: on, the stake, an off asked for, the asides and the things handed back. Stored as a setting, whose value holds it under `value`." },
+  "rules": { "type": "setting", "id": "setting:needs_you_hold_rules", "_why": "The person's hold rules, stored the same way. A request may carry `rules` instead." },
+  "gate": { "type": "setting", "id": "setting:required_setup_gate", "_why": "The person's cover row: `key`, the name the cover is held under. A request may carry `gate` instead." },
+  "must_do": {
+    "type": "record:waiting-on-you",
+    "section": "asks",
+    "done_field": "status",
+    "done_values": ["Done"],
+    "card": { "title": "what", "detail": "why", "does_in": "do_it_in", "link": "where", "at": "added", "by": "asked_by", "needs": "needs", "unlocks": "unlocks", "waits_on": "waits_on", "response": "response", "finish": "finish", "setup_words": "setup_words", "pursuit": "pursuit" },
+    "_why": "Each row of the person's must-do list is one card in the section named here; a row whose done_field holds one of done_values waits no longer. `card` maps a card field the hold reads to the row field that holds it."
+  },
+  "setup_steps": {
+    "type": "record:setup-steps",
+    "required_field": "required",
+    "done_field": "status",
+    "done_values": ["Done"],
+    "_why": "The person's setup steps as list rows: the cover stands while any row whose required_field is true is not done."
+  },
+  "page_rows": 200,
+  "most_rows": 2000
+}

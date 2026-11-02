@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:dce00179e403c81a8f5735a08ce9ed8f2ec10bce40e8aeb80e78ae895db2aa15"
+  "blake3": "1f:3b28632b66d3dd2bfa493c3d08ae9b852f5a16262f18958fd06ec3c6e9c0c6a2"
  },
  "fields": [
   {
@@ -664,6 +664,21 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:change-what-holds-me",
+   "values": {
+    "title": "Change what holds me",
+    "job": "Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on",
+    "description": "Changes your hold setting (setting:needs_you_hold) by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. One write of the whole setting, only while it is still what was read: a setting changed meanwhile answers conflict and changes nothing, and the same request_key sent again changes nothing twice. Answers the jobs to hand to your AIs (it sends nothing) and the setting as written.",
+    "status": "active",
+    "maker": "maker:hold-one-thing-until-done",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "hold-one-thing-until-done"
    }
   },
   {
@@ -6368,6 +6383,21 @@
      "placement:small-container"
     ],
     "folder": "draw-ink-marks"
+   }
+  },
+  {
+   "id": "tool:see-what-holds-me",
+   "values": {
+    "title": "See what holds me",
+    "job": "Tell me whether my setup still has to be finished before anything else opens, and which one thing I must do now",
+    "description": "Reads your setup steps (record:setup-steps rows, or the Get started answer you send as setup), your must-do list (record:waiting-on-you rows) and your hold setting, and answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. It reads and changes nothing.",
+    "status": "active",
+    "maker": "maker:hold-one-thing-until-done",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "hold-one-thing-until-done"
    }
   },
   {
