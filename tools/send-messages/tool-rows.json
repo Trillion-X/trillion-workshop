@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "send-messages-tool-rows",
-  "what_this_is": "The Workshop rows for sending a message from the person's AI: an email (Amazon SES or Resend), a text (Twilio) or a Messages message on the person's own Mac, to one person or a list, and turning a document into a message body first. Each provider is one row here and one entry in read-data/message-providers.json; the person's own key reaches the one process on private pipes and is never in the request.",
+  "what_this_is": "The Workshop rows for sending a message from the person's AI: an email (Amazon SES or Resend), a text (Twilio) or a Messages message on the person's own Mac, to one person or a list, and turning a document into a message body first. Each provider is one row here and one entry in read-data/message-providers.json; the person's own key reaches the one process on private pipes and is never in the request. Two rows pace a sending inbox and sort what comes back (bounces, complaints, replies) by the pacing and outcome rows of read-data/inbox-pacing.json.",
   "records": [
     {
       "payload": {
@@ -644,6 +644,473 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
         "provenance": { "source": "bitfield-packages myletter-newsletter (the subscription and interest records its consent logic keeps), read back" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pace-sends-from-an-inbox",
+        "label": "Pace sends from an inbox",
+        "job": "Say when each address on a list may be emailed from one sending inbox, so a new inbox warms up slowly, sends only on chosen days and hours, and stops when its mail bounces",
+        "description": "Give time_zone (the inbox's), recipients and a pacing row (pacing: new-inbox-warmup or saturday-local from read-data/inbox-pacing.json, or your own pacing_row): a ramp of sends a day by the inbox's day number, the least gap between sends, weekdays, local hours, how many days to leave an address after it was sent to, and when to pause (a share of hard bounces or any complaint among the last sends). Add history (every send this inbox made), outcomes (from tool:sort-bounces-and-replies) and suppressed addresses. Returns due_now (send these now, through a send tool), schedule (a slot for every address that may be sent to, in local time with its ramp day), held (each address left out and why: suppressed, bounced, unsubscribed, replied, sent to recently, listed twice, not an address, or the inbox is paused) and paused. It sends nothing and keeps nothing; every number, day and hour is a row you can change.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "time_zone",
+            "recipients"
+          ],
+          "properties": {
+            "pacing": {
+              "type": "string",
+              "description": "A pacing row id from read-data/inbox-pacing.json: new-inbox-warmup or saturday-local."
+            },
+            "pacing_row": {
+              "type": "object",
+              "description": "Your own pacing row: { id, ramp: [{ from_day, per_day }], min_gap_minutes, weekdays, hours: { from, to }, leave_address_days, pause_when: { last_sends, bounce_share_at_least, complaints_at_least } }."
+            },
+            "time_zone": {
+              "type": "string",
+              "description": "The sending inbox's IANA time zone; weekdays and hours are read in it."
+            },
+            "now": {
+              "type": "string"
+            },
+            "first_send_at": {
+              "type": "string",
+              "description": "When this inbox first sent; its local day is day 1 of the ramp. Defaults to its earliest send in history, else the first send planned now."
+            },
+            "recipients": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1000,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "address"
+                    ],
+                    "properties": {
+                      "address": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "history": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "recipient",
+                  "at"
+                ],
+                "properties": {
+                  "recipient": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "outcomes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "recipient",
+                  "kind"
+                ],
+                "properties": {
+                  "recipient": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "suppressed": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "pacing",
+            "time_zone",
+            "paused",
+            "due_now",
+            "schedule",
+            "held",
+            "said"
+          ],
+          "properties": {
+            "pacing": {
+              "type": "string"
+            },
+            "time_zone": {
+              "type": "string"
+            },
+            "paused": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "why"
+                  ],
+                  "properties": {
+                    "why": {
+                      "type": "string"
+                    },
+                    "bounce_share": {
+                      "type": "number"
+                    },
+                    "complaints": {
+                      "type": "integer"
+                    },
+                    "last_sends": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              ]
+            },
+            "due_now": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "schedule": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "recipient",
+                  "at",
+                  "local",
+                  "day"
+                ],
+                "properties": {
+                  "recipient": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "string"
+                  },
+                  "day": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "held": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "recipient",
+                  "why"
+                ],
+                "properties": {
+                  "recipient": {
+                    "type": "string"
+                  },
+                  "why": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": [
+            "/usr/local/bin/node",
+            "do-work/pace-an-inbox.mjs",
+            "plan"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work/pace-an-inbox.mjs",
+                  "read-data/inbox-pacing.mjs",
+                  "read-data/inbox-pacing.json"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds":  2, "network_egress":  false, "memory_mb":  64},
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "provenance": { "source":  "outreach methods that send from a separate, warmed-up inbox at a set pace and stop on bounces and replies, generalised into pacing and outcome rows" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "pacing": "saturday-local",
+              "time_zone": "America/Chicago",
+              "now": "2026-11-04T15:00:00Z",
+              "recipients": [
+                "owner@example.com",
+                "info@example.org"
+              ],
+              "suppressed": [
+                "info@example.org"
+              ]
+            },
+            "output_selector": "$.schedule[0].local",
+            "contains": "saturday 2026-11-07 08:00"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:sort-bounces-and-replies",
+        "label": "Sort bounces and replies",
+        "job": "Sort the bounces, complaints, unsubscribes and replies that came back from emails I sent, and say which addresses never to send to again, which to retry and which people wrote back",
+        "description": "Give events as your provider or mailbox gave them and event_source (plain, resend-webhook, amazon-ses-notification or mailbox-message from read-data/inbox-pacing.json, or your own event_source_row naming where the recipient, type, status, subject, text and time sit). Each event is read into those fields and the first outcome row whose every condition holds (a field equals one of its values, contains one of its words, or matches its pattern) names its kind (hard-bounce, soft-bounce, complaint, unsubscribe, reply, auto-reply, delivered) and action (suppress, stop-sequence, retry-later, hand-to-person, none). Returns outcomes (hand them to tool:pace-sends-from-an-inbox), suppress, stop, retry (with when), replies and the unmatched events. It sends, deletes and keeps nothing; your own outcome_rows replace the shipped ones.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "events"
+          ],
+          "properties": {
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The bounces, complaints, delivery notices and replies that came back, as the provider or mailbox gave them."
+            },
+            "event_source": {
+              "type": "string",
+              "description": "An event-source row id from read-data/inbox-pacing.json: plain (default), resend-webhook, amazon-ses-notification or mailbox-message."
+            },
+            "event_source_row": {
+              "type": "object",
+              "description": "Your own event-source row: { id, fields: { recipient, type, status?, subject?, text?, at? } }, each a dot path into an event."
+            },
+            "outcome_rows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Your own outcome rows in order: { id, when: [{ field, equals | matching | pattern }], kind, action, retry_after_hours?, says? }. The first whose every condition holds wins."
+            },
+            "now": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "event_source",
+            "outcomes",
+            "suppress",
+            "stop",
+            "retry",
+            "replies",
+            "unmatched",
+            "said"
+          ],
+          "properties": {
+            "event_source": {
+              "type": "string"
+            },
+            "outcomes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "recipient",
+                  "rule",
+                  "kind",
+                  "action"
+                ],
+                "properties": {
+                  "recipient": {
+                    "type": "string"
+                  },
+                  "rule": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "action": {
+                    "type": "string"
+                  },
+                  "says": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "type": "string"
+                  },
+                  "retry_at": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "suppress": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "stop": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "retry": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "recipient",
+                  "at"
+                ],
+                "properties": {
+                  "recipient": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "replies": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unmatched": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/send-messages",
+          "stdout": "json",
+          "argv": [
+            "/usr/local/bin/node",
+            "do-work/pace-an-inbox.mjs",
+            "sort"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work/pace-an-inbox.mjs",
+                  "read-data/inbox-pacing.mjs",
+                  "read-data/inbox-pacing.json"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds":  2, "network_egress":  false, "memory_mb":  64},
+        "maker": "maker:send-messages",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "provenance": { "source":  "outreach methods that send from a separate, warmed-up inbox at a set pace and stop on bounces and replies, generalised into pacing and outcome rows" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "event_source": "mailbox-message",
+              "events": [
+                {
+                  "from": "owner@example.com",
+                  "kind": "reply",
+                  "subject": "Re: your note",
+                  "text": "Yes, call me Tuesday."
+                }
+              ]
+            },
+            "output_selector": "$.outcomes[0].action",
+            "contains": "stop-sequence"
+          }
+        ]
       }
     }
   ]

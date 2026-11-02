@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:f895e5376db7f7c278b94f557c06021a502814604d0484a3e026b565a39565fe"
+  "blake3": "1f:88f117afd69f10afa5160f571b160139dffbe51b066bb21dd31bf1d7f620add5"
  },
  "fields": [
   {
@@ -4068,6 +4068,21 @@
    }
   },
   {
+   "id": "tool:pace-sends-from-an-inbox",
+   "values": {
+    "title": "Pace sends from an inbox",
+    "job": "Say when each address on a list may be emailed from one sending inbox, so a new inbox warms up slowly, sends only on chosen days and hours, and stops when its mail bounces",
+    "description": "Give time_zone (the inbox's), recipients and a pacing row (pacing: new-inbox-warmup or saturday-local from read-data/inbox-pacing.json, or your own pacing_row): a ramp of sends a day by the inbox's day number, the least gap between sends, weekdays, local hours, how many days to leave an address after it was sent to, and when to pause (a share of hard bounces or any complaint among the last sends). Add history (every send this inbox made), outcomes (from tool:sort-bounces-and-replies) and suppressed addresses. Returns due_now (send these now, through a send tool), schedule (a slot for every address that may be sent to, in local time with its ramp day), held (each address left out and why: suppressed, bounced, unsubscribed, replied, sent to recently, listed twice, not an address, or the inbox is paused) and paused. It sends nothing and keeps nothing; every number, day and hour is a row you can change.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
    "id": "tool:pay-someone-a-share-through-stripe",
    "values": {
     "title": "Pay someone a share through Stripe",
@@ -6959,6 +6974,21 @@
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:sort-bounces-and-replies",
+   "values": {
+    "title": "Sort bounces and replies",
+    "job": "Sort the bounces, complaints, unsubscribes and replies that came back from emails I sent, and say which addresses never to send to again, which to retry and which people wrote back",
+    "description": "Give events as your provider or mailbox gave them and event_source (plain, resend-webhook, amazon-ses-notification or mailbox-message from read-data/inbox-pacing.json, or your own event_source_row naming where the recipient, type, status, subject, text and time sit). Each event is read into those fields and the first outcome row whose every condition holds (a field equals one of its values, contains one of its words, or matches its pattern) names its kind (hard-bounce, soft-bounce, complaint, unsubscribe, reply, auto-reply, delivered) and action (suppress, stop-sequence, retry-later, hand-to-person, none). Returns outcomes (hand them to tool:pace-sends-from-an-inbox), suppress, stop, retry (with when), replies and the unmatched events. It sends, deletes and keeps nothing; your own outcome_rows replace the shipped ones.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
     ],
     "folder": "send-messages"
    }

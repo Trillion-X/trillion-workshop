@@ -727,7 +727,7 @@
       "capability": "keep shared step-by-step playbooks any person's AI can follow",
       "owner": ["tools/workflows/"],
       "entry": "tools/workflows/tool-rows.json",
-      "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, each a row of the person's list of workflows; workflow:out-launch-a-new-launch (launch monitors over the launch source rows, reverse engineered within hours and handed to workflow:plan-a-launch-as-a-content-campaign within 24) and workflow:build-a-best-x-for-y-comparison (proof-scored comparison tables answer engines cite, sponsored placement kept apart) are recipe rows"
+      "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, each a row of the person's list of workflows; workflow:out-launch-a-new-launch (launch monitors over the launch source rows, reverse engineered within hours and handed to workflow:plan-a-launch-as-a-content-campaign within 24) and workflow:build-a-best-x-for-y-comparison (proof-scored comparison tables answer engines cite, sponsored placement kept apart) are recipe rows; the outreach recipes (open job posts, local businesses by zip code, a LinkedIn content system) join existing tools step by step, and host-tools.json names tools that live outside this repository, such as the phone call exchange, by their job"
     },
     {
       "capability": "score outside candidates on weighted signals of need (age, mention counts, recent shares) under signal-source rows, filter and rank them",
@@ -775,7 +775,7 @@
       "lives_at": ["bitfield-packages/packages/broadcast-delivery/", "bitfield-packages/packages/resend-email-sender/", "bitfield-packages/packages/imessage-messages-sender/"],
       "moves_to": "tools/send-messages/",
       "entry": "bitfield-packages/packages/broadcast-delivery/",
-      "evidence": "broadcast-delivery README.md:1 broadcast message delivery via provider adapters; resend-email-sender sends transactional email; imessage-messages-sender sends over Messages"
+      "evidence": "broadcast-delivery README.md:1 broadcast message delivery via provider adapters; resend-email-sender sends transactional email; imessage-messages-sender sends over Messages; tools/send-messages/README.md also paces a sending inbox (ramp, gap, days, hours, pause on bounces) and sorts bounces, complaints and replies, every pace, event source and outcome a DATA row in read-data/inbox-pacing.json"
     },
     {
       "capability": "search, read, organize, trash and restore a person's Gmail mail and threads, keep and send drafts and set their send-as signature, as the Google account the run names",
