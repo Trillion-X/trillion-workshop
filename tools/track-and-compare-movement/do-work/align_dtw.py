@@ -16,6 +16,12 @@
 # needed, so it runs on any machine. `--gamma 0` = hard DTW; `--gamma > 0` = soft-DTW (a smoother path).
 
 #
+# DISTANCE: alongside the path, the mean frame cost along it, `sum(cost on the path) / (T1 + T2)`, where each cost is
+# the squared distance between the two postures. Dividing by both lengths keeps a long clip from scoring worse only
+# for being long, so the number can rank several references against one clip (0 = the same postures). The
+# length-normalised DTW score is the idea used for word templates in the MIT-licensed joeblau/subvox
+# (references/rea-intake-2026-11-01/joeblau--subvox.md); the code here is written fresh.
+#
 # FAIL-CLOSED: missing/empty pose track, no usable person, or degenerate feature matrix -> non-zero
 # exit and an {"error": ...} line on stdout; never a silent wrong alignment.
 #
@@ -72,9 +78,10 @@ def _feature_matrix(frames: list) -> np.ndarray:
     return np.array(rows, dtype=float)
 
 
-def _dtw(A: np.ndarray, B: np.ndarray, gamma: float) -> list:
+def _dtw(A: np.ndarray, B: np.ndarray, gamma: float) -> tuple:
     """DTW (gamma==0) or soft-DTW (gamma>0) between feature sequences A (T1) and B (T2).
-    Returns the warping path [[i,j],...] as aligned index pairs."""
+    Returns (path, distance): the warping path [[i,j],...] as aligned index pairs, and the posture cost summed
+    along that path divided by T1 + T2."""
     T1, T2 = len(A), len(B)
     # pairwise squared-euclidean cost
     D = np.sum(A**2, 1)[:, None] + np.sum(B**2, 1)[None, :] - 2 * A @ B.T
@@ -99,7 +106,8 @@ def _dtw(A: np.ndarray, B: np.ndarray, gamma: float) -> list:
         step = min((R[i - 1, j], (i - 1, j)), (R[i, j - 1], (i, j - 1)), (R[i - 1, j - 1], (i - 1, j - 1)))[1]
         i, j = step
     path.reverse()
-    return path
+    distance = float(sum(D[i, j] for i, j in path)) / (T1 + T2)
+    return path, distance
 
 
 def main() -> int:
@@ -118,18 +126,19 @@ def main() -> int:
         return refuse(f"degenerate features: clip has {len(A)} usable frames, reference {len(B)}; each needs at least 2 frames showing a torso", 1)
     if not (np.isfinite(A).all() and np.isfinite(B).all()):
         return refuse("a keypoint is not a finite number (NaN or infinity); fix the pose track and run again", 1)
-    path = _dtw(A, B, a.gamma)
+    path, distance = _dtw(A, B, a.gamma)
     out = {
         "kind": "phase_alignment.v1",
         "model": f"soft-DTW (gamma={a.gamma}) over hip-centered torso-scaled COCO-17 features; numpy only",
         "clip_frames": len(A), "reference_frames": len(B),
         "path": path,  # [[clip_idx, reference_idx], ...]
+        "distance": round(distance, 6),  # mean posture cost along the path; lower = more alike
         "provenance": {"confidence": 1.0, "stage": "align.dtw"},
     }
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     json.dump(out, open(a.out, "w"))
     log(f"aligned clip({len(A)}) <-> reference({len(B)}); path len={len(path)} -> {a.out}")
-    print(json.dumps({"result": {"out": a.out, "clip_frames": len(A), "reference_frames": len(B), "path_length": len(path)}}))
+    print(json.dumps({"result": {"out": a.out, "clip_frames": len(A), "reference_frames": len(B), "path_length": len(path), "distance": round(distance, 6)}}))
     return 0
 
 
