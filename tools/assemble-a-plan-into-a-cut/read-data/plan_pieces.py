@@ -1,4 +1,4 @@
-"""Which piece each segment of a plan becomes, which aspects the plan is made in, and the one key of a recorded span.
+"""Which piece each segment of a plan becomes and which aspects the plan is made in (a recorded span's key is in spans.py).
 
 The piece table is DATA (the request's "pieces"):
   default             {segment kind: piece row} for every format
@@ -8,6 +8,7 @@ A piece row is {"piece": <piece>, ...}. The pieces are what the cutter knows how
 voiced_line (a voiced line over a held frame), skip (not cut), slide (one still per segment, the plan becomes slides).
 """
 from fill import Refused
+from spans import span_key  # noqa: F401  (kept importable from here)
 
 PIECES = ('clip', 'voiced_line', 'skip', 'slide')
 STILL_PIECES = {'slide'}
@@ -49,8 +50,3 @@ def is_slides(plan, rows):
         raise Refused(f"{plan.get('slug')}: pieces {', '.join(sorted(kinds))} mix stills and cuts; a plan is all slides or all film")
     return bool(kinds & STILL_PIECES)
 
-
-def span_key(s):
-    """the one key of a recorded span, the same for the same cut in any plan: <clip>_<from>_<to>, seconds to 2 places. Audio grade
-    rows are keyed by it."""
-    return f"{s['clip']}_{s['from']:.2f}_{s['to']:.2f}"

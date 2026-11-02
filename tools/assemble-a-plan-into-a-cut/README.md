@@ -14,16 +14,16 @@ One JSON file (`--request <file>`, paths in it relative to that file) or JSON on
 |---|---|
 | `pieces` | The piece table: `default` and `formats` ({format option: {segment kind: piece row}}) and `aspects_by_medium`. A piece is `clip`, `voiced_line`, `skip` or `slide`. A format with no row is not renderable; a kind with no piece is refused by name. |
 | `plan_file` or `plans` | One plan file, or `{folder, skip, only}`: every `<slug>.json` there with segments. A plan's own folder (`<folder>/<slug>/`) holds its grades file. |
-| `clips` | `{words_folder}`: `<clip>.words.json` per recording, `{source, words: [{text, start, end}]}`. A plan's `sources` names a clip's file directly. |
+| `clips` | `{words_folder, wordtimes_folder?}`: `<clip>.words.json` per recording, `{source, words: [{text, start, end}]}`; a word timer's `<clip>.json` (`{segments: [{words: [{word, start, end}]}]}`) in `wordtimes_folder` is read before it for the clip's word times. A plan's `sources` names a clip's file directly. |
 | `looks` | `{chains: {name: [{filter, options}]}, by_clip: {clip: name}, default}`: ffmpeg filter steps per look (a LUT, an eq, anything), each clip's `grade` in the edit. No look: the picture is only fitted to the frame. |
-| `grades` | `{file, as_is, recreated_key}`: per span key (`<clip>_<from>_<to>`) a row; the source's own sound only when its `treatment` is `as_is`, else its `audio` file from `audio_from` (tool:grade-and-repair-speech-audio writes these). A span with no row or a missing file stops the cut. No `grades`: the source's own sound. |
+| `grades` | `{file, as_is, recreated_key, audio_name?}`: per span key (`<clip>_<from>_<to>`) a row; the source's own sound only when its `treatment` is `as_is`, else its `audio` file from `audio_from` (tool:grade-and-repair-speech-audio writes these). A span with no row or a missing file stops the cut. `audio_name` is a template (filled with `span`, the key) of the name the grader gives a graded file, such as `{"join": ["audio/", {"fill": "span"}, ".wav"]}`: a row naming another file stops the cut too. No `grades`: the source's own sound. |
 | `voice` | `{folder, word_timer: {argv}, say: [{argv}]}`: takes are `<name>.wav` beside `<name>.txt` (their exact words); `<name>.words.json` beside a take is made by the word timer when missing; `say` makes missing takes (the voice-lines step). |
 | `face_reader` | `{argv}`: a command given picture files, printing one line each (see The face reader). Needed when the plan cuts recordings. |
 | `overlay_renderer` | How graphics are drawn (see The overlay renderer). |
 | `devices` | What graphics look like, as templates (see Devices). |
 | `style` | Which of `devices.voiced_line.styles` draws the voiced lines (default `default_style`). |
 | `checks` | Rows run on the made cut before it may move: `{id, argv, cwd?, pass_exit_codes?: [0], advisory_exit_codes?, fail_line_contains?}`. Filled with `cut`, `spec`, `overlay`, `timeline` (the renderer's), `cut_timeline`, `plan_file`, `work`, `report` (`<work>/<id>.json`). |
-| `plan_checks` | The same rows, run on each plan before its cut (`run` step), filled with `plan_file`, `work`, `report`. An advisory exit lets the cut go on with its output shown. |
+| `plan_checks` | The same rows, run on each plan before its cut (`run` step), filled with `plan_file`, `work`, `report`. An advisory exit lets the cut go on with its output shown, unless `advisory_stops` is true (the final cut, where an advisory result stops the plan too). tool:check-a-rendered-video's plan check (`check_plan_cuts.py`) is one such row. |
 | `folders` | `work` (each cut is made in `work/<slug>`), `seen` (where the person looks), `specs` (the cut's spec as `<slug>.json`, optional), `holds_log` (optional). |
 | `refs` | `cut_relative_to`, `plan_relative_to`: how the spec names the cut and the plan. |
 | `rules` | Numbers laid over `read-data/cut-rules.json` (frame rate, loudness, edge handles, hold search, placement). |
@@ -53,17 +53,18 @@ Given picture files after its argv, it prints one line per file in order: `<name
 
 | File | Purpose |
 |---|---|
-| `do-work/assemble.py` | The command: steps timeline, lay-out, build, run, voice-lines, regroup, retitle, outline, string-together. Last line `{"result"}` or `{"error"}`. |
+| `do-work/assemble.py` | The command: steps timeline, lay-out, build, run, voice-lines, regroup, retitle, outline, titles-table, string-together. Last line `{"result"}` or `{"error"}`. |
 | `do-work/cut.py` | One plan into one cut: timing, the edit (pictures, held frames, sound placements, overlay layer), checks, the move; slides. |
 | `do-work/graphics.py` | Lays graphics out from the device templates and runs the overlay renderer. |
 | `do-work/faces.py` | Held frames and face-clear placement from the face reader. |
 | `do-work/media.py` | ffprobe readings, frames read for analysis, and the hand-off to media-composition (`render-an-edit.mjs`, `match-shots.mjs`). |
-| `do-work/plans.py` | regroup, retitle, outline. |
+| `do-work/plans.py` | regroup, retitle, outline, titles-table. |
 | `do-work/voice.py` | The voice-lines step. |
 | `do-work/say_line_kokoro.py` | A speaker for `voice.say`: Kokoro through mlx-audio, trimmed, soft end, room tone. |
 | `do-work/reel.py` | Cuts in order with a text card between each two, as one edit. |
 | `read-data/fill.py` | Request paths, read_json and the template filler. |
-| `read-data/plan_pieces.py` | The piece table, aspects, the span key. |
+| `read-data/plan_pieces.py` | The piece table and aspects. |
+| `read-data/spans.py` | A recorded span's key, the media file a clip names and its words: the one lookup the cutter and tool:check-a-rendered-video's plan check share (that row packs this file), so the check cuts what the render cuts. |
 | `read-data/timing.py` | Edge room, word times, caption chunks, event times. |
 | `read-data/cut-rules.json` | The default numbers (editing and online-video norms). |
 | `test/` | `run_tests.py` over `test_assemble.py`, on recordings drawn by ffmpeg with stand-in renderer, face reader, checker and speaker (`fixtures/`). |
@@ -81,7 +82,7 @@ python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py run --request reque
 
 **Depends on:** `tools/media-composition` beside it in this Workshop (the renderer, on node 22 or later); Python 3.10+, numpy, soundfile, Pillow, blake3, ffmpeg and ffprobe; the person's overlay renderer, face reader and check commands; mlx-audio for the bundled Kokoro speaker.
 
-**Depended on by:** films whose request names it; checks such as tool:check-a-rendered-video read the spec and overlay it writes.
+**Depended on by:** films whose request names it; checks such as tool:check-a-rendered-video read the spec, overlay and timeline it writes, and its plan check imports `read-data/spans.py`.
 
 ## Tests
 
