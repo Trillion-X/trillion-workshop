@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:dce00179e403c81a8f5735a08ce9ed8f2ec10bce40e8aeb80e78ae895db2aa15"
+  "blake3": "1f:97c1d60dd3e489f44360f962d5e727611949e5e5b238baff705b51adeb6d9f71"
  },
  "fields": [
   {
@@ -168,6 +168,21 @@
    }
   },
   {
+   "id": "tool:add-reviewed-videos-to-a-packaging-ledger",
+   "values": {
+    "title": "Add or update reviewed videos in my video-packaging ledger without touching any other row (runs on your computer)",
+    "job": "Record the titles, thumbnails, thumbnail words and opening hooks of a channel's videos I reviewed in one ledger, keeping every earlier row exactly as it was",
+    "description": "Writes rows into a video-packaging ledger (JSON Lines, one row per video) from what the person explicitly admitted: an intake manifest (which videos, each with its metadata and caption file), the channel's catalog and a review record (thumbnail words, composition, how the title and thumbnail relate, caption event locators for the opening and internal hooks). A video counts only when it is in all three. Every file it relies on is pinned by BLAKE3 identity and size, and caption text is never copied: a hook is a caption file, an event index and its time span. Modes: a new source key; --append-new for a later batch under an existing key (only bytes are added at the end); --update-existing for reviewing rows that were unreviewed; --direct-review-batch, --identity-only-update, --hook-enrichment and --source-reconciliation each take a pinned contract file and check the ledger matches --expected-ledger-blake3 first; the identity-only, hook and source modes write a preimage of every line they change, and the hook and source modes stage a --prospective-ledger until --apply. Every other line stays byte for byte. It also updates the coverage and source-coverage summaries and writes a read-back.",
+    "status": "active",
+    "maker": "maker:keep-a-video-packaging-ledger",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-video-packaging-ledger"
+   }
+  },
+  {
    "id": "tool:add-to-my-workout-log",
    "values": {
     "title": "Add to my workout log",
@@ -292,7 +307,7 @@
    "values": {
     "title": "Put new titles into my video plans and the cards that name them (runs on your computer)",
     "job": "Change the titles of my video plans to the ones in my titles list, and fix every card that points to an old title",
-    "description": "Reads the person's titles list (one row per plan id, with its new title and any fields to copy) and applies it to every plan in a folder: the new title, the fields the request names, and every card segment whose text is an old title or a prefix the request names plus an old title. A title that is one of the request's placeholder words keeps the withdrawn title under its own field and leaves its cards as they are. A row may name the old title of a plan that is gone, so cards pointing at it are renamed too.",
+    "description": "Reads the person's titles list (one row per plan id, with its new title and any fields to copy) and applies it to every plan in a folder: the new title, the fields the request names, and every card segment whose text is an old title or a prefix the request names plus an old title. A title that is one of the request's placeholder words keeps the withdrawn title under its own field and leaves its cards as they are. A row may name the old title of a plan that is gone, so cards pointing at it are renamed too. Also: titles-table, the titles list as a Markdown table (id, title with each placeholder in bold, and the columns the request names), to show the person before or after the change.",
     "status": "active",
     "maker": "maker:assemble-a-plan-into-a-cut",
     "licence_class": "licence:maker-own",
@@ -697,6 +712,36 @@
    }
   },
   {
+   "id": "tool:check-a-compiled-packaging-template-against-the-ledger",
+   "values": {
+    "title": "Check that a template built from my packaging ledger still matches the ledger and lost nothing (runs on your computer)",
+    "job": "Check that the template made from my packaging ledger joins back to the right videos, files and caption events, and that nothing from the earlier version was lost",
+    "description": "Reads the ledger and a compiled template (the TEMPLATE.json that tool:make-a-word-template made from the projected source) for one source key and checks, record by record, that every video's title, description, thumbnail words, thumbnail analysis, caption references and hook evidence join back to its ledger row and to the BLAKE3 identities of the metadata, image and caption files, with no caption text copied. With --before-compiled and --before-ledger it also checks that every record of the earlier compiled template is still there with the same fields (older inline caption excerpts may only become event locators) and that the ledger kept its earlier bytes as an exact prefix, adding only the --expected-new-video-id rows under the source key.",
+    "status": "active",
+    "maker": "maker:keep-a-video-packaging-ledger",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-video-packaging-ledger"
+   }
+  },
+  {
+   "id": "tool:check-a-cuts-speech-against-its-plan",
+   "values": {
+    "title": "Hear a made cut against its plan: loudness, long silences and every spoken line (runs on your computer)",
+    "job": "Listen to the cut you made from my plan: how loud it is, where it goes silent too long, whether every line I planned is heard and starts and ends where it should, and show me a few frames",
+    "description": "Reads a made cut and its timeline (the one tool:assemble-a-plan-into-a-cut writes: each segment's kind, text, start and length). Measures its integrated loudness and every silence longer than the person's limit, reads each spoken segment with a speech reader (mlx-whisper, or any command the person gives) and compares it with the plan's line: the share of the words heard, the words missing, and whether it starts and ends on the plan's words. Takes the frames the person names (the first, middle or last segment of a kind) and lays them side by side. The report keeps listened_by, who listened to the cut end to end, which only a person sets. Exit 2 when a segment is to check, so it can stand as a check row of the cutter.",
+    "status": "active",
+    "maker": "maker:check-a-rendered-video",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-a-rendered-video"
+   }
+  },
+  {
    "id": "tool:check-a-destination-is-honest",
    "values": {
     "title": "Check a destination is honest before it is published",
@@ -739,6 +784,21 @@
      "placement:your-computer"
     ],
     "folder": "check-a-folder-against-my-rules"
+   }
+  },
+  {
+   "id": "tool:check-a-packaging-intake-against-the-ledger",
+   "values": {
+    "title": "Check that an intake batch landed in my packaging ledger exactly, changing nothing (runs on your computer)",
+    "job": "Check that the videos I admitted are in my packaging ledger with the right titles, thumbnails and caption evidence, and that nothing else changed",
+    "description": "Reads an intake manifest, channel catalog and review record and the ledger before and after, and checks without writing anything but its report: every reviewed video has a row under the source key and channel; its title matches the catalog and intake; its metadata file, thumbnail image and every caption evidence file match the BLAKE3 identities in the row; each hook locator points at a real caption event with the same times and carries no caption text; every provenance file exists; and every other row of the before ledger is unchanged (and, without --update-existing, the ledger grew by exactly the batch).",
+    "status": "active",
+    "maker": "maker:keep-a-video-packaging-ledger",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-video-packaging-ledger"
    }
   },
   {
@@ -821,7 +881,7 @@
    "values": {
     "title": "Check a rendered video's frames, joins and audio (runs on your computer)",
     "job": "Check my finished video for mistakes a viewer would notice: a stray frame at a cut, a cut inside a word, graphics off the frame or over a face, text too small, sound effects too quiet or harsh",
-    "description": "Reads a rendered video (and, for the checks that need it, a JSON spec of its cuts, held frames and the graphics laid over it, plus the overlay render with alpha) and runs checks on its frames, joins and audio: in-frame, joins, word-clip, jitter, text, face, exits, dwell, type-sync, backing, movement, sound-balance, sound-harsh, sound-loops, sound-sync, settle, tempo, zoom, camera, motion-blur, internal-text, text-size, info-added, math-shown, cue, broll, placement and filler-words-cut. Which checks run and every number and word list they use are the person's own limits, a JSON file the person gives (their AI reads the rows from the person's own records); the tool has no defaults, and a check with no limits row says so instead of passing. Each check prints PASS, WARN or FAIL with the seconds it happens at; a check that cannot run says why. It runs on the person's own computer, never on a server, and changes nothing it reads.",
+    "description": "Reads a rendered video (and, for the checks that need it, a JSON spec of its cuts, held frames and the graphics laid over it, plus the overlay render with alpha) and runs checks on its frames, joins and audio: in-frame, joins, word-clip, jitter, text, face, exits, dwell, type-sync, backing, movement, sound-balance, sound-harsh, sound-loops, sound-sync, settle, tempo, zoom, camera, motion-blur, internal-text, text-size, info-added, math-shown, cue, broll, placement, filler-words-cut, cutout-bottom, bridge (a local ollama model), held-face (Apple Vision), and, for a film made as several options per moment with a technique ledger, variety, devices, reused-footage and label-time. Its other commands make a fresh-viewer review pack (contact sheets, transcript, rules) and keep the technique ledger (variety, declare, map-add). Which checks run and every number and word list they use are the person's own limits, a JSON file the person gives (their AI reads the rows from the person's own records); the tool has no defaults, and a check with no limits row says so instead of passing. Each check prints PASS, WARN or FAIL with the seconds it happens at; a check that cannot run says why. It runs on the person's own computer, never on a server, and changes nothing it reads.",
     "status": "active",
     "maker": "maker:check-a-rendered-video",
     "licence_class": "licence:maker-own",
@@ -1003,6 +1063,21 @@
    }
   },
   {
+   "id": "tool:check-each-cut-of-my-plans-by-ear",
+   "values": {
+    "title": "Hear every recorded stretch my video plans cut, before anything is rendered (runs on your computer)",
+    "job": "Before I render, listen to every stretch of recording my video plans cut and tell me which ones start or end in the wrong place, and what in the plans themselves is wrong",
+    "description": "Reads a folder of cut plans (tool:assemble-a-plan-into-a-cut's plans) and, for each segment that cuts a recording, cuts that stretch from its source through the cutter's own lookup (so it hears what the render will cut), reads it with a speech reader (mlx-whisper, or any command the person gives) and compares the first and last words heard with the plan's text: a stretch that catches a neighbouring word or loses one is listed to check. Before that it checks each plan against the person's settings: a line drawn from the person's question library must name a question that is there and whose evidence the person allows, and a card that points at another plan must point at one that exists (or at a plan title). It changes nothing it reads. Exit 1 on a plan failure, 2 when only stretches are to check, so it can stand as a plan check of the cutter.",
+    "status": "active",
+    "maker": "maker:check-a-rendered-video",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-a-rendered-video"
+   }
+  },
+  {
    "id": "tool:check-form-answers",
    "values": {
     "title": "Check answers to a form",
@@ -1108,6 +1183,36 @@
      "placement:rented-model-runtime"
     ],
     "folder": "work-breakdown"
+   }
+  },
+  {
+   "id": "tool:check-prose-against-its-writing-rules",
+   "values": {
+    "title": "Check prose against its writing rules and its review evidence",
+    "job": "Check a piece of prose against the wording I rejected, the text that must stay as it is, the sections it must have in order, and the reviews and source evidence it needs, before I call it current",
+    "description": "Reads a prose document, a writing profile (schema writing-profile-v1: rejected wordings and superseded terms with their authority, protected literals, required sections in order, required source components, allowed original sources by BLAKE3) and, optionally, a review manifest (schema writing-review-v1) bound to the document's BLAKE3 and each paragraph's BLAKE3. Finds rejected wording through case, width, punctuation, soft-hyphen and inline-emphasis variants, in the document or (when a rule says heading) only in headings; a protected literal changed or missing from the visible text; a required section missing, repeated or out of order; a paragraph no current review covers; a required source component without literal source and destination evidence (checked with the span verifier in this folder). Answers checks_satisfied, review_required or known_failure, or invalid with the kind of input fault. The report omits bodies and caller names and is created new. Zero findings is not proof of meaning, voice or approval.",
+    "status": "active",
+    "maker": "maker:pin-files-by-content",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pin-files-by-content"
+   }
+  },
+  {
+   "id": "tool:check-quotes-against-their-source-bytes",
+   "values": {
+    "title": "Check that quoted words are the exact bytes of their source files",
+    "job": "Check that every quote I took from a source file is still the exact text at the byte range I recorded, in a file whose BLAKE3 is the one I pinned, and find which words of a text are the source's own literal words",
+    "description": "Reads a bindings manifest (schema synthetic-d245bc86d584) naming each source file by absolute path and BLAKE3 and each quote by its source, text and UTF-8 byte range. Hashes the bytes read, refuses a source whose hash changed or that is not valid UTF-8, and compares each quote with the literal slice, with no normalisation and no automatic offset repair; a mismatch says whether the text occurs elsewhere in the source. The readback names sources and quotes by their zero-based positions only, never their paths, ids or bodies, binds itself to the manifest's BLAKE3, and is created new (an existing report is never replaced). The module also exports literalPieces, which finds the longest runs of a text's words that occur in a source in order and lists the words that do not. Literal evidence only: it does not authenticate a speaker or judge meaning.",
+    "status": "active",
+    "maker": "maker:pin-files-by-content",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pin-files-by-content"
    }
   },
   {
@@ -1275,7 +1380,7 @@
    "values": {
     "title": "Keep principles from captioned videos, each backed by a quote checked word for word (runs on your computer)",
     "job": "Collect the principles that creators and teachers state or show in their videos, with the exact words and the second they say them, prove every quote is really in the captions, and rank each principle by how many independent channels back it and how well their videos did",
-    "description": "Works on a folder of YouTube caption files (<id>.en.json3) with their <id>.info.json. corpus: one line per captioned video with its channel, title, views, kind (short or video), the captions as timed lines, and how many times its channel's usual views the video got (the usual is the median from a views table the person gives, or from the folder itself). candidates: the best 40-second windows of each video for what the person wants principles about, scored by their topic words, advice-giving phrases, a matching title and how well the video did, per channel, plus the first 45 seconds of each channel's best videos. find and verify: the second a quote is said at, and a check that every quote in the person's rows is an exact substring of its video's captions (ignoring case, white space and curly apostrophes), telling a wrong quote from a missing caption file and a quote at the wrong second. registry: merges the person's working rows (their own groups, lane names and stage names, passed in as files) into one registry of principles ranked by evidence strength (for each independent channel the best of log2(1 + the video's times-the-usual, capped at 64), halved when the quote only demonstrates the principle), with sources linked to the second, demonstrations, and contradictions linked both ways. extract: reads every part of every video with a chat model the person names (Ollama, MLX, llama.cpp or any OpenAI-compatible server, given as {url, model}), asking for the rows their own asks file describes, from any domain; each row's quote is put back onto the exact caption words and the seconds they start and end, rows whose quote is not in the captions are set aside with the reason, and a stopped run continues from the next unfinished video. coverage: videos, shorts and words per platform and channel, and how many videos the person's rows already cite. Word-timed transcripts from other sites are read too. What the principles are about, how advice sounds, what rows a model is asked for, and how rows group and are named for stages come only from the person's files; the tool holds none. Only extract sends words anywhere, to the model the person names; with a local model nothing leaves the computer and no key is needed.",
+    "description": "Works on a folder of YouTube caption files (<id>.en.json3) with their <id>.info.json. corpus: one line per captioned video with its channel, title, views, kind (short or video), the captions as timed lines, and how many times its channel's usual views the video got (the usual is the median from a views table the person gives, or from the folder itself). candidates: the best 40-second windows of each video for what the person wants principles about, scored by their topic words, advice-giving phrases, a matching title and how well the video did, per channel, plus the first 45 seconds of each channel's best videos. find and verify: the second a quote is said at, and a check that every quote in the person's rows is an exact substring of its video's captions (ignoring case, white space and curly apostrophes), telling a wrong quote from a missing caption file and a quote at the wrong second. registry: merges the person's working rows (their own groups, lane names and stage names, passed in as files) into one registry of principles ranked by evidence strength (for each independent channel the best of log2(1 + the video's times-the-usual, capped at 64), halved when the quote only demonstrates the principle), with sources linked to the second, demonstrations, and contradictions linked both ways. extract: reads every part of every video with a chat model the person names (Ollama, MLX, llama.cpp or any OpenAI-compatible server, given as {url, model}), asking for the rows their own asks file describes, from any domain; each row's quote is put back onto the exact caption words and the seconds they start and end, rows whose quote is not in the captions are set aside with the reason, and a stopped run continues from the next unfinished video. coverage: videos, shorts and words per platform and channel, and how many videos the person's rows already cite. index: a Markdown page of the registry with its counts, strongest principles and their sources, demonstration-only principles, contradiction pairs, and principles per stage, channel and lane, with the person's own intro and outro put in as written. Word-timed transcripts from other sites are read too. What the principles are about, how advice sounds, what rows a model is asked for, and how rows group and are named for stages come only from the person's files; the tool holds none. Only extract sends words anywhere, to the model the person names; with a local model nothing leaves the computer and no key is needed.",
     "status": "active",
     "maker": "maker:cite-principles-from-captions",
     "licence_class": "licence:maker-own",
@@ -1526,6 +1631,21 @@
    }
   },
   {
+   "id": "tool:edit-a-copy-of-a-premiere-project",
+   "values": {
+    "title": "Edit a copy of my Premiere project from a plan: insert, cut, move, reorder (runs on your computer)",
+    "job": "Make a new copy of my Premiere Pro project with these edits done on the timeline: put these files or placeholders in at these points, cut these stretches, move this part, or rebuild the sequence in a new order",
+    "description": "Reads a Premiere Pro project (.prproj, gzipped XML) and a JSON plan of ops, and writes a NEW project with the edits made in its XML. It never opens, launches or scripts Premiere, and never writes the input project. insert: at a timecode every track opens a gap of the insert length, then each piece (a file, probed with ffprobe, or a labelled black placeholder) goes on its track; the next video track can be created. cut: a range is deleted and the rest closes up. move: a range is taken out and put back elsewhere. assemble: the sequence is rebuilt from listed ranges in order. A range is sequence timecodes, a source range of a clip in seconds, or an insert made earlier in the plan. One remap engine razors every video and audio item at every boundary and carries picture, sound, links, captions and a full-length adjustment layer along. Before writing, the result must pass structural checks (unique ids, every reference resolves, nothing left unreferenced, tracks in order, no overlaps) and a gzip round trip. An existing output is replaced only when the person's written record (--written, kept with their film) shows this tool wrote exactly that file; anything else is refused. Refuses rather than guesses: another frame rate, mono audio, a video file carrying sound, a missing track, drop-frame timecode, a partial adjustment layer, a colour interpretation override. Companion commands in the folder: compile_edit_plan.py (an EDIT-PLAN new order plus word timings into a plan, with pause trims), validate.py, prdump.py (a timeline listing), proxy_render.py (an ungraded ffmpeg check render) and grade_check.py (pre-graded plates against a graded export).",
+    "status": "active",
+    "maker": "maker:edit-a-copy-of-a-premiere-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "edit-a-copy-of-a-premiere-project"
+   }
+  },
+  {
    "id": "tool:edit-a-presentations-text",
    "values": {
     "title": "Edit a presentation's text and slide order from a request, then read it back (runs on your computer)",
@@ -1631,6 +1751,21 @@
      "placement:your-computer"
     ],
     "folder": "export-documents-to-files"
+   }
+  },
+  {
+   "id": "tool:export-browser-login-cookies-for-yt-dlp",
+   "values": {
+    "title": "Give yt-dlp my browser's YouTube login (runs on your Mac)",
+    "job": "Let yt-dlp download as me: export my browser's YouTube login to a cookies file",
+    "description": "Reads one profile of a Chromium-family browser on macOS (Arc by default; also Chrome, Chromium, Brave, Edge and Vivaldi), decrypts its cookies with the key the browser keeps in the macOS keychain under its own name (for Arc, \"Arc Safe Storage\", which yt-dlp's own Chrome reader does not ask for), and writes the cookies of youtube.com and google.com (other domains if asked) to a Netscape cookies.txt that yt-dlp reads with --cookies. The file is written readable by its owner only. It holds the person's login: it must stay on their computer and never be shared or committed. macOS asks the person once to allow the key; a wrong key is refused rather than written garbled.",
+    "status": "active",
+    "maker": "maker:export-browser-login-cookies-for-yt-dlp",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "export-browser-login-cookies-for-yt-dlp"
    }
   },
   {
@@ -1890,6 +2025,21 @@
    }
   },
   {
+   "id": "tool:find-outlier-videos-against-their-channel-median",
+   "values": {
+    "title": "Find the videos that did far better than their own channel usually does (runs on your computer)",
+    "job": "Find the outlier videos: the ones that got many times more views than their channel normally gets",
+    "description": "Reads a tab-separated table of videos (one header line, one row per video, from any number of channels or other sources) and writes the outliers: each titled video whose views are at least 5 times its own source's median views and at least 10,000, both thresholds changeable. A source's median counts every titled row of that source with a whole-number view count; rows with no title or no view count are skipped. Writes a table of ratio, views, kind, channel, source, median, n (videos in the median), url and title, in the input's order. The columns are found by number or header name, so any export works. Judges views against the channel's own usual, not against other channels: a small channel's breakout counts as much as a big one's.",
+    "status": "active",
+    "maker": "maker:find-outlier-videos-against-their-channel-median",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "find-outlier-videos-against-their-channel-median"
+   }
+  },
+  {
    "id": "tool:find-people",
    "values": {
     "title": "Find people in a list",
@@ -1957,7 +2107,7 @@
    "values": {
     "title": "Find what is closest in meaning to some words",
     "job": "Find the moments in my recordings or documents whose words or transcript are closest in meaning to what I ask, and say the file and time of each",
-    "description": "Runs meaning-search's find-similar on one of the person's semantic-index-descriptor records: query_text and any item of the vector set without a vector are embedded by the descriptor's model at its model_endpoint (the package's Ollama embedder), the set is indexed for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text).",
+    "description": "Runs meaning-search's find-similar on one of the person's semantic-index-descriptor records: query_text and any item of the vector set without a vector are embedded by the descriptor's model at its model_endpoint (the package's Ollama embedder), the set is indexed for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text). With spread ({per_file, seconds_apart}) the answer holds at most per_file items of one file, that far apart, so many neighbouring frames of one take do not fill it.",
     "status": "active",
     "maker": "maker:meaning-search",
     "licence_class": "licence:maker-own",
@@ -1972,7 +2122,7 @@
    "values": {
     "title": "Find what is closest to a vector",
     "job": "Find the moments in my recordings, pictures or documents closest in meaning to a query vector, such as the picture vector of some words, and say the file and time of each",
-    "description": "Runs meaning-search's find-similar-vector on one of the person's semantic-index-descriptor records: the descriptor's vector set (items and their vectors, two of the person's files) is indexed by the package's own scripts for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptor names (tool:words-as-picture-vector gives one for words when the set holds picture vectors). Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text).",
+    "description": "Runs meaning-search's find-similar-vector on one of the person's semantic-index-descriptor records: the descriptor's vector set (items and their vectors, two of the person's files) is indexed by the package's own scripts for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptor names (tool:words-as-picture-vector gives one for words when the set holds picture vectors). Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text). With spread ({per_file, seconds_apart}) the answer holds at most per_file items of one file, that far apart, so many neighbouring frames of one take do not fill it.",
     "status": "active",
     "maker": "maker:meaning-search",
     "licence_class": "licence:maker-own",
@@ -2033,6 +2183,21 @@
     "title": "Measure where my confidence line belongs instead of guessing a round number (runs on your computer)",
     "job": "Work out, from my rubric's known cases, how sure a model has to be before I act, by measuring how sure it is on known-true and known-false cases",
     "description": "Give rubrics_file, optionally rubric_id (one rubric) and band (the name of the confidence band whose at_least is the line, to show where it is now). A model that passes the rubric is asked every case and its confidence on the cases it got right is kept by label; the line goes where the two groups separate, ties to the higher line. If true and false cases overlap it says so and does not lower the line to make a check talk; if the cases are one-sided it asks for cases that expect the opposite answer. Needs a model that returns a probability (a hosted classifier); a model that only writes text has no confidence to measure.",
+    "status": "active",
+    "maker": "maker:ask-a-small-model-for-a-verdict",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:fit-pass-and-fail-lines",
+   "values": {
+    "title": "Fit a pass line and a fail line for a model's yes or no, from lines I already ruled on (runs on your computer)",
+    "job": "From a model's scores on lines I already ruled good or bad, work out where it should pass a line, where it should fail one, and whether its question can tell my good lines from my bad ones at all",
+    "description": "Give bad and good: for each line the person ruled bad or good, the model's probability of the failing answer (a number, a list with one per sentence whose highest counts, or null for no answer). t_fail is set so at most fail_good_share_at_most of good lines fail; t_pass so at most pass_bad_share_at_most of bad lines pass, never above t_fail; scores between are uncertain. The answer gives AUC, recall at t_fail and the share of good lines failed, or failed or left uncertain, each held out (leave one out), and says usable only when every bar in usable_when holds (auc_at_least, bad_lines_at_least, recall_at_least, good_failed_or_uncertain_at_most); otherwise unseparable with the reasons. It asks no model: the scores come from the caller, on lines the model was never trained on.",
     "status": "active",
     "maker": "maker:ask-a-small-model-for-a-verdict",
     "licence_class": "licence:maker-own",
@@ -3092,6 +3257,21 @@
    }
   },
   {
+   "id": "tool:list-clips-that-are-parts-of-a-series",
+   "values": {
+    "title": "List the clips that say they are part of a series (runs on your computer)",
+    "job": "Find my clips that are part 1, part 2, part 3 of a series, from what is said in them",
+    "description": "Reads one or more moments files (one JSON row per spoken moment of a clip, as a transcript cut into moments gives) and lists every clip whose joined words say \"part <n>\" (a number, or one to fifteen in words) within its first 300 characters, the window changeable. Each line is the clip's name, path, source, the part words it said, and the clip's whole text, ordered by path so each clip reads once. Words like \"partly\", \"parts 5\" or \"department 4\" do not count. Moments of one clip may come from several files and in any order; they are joined by their number.",
+    "status": "active",
+    "maker": "maker:list-clips-that-are-parts-of-a-series",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "list-clips-that-are-parts-of-a-series"
+   }
+  },
+  {
    "id": "tool:list-comparisons",
    "values": {
     "title": "List the comparisons a rule can use",
@@ -3426,6 +3606,21 @@
    }
   },
   {
+   "id": "tool:make-a-picture-vector-set-of-my-videos",
+   "values": {
+    "title": "Make a searchable set of what my videos show (runs on your computer)",
+    "job": "Turn a folder of my videos into a set of picture vectors, one frame every few seconds with its time, so I can find moments by what they show",
+    "description": "Reads every video in a folder the person names (only reads it) and keeps one frame every few seconds (2 by default), decoding key frames only, small, with an optional 3D LUT for log footage and an optional smaller proxy copy on the same timeline to decode instead. Each frame becomes a CLIP ViT-B-32 picture vector (OpenAI weights, the model tool:words-as-picture-vector uses for words, so they compare). Writes the two files of a vector set, frames.npy (float16, normalised) and frames.jsonl (video, path, t in seconds, the file decoded), with done.json so a run that stops goes on where it stopped and a new card adds only its videos, and vector-set.json: the vector_set member to put in the person's semantic-index-descriptor record so tool:find-similar-to-a-vector can search it. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:meaning-search",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "meaning-search"
+   }
+  },
+  {
    "id": "tool:make-a-referral-code",
    "values": {
     "title": "Make a referral code",
@@ -3683,6 +3878,21 @@
      "placement:small-container"
     ],
     "folder": "workflows"
+   }
+  },
+  {
+   "id": "tool:measure-speech-in-my-recordings",
+   "values": {
+    "title": "Measure the speech in my recordings, without grading or changing it (runs on your computer)",
+    "job": "Show me how loud, noisy, hummy, windy, echoey or clipped the speech in each part of my recordings is, before I choose what counts as good",
+    "description": "Takes the same spans file as tool:grade-and-repair-speech-audio and, for each unique span, cuts it exactly from its start to its end and measures it: loudness and true peak, noise floor read from the pauses between words (or the quietest frames when there are no word times), signal to noise, clipping, mains hum and its frequency, wind rumble and room tail. It needs no settings and grades nothing: it is for seeing what a set of recordings is like before the person chooses the settings the grade is judged against. Writes probe.json (per span: the measures and how many words it has) and the cuts; show_probe.py prints probe.json one line per span. The source recordings are only read. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
    }
   },
   {
@@ -4147,7 +4357,7 @@
    "values": {
     "title": "Plan moving kept stands into stance records",
     "job": "Turn stands a person took that were kept somewhere else into their stance records, with every earlier stand as an earlier version, and show what would change before anything is written",
-    "description": "Give stances (rows: kind, text, contains or view, stance, why, by, at, earlier as [{stance, why, at}], and the old ref if there was one) and fold, how the owner of the rules says two texts are the same. Returns writes, the record versions to send one at a time in order (each record's earlier stands first, oldest first), and summary: rows, records and versions by kind, refs_changed (rows whose identity differs from their old ref) and collisions (records two or more rows became under the fold, with each row's text and time). summary_only true leaves the writes out. It writes nothing.",
+    "description": "Give stances (rows: kind, text, contains or view, stance, why, by, at, earlier as [{stance, why, at}], and the old ref if there was one) and fold, how the owner of the rules says two texts are the same. Returns writes, the record versions to send one at a time in order (each record's earlier stands first, oldest first), and summary: rows, records and versions by kind, refs_changed (rows whose identity differs from their old ref) collisions (records two or more rows became under the fold, with each row's text and time), already (versions in kept, not written again) and unverified (rows whose words are not in their source, never written). A row may name a rule (a waiver stand) and a source with after_line, checked against sources. summary_only true leaves the writes out. It writes nothing.",
     "status": "active",
     "maker": "maker:where-a-person-stands",
     "licence_class": "licence:maker-own",
@@ -4354,6 +4564,21 @@
     ],
     "listed_on": "2026-10-06T16:00:00Z",
     "folder": "print-here"
+   }
+  },
+  {
+   "id": "tool:project-a-packaging-ledger-into-template-source",
+   "values": {
+    "title": "Turn one channel's rows of my packaging ledger into source DATA a word template can read (runs on your computer)",
+    "job": "Make one channel's titles, thumbnail words, descriptions and hooks from my packaging ledger into a source I can build a word-for-word template from",
+    "description": "Reads the ledger rows of one source key and writes an HTML file holding one inert application/json script block (id packaging) of records: a unit per video, then its title, description, each thumbnail word, the thumbnail analysis, caption source references (file identity, event range and time span, no caption text) and the opening and internal hook evidence and analysis. It also writes a spec (schema word-template-spec@1) whose html_json_records source points at that block, so tool:make-a-word-template can measure it. With --previous-html and --replace-video-id it refreshes only the named videos: every other record stays exactly as it was, the named videos' record ids and order are kept, records it does not own are kept, and an existing spec's lines, slots and custom fields are kept.",
+    "status": "active",
+    "maker": "maker:keep-a-video-packaging-ledger",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-video-packaging-ledger"
    }
   },
   {
@@ -5805,6 +6030,21 @@
    }
   },
   {
+   "id": "tool:render-music-note-events-to-a-test-wav",
+   "values": {
+    "title": "Play back a music model's note transcription as a plain test WAV (runs on your computer)",
+    "job": "Hear what a music transcription model wrote down: turn its notes into a test audio file I can measure",
+    "description": "Test-only. Renders a music transcription's JSON note events (start events with a MIDI pitch, end events, drum hits) to a plain 48 kHz 24-bit stereo WAV: three sine partials per note with a short attack and slow decay, a noise burst per drum hit, peaking at half scale and lasting one second past the last note. The same events always give the same file. An audio meter such as earshot can then measure the playback beside the original, to compare transcription models. Code-made audio for comparing models, never a sound for a finished piece.",
+    "status": "active",
+    "maker": "maker:compare-voice-and-music-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compare-voice-and-music-models"
+   }
+  },
+  {
    "id": "tool:render-pointillist-frames-over-time",
    "values": {
     "title": "Render a run of frames of a square-grid pointillist film (runs on your computer)",
@@ -5825,6 +6065,21 @@
     "title": "Change one piece of text in a file",
     "job": "Change one exact piece of text in a text or code file without sending the whole file: give the words to find and the words to put there",
     "description": "Give file (a path inside the folder the person granted for change), find (the exact text, as it is in the file, newlines and quotes included) and replace (what to put there; empty removes the found text). The find text must occur exactly once: no match or more than one is refused and nothing is written, so a change that did not happen is never reported as done. Bytes are compared as they are: no pattern, no case folding, no whitespace tolerance. The file is replaced in one step after the full new text is written, keeps its permissions, and is left alone if it changed while the edit was prepared. A path that leaves the folder, goes through a link, is a folder or is not UTF-8 text is refused. Returns the file, its size before and after, and replaced: 1.",
+    "status": "active",
+    "maker": "maker:edit-text-and-code",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "edit-text-and-code"
+   }
+  },
+  {
+   "id": "tool:replace-several-pieces-of-text-in-files",
+   "values": {
+    "title": "Change several pieces of text in files, all or nothing",
+    "job": "Make several exact text changes across one or more text or code files in one go, so either every change is made or none is",
+    "description": "Give edits: a list of { file, find, replace }, each as in tool:replace-one-piece-of-text-in-a-file. They apply in order, and a later edit to the same file sees the text the earlier ones made. Every find must occur exactly once at the moment its edit applies; if any edit is refused (no match, more than one, a path that leaves the folder, goes through a link, is a folder or is not UTF-8 text) nothing is written to any file and the refusal names the edit by its place in the list. Every changed file is written beside itself first and all are put in place only when none of them changed while the edits were prepared; each keeps its permissions. Returns each file changed with its size before and after and how many edits it took, and the number of edits. A person can also keep the edits in a JSON file and run the script with that file after the folder.",
     "status": "active",
     "maker": "maker:edit-text-and-code",
     "licence_class": "licence:maker-own",
@@ -6030,6 +6285,21 @@
    }
   },
   {
+   "id": "tool:run-an-installed-apps-command-line",
+   "values": {
+    "title": "Run the command line an installed app keeps inside itself (runs on your computer)",
+    "job": "Run the command-line tool that came inside an app I installed, without installing it again",
+    "description": "Some desktop apps ship their own command-line program inside the app bundle (for example a Node script under Contents/Resources/app.asar.unpacked/node_modules/<name>/bin/) but never put it on the PATH. This launcher runs that entry as if it were installed: Node runs a .mjs, .cjs or .js entry, any other entry runs as itself. Every argument after the entry is passed through unchanged and the app's own exit code and output come back. Nothing about any app is built in: the person passes the installed app's path and the entry path inside it. A missing app or entry, or an entry that is not a program, is refused with exit code 2 and {\"error\"} on standard error saying what to pass.",
+    "status": "active",
+    "maker": "maker:run-an-installed-apps-command-line",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "run-an-installed-apps-command-line"
+   }
+  },
+  {
    "id": "tool:save-a-form",
    "values": {
     "title": "Save a form",
@@ -6072,6 +6342,21 @@
      "placement:small-container"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:say-lines-in-a-candidate-voice-model",
+   "values": {
+    "title": "Say some lines in a voice model I am trying out, cloned from my reference recording (runs on your Mac)",
+    "job": "Try a new text-to-speech model: say these lines in my cloned voice so I can compare it with the voice I use now",
+    "description": "Evaluation only. Loads a voice-cloning text-to-speech model with mlx-audio on Apple silicon (for example a Fish Speech S2 Pro conversion), clones the voice from a reference recording and its transcript, and says each line given as <line id>=<text>, writing <line id>.wav (24-bit, the model's sample rate) per line into a folder, with how long each took. The same line ids said by the voice already in use can then be scored side by side (tool:score-how-alike-lines-sound-to-a-reference-voice) or played blind. Some models allow non-commercial evaluation only (the Fish Audio Research License among them): read the model's licence before using what it says.",
+    "status": "active",
+    "maker": "maker:compare-voice-and-music-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compare-voice-and-music-models"
    }
   },
   {
@@ -6162,6 +6447,21 @@
      "placement:deployed-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
+   }
+  },
+  {
+   "id": "tool:score-how-alike-lines-sound-to-a-reference-voice",
+   "values": {
+    "title": "Score how much each line sounds like the voice it was cloned from (runs on your computer)",
+    "job": "Check which voice model sounds most like the real speaker: score each line against the reference recording",
+    "description": "For one or more folders of line recordings (one folder per voice model), scores how alike each line sounds to a reference recording of the speaker: the cosine of WeSpeaker ResNet34 voice embeddings (256 numbers), where same-speaker pairs typically score well above 0.5. Prints each line's score and the folder's mean, so two models saying the same lines can be compared. A score says how alike the voices are, not how good the lines sound.",
+    "status": "active",
+    "maker": "maker:compare-voice-and-music-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compare-voice-and-music-models"
    }
   },
   {
@@ -7240,7 +7540,7 @@
    "values": {
     "title": "Transcribe a recording with a time for every word, and repair Whisper loops (runs on your computer)",
     "job": "Turn a recording into a transcript with a time for every word, and fix the places where the transcription got stuck repeating one sentence",
-    "description": "Runs the audio-transcription package's own transcribe-audio.py on the person's own computer: the recording (audio, or video with sound) is decoded to 16 kHz mono and read by whisper.cpp, and the answer is the package's result: language, full text, segments, and words with a start, an end and a timing_source that says whether the time came from the engine's token times, from the segment's bounds or from an even split of the segment. The seam adds the recording's length. Whisper sometimes gets stuck and writes one sentence again and again over minutes of real speech or silence. find-loops finds those stretches (a sentence said four or more times that fills half a segment, or a segment that repeats the one before). repair merges the ones that are close, hears again only those windows with the earlier text not carried in (whisper.cpp -mc 0) and splices the new words in at their true seconds. A sentence that still loops is taken out and kept in removed_hallucinated, so nothing disappears silently. Nothing leaves the computer and no key is needed.",
+    "description": "Runs the audio-transcription package's own transcribe-audio.py on the person's own computer: the recording (audio, or video with sound) is decoded to 16 kHz mono and read by whisper.cpp, and the answer is the package's result: language, full text, segments, and words with a start, an end and a timing_source that says whether the time came from the engine's token times, from the segment's bounds or from an even split of the segment. The seam adds the recording's length, its path, and when it was made (a camera's sidecar XML beside it, else the file's time). transcribe-many does a whole folder, skipping recordings already done, a few at once and waiting while the computer is busy. Whisper sometimes gets stuck and writes one sentence again and again over minutes of real speech or silence. find-loops finds those stretches (a sentence said four or more times that fills half a segment, or a segment that repeats the one before). repair merges the ones that are close, hears again only those windows with the earlier text not carried in (whisper.cpp -mc 0) and splices the new words in at their true seconds. A sentence that still loops is taken out and kept in removed_hallucinated, so nothing disappears silently; repair-many repairs a whole folder, each transcript from the recording it names. judge says whether a whole answer is to be trusted at all (one segment said over and over, one run of four words coming back again and again, too few different words, too few words a minute, mostly no speech) and why. index writes one line per transcript (length, words, segments, first thing said) with the totals, and text writes a transcript as [m:ss] paragraphs about thirty seconds long, refusing one judge rejects. Nothing leaves the computer and no key is needed.",
     "status": "active",
     "maker": "maker:audio-transcription",
     "licence_class": "licence:maker-own",
