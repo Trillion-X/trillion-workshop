@@ -18,6 +18,9 @@
 //     text, which means the list removed it, so the file is removed;
 //   - a row the list's own rows hold (written by any AI under any id) when the source adopts them: it becomes a file
 //     named by `copy_name` from its values, then the file's rows replace it, so every AI then reads one row.
+// A copy's own fields are those under `properties_prefix` (a document's frontmatter), or, when the copy names
+// `list_only` (rows of a file that holds many, json-items), every field but those and the meta prefixes: the list's
+// own fields (a check's switch) are kept on the row and never reach the file.
 //
 // Non-Negotiable Invariants:
 //   1. Nothing is overwritten silently. A file is written or removed only if it is still the one read (the source's
@@ -55,7 +58,15 @@ function copyNames(source) {
     if (typeof named[key] !== 'string' || !named[key]) throw say('bad_list', `The copy of ${source.id} names no ${key}.`);
   }
   if (!Array.isArray(named.owned_prefixes) || !named.owned_prefixes.length) throw say('bad_list', `The copy of ${source.id} names no owned_prefixes.`);
-  return named;
+  if (named.list_only !== undefined && (!Array.isArray(named.list_only) || named.list_only.some(field => typeof field !== 'string' || !field))) {
+    throw say('bad_list', `The copy of ${source.id} names list_only as something other than field names.`);
+  }
+  // A copy whose rows hold its fields bare (list_only named: a row of many in one file) owns every field but the
+  // list's own ones and its meta prefixes; any other copy owns the fields under its prefixes.
+  const meta = field => named.owned_prefixes.some(prefix => field.startsWith(prefix));
+  return { ...named,
+    own: Array.isArray(named.list_only) ? field => !named.list_only.includes(field) && !meta(field) : field => field.startsWith(named.properties_prefix),
+    kept: Array.isArray(named.list_only) ? field => named.list_only.includes(field) : field => !meta(field) };
 }
 
 // One document from its rows (the whole document, or its numbered parts): its text when every part is there.
@@ -70,7 +81,7 @@ function documentOf(rows, names) {
     baseline: first[names.identity_field] ?? null, changed: first[names.changed_field] ?? null };
 }
 
-const properties = (values, prefix) => Object.fromEntries(Object.entries(values).filter(([key]) => key.startsWith(prefix)));
+const properties = (values, names) => Object.fromEntries(Object.entries(values).filter(([key]) => names.own(key)));
 const sameValues = (a, b) => valueIdentity(a) === valueIdentity(b);
 
 export async function syncRowSource(input, door) {
@@ -141,7 +152,7 @@ export async function syncRowSource(input, door) {
     const before = new Map(listRows.map(record => [record.id, record.value]));
     const records = asRecords(fileRows).map(record => {
       const kept = Object.fromEntries(Object.entries(before.get(record.id) ?? {})
-        .filter(([field]) => !names.owned_prefixes.some(prefix => field.startsWith(prefix))));
+        .filter(([field]) => names.kept(field)));
       return { id: record.id, type, value: { ...record.value, ...kept } };
     });
     const writes = records.filter(record => !before.has(record.id) || !sameValues(before.get(record.id), record.value));
@@ -209,7 +220,7 @@ export async function syncRowSource(input, door) {
       }
       // Same text. A value only the list changed (a frontmatter property) goes to the file when the file is the one
       // the row was made from; any other difference is the file's facts, written to the list.
-      const wanted = properties(row.first, names.properties_prefix), there = properties(file.first, names.properties_prefix);
+      const wanted = properties(row.first, names), there = properties(file.first, names);
       if (!sameValues(wanted, there) && row.baseline === fileIdentity) {
         const values = Object.fromEntries([...Object.keys(there)].filter(field => !(field in wanted)).map(field => [field, null]));
         Object.assign(values, wanted);
@@ -276,7 +287,7 @@ export async function syncRowSource(input, door) {
     const rows = await fileRowsOf(name);
     if (!rows.length) return false;
     const file = documentOf(rows.map(row => ({ value: row.values })), names);
-    return sameValues(properties(file.first, names.properties_prefix), set) && file.text !== null && file.text.endsWith(body);
+    return sameValues(properties(file.first, names), set) && file.text !== null && file.text.endsWith(body);
   };
   for (const record of own) {
     const values = record.value;
@@ -294,7 +305,7 @@ export async function syncRowSource(input, door) {
     }
     const folder = source.of.replace(/\/+$/, '');
     const body = typeof values[names.field] === 'string' ? values[names.field] : '';
-    const set = properties(values, names.properties_prefix);
+    const set = properties(values, names);
     plan('adopt', record.id);
     if (dryRun) { report.adopted += 1; continue; }
     let named = null;

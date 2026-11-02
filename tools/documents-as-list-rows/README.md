@@ -174,6 +174,7 @@ Where each value goes:
 | `read-data/namespace-files.mjs` | The `files` of the person's Namespace, through the run's records door: names from list_files, bytes from read_file by name; no write. |
 | `read-data/split.mjs` | Splitting documents into one document per item by a mapping. |
 | `read-data/rows.mjs` | The functions the rows run: `readDocumentRows`, `changeDocumentRows`, `splitIntoDocuments`. |
+| `read-data/json-items.mjs` | The `json-items` row source: one JSON file whose array at one path holds many items, each item a row (`readJsonItemRows`: its keys as they are, its JSON text `copy.text`, that text's identity `copy.identity`, the file's `file.mtime`), and `changeJsonItemRows`, which writes or removes one item only while it is still the one read and keeps the rest of the file. read-a-list-view's list-copy keeps a list and such a file the same both ways. |
 | `do-work/documents.mjs` | The command line above. |
 | `test/documents-as-list-rows.test.mjs` | All of it on made-up chores and house rules. |
 

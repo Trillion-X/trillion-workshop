@@ -79,6 +79,14 @@ A file is written or removed only while it is still the one read (the change too
   "content": {"field": "document.text", "part_bytes": 6000}}]}
 ```
 
+A file can also hold many rows: rules, checks, any objects with an id, in one array. The row source kind `json-items` reads them (`tools/documents-as-list-rows` read-data/json-items.mjs): each item is a document named `/<its id>`, its keys are the row's fields as they are, `copy.text` is its JSON and `copy.identity` the identity of that text, so the sync above settles it item by item with no change. A list keeps its own fields off the file by naming them in `content.list_only` (a check's on/off switch, who judges it); every other field of a row is the item's. The file is written whole in one shape (`indent` spaces); its other keys stay as they are. Every item's `file.mtime` is the file's, so a change to one item writes every row's `file.mtime` again.
+
+```json
+{"row_sources": [{"id": "rules", "source": "json-items", "root": "/path/to/project", "file": "data/rules.json", "at": "rules",
+  "key": "id", "indent": 2, "of": "/", "original": "list", "adopt_own_rows": true, "copy_name": "{id}",
+  "content": {"list_only": ["on", "why_off", "switched_by", "switched_at"]}}]}
+```
+
 ## Bounds
 
 The bounds are this tool's own DATA, `limits` in `read-data/list-view.json`. Reading a list is this tool's job; the engine only stores and lists records. A caller never passes them.
@@ -138,6 +146,7 @@ It is not an engine row. A run the engine starts gets record rights for named re
 | `do-work/read-list-view.mjs` | The command line above. |
 | `test/read-a-list-view.test.mjs` | Tests on a made-up bakery: a refresh's writes (only what changed, removals, bounded batches, a refused row), a read that runs no tool, the bounds, a view's rules and sort, a local tool, byte pages, and the door's key handling. |
 | `read-data/list-copy.mjs` | `syncRowSource(input, door)`: the two-way sync of a source declared `original: "list"`, which a refresh of that list runs. |
+| `test/json-items-copy.test.mjs` | The same sync on one made-up kitchen rules file that holds many rows: every item a row, a field changed in the list reaching the file with the rest of the file kept and a list-only switch kept off it, a rule an AI wrote under its own id becoming an item, an item changed in the file reaching the list and an item removed from the list leaving the file. |
 | `test/list-copy.test.mjs` | Tests on a made-up bakery's notes over the real door and the real documents tools: a new folder, a row any AI wrote, a taken name, a row another sync already made into its file, one part of a long document, both sides changed, removals on either side, a value only the list changed, `paths` and a dry run. |
 
 ## Dependencies
