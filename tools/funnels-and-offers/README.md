@@ -9,7 +9,7 @@ A person's sales funnels, read from their own records: the offers in order, the 
 | `read-data/funnel-flow.mjs` | `resolveFunnelFlow` (entry at its decided price, every step, breadth-first order, cycle-safe), `advanceFunnel`, `funnelStepAtCursor`, `resolveExperimentWinnerAmount`, `readFunnelNode`, `resolveCtaLinks`. |
 | `read-data/funnel-definition.mjs` | The stage_address contract: `readFunnelDefinition`, `resolveFunnelDefinition` (the blind `$ref` join), `liveVariantMapFromDecisions`, and the drafting builders `buildNewFunnelDefinition`, `appendStage`, `slugify`. |
 | `read-data/stage-measures.mjs` | `reduceStageMeasures`: per-stage visits, conversions, rate and revenue from facts, for any group-by field and amount field. |
-| `read-data/read-offers.ts` | `readCheckoutOffers`, `discoveredPriceCents`: the one reader of a person's `commercial-offer` rows (price options, trials, per-unit prices and curves, charge dimensions, a buyer-chosen amount and the price-discovery rule that moves its floor). `tools/take-payments` prices, checks and sells from what it reads; any page that shows a price reads offers here. Its cases run in `tools/take-payments/test` (`read-offers-voluntary-policy`, `price-discovery`). |
+| `read-data/read-offers.ts` | `readCheckoutOffers`, `discoveredPriceCents`: the one reader of a person's `commercial-offer` rows (price options, trials, per-unit prices and curves, charge dimensions, a buyer-chosen amount and the price-discovery rule that moves its floor, a quantity the buyer picks, the note beside the pay button, and `for_sale: false` keeping a retired offer out of what is sold). `tools/take-payments` prices, checks and sells from what it reads; any page that shows a price reads offers here. Its cases run in `tools/take-payments/test` (`read-offers-voluntary-policy`, `price-discovery`). |
 | `do-work/walk-a-funnel.mjs` | The command of `tool:walk-a-funnel`. |
 | `do-work/read-a-funnel-definition.mjs` | The command of `tool:read-a-funnel-definition`. |
 | `do-work/measure-funnel-stages.mjs` | The command of `tool:measure-funnel-stages`. |
@@ -17,6 +17,8 @@ A person's sales funnels, read from their own records: the offers in order, the 
 | `records.json` | The four tool rows. |
 | `tool-rows.json` | Lists `records.json`'s rows into the Workshop (`source:funnel-and-offer-tools`). |
 | `part.json` | No public files: only the tools run this code. |
+| `read-data/offer-variants.mjs` | `resolveOfferVariants`: a row with `variant_of` (a price-test arm) reads as the row it varies, with `replace_words` applied to inherited words and its own fields winning. The reader resolves every row through it. |
+| `test/offer-variants.test.mjs` | Variants, quantity, checkout note and retired offers through the reader. |
 | `test/funnel-flow.test.mjs` | The package's resolver cases on a made-up bakery ladder. |
 | `test/funnel-definition.test.mjs` | The contract, the join, the deletion test (a hiring pipeline) and the named-price-option rule. |
 | `test/stage-measures.test.mjs` | The reducer. |

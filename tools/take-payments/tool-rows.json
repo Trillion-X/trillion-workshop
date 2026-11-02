@@ -82,7 +82,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -285,7 +286,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -436,7 +438,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -547,7 +550,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -650,7 +654,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -760,7 +765,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -864,7 +870,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -985,7 +992,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -1091,7 +1099,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -1197,7 +1206,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -1302,7 +1312,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -1359,8 +1370,8 @@
         "kind": "ai-tool-descriptor",
         "id": "tool:set-up-stripe-payment-links",
         "label": "Set up Stripe payment links",
-        "job": "Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my percent-off codes",
-        "description": "Give owner (a name that marks the Stripe objects as yours) and after_payment_url. Reads your offers and code adjustments from your records. Safe to run again: prices, links, codes and the plan page are found, not made twice; links for options you no longer sell stop taking payments. Webhook endpoints are not made here (Stripe shows a signing secret only once); add yours in the Stripe dashboard and keep its secret in your held values. Uses your Stripe key from your held values.",
+        "job": "Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes",
+        "description": "Give owner (a name that marks the Stripe objects as yours) and after_payment_url (where a buyer lands after paying: an offer row with post_purchase_route_path lands there, any other at its own id under this address). A trial, a part of the first month taken today, and a quantity the buyer picks come from each price option. Reads your offers and code adjustments from your records. Safe to run again: prices, links, codes and the plan page are found, not made twice; links for options you no longer sell stop taking payments. Webhook endpoints are not made here (Stripe shows a signing secret only once); add yours in the Stripe dashboard and keep its secret in your held values. Uses your Stripe key from your held values.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1418,7 +1429,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -1551,7 +1563,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -1668,7 +1681,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -1814,7 +1828,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -1979,7 +1994,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -2103,7 +2119,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -2211,7 +2228,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -2281,7 +2299,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -2585,7 +2604,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -2876,7 +2896,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -3065,7 +3086,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -3539,7 +3561,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -4023,7 +4046,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -4229,7 +4253,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -4449,7 +4474,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -4660,7 +4686,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },
@@ -4870,7 +4897,8 @@
               {
                 "package": "funnels-and-offers",
                 "paths": [
-                  "read-data/read-offers.ts"
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
                 ],
                 "at": "/opt/funnels-and-offers"
               },

@@ -1,5 +1,6 @@
 export type CheckoutCodeAdjustmentDiscount = {
   amount_cents?: number;
+  currency?: string;
   kind: 'amount_cents' | 'percent';
   percent?: number;
 };
@@ -13,6 +14,12 @@ export type CheckoutCodeAdjustmentScope = {
 export type CheckoutCodeAdjustment = {
   adjustment: CheckoutCodeAdjustmentDiscount;
   code: string;
+  /** How long the payment provider keeps taking it off: forever, once, or repeating for duration_in_months. */
+  duration?: 'forever' | 'once' | 'repeating';
+  duration_in_months?: number;
+  max_redemptions?: number;
+  /** The provider's own limits on who may use it (first_time_transaction, minimum_amount and its currency). */
+  restrictions?: Record<string, unknown>;
   id: string;
   label: string;
   result_label?: string;
@@ -76,7 +83,8 @@ function readAdjustment(value: unknown): CheckoutCodeAdjustmentDiscount | null {
   }
   if (kind === 'amount_cents') {
     const amount = Math.max(0, Math.trunc(readNumber(value.amount_cents, 0)));
-    return { amount_cents: amount, kind };
+    const currency = readString(value.currency)?.toLowerCase();
+    return { amount_cents: amount, ...(currency ? { currency } : {}), kind };
   }
   return null;
 }
@@ -95,8 +103,12 @@ export function readCheckoutCodeAdjustments(
       return [{
         adjustment,
         code,
+        ...(readString(record.duration) ? { duration: readString(record.duration) as CheckoutCodeAdjustment['duration'] } : {}),
+        ...(typeof record.duration_in_months === 'number' ? { duration_in_months: record.duration_in_months } : {}),
         id,
         label,
+        ...(typeof record.max_redemptions === 'number' ? { max_redemptions: record.max_redemptions } : {}),
+        ...(isRecord(record.restrictions) ? { restrictions: record.restrictions } : {}),
         result_label: readString(record.result_label),
         scope: readScope(record.applies_to),
         sort_order: readNumber(record.sort_order, 0),
