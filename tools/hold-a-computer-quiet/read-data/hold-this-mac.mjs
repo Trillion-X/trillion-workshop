@@ -1,16 +1,18 @@
-// computer/hold-this-mac.mjs
+// tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs
 //
 // PURPOSE
 //   Holds this Mac quiet for a session: the apps a hold names are asked to quit whenever they open (or, when a hold
-//   names `only`, every app but those and the always-open ones), and Focus is on, until the hold's own end time. Four Workshop tools on placement:your-computer (computer/mac-tools.json): hold, release,
-//   holds and focus. A protocol step (a lock-in session, a bedtime schedule, any rule) runs them by tool id; nothing here
-//   knows what a session is.
+//   names `only`, every app but those and the always-open ones), and Focus is on, until the hold's own end time. Four
+//   tools on placement:your-computer (tool-rows.json): holdADeviceQuiet, releaseADevice, deviceHolds and focus, plus
+//   resumeHolds, which the computer's tool host calls once when it starts. A protocol step (a lock-in session, a bedtime
+//   schedule, any rule) runs them by tool id; nothing here knows what a session is.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A hold always ends by itself: its `until` is required and never more than `longest_hours` away, and the watcher
 //      drops it at that time even if nobody releases it, so a hold can never keep the person out of their own Mac.
-//   2. Apps in `always_open`, and every app a `keep_open_rows` row of computer/computer-sources.json names (the apps the
-//      person's AIs run in, found by kind, never typed here), are never closed, whatever a hold names. An app is known by
+//   2. Apps in `always_open`, and every app a `keep_open_rows` row names (the computer's own list of places, handed in
+//      by its tool host as context.keep_open_rows: the apps the person's AIs run in, found by kind, never typed here),
+//      are never closed, whatever a hold names. An app is known by
 //      every identity it has (its shown name, its bundle's file name, its executable, its bundle id, its bundle path), so
 //      an app whose shown name differs from its executable (super.engineering runs as superconductor) is still known.
 //   6. An app using a resource in `spare_while_using` (the microphone: a live recording or call) is never closed while it
@@ -19,19 +21,20 @@
 //   3. Holds live in one file under the person's home; a missing or unreadable file means nothing is held (it fails
 //      open, never closed). After the helper restarts, `resumeHolds` reads it and keeps watching what still lasts.
 //   4. An app is asked to quit the polite way first (so it can ask to save); only when that is refused is it ended.
-//   5. Which apps, which Focus shortcut, how often to look and every word said are DATA (computer/hold-this-mac.json).
+//   5. Which apps, which Focus shortcut, how often to look and every word said are DATA (read-data/hold-this-mac.json).
+//   7. One watcher per computer: the first call makes the holds (with the kept rows that call carried); later calls
+//      share it, so a hold is watched once however many runs touch it.
 //
 import { execFile, execFileSync } from 'node:child_process';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { basename, dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { basename, join } from 'node:path';
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-export const holdSettings = () => JSON.parse(readFileSync(join(HERE, 'hold-this-mac.json'), 'utf8'));
-/** The rows of the file `keep_open_rows.from` names (computer/computer-sources.json `sources`). */
-export const placeRows = settings => JSON.parse(readFileSync(join(HERE, settings.keep_open_rows.from), 'utf8')).sources ?? [];
+export const holdSettings = () => JSON.parse(readFileSync(new URL('./hold-this-mac.json', import.meta.url), 'utf8'));
+/** The computer's places a run was handed (context.keep_open_rows: rows of { label, category, runs_ais?, look: { paths } }),
+ *  or none: with none, only `always_open` is kept. */
+export const placeRows = context => (Array.isArray(context?.keep_open_rows) ? context.keep_open_rows.filter(row => row && typeof row === 'object') : []);
 /** The rows whose apps no hold closes: any `keep_open_rows.where` test ({ field, equals }) holds. */
 export const keptRows = (settings, rows = []) => rows.filter(row => (settings.keep_open_rows?.where ?? []).some(test => row[test.field] === test.equals));
 const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
@@ -146,7 +149,7 @@ export function runningApps(text) {
 }
 
 /** The tools, over a home folder and a command runner, so tests hold a pretend Mac. */
-export function makeHolds({ settings = holdSettings(), rows = placeRows(settings), home = homedir(), facts = bundleFacts, exec = run, now = () => Date.now(), timers = { setInterval, clearInterval } } = {}) {
+export function makeHolds({ settings = holdSettings(), rows = [], home = homedir(), facts = bundleFacts, exec = run, now = () => Date.now(), timers = { setInterval, clearInterval } } = {}) {
   const folder = join(home, settings.folder);
   const kept = keptIdentities(settings, rows, home, facts);
   const keptNames = [...new Set([...settings.always_open, ...keptRows(settings, rows).map(row => row.label)])];
@@ -270,12 +273,15 @@ export function makeHolds({ settings = holdSettings(), rows = placeRows(settings
 }
 
 let shared = null;
-const holdsHere = () => (shared ??= makeHolds());
+const holdsHere = context => (shared ??= makeHolds({ rows: placeRows(context) }));
 
-export const holdTools = {
-  hold: input => holdsHere().hold(input),
-  release: input => holdsHere().release(input),
-  holds: () => holdsHere().holds(),
-  focus: input => holdsHere().focus(input),
-  resume: () => holdsHere().resume(),
-};
+/** `tool:hold-a-device-quiet`: { id?, apps?, only?, focus?, until? | minutes? } -> { hold, closed, focus?, said }. */
+export const holdADeviceQuiet = (input, context) => holdsHere(context).hold(input);
+/** `tool:release-a-device`: { id? } -> { released, focus?, said }; every hold when no id is given. */
+export const releaseADevice = (input, context) => holdsHere(context).release(input);
+/** `tool:device-holds`: {} -> { holds, said }. */
+export const deviceHolds = (input, context) => holdsHere(context).holds();
+/** `tool:focus`: { on? } -> { focus, switched, said }. */
+export const focus = (input, context) => holdsHere(context).focus(input);
+/** Called once by the computer's tool host when it starts: keeps watching holds that still last. */
+export const resumeHolds = (input, context) => holdsHere(context).resume();
