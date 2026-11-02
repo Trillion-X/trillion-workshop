@@ -1,2 +1,0 @@
-#!/bin/sh
-exec node /Applications/HyperFrames.app/Contents/Resources/app.asar.unpacked/node_modules/hyperframes/bin/hyperframes.mjs "$@"

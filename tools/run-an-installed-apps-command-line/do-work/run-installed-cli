@@ -1,0 +1,21 @@
+#!/bin/sh
+# Run the command line an installed app ships inside its own bundle, as if it were on the PATH: Node for a .mjs, .cjs
+# or .js entry, the file itself otherwise. The app and the entry are the person's, passed in; nothing is built in.
+# usage: run-installed-cli <installed app or folder> <entry, relative to it> [arguments for the app ...]
+# e.g.   run-installed-cli /Applications/HyperFrames.app \
+#          Contents/Resources/app.asar.unpacked/node_modules/hyperframes/bin/hyperframes.mjs --help
+# Exit codes: the app's own, or 2 with {"error": ...} on standard error when the app or entry is not there.
+refuse() { printf '{"error": "%s"}\n' "$1" >&2; exit 2; }
+[ $# -ge 2 ] || refuse "pass the installed app (or folder) and the entry path inside it, then the app's arguments"
+app=$1; entry=$2; shift 2
+[ -d "$app" ] || refuse "$app is not there: pass the path the app is installed at"
+file=$app/$entry
+[ -f "$file" ] || refuse "$entry is not in $app: look inside the app for its command-line entry and pass that path"
+case $file in
+  *.mjs|*.cjs|*.js)
+    command -v node >/dev/null 2>&1 || refuse "the entry is JavaScript and node is not on the PATH: install Node.js"
+    exec node "$file" "$@" ;;
+  *)
+    [ -x "$file" ] || refuse "$entry is not executable: pass the app's command-line program, or a .mjs, .cjs or .js entry"
+    exec "$file" "$@" ;;
+esac

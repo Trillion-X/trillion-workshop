@@ -1,0 +1,61 @@
+{
+  "kind": "package-set-records",
+  "record_set": "run-an-installed-apps-command-line-tool-rows",
+  "what_this_is": "The Workshop row for the run-an-installed-apps-command-line folder: a launcher the person's AI runs on the person's own computer that starts the command line an installed app keeps inside its own bundle, with the app and entry the person passes in.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:run-an-installed-apps-command-line",
+        "label": "Run the command line an installed app keeps inside itself (runs on your computer)",
+        "job": "Run the command-line tool that came inside an app I installed, without installing it again",
+        "description": "Some desktop apps ship their own command-line program inside the app bundle (for example a Node script under Contents/Resources/app.asar.unpacked/node_modules/<name>/bin/) but never put it on the PATH. This launcher runs that entry as if it were installed: Node runs a .mjs, .cjs or .js entry, any other entry runs as itself. Every argument after the entry is passed through unchanged and the app's own exit code and output come back. Nothing about any app is built in: the person passes the installed app's path and the entry path inside it. A missing app or entry, or an entry that is not a program, is refused with exit code 2 and {\"error\"} on standard error saying what to pass.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["app", "entry"],
+          "properties": {
+            "app": {
+              "type": "string",
+              "description": "Where the app is installed, put where {app} is in the command (e.g. /Applications/<Name>.app)."
+            },
+            "entry": {
+              "type": "string",
+              "description": "The command-line entry's path inside the app, put where {entry} is in the command (e.g. Contents/Resources/app.asar.unpacked/node_modules/<name>/bin/<name>.mjs)."
+            },
+            "arguments": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "The app's own arguments, each passed as one word after {entry}."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Whatever the app's command line prints, with its exit code. On a refusal the exit code is 2 and standard error's last line is {\"error\": \"what to pass\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "sh tools/run-an-installed-apps-command-line/do-work/run-installed-cli {app} {entry} {arguments}",
+          "needs": [
+            "a POSIX shell",
+            "node, when the entry is a .mjs, .cjs or .js file",
+            "the app, already installed"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Ask which installed app's command line they want, find where the app is installed and look inside it for the command-line entry (for an Electron app, usually under Contents/Resources/app.asar.unpacked/node_modules/<name>/bin/). Run `run` with the app, the entry and the app's own arguments, each quoted as one word. To use it often, the person can save a two-line shell script on their PATH that calls this launcher with their app and entry. Report what the app printed and its exit code; on exit code 2 read the {error} on standard error and pass what it asks for."
+        },
+        "maker": "maker:run-an-installed-apps-command-line",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Written for the Workshop: a general form of a one-line launcher for an Electron app's bundled Node command line"
+        }
+      }
+    }
+  ]
+}

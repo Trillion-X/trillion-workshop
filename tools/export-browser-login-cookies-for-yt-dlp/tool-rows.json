@@ -1,0 +1,64 @@
+{
+  "kind": "package-set-records",
+  "record_set": "export-browser-login-cookies-for-yt-dlp-tool-rows",
+  "what_this_is": "The Workshop row for the export-browser-login-cookies-for-yt-dlp folder: a script the person's AI runs on the person's own Mac that writes one browser profile's YouTube and Google login cookies to a cookies.txt yt-dlp can use.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:export-browser-login-cookies-for-yt-dlp",
+        "label": "Give yt-dlp my browser's YouTube login (runs on your Mac)",
+        "job": "Let yt-dlp download as me: export my browser's YouTube login to a cookies file",
+        "description": "Reads one profile of a Chromium-family browser on macOS (Arc by default; also Chrome, Chromium, Brave, Edge and Vivaldi), decrypts its cookies with the key the browser keeps in the macOS keychain under its own name (for Arc, \"Arc Safe Storage\", which yt-dlp's own Chrome reader does not ask for), and writes the cookies of youtube.com and google.com (other domains if asked) to a Netscape cookies.txt that yt-dlp reads with --cookies. The file is written readable by its owner only. It holds the person's login: it must stay on their computer and never be shared or committed. macOS asks the person once to allow the key; a wrong key is refused rather than written garbled.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["browser", "profile", "output"],
+          "properties": {
+            "browser": {
+              "type": "string",
+              "enum": ["arc", "brave", "chrome", "chromium", "edge", "vivaldi"],
+              "description": "The browser the person is signed in to YouTube with, put where {browser} is in the command."
+            },
+            "profile": {
+              "type": "string",
+              "description": "The profile's folder name under the browser's user data (Default, or Profile 1, Profile 2 ...), put where {profile} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The cookies.txt to write, put where {output} is in the command; keep it outside any shared or synced folder."
+            },
+            "domain": { "type": "array", "items": { "type": "string" }, "description": "--domain, once per domain: which sites' cookies to export (default youtube.com and google.com)." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"out\", \"cookies\", \"domains\", \"browser\", \"profile\"}} or {\"error\": \"what to change\"}. The cookies file is the answer."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U cryptography"
+          ],
+          "run": "python3 -I tools/export-browser-login-cookies-for-yt-dlp/do-work/export_cookies.py --browser {browser} --profile {profile} --out {output}",
+          "needs": [
+            "macOS",
+            "python",
+            "the cryptography package",
+            "the person signed in to YouTube in that browser profile"
+          ],
+          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, and touches their login, so ask before running it. Ask which browser and profile they are signed in to YouTube with (the profile folders are under the browser's user data; Default is the first). Check the cryptography package is installed, install it with get_it if not. The person should run `run` in their own Terminal: macOS asks once to allow the browser's Safe Storage key, and they choose Always Allow. Use --keychain-service when a browser keeps its key under another name, --user-data when its profiles are elsewhere, and --domain for other sites. Read the last line: { result } names the file and how many cookies it holds; { error } says what to change. Then pass the file to yt-dlp with --cookies <file>, and tell the person the file is their login: keep it private, re-export it when YouTube asks them to sign in again."
+        },
+        "maker": "maker:export-browser-login-cookies-for-yt-dlp",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Chromium's documented macOS cookie encryption (PBKDF2-SHA1 of the Safe Storage password, AES-128-CBC, v10 prefix, sha256(host) value prefix in newer versions) and the Netscape cookies.txt format yt-dlp reads"
+        }
+      }
+    }
+  ]
+}
