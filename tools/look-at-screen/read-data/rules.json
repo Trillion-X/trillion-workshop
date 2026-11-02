@@ -1,0 +1,13 @@
+{
+  "_what": "Rules for tool:look-at-screen. long_edge: the longest edge of each returned picture in pixels (a request may ask for smaller, never larger). format: the picture format (jpg or png). max_answer_bytes: the most one answer may hold, kept under what a run may return (262144 bytes in product/tool-runs.json); when the pictures are larger, every picture is made smaller by shrink_by until they fit, down to least_long_edge. words: what it says.",
+  "long_edge": 1600,
+  "least_long_edge": 200,
+  "shrink_by": 0.8,
+  "max_answer_bytes": 240000,
+  "format": "jpg",
+  "words": {
+    "done": "This is what is on the screen now, the main display first; each picture gives its size in pixels.",
+    "needs_access": "Turn on Screen Recording for the app that runs this tool in System Settings, Privacy & Security, so it can see your screen when you ask.",
+    "too_many_displays": "The displays are too many for one answer even at the smallest picture size. Disconnect some displays or ask again."
+  }
+}

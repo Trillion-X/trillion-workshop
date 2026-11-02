@@ -1335,6 +1335,23 @@
         {"job": "tell who is in a recording or a picture: keep a person's voice or face print only with the consent words that say who agreed and how, name the voices of a transcript against those prints, and find and name faces in a picture or video", "why": "tools/know-who-is-in-this names a recording that already exists; this one captures the microphone live and calls that tool's naming on each piece, adding no recognizer"},
         {"job": "turn a recording into words with word times", "why": "tools/audio-transcription transcribes one finished recording; this one records, then calls that tool's transcribe on each piece as it finishes"}
       ]
+    },
+    {
+      "capability": "see what is on the person's Mac screen right now: a picture of every display, the main one first, each with its size in pixels so an AI can point at an exact spot, taken only when asked and kept nowhere on the Mac",
+      "owner": ["tools/look-at-screen/"],
+      "entry": "tools/look-at-screen/tool-rows.json",
+      "evidence": "README.md:3 one capture of every display with the system's screen capture, shrunk to a long edge the rules set, returned to the run and deleted from the Mac; says in words when Screen Recording is off; learned from a screen-pointing assistant",
+      "distinct_from": [
+        {"job": "read what a person is doing on their Mac as text from the front window", "why": "tools/read-what-is-on-screen returns words from the front window's accessibility tree and no picture; this one returns pictures and no words"},
+        {"job": "act on a computer's apps, windows and command lines within declared bounds", "why": "computer-interface-actions acts on apps and windows; this one only looks at the displays and acts on nothing"},
+        {"job": "record a web page as a demo video: play steps like a person would, with a drawn pointer and click ripples", "why": "tools/record-a-web-page records a page address in a headless browser; this one captures the person's own displays as they are"},
+        {"job": "run guided tours, spotlights and quizzes over an app's screens", "why": "tools/guided-tours draws a tour over an app's screens; this one only looks at the person's displays and draws nothing on them"},
+        {"job": "take a person to the thing that needs them", "why": "tools/take-me-there opens the person on a waiting card; this one shows an AI what is already on the display"},
+        {"job": "let people and AIs in: the door and their sign-in and rights", "why": "the door lets an AI in; this one gives an AI already let in a picture of the person's display when the person asks"},
+        {"job": "keep shared step-by-step playbooks any person's AI can follow", "why": "tools/workflows keeps playbooks as rows; this one takes a picture of a display and keeps nothing"},
+        {"job": "read one page of what a person's list or saved view shows", "why": "tools/read-a-list-view reads rows of a list; this one reads no list and returns pictures of displays"},
+        {"job": "hold a group to what it agreed", "why": "tools/hold-to-it keeps a group's agreements; this one has no group and keeps nothing"}
+      ]
     }
   ]
 }
