@@ -16,7 +16,8 @@ const load = name => JSON.parse(readFileSync(new URL(`../${name}`, import.meta.u
 export const MEASURES = load('signal-measures.json');
 export const SOURCES = load('sources.json');
 
-const DAY = 86_400_000;
+const HOUR = 3_600_000;
+const DAY = 24 * HOUR;
 const MAX_LIMIT = 500;
 const DEFAULT_LIMIT = 50;
 const MAX_SKIPPED = 100;
@@ -46,6 +47,7 @@ const STEPS = {
   count: state => (Array.isArray(state.value) ? { ...state, value: state.value.length, kept: state.value } : null),
   share: state => (Array.isArray(state.value) && state.total > 0 ? { ...state, value: state.value.length / state.total, kept: state.value } : null),
   'age-days': state => { const time = dateOf(state.value); return time === null ? null : { ...state, value: Math.floor((state.now - time) / DAY) }; },
+  'age-hours': state => { const time = dateOf(state.value); return time === null ? null : { ...state, value: Math.floor((state.now - time) / HOUR) }; },
   number: state => { const number = typeof state.value === 'number' || nonempty(state.value) ? Number(state.value) : NaN; return Number.isFinite(number) ? { ...state, value: number } : null; },
 };
 export const STEP_NAMES = Object.keys(STEPS);
