@@ -19,7 +19,11 @@ The provider's key arrives on a private pipe (the row's `credential_mounts`, one
 | `tool:send-due-email-lessons-with-resend` / `-with-amazon-ses` | Sends each queued lesson whose time has come to the people still signed up, once each; a failed send queues its own retry (up to three) | container, records door, keys as above |
 | `tool:save-interest-in-an-email-update` | Keeps a person's consent to one email if a course becomes available; sends nothing | container, records door, no key |
 | `tool:stop-an-email-course` | Ends a subscription from the token in the unsubscribe link | container, records door, no key |
+| `tool:pace-sends-from-an-inbox` | When each address may be emailed from one sending inbox: a ramp of sends a day, the least gap, the weekdays and local hours, how long to leave an address, and a pause when the last sends bounce or draw a complaint; answers due now, a schedule and who is held and why | container, no internet, no key |
+| `tool:sort-bounces-and-replies` | What each bounce, complaint, unsubscribe, auto-reply and reply that came back means, by outcome rows over a provider's events or the mailbox's messages: which addresses to suppress, which to retry, who wrote back | container, no internet, no key |
 | `tool:who-agreed-to-get-which-emails` | Everyone with a consent: who, which list, when, in what words, whether they still agree, and the addresses that can be sent to now | container, records door (read only), no key |
+
+Pacing and what comes back are DATA in `read-data/inbox-pacing.json`: a pacing row (`new-inbox-warmup`, `saturday-local`, or the person's own) is a ramp, a gap, weekdays, local hours, days to leave an address and a pause rule; an event-source row says where the recipient, type, status, subject, text and time sit in one provider's event (Resend, Amazon SES, a mailbox message, or plain); an outcome row says when it applies (every condition on a field: `equals`, `matching` or `pattern`) and what it means (a kind) and asks (an action: suppress, stop-sequence, retry-later, hand-to-person, none). The first outcome row that applies wins. A new provider, rule or pace is a row, never code. Neither tool sends: the planner's `due_now` goes to a send tool, and the sorter's `outcomes` go back to the planner, which then holds the bounced, unsubscribed and replied.
 
 A new provider is one row in `read-data/message-providers.json` (its settings, its keys, and either an adapter script or a command) and one row in `tool-rows.json`.
 
@@ -40,10 +44,13 @@ The consent records (`email-course-subscription`, `email-course-token`, `email-c
 | `read-data/render-a-send.ts` | Builds the command for a program on the person's computer from DATA, with the body as its own argument (from `render-send.ts`). |
 | `read-data/check-message-headers.ts` | Bounded custom headers: names limited, no line breaks, 4 KiB (from the email sender's request checks). |
 | `read-data/message-providers.json` | The providers: settings from the request, keys by secret name and descriptor, adapter or command. |
+| `read-data/inbox-pacing.json` | The pacing rows, event-source rows, outcome rows, and the closed lists of kinds and actions they may name. |
+| `read-data/inbox-pacing.mjs` | `planSends`, `sortOutcomes`, `eventFields` and the row checks `pacingProblems`, `outcomeRowProblems`, `eventSourceProblems`. |
+| `do-work/pace-an-inbox.mjs` | The command of both pacing rows: `plan` or `sort` in argv, JSON in, `{ result }` or `{ error }` out. |
 | `read-data/message-templates.json` | Two sample templates (a sign-in link, a welcome). They carry no sender. |
-| `tool-rows.json` | The twelve rows. |
+| `tool-rows.json` | The fourteen rows. |
 | `part.json` | Nothing here is imported by other code. |
-| `test/` | `render-a-message.test.mjs` (the email sender's render and template cases), `send-a-message.test.mjs` (the adapters with a stand-in fetch, the Messages cases, the keys), `composition-mail-serializer.test.mjs` with `test_composition_mail_serializer.py`, `email-course.test.mjs` (the consent package's own cases), `keep-who-agreed.test.mjs` (the consent logic through the records door with each row's rights), `stub-fetch.mjs` (the stand-in fetch). |
+| `test/` | `render-a-message.test.mjs` (the email sender's render and template cases), `send-a-message.test.mjs` (the adapters with a stand-in fetch, the Messages cases, the keys), `composition-mail-serializer.test.mjs` with `test_composition_mail_serializer.py`, `email-course.test.mjs` (the consent package's own cases), `keep-who-agreed.test.mjs` (the consent logic through the records door with each row's rights), `inbox-pacing.test.mjs` (the ramp, gap, days and hours in a time zone, held addresses, the pause, each event source and outcome row, rows added only as DATA, both commands), `stub-fetch.mjs` (the stand-in fetch). |
 
 ## Key Types / Functions
 
@@ -51,6 +58,8 @@ The consent records (`email-course-subscription`, `email-course-token`, `email-c
 |------|-------|------|
 | `sendMessage` | `(request, { providerId, credentials }) -> { provider, sent: [{ recipient, messageId? , error? }], said }` | Sends to each recipient and answers each. |
 | `MessageBlockedError` | `code: 'blocked_needs_grant'` | The Mac refused the Automation event; the message says what to allow. |
+| `planSends` | `({ pacing \| pacing_row, time_zone, recipients, now?, first_send_at?, history?, outcomes?, suppressed? }) -> { pacing, time_zone, paused, due_now, schedule: [{ recipient, at, local, day }], held: [{ recipient, why }], said }` | When each address may be sent to from one inbox. |
+| `sortOutcomes` | `({ events, event_source? \| event_source_row, outcome_rows?, now? }) -> { event_source, outcomes: [{ recipient, rule, kind, action, says, at?, retry_at? }], suppress, stop, retry, replies, unmatched, said }` | What each event that came back means. |
 | `buildEmailMessage` | `(template, variables, override?) -> { from, subject, html, text }` | An override merges over the template field by field; no `from` is a refusal. |
 | `buildSendInvocation` | `(provider, { recipient, body }) -> { argv, timeout_ms, success_stdout_marker, ... }` | The command for a program on the computer. |
 | `readCustomHeaders` | `(object) -> object` | Refuses a bad name, a line break or a value over 4 KiB. |
@@ -61,7 +70,7 @@ The consent records (`email-course-subscription`, `email-course-token`, `email-c
 
 **Depends on:** Node's standard library, `@noble/hashes` (BLAKE3, packed at `/opt/node_modules/@noble/hashes` by the consent rows), Python 3 for the serializer, and for the computer row and the consent rows `tools/records-door` (`run-an-export.mjs` and the door client). The Mac row needs the Mac's `osascript`.
 
-**Depended on by:** nothing.
+**Depended on by:** the outreach recipes in `tools/workflows/recipes/workflows.json`, whose pace, send and outcome steps name these rows.
 
 ## Limits
 
