@@ -9,8 +9,7 @@
 // (Stripe's adjustable quantity); every other option sells one. A subscription option's `trial_days` gives that many
 // free days before the first charge, and an offer's `checkout_note` is shown beside the pay button; its `charges` entry
 // on day 0 is sold as a one-time item paid at checkout (chargedToday). After paying, the buyer goes to the offer's
-// `post_purchase_route_path` read against `afterPaymentUrl`, or, when the row names none, to the offer's own id under it
-// (`<afterPaymentUrl>offer%3A...`), so one page per offer can thank the buyer in that offer's words.
+// `post_purchase_route_path` read against `afterPaymentUrl` (the address's root when the row names none).
 //
 // Why payment links: a link is created once, while the caller briefly holds a Stripe key, and then works with
 // no key at all. A public address that must never hold a provider key (a fixed redirect) can still sell every
@@ -124,7 +123,7 @@ async function ensureLink(send, owner, afterPaymentUrl, priced, price, existing)
     // The offer catalog can include in-person services. Stripe Managed Payments accepts only
     // eligible automated digital products, so these links use ordinary Stripe Payments.
     managed_payments: { enabled: false },
-    after_completion: { type: 'redirect', redirect: { url: new URL(offer.post_purchase_route_path || encodeURIComponent(offer.id), afterPaymentUrl).href } },
+    after_completion: { type: 'redirect', redirect: { url: new URL(offer.post_purchase_route_path || '/', afterPaymentUrl).href } },
     // Collect a card even when a trial or promotion makes today's total zero, so the subscription can renew; one-time
     // payments always make a customer so a refund can be traced back to the buyer.
     ...(recurring
