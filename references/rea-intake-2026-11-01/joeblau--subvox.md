@@ -1,7 +1,7 @@
 # joeblau/subvox
 
 - Source: https://github.com/joeblau/subvox @ 591d02838521c3d33107bc9fde1a6fd620f96d58 (2026-10-30)
-- Licence: MIT, in `LICENSE` ("Copyright (c) 2026 Joe Blau"). No package manifest with a licence field (it is an XcodeGen `project.yml` app) and no vendored code. Code may be copied into an Apache-2.0/MIT project, keeping the MIT notice.
+- Licence: MIT, in `LICENSE` (copyright held by the repository owner; the notice travels with any copied code). No package manifest with a licence field (it is an XcodeGen `project.yml` app) and no vendored code. Code may be copied into an Apache-2.0/MIT project, keeping the MIT notice.
 
 ## What it does
 
