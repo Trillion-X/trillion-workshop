@@ -11,6 +11,7 @@ A JSON object, given with `--limits FILE`, and required. It holds the person's r
 * `frame` and `analysis`: the frame size and how the video is sampled (shared by every check), and `analysis.timeline_name` (the file beside the overlay that lists its elements, boxes and sounds) and `analysis.timeline_id_aliases` (`{event type: timeline element id}` for an event the renderer lists under another id).
 * One section per check, named like its module (`in_frame`, `joins`, `word_clip`, `jitter`, `text`, `face`, ...): its numbers, and the word lists and event type names it uses (which types are text, which are cutaways, which drift by design, which fillers to cut). The check's module docstring says what each key does.
 * A check whose sections are not all in the file does not run. It is reported `SKIP no limits for <sections>`, never passed.
+* Optional rows, used when present: `analysis.overlay_globs` (patterns relative to the video's folder, `{id}` the spec id or file name, for finding the overlay when the spec names none, e.g. `../out*/{id}/overlay.mov`); `sound_mix.plain_sibling` (`[regex, replacement]` on the video's file name: a same-length video with nothing added, used as the sound base) and `sound_mix.bases` (`{path regex: {file, t0}}`: an export of the source footage, used as the sound base for a video with no hold, cut or stitched opening); `placement.bases` (`{path regex: [{file, from, to}]}`: the source footage without the overlay, so placement reads what moves under a graphic even where the overlay covers the frame) with `lane_root_regex` (the folder those files are named from); and, for a film made as several options per moment, a `variety` section, which also turns on placement's side balance (`placement.scope_regex`, `timeline_glob`, `left_below`, `right_above`, `max_side_share`, `min_options_for_side`).
 
 The person's AI gets these rows from the person's own records (through the records door) or from a file the person points to, and passes the file's path. The tool never ships, merges or falls back to a default. `test/fixtures/limits-for-generated-videos.json` is a complete example of the shape, with synthetic numbers for the generated test videos.
 
@@ -20,12 +21,14 @@ The person's AI gets these rows from the person's own records (through the recor
 |------|---------|
 | `tool-rows.json` | The Workshop row `tool:check-a-rendered-video`: `on-your-computer`, with the commands that fetch it and run it. |
 | `part.json` | Nothing here is imported by other code. |
-| `do-work/check_a_rendered_video.py` | The command: `check <video>` or `batch <videos-dir>`. |
+| `do-work/check_a_rendered_video.py` | The command: `check <video>` or `batch <videos-dir>`; and `review-pack`, `variety`, `declare`, `map-add` (below). |
 | `do-work/rendercheck/cli.py` | Reads the options, runs each check, prints the report and the last-line JSON. |
 | `do-work/rendercheck/ctx.py` | One video's context: spec, overlay and timeline, the time maps (cuts, holds, stitched openings) and lazily loaded frames, audio and words. |
 | `do-work/rendercheck/checks/*.py` | One module per check. Each has `needs(ctx)` (why it cannot run) and `run(ctx)` (its findings). |
 | `do-work/rendercheck/pins.py` | The list of checks and, for each, the limit sections it reads; a check's pin is the BLAKE3 of those, its own code and the shared code. |
 | `do-work/rendercheck/sfx.py`, `media.py`, `report.py`, `jsonio.py`, `config.py` | Shared: the added sound effects, ffmpeg reading, findings and the printout, JSON, limits loading. |
+| `do-work/rendercheck/review_pack.py` | `review-pack`: per video, contact sheets, a transcript and the rules of one kind, for a reviewer who has seen nothing else. |
+| `do-work/rendercheck/vision_landmarks.py` | Face landmarks (eye and mouth openness) of still images from Apple Vision, run by `held-face` with a macOS python that has the Vision bindings. |
 | `test/fixtures/limits-for-generated-videos.json` | A worked example of the limits file, with synthetic numbers chosen for the generated test videos. It is not a recommendation and the tool never reads it outside the tests. |
 | `test/test_*.py` | One passing and one failing case per check on small synthetic videos made with ffmpeg. |
 | `test/run_tests.py` | Runs them all: `python3 test/run_tests.py` (or one file: `python3 test/run_tests.py test_checks.py`). |
@@ -41,7 +44,18 @@ python3 do-work/check_a_rendered_video.py batch ./videos --limits my-limits.json
 
 It needs `ffmpeg` and `ffprobe` on the path. Speech timings come from `mlx-whisper` on Apple silicon (`python3 -m pip install mlx-whisper`); pass `--words words.json` (a list of `{w, s, e}` word timings) to skip it, or run on a machine without it and the checks that need words say so.
 
-Options: `--limits FILE` (required: the person's limits, below), `--only in-frame,joins,word-clip` (a comma list of checks), `--overlay overlay.mov` (a render of the graphics alone, with alpha), `--timeline timeline.json` (where each graphic's box and sound is), `--words FILE`, `--source-words FILE` (word timings of the footage the video was cut from), `--recipe FILE` (`motion.jitter_px`), `--cache-dir DIR` (where transcriptions are kept between runs; default a folder under the system temp folder), `--json FILE` (every finding), `--ids a,b` (batch: only these videos).
+Options of `check` and `batch`: `--limits FILE` (required: the person's limits, below), `--only in-frame,joins,word-clip` (a comma list of checks), `--overlay overlay.mov` (a render of the graphics alone, with alpha), `--timeline timeline.json` (where each graphic's box and sound is), `--words FILE`, `--source-words FILE` (word timings of the footage the video was cut from), `--recipe FILE` (`motion.jitter_px`), `--cache-dir DIR` (where transcriptions are kept between runs; default a folder under the system temp folder), `--json FILE` (every finding), `--ids a,b` (batch: only these videos).
+
+Other commands:
+
+```
+python3 do-work/check_a_rendered_video.py review-pack ./videos --out ./packs --rules rules.json --limits my-limits.json [--kind film-edit] [--ids a,b] [--cache-dir DIR]
+python3 do-work/check_a_rendered_video.py variety ./film/ledger --limits my-limits.json
+python3 do-work/check_a_rendered_video.py declare ./film/ledger --lane b --option m4-1 --moment 2:19 --techniques chart-card,zoom-detail --kind built
+python3 do-work/check_a_rendered_video.py map-add ./film/ledger --id chart-card --event-types chart [--chapter1]
+```
+
+`review-pack` writes, per video, `sheet-NN.jpg` (one frame a second, 16 to a sheet), `transcript.txt` and `rules.txt` (the rows of a `{rows: [{id, rule, kinds}]}` file whose kinds include `--kind`): the input of a fresh-viewer review, with no spec and no checker output. `variety` judges the whole technique ledger at once (exit 1 on a breach); `declare` appends a ledger row and `map-add` a technique to `technique-map.json`, both under the folder's `.ledger.lock` (a wrapper that already holds it exports `FILM_LEDGER_LOCK_HELD` with its path) and both refuse an unknown or already-mapped technique.
 
 Exit code 1 when any check is FAIL (WARN does not fail), 2 when there is nothing to check. The last line printed is `{"result": {"verdict" (FAIL, WARN, PASS, or NOT_MEASURED when no check could run), "videos": [{"video", "verdict", "failed", "warned", "not_measured"}]}}`.
 
@@ -75,8 +89,15 @@ Exit code 1 when any check is FAIL (WARN does not fail), 2 when there is nothing
 | `math-shown` | Numbers on screen that relate with no arithmetic shown, or wrong arithmetic | Every on-screen string read for numbers and operations. |
 | `cue` | A graphic that arrives long after the speaker points at what it shows | Burst of change in the footage at the graphic's track point. |
 | `broll` | Cutaway footage too short to register or not graded to match | Seconds on screen and colour distance (delta E) to the footage around it. |
-| `placement` | A graphic over the speaker's hands or a held object | Mean frame change of the footage under each timeline box, only where the overlay does not cover. |
+| `placement` | A graphic over the speaker's hands or a held object; across a film of options, most graphics on one side | Mean frame change of the footage under each timeline box: from `placement.bases` (the footage without the overlay) when given, else only where the overlay does not cover. Side balance from every built option's timeline boxes, with a `variety` section. |
 | `filler-words-cut` | Filler words left in speech that was cut or rebuilt | Word timings near each join. |
+| `cutout-bottom` | A straight-cut person cut-out floating above the bottom edge of the frame | The tall overlay shape that reaches the bottom, and the band between it and the frame edge on the delivered video; a declared styled `bottom_edge` may float; a person look-alike not declared as a cut-out is not measured. |
+| `bridge` | A jump between two spoken lines with nothing to carry the viewer across | Sentences of the word timings, labelled inserted voice or speaker by the spec's `voice` window; each pair asked of a local model (ollama), the verdict made from its answer here; FAIL at an inserted line or across a join, a note inside the speaker's own lines. |
+| `held-face` | A hold that freezes on a blink, half-closed eyes, or (long) a mouth mid-word | Apple Vision face landmarks on the held picture (a hold_picture still, a full-frame still, the base footage, or the delivered frames). |
+| `variety` | A film that repeats one technique: in too many moments, in adjacent moments, or too many from the reference set | The technique ledger and map against the spec's event types. |
+| `devices` | The same entrance, exit or narrator device in too many moments or in adjacent ones | Device tokens of every built option's spec found through the ledger. |
+| `reused-footage` | Footage the source cut plays twice without the write-up saying so | The FilmCraft cut project's clips and source ins, and the option's section of the pick files. |
+| `label-time` | A label (ledger moment, pick heading, watch file name) naming a time outside what the video plays | `edit.preview` against each label, within a tolerance. |
 
 A check that cannot run says why (`SKIP`, or an INFO empty set when the video has nothing of that kind), never a silent pass.
 
@@ -99,7 +120,7 @@ The overlay is `--overlay` or the spec's `overlay_file`, with its timeline (the 
 
 ## Dependencies
 
-**Depends on:** Python 3.10+, ffmpeg, numpy, OpenCV (`cv2`), Pillow, SciPy (`scipy.ndimage`), blake3 (or `b3sum` on the path), and for speech timings `mlx-whisper` (Apple silicon) or a `--words` file.
+**Depends on:** Python 3.10+, ffmpeg, numpy, OpenCV (`cv2`), Pillow, SciPy (`scipy.ndimage`), blake3 (or `b3sum` on the path), and for speech timings `mlx-whisper` (Apple silicon) or a `--words` file. `bridge` asks a local ollama model (the limits name it and its endpoint); `held-face` runs `vision_landmarks.py` with the python named by the env `LANDMARKS_PYTHON` or the limits' `held_face.python` (macOS with `pyobjc-framework-Vision`). Without them those checks say not measured.
 
 **Depended on by:** `tool-rows.json` (`tool:check-a-rendered-video`), run on the person's computer by their AI.
 

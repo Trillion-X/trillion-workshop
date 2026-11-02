@@ -1,4 +1,8 @@
 """check-a-rendered-video check <video.mp4> [--spec <spec.json>] | check-a-rendered-video batch <videos-dir> [--specs <specs-dir>]
+  | check-a-rendered-video review-pack <videos-dir> --out <dir> --rules <rules.json> --limits <file>
+  | check-a-rendered-video variety <ledger folder> --limits <file>
+  | check-a-rendered-video map-add <ledger folder> --id T --event-types a,b [--chapter1]
+  | check-a-rendered-video declare <ledger folder> --lane L --option ID --moment 2:19 --techniques a,b --kind K
 
 Checks a rendered video's frames, joins and audio and prints PASS / WARN / FAIL per check with the times."""
 import argparse
@@ -63,6 +67,29 @@ def _spec_for(video, specs_dir):
 def main(argv=None):
     ap = argparse.ArgumentParser(prog='check-a-rendered-video', description=__doc__)
     sub = ap.add_subparsers(dest='cmd', required=True)
+    vp = sub.add_parser('variety', help='judge the whole variety ledger at once (exit 1 on any breach)')
+    vp.add_argument('target', help='the folder holding the ledger and the technique map')
+    vp.add_argument('--limits', required=True, help='the person\'s limits file (its variety section)')
+    mp = sub.add_parser('map-add', help='add a technique to technique-map.json, under the ledger lock')
+    mp.add_argument('target', help='the folder holding the ledger and the technique map')
+    mp.add_argument('--id', required=True, help='new technique id')
+    mp.add_argument('--event-types', dest='event_types', default='', help='comma list of spec event types that render it (empty for none)')
+    mp.add_argument('--chapter1', action='store_true', help='belongs to the reference set whose share of moments the variety check limits')
+    dp = sub.add_parser('declare', help='append one row to technique-ledger.jsonl, under the ledger lock')
+    dp.add_argument('target', help='the folder holding the ledger and the technique map')
+    dp.add_argument('--lane', required=True)
+    dp.add_argument('--option', required=True, help='option id (the video file name without .mp4); unique across the film')
+    dp.add_argument('--moment', required=True, help='moment time, m:ss or seconds')
+    dp.add_argument('--techniques', required=True, help='comma list of technique ids, the main technique first')
+    dp.add_argument('--kind', required=True)
+    rp = sub.add_parser('review-pack', help='contact sheets, transcript and rules for a fresh-viewer review of each video')
+    rp.add_argument('target', help='folder of video .mp4 files')
+    rp.add_argument('--out', required=True, help='folder that gets one <id>/ pack per video')
+    rp.add_argument('--rules', required=True, help='rules file ({rows: [{id, rule, kinds}]})')
+    rp.add_argument('--kind', default='film-edit', help='the rows of this kind go in rules.txt (default film-edit)')
+    rp.add_argument('--limits', required=True, help='the person\'s limits file (transcription settings)')
+    rp.add_argument('--ids', help='comma list of video ids: pack only these')
+    rp.add_argument('--cache-dir', dest='cache_dir', help='where transcriptions are kept between runs (default: a folder under the system temp folder)')
     for name in ('check', 'batch'):
         p = sub.add_parser(name)
         p.add_argument('target', help='video .mp4' if name == 'check' else 'folder of video .mp4 files')
@@ -79,7 +106,26 @@ def main(argv=None):
         if name == 'batch':
             p.add_argument('--ids', help='comma list of video ids (file names without .mp4): measure only these')
     args = ap.parse_args(argv)
+    if args.cmd in ('map-add', 'declare'):
+        from .checks import variety
+        try:
+            if args.cmd == 'map-add':
+                print(json.dumps(variety.map_add(args.target, args.id, [t for t in args.event_types.split(',') if t], args.chapter1)))
+            else:
+                print(json.dumps(variety.declare(args.target, args.lane, args.option, args.moment, args.techniques.split(','), args.kind)))
+        except ValueError as exc:
+            print(f'refused: {exc}', file=sys.stderr)
+            return 2
+        return 0
     cfg = config_mod.load(args.limits)
+    if args.cmd == 'variety':
+        from .checks import variety
+        return variety.report(args.target, cfg)
+    if args.cmd == 'review-pack':
+        from . import review_pack
+        for pack in review_pack.run(args.target, args.out, args.rules, cfg, args.ids.split(',') if args.ids else None, args.kind, args.cache_dir):
+            print(pack)
+        return 0
     selected = set(args.only.split(',')) if args.only else set(CHECK_ORDER)
     videos = [args.target] if args.cmd == 'check' else sorted(glob.glob(os.path.join(args.target, '*.mp4')))
     if args.cmd == 'batch' and args.ids:

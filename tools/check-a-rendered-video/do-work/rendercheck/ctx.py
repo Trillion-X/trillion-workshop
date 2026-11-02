@@ -1,4 +1,5 @@
 """One video's context: spec, discovered overlay + timeline, time maps and lazily loaded frames, audio and words."""
+import glob
 import hashlib
 import importlib.util
 import os
@@ -64,11 +65,19 @@ class Context:
 
     # ---- discovery
     def _find_overlay(self):
+        """The spec's overlay_file (absolute or beside the video), else the first match of the limits' analysis.overlay_globs (patterns relative to the video's
+        folder, {id} the spec id or the video's file name without its extension, e.g. ../out*/{id}/overlay.mov), else None."""
         given = self.spec.get('overlay_file')
-        if not given:
-            return None
-        path = given if os.path.isabs(given) else os.path.join(os.path.dirname(self.preview), given)
-        return path if os.path.exists(path) else None
+        base = os.path.dirname(self.preview)
+        if given:
+            path = given if os.path.isabs(given) else os.path.join(base, given)
+            return path if os.path.exists(path) else None
+        sid = self.spec.get('id') or os.path.splitext(os.path.basename(self.preview))[0]
+        for pat in self.cfg.get('analysis', {}).get('overlay_globs', []):
+            hits = [h for h in sorted(glob.glob(os.path.join(base, pat.format(id=glob.escape(sid))))) if os.path.isfile(h)]
+            if hits:
+                return os.path.normpath(hits[0])
+        return None
 
     def _load_timeline(self, path):
         path = path or (os.path.join(os.path.dirname(self.overlay), self.cfg['analysis']['timeline_name']) if self.overlay else None)
