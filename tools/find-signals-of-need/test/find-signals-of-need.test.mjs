@@ -96,7 +96,7 @@ test('a measure added only as a row in a copy of signal-measures.json is accepte
     signals: [{ id: 'recent-complaint', says: 'Recent complaints.', weight: 1, of: 'reviews', measure: 'count-recent-matching', matching: ['late'], within_days: 30, test: { at_least: 1 } }],
   };
   const items = [{ id: 'k', name: 'K', reviews: [review('Always late', '2026-10-25'), review('Late once', '2025-01-01')] }];
-  assert.deepEqual(sourceProblems(row), ['signals[0].measure must be one of: value, age-days, count-matching, count-within-days, share-within-days.']);
+  assert.deepEqual(sourceProblems(row), [`signals[0].measure must be one of: ${MEASURES.measures.map(entry => entry.measure).join(', ')}.`]);
   const answer = await findSignals({ source_row: row, items, now }, { measures });
   assert.equal(answer.prospects[0].signals[0].evidence.value, 1);
   assert.deepEqual(sourceProblems(row, measures), []);

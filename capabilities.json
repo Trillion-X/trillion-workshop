@@ -727,13 +727,13 @@
       "capability": "keep shared step-by-step playbooks any person's AI can follow",
       "owner": ["tools/workflows/"],
       "entry": "tools/workflows/tool-rows.json",
-      "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, each a row of the person's list of workflows"
+      "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, each a row of the person's list of workflows; workflow:out-launch-a-new-launch (launch monitors over the launch source rows, reverse engineered within hours and handed to workflow:plan-a-launch-as-a-content-campaign within 24) and workflow:build-a-best-x-for-y-comparison (proof-scored comparison tables answer engines cite, sponsored placement kept apart) are recipe rows"
     },
     {
       "capability": "score outside candidates on weighted signals of need (age, mention counts, recent shares) under signal-source rows, filter and rank them",
       "owner": ["tools/find-signals-of-need/"],
       "entry": "tools/find-signals-of-need/tool-rows.json",
-      "evidence": "tools/find-signals-of-need/README.md: one finder; where candidates come from, how they map, what is kept and what scores are DATA rows, and a new measure is a row in signal-measures.json",
+      "evidence": "tools/find-signals-of-need/README.md: one finder; where candidates come from, how they map, what is kept and what scores are DATA rows, and a new measure is a row in signal-measures.json; launch sources (X, Product Hunt, YC launches, Hacker News, GitHub; group launches, scored by hours since launch) and vendors scored only on publicly proven metrics (group vendors) are source rows of the same finder, not code",
       "distinct_from": [
         {"job": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends", "why": "That owner searches records the person already holds and ranks people by activity points. This owner scores new candidates from a source row on dated and counted facts and keeps nothing."},
         {"job": "evaluate formulas over rows", "why": "That owner keeps the rows that match a rule tree and labels records. This owner adds weighted signals into a score and ranks; it applies no rule tree and labels nothing."},
@@ -1139,7 +1139,7 @@
       "lives_at": ["bitfield-packages/packages/research-workspace/", "bitfield-packages/packages/profile-a-creator-or-topic/"],
       "moves_to": "tools/research-a-creator-or-topic/",
       "entry": "bitfield-packages/packages/research-workspace/",
-      "evidence": "research-workspace README.md:1 paste a source, gather its latest items, extract transcripts, synthesize a creator profile; tools/research-a-creator-or-topic/README.md: the same profile hand-off researches a prospect (a company or business to sell to) and tool:keep-a-prospect keeps its profile as one row of the prospect list, whose fields and statuses are data in do-work/prospect-list.json"
+      "evidence": "research-workspace README.md:1 paste a source, gather its latest items, extract transcripts, synthesize a creator profile; tools/research-a-creator-or-topic/README.md: the same profile hand-off researches a prospect (a company or business to sell to) and tool:keep-a-prospect keeps its profile as one row of the prospect list, whose fields and statuses are data in do-work/prospect-list.json; tool:keep-a-reverse-engineered-thing keeps the REA hub, the list of what people reverse engineered (thing, notes, addresses, artifacts, licence) with create, read, edit, delete and synthetic seed rows, whose fields, kinds and licences are data in do-work/rea-hub.json"
     },
     {
       "capability": "evaluate measures over a person's facts to band and gate their progress",

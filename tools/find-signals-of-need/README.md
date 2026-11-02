@@ -1,16 +1,20 @@
 # tools/find-signals-of-need/
 
-One finder for candidates that show a need: companies whose job post has stayed open for weeks, local businesses whose reviews name a delay or suddenly pick up, or any other list a person's source row describes. `tool:find-signals-of-need` reads a signal-source row, maps each item to fields, drops the items that fail its filters, adds up the weights of the signals each remaining item shows, and returns them best score first with the evidence for every signal. It sends nothing, keeps nothing and holds no credential.
+One finder for candidates that show a need: companies whose job post has stayed open for weeks, local businesses whose reviews name a delay or suddenly pick up, products that launched in the last hours, vendors scored on proof they publish, or any other list a person's source row describes. `tool:find-signals-of-need` reads a signal-source row, maps each item to fields, drops the items that fail its filters, adds up the weights of the signals each remaining item shows, and returns them best score first with the evidence for every signal. It sends nothing, keeps nothing and holds no credential.
 
-Nothing about a site, a trade or a number ships in code. A source row (`sources.json`, or the person's own as `source_row`) says how an item maps to fields, which filters keep it and which signals score it; the numbers (21 days, 10 to 200 people, 90 days) and the words (`slow quote`) are its knobs. What a signal measures comes from `signal-measures.json`: a measure is a list of steps from a closed set (read, matching, within-days, count, share, age-days, number), so a new measure is a new row there and no code edit. Candidates behind a login (a map data or job board connection) arrive as `items` from the person's connection tool; a source row that declares a public `request` can read its address instead, filled from `parameters`.
+Nothing about a site, a trade or a number ships in code. A source row (`sources.json`, or the person's own as `source_row`) says how an item maps to fields, which filters keep it and which signals score it; the numbers (21 days, 10 to 200 people, 90 days) and the words (`slow quote`) are its knobs. What a signal measures comes from `signal-measures.json`: a measure is a list of steps from a closed set (read, matching, within-days, count, share, age-days, age-hours, number), so a new measure is a new row there and no code edit. Candidates behind a login (a map data or job board connection) arrive as `items` from the person's connection tool; a source row that declares a public `request` can read its address instead, filled from `parameters`.
 
 A field an item lacks refuses a filter and keeps a signal quiet; it never counts as zero. The same items always give the same ranking (score, then key). Lists such as reviews stay out of the answer; the signals carry the value measured and up to three matching snippets.
+
+## Launch sources and vendor proof
+
+`workflow:out-launch-a-new-launch` (tools/workflows) reads every row of group `launches` each hour: a launch that passes is reverse engineered and handed to the marketing workflows within its 24 hours. `workflow:build-a-best-x-for-y-comparison` scores the vendors of one category with `vendors-by-verifiable-proof` (or the person's own row with the metrics of that category): a metric with no proof address is sent as null, so it never counts, and a sponsored placement is never a field of the row, so it cannot move a score.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `sources.json` | Signal-source rows: `open-job-posts` and `local-businesses-by-place`, as samples of the shape. Each has `fields`, `filters`, `signals` and optionally `request` and `min_score`. |
+| `sources.json` | Signal-source rows, as samples of the shape: `open-job-posts` and `local-businesses-by-place`; the launch sources (`group: "launches"`: Hacker News and GitHub read from their public addresses, Product Hunt, YC launches and X arriving as `items` from the person's connection), each kept only for 24 hours after launch and scored highest in its first hour; and `vendors-by-verifiable-proof` (`group: "vendors"`), which scores vendors in a comparison only on metrics that carry a public proof. Each has `fields`, `filters`, `signals` and optionally `group`, `request` and `min_score`. A new launch source is a new row. |
 | `signal-measures.json` | The steps a measure may use and the measures built from them, as DATA. |
 | `read-data/signals.mjs` | `findSignals` and `sourceProblems`: the mapping, filters, measures, scoring and ranking. |
 | `do-work/find-signals-of-need.mjs` | The command of `tool:find-signals-of-need`: JSON in, `{ result }` or `{ error }` out. |
