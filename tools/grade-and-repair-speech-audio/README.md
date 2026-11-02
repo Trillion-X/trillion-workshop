@@ -6,9 +6,11 @@ Scripts a person's AI runs by hand on the person's own computer. For each stretc
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | Four Workshop rows, all `on-your-computer`: `tool:grade-and-repair-speech-audio`, `tool:clone-speech-that-repair-could-not-fix`, `tool:read-back-repaired-speech`, `tool:pick-the-cleanest-speech-to-clone-from`. |
+| `tool-rows.json` | Five Workshop rows, all `on-your-computer`: `tool:grade-and-repair-speech-audio`, `tool:measure-speech-in-my-recordings`, `tool:clone-speech-that-repair-could-not-fix`, `tool:read-back-repaired-speech`, `tool:pick-the-cleanest-speech-to-clone-from`. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/grade_and_repair_speech.py` | `grade` measures every span; `all` also remasters the failing ones and grades them again. Writes `grades.json`, `audio/` and `work/`. |
+| `do-work/probe_speech.py` | Measures every unique span, cut exactly from `from` to `to`, with no settings and no grade. Writes `probe.json` and the cuts. |
+| `do-work/show_probe.py` | Prints a `probe.json` one line per span. |
 | `do-work/clone_speech.py` | Re-voices spans still graded `clone`, in the reference voice, phrase by phrase, after the speaker check. |
 | `do-work/check_speech_by_reading.py` | Reads every audio file back with whisper and counts word errors. |
 | `do-work/choose_clone_reference.py` | Ranks the cleanest ten-second windows of continuous speech in the person's own recordings. |
@@ -34,13 +36,14 @@ A JSON object with a `spans` list. Each span has `clip` (a name for the recordin
 ```
 python3 -m pip install -U numpy scipy soundfile mlx-whisper
 python3 -m venv deepfilternet-venv && deepfilternet-venv/bin/python -m pip install deepfilternet soundfile
+python3 do-work/probe_speech.py --spans spans.json --out ./probe && python3 do-work/show_probe.py ./probe/probe.json
 python3 do-work/grade_and_repair_speech.py all --spans spans.json --settings settings.json --out ./graded --deepfilternet-python deepfilternet-venv/bin/python
 python3 do-work/choose_clone_reference.py --recordings recordings.json --settings settings.json --out ./reference
 python3 do-work/clone_speech.py --spans spans.json --settings settings.json --out ./graded --reference reference-file --reference-text text-said-in-it
 python3 do-work/check_speech_by_reading.py --settings settings.json --out ./graded
 ```
 
-It needs ffmpeg, and an Apple Silicon Mac (mlx). Use a python that has mlx-whisper (and, for cloning, mlx-audio, librosa, torch and pyannote.audio); DeepFilterNet goes in its own venv because its torch pins clash. Without `--deepfilternet-python` the remaster tries ffmpeg afftdn only.
+The probe needs only ffmpeg, numpy, scipy and soundfile: run it first to see what the recordings are like before choosing the settings. The rest needs ffmpeg, and an Apple Silicon Mac (mlx). Use a python that has mlx-whisper (and, for cloning, mlx-audio, librosa, torch and pyannote.audio); DeepFilterNet goes in its own venv because its torch pins clash. Without `--deepfilternet-python` the remaster tries ffmpeg afftdn only.
 
 Models, named so nothing is fetched unseen, each downloaded on first run: the settings' `read_model` (a speech-to-text model mlx-whisper loads), `DeepFilterNet3` (comes with the deepfilternet package, MIT or Apache-2.0), the settings' `clone_model` (a voice-cloning model mlx-audio loads), `pyannote/wespeaker-voxceleb-resnet34-LM` (CC-BY-4.0, may need a Hugging Face login). Reads are in the settings' language.
 

@@ -34,6 +34,7 @@ before(() => {
 test('the rows run on the person\'s computer and name scripts that exist', () => {
   assert.deepEqual(rows.map(row => row.id), [
     'tool:grade-and-repair-speech-audio',
+    'tool:measure-speech-in-my-recordings',
     'tool:clone-speech-that-repair-could-not-fix',
     'tool:read-back-repaired-speech',
     'tool:pick-the-cleanest-speech-to-clone-from',
@@ -58,7 +59,7 @@ test('every model the rows need is named in needs, so nothing is fetched unseen'
 });
 
 test('nothing in the tool names a film, a person, a brand or a home folder', () => {
-  const files = ['grade_and_repair_speech.py', 'clone_speech.py', 'check_speech_by_reading.py', 'choose_clone_reference.py', 'speaker_check.py', 'reading.py', 'dfn_batch.py']
+  const files = ['grade_and_repair_speech.py', 'clone_speech.py', 'check_speech_by_reading.py', 'choose_clone_reference.py', 'speaker_check.py', 'reading.py', 'dfn_batch.py', 'probe_speech.py', 'show_probe.py']
     .map(name => join(doWork, name))
     .concat(['spans.py', 'measure.py', 'grade_rules.py', 'gap_duck.py', 'phrases.py', 'settings.py', 'settings-keys.json'].map(name => join(folder, 'read-data', name)));
   for (const file of files) {
@@ -94,6 +95,25 @@ test('a kept span\'s audio is the cut with the settings\' handle either side, mo
   assert.equal(stream.sample_rate, '48000');
   assert.equal(stream.channels, 1);
   assert.ok(Math.abs(Number(stream.duration) - 5.0) < 0.02, `duration ${stream.duration}`);
+});
+
+test('the probe measures every unique span with no settings, and show_probe prints one line per span', { skip }, () => {
+  const out = join(work, 'probe');
+  const probed = python(join(doWork, 'probe_speech.py'), '--spans', join(work, 'spans.json'), '--out', out);
+  assert.equal(probed.status, 0, probed.stderr);
+  assert.equal(JSON.parse(probed.stdout.trim().split('\n').pop()).result.spans, 3);
+  const probe = JSON.parse(readFileSync(join(out, 'probe.json'), 'utf8'));
+  assert.deepEqual(Object.keys(probe), ['clean_0.40_5.00', 'noisy_0.40_5.00', 'clipped_0.40_5.00'], 'the repeated cut is measured once');
+  assert.ok(Math.abs(probe['clean_0.40_5.00'].duration - 4.6) < 0.02, 'the cut is exactly from..to, no handle');
+  assert.equal(probe['clean_0.40_5.00'].noise_method, 'word-gaps');
+  assert.ok(probe['clean_0.40_5.00'].n_words > 0);
+  assert.ok(probe['noisy_0.40_5.00'].snr_db < probe['clean_0.40_5.00'].snr_db - 20, 'the noisy take reads noisier');
+  assert.ok(probe['clipped_0.40_5.00'].clip_fraction > probe['clean_0.40_5.00'].clip_fraction);
+  const shown = python(join(doWork, 'show_probe.py'), join(out, 'probe.json'));
+  assert.equal(shown.status, 0, shown.stderr);
+  const lines = shown.stdout.trim().split('\n');
+  assert.equal(lines.length, 3);
+  assert.match(lines[1], /^noisy_0\.40_5\.00\s+dur\s*4\.6 lufs/);
 });
 
 test('the source recordings are only read', { skip }, () => {
