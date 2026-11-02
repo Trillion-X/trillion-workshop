@@ -116,3 +116,12 @@ The overlay is `--overlay` or the spec's `overlay_file`, with its timeline (the 
 ```
 python3 test/run_tests.py
 ```
+
+## Checking a cut plan and a made cut by ear
+
+Two more commands, each its own row, for cuts made from a plan by tool:assemble-a-plan-into-a-cut. Both hear speech with a reader: mlx-whisper on Apple silicon (`--model`, `--language`), or any command given as `--reader '["cmd", "arg"]'` that is handed a wav as its last argument and prints its words.
+
+* `do-work/check_plan_cuts.py` (tool:check-each-cut-of-my-plans-by-ear), before anything is rendered: `--plans DIR` (or `--plan-file PLAN.json`, so it can stand as the cutter's plan check) `--words-folder DIR --report FILE [--settings FILE] [slug ...]`. Every stretch of recording a plan cuts is cut from its source through the cutter's own lookup (`tools/assemble-a-plan-into-a-cut/read-data/spans.py`, which this row packs), read, and its first and last words compared with the plan's text. The person's settings add plan problems: a line drawn from their question library must name a question there whose evidence they allow, and a card pointing at another plan must point at one that exists. The keys are listed at the top of the file. Exit 1 on a plan failure, 2 when only stretches are to check.
+* `do-work/check_cut_speech.py` (tool:check-a-cuts-speech-against-its-plan), on the made cut: `--cut CUT --timeline timeline.json --work DIR --kinds a,b [--always-show a] [--frames kind:first,kind:middle,kind:last] [--share-below 0.9] [--silence-db -60] [--silence-s 1]`. Loudness, silences longer than the limit, each spoken segment's share of the plan's words heard and whether it starts and ends on them, and the frames named, side by side. The report keeps `listened_by`, which only a person sets. Exit 2 when a segment is to check.
+* `do-work/speech_reading.py`: the reader, the word comparison and the audio cut both share.
+* `test/test_plan_and_cut_speech.py`, `test/fixtures/tone_words.py`, `test/check-plans-and-cut-speech.test.mjs`: made-up recordings whose words are tones, heard by a stand-in reader; they need python3 with numpy and soundfile, and ffmpeg.
