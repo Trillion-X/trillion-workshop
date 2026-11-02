@@ -1,0 +1,45 @@
+# bloxwap/screensaver
+
+- Source: https://github.com/bloxwap/screensaver @ 4dd5cefaa706f15c3ec05174228bebf0ce09dfc3 (2026-10-30)
+- Licence: none for the repository's code. No LICENSE file; `package.json` is `"private": true` with no `"license"` field, and `apps/docs/package.json` has none either. The licence files present cover bundled third-party material only: `public/brand/Bloxwap-OFL.txt` and `public/brand/SpaceGrotesk-OFL.txt` (fonts, OFL), `apps/docs/public/licenses/bloxwap-font-OFL.txt`, `apps/docs/public/licenses/hig-tokens-MIT.txt` (MIT, for the vendored `@bloxwap/hig-tokens` package), and the generated `public/third-party-notices.txt`. Treat the screensaver code as all rights reserved: ideas only. Code from it may not be copied into an Apache-2.0 or MIT project.
+
+## What it does
+
+A full-screen live price display for BTC, SOL, ETH and HYPE, shipped as four separate "editions". The same React web renderer runs as a browser preview/PWA, as an Electron app on Windows and Linux (with a tray icon and its own idle timer that starts the display), and inside a native macOS `.saver` bundle written in Swift that hosts the renderer in a WKWebView. Prices come from Hyperliquid (HTTP candle history plus WebSocket order book and asset context) through the Bloxwap Hyperliquid SDK, drawn with the Bloxwap Chart SDK, with a QR code linking to the asset on Bloxwap. A Next.js + Fumadocs site provides downloads, docs and live previews, and CI builds and publishes installers to GitHub Releases with a validated manifest.
+
+## How it is built
+
+- Renderer (`src/`): `App.tsx`, `components/LiveChart.tsx`, `components/chart-presentation.ts`, `components/InstallDialog.tsx`, `use-display.ts`; market data in `src/market/feed.ts` (connection lifecycle, history refetch, reconnect), `model.ts` (pure snapshot/merge functions), `use-market.ts`; vendored brand snapshot in `src/bloxwap/` with `provenance.json` (source repo, commit, per-file source and destination SHA-256).
+- Electron host (`desktop/`): `main.cjs` (windows on every display, tray, IPC, idle loop via `powerMonitor`), `preload.cjs`, `idle.cjs` (pure `idleAction` decision and settings validation), `edition.cjs` (edition metadata validation, per-edition app id and user-data path, URL allow-check). `electron-builder.config.cjs` delegates to `scripts/lib/desktop-config.cjs`.
+- Native macOS (`native/macos/`): `ScreenSaverView.swift` (a `ScreenSaverView` subclass owning a WKWebView, with recovery attempts), `BundleSchemeHandler.swift` (serves the bundled renderer over a custom `bloxwap-screensaver://bundle` scheme), `Edition.swift`; tests in `native/tests/` and `native/macos/tests/`.
+- Release scripts (`scripts/`): `desktop-build.mjs`, `stage-desktop.mjs`, `macos-build.mjs`, `sign-macos-bundle.mjs`, `signing-preflight.mjs`, `verify-signing.mjs`, `macos-smoke.mjs`, `release-manifest.mjs`, `publish-release.mjs`, `fetch-release.mjs`, `lib/releases.mjs` (manifest schema, expected downloads, validation), `third-party-notices.mjs`, `build-site.mjs`, `check-site.mjs`, `sync-bloxwap-assets.mjs`, `generate-icons.mjs`. Config: `config/assets.json` (edition catalog), `config/releases.json` (manifest the site renders).
+- Docs site (`apps/docs/`): Next.js 16, Fumadocs, MDX pages in `content/docs/`, `app/sitemap.ts` and `app/robots.ts` generated from the page source, `app/search.json/route.ts`, vendored HIG tokens tarball with `vendor/SHA256SUMS`.
+- Dependencies (dev): electron 45, electron-builder 26, vite 8 + vite-plugin-pwa, react 19, @number-flow/react, qrcode.react, sharp, typescript 7, tsx, playwright, @bloxwap/chart, @bloxwap/hyperliquid.
+- Tests: `npm test` runs node:test via tsx over `src/market/*.test.ts`, `src/components/*.test.ts`, `desktop/*.test.cjs`, `scripts/*.test.mjs` (feed with injected fake services, model, idle, edition, release manifest, signing, build config, download labels). Playwright: `tests/screensaver.spec.ts`, `tests/pwa.spec.ts` (Chromium and mobile WebKit) and `tests/site/website.spec.ts`. Native Swift smoke and resource tests run on macOS CI.
+- CI: `check.yml` (unit tests, build, browser tests), `desktop.yml` (plans a matrix from the edition catalog x targets, builds each, preflights and verifies signing, aggregates, generates checksums, uploads a draft release, verifies, refreshes the site), `docs.yml`, and three security workflows calling the org reusable scanner. `.github/SIGNING.md` and `RELEASE.md` document signing and release steps.
+- No llms.txt, hig-drift.json or evidence folder in this repo.
+
+## Reusable techniques worth learning
+
+1. **Pure decision function for the idle loop** (`desktop/idle.cjs`, `desktop/idle.test.cjs`, used by `desktop/main.cjs`). The Electron timer only gathers facts (enabled, active, locked, idle state, idle seconds, threshold, cooldown) and calls one pure function that returns `start`, `dismiss` or `none`; lock, suspend and display removal dismiss, and unlock/resume add a 10 s cooldown. The tricky policy is unit-testable without Electron.
+2. **Release manifest as a validated contract** (`scripts/lib/releases.mjs`, `scripts/releases.test.mjs`, `scripts/release-manifest.mjs`). The expected set of downloads is computed from the edition catalog x platform targets x formats; a manifest is rejected if counts, filenames, versions, tags, URLs or SHA-256 values do not match, and a legacy field default (`kind` missing means `application`) is handled explicitly. `SHA256SUMS` is generated from the same manifest. The site renders only a manifest that passes.
+3. **Credential preflight by name only** (`scripts/signing-preflight.mjs`). Before building, checks that the required environment variable names for the platform and channel are present (with alternative credential sets for Apple notarisation), never reading or logging their values; preview and Linux builds skip signing.
+4. **Hardened Electron window** (`desktop/main.cjs`, `desktop/edition.cjs`). `sandbox: true`, `contextIsolation: true`, no node integration; new windows are denied and opened externally; navigation and IPC are allowed only when the page URL equals the bundled page with exactly the expected query parameters; only the `screen-wake-lock` permission is granted. Each edition gets its own app id and user-data directory so four editions install side by side.
+5. **Web renderer inside a native macOS screensaver** (`native/macos/ScreenSaverView.swift`, `BundleSchemeHandler.swift`). A Swift `ScreenSaverView` hosts a WKWebView and serves the bundled web build through a custom URL scheme handler instead of a localhost server or file-URL access; the source comments note a unique Swift module per edition so several bundles can load in one host process.
+6. **Generated third-party notices that fail closed** (`scripts/third-party-notices.mjs`). Before each build it concatenates the LICENSE file of every bundled runtime package plus font OFL texts into `public/third-party-notices.txt`, and throws if any package has no licence file.
+7. **Provenance file for vendored assets** (`src/bloxwap/provenance.json`, `scripts/sync-bloxwap-assets.mjs`). Records the source repository, commit, and for each copied file its source path, destination and SHA-256 at both ends, so a snapshot can be checked against its origin.
+8. **Injectable services for network code** (`src/market/feed.ts`, `feed.test.ts`). The feed takes optional `info`, `createTransport` and `createSubscriptions` services, defaulting to real SDK clients, so tests drive it with fakes; it also skips publishing while `document.hidden`.
+
+## Fit with trillion-workshop tools
+
+- **live-market-prices** (`tools/live-market-prices/`): weak fit. It does one-shot GETs for prediction markets and price bars in Python; there is no streaming connection for the reconnect/stale-status ideas to improve, and Hyperliquid is not a source there. Adding Hyperliquid would be a new source file plus normaliser, not a small change.
+- **tools-from-github** (`tools/tools-from-github/`): idea-level fit only. It already reads licences and refuses to guess; the "fail when a bundled package has no licence file" rule matches its stance but it does not bundle packages.
+- Otherwise none: the workshop has no Electron or screensaver packaging tool and no release-manifest tool, so the strongest techniques here (manifest contract, signing preflight, native `.saver` host) have no existing tool to improve.
+
+## Cautions
+
+- No licence for the code: do not copy the Swift, Electron, manifest or signing scripts. Write any equivalent independently.
+- Brand assets and fonts in `public/brand/` and `src/bloxwap/` are Bloxwap brand material; the OFL covers the fonts only, and the logos/wordmarks carry no licence.
+- It is a trading-promotion product (QR to the Bloxwap app); README notes the QR quiet zone is tighter than the standard and must be checked on real displays.
+- The docs depend on a vendored candidate tarball of `@bloxwap/hig-tokens`; the build also uses a pre-release `tsrs` compiler and TypeScript 7.
+- CI depends on self-hosted macOS runners and Apple/Windows signing credentials for stable releases; public preview releases are unsigned.
