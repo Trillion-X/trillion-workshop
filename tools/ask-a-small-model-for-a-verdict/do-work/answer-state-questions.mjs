@@ -17,6 +17,7 @@
 // completeness check below fails on a reply that was otherwise correct.
 
 import {VerdictRefused} from './ask-for-a-verdict.mjs'
+import {freshLocalClassifierFetch} from './fresh-local-classifier-fetch.mjs'
 
 const ANSWER_TYPES = {
   choice: question => (isRecord(question.criteria) && Object.keys(question.criteria).length > 0
@@ -88,7 +89,7 @@ export function checkAnswers(questions, answers) {
   return Object.fromEntries(Object.keys(questions).map(id => [id, answers[id]]))
 }
 
-export async function answerStateQuestions({state, questions, endpoint, model, timeout_seconds}, post = fetch) {
+export async function answerStateQuestions({state, questions, endpoint, model, timeout_seconds}, post = freshLocalClassifierFetch) {
   if (state === undefined || state === null) throw new VerdictRefused('state is required')
   if (typeof endpoint !== 'string' || typeof model !== 'string') {
     throw new VerdictRefused('endpoint and model are required: where the model server is and which model to ask')
