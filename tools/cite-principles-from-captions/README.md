@@ -10,12 +10,13 @@ What the principles are about, how advice sounds, what rows a model is asked for
 |------|---------|
 | `tool-rows.json` | The Workshop row `tool:cite-principles-from-captions`: `on-your-computer`, with the command that fetches and runs it. |
 | `part.json` | Nothing here is imported by other code. |
-| `do-work/cite_principles.py` | The command: `corpus`, `coverage`, `candidates`, `extract`, `find`, `verify`, `registry`. Each prints its account and a last line `{"result": ...}`. `verify` and `find` exit 1 (2 for a video with no captions) when a quote is not found. |
+| `do-work/cite_principles.py` | The command: `corpus`, `coverage`, `candidates`, `extract`, `find`, `verify`, `registry`, `index`. Each prints its account and a last line `{"result": ...}`. `verify` and `find` exit 1 (2 for a video with no captions) when a quote is not found. |
 | `read-data/captions.py` | Pure readers: caption files to timed lines, exact-quote search, how a video did against its channel's usual, scoring of passages, evidence strength. |
-| `read-data/registry.py` | Pure: merges working rows into the ranked registry. |
+| `read-data/registry.py` | Pure: merges working rows into the ranked registry, and writes its Markdown index. |
 | `read-data/extraction.py` | Pure: cuts videos into the parts a model reads (short videos packed together), fills the person's prompt, reads the model's reply, and places each quote on the caption words it came from. |
 | `test/cite-principles.test.mjs` | Runs every command on synthetic captions made here. |
 | `test/test_captions.py`, `test/test_extraction.py` | The pure readers. |
+| `test/test_verify.py` | The quote check against the corpus and caption files outside it. |
 | `test/fake_chat.py` | A stand-in OpenAI-compatible chat server for the `extract` test. |
 | `test/make_fixture.py`, `test/write_json.py` | Make the synthetic inputs. |
 
@@ -27,7 +28,8 @@ A captions folder holds, per video, `<id>.info.json` and `<id>.en.json3` (for ex
 python3 do-work/cite_principles.py corpus --captions ./captions --views-table ./views.tsv --out ./work/corpus.jsonl
 python3 do-work/cite_principles.py candidates --corpus ./work/corpus.jsonl --terms ./terms.json --out ./work/candidates
 python3 do-work/cite_principles.py verify --corpus ./work/corpus.jsonl --rows './work/rows/*.jsonl'
-python3 do-work/cite_principles.py registry --corpus ./work/corpus.jsonl --rows './work/rows/*.jsonl' --out ./principles.jsonl --merge ./merge.json --lanes ./lanes.json
+python3 do-work/cite_principles.py registry --corpus ./work/corpus.jsonl --rows './work/rows/*.jsonl' --out ./principles.jsonl --merge ./merge.json --lanes ./lanes.json --id-map ./work/map.json
+python3 do-work/cite_principles.py index --registry ./principles.jsonl --corpus ./work/corpus.jsonl --views-table ./views.tsv --id-map ./work/map.json --intro ./intro.md --outro ./outro.md --out ./INDEX.md
 ```
 
 Every part of every video, read by a model:
@@ -51,13 +53,14 @@ The person's files:
 | transcripts | `<id>.json` with `segments` `[{start, text}]` or `words` `[{text, start, type}]` (`type` `word` or `spacing`), and `<id>.info.json` beside it or in an `--infos` folder. Words become lines that end at a sentence's end or after 12 words. |
 | caption lines | `--caption-lines FILE ...`: one video per line, `{ video_id, url, status, lines: [[second, words]], info }` (a harvester's `captions.jsonl`). The lines are kept as they are; `info` gives the video's details; a video whose `status` is not `ready` counts as without captions. |
 | `asks.json` | `system` (what to ask for), `user` (`{parts}` and `{parts_count}` are filled), `part_header` (filled per part from the video's fields: `{part}`, `{channel}`, `{title}`, `{from_second}`, `{desc}`, ...), `reply_schema` (a JSON Schema the server holds the answer to, when it can), `rows_key`, `part_field`, `quote_field`; optionally `drop_when` (`{field: [values]}`: a row whose field holds one of the values is set aside, with the reason, before its quote is looked for), `carried_by_quote` (`{field, words, ignore?, neighbour_lines?, least_words?, also_in?}`: every match of the `words` pattern in the row's `field` (numbers and names, say; a capital that starts a sentence is not a match) must be in the quote or in the video fields `also_in` names; one said only on the caption lines beside the quote makes the shortest run of words there holding it the quote, at least `least_words` long; one said nowhere near sets the row aside with the missing words), `guest_from` (`[{field, pattern}]`, a named group `name`: the guest a video's own fields name, first match wins, else null), `chunk_words` (default 1500), `quote_most_words` (25), `quote_match_at_least` (0.8), `description_chars` (400), `name`. Every other field of a reply row is the person's and is kept as it is. |
+| `intro.md`, `outro.md` | The person's own Markdown for the index, put after its title and at its end as written; `{ids:A-1,B-2}` becomes the principle ids those working rows went into (from `--id-map`). |
 | `model.json` | `{ "url": "http://127.0.0.1:11434/v1", "model": "...", "key_env"?: "VARIABLE", "max_tokens"?, "body"?: { more request fields } }`: any OpenAI-compatible chat server (Ollama, llama.cpp, MLX, LM Studio, a rented one). |
 
 `extract` options: `--channels` (only these, in this order), `--videos FILE` (ids in reading order), `--limit N` (videos this run), `--chunk-words`, `--concurrency N` (requests in flight; a server with several slots or batching answers them together), `--max-load L` (wait before each request while the one-minute load average is above L), `--attempts` (answers that cannot be read, or that the server refuses, before the video is left for the next run), `--retry-seconds`, `--wait-for-model` (seconds to keep waiting, without spending an attempt, for a server that cannot be reached, default 1800), `--report-every`.
 
 `extract --coverage-out FILE` atomically refreshes coverage after each progress report and at the end, including a `row_files` manifest (`{path, sidecar?}`, relative to that coverage file). Downstream importers can consume each channel without naming channels in code or reading extraction ledgers as knowledge. `coverage --done FILE` separately counts completed videos, including videos that yielded no kept rows; `mined_videos` counts videos cited by kept rows. Completed, rejected and failed extraction outcomes do not inflate kept-row coverage. A source's original URL is retained when the corpus supplies one, including other platforms.
 
-Options: `candidates --caps FILE` (`{channel: most passages to keep}`), `--window-seconds`, `--per-video`, `--opening-seconds`, `--openings-per-channel`, `--openings-per-large-channel`; `verify --caption-files GLOB` (json3 files for videos not in the corpus; `{video}` is the video id); `registry --id-map FILE`, `--url-template`.
+Options: `candidates --caps FILE` (`{channel: most passages to keep}`), `--window-seconds`, `--per-video`, `--opening-seconds`, `--openings-per-channel`, `--openings-per-large-channel`; `verify --caption-files GLOB` (json3 files for videos not in the corpus; `{video}` is the video id); `registry --id-map FILE`, `--url-template`; `index --title`, `--top` (30), `--demonstrated-top` (15), `--lanes-top` (60).
 
 ## What it does
 
@@ -68,6 +71,8 @@ Options: `candidates --caps FILE` (`{channel: most passages to keep}`), `--windo
 5. **Extract.** Each channel's videos are cut at caption lines into parts of at most `chunk_words` words; consecutive short parts are packed into one request, each under its own header. The model answers rows naming their part. Each row's quote is matched to the caption words of its part (case, punctuation and apostrophes ignored): an exact run, else the window holding the most of its words in order when at least `quote_match_at_least` of them are there. The kept quote is the caption's own words over that span, cut to `quote_most_words`, with `t` (its first line's start) and `t_end` (the start of the line after its last, else the video's end) and `quote_match`. A row whose quote is not in its part goes to `dropped.jsonl` with the reason. Rows are written per channel to `<channel>.jsonl` as `{id, ...the reply row's fields, extracted_by, asks, sources: [{video, platform, channel, guest, title, t, t_end, quote, quote_match, requoted?}]}`, `id` = `<video>@<t>#<n>`. A video is written whole when its last part is answered, with one line in `done.jsonl` (rows, dropped, tokens, seconds, model); a part that fails every attempt keeps all that video's rows back (its failed answers go to `failed.jsonl`), and the next run asks for that video again and skips every finished one, so a stop loses only the videos in flight.
 6. **Registry.** Working rows in one group become one principle: sources and demonstrations without repeats, lanes in first-seen order, kind from the union. Evidence strength is the sum over independent channels of the best of `log2(1 + min(xmed, 64))`, halved when the quote only demonstrates the principle, so more channels and better-performing videos raise it and one outlier cannot. Principles are ranked by strength, then quotes, and numbered `P-001`. A row's `contradicts` that names other working ids becomes links to their principles; contradictions from `merge.json` are added both ways.
 
+7. **Index.** A Markdown page of the registry: counts (principles by kind, quotes, demonstrations, merged, multi-channel, contradiction pairs and one-sided notes, videos read), the strongest `--top` principles with one source per channel, demonstration-only principles, every contradiction pair once, principles per stage, per channel the videos read, the videos the views table lists, and principles stated and demonstrated, the channels the views table lists with nothing read, and the most used lanes. The person's intro and outro go in as written.
+
 ## Key Types / Functions
 
 | Name | Signature / Shape | Role |
@@ -76,6 +81,7 @@ Options: `candidates --caps FILE` (`{channel: most passages to keep}`), `--windo
 | `passages` | `(video, craft, advice, title_pattern, window, per_video) => [passage]` | The best windows of one video. |
 | `evidence_strength` | `([(channel, xmed, weight)]) => (strength, {channel: best})` | The evidence rule. |
 | `build_registry` | `(rows, corpus, stages, lane_names, groups, contradictions, recorded_by, url_template) => (principles, id map)` | The merge. |
+| `index_markdown` | `(principles, {channel: videos read}, {channel: listed} \| None, title, intro, outro, top, ...) => markdown` | The index page. |
 | `place_quote` | `(Captions, quote, within, at_least, most_words) => {quote, t, t_end, match} \| None` | Puts a model's quote on the caption words it came from. |
 | `parts_of` | `(videos, most_words) => [[part]]` | The parts a model reads, short videos packed together. |
 | `rows_of_reply` | `(asks, chunk, videos, captions_of, reply, base) => (kept, dropped)` | A reply's rows, each with its placed source. |

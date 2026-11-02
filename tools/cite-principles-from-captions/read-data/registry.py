@@ -5,7 +5,7 @@ A working row: {"id", "principle", "kind": "stated"|"demonstrated"|"stated+demon
 corpus = {video id: video}. Nothing here reads a file; the person's own grouping and stage names come in as arguments.
 """
 import re
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 
 import captions
 
@@ -140,3 +140,113 @@ def build_registry(rows, corpus, stages=None, lane_names=None, groups=None, cont
         out.update((k, v) for k, v in row.items() if k != "id")
         final.append(out)
     return final, id_map
+
+
+ID_REF = re.compile(r"\{ids:([^}]*)\}")
+
+
+def principle_number(principle_id):
+    found = re.search(r"\d+", principle_id or "")
+    return int(found.group()) if found else 0
+
+
+def short(text, most=150):
+    text = (text or "").replace("|", "/")
+    return text if len(text) <= most else text[:most].rsplit(" ", 1)[0] + " ..."
+
+
+def fill_id_refs(text, id_map):
+    """The person's own prose with every {ids:A-1,B-2} replaced by the principle ids those working ids became, lowest first."""
+    def one(match):
+        working = [w.strip() for w in match.group(1).split(",") if w.strip()]
+        return ", ".join(sorted({id_map.get(w, w) for w in working}, key=principle_number))
+    return ID_REF.sub(one, text)
+
+
+def stage_order(stage):
+    found = re.match(r"\D*(\d+)", stage)
+    return (0, int(found.group(1)), stage) if found else (1, 0, stage)
+
+
+def index_markdown(principles, corpus_channels, catalog=None, title="Principles registry: index", intro="", outro="",
+                   top=30, demonstrated_top=15, lanes_top=60):
+    """A Markdown index of a registry: counts, the strongest principles with their sources, demonstration-only ones, contradiction pairs,
+    principles per stage, per channel (videos read, videos in the person's catalog, principles stated and demonstrated), channels in the
+    catalog with nothing read, and lanes. corpus_channels = {channel: videos read}; catalog = {channel: videos listed} or None.
+    intro and outro are the person's own Markdown, put in as they are."""
+    by_id = {p["id"]: p for p in principles}
+    kinds = Counter(p["kind"] for p in principles)
+    quotes = sum(p["evidence"]["quotes"] for p in principles)
+    demos = sum(p["evidence"]["demonstrations"] for p in principles)
+    merged = sum(1 for p in principles if p.get("merged_from"))
+    multi = sum(1 for p in principles if p["evidence"]["independent_channels"] > 1)
+    stated, shown = Counter(), Counter()
+    for p in principles:
+        for channel in {s.get("channel") for s in p["sources"] if s.get("channel")}:
+            stated[channel] += 1
+        for channel in {d.get("channel") for d in p.get("demonstrated_in", []) if d.get("channel")}:
+            shown[channel] += 1
+    lanes = Counter(lane for p in principles for lane in p["lanes"])
+    stages = Counter(stage for p in principles for stage in p.get("stages", []))
+    pairs = OrderedDict()
+    for p in principles:
+        for item in p.get("contradicts", []):
+            for other in item.get("with_ids", []):
+                a, b = sorted((p["id"], other), key=principle_number)
+                pairs.setdefault((a, b), item.get("how"))
+    pairs = OrderedDict(sorted(pairs.items(), key=lambda kv: (principle_number(kv[0][0]), principle_number(kv[0][1]))))
+    one_sided = sum(1 for p in principles for item in p.get("contradicts", []) if not item.get("with_ids"))
+    lines = [f"# {title}", ""]
+    if intro.strip():
+        lines += [intro.strip(), ""]
+    lines += ["## Counts", "",
+              f"- **{len(principles)} principles**: {kinds['stated']} stated, {kinds['demonstrated']} demonstrated only, {kinds['stated+demonstrated']} both.",
+              f"- **{quotes} verbatim quotes** and **{demos} demonstrations**.",
+              f"- {merged} principles merge statements from several rows; {multi} have more than one independent channel.",
+              f"- **{len(pairs)} contradiction pairs** between principles, plus {one_sided} one-sided disagreement notes inside rows.",
+              f"- Corpus read: {sum(corpus_channels.values())} videos from {len(corpus_channels)} channels.", "",
+              f"## Top {top} principles by evidence strength", "",
+              "| # | id | principle | channels | strength | sources (channel video@second, xmed) |", "|---|---|---|---|---|---|"]
+    for n, p in enumerate(principles[:top], 1):
+        seen, cited = set(), []
+        for s in p["sources"]:
+            if s.get("channel") in seen:
+                continue
+            seen.add(s.get("channel"))
+            cited.append(f"{s.get('channel')} [{s['video']}@{s.get('t')}]({s.get('url')}) {s.get('xmed', '?')}x")
+        for d in p.get("demonstrated_in", []):
+            if d.get("channel") in seen or not d.get("video"):
+                continue
+            seen.add(d.get("channel"))
+            cited.append(f"{d.get('channel')} demo [{d['video']}@{d.get('t')}]({d.get('url')}) {d.get('xmed', '?')}x")
+        more = len(seen) - 5
+        lines.append(f"| {n} | {p['id']} | {short(p['principle'])} | {p['evidence']['independent_channels']} | {p['evidence']['strength']} | "
+                     + "; ".join(cited[:5]) + (f"; +{more} more" if more > 0 else "") + " |")
+    lines += ["", "## Demonstrated, not only stated", "",
+              f"{kinds['demonstrated'] + kinds['stated+demonstrated']} principles carry demonstrations. Demonstration-only principles (top {demonstrated_top} by strength):", ""]
+    for p in [p for p in principles if p["kind"] == "demonstrated"][:demonstrated_top]:
+        d = (p.get("demonstrated_in") or [{}])[0]
+        lines.append(f"- {p['id']} {short(p['principle'], 120)} ({', '.join(p['channels'][:4])}; e.g. {d.get('video', '')}@{d.get('t', '')})")
+    lines += ["", "## Contradictions (flagged, not resolved)", "", "| a | b | how they disagree |", "|---|---|---|"]
+    for (a, b), how in pairs.items():
+        lines.append(f"| {a} {short(by_id[a]['principle'], 70) if a in by_id else ''} | {b} {short(by_id[b]['principle'], 70) if b in by_id else ''} | {short(how or '', 160)} |")
+    if stages:
+        lines += ["", "## Principles per stage", "", "| stage | principles |", "|---|---|"]
+        lines += [f"| {stage} | {n} |" for stage, n in sorted(stages.items(), key=lambda kv: stage_order(kv[0]))]
+    lines += ["", "## Counts per channel", ""]
+    if catalog is None:
+        lines += ["| channel | videos read | principles stated | principles demonstrated |", "|---|---|---|---|"]
+    else:
+        lines += ["| channel | videos read | catalog | principles stated | principles demonstrated |", "|---|---|---|---|---|"]
+    for channel in sorted(set(corpus_channels) | set(stated) | set(shown), key=lambda ch: (-(stated[ch] + shown[ch]), ch.lower())):
+        listed = "" if catalog is None else f" {catalog.get(channel, 'n.a.')} |"
+        lines.append(f"| {channel} | {corpus_channels.get(channel, 0)} |{listed} {stated[channel]} | {shown[channel]} |")
+    if catalog is not None:
+        unread = [(ch, n) for ch, n in Counter(catalog).most_common() if ch and not corpus_channels.get(ch)]
+        lines += ["", "### Channels in the catalog with no videos read", "",
+                  (", ".join(f"{ch} ({n} videos)" for ch, n in unread) or "None") + "."]
+    lines += ["", "## Counts per lane", "", f"{len(lanes)} distinct lanes; the {lanes_top} most used:", "",
+              ", ".join(f"{lane} {n}" for lane, n in lanes.most_common(lanes_top)) + "."]
+    if outro.strip():
+        lines += ["", outro.strip()]
+    return "\n".join(lines) + "\n"
