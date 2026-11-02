@@ -1,0 +1,77 @@
+{
+  "_what": "Planning policy for tool:plan-my-time. window_days: how far ahead it plans. stale_days: a task whose deadline passed longer ago is not planned (Motion uses 14). chunks: a task shorter than below_minutes may be split into pieces of at least min_block_minutes (null keeps it whole), as Motion does. pursuit_weight: the value of serving a needle-mover pursuit, any other pursuit, or none. priority_weight multiplies that value. schedule: working hours per weekday in the person's time zone when the request gives none. Any of these can be overridden per request under rules. gap_minutes: free time kept between placed work and anything else. slot_choice: tasks longer than for_tasks_over_minutes skip gaps shorter than skip_gaps_below_minutes, and tasks up to fewest_pieces_up_to_minutes go into one gap when one fits. daily_cap_minutes: most work planned per weekday (or per date), null for no cap; a day over its cap comes back with a bump list. rollover_alert_at: a task that has moved this many days comes back as needs_decision. schedules: named working hours a task can choose with schedule (theme days, a pursuit's hours).",
+  "window_days": 14,
+  "stale_days": 14,
+  "chunks": [
+    {
+      "below_minutes": 120,
+      "min_block_minutes": null
+    },
+    {
+      "below_minutes": 960,
+      "min_block_minutes": 60
+    },
+    {
+      "below_minutes": 1000000000.0,
+      "min_block_minutes": 120
+    }
+  ],
+  "pursuit_weight": {
+    "needle_mover": 3,
+    "default": 2,
+    "none": 1
+  },
+  "priority_weight": {
+    "asap": 2,
+    "high": 1.5,
+    "medium": 1,
+    "low": 0.6
+  },
+  "schedule": {
+    "monday": [
+      {
+        "from": "09:00",
+        "to": "17:00"
+      }
+    ],
+    "tuesday": [
+      {
+        "from": "09:00",
+        "to": "17:00"
+      }
+    ],
+    "wednesday": [
+      {
+        "from": "09:00",
+        "to": "17:00"
+      }
+    ],
+    "thursday": [
+      {
+        "from": "09:00",
+        "to": "17:00"
+      }
+    ],
+    "friday": [
+      {
+        "from": "09:00",
+        "to": "17:00"
+      }
+    ]
+  },
+  "gap_minutes": 0,
+  "slot_choice": {
+    "skip_gaps_below_minutes": 15,
+    "for_tasks_over_minutes": 30,
+    "fewest_pieces_up_to_minutes": 60
+  },
+  "daily_cap_minutes": {
+    "monday": 360,
+    "tuesday": 360,
+    "wednesday": 360,
+    "thursday": 360,
+    "friday": 360
+  },
+  "rollover_alert_at": 2,
+  "schedules": {}
+}

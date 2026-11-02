@@ -1458,6 +1458,25 @@
         {"job": "read one page of what a person's list or saved view shows", "why": "tools/read-a-list-view reads rows of a list; this one reads no list and returns pictures of displays"},
         {"job": "hold a group to what it agreed", "why": "tools/hold-to-it keeps a group's agreements; this one has no group and keeps nothing"}
       ]
+    },
+    {
+      "capability": "plan a person's tasks into their free time and judge their meetings against their pursuits: ASAP first, then hard deadlines, then what serves the pursuits that matter most, then due date; tasks wait for their blockers, long tasks split into pieces, fixed-time tasks stay put, each day's work is held to a cap, and meetings that serve no pursuit and keep more valuable work from its deadline are proposed for decline",
+      "owner": ["tools/plan-my-time/"],
+      "entry": "tools/plan-my-time/tool-rows.json",
+      "evidence": "README.md:3 places tasks into the weekly hours left after busy events, returns each task's placed times and whether it fits, the day loads against their caps and the meetings to keep or decline, and changes no calendar; learned from an auto-scheduling calendar and a daily planner",
+      "distinct_from": [
+        {"job": "let people book time: scheduling and booking links", "why": "tools/book-time offers start times to another person who asks to book; this one places the person's own tasks, with their lengths, deadlines and blockers, into their free time"},
+        {"job": "show a person's time blocks on a calendar", "why": "tools/calendar lays existing blocks out for a view; this one decides where new work goes and which meetings to decline, and draws nothing"},
+        {"job": "show everything waiting on a person that only they can do, gathered from the places they keep it into one list of cards", "why": "tools/what-is-waiting-on-me gathers the cards that need them; this one times the tasks the person already has"},
+        {"job": "say who should do each step of a plan", "why": "tools/who-does-each-step chooses the doer of a step; this one chooses when the person's own tasks happen"},
+        {"job": "hold a group to what it agreed: keep each agreement, work out when to remind and check, mark who kept it from the evidence handed in, and keep the scorecard", "why": "tools/hold-to-it keeps a group's agreements and when to check them; this one plans one person's tasks and meetings into their hours"},
+        {"job": "hold a body of work as a tree: roll up what is really finished, add requested items, check the proof behind finished work", "why": "tools/work-breakdown keeps the tree of work and what is finished; this one places tasks it is handed into hours and keeps nothing"},
+        {"job": "show a folder of markdown documents as the rows of a list", "why": "tools/documents-as-list-rows shows documents as list rows; this one reads task rows it is handed and answers where each goes"},
+        {"job": "read one page of what a person's list or saved view shows", "why": "tools/read-a-list-view reads rows out of a list; this one plans the task rows it is handed"},
+        {"job": "listen to the microphone for a while", "why": "tools/listen-for-a-while records and hears a room until an end time; this one listens to nothing and plans tasks into hours"},
+        {"job": "transcribe recordings with a time for every word", "why": "tools/audio-transcription times words in a recording; this one times a person's tasks in their week"},
+        {"job": "plan tasks and to-do lists on a calendar: keep named task lists with counts, group and sort them, schedule a task onto a day or time, and turn an email into a task", "why": "the task tray keeps the person's lists and puts a task where the person drops it; this one chooses where every task goes by length, deadline, blockers and value, keeps no list and changes no task"}
+      ]
     }
   ]
 }
