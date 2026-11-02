@@ -1,0 +1,41 @@
+{
+  "_what": "The record graph as DATA: relations and activities over any of the person's records, the same model the engine carries in product/record-model.json (`relations`, `activities`), with the bounds the Workshop's traversals keep so every read stays fast. Nothing here is a record kind of its own beyond `relation`, `activity` and the entity kinds; the tools read and write them through records:read, records:list and records:write only.",
+  "relations": {
+    "_what": "Participation between any two things with the role as data. `self` is the record id `me` names (the person whose store it is); a subject or object `<entity kind>:<name>` is an entity record of that kind, made once by its name. Each relation keeps a fractional order key per side (subject_order among the subject's relations of that role, object_order among the object's), so each end orders its links on its own, and `alive` (false: ended, kept with its places so relating it again puts it back where it was). `side_most` is how many relations of one end and role are read to place a new one or to answer an ordered read; `relate_most` is how many relations, entities and activities one relate call takes together.",
+    "type": "relation",
+    "self": "record:person:me",
+    "entity_kinds": ["organisation", "group", "place"],
+    "side_most": 1000,
+    "relate_most": 500,
+    "role_most": 80
+  },
+  "activities": {
+    "_what": "One record per thing that happened between people (an email, a call, a meeting, a message, an introduction, a note), with when it was (`at`, ISO), a few words, and every record that took part, each under a role of its own. It is named by what it is (kind, time, source and who took part), so saying it again changes nothing. `kinds` and `participant_roles` are every word allowed; `participants_most` is how many may take part in one; `history_most` is how many of one record's activities a history read keeps before it says it is not complete; `scan_most` is how many activity records one read goes through (the door has no index on who took part, so a history reads the kind, narrowed by kind when kinds are named); `summary_most` is the longest summary; `direction_most` the longest direction.",
+    "type": "activity",
+    "kinds": ["email", "call", "meeting", "message", "introduction", "note"],
+    "participant_roles": ["participant", "sender", "recipient", "caller", "attendee", "organiser", "introducer", "introduced"],
+    "participants_most": 50,
+    "history_most": 1000,
+    "scan_most": 20000,
+    "summary_most": 2000,
+    "direction_most": 80
+  },
+  "reads": {
+    "_what": "How much one read answers. `limit_default` and `limit_most` bound a list in an answer (activities, neighbours, members); `page` is the records:list page size asked of the door.",
+    "limit_default": 100,
+    "limit_most": 1000,
+    "page": 999
+  },
+  "graph": {
+    "_what": "The bounds of a walk over the whole graph. A walk reads the live relations (and, unless left out, the activities) once, at most `scan_most` records of each kind, and answers `complete: false` whenever a bound cut it. `hops_most` is the furthest a neighbours read goes; `path_length_most` the longest path a connection query looks for (each step one relation, or one record to an activity it took part in); `paths_most` how many paths it answers; `visits_most` how many records a walk may reach; `steps_most` how many steps a path search may take in all; `of_most` how many records a shared query starts from; `members_most` how many members it answers.",
+    "scan_most": 20000,
+    "hops_most": 4,
+    "path_length_default": 4,
+    "path_length_most": 6,
+    "paths_most": 10,
+    "visits_most": 5000,
+    "steps_most": 50000,
+    "of_most": 20,
+    "members_most": 200
+  }
+}
