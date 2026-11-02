@@ -1,0 +1,343 @@
+{
+ "kind": "tool-rows",
+ "record_set": "watch-my-sources-tool-rows",
+ "what_this_is": "The Workshop row for the tool in tools/watch-my-sources: the places a person follows, kept as rows of their own list, read and weighed against what they pursue, run through their records door.",
+ "records": [
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:watch-my-sources",
+    "label": "Watch my sources",
+    "status": "active",
+    "job": "Watch the places I follow (any site's feed, a YouTube channel, a blog, a changelog, a page, a best-seller or trending list) and keep each new item as a row, weighed against what I am pursuing; only what moves a pursuit is handed to my AIs",
+    "description": "Reads each source marked Yes in the person's list signal-sources (made with its fields when missing, with starter places turned off) and keeps every item it has not kept before as a row of their list signals; a ranked-list source keeps each item's rank in ranked-items and makes a signal of each entry, climb, fall or drop-out. A source's first read is a quiet baseline. A page is watched by whether its words changed; an X account needs a feed address; a YouTube channel is read from its feed or, when YouTube refuses that, its videos page; an address that answers 'not changed' costs nothing. Reads at most 25 sources and weighs at most 20 items a run; the rest wait. The run asks no model and hands nothing in itself: when new items wait it answers weigh_wanted, one question { purpose, identity, messages, max_tokens } for the oldest batch, the same until it is answered; answer it and run again with weighed { identity, reply }. Each item that moves a pursuit comes back in arrivals, each exactly what the person's arrival door takes (route watch-sources, from_person false); the door keeps one arrival per route and source_id. Sends nothing outward and never writes to a source. Run it on a schedule (hourly) or when the person asks what is new in the places they follow. When the answer names weigh_wanted, answer that question yourself as the person's AI (reply with the JSON it asks for, nothing else) and run the tool again with weighed { identity, reply }. Hand each of arrivals to the person's arrival door as it is. Tell the person the moves; the rest is in their Signals list.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "most_per_source": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 50,
+       "description": "How many of a source's newest items to look at each read (10 when left out)"
+      },
+      "formats": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "label"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "description": {
+          "type": "string"
+         }
+        }
+       },
+       "description": "The person's content formats (content_formats), so an item can be weighed as an insight for one"
+      },
+      "weighed": {
+       "type": "object",
+       "required": [
+        "identity",
+        "reply"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "identity": {
+         "type": "string",
+         "pattern": "^1f:[0-9a-f]{64}$"
+        },
+        "reply": {
+         "type": "string",
+         "minLength": 1
+        }
+       },
+       "description": "The answer to the weigh_wanted question of an earlier run: its identity, and the reply as JSON text"
+      },
+      "history": {
+       "type": "object",
+       "required": [
+        "source",
+        "answer"
+       ],
+       "properties": {
+        "source": {
+         "type": "string"
+        },
+        "answer": {
+         "type": "object"
+        }
+       },
+       "description": "A whole history named under history_wanted: the source row's id and the answer of the tool it named"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "read",
+      "kept",
+      "moves",
+      "set_aside",
+      "waiting",
+      "problems",
+      "arrivals"
+     ],
+     "properties": {
+      "read": {
+       "type": "integer"
+      },
+      "kept": {
+       "type": "integer"
+      },
+      "ranked": {
+       "type": "integer"
+      },
+      "moves": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "title",
+         "link",
+         "pursuit"
+        ],
+        "properties": {
+         "title": {
+          "type": "string"
+         },
+         "link": {
+          "type": "string"
+         },
+         "pursuit": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "how": {
+          "type": "string"
+         },
+         "format": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "set_aside": {
+       "type": "integer"
+      },
+      "waiting": {
+       "type": "integer"
+      },
+      "sources_waiting": {
+       "type": "integer"
+      },
+      "problems": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "name",
+         "problem"
+        ],
+        "properties": {
+         "name": {
+          "type": "string"
+         },
+         "problem": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "weigh_wanted": {
+       "type": "object",
+       "required": [
+        "purpose",
+        "identity",
+        "messages",
+        "max_tokens"
+       ]
+      },
+      "arrivals": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "route",
+         "source_id",
+         "from_person",
+         "title",
+         "text",
+         "at"
+        ]
+       }
+      },
+      "history_wanted": {
+       "type": "array"
+      },
+      "history": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/opt/watch-my-sources",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/watch-my-sources/do-work/watch-my-sources.mjs",
+      "watchMySources"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "watch-my-sources",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/watch-my-sources"
+       },
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/page-facts.mjs",
+         "do-work/page-conventions.json"
+        ],
+        "at": "/opt/browse-public-page"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "list",
+        "id": "list:signal-sources",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "list",
+        "id": "list:signals",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "list",
+        "id": "list:ranked-items",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "record:signal-sources",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "record:signals",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "record:ranked-items",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:watch-my-sources",
+    "provenance": {
+     "source": "Trillion-X/trillion src/watch-sources.mjs, src/watch-sources.json, src/ranked-lists.mjs and src/feed-items.mjs at 2e57d9a49ba0eb2ff3a44fa711be1ff054e32b18, moved (ports/watch-sources.json)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "output_selector": "$.problems",
+      "contains": "[]"
+     }
+    ]
+   }
+  }
+ ]
+}

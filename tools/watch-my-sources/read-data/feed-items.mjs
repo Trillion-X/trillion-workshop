@@ -1,18 +1,18 @@
-// src/feed-items.mjs
+// tools/watch-my-sources/read-data/feed-items.mjs (moved from Trillion-X/trillion src/feed-items.mjs)
 //
 // Purpose
 //   The items of a feed, read from whatever an address answered: an RSS 2.0 channel, an Atom feed (YouTube's included,
 //   whose description sits in media:group/media:description), or JSON (a list, or an object holding `items`, `rows` or
 //   `entries`); and the uploads on a YouTube channel's videos page, for the days its feeds answer 404. One reader for every
-//   tool that follows an address (src/list-feed.mjs fills a list from one, src/watch-sources.mjs watches the places a
-//   person follows), so an address is read the same wherever it is asked about.
+//   tool that follows an address (watch-sources.mjs watches the places a person follows; Trillion's list-feed fills a list
+//   from one), so an address is read the same wherever it is asked about.
 //
 // Non-Negotiable Invariants
 //   1. The answer is read by what it holds, never by the kind of address or the content type it claims: text that is
 //      not a feed answers null, so the caller can read it as a page instead.
 //   2. No dependency: tags are found by name in the text, entities and CDATA are decoded here, and nothing is run or
 //      fetched from what a feed says.
-//   3. Bounded, as src/read-link.mjs is: at most READ_BYTES bytes are read, `waitMs` is the whole wait, and at most
+//   3. Bounded, as a link's read is: at most READ_BYTES bytes are read, `waitMs` is the whole wait, and at most
 //      MOST_ITEMS items are returned.
 //   4. Nothing is guessed: a fact an item does not state is null; a date that is not a date is null.
 //   5. Only a public address is read (checkedUrl, the page reader's own check), and a conditional read (the ETag and
@@ -25,7 +25,7 @@
 //     -> { ok, status, type, text, url, etag, modified, not_modified }
 //   decodeEntities(text) -> text with its HTML entities decoded; squash(text) -> its runs of space made one
 //
-import { checkedUrl } from 'trillion-workshop/tools/browse-public-page/do-work/page-facts.mjs';
+import { checkedUrl } from '../../browse-public-page/do-work/page-facts.mjs';
 
 const READ_BYTES = 2_000_000;
 const WAIT_MS = 6000;
