@@ -1,0 +1,15 @@
+{
+  "schema": "computer-drive-tools.file-kinds",
+  "other": { "kind": "other", "label": "Other" },
+  "skip_folders": [".Spotlight-V100", ".fseventsd", ".Trashes", ".DocumentRevisions-V100", ".TemporaryItems"],
+  "kinds": [
+    { "kind": "video", "label": "Videos", "extensions": ["mp4", "mov", "m4v", "mkv", "webm", "avi", "mts", "m2ts", "mxf", "insv", "lrv", "3gp", "wmv", "flv", "mpg", "mpeg", "braw", "r3d", "dv"] },
+    { "kind": "audio", "label": "Audio", "extensions": ["wav", "mp3", "m4a", "aac", "aif", "aiff", "flac", "ogg", "opus", "caf", "wma", "alac"] },
+    { "kind": "pictures", "label": "Pictures", "extensions": ["jpg", "jpeg", "png", "heic", "heif", "gif", "tif", "tiff", "webp", "bmp", "raw", "dng", "cr2", "cr3", "nef", "arw", "raf", "orf", "rw2", "psd", "svg", "avif"] },
+    { "kind": "documents", "label": "Documents", "extensions": ["pdf", "doc", "docx", "pages", "txt", "md", "rtf", "odt", "xls", "xlsx", "numbers", "csv", "tsv", "ppt", "pptx", "key", "srt", "vtt", "epub"] },
+    { "kind": "projects", "label": "Editing projects", "extensions": ["prproj", "fcpbundle", "fcpxml", "drp", "drt", "aep", "aet", "mogrt", "psb", "blend", "c4d", "logicx", "band", "ptx", "als", "xml", "edl", "otio"] },
+    { "kind": "archives", "label": "Archives", "extensions": ["zip", "rar", "7z", "tar", "gz", "tgz", "bz2", "xz", "dmg", "iso", "pkg"] },
+    { "kind": "apps", "label": "Apps", "extensions": ["app", "exe", "msi", "apk", "ipa"] },
+    { "kind": "code", "label": "Code", "extensions": ["js", "mjs", "cjs", "ts", "tsx", "jsx", "json", "py", "rb", "go", "rs", "swift", "c", "h", "cpp", "java", "kt", "sh", "html", "css", "yaml", "yml", "toml", "sql", "jsonl"] }
+  ]
+}
