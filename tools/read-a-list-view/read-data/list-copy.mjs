@@ -272,6 +272,12 @@ export async function syncRowSource(input, door) {
   for (const [name, listRows] of held) await settle(name, null, listRows);
 
   // ---- rows any AI wrote into the list ---------------------------------------------------------------------------
+  const isCopyOf = async (name, set, body) => {
+    const rows = await fileRowsOf(name);
+    if (!rows.length) return false;
+    const file = documentOf(rows.map(row => ({ value: row.values })), names);
+    return sameValues(properties(file.first, names.properties_prefix), set) && file.text !== null && file.text.endsWith(body);
+  };
   for (const record of own) {
     const values = record.value;
     let base;
@@ -303,6 +309,9 @@ export async function syncRowSource(input, door) {
           report.refused.push({ document: record.id, because: `the folder refused it: ${error.message.slice(0, 200)}` });
           break;
         }
+        // Two syncs at once (a turn's end and a commit's) both adopt the same row: the name is taken by this row's own
+        // copy, the file holding exactly its values and text, so it is that copy and not a second one.
+        if (await isCopyOf(name, set, body)) named = name;
       }
     }
     if (!named) {

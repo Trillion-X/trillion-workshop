@@ -108,6 +108,24 @@ test('a row written by any AI under its own id becomes a file named from its val
   } finally { await b.done(); }
 });
 
+test('a row another sync already made into its file is adopted into that file, never a second copy', async () => {
+  // Two syncs at once (a turn's end and a commit's): the other one wrote this row's file a moment ago and this one
+  // still holds the row the AI wrote. The file is exactly that row's values and text.
+  const b = await bakery({ files: { 'phone/yeast.md': '---\nname: Yeast\nby: phone\n---\nKeep the yeast cold.\n' } });
+  try {
+    b.keep(`${TYPE}:from-a-phone`, { 'note.name': 'Yeast', 'note.by': 'phone', 'document.text': 'Keep the yeast cold.\n' });
+    const run = await b.sync();
+    assert.deepEqual([run.adopted, run.refused], [1, []]);
+    await assert.rejects(stat(join(b.root, 'notes/phone/yeast-2.md')), 'no second copy');
+    assert.equal(b.records.has(`${TYPE}:from-a-phone`), false);
+    assert.equal(b.rowsOf('phone/yeast.md').length, 1);
+    // A different memory under the same name is a different document: it gets the next name.
+    b.keep(`${TYPE}:from-a-phone-2`, { 'note.name': 'Yeast', 'note.by': 'phone', 'document.text': 'Buy more yeast.\n' });
+    await b.sync();
+    assert.match(await b.file('phone/yeast-2.md'), /Buy more yeast\./);
+  } finally { await b.done(); }
+});
+
 test('a row that cannot be named a file stays in the list and is named in the answer; a taken name gets the next', async () => {
   const b = await bakery({ files: { 'web-chat/sugar.md': NOTE('sugar', 'Sugar is fine.') } });
   try {

@@ -67,7 +67,7 @@ Nothing is kept outside the rows. A row made from a file holds that file's ident
 | Only rows, and their text is the file they were made from | The file was removed: the rows are removed. |
 | Only rows the list wrote or changed | The file is made. |
 | Only a file | A new file: its rows are written. If the row's newest version is a removal of this same file's text, the list removed it, and the file is removed. |
-| A row the list's own rows hold (`adopt_own_rows: true`) | Any AI wrote it under its own id. The file `copy_name` names is made (`"{note.by\|person}/{note.name}.md"`: each value made one safe name segment; `\|word` is used when the row has no such value; a taken name gets `-2`, `-3` ...), its rows are written, and then the AI's own row is removed, so every AI reads one row. A row that cannot be named stays and is named in the answer. |
+| A row the list's own rows hold (`adopt_own_rows: true`) | Any AI wrote it under its own id. The file `copy_name` names is made (`"{note.by\|person}/{note.name}.md"`: each value made one safe name segment; `\|word` is used when the row has no such value; a taken name gets `-2`, `-3` ...), its rows are written, and then the AI's own row is removed, so every AI reads one row. A row that cannot be named stays and is named in the answer. A taken name that already holds exactly this row's values and text is this row's copy (another sync made it a moment ago), so two syncs at once never make two copies. |
 
 A file is written or removed only while it is still the one read (the change tool checks its identity), and a row is overwritten only by a write the door keeps as a new version, so nothing is overwritten silently. No row is removed for a file the source did not answer: list-only rows are judged after the source's last page.
 
@@ -138,7 +138,7 @@ It is not an engine row. A run the engine starts gets record rights for named re
 | `do-work/read-list-view.mjs` | The command line above. |
 | `test/read-a-list-view.test.mjs` | Tests on a made-up bakery: a refresh's writes (only what changed, removals, bounded batches, a refused row), a read that runs no tool, the bounds, a view's rules and sort, a local tool, byte pages, and the door's key handling. |
 | `read-data/list-copy.mjs` | `syncRowSource(input, door)`: the two-way sync of a source declared `original: "list"`, which a refresh of that list runs. |
-| `test/list-copy.test.mjs` | Tests on a made-up bakery's notes over the real door and the real documents tools: a new folder, a row any AI wrote, a taken name, one part of a long document, both sides changed, removals on either side, a value only the list changed, `paths` and a dry run. |
+| `test/list-copy.test.mjs` | Tests on a made-up bakery's notes over the real door and the real documents tools: a new folder, a row any AI wrote, a taken name, a row another sync already made into its file, one part of a long document, both sides changed, removals on either side, a value only the list changed, `paths` and a dry run. |
 
 ## Dependencies
 
