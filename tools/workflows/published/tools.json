@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:c66c68c61da075cb6d0288f0a1edf33c626db1161e5e95f3b5733b5e007229ad"
+  "blake3": "1f:4d5138580c6cbf376e92b9751fafa1e8a047045603e237db2e8e861b47f57c97"
  },
  "fields": [
   {
@@ -168,6 +168,21 @@
    }
   },
   {
+   "id": "tool:add-decision-evidence",
+   "values": {
+    "title": "Add evidence to a decision",
+    "job": "Add evidence to a decision I am making, at any time, so that its answers can cite it, or bring it in from another of my decisions",
+    "description": "Adds evidence rows to a decision in the person's own records: each { ref, claim }, or { ref, from: { decision_id, ref } } to bring in another of the person's decisions' evidence as it stood. Each row is kept with when it came in. Rows can be added at any time, also after a decision is made; an answer may cite them at once. The same rows again replay; a ref that already says something else in the decision is refused. Returns the rows added and how many evidence rows the decision has.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
    "id": "tool:add-to-my-workout-log",
    "values": {
     "title": "Add to my workout log",
@@ -246,8 +261,8 @@
    "id": "tool:answer-a-decision-question",
    "values": {
     "title": "Answer a decision's question",
-    "job": "Answer the question my method is asking about a decision, with each of its checks",
-    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. Keeps the answer as its own step record and returns the next question.",
+    "job": "Answer the question my method is asking about a decision, with each of its checks; change an answer I gave before with its reason; confirm an answer that must be asked again; or bring in an answer from another of my decisions",
+    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. revise changes an answer already given: it names because (why, in a few words) and keeps the old version, and every later answer of the decision is marked to be asked again, so the next question is the earliest of them. confirm, alone, keeps a re-asked answer unchanged. from, instead of answer, brings in another of the person's decisions' answer to the same step as it stood (its version, or the current one), with the evidence it cites, and checks it as a typed answer. A decided decision's answers change only after a failed result. Keeps the answer as its own step record and returns the next question.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -3922,7 +3937,7 @@
    "values": {
     "title": "Read a decision's next question",
     "job": "See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions",
-    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out.",
+    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. A question that asks for a recheck says which step was revised and the version of its answer. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out. With versions_of (a step id) it returns that step's versions, oldest first, each with who gave it, when, why it was revised and its answer.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
