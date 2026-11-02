@@ -727,7 +727,7 @@
       "capability": "keep shared step-by-step playbooks any person's AI can follow",
       "owner": ["tools/workflows/"],
       "entry": "tools/workflows/tool-rows.json",
-      "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, each a row of the person's list of workflows"
+      "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, each a row of the person's list of workflows; the outreach recipes (open job posts, local businesses by zip code, a LinkedIn content system) join existing tools step by step, and host-tools.json names tools that live outside this repository, such as the phone call exchange, by their job"
     },
     {
       "capability": "score outside candidates on weighted signals of need (age, mention counts, recent shares) under signal-source rows, filter and rank them",
