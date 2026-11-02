@@ -9,7 +9,7 @@
         "id": "tool:find-similar-to-a-vector",
         "label": "Find what is closest to a vector",
         "job": "Find the moments in my recordings, pictures or documents closest in meaning to a query vector, such as the picture vector of some words, and say the file and time of each",
-        "description": "Runs meaning-search's find-similar-vector on one of the person's semantic-index-descriptor records: the descriptor's vector set (items and their vectors, two of the person's files) is indexed by the package's own scripts for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptor names (tool:words-as-picture-vector gives one for words when the set holds picture vectors). Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text).",
+        "description": "Runs meaning-search's find-similar-vector on one of the person's semantic-index-descriptor records: the descriptor's vector set (items and their vectors, two of the person's files) is indexed by the package's own scripts for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptor names (tool:words-as-picture-vector gives one for words when the set holds picture vectors). Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text). With spread ({per_file, seconds_apart}) the answer holds at most per_file items of one file, that far apart, so many neighbouring frames of one take do not fill it.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -18,7 +18,8 @@
           "properties": {
             "index_id": { "type": "string", "minLength": 1, "description": "The index_id of one of the person's semantic-index-descriptor records" },
             "query_vector_base64": { "type": "string", "minLength": 1, "description": "base64 of JSON {\"vector\": [...]}, made by the model the descriptor names" },
-            "limit": { "type": "integer", "minimum": 1, "description": "At most this many items; the descriptor's result_limit caps it" }
+            "limit": { "type": "integer", "minimum": 1, "description": "At most this many items; the descriptor's result_limit caps it" },
+            "spread": { "type": "object", "additionalProperties": false, "required": ["per_file"], "description": "Keep one recording from filling the answer: best first, an item is set aside when its file already has per_file items in the answer or one closer than seconds_apart to it (an item with no time counts once per file). The package ranks up to the descriptor's result_limit, then the answer is cut to limit; result.spread says how many were set aside.", "properties": { "per_file": { "type": "integer", "minimum": 1 }, "seconds_apart": { "type": "number", "minimum": 0 } } }
           }
         },
         "output_schema": {
@@ -68,7 +69,7 @@
         "id": "tool:find-similar-by-meaning",
         "label": "Find what is closest in meaning to some words",
         "job": "Find the moments in my recordings or documents whose words or transcript are closest in meaning to what I ask, and say the file and time of each",
-        "description": "Runs meaning-search's find-similar on one of the person's semantic-index-descriptor records: query_text and any item of the vector set without a vector are embedded by the descriptor's model at its model_endpoint (the package's Ollama embedder), the set is indexed for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text).",
+        "description": "Runs meaning-search's find-similar on one of the person's semantic-index-descriptor records: query_text and any item of the vector set without a vector are embedded by the descriptor's model at its model_endpoint (the package's Ollama embedder), the set is indexed for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text). With spread ({per_file, seconds_apart}) the answer holds at most per_file items of one file, that far apart, so many neighbouring frames of one take do not fill it.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -77,7 +78,8 @@
           "properties": {
             "index_id": { "type": "string", "minLength": 1, "description": "The index_id of one of the person's semantic-index-descriptor records" },
             "query_text": { "type": "string", "minLength": 1, "description": "The words to look for" },
-            "limit": { "type": "integer", "minimum": 1, "description": "At most this many items; the descriptor's result_limit caps it" }
+            "limit": { "type": "integer", "minimum": 1, "description": "At most this many items; the descriptor's result_limit caps it" },
+            "spread": { "type": "object", "additionalProperties": false, "required": ["per_file"], "description": "Keep one recording from filling the answer: best first, an item is set aside when its file already has per_file items in the answer or one closer than seconds_apart to it (an item with no time counts once per file). The package ranks up to the descriptor's result_limit, then the answer is cut to limit; result.spread says how many were set aside.", "properties": { "per_file": { "type": "integer", "minimum": 1 }, "seconds_apart": { "type": "number", "minimum": 0 } } }
           }
         },
         "output_schema": {
@@ -119,6 +121,57 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
         "maker": "maker:meaning-search"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-picture-vector-set-of-my-videos",
+        "label": "Make a searchable set of what my videos show (runs on your computer)",
+        "job": "Turn a folder of my videos into a set of picture vectors, one frame every few seconds with its time, so I can find moments by what they show",
+        "description": "Reads every video in a folder the person names (only reads it) and keeps one frame every few seconds (2 by default), decoding key frames only, small, with an optional 3D LUT for log footage and an optional smaller proxy copy on the same timeline to decode instead. Each frame becomes a CLIP ViT-B-32 picture vector (OpenAI weights, the model tool:words-as-picture-vector uses for words, so they compare). Writes the two files of a vector set, frames.npy (float16, normalised) and frames.jsonl (video, path, t in seconds, the file decoded), with done.json so a run that stops goes on where it stopped and a new card adds only its videos, and vector-set.json: the vector_set member to put in the person's semantic-index-descriptor record so tool:find-similar-to-a-vector can search it. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The folder of videos on the person's computer, put where {input} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The folder of the vector set, put where {output} is in the command; the same folder again adds new videos to it."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"frames\", \"added\", \"videos_done\", \"out\"}}. {output}/vector-set.json holds the vector_set member for the descriptor and the model that made the vectors."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "brew install ffmpeg",
+            "python3 -m pip install -U numpy torch open_clip_torch pillow"
+          ],
+          "run": "python3 trillion-workshop/tools/meaning-search/do-work/make_picture_vector_set.py --videos {input} --out {output}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "model: CLIP ViT-B-32 with the openai weights (MIT licence; open_clip downloads them on first run)"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, ask which folder of videos (add --pattern '*.MP4' to take only some files, --lut FILE.cube when the footage is log, --proxy '{dir}/../SUB/{stem}S03.MP4' or the like when the camera wrote smaller copies, --every N for a frame every N seconds), run `run`, and tell the person how many frames were added. It can run for hours on a large card; run it again to go on. Then put vector-set.json's vector_set, with the model it names, into a semantic-index-descriptor record of theirs and search it with tool:find-similar-to-a-vector (words become a query vector through tool:words-as-picture-vector). If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:meaning-search",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ffmpeg and open_clip (https://github.com/mlfoundations/open_clip) CLIP ViT-B-32 openai weights"
+        }
       }
     }
   ]

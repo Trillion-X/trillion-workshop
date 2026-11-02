@@ -4,9 +4,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { findSimilar, findSimilarVector } from '../read-data/meaning-search.mjs';
+import { findSimilar, findSimilarVector, spreadItems } from '../read-data/meaning-search.mjs';
 import { mintCanonicalMultihashOfText } from '../do-work/process-scripts/canonical_multihash.mjs';
 
 const KIND = 'semantic-index-descriptor';
@@ -148,10 +150,96 @@ test('the package\'s own fact-row tests pass here', () => {
 });
 
 test('the rows run the seam\'s exports through records-door with read-only rights', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const all = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const rows = all.filter(row => row.invoke.kind === 'container');
   assert.deepEqual(rows.map(row => row.invoke.argv.at(-1)), ['findSimilarVector', 'findSimilar']);
+  const builder = all.find(row => row.id === 'tool:make-a-picture-vector-set-of-my-videos');
+  assert.equal(builder.invoke.kind, 'on-your-computer');
+  assert.match(builder.invoke.run, /tools\/meaning-search\/do-work\/make_picture_vector_set\.py --videos \{input\} --out \{output\}/);
+  assert.ok(builder.invoke.needs.some(need => need.startsWith('model: CLIP ViT-B-32')));
   for (const row of rows) {
     assert.equal(row.invoke.internet, false);
     for (const right of row.invoke.records.rights) assert.ok(right.operations.every(operation => ['records:list', 'read_file'].includes(operation)));
   }
+});
+
+test('a spread keeps one recording from filling the answer: per_file, seconds_apart, and an untimed item counts once', async () => {
+  const items = [
+    { clip: 'zorblax-a.mp4', t: 0 }, { clip: 'zorblax-a.mp4', t: 2 }, { clip: 'zorblax-a.mp4', t: 9 },
+    { clip: 'zorblax-a.mp4', t: 20 }, { clip: 'zorblax-b.mp4', t: 1 }, { clip: 'zorblax-c.jpg' }, { clip: 'zorblax-c.jpg' },
+  ];
+  const vectors = [[1, 0, 0, 0], [0.99, 0.01, 0, 0], [0.98, 0.02, 0, 0], [0.97, 0.03, 0, 0], [0.5, 0.5, 0, 0], [0.9, 0, 0.1, 0], [0.89, 0, 0.11, 0]];
+  const files = { '/Sets/frames.jsonl': lines(items), '/Sets/frames.npy': npy(vectors) };
+  const door = () => standInDoor({ descriptors: [descriptor(SET, { result_limit: 7 })], files });
+  const query = { index_id: 'synthetic-pictures', query_vector_base64: asQuery([1, 0, 0, 0]) };
+  const plain = await findSimilarVector({ ...query, limit: 3 }, { door: door() });
+  assert.deepEqual(plain.result.items.map(item => item.address.split('#')[1]), ['0', '1', '2'], 'without a spread, three frames of one take');
+  const spread = await findSimilarVector({ ...query, limit: 4, spread: { per_file: 2, seconds_apart: 5 } }, { door: door() });
+  assert.deepEqual(spread.result.items.map(item => item.address.split('#')[1]), ['0', '2', '5', '4'],
+    'a: t 0 and t 9 (t 2 is too near, t 20 is past two); one of the untimed picture; then b');
+  assert.deepEqual(spread.result.spread, { per_file: 2, seconds_apart: 5, set_aside: 3 });
+  const scores = spread.result.items.map(item => item.score);
+  assert.deepEqual([...scores].sort((a, b) => b - a), scores, 'the package\'s order is kept');
+  assert.deepEqual(Object.keys(spread.points_to).sort(), spread.result.items.map(item => item.address).sort());
+});
+
+test('spreadItems is pure and stops at the limit', () => {
+  const pointsTo = new Map([['x#0', { file: 'a', start: 0 }], ['x#1', { file: 'a', start: 30 }], ['x#2', { file: 'b', start: 0 }]]);
+  const items = ['x#0', 'x#1', 'x#2'].map(address => ({ address }));
+  assert.deepEqual(spreadItems(items, pointsTo, { per_file: 1 }, 5), { kept: [items[0], items[2]], setAside: 1 });
+  assert.deepEqual(spreadItems(items, pointsTo, { per_file: 2, seconds_apart: 10 }, 2), { kept: [items[0], items[1]], setAside: 0 });
+});
+
+test('a spread that is not { per_file >= 1, seconds_apart >= 0 } is refused before anything is read', async () => {
+  const door = standInDoor({ descriptors: [descriptor(SET)], files: {} });
+  const query = { index_id: 'synthetic-pictures', query_vector_base64: asQuery([1, 0, 0, 0]) };
+  for (const spread of [{}, { per_file: 0 }, { per_file: 1.5 }, { per_file: 1, seconds_apart: -1 }, 'two']) {
+    await assert.rejects(findSimilarVector({ ...query, spread }, { door }), /spread must be/);
+  }
+  await assert.rejects(findSimilarVector({ ...query, spread: { per_file: 1 }, limit: 0 }, { door }), /limit must be/);
+  assert.deepEqual(door.calls, [], 'nothing was read');
+});
+
+const picturesHelper = fileURLToPath(new URL('./synthetic_picture_set.py', import.meta.url));
+const helper = (...argv) => spawnSync('python3', [picturesHelper, ...argv], { encoding: 'utf8' });
+const canBuild = spawnSync('ffmpeg', ['-version']).status === 0 && spawnSync('python3', ['-c', 'import numpy']).status === 0;
+const buildSkip = canBuild ? false : 'needs ffmpeg and python3 with numpy';
+
+test('make_picture_vector_set keeps one frame every two seconds with its time, goes on where it stopped, and decodes a proxy when there is one', { skip: buildSkip }, () => {
+  const work = mkdtempSync(join(tmpdir(), 'picture-set-'));
+  const videos = join(work, 'card', 'CLIP');
+  assert.equal(helper('videos', videos, 'red-take.mp4:red:6', 'blue-take.mp4:blue:4').status, 0);
+  assert.equal(helper('videos', join(work, 'card', 'PROXY'), 'blue-take-small.mp4:green:4').status, 0);
+  const out = join(work, 'set');
+  const proxy = ['--proxy', '{dir}/../PROXY/{stem}-small.mp4'];
+  const first = helper('build', videos, out, ...proxy);
+  assert.equal(first.status, 0, first.stderr);
+  assert.deepEqual(JSON.parse(first.stdout).result.frames, 5);
+  const rows = readFileSync(join(out, 'frames.jsonl'), 'utf8').trim().split('\n').map(line => JSON.parse(line));
+  assert.deepEqual(rows.map(row => [row.video, row.t]), [['blue-take.mp4', 0], ['blue-take.mp4', 2], ['red-take.mp4', 0], ['red-take.mp4', 2], ['red-take.mp4', 4]]);
+  assert.equal(rows[0].path, join(videos, 'blue-take.mp4'), 'results name the original');
+  assert.equal(rows[0].decoded, join(work, 'card', 'PROXY', 'blue-take-small.mp4'), 'the proxy is what was decoded');
+  assert.equal(rows[2].decoded, rows[2].path, 'no proxy, so the original');
+  assert.equal(JSON.parse(helper('build', videos, out, ...proxy).stdout).result.added, 0, 'a video already done is not read again');
+  assert.equal(helper('videos', videos, 'red-again.mp4:red:2').status, 0);
+  assert.equal(JSON.parse(helper('build', videos, out, ...proxy).stdout).result.added, 1, 'only the new video is added');
+  assert.deepEqual(JSON.parse(readFileSync(join(out, 'done.json'), 'utf8')), ['blue-take.mp4', 'red-again.mp4', 'red-take.mp4']);
+  const made = JSON.parse(readFileSync(join(out, 'vector-set.json'), 'utf8'));
+  assert.deepEqual(made.vector_set, { items: { file: join(out, 'frames.jsonl') }, vectors: { file: join(out, 'frames.npy') }, points_to: { file: 'path', start: 't' } });
+  assert.equal(made.frames, 6);
+});
+
+test('a set the builder made is searched by the seam as it is, and a spread gives each red take once', { skip: buildSkip }, async () => {
+  const work = mkdtempSync(join(tmpdir(), 'picture-set-'));
+  assert.equal(helper('videos', join(work, 'v'), 'red-one.mp4:red:6', 'red-two.mp4:red:4', 'blue-one.mp4:blue:4').status, 0);
+  assert.equal(helper('build', join(work, 'v'), join(work, 'set')).status, 0);
+  const { vector_set: set } = JSON.parse(readFileSync(join(work, 'set', 'vector-set.json'), 'utf8'));
+  const files = { [set.items.file]: readFileSync(set.items.file), [set.vectors.file]: readFileSync(set.vectors.file) };
+  const door = () => standInDoor({ descriptors: [descriptor(set, { result_limit: 7 })], files, span: 4096 });
+  const query = { index_id: 'synthetic-pictures', query_vector_base64: asQuery([1, 0, 0]), limit: 3 };
+  const plain = await findSimilarVector(query, { door: door() });
+  assert.ok(plain.result.items.every(item => plain.points_to[item.address].file.endsWith('.mp4') && item.score > 0.99));
+  const spread = await findSimilarVector({ ...query, spread: { per_file: 1 } }, { door: door() });
+  assert.deepEqual(spread.result.items.map(item => spread.points_to[item.address].file.split('/').pop()).slice(0, 2).sort(), ['red-one.mp4', 'red-two.mp4']);
+  assert.equal(spread.points_to[spread.result.items[2].address].file.split('/').pop(), 'blue-one.mp4', 'the third place goes to another video');
 });
