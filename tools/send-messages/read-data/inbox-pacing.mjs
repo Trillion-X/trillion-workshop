@@ -7,13 +7,13 @@
 // means and which addresses to leave alone. The send tools do the sending.
 
 import { readFileSync } from 'node:fs';
+import { DAY_MS, addCivilDays, instantAt, timeZoneName, wallTimeOf, weekday } from '../../wall-time/read-data/wall-time.mjs';
 
 export const PACING = JSON.parse(readFileSync(new URL('./inbox-pacing.json', import.meta.url), 'utf8'));
 
 const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const EVENT_FIELDS = ['recipient', 'type', 'status', 'subject', 'text', 'at'];
 const TESTS = ['equals', 'matching', 'pattern'];
-const DAY_MS = 86_400_000;
 const MAX_RECIPIENTS = 1000;
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const positive = value => Number.isInteger(value) && value > 0;
@@ -85,17 +85,19 @@ function chosen(request, key, rowKey, list, label, problemsOf) {
 }
 
 // ---------- time ----------
+// Local dates, weekdays and hours come from tools/wall-time, the one place a zone's wall clock is read.
 
 function zoneOf(timeZone) {
   if (typeof timeZone !== 'string' || !timeZone) throw new Error('Send time_zone, the sending inbox\'s IANA time zone (such as America/Chicago).');
-  try {
-    return new Intl.DateTimeFormat('en-US', { timeZone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'long', hour: '2-digit', minute: '2-digit' });
-  } catch { throw new Error(`time_zone ${timeZone} is not a time zone the time zone database knows.`); }
+  const zone = timeZoneName(timeZone);
+  if (zone === null) throw new Error(`time_zone ${timeZone} is not a time zone the time zone database knows.`);
+  return zone;
 }
 
-function local(format, ms) {
-  const parts = Object.fromEntries(format.formatToParts(new Date(ms)).map(part => [part.type, part.value]));
-  return { date: `${parts.year}-${parts.month}-${parts.day}`, weekday: parts.weekday.toLowerCase(), hour: Number(parts.hour) % 24, minute: Number(parts.minute) };
+function local(zone, ms) {
+  const { date, time } = wallTimeOf(ms, zone);
+  const [hour, minute] = time.split(':').map(Number);
+  return { date, weekday: WEEKDAYS[weekday(date)], hour: hour % 24, minute };
 }
 
 function instant(value, name) {
@@ -105,6 +107,7 @@ function instant(value, name) {
 }
 
 const dayBetween = (from, to) => Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
+const hourAt = (date, hour, zone) => (hour === 24 ? instantAt(addCivilDays(date, 1), '00:00', zone) : instantAt(date, `${String(hour).padStart(2, '0')}:00`, zone));
 
 // ---------- planning sends ----------
 
@@ -117,17 +120,23 @@ const dayBetween = (from, to) => Math.round((Date.parse(`${to}T00:00:00Z`) - Dat
 export function planSends(request, data = PACING) {
   if (!object(request)) throw new Error('Send one JSON object.');
   const row = chosen(request, 'pacing', 'pacing_row', data.pacing, 'pacing row', pacingProblems);
-  const format = zoneOf(request.time_zone);
+  const zone = zoneOf(request.time_zone);
   const now = instant(request.now ?? Date.now(), 'now');
   const recipients = request.recipients ?? [];
   if (!Array.isArray(recipients) || !recipients.length) throw new Error('Send recipients, the addresses to plan for.');
   if (recipients.length > MAX_RECIPIENTS) throw new Error(`Send at most ${MAX_RECIPIENTS} recipients at once.`);
   const history = (request.history ?? []).map((send, index) => ({ recipient: address(send?.recipient), at: instant(send?.at, `history[${index}].at`) }));
-  const outcomes = (request.outcomes ?? []).map(outcome => ({ recipient: address(outcome?.recipient), kind: outcome?.kind }));
+  // An outcome's action is the one sortOutcomes gave it, else the action of the first outcome row of its kind.
+  const actionOfKind = kind => data.outcomes.find(entry => entry.kind === kind)?.action ?? 'none';
+  const outcomes = (request.outcomes ?? []).map((outcome, index) => ({
+    recipient: address(outcome?.recipient), kind: outcome?.kind, action: outcome?.action ?? actionOfKind(outcome?.kind),
+    at: outcome?.at === undefined ? null : instant(outcome.at, `outcomes[${index}].at`),
+    retry_at: outcome?.retry_at === undefined ? null : instant(outcome.retry_at, `outcomes[${index}].retry_at`),
+  }));
   const suppressed = new Set((request.suppressed ?? []).map(address));
   // The inbox's day 1 is the local day of its first send: given, else its earliest send, else the first slot planned now.
   const firstMs = request.first_send_at !== undefined ? instant(request.first_send_at, 'first_send_at') : history.length ? Math.min(...history.map(send => send.at)) : null;
-  let firstLocal = firstMs === null ? null : local(format, firstMs).date;
+  let firstLocal = firstMs === null ? null : local(zone, firstMs).date;
 
   // Pause: the share of the last sends that bounced hard, or any complaint among them.
   const lastSends = [...history].sort((a, b) => b.at - a.at).slice(0, row.pause_when.last_sends);
@@ -141,10 +150,14 @@ export function planSends(request, data = PACING) {
   else if (lastSends.length && bounceShare >= row.pause_when.bounce_share_at_least) paused = { why: `${bounces} of the last ${lastSends.length} sends bounced (${Math.round(bounceShare * 1000) / 10}%), at or over ${row.pause_when.bounce_share_at_least * 100}%`, bounce_share: bounceShare, complaints, last_sends: lastSends.length };
 
   // Who is left out, and why.
+  // One address may have several outcomes (a reply, then an out-of-office): the strongest action wins, by the order of
+  // the actions rows (strongest first), so a later, weaker event never undoes a bounce, a complaint or a reply.
+  const strength = action => { const index = data.actions.findIndex(entry => entry.action === action); return index < 0 ? data.actions.length : index; };
   const outcomeOf = new Map();
-  for (const outcome of outcomes) if (!outcomeOf.has(outcome.recipient) || outcome.kind !== 'delivered') outcomeOf.set(outcome.recipient, outcome.kind);
-  const leaveSuppressed = new Set(data.outcomes.filter(entry => entry.action === 'suppress').map(entry => entry.kind));
-  const leaveStopped = new Set(data.outcomes.filter(entry => entry.action === 'stop-sequence').map(entry => entry.kind));
+  for (const outcome of outcomes) {
+    const before = outcomeOf.get(outcome.recipient);
+    if (!before || strength(outcome.action) < strength(before.action)) outcomeOf.set(outcome.recipient, outcome);
+  }
   const lastSentTo = new Map();
   for (const send of history) lastSentTo.set(send.recipient, Math.max(lastSentTo.get(send.recipient) ?? -Infinity, send.at));
   const held = [];
@@ -155,18 +168,22 @@ export function planSends(request, data = PACING) {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(recipient)) { held.push({ recipient, why: 'not an email address' }); continue; }
     if (seen.has(recipient)) { held.push({ recipient, why: 'listed twice' }); continue; }
     seen.add(recipient);
-    const kind = outcomeOf.get(recipient);
+    const outcome = outcomeOf.get(recipient);
+    const { kind, action } = outcome ?? {};
+    // A retry-later outcome whose time has come is sent again once: only when nothing was sent to it after the event.
+    const retryDue = action === 'retry-later' && outcome.retry_at !== null && outcome.retry_at <= now && !(outcome.at !== null && lastSentTo.get(recipient) > outcome.at);
     if (suppressed.has(recipient)) held.push({ recipient, why: 'suppressed' });
-    else if (leaveSuppressed.has(kind)) held.push({ recipient, why: `suppressed: ${kind}` });
-    else if (leaveStopped.has(kind)) held.push({ recipient, why: `${kind}: answer them yourself` });
-    else if (lastSentTo.has(recipient) && now - lastSentTo.get(recipient) < row.leave_address_days * DAY_MS) held.push({ recipient, why: `sent to within the last ${row.leave_address_days} days` });
+    else if (action === 'suppress') held.push({ recipient, why: `suppressed: ${kind}` });
+    else if (action === 'stop-sequence' || action === 'hand-to-person') held.push({ recipient, why: `${kind}: answer them yourself` });
+    else if (action === 'retry-later' && outcome.retry_at !== null && outcome.retry_at > now) held.push({ recipient, why: `${kind}: retry from ${new Date(outcome.retry_at).toISOString()}` });
+    else if (!retryDue && lastSentTo.has(recipient) && now - lastSentTo.get(recipient) < row.leave_address_days * DAY_MS) held.push({ recipient, why: `sent to within the last ${row.leave_address_days} days` });
     else if (paused) held.push({ recipient, why: `inbox paused: ${paused.why}` });
     else keep.push(recipient);
   }
 
   // Slots: each send at least min_gap after the one before, on an allowed weekday, in the allowed hours, under the day's cap.
   const perDay = new Map();
-  for (const send of history) { const day = local(format, send.at).date; perDay.set(day, (perDay.get(day) ?? 0) + 1); }
+  for (const send of history) { const day = local(zone, send.at).date; perDay.set(day, (perDay.get(day) ?? 0) + 1); }
   const capOn = day => [...row.ramp].reverse().find(step => step.from_day <= day)?.per_day ?? 0;
   const gap = row.min_gap_minutes * 60_000;
   let at = Math.ceil(Math.max(now, history.length ? Math.max(...history.map(send => send.at)) + gap : now) / 60_000) * 60_000;
@@ -174,7 +191,7 @@ export function planSends(request, data = PACING) {
   for (const recipient of keep) {
     for (let tries = 0; ; tries += 1) {
       if (tries > 2000) throw new Error(`Pacing row ${row.id} leaves no time to send in: check its weekdays, hours and ramp.`);
-      const here = local(format, at);
+      const here = local(zone, at);
       const day = firstLocal === null ? 1 : dayBetween(firstLocal, here.date) + 1;
       const full = (perDay.get(here.date) ?? 0) >= capOn(day);
       if (row.weekdays.includes(here.weekday) && !full && here.hour >= row.hours.from && here.hour < row.hours.to) {
@@ -185,10 +202,9 @@ export function planSends(request, data = PACING) {
         break;
       }
       // Jump to the start of the allowed hours, today when it is still ahead, else on the next local day.
-      const minutes = here.hour < row.hours.from && row.weekdays.includes(here.weekday) && !full
-        ? (row.hours.from - here.hour) * 60 - here.minute
-        : (24 - here.hour + row.hours.from) * 60 - here.minute;
-      at += Math.max(minutes, 1) * 60_000;
+      const today = here.hour < row.hours.from && row.weekdays.includes(here.weekday) && !full;
+      const next = hourAt(today ? here.date : addCivilDays(here.date, 1), row.hours.from, zone);
+      at = next !== null && next > at ? next : at + 60_000;
     }
   }
   const due_now = schedule.filter(slot => Date.parse(slot.at) <= now).map(slot => slot.recipient);
