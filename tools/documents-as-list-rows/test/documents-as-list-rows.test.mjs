@@ -592,3 +592,20 @@ test('with --stdin the input comes as JSON and the root only from the command, a
   assert.equal(rows.status, 0, rows.stderr);
   assert.deepEqual(JSON.parse(rows.stdout).rows.map(row => row.id), ['/rooms/kitchen.md']);
 });
+
+test('a whole document is written or removed only while it is still the one read, and a new one only when none is there', async () => {
+  const root = await chores();
+  const folder = join(root, 'chores');
+  await assert.rejects(changeDocumentRows({ root: folder, rows: [{ id: '/rooms/pantry.md', text: 'Count the jars.\n' }] }), /names the identity it read/);
+  const made = await changeDocumentRows({ root: folder, rows: [{ id: '/rooms/pantry.md', text: 'Count the jars.\n', values: { 'note.every': 'week' }, if_identity: null }] });
+  assert.equal(await readFile(join(folder, 'rooms/pantry.md'), 'utf8'), '---\nevery: week\n---\nCount the jars.\n');
+  assert.equal(made.kept[0].values['note.every'], 'week');
+  await assert.rejects(changeDocumentRows({ root: folder, rows: [{ id: '/rooms/pantry.md', text: 'Other words.\n', if_identity: null }] }), /changed after it was read/);
+  const fresh = await changeDocumentRows({ root: folder, rows: [{ id: '/new-room/shed.md', text: 'Sweep the shed.\n', if_identity: null }] });
+  assert.equal(await readFile(join(folder, 'new-room/shed.md'), 'utf8'), 'Sweep the shed.\n', 'its folder is made');
+  await assert.rejects(changeDocumentRows({ root: folder, remove: [{ id: '/rooms/pantry.md', if_identity: fresh.kept[0].identity }] }), /changed after it was read/);
+  assert.deepEqual((await changeDocumentRows({ root: folder, remove: [{ id: '/rooms/pantry.md', if_identity: made.kept[0].identity }] })).removed, ['/rooms/pantry.md']);
+  assert.ok(!(await readdir(join(folder, 'rooms'))).includes('pantry.md'));
+  await assert.rejects(changeDocumentRows({ root: folder, remove: [{ id: '/new-room/shed.md', if_identity: null }] }), /names the identity it read/);
+  await assert.rejects(changeDocumentRows({ root: folder, rows: [{ id: '/../outside.md', text: 'x', if_identity: null }] }), /not .* in this folder|not in the folder/);
+});

@@ -14,7 +14,7 @@ From the root of the Workshop checkout, on the person's own computer:
 
 ```
 node tools/read-a-list-view/do-work/read-list-view.mjs --config FILE (--list ID | --view ID) [--after CURSOR] [--limit N]
-node tools/read-a-list-view/do-work/read-list-view.mjs --config FILE --refresh LIST_ID
+node tools/read-a-list-view/do-work/read-list-view.mjs --config FILE --refresh LIST_ID [--sources '["source-id"]'] [--paths '["/folder/name.md"]'] [--dry-run yes]
 ```
 
 A read prints the page as JSON: `{ list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }`.
@@ -31,7 +31,7 @@ The config is JSON. Nothing in the code names a list, view, record type, address
 | Key | Holds |
 |---|---|
 | `transport` | `{ url, credential: { keychain_item } }`: the door's MCP address, and the name of the keychain item that holds the person's key. The key is read with `security` and is sent only in the Authorization header. Any answer that contains the key is refused. |
-| `records` | `{ address, read_method, list_method, write_method? }`: where the door reads one record (`{ type, id }`), lists a page of one type (`{ type, limit, after, prefix? }`) and, for a refresh, writes records. |
+| `records` | `{ address, read_method, list_method, write_method?, history_method? }`: where the door reads one record (`{ type, id }`), lists a page of one type (`{ type, limit, after, prefix? }`), for a refresh writes records and, for a list that is the original, reads a record's newest versions with their times (`{ id, limit }`, answering `{ versions: [{ value, deleted, at }] }`). |
 | `tools` | `{ address, run_method }`: where the door runs a tool (`{ tool, input }`), for a refresh's source tools. |
 | `local_tools` | `{ <tool id>: { module, export, input? } }`: tools a refresh runs on this computer instead of through the door. Each gives the module's path under the Workshop's `tools` folder, the function it exports, and the input every run gets (for the documents source, `{ root }`, the folder the documents are in). Its answer is read as a run's `result`. |
 | `names` | `{ list_type, list_record, row_type, view_type? }`: the type of a list's record and its id (`{list_id}` marks where the list's id goes), the type of its rows (`{row_type}`), and the type of a saved view. |
@@ -51,6 +51,33 @@ The config is JSON. Nothing in the code names a list, view, record type, address
 - A row whose value identity equals the existing record's is left alone. The source must reach a successful terminal page before any obsolete row is removed. If a later page fails, repeats its cursor, repeats a row ID or is cancelled, unread existing rows survive. Earlier successfully saved page changes may remain and a retry compares them normally. An answer missing its rows array is refused; an explicit empty terminal array is a complete empty collection.
 - The list's own rows and the rows of other source IDs are never touched. A second refresh with nothing changed writes nothing. The local `refreshRowSources` function accepts an optional `AbortSignal` as `signal`, checked around source/list reads and before each write batch.
 - Writes go in batches of at most `write_rows` records and `write_bytes` bytes, each with its own request key. If the door refuses a batch as written, its records are sent again one at a time: the others are written, and the refused ones are named.
+
+## A list that is the original, a folder that is its copy
+
+A person's AIs are not all on one computer: a web chat, a phone app or a service can write to their list through their door, but never to a folder on their computer. So a list can be the original and a folder its copy, for apps that read only files. The row source says so: `original: "list"`. A refresh of that list is then a two-way sync (`read-data/list-copy.mjs`), and the source kind must name the tool that writes its copy (`change` in `list-view.json`; for documents, `tool:change-a-document-row`) and the fields that hold a document's text and parts (`copy`).
+
+Nothing is kept outside the rows. A row made from a file holds that file's identity (`file.identity`, `1f:` and BLAKE3 of its bytes). For each document:
+
+| What the sync finds | What it does |
+|---|---|
+| The folder's text and the list's text are the same | Nothing, except writing changed file facts (size, times) to the list. A frontmatter value only the list changed goes into the file. |
+| The file is still the one the row was made from, and the list's text differs | The list changed: the file is written with the list's text, then its rows are written again. |
+| The list's text is still the file the row was made from, and the file differs | The file changed: its rows are written to the list. |
+| Both changed | The later change wins: the file's modified time against the row's newest version time (`history_method`). The other side's text is written as a version of the row first, so it stays in the row's history. Without times, both are kept as they are and the answer names the document. |
+| Only rows, and their text is the file they were made from | The file was removed: the rows are removed. |
+| Only rows the list wrote or changed | The file is made. |
+| Only a file | A new file: its rows are written. If the row's newest version is a removal of this same file's text, the list removed it, and the file is removed. |
+| A row the list's own rows hold (`adopt_own_rows: true`) | Any AI wrote it under its own id. The file `copy_name` names is made (`"{note.by\|person}/{note.name}.md"`: each value made one safe name segment; `\|word` is used when the row has no such value; a taken name gets `-2`, `-3` ...), its rows are written, and then the AI's own row is removed, so every AI reads one row. A row that cannot be named stays and is named in the answer. |
+
+A file is written or removed only while it is still the one read (the change tool checks its identity), and a row is overwritten only by a write the door keeps as a new version, so nothing is overwritten silently. No row is removed for a file the source did not answer: list-only rows are judged after the source's last page.
+
+`--paths '["/folder/agent/name.md"]'` settles only those documents: what a hook runs right after an app writes a file (one document took 0.7 s on a list of 4,425). `--dry-run yes` plans the same and writes nothing; read its `planned` before the first real run. The answer is `{ source, original: "list", documents, unchanged, pushed, pulled, adopted, removed_rows, removed_files, conflicts: [{ document, kept, because }], refused: [{ document, because }], planned? }`.
+
+```json
+{"row_sources": [{"source": "documents", "of": "/memories", "match": "*/*.md", "original": "list",
+  "adopt_own_rows": true, "copy_name": "{note.by|person}/{note.name}.md",
+  "content": {"field": "document.text", "part_bytes": 6000}}]}
+```
 
 ## Bounds
 
@@ -110,6 +137,8 @@ It is not an engine row. A run the engine starts gets record rights for named re
 | `read-data/door.mjs` | `openDoor(config)`: the person's door over MCP from their computer, with `read`, `list`, `run` (through the door, or on this computer for a tool in `local_tools`) and `write`. An answer that comes as byte pages (a record too big for one message) is joined with `tools/records-door` `wholeAnswer`. |
 | `do-work/read-list-view.mjs` | The command line above. |
 | `test/read-a-list-view.test.mjs` | Tests on a made-up bakery: a refresh's writes (only what changed, removals, bounded batches, a refused row), a read that runs no tool, the bounds, a view's rules and sort, a local tool, byte pages, and the door's key handling. |
+| `read-data/list-copy.mjs` | `syncRowSource(input, door)`: the two-way sync of a source declared `original: "list"`, which a refresh of that list runs. |
+| `test/list-copy.test.mjs` | Tests on a made-up bakery's notes over the real door and the real documents tools: a new folder, a row any AI wrote, a taken name, one part of a long document, both sides changed, removals on either side, a value only the list changed, `paths` and a dry run. |
 
 ## Dependencies
 

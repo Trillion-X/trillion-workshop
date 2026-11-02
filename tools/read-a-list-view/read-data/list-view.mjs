@@ -29,13 +29,21 @@
 //   readListView({ list | view, after?, limit?, names }, door)
 //     → { list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }
 //     door: { read(type, id) → value | null, list({ type, limit, after?, prefix? }) → { records, next } }
-//   refreshRowSources({ list, names, source_answer_bytes?, signal? }, door)
-//     → { list, sources: [{ source, rows, written, removed, unchanged, refused: [ids] }] }
-//     door: { read, list, run(tool, input) → its answer, write(records, { key }) → the door's answer }
+//   7. A source declared `original: "list"` is the copy of the list, not its origin: its refresh is the two-way sync of
+//      list-copy.mjs, which never removes a row only because its file is absent.
+//
+//   readListView({ list | view, after?, limit?, names }, door)
+//     → { list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }
+//     door: { read(type, id) → value | null, list({ type, limit, after?, prefix? }) → { records, next } }
+//   refreshRowSources({ list, names, source_ids?, paths?, dry_run?, source_answer_bytes?, signal? }, door)
+//     → { list, sources: [{ source, rows, written, removed, unchanged, refused: [ids] } | the sync's answer] }
+//     door: { read, list, run(tool, input) → its answer, write(records, { key }) → the door's answer, history?(id) }
+//     paths and dry_run apply to the list-original sources only (list-copy.mjs).
 import data from './list-view.json' with { type: 'json' };
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { syncRowSource } from './list-copy.mjs';
 
 const say = (code, words) => Object.assign(new Error(words), { code });
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
@@ -98,6 +106,14 @@ function sourcesOf(list) {
     }
     if (row.text_extensions !== undefined && (!Array.isArray(row.text_extensions) || row.text_extensions.some(extension => typeof extension !== 'string'))) {
       throw say('bad_list', 'Source text_extensions must be an array of extension strings; an empty string explicitly names extensionless text files.');
+    }
+    if (row.original !== undefined && !['list', 'source'].includes(row.original)) throw say('bad_list', 'Source original is "list" or "source".');
+    if (row.original === 'list' && (!served.change || !served.copy)) throw say('bad_list', `The row source ${row.source} has no copy a list can write.`);
+    if (row.adopt_own_rows !== undefined && (typeof row.adopt_own_rows !== 'boolean' || (row.adopt_own_rows && row.original !== 'list'))) {
+      throw say('bad_list', 'Source adopt_own_rows is a boolean, and only a list-original source adopts rows.');
+    }
+    if (row.adopt_own_rows && (typeof row.copy_name !== 'string' || !/\{[\w.]+(\|[\w-]+)?\}/.test(row.copy_name) || row.copy_name.startsWith('/') || row.copy_name.includes('..'))) {
+      throw say('bad_list', 'A source that adopts rows names their files with copy_name, a relative path template such as "{note.by|person}/{note.name}.md" ({field|word}: the word when a row has no such value).');
     }
     return { ...row, id, served, values };
   });
@@ -333,13 +349,24 @@ export async function refreshRowSources(input = {}, door) {
     throw say('bad_input', 'source_ids names a source this list does not declare.');
   }
   const selected = input.source_ids ? declared.filter(source => input.source_ids.includes(source.id)) : declared;
+  if (input.paths !== undefined && (!Array.isArray(input.paths) || !input.paths.length || input.paths.some(path => typeof path !== 'string' || !path.startsWith('/')))) {
+    throw say('bad_input', 'paths is a nonempty array of document names, each starting with /.');
+  }
+  if ((input.paths !== undefined || input.dry_run) && selected.some(source => source.original !== 'list')) {
+    throw say('bad_input', 'paths and dry_run settle list-original sources; select only those with source_ids.');
+  }
   const run = globalThis.crypto.randomUUID();
   const sources = [];
   for (const source of selected) {
+    const key = `refresh:${input.list}:${source.id}:${run}`;
+    if (source.original === 'list') {
+      sources.push(await syncRowSource({ list: input.list, type, source, sources: declared, paths: input.paths, dry_run: Boolean(input.dry_run),
+        source_answer_bytes: input.source_answer_bytes, key, signal: input.signal }, door));
+      continue;
+    }
     const held = await writtenRows(door, type, source.id, input.signal);
     const seen = new Set(), refused = [];
     let rows = 0, written = 0, unchanged = 0, pageIndex = 0;
-    const key = `refresh:${input.list}:${source.id}:${run}`;
     for await (const page of sourcePages(door, source, input.source_answer_bytes, input.signal)) {
       const writes = [];
       for (const row of page) {
@@ -366,3 +393,6 @@ export async function refreshRowSources(input = {}, door) {
   }
   return { list: input.list, sources };
 }
+
+// The pieces the two-way sync of a list-original source shares with the one-way refresh (list-copy.mjs).
+export { projectedValues, sourcePages, valueIdentity, writeAll, SOURCE_MARK };

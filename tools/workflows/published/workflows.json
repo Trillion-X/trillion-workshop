@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "b1d9cced25d77bee466fd081fb8734fe380fa6a62283fb1e35db0f5802a54b24",
+  "blake3": "7de991ffc565d54041ff5cb5c635289c4290f935ebb50690f658e6e18924530d",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -14,7 +14,8 @@
     "workflow-steps"
    ],
    "workflow_ids": [
-    "refresh-measurement-coverage"
+    "refresh-measurement-coverage",
+    "connect-every-ai-to-one-memory-list"
    ],
    "verified_public_mode_recipes": 10,
    "verified_public_mode_steps": 41,
@@ -1237,6 +1238,20 @@
     "recipe": "workflow:write-product-words",
     "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Names tools that no tool in the Workshop offers yet: tool:check-copy.\"}",
     "title": "Write product words people enjoy reading"
+   }
+  },
+  {
+   "id": "connect-every-ai-to-one-memory-list",
+   "values": {
+    "title": "Connect every AI to one memory list",
+    "recipe": "workflow:connect-every-ai-to-one-memory-list",
+    "job": "Make one list in the person's account the original of every AI's memories: any AI on a computer, in a web chat, on a phone or in a service writes a memory there and reads it back, and a folder on the person's computer holds a copy for apps that read only files.",
+    "produces": "One memory list that every connected AI writes to and reads from, a folder copy kept the same both ways, and a proof that a memory one AI wrote was read by another.",
+    "input_schema": "{\"type\":\"object\",\"required\":[\"list_id\",\"copy_root\",\"copy_folder\",\"public_door\",\"local_door\",\"ais\"],\"properties\":{\"list_id\":{\"type\":\"string\",\"pattern\":\"^[a-z0-9][a-z0-9-]*$\",\"description\":\"The id of the memory list, lowercase words and dashes, for example ai-memories\"},\"copy_root\":{\"type\":\"string\",\"minLength\":2,\"description\":\"The full absolute path of a folder on the person's computer that holds the copy folder, for example the notes folder in their home folder, written out in full\"},\"copy_folder\":{\"type\":\"string\",\"pattern\":\"^/\",\"description\":\"The copy folder under copy_root, starting with /, for example /memories\"},\"public_door\":{\"type\":\"string\",\"pattern\":\"^https://\",\"description\":\"The account's public MCP address that web and phone apps connect to, as the account's own connect screen shows it, ending in /mcp\"},\"local_door\":{\"type\":\"string\",\"pattern\":\"^http\",\"description\":\"The address of the account's door on the person's own computer, ending in /mcp, for example http://127.0.0.1:8788/mcp\"},\"ais\":{\"type\":\"array\",\"minItems\":2,\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"Each AI the person wants connected, by the short name it will write in note.by, for example claude-code, codex, cursor, chatgpt, claude-web, grok, an outreach service\"}}}",
+    "source": "{\"from\":\"a person whose AIs on a computer, in web chats, on a phone and in services each kept separate memories, and whose files on one computer could not be written by the AIs anywhere else\"}",
+    "flags": [
+     "public"
+    ]
    }
   }
  ]

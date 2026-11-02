@@ -122,30 +122,41 @@
         "placements": ["placement:your-computer"],
         "needs": {"expected_seconds": 2, "network_egress": false},
         "label": "Change fields of documents in my folder list",
-        "job": "Change or remove fields of documents' frontmatter in a folder I granted, each only if the document is still the one I read",
-        "description": "For each row { id, values: { note.<key>: value or null }, if_identity } rewrites only the frontmatter lines of the keys named: a value sets the key, null removes it, and other keys, comments and the body stay byte for byte. A value must fit the kind the folder's property-types.json gives the property; file facts cannot be written. When if_identity is given and the document changed since it was read, the change is refused and nothing is merged. The new bytes replace the document in one rename, and the answer is each changed document's new values and identity.",
+        "job": "Change or remove fields of documents' frontmatter in a folder I granted, write a whole document or remove one, each only if the document is still the one I read",
+        "description": "For each row { id, values: { note.<key>: value or null }, if_identity } rewrites only the frontmatter lines of the keys named: a value sets the key, null removes it, and other keys, comments and the body stay byte for byte. A value must fit the kind the folder's property-types.json gives the property; file facts cannot be written. When if_identity is given and the document changed since it was read, the change is refused and nothing is merged. A row with text { id, text, values?, if_identity } writes the whole document (if_identity null: only when no document is there, its folders made), and remove: [{ id, if_identity }] removes one; both are refused, never made again, when the document is no longer the one read. This is how a list that is the original writes its folder copy (tools/read-a-list-view). The new bytes replace the document in one rename, and the answer is each changed document's new values and identity, and the documents removed.",
         "input_schema": {
           "type": "object",
-          "required": ["rows"],
+          "anyOf": [{"required": ["rows"]}, {"required": ["remove"]}],
           "additionalProperties": false,
           "properties": {
             "folder": {"type": "string", "description": "A folder inside the granted folder the ids are under; the granted folder itself when left out."},
             "rows": {
               "type": "array",
-              "minItems": 1,
               "items": {
                 "type": "object",
-                "required": ["id", "values"],
+                "required": ["id"],
                 "properties": {
                   "id": {"type": "string", "description": "The document's id from its row, as /notes/plan.md."},
                   "values": {"type": "object", "description": "note.<key> to its new value, or null to remove the key."},
-                  "if_identity": {"type": "string", "description": "The identity from the row that was read (1f:...)."}
+                  "text": {"type": "string", "description": "The whole document; needs if_identity."},
+                  "if_identity": {"type": ["string", "null"], "description": "The identity from the row that was read (1f:...); null for a whole document that is not there yet."}
+                }
+              }
+            },
+            "remove": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "if_identity"],
+                "properties": {
+                  "id": {"type": "string", "description": "The document's id, as /notes/plan.md."},
+                  "if_identity": {"type": "string", "description": "The identity of the document that was read (1f:...)."}
                 }
               }
             }
           }
         },
-        "output_schema": {"type": "object", "required": ["kept"], "properties": {"kept": {"type": "array"}}},
+        "output_schema": {"type": "object", "required": ["kept"], "properties": {"kept": {"type": "array"}, "removed": {"type": "array"}}},
         "invoke": {
           "kind": "computer",
           "capabilities": ["change-a-folder"],
