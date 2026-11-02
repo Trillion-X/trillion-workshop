@@ -1,0 +1,87 @@
+{
+  "kind": "tool-rows",
+  "record_set": "write-public-share-files-tool-rows",
+  "what_this_is": "The Workshop row that writes the public files of a person's live public share links into a folder a public server serves read-only under /share/, read from their own sharing, List and row records through the run's records door.",
+  "records": [
+    {
+      "id": "package::write-public-share-files::tool::write-public-share-files",
+      "address": "package::write-public-share-files::tool::write-public-share-files",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:write-public-share-files",
+        "label": "Write the public files of my share links",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "placements": ["placement:your-computer"],
+        "needs": { "expected_seconds": 20, "network_egress": false },
+        "job": "Write the public files of every share link of mine that anyone may open, into the folder my public server serves, and remove the files of links I revoked or that expired",
+        "description": "Reads the person's sharing rows (each link grant), the Lists those links share (a whole List, or one row of it), the List's rows and the files its shown rows name, through this run's records door, and writes into the folder the person granted: <code>.json (and <name>.json for a link with a readable address) in the shape { kind: \"list\", title, about, changed, fields, rows: [{ id, title, address, url, values }], files: [{ identity, name, url, media_type }] }, whole and never paged; <name>/index.html for the List and <name>/<row address>/index.html for each row; files/<identity> for each file a shown row names; sitemap.xml and llms.txt over every listed link; and manifest.json, every file with its BLAKE3 content identity and the files this run removed. A link has public files only while it is published, not revoked, not expired and open to anyone; a link for named people, an email, an audience or an access code has none. What leaves is the List's share rule less the fields the person left out, only the rows whose own rules hold and only the files they name. A link with its own condition, a match-only field, or a row rule that counts opens or reads the clock is left out with its reason, because a file on a public server cannot check it at each open. Runs on its own when a sharing row or a List changes, and again at the earliest expiry of a published link. Returns written, unchanged, removed, published, left_out, ended and next_change_at.",
+        "input_schema": {
+          "type": "object",
+          "required": ["origin", "row_kind"],
+          "additionalProperties": false,
+          "properties": {
+            "origin": { "type": "string", "format": "uri", "description": "The https address the public server answers on, with no path, like https://example.com. Every address in the files is under <origin>/share/." },
+            "row_kind": { "type": "string", "description": "The record kind of the shared Lists' rows (record:<the List's row_type>), the one row kind this run is granted to list. A shared List whose rows are another kind is left out with its reason and has no files in this folder; a person who shares Lists of several row kinds gives each kind its own folder." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["written", "unchanged", "removed", "published", "left_out", "ended", "next_change_at"],
+          "properties": {
+            "written": { "type": "integer" },
+            "unchanged": { "type": "integer" },
+            "removed": { "type": "array", "items": { "type": "string" } },
+            "published": { "type": "array", "items": { "type": "object", "required": ["code", "name", "listed"], "properties": { "code": { "type": "string" }, "name": { "type": "string" }, "listed": { "type": "boolean" } } } },
+            "left_out": { "type": "array", "items": { "type": "object", "required": ["code", "because"], "properties": { "code": { "type": "string" }, "because": { "type": "string" } } } },
+            "ended": { "type": "array", "items": { "type": "string" } },
+            "next_change_at": { "type": ["string", "null"] }
+          }
+        },
+        "wakes": [
+          { "id": "a-grant-changed", "on": { "record": { "resource": "own-records", "kind": "sharing" } }, "budget": { "steps": 1, "wall_ms": 300000 } },
+          { "id": "a-list-changed", "on": { "record": { "resource": "own-records", "kind": "list" } }, "budget": { "steps": 1, "wall_ms": 300000 } }
+        ],
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["change-a-folder"],
+          "workdir": "/opt/write-public-share-files",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/write-public-share-files/do-work/write-share-files.mjs", "writeShareFiles"],
+          "stdin": {
+            "input": { "fill": { "from": "input" } },
+            "folder": { "fill": { "from": "task", "field": "grants.change-a-folder.folder" } }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "sharing", "operations": ["records:list", "records:read"] },
+              { "kind": "list", "operations": ["records:list", "records:read"] },
+              { "kind": { "fill": { "from": "input", "field": "row_kind" } }, "operations": ["records:list"] },
+              { "files": "/", "operations": ["read_file"] }
+            ]
+          },
+          "files": {
+            "package_files": [
+              { "package": "write-public-share-files", "paths": ["do-work", "read-data"], "at": "/opt/write-public-share-files" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "Moved from Trillion's hosted share reader (src/record-share-pages.mjs: /share/<code>.json, /share/<code>/files/<identity>, /share/<name> and its row pages, /share/sitemap.xml, /share/llms.txt), its grant owner's admission and list rows (src/record-sharing.mjs), src/list-copy.mjs and the shareable copy (src/person-spaces.mjs shareableCopy), so the person's own computer writes a share's public output whenever it changes and a public server only serves files"
+        },
+        "verify": [
+          { "kind": "sample-run", "input": { "origin": "https://example.com", "row_kind": "record:example" }, "output_selector": "$", "contains": "published" }
+        ],
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
