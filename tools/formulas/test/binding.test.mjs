@@ -72,7 +72,7 @@ test('a literal, a default and an unsupported operator', () => {
   assert.match(evaluateBinding({ $kind: 'binding', transform: [{ op: 'op:core.add' }] }, 1).error, /operator not supported: op:core\.add/);
   assert.match(evaluateBinding({ $kind: 'binding', select: { from: 'vars', key: 'a' } }, 1).error, /not read here/);
   assert.match(evaluateBinding({ select: {} }, 1).error, /\$kind/);
-  assert.equal(operatorIds.length, 16);
+  assert.equal(operatorIds.length, 19);
 });
 
 test('a path stays inside the row', () => {
@@ -82,4 +82,29 @@ test('a path stays inside the row', () => {
   assert.equal(value(at(['l', 5]), { l: [] }), null);
   assert.equal(value(at(['a', 'b']), { a: 'text' }), null);
   assert.match(evaluateBinding(at([{}]), {}).error, /whole-number positions/);
+});
+
+test('coalesce, if and text_concat build a value from fields with the engine operators\' semantics', () => {
+  const lit = v => ({ $kind: 'binding', select: { from: 'literal', value: v } });
+  const self = (...transform) => ({ $kind: 'binding', select: { from: 'self' }, transform });
+  assert.equal(value(self({ op: 'op:core.coalesce', args: { values: [at(['a']), at(['b']), lit('c')] } }), { b: 'second' }), 'second');
+  assert.equal(value(self({ op: 'op:core.coalesce', args: { values: [at(['a'])] } }), {}), null);
+  assert.equal(value(self({ op: 'op:core.coalesce', args: { values: [at(['a']), lit('x')] } }), { a: '' }), '', 'an empty text is a value, not unknown');
+  assert.equal(value(at(['f'], { op: 'op:core.if', args: { then: 'yes', else: 'no' } }), { f: true }), 'yes');
+  assert.equal(value(at(['f'], { op: 'op:core.if', args: { then: 'yes' } }), { f: false }), null);
+  assert.match(evaluateBinding(at(['f'], { op: 'op:core.if', args: { then: 1, else: 2 } }), { f: null }).error, /if: expected boolean, got null/);
+  assert.match(evaluateBinding(at(['f'], { op: 'op:core.if', args: { then: 1, else: 2 } }), { f: 'x' }).error, /if: expected boolean, got string/);
+  assert.equal(value(self({ op: 'op:core.text_concat', args: { values: [at(['a']), lit('-'), at(['b'])] } }), { a: 'x' }), 'x-');
+  assert.equal(value(self({ op: 'op:core.text_concat', args: { values: [] } }), {}), '');
+  assert.match(evaluateBinding(self({ op: 'op:core.text_concat', args: { values: [at(['n'])] } }), { n: 1 }).error, /concat: expected string or null, got number/);
+
+  // A display name: the nickname, else the first part, then " · part" for each later part that is set.
+  const joiner = field => at([field], { op: 'op:core.is_empty' }, { op: 'op:core.if', args: { then: null, else: ' · ' } });
+  const parts = self({ op: 'op:core.text_concat', args: { values: [at(['one']), joiner('two'), at(['two']), joiner('three'), at(['three'])] } });
+  const name = self({ op: 'op:core.coalesce', args: { values: [at(['nickname']), parts] } });
+  assert.equal(value(name, { one: 'Alpha', two: 'beta-2', three: 'Gamma box' }), 'Alpha · beta-2 · Gamma box');
+  assert.equal(value(name, { one: 'Alpha', three: 'Gamma box' }), 'Alpha · Gamma box');
+  assert.equal(value(name, { one: 'Alpha' }), 'Alpha');
+  assert.equal(value(name, { nickname: 'My helper', one: 'Alpha' }), 'My helper');
+  assert.equal(value(name, {}), '');
 });
