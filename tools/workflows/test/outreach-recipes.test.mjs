@@ -1,8 +1,9 @@
 // tools/workflows: the three outreach recipes (job posts, local businesses by zip code, a LinkedIn content system). Each
 // step names exactly one tool the Workshop or the host offers and is checked to have run it; every step after the first
-// has a check that reads the step just before it, so no step can be left out; and each method's own rules (21 days,
-// 10 to 200 people, four sentences, gmail or info@, Saturday, the 100-point rubric, tracked apart from influence) are
-// held by the step schemas and checks. Nothing here sends anything.
+// has a check that reads the step just before it, so no step can be left out; each method's own shape (four
+// sentences, Saturday, the 100-point rubric, tracked apart from influence) is held by the step schemas and checks; and
+// the person's own choices (the source row's thresholds, which addresses to keep, the pacing row) are rows or inputs
+// with the method's values as defaults, never pinned in a step schema. Nothing here sends anything.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -74,13 +75,23 @@ test('the call step uses the one conversation exchange that exists outside this 
   assert.ok(!rows.some(({ payload }) => /\bexchange\b/i.test(payload.job ?? '') && /phone|call/i.test(payload.job ?? '')), 'no Workshop row places a phone call');
 });
 
-test('job posts: 21 days or more, 10 to 200 people, three problems from the day-to-day section, four sentences citing the role and days open', () => {
+test('job posts: thresholds in the source row (default 21 days, 10 to 200 people), three problems from the day-to-day section, four sentences citing the role and days open', () => {
   const id = 'workflow:reach-companies-with-a-long-open-job-post';
   const source = json('../../find-signals-of-need/sources.json').records.find(row => row.id === 'open-job-posts');
   assert.deepEqual(source.filters.map(filter => filter.test), [{ between: [10, 200] }, { at_least: 21 }]);
-  const prospect = stepOf(id, 'find').submit.properties.prospects.items.properties;
-  assert.deepEqual([prospect.days_open.minimum, prospect.employees.minimum, prospect.employees.maximum], [21, 10, 200]);
-  assert.deepEqual(stepOf(id, 'find').submit.properties.source, { const: 'open-job-posts' });
+  // The thresholds live only in the source row: the step neither pins the shipped row nor repeats its numbers, so a
+  // person's own source_row (say 14 days, 5 to 50 people) runs the same recipe.
+  const find = stepOf(id, 'find');
+  const prospect = find.submit.properties.prospects.items.properties;
+  assert.deepEqual([prospect.days_open.minimum, prospect.employees.minimum, prospect.employees.maximum], [0, 1, undefined]);
+  assert.deepEqual(find.submit.properties.source, { type: 'string', minLength: 1 });
+  assert.ok(find.do.includes('input.source_row') && find.do.includes('"open-job-posts"'));
+  assert.equal(recipes.get(id).input_schema.properties.source_row.type, 'object');
+  assert.equal(recipes.get(id).input_schema.properties.pacing.default, 'new-inbox-warmup');
+  assert.ok(stepOf(id, 'pace').do.includes('input.pacing'));
+  const measure = stepOf(id, 'measure');
+  assert.doesNotMatch(measure.do, /21 to 29/, 'the funnel groups by the signals the row matched, not by fixed day buckets');
+  assert.ok(measure.checks.some(check => check.kind === 'subset-of' && check.of.join('.') === 'steps.find.prospects.*.signals.*'));
   const problems = stepOf(id, 'problems');
   assert.deepEqual([problems.submit.properties.briefs.items.properties.problems.minItems, problems.submit.properties.briefs.items.properties.problems.maxItems], [3, 3]);
   assert.ok(problems.checks.some(check => check.kind === 'mentioned-in' && check.in.join('.') === 'steps.read-post.posts.*.day_to_day'));
@@ -92,15 +103,20 @@ test('job posts: 21 days or more, 10 to 200 people, three problems from the day-
   assert.ok(stepOf(id, 'pace').submit.properties.approved_by_person.const === true);
 });
 
-test('local businesses: review signals, a separate identity, gmail or info@ only, a local first line, Saturday, then the same list called', () => {
+test('local businesses: review signals, a separate identity, the person\'s address patterns (default gmail or info@), a local first line, Saturday, then the same list called', () => {
   const id = 'workflow:reach-local-businesses-by-zip-code';
   const identity = stepOf(id, 'identity');
   assert.ok(identity.checks.some(check => check.kind === 'differs-from' && check.path.join('.') === 'this.sending_domain' && check.of.join('.') === 'input.main_domain'));
   const source = json('../../find-signals-of-need/sources.json').records.find(row => row.id === 'local-businesses-by-place');
   assert.ok(['slow-quotes', 'review-spike'].every(signal => source.signals.some(row => row.id === signal)));
   assert.equal(source.signals.find(row => row.id === 'review-spike').within_days, 90);
-  const pattern = new RegExp(stepOf(id, 'addresses').submit.properties.kept.items.properties.email.pattern);
-  assert.deepEqual(['info@example.com', 'user-29d2a398@example.com', 'owner@example.com', 'info@gmail', 'user-633bc76a@example.com'].map(address => pattern.test(address)), [true, true, false, false, false]);
+  // Which addresses to write to is the person's input; the default keeps gmail.com and info@ addresses.
+  const patterns = recipes.get(id).input_schema.properties.address_patterns.default.map(source => new RegExp(source));
+  assert.deepEqual(['info@example.com', 'user-29d2a398@example.com', 'owner@example.com', 'info@gmail', 'user-633bc76a@example.com'].map(address => patterns.some(pattern => pattern.test(address))), [true, true, false, false, false]);
+  const addresses = stepOf(id, 'addresses');
+  assert.ok(addresses.do.includes('input.address_patterns'));
+  assert.ok(addresses.checks.some(check => check.kind === 'subset-of' && check.path.join('.') === 'this.kept.*.pattern' && check.of.join('.') === 'this.patterns'));
+  assert.deepEqual(stepOf(id, 'find').submit.properties.source, { type: 'string', minLength: 1 });
   assert.ok(stepOf(id, 'write').checks.some(check => check.kind === 'mentioned-in' && check.path.join('.') === 'this.messages.*.local_detail' && check.in.join('.') === 'this.messages.*.first_line'));
   const pace = stepOf(id, 'pace');
   assert.deepEqual(pace.submit.properties.send_day, { const: 'saturday' });
