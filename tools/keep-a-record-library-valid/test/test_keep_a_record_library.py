@@ -341,6 +341,14 @@ class SearchFindings(Library):
         self.assertEqual(routes.search_library(self.store, []), [])
         self.assertEqual(routes.search_library(self.store, ['xylophonezz']), [])
 
+    def test_a_radically_different_topic_uses_the_same_lexical_ranking(self):
+        self.set_findings([
+            {'id': 'fermentation', 'title': 'Sourdough starter and cold fermentation', 'what_helped': 'A cold kitchen slows starter fermentation.'},
+            {'id': 'video-template', 'title': 'Starter template for a cold open', 'what_helped': 'A video starter uses a cold-open sequence.'},
+        ])
+        result = routes.search_library(self.store, ['sourdough', 'starter', 'cold', 'fermentation'])
+        self.assertEqual([r['id'] for r in result[:1]], ['fermentation'])
+
 
 class Validate(Library):
     def failing(self):
@@ -433,6 +441,18 @@ class Validate(Library):
         self.assertIn('mystery', report['readings']['unknown_columns'])
         self.assertFalse(report['checks']['readings_values_in_vocabulary'])
         self.assertEqual(report['readings']['vocabulary'], str((self.root / 'data' / 'shade-vocabulary.json').resolve()))
+
+    def test_a_row_with_the_wrong_number_of_cells_is_counted_and_examples_stop_at_twenty_five(self):
+        readings = self.root / 'beds' / 'old-orchard' / 'spring' / 'readings.tsv'
+        rows = ['light\tcovers\tph\tday'] + ['half\therb\t7\t1'] * 30 + ['full\therb\t7']
+        readings.write_text('\n'.join(rows) + '\n')
+        status, out, _ = run_cli(self.root, 'validate')
+        report = json.loads(out)['readings']
+        self.assertEqual(status, 1)
+        self.assertEqual(report['bad_cells'], 31)  # thirty light=half and one short row
+        self.assertEqual(dict(report['most_common_bad_values']), {'light=half': 30, '(row has wrong column count)': 1})
+        self.assertEqual(len(report['examples']), 25)
+        self.assertEqual(report['examples'][0], {'file': 'beds/old-orchard/spring/readings.tsv', 'line': 2, 'column': 'light', 'value': 'half'})
 
     def test_a_derived_file_that_is_stale_is_named_and_a_command_that_fails_is_an_error(self):
         (self.root / 'data' / 'crop-count.txt').write_text('5')
