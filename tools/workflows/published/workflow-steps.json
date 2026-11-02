@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "ca2c2034b0b1f6ec4cc7772f7e3204483fe25118c00c80e4d3a86902b0eb084b",
+  "blake3": "2b36e7ae34728db43b7bff7f3f77939b9808479978678a5d01751758970501a8",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -14,6 +14,8 @@
     "workflow-steps"
    ],
    "workflow_ids": [
+    "build-a-best-x-for-y-comparison",
+    "out-launch-a-new-launch",
     "refresh-measurement-coverage"
    ],
    "verified_public_mode_recipes": 10,
@@ -8395,6 +8397,226 @@
     "step": "plan-cells",
     "submit": "{\"type\":\"object\",\"required\":[\"cells\"],\"properties\":{\"cells\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"cell_id\",\"page_url\",\"question\",\"engine\"],\"properties\":{\"cell_id\":{\"type\":\"string\"},\"page_url\":{\"type\":\"string\"},\"question\":{\"type\":\"string\"},\"engine\":{\"type\":\"string\"}}}}}}",
     "title": "Enumerate every planned page, question and answer engine cell"
+   }
+  },
+  {
+   "id": "out-launch-a-new-launch--read-launches",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 1,
+    "recipe": [
+     "out-launch-a-new-launch"
+    ],
+    "step": "read-launches",
+    "title": "Read what launched in the last 24 hours from every launch source row",
+    "do": "Take the launch sources: the ids in input sources, or, when it is left out, every row of tools/find-signals-of-need/sources.json whose group is launches, plus each row of input source_rows. For each one call tool:find-signals-of-need with { source (or source_row), now: the current date and time in UTC, such as 2026-11-02T10:30:00Z }. A row that declares a public request is read from its address (launches-github takes parameters { since: yesterday's date }); a row without one takes items: input items_by_source[<source id>], exactly as the person's connection returned them. A source with neither, or whose call fails, goes into not_read with the reason; it is never guessed or filled from memory. The rows themselves keep only launches from the last 24 hours and score the first hour highest. Then call tool:keep-a-reverse-engineered-thing with { action: \"read\", where: { kind: \"launch\" }, limit: 500 } and leave out every launch whose url or name is already kept there with the same found_by: a launch is reverse engineered once. For each remaining launch copy source, key, name, url, launched_at, hours_since_launch (now minus launched_at, in hours with one decimal), score and the ids of its signals, exactly as the finder returned them; order them by launched_at, oldest first, because the oldest is nearest its deadline.",
+    "submit": "{\"type\":\"object\",\"required\":[\"sources_read\",\"not_read\",\"launches\"],\"properties\":{\"sources_read\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":2}},\"not_read\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"source\",\"reason\"],\"properties\":{\"source\":{\"type\":\"string\",\"minLength\":2},\"reason\":{\"type\":\"string\",\"minLength\":3}}}},\"launches\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"source\",\"key\",\"name\",\"launched_at\",\"hours_since_launch\",\"score\"],\"properties\":{\"source\":{\"type\":\"string\",\"minLength\":2},\"key\":{\"type\":\"string\",\"minLength\":1},\"name\":{\"type\":\"string\",\"minLength\":1},\"url\":{\"type\":[\"string\",\"null\"]},\"launched_at\":{\"type\":\"string\",\"minLength\":10},\"hours_since_launch\":{\"type\":\"number\",\"minimum\":0},\"score\":{\"type\":\"number\"},\"signals\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1}}}}}}}",
+    "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"launches\",\"*\",\"source\"],\"of\":[\"this\",\"sources_read\"],\"says\":\"Every launch comes from a source that was really read\"}]"
+   }
+  },
+  {
+   "id": "out-launch-a-new-launch--match",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 2,
+    "recipe": [
+     "out-launch-a-new-launch"
+    ],
+    "step": "match",
+    "title": "Keep only the launches that compete for the person's buyers",
+    "do": "For each launch, oldest first, read its own page with tool:read-public-web-page { url } (its launch post when it has no page). It is a match only when its own words overlap input market (and hold at least one of input match_words when they are given): copy the sentence of its page that shows the overlap, word for word, as overlap_quote, and say in one line why it competes for the same buyer. Anything else goes into passed with the reason (a different buyer, a different job, its page could not be read). Never call a launch a match from its name alone.",
+    "submit": "{\"type\":\"object\",\"required\":[\"matches\",\"passed\"],\"properties\":{\"matches\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"key\",\"source\",\"name\",\"url\",\"launched_at\",\"hours_since_launch\",\"overlap_quote\",\"why\"],\"properties\":{\"key\":{\"type\":\"string\",\"minLength\":1},\"source\":{\"type\":\"string\",\"minLength\":2},\"name\":{\"type\":\"string\",\"minLength\":1},\"url\":{\"type\":\"string\",\"minLength\":8},\"launched_at\":{\"type\":\"string\",\"minLength\":10},\"hours_since_launch\":{\"type\":\"number\",\"minimum\":0},\"overlap_quote\":{\"type\":\"string\",\"minLength\":5},\"why\":{\"type\":\"string\",\"minLength\":5}}}},\"passed\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"key\",\"reason\"],\"properties\":{\"key\":{\"type\":\"string\",\"minLength\":1},\"reason\":{\"type\":\"string\",\"minLength\":3}}}}}}",
+    "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"matches\",\"*\",\"key\"],\"of\":[\"steps\",\"read-launches\",\"launches\",\"*\",\"key\"],\"says\":\"Every match is a launch the sources returned\"},{\"kind\":\"subset-of\",\"path\":[\"this\",\"passed\",\"*\",\"key\"],\"of\":[\"steps\",\"read-launches\",\"launches\",\"*\",\"key\"],\"says\":\"Every launch passed over is one the sources returned\"}]"
+   }
+  },
+  {
+   "id": "out-launch-a-new-launch--reverse-engineer",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 3,
+    "recipe": [
+     "out-launch-a-new-launch"
+    ],
+    "step": "reverse-engineer",
+    "title": "Reverse engineer each match within hours and keep it in the REA hub",
+    "do": "For each match, oldest first: read its launch post, its page and the pages that page links for pricing, sign-up and docs with tool:read-public-web-page, one call per address. Write the teardown from that public evidence only: what it is and who it is for; the offer and the price; the hook of its launch post and the channels it launched on; how a new user starts; what the launch drew so far (the finder's votes and comments); and its gaps (what buyers in the person's market need that its own pages do not show it doing). Every finding is SEEN, with the address that shows it, or INFERRED, with what it was read from; anything not read is \"not seen\". No account is made, no form is filled and nobody is contacted. Keep it with tool:keep-a-reverse-engineered-thing { action: \"create\", key: <source>-<launch key>, fields: { thing: <name>, kind: \"launch\", notes: <the teardown, SEEN and INFERRED kept apart>, urls: <every address read>, licence: input licence (unknown when left out), submitted_by: the person's chosen handle, found_by: <source>, launched_at, tags: [<source>] } } and copy the hub key and row_id it returns. hours_since_launch is the time of that keep minus launched_at. When the person wants the full growth history too, start workflow:reverse-engineer-how-something-grows afterwards with tool:start-a-recipe-run; it never holds up this run.",
+    "submit": "{\"type\":\"object\",\"required\":[\"teardowns\"],\"properties\":{\"teardowns\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"key\",\"hub_key\",\"hub_row\",\"findings\",\"gaps\",\"hours_since_launch\"],\"properties\":{\"key\":{\"type\":\"string\",\"minLength\":1},\"hub_key\":{\"type\":\"string\",\"minLength\":1},\"hub_row\":{\"type\":\"string\",\"minLength\":10},\"findings\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"finding\",\"label\",\"evidence\"],\"properties\":{\"finding\":{\"type\":\"string\",\"minLength\":3},\"label\":{\"enum\":[\"SEEN\",\"INFERRED\"]},\"evidence\":{\"type\":\"string\",\"minLength\":3}}},\"minItems\":1},\"gaps\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":3}},\"hours_since_launch\":{\"type\":\"number\",\"minimum\":0}}}}}}",
+    "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"teardowns\",\"*\",\"key\"],\"of\":[\"steps\",\"match\",\"matches\",\"*\",\"key\"],\"says\":\"Every match is reverse engineered\"},{\"kind\":\"exists\",\"catalog\":\"record\",\"path\":[\"this\",\"teardowns\",\"*\",\"hub_row\"],\"says\":\"Every teardown is really kept in the REA hub\"}]"
+   }
+  },
+  {
+   "id": "out-launch-a-new-launch--counter-launch",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 4,
+    "recipe": [
+     "out-launch-a-new-launch"
+    ],
+    "step": "counter-launch",
+    "title": "Draft the counter-launch that out-launches it, and get the person's approval",
+    "do": "Read the person's own product (input own_product: its record, or its page with tool:read-public-web-page) and their own proof (customers, numbers, reviews) from their records only. For each teardown write one counter-launch: the angle (the gap it answers, citing the teardown finding), the offer, the proof (only proof the person's records hold; a claim with none is left out, never invented), the one message every post carries, and goes_at: as close to launched_at + input target_hours (1 when left out) as the person can make it, and never later than launched_at + input deadline_hours (24 when left out). A comparison with the launch uses only SEEN findings. Check every word with tool:check-against-a-persons-rules-and-verdicts and fix what it flags. Show each counter-launch to the person; only one they approve exactly as shown moves on, and one they turn down is kept with approved false.",
+    "submit": "{\"type\":\"object\",\"required\":[\"counters\"],\"properties\":{\"counters\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"key\",\"angle\",\"offer\",\"message\",\"goes_at\",\"checked\",\"approved\"],\"properties\":{\"key\":{\"type\":\"string\",\"minLength\":1},\"angle\":{\"type\":\"string\",\"minLength\":5},\"offer\":{\"type\":\"string\",\"minLength\":3},\"message\":{\"type\":\"string\",\"minLength\":5},\"goes_at\":{\"type\":\"string\",\"minLength\":10},\"checked\":{\"type\":\"boolean\"},\"approved\":{\"type\":\"boolean\"}}}}}}",
+    "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"counters\",\"*\",\"key\"],\"of\":[\"steps\",\"reverse-engineer\",\"teardowns\",\"*\",\"key\"],\"says\":\"Every counter-launch answers a teardown\"}]"
+   }
+  },
+  {
+   "id": "out-launch-a-new-launch--hand-off",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 5,
+    "recipe": [
+     "out-launch-a-new-launch"
+    ],
+    "step": "hand-off",
+    "title": "Hand each approved counter-launch to the marketing workflows",
+    "do": "For each approved counter-launch write the person's launch record (kind launch: what launches, goes_at with its time zone, the offer, the message, and the REA hub key of the launch it answers). That record wakes workflow:plan-a-launch-as-a-content-campaign when the person switched its wake on; otherwise start it with tool:start-a-recipe-run, input.row workflow:plan-a-launch-as-a-content-campaign and its input { launch_record: <that record's id>, channels: input channels }. Hand it as well to any other marketing workflow the person names for launches. Copy each launch record id, each workflow id and the time it was handed off. A counter-launch the person did not approve is not handed off.",
+    "submit": "{\"type\":\"object\",\"required\":[\"handoffs\"],\"properties\":{\"handoffs\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"key\",\"launch_record\",\"workflow_id\",\"handed_at\"],\"properties\":{\"key\":{\"type\":\"string\",\"minLength\":1},\"launch_record\":{\"type\":\"string\",\"minLength\":3},\"workflow_id\":{\"type\":\"string\",\"minLength\":10},\"handed_at\":{\"type\":\"string\",\"minLength\":10}}}}}}",
+    "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"handoffs\",\"*\",\"key\"],\"of\":[\"steps\",\"counter-launch\",\"counters\",\"*\",\"key\"],\"says\":\"Every hand-off is a counter-launch the person saw\"},{\"kind\":\"exists\",\"catalog\":\"workflow\",\"path\":[\"this\",\"handoffs\",\"*\",\"workflow_id\"],\"says\":\"Every workflow handed to is one this account can run\"},{\"kind\":\"exists\",\"catalog\":\"record\",\"path\":[\"this\",\"handoffs\",\"*\",\"launch_record\"],\"says\":\"Every launch record was really written\"}]"
+   }
+  },
+  {
+   "id": "out-launch-a-new-launch--timing",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 6,
+    "recipe": [
+     "out-launch-a-new-launch"
+    ],
+    "step": "timing",
+    "title": "Measure each launch against its 1-hour target and 24-hour deadline",
+    "do": "For each match, from launched_at: the hours to its teardown (from the reverse-engineer step) and to its hand-off (handed_at; null when it was not handed off), met_target (hand-off within input target_hours, 1 when left out) and met_deadline (hand-off within input deadline_hours, 24 when left out). A match with no hand-off goes into open with the step it stopped at and why (the person turned it down, a page could not be read, the person has not answered yet); one whose deadline has not passed stays open for the next hourly run. Say in one line how many met the target and the deadline.",
+    "submit": "{\"type\":\"object\",\"required\":[\"timings\",\"open\",\"said\"],\"properties\":{\"timings\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"key\",\"hours_to_teardown\",\"hours_to_handoff\",\"met_target\",\"met_deadline\"],\"properties\":{\"key\":{\"type\":\"string\",\"minLength\":1},\"hours_to_teardown\":{\"type\":[\"number\",\"null\"]},\"hours_to_handoff\":{\"type\":[\"number\",\"null\"]},\"met_target\":{\"type\":\"boolean\"},\"met_deadline\":{\"type\":\"boolean\"}}}},\"open\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"key\",\"stopped_at\",\"reason\"],\"properties\":{\"key\":{\"type\":\"string\",\"minLength\":1},\"stopped_at\":{\"type\":\"string\",\"minLength\":2},\"reason\":{\"type\":\"string\",\"minLength\":3}}}},\"said\":{\"type\":\"string\",\"minLength\":5}}}",
+    "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"timings\",\"*\",\"key\"],\"of\":[\"steps\",\"match\",\"matches\",\"*\",\"key\"],\"says\":\"Every match is timed\"}]"
+   }
+  },
+  {
+   "id": "build-a-best-x-for-y-comparison--scope",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 1,
+    "recipe": [
+     "build-a-best-x-for-y-comparison"
+    ],
+    "step": "scope",
+    "title": "Name the vendors buyers weigh and the questions they ask",
+    "do": "Start from input vendors. Ask each input answer engine each buyer question (input questions; when none are given write three in the buyer's words, such as \"what is the best <category> for <buyer>\") by reading its search address with the question filled in, with tool:read-public-web-page, and add every vendor an answer names, with the address of the answer that named it. Read each vendor's own site once with tool:read-public-web-page to confirm it sells this category to this buyer; a vendor that does not goes into left_out with the reason. Keep at least three vendors.",
+    "submit": "{\"type\":\"object\",\"required\":[\"questions\",\"vendors\",\"left_out\"],\"properties\":{\"questions\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":5},\"minItems\":1},\"vendors\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"name\",\"url\",\"named_at\"],\"properties\":{\"name\":{\"type\":\"string\",\"minLength\":2},\"url\":{\"type\":\"string\",\"minLength\":8},\"named_at\":{\"type\":\"string\",\"minLength\":8}}},\"minItems\":3},\"left_out\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"name\",\"reason\"],\"properties\":{\"name\":{\"type\":\"string\",\"minLength\":2},\"reason\":{\"type\":\"string\",\"minLength\":3}}}}}}",
+    "checks": "[{\"kind\":\"distinct-at-least\",\"path\":[\"this\",\"vendors\",\"*\",\"url\"],\"count\":3,\"says\":\"At least three different vendors are compared\"},{\"kind\":\"covers\",\"path\":[\"this\",\"questions\"],\"of\":[\"input\",\"questions\"],\"says\":\"Every question the person gave is kept\"}]"
+   }
+  },
+  {
+   "id": "build-a-best-x-for-y-comparison--metrics",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 2,
+    "recipe": [
+     "build-a-best-x-for-y-comparison"
+    ],
+    "step": "metrics",
+    "title": "Choose the proof metrics: only numbers anyone can check",
+    "do": "Start from the fields and signals of input source_row, or of the vendors-by-verifiable-proof row of tools/find-signals-of-need when it is left out. Keep a metric only when a vendor could prove it at a public address someone else can open (a status page, an independent review site, a price page, named customer stories, a security page, a changelog), and say which kind of address proves it. Add the metrics buyers of this category weigh as new fields and signals of the person's own source row, each with plain words, a weight and a test; drop any metric no vendor can prove. Sponsorship is never a metric and never a field of the row. Copy the source row as it will be scored.",
+    "submit": "{\"type\":\"object\",\"required\":[\"metrics\",\"source_row\"],\"properties\":{\"metrics\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id\",\"says\",\"proof_kind\",\"weight\"],\"properties\":{\"id\":{\"type\":\"string\",\"minLength\":2},\"says\":{\"type\":\"string\",\"minLength\":5},\"proof_kind\":{\"type\":\"string\",\"minLength\":3},\"weight\":{\"type\":\"number\"}}},\"minItems\":3},\"source_row\":{\"type\":\"object\"}}}",
+    "checks": "[{\"kind\":\"distinct-at-least\",\"path\":[\"this\",\"metrics\",\"*\",\"id\"],\"count\":3,\"says\":\"At least three different proof metrics are scored\"},{\"kind\":\"excludes-words\",\"path\":[\"this\",\"metrics\",\"*\",\"id\"],\"words\":[\"sponsor\",\"sponsored\",\"paid\"],\"says\":\"No metric is about sponsorship\"}]"
+   }
+  },
+  {
+   "id": "build-a-best-x-for-y-comparison--gather-proof",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 3,
+    "recipe": [
+     "build-a-best-x-for-y-comparison"
+    ],
+    "step": "gather-proof",
+    "title": "Read each vendor's proof and copy every value with its address and date",
+    "do": "For each vendor and each metric, read the proof address with tool:read-public-web-page and copy the value exactly as the page shows it, with the address and the date it was read. A value read from the vendor's own page is marked self_reported. A metric with no public proof is null and goes into not_proven with the reason; it is never estimated, averaged or filled from memory. Read one address at a time.",
+    "submit": "{\"type\":\"object\",\"required\":[\"proofs\",\"not_proven\"],\"properties\":{\"proofs\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"vendor\",\"metric\",\"value\",\"url\",\"read_on\",\"self_reported\"],\"properties\":{\"vendor\":{\"type\":\"string\",\"minLength\":2},\"metric\":{\"type\":\"string\",\"minLength\":2},\"value\":{\"type\":[\"number\",\"string\"]},\"url\":{\"type\":\"string\",\"minLength\":8},\"read_on\":{\"type\":\"string\",\"minLength\":10},\"self_reported\":{\"type\":\"boolean\"}}}},\"not_proven\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"vendor\",\"metric\",\"reason\"],\"properties\":{\"vendor\":{\"type\":\"string\",\"minLength\":2},\"metric\":{\"type\":\"string\",\"minLength\":2},\"reason\":{\"type\":\"string\",\"minLength\":3}}}}}}",
+    "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"proofs\",\"*\",\"vendor\"],\"of\":[\"steps\",\"scope\",\"vendors\",\"*\",\"name\"],\"says\":\"Every proof is for a vendor in scope\"},{\"kind\":\"subset-of\",\"path\":[\"this\",\"proofs\",\"*\",\"metric\"],\"of\":[\"steps\",\"metrics\",\"metrics\",\"*\",\"id\"],\"says\":\"Every proof is for a chosen metric\"}]"
+   }
+  },
+  {
+   "id": "build-a-best-x-for-y-comparison--score",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 4,
+    "recipe": [
+     "build-a-best-x-for-y-comparison"
+    ],
+    "step": "score",
+    "title": "Score the vendors with the proof row",
+    "do": "Call tool:find-signals-of-need with { source_row: the metrics step's source_row, now: today's date, items: one item per vendor { slug, name, url, proof: { <metric>: its proven value, or null when not proven } } }. Sponsors are scored exactly like every other vendor, from the same items. Copy the ranked vendors with their score, rank and the ids of the signals that fired, and every skipped vendor with the reason the finder gave; never change a score or an order by hand.",
+    "submit": "{\"type\":\"object\",\"required\":[\"ranked\",\"skipped\"],\"properties\":{\"ranked\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"key\",\"name\",\"score\",\"rank\",\"signals\"],\"properties\":{\"key\":{\"type\":\"string\",\"minLength\":1},\"name\":{\"type\":\"string\",\"minLength\":2},\"score\":{\"type\":\"number\"},\"rank\":{\"type\":\"integer\",\"minimum\":1},\"signals\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1}}}},\"minItems\":1},\"skipped\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"key\",\"reason\"],\"properties\":{\"key\":{\"type\":\"string\",\"minLength\":1},\"reason\":{\"type\":\"string\",\"minLength\":3}}}}}}",
+    "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"ranked\",\"*\",\"name\"],\"of\":[\"steps\",\"scope\",\"vendors\",\"*\",\"name\"],\"says\":\"Every ranked vendor is one in scope\"}]"
+   }
+  },
+  {
+   "id": "build-a-best-x-for-y-comparison--page",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 5,
+    "recipe": [
+     "build-a-best-x-for-y-comparison"
+    ],
+    "step": "page",
+    "title": "Write the comparison page: a quotable answer, a proof-linked table, sponsored placement kept apart",
+    "do": "Write the page titled \"Best <category> for <buyer>\" with the month it was checked. Open with one quotable answer: the top-ranked vendor and the proof that put it there, in one or two sentences. Then the comparison table: one row per ranked vendor in rank order (vendor, rank, score, and one cell per metric holding the value, a link to its proof address and the date read; \"not proven\" where there is none; self-reported values marked). Then how it was scored (every metric, its weight and test, and the source row), a short section per vendor, an FAQ answering each buyer question in two or three sentences from the table, and the date last checked. Structured data: a schema.org ItemList of the vendors in rank order, an FAQPage for the questions and dateModified. Sponsored placement: each input sponsor shows only in its own block labelled \"Sponsored\" with its disclosure words, outside the ranked table and the quotable answer, its links marked rel=\"sponsored\", and the page says once, above the table, that sponsorship never changes a score or a rank. Check every word with tool:check-against-a-persons-rules-and-verdicts against input rules and fix what it flags.",
+    "submit": "{\"type\":\"object\",\"required\":[\"title\",\"answer\",\"table_rows\",\"faq\",\"method\",\"structured_data\",\"sponsored\",\"checked\"],\"properties\":{\"title\":{\"type\":\"string\",\"minLength\":10},\"answer\":{\"type\":\"string\",\"minLength\":20},\"table_rows\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"vendor\",\"rank\",\"score\",\"cells\"],\"properties\":{\"vendor\":{\"type\":\"string\",\"minLength\":2},\"rank\":{\"type\":\"integer\",\"minimum\":1},\"score\":{\"type\":\"number\"},\"cells\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"metric\",\"value\",\"url\",\"read_on\"],\"properties\":{\"metric\":{\"type\":\"string\",\"minLength\":2},\"value\":{\"type\":[\"number\",\"string\",\"null\"]},\"url\":{\"type\":[\"string\",\"null\"]},\"read_on\":{\"type\":[\"string\",\"null\"]}}}}}},\"minItems\":1},\"faq\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"question\",\"answer\"],\"properties\":{\"question\":{\"type\":\"string\",\"minLength\":5},\"answer\":{\"type\":\"string\",\"minLength\":10}}},\"minItems\":1},\"method\":{\"type\":\"string\",\"minLength\":20},\"structured_data\":{\"type\":\"object\"},\"sponsored\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"vendor\",\"label\",\"disclosure\"],\"properties\":{\"vendor\":{\"type\":\"string\",\"minLength\":2},\"label\":{\"const\":\"Sponsored\"},\"disclosure\":{\"type\":\"string\",\"minLength\":10}}}},\"checked\":{\"type\":\"boolean\"}}}",
+    "checks": "[{\"kind\":\"covers\",\"path\":[\"this\",\"table_rows\",\"*\",\"vendor\"],\"of\":[\"steps\",\"score\",\"ranked\",\"*\",\"name\"],\"says\":\"Every ranked vendor is a row of the table\"},{\"kind\":\"subset-of\",\"path\":[\"this\",\"table_rows\",\"*\",\"vendor\"],\"of\":[\"steps\",\"score\",\"ranked\",\"*\",\"name\"],\"says\":\"Only ranked vendors are rows of the table\"},{\"kind\":\"covers\",\"path\":[\"this\",\"faq\",\"*\",\"question\"],\"of\":[\"steps\",\"scope\",\"questions\"],\"says\":\"Every buyer question is answered\"},{\"kind\":\"subset-of\",\"path\":[\"this\",\"sponsored\",\"*\",\"vendor\"],\"of\":[\"input\",\"sponsors\",\"*\",\"vendor\"],\"says\":\"Only placements the person sold are marked sponsored\"},{\"kind\":\"covers\",\"path\":[\"this\",\"sponsored\",\"*\",\"vendor\"],\"of\":[\"input\",\"sponsors\",\"*\",\"vendor\"],\"says\":\"Every sold placement carries its sponsored label\"}]"
+   }
+  },
+  {
+   "id": "build-a-best-x-for-y-comparison--publish",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 6,
+    "recipe": [
+     "build-a-best-x-for-y-comparison"
+    ],
+    "step": "publish",
+    "title": "Publish the page once the person approves it, and check it the way answer engines read it",
+    "do": "Show the person the page exactly as it will go out; nothing is published before they approve it. Prepare it on input site with tool:prepare-public-content-for-discovery (its HTML, Markdown, structured data and feed entries), publish it through the person's own site, then read its public address with tool:check-a-page-for-search-and-answer-engines and fix every miss it names (the table must be in the served HTML, not drawn by script). Copy the address, the approval and what the check found.",
+    "submit": "{\"type\":\"object\",\"required\":[\"approved\",\"url\",\"readiness\"],\"properties\":{\"approved\":{\"type\":\"boolean\"},\"url\":{\"type\":\"string\",\"minLength\":8},\"readiness\":{\"type\":\"object\",\"required\":[\"passed\",\"missing\"],\"properties\":{\"passed\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1}},\"missing\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1}}}}}}"
+   }
+  },
+  {
+   "id": "build-a-best-x-for-y-comparison--keep-cited",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "position": 7,
+    "recipe": [
+     "build-a-best-x-for-y-comparison"
+    ],
+    "step": "keep-cited",
+    "title": "Hand the page to the citation workflow and set the proof recheck",
+    "do": "Start workflow:keep-pages-cited-by-answer-engines with tool:start-a-recipe-run, input.row that workflow and its input { pages: [{ url: <the published address>, questions: <the scope step's questions> }], answer_engines: input answer_engines, freshness_days: input recheck_days (30 when left out), rules: input rules }, so citations are measured and kept. Then set the person's own wake for this workflow, every recheck_days days from today, starting at gather-proof, so every proof is read again and dated and the scores, table and page follow; a vendor whose proof is gone loses that metric on the next run. Copy each workflow handed to and the recheck date.",
+    "submit": "{\"type\":\"object\",\"required\":[\"handoffs\",\"next_recheck\"],\"properties\":{\"handoffs\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"workflow_id\",\"started\"],\"properties\":{\"workflow_id\":{\"type\":\"string\",\"minLength\":10},\"started\":{\"type\":\"boolean\"}}},\"minItems\":1},\"next_recheck\":{\"type\":\"string\",\"minLength\":10}}}",
+    "checks": "[{\"kind\":\"exists\",\"catalog\":\"workflow\",\"path\":[\"this\",\"handoffs\",\"*\",\"workflow_id\"],\"says\":\"Every workflow handed to is one this account can run\"}]"
    }
   }
  ]
