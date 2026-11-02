@@ -88,7 +88,7 @@ A row asks for the door in its invoke, with one rights item per record kind:
 **Depends on:** Node, and `tools/content-identity` (the BLAKE3 check of joined byte pages).
 
 **Depended on by:**
-- `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`, `tools/person-list`: their rows pack this folder, and their tests use `test/run-row.mjs`;
+- `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`, `tools/person-list`, `tools/how-someone-does-their-thing` (its voice rows): their rows pack this folder, and their tests use `test/run-row.mjs`;
 - `tools/meaning-search` and `tools/documents-as-list-rows`: their rows pack this folder and read the person's files with `door.files`;
 - `tools/read-a-list-view`: its door joins byte pages with `read-data/byte-pages.mjs`, and its refresh cuts writes with `read-data/write-batches.mjs`;
 - `tools/decide-with-a-method`: its rows pack this folder, and a decision too large for one write is cut with `read-data/write-batches.mjs`.
