@@ -54,6 +54,136 @@
         },
         "result_selector": "$.result"
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:edit-text-and-code",
+        "id": "tool:replace-several-pieces-of-text-in-files",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "label": "Change several pieces of text in files, all or nothing",
+        "job": "Make several exact text changes across one or more text or code files in one go, so either every change is made or none is",
+        "description": "Give edits: a list of { file, find, replace }, each as in tool:replace-one-piece-of-text-in-a-file. They apply in order, and a later edit to the same file sees the text the earlier ones made. Every find must occur exactly once at the moment its edit applies; if any edit is refused (no match, more than one, a path that leaves the folder, goes through a link, is a folder or is not UTF-8 text) nothing is written to any file and the refusal names the edit by its place in the list. Every changed file is written beside itself first and all are put in place only when none of them changed while the edits were prepared; each keeps its permissions. Returns each file changed with its size before and after and how many edits it took, and the number of edits. A person can also keep the edits in a JSON file and run the script with that file after the folder.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "edits"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "edits": {
+              "type": "array",
+              "minItems": 1,
+              "description": "The edits, applied in order",
+              "items": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "find",
+                  "replace"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Path relative to the granted folder"
+                  },
+                  "find": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The exact text to find; it must occur exactly once in the file"
+                  },
+                  "replace": {
+                    "type": "string",
+                    "description": "The text to put in its place; may be empty"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "files",
+            "replaced"
+          ],
+          "properties": {
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "bytes_before",
+                  "bytes_after",
+                  "replaced"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string"
+                  },
+                  "bytes_before": {
+                    "type": "integer"
+                  },
+                  "bytes_after": {
+                    "type": "integer"
+                  },
+                  "replaced": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "replaced": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/edit-text-and-code",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/edit-text-and-code/do-work/replace-exact-text.mjs",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.change-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "edit-text-and-code",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/edit-text-and-code"
+            }
+          }
+        },
+        "result_selector": "$.result"
+      }
     }
   ]
 }

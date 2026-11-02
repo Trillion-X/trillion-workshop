@@ -18,7 +18,12 @@
 //   - Only a regular file, reached through no link, inside the granted folder,
 //     and only text that is valid UTF-8 (a binary file is refused, not damaged).
 //
-// Run: node replace-exact-text.mjs <granted folder>   with { file, find, replace } on standard input.
+//   - Several edits at once ({ edits: [{ file, find, replace }, ...] }) are all or
+//     nothing: they apply in order (a later edit sees the text an earlier one
+//     made in the same file), and if any one is refused, no file is written.
+//
+// Run: node replace-exact-text.mjs <granted folder> [edits.json]
+//   with { file, find, replace } or { edits: [...] } on standard input, or in the JSON file named after the folder.
 
 import { constants } from 'node:fs';
 import { lstat, open, readFile, realpath, rename, stat, unlink } from 'node:fs/promises';
@@ -58,43 +63,94 @@ export async function fileInsideFolder(folder, file) {
   return { target, inside };
 }
 
-export async function replaceInFile(folder, { file, find, replace }) {
+async function readText(folder, file) {
   const { target, inside } = await fileInsideFolder(folder, file);
   const before = await stat(target);
   const bytes = await readFile(target);
   const text = bytes.toString('utf8');
   if (!Buffer.from(text, 'utf8').equals(bytes)) throw new Refusal(`${inside} is not valid UTF-8 text`);
-  const next = replaceExactlyOnce(text, find, replace);
+  return { target, inside, before, text };
+}
+
+async function stage(target, mode, next) {
   const staged = join(dirname(target), `.${basename(target)}.${randomBytes(6).toString('hex')}.staged`);
-  const handle = await open(staged, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, before.mode & 0o777);
+  const handle = await open(staged, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, mode & 0o777);
   try {
     await handle.writeFile(next, 'utf8');
     await handle.sync();
   } finally {
     await handle.close();
   }
+  return staged;
+}
+
+// Every staged file is written before any is published, and none is published if any of the files changed meanwhile.
+async function publish(files) {
+  const staged = [];
   try {
-    const now = await stat(target);
-    if (now.mtimeMs !== before.mtimeMs || now.size !== before.size) {
-      throw new Refusal(`${inside} changed while the edit was being prepared; nothing was written`);
+    for (const f of files) staged.push(await stage(f.target, f.before.mode, f.text));
+    for (const f of files) {
+      const now = await stat(f.target);
+      if (now.mtimeMs !== f.before.mtimeMs || now.size !== f.before.size) {
+        throw new Refusal(`${f.inside} changed while the edit was being prepared; nothing was written`);
+      }
     }
-    await rename(staged, target);
   } catch (error) {
-    await unlink(staged).catch(() => {});
+    await Promise.all(staged.map(path => unlink(path).catch(() => {})));
     throw error;
   }
-  const after = await stat(target);
-  return { file: inside, bytes_before: before.size, bytes_after: after.size, replaced: 1 };
+  for (const [i, f] of files.entries()) await rename(staged[i], f.target);
+}
+
+export async function replaceInFile(folder, { file, find, replace }) {
+  const read = await readText(folder, file);
+  const next = { ...read, text: replaceExactlyOnce(read.text, find, replace) };
+  await publish([next]);
+  const after = await stat(read.target);
+  return { file: read.inside, bytes_before: read.before.size, bytes_after: after.size, replaced: 1 };
+}
+
+// Several edits, in order, all or nothing. Each refusal names the edit by its place in the list.
+export async function replaceInFiles(folder, edits) {
+  if (!Array.isArray(edits) || edits.length === 0) throw new Refusal('edits must be a list of at least one { file, find, replace }');
+  const files = new Map();
+  const counts = new Map();
+  for (const [i, edit] of edits.entries()) {
+    try {
+      if (!edit || typeof edit !== 'object') throw new Refusal('must be { file, find, replace }');
+      const { target } = await fileInsideFolder(folder, edit.file);
+      if (!files.has(target)) files.set(target, await readText(folder, edit.file));
+      const f = files.get(target);
+      f.text = replaceExactlyOnce(f.text, edit.find, edit.replace);
+      counts.set(target, (counts.get(target) ?? 0) + 1);
+    } catch (error) {
+      if (error instanceof Refusal) throw new Refusal(`edit ${i}${edit?.file ? ` in ${edit.file}` : ''}: ${error.message}; nothing was written`);
+      throw error;
+    }
+  }
+  await publish([...files.values()]);
+  const changed = [];
+  for (const f of files.values()) {
+    changed.push({ file: f.inside, bytes_before: f.before.size, bytes_after: (await stat(f.target)).size, replaced: counts.get(f.target) });
+  }
+  return { files: changed, replaced: edits.length };
 }
 
 async function main() {
-  const folder = process.argv[2];
-  if (!folder) throw new Refusal('usage: replace-exact-text.mjs <granted folder>, with { file, find, replace } on standard input');
-  const chunks = [];
-  for await (const chunk of process.stdin) chunks.push(chunk);
+  const [folder, editsFile] = process.argv.slice(2);
+  if (!folder) throw new Refusal('usage: replace-exact-text.mjs <granted folder> [edits.json], with { file, find, replace } or { edits: [...] } on standard input or in the file');
+  let raw;
+  if (editsFile) {
+    try { raw = await readFile(editsFile); } catch { throw new Refusal(`cannot read the edits file ${editsFile}`); }
+  } else {
+    const chunks = [];
+    for await (const chunk of process.stdin) chunks.push(chunk);
+    raw = Buffer.concat(chunks);
+  }
   let request;
-  try { request = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw new Refusal('standard input must be JSON: { file, find, replace }'); }
-  const result = await replaceInFile(folder, request ?? {});
+  try { request = JSON.parse(raw.toString('utf8')); } catch { throw new Refusal('the request must be JSON: { file, find, replace } or { edits: [{ file, find, replace }, ...] }'); }
+  const edits = Array.isArray(request) ? request : request?.edits;
+  const result = edits !== undefined ? await replaceInFiles(folder, edits) : await replaceInFile(folder, request ?? {});
   process.stdout.write(`${JSON.stringify({ result })}\n`);
 }
 
