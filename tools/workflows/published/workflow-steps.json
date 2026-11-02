@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "ca2c2034b0b1f6ec4cc7772f7e3204483fe25118c00c80e4d3a86902b0eb084b",
+  "blake3": "76b4e3bd6014f32c86c49acfc57a7d321e1e491b1480457692198f398dfe8474",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -14,7 +14,8 @@
     "workflow-steps"
    ],
    "workflow_ids": [
-    "refresh-measurement-coverage"
+    "refresh-measurement-coverage",
+    "connect-every-ai-to-one-memory-list"
    ],
    "verified_public_mode_recipes": 10,
    "verified_public_mode_steps": 41,
@@ -8395,6 +8396,138 @@
     "step": "plan-cells",
     "submit": "{\"type\":\"object\",\"required\":[\"cells\"],\"properties\":{\"cells\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"cell_id\",\"page_url\",\"question\",\"engine\"],\"properties\":{\"cell_id\":{\"type\":\"string\"},\"page_url\":{\"type\":\"string\"},\"question\":{\"type\":\"string\"},\"engine\":{\"type\":\"string\"}}}}}}",
     "title": "Enumerate every planned page, question and answer engine cell"
+   }
+  },
+  {
+   "id": "connect-every-ai-to-one-memory-list--the-list",
+   "values": {
+    "title": "Find or make the one memory list",
+    "recipe": [
+     "connect-every-ai-to-one-memory-list"
+    ],
+    "position": 1,
+    "step": "the-list",
+    "do": "Call run_resource_operation with {\"address\":\"@own-records\",\"method\":\"records:read\",\"request_key\":\"<a new unique text>\",\"input\":{\"type\":\"list\",\"id\":\"list:<list_id>\"}}. If its value is null, the list does not exist yet: make it with one records:write whose input is {\"records\":[{\"id\":\"list:<list_id>\",\"type\":\"list\",\"value\":{\"label\":\"AI memories\",\"about\":\"What each of my AIs remembers. This list is the original; the folder is its copy.\",\"row_type\":\"agent-memory\",\"title_field\":\"note.name\",\"fields\":[{\"id\":\"note.name\",\"label\":\"Memory\",\"kind\":\"text\"},{\"id\":\"note.by\",\"label\":\"Written by\",\"kind\":\"text\"},{\"id\":\"note.description\",\"label\":\"About\",\"kind\":\"long-text\"},{\"id\":\"note.type\",\"label\":\"Kind\",\"kind\":\"text\"},{\"id\":\"document.text\",\"label\":\"Text\",\"kind\":\"long-text\"},{\"id\":\"file.mtime\",\"label\":\"Changed\",\"kind\":\"text\"}],\"row_sources\":[{\"source\":\"documents\",\"of\":\"<copy_folder>\",\"match\":\"*/*.md\",\"root\":\"<copy_root>\",\"original\":\"list\",\"adopt_own_rows\":true,\"copy_name\":\"{note.by|person}/{note.name}.md\",\"content\":{\"field\":\"document.text\",\"part_bytes\":6000}}],\"managed_rows\":{\"create_on_screen\":true}}}]}, with a new request_key, then read it back with the same records:read. If the list exists, look at its row_sources[0]: it must say \"original\": \"list\", \"adopt_own_rows\": true and a copy_name; if it does not, write the list record again with those three added and every other value kept. Write down the list's row_type: every memory row has the type record:<row_type> (record:agent-memory in this example). What the three words do: original \"list\" makes the list the original and the folder its copy; adopt_own_rows makes a file of a row any AI writes under an id of its own; copy_name names that file from the row's values ({note.by|person} is the writer's name, or the word person when the row has none).",
+    "submit": "{\"type\":\"object\",\"required\":[\"list_id\",\"row_type\",\"original\",\"read_back\"],\"properties\":{\"list_id\":{\"type\":\"string\",\"minLength\":1},\"row_type\":{\"type\":\"string\",\"minLength\":1},\"original\":{\"type\":\"string\",\"enum\":[\"list\"]},\"read_back\":{\"type\":\"boolean\",\"enum\":[true]}}}",
+    "flags": [
+     "public"
+    ],
+    "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"list_id\"],\"of\":[\"input\",\"list_id\"],\"says\":\"The list made or found is the one named in the input\"}]"
+   }
+  },
+  {
+   "id": "connect-every-ai-to-one-memory-list--computer-door",
+   "values": {
+    "title": "Give the computer its door file and run the first sync",
+    "recipe": [
+     "connect-every-ai-to-one-memory-list"
+    ],
+    "position": 2,
+    "step": "computer-door",
+    "do": "On the computer that holds the copy folder: 1. Install Node 22.6 or newer; node --version must print v22.6.0 or higher. 2. Get the Workshop: git clone the repository named in the Workshop's package.json repository.url into a folder, open a terminal in that folder and run npm install. 3. Sign this computer in once with the login command of the account's own command-line program: it opens the browser, you sign in, and it keeps this computer's key in the macOS Keychain (or, on other systems, in a file only you can read) and says where; the Keychain item's name is the keychain_item in that program's settings file. 4. Make a text file named memory-door.json beside the Workshop folder, not inside the copy folder, holding exactly {\"transport\":{\"url\":\"<local_door>\",\"credential\":{\"keychain_item\":\"<the Keychain item name from step 3>\"}},\"records\":{\"address\":\"@own-records\",\"read_method\":\"records:read\",\"list_method\":\"records:list\",\"write_method\":\"records:write\",\"history_method\":\"records:history\"},\"tools\":{\"address\":\"@workshop-tools\",\"run_method\":\"tools:run\"},\"local_tools\":{\"tool:read-documents-as-list-rows\":{\"module\":\"documents-as-list-rows/read-data/rows.mjs\",\"export\":\"readDocumentRows\",\"input\":{\"root\":\"<copy_root>\"}},\"tool:change-a-document-row\":{\"module\":\"documents-as-list-rows/read-data/rows.mjs\",\"export\":\"changeDocumentRows\",\"input\":{\"root\":\"<copy_root>\"}}},\"names\":{\"list_type\":\"list\",\"list_record\":\"list:{list_id}\",\"row_type\":\"record:{row_type}\",\"view_type\":\"list-view\"}}. The file names where the key is kept, never the key itself. 5. From the Workshop folder run a dry run first: node tools/read-a-list-view/do-work/read-list-view.mjs --config <full path of memory-door.json> --refresh <list_id> --dry-run yes. It writes nothing and prints one JSON answer; read sources[0]: documents (how many memories it compared), planned (what it would do: push = a file to the list, pull = the list to a file, adopt = a row an AI wrote becomes a file, remove-rows, remove-file), conflicts and refused. 6. If the plan is what you expect, run the same command without --dry-run yes. Then run it once more: every count except documents and unchanged is 0, which proves the list and the folder now say the same.",
+    "submit": "{\"type\":\"object\",\"required\":[\"door_file\",\"dry_run_documents\",\"second_run_writes\"],\"properties\":{\"door_file\":{\"type\":\"string\",\"minLength\":2},\"dry_run_documents\":{\"type\":\"integer\",\"minimum\":0},\"second_run_writes\":{\"type\":\"integer\",\"enum\":[0]}}}",
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "connect-every-ai-to-one-memory-list--harness-hooks",
+   "values": {
+    "title": "Connect each AI that writes files on the computer",
+    "recipe": [
+     "connect-every-ai-to-one-memory-list"
+    ],
+    "position": 3,
+    "step": "harness-hooks",
+    "do": "Each harness writes its memories as files <copy_root><copy_folder>/<its short name>/<memory name>.md, one folder per AI, and runs one command after each write, so the list has the memory within seconds. Make that command once: a script named memory-sync.sh beside memory-door.json (chmod +x memory-sync.sh) that reads the hook's JSON from standard input; takes the written file's path (Claude Code: tool_input.file_path; Cursor: file_path; Codex: each line of the apply_patch text that starts with *** Add File:, *** Update File: or *** Delete File:); keeps only paths under <copy_root><copy_folder>; cuts <copy_root> off the front so each starts with /; and runs, from the Workshop folder, node tools/read-a-list-view/do-work/read-list-view.mjs --config <full path of memory-door.json> --refresh <list_id> --paths '[\"<copy_folder>/<ai>/<file>.md\"]'. When that command exits with a code other than 0 (the door cannot be reached), the script appends the paths to memory-outbox.txt beside memory-door.json and exits 0; each later run also sends the outbox's paths and empties the outbox only after a run that exits 0, so no write is ever dropped. Claude Code: in settings.json inside the hidden .claude folder of your home folder, add under hooks a PostToolUse entry {\"matcher\":\"Write|Edit|MultiEdit\",\"hooks\":[{\"type\":\"command\",\"command\":\"<full path of memory-sync.sh>\",\"timeout\":30}]} and a Stop entry {\"hooks\":[{\"type\":\"command\",\"command\":\"cd <Workshop folder> && node tools/read-a-list-view/do-work/read-list-view.mjs --config <full path of memory-door.json> --refresh <list_id>\"}]}, so the end of each turn also brings the list's new memories into the folder. Codex: in hooks.json inside the hidden .codex folder of your home folder, add under hooks a PostToolUse entry {\"matcher\":\".*\",\"hooks\":[{\"type\":\"command\",\"command\":\"<full path of memory-sync.sh>\",\"timeoutSec\":30}]} and the same full sync as a Stop entry. Cursor: in hooks.json inside the hidden .cursor folder of your home folder (or .cursor/hooks.json in one project), write {\"version\":1,\"hooks\":{\"afterFileEdit\":[{\"command\":\"<full path of memory-sync.sh>\"}]}}. Then tell each harness, in its instructions file (CLAUDE.md, AGENTS.md or a Cursor rule), where its memories go: <copy_root><copy_folder>/<its short name>/<name>.md, starting with frontmatter lines name:, description: and type:. Prove each harness: ask it to remember one labeled test line, then find that memory with records:list {\"type\":\"record:<row_type>\",\"prefix\":\"record:<row_type>:documents~\",\"limit\":50}.",
+    "submit": "{\"type\":\"object\",\"required\":[\"harnesses\"],\"properties\":{\"harnesses\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"name\",\"hook_file\",\"row_seen_in_list\"],\"properties\":{\"name\":{\"type\":\"string\",\"minLength\":2},\"hook_file\":{\"type\":\"string\",\"minLength\":2},\"row_seen_in_list\":{\"type\":\"boolean\",\"enum\":[true]}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"harnesses\",\"*\",\"name\"],\"of\":[\"input\",\"ais\"],\"says\":\"Every harness connected is one the person named\"}]"
+   }
+  },
+  {
+   "id": "connect-every-ai-to-one-memory-list--web-chats",
+   "values": {
+    "title": "Connect the web chat apps through the public door",
+    "recipe": [
+     "connect-every-ai-to-one-memory-list"
+    ],
+    "position": 4,
+    "step": "web-chats",
+    "do": "A web chat cannot reach the computer, so it uses the account's public door <public_door> and signs in. Claude (claude.ai, a plan with custom connectors): Customize, Connectors, + Add, Add custom connector; Name: Memories; Remote MCP server URL: <public_door>; Continue; Authentication: Sign in now; OAuth client: Use Claude's published identity; Add; then sign in to your account in the window that opens. In a chat, click +, Connectors, and switch Memories on. ChatGPT (a plan with Developer mode): switch Developer mode on in Settings (OpenAI has moved it; it has been under Security and login, and before that under Connectors, Advanced; in a workspace an admin switches it on in the workspace settings), then add a custom app or connector named Memories with the server URL <public_door> and OAuth sign-in, tick that you trust the provider, create it and sign in; in each chat click +, More, Developer Mode and switch it on. Grok: open grok.com/connectors, New Connector, Custom, enter <public_door> and finish the sign-in. In each app, ask it to write a memory with exactly this call: run_resource_operation {\"address\":\"@own-records\",\"method\":\"records:write\",\"request_key\":\"<a new unique text>\",\"input\":{\"records\":[{\"id\":\"record:<row_type>:<an id of its own, for example chatgpt-flour-order>\",\"type\":\"record:<row_type>\",\"value\":{\"note.name\":\"<a short name>\",\"note.by\":\"<the app's short name from the input ais>\",\"note.description\":\"<one line: what this memory is for>\",\"note.type\":\"<user, feedback, project or reference>\",\"document.text\":\"<the memory, any length>\"}}]}}, then to read it back with records:read {\"type\":\"record:<row_type>\",\"id\":\"<that id>\"} and to list memories with records:list {\"type\":\"record:<row_type>\",\"limit\":50}. If the door answers 401, the key or the sign-in was refused: sign in again from the connector screen. At the time of writing the public door's sign-in is being repaired, so a 401 there may not be your mistake; record it in refused_with and go on. To change a memory, read it first, then write the same id with the whole new value. To remove one, write the same id with \"value\": null.",
+    "submit": "{\"type\":\"object\",\"required\":[\"apps\"],\"properties\":{\"apps\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"name\",\"connected\",\"read_back\"],\"properties\":{\"name\":{\"type\":\"string\",\"minLength\":2},\"connected\":{\"type\":\"boolean\"},\"written_id\":{\"type\":\"string\"},\"read_back\":{\"type\":\"boolean\"},\"refused_with\":{\"type\":\"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"apps\",\"*\",\"name\"],\"of\":[\"input\",\"ais\"],\"says\":\"Every web app connected is one the person named\"}]"
+   }
+  },
+  {
+   "id": "connect-every-ai-to-one-memory-list--phones",
+   "values": {
+    "title": "Check the phone apps",
+    "recipe": [
+     "connect-every-ai-to-one-memory-list"
+    ],
+    "position": 5,
+    "step": "phones",
+    "do": "A phone app reaches the same account through the same connector only when its maker shares connectors between the web and the phone. On the phone, open the app signed in to the same account you used on the web, start a chat and look for the Memories connector in its tools or connectors menu. If it is there, ask it to list memories with records:list {\"type\":\"record:<row_type>\",\"limit\":20} and check that a memory written on the web is in the answer. If it is not there, that app does not offer this connector on the phone yet (ChatGPT's custom apps have been web only): write connector_shown false and do not count it as connected.",
+    "submit": "{\"type\":\"object\",\"required\":[\"phones\"],\"properties\":{\"phones\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"name\",\"connector_shown\"],\"properties\":{\"name\":{\"type\":\"string\",\"minLength\":2},\"connector_shown\":{\"type\":\"boolean\"},\"read_a_web_memory\":{\"type\":\"boolean\"}}}}}}",
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "connect-every-ai-to-one-memory-list--services",
+   "values": {
+    "title": "Connect other agents and services",
+    "recipe": [
+     "connect-every-ai-to-one-memory-list"
+    ],
+    "position": 6,
+    "step": "services",
+    "do": "A service (an outreach tool, a sales agent, any program) uses the same records:write and records:list through the public door. Give each service a key of its own, made for that one service, so it can be stopped alone: make the key in your account's keys screen, name it after the service, and paste it only into that service's own secret setting. A service that can call an MCP server gets the URL <public_door> and the key as an Authorization: Bearer header, and calls run_resource_operation exactly as in the web-chats step, with note.by set to the service's short name. A service that cannot call MCP needs a small program of yours that makes that call; do not invent fields in the service's own settings. Prove each service by having it write one labeled test memory and reading it back with records:read.",
+    "submit": "{\"type\":\"object\",\"required\":[\"services\"],\"properties\":{\"services\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"name\",\"own_key\",\"written_id\"],\"properties\":{\"name\":{\"type\":\"string\",\"minLength\":2},\"own_key\":{\"type\":\"boolean\",\"enum\":[true]},\"written_id\":{\"type\":\"string\",\"minLength\":2}}}}}}",
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "connect-every-ai-to-one-memory-list--copies",
+   "values": {
+    "title": "Keep the folder copy current",
+    "recipe": [
+     "connect-every-ai-to-one-memory-list"
+    ],
+    "position": 7,
+    "step": "copies",
+    "do": "The full sync is node tools/read-a-list-view/do-work/read-list-view.mjs --config <full path of memory-door.json> --refresh <list_id>, run from the Workshop folder. The Stop hooks of the harness-hooks step run it at the end of each turn; run it by hand before opening an app that reads files only when it starts. For each memory it does one thing: the folder and the list say the same, nothing; the list changed and the file is still the one the row was made from, the list's text goes into the file; the file changed and the row still holds what the file said, the file's text goes into the list; both changed, the one changed last wins (the file's change time against the row's newest version time) and the other side's text is first written as a version of the row, so it is never lost (see it with records:history {\"id\":\"<row id>\",\"limit\":5}); only a row, made from a file that was then deleted, the row is removed; only a row the list wrote or changed, a file is made; only a file, it goes into the list, unless the list's last word for that row was a removal of that same text, and then the file is removed; a row an AI wrote under an id of its own becomes the file <copy_folder>/<note.by>/<note.name>.md (lowercase words and dashes; a taken name gets -2, -3) and that file's row replaces it. A file is written or removed only if it is still the file that was read, so a file changed meanwhile is never overwritten. Read the answer's refused list: each entry names a memory and why it was left as it was (for example a row with no note.name).",
+    "submit": "{\"type\":\"object\",\"required\":[\"last_sync\",\"refused\"],\"properties\":{\"last_sync\":{\"type\":\"object\",\"required\":[\"documents\",\"conflicts\"],\"properties\":{\"documents\":{\"type\":\"integer\",\"minimum\":0},\"conflicts\":{\"type\":\"integer\",\"minimum\":0}}},\"refused\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}",
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "connect-every-ai-to-one-memory-list--proof",
+   "values": {
+    "title": "Prove a memory one AI wrote is read by another",
+    "recipe": [
+     "connect-every-ai-to-one-memory-list"
+    ],
+    "position": 8,
+    "step": "proof",
+    "do": "1. Pick two different AIs from the input ais, for example a web chat and a harness on the computer. 2. Ask the first to write one memory with note.name \"memory list check\", its own short name in note.by and document.text \"TEST: written by <its name> at <time>; remove after the check\" (the call of the web-chats step). 3. Ask the second to read it back: records:list {\"type\":\"record:<row_type>\",\"limit\":50}, and find the row whose note.name is memory list check; its document.text must be the same. 4. Run the full sync of the copies step and open <copy_root><copy_folder>/<the first AI's short name>/memory-list-check.md: it must hold the same text. 5. Change one word in that file and save it (from a harness, or by hand and then the memory-sync.sh command for it), and ask the first AI to read the row again: it must show the changed word. 6. Remove the test: records:write the row's current id (from the list read in step 5) with \"value\": null, run the full sync, and check that the file is gone and records:list no longer shows the row.",
+    "submit": "{\"type\":\"object\",\"required\":[\"writer\",\"reader\",\"both\",\"file\",\"file_matched\",\"change_reached_list\",\"removed\"],\"properties\":{\"writer\":{\"type\":\"string\",\"minLength\":2},\"reader\":{\"type\":\"string\",\"minLength\":2},\"both\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":2},\"description\":\"The writer and the reader\"},\"file\":{\"type\":\"string\",\"minLength\":2},\"file_matched\":{\"type\":\"boolean\",\"enum\":[true]},\"change_reached_list\":{\"type\":\"boolean\",\"enum\":[true]},\"removed\":{\"type\":\"boolean\",\"enum\":[true]}}}",
+    "flags": [
+     "public"
+    ],
+    "checks": "[{\"kind\":\"subset-of\",\"path\":[\"this\",\"both\",\"*\"],\"of\":[\"input\",\"ais\"],\"says\":\"The writer and the reader are the person's AIs\"},{\"kind\":\"distinct-at-least\",\"path\":[\"this\",\"both\",\"*\"],\"count\":2,\"says\":\"The writer and the reader are two different AIs\"}]"
    }
   }
  ]

@@ -5,7 +5,10 @@
 // from their computer:
 //
 //   node do-work/read-list-view.mjs --config FILE (--list ID | --view ID) [--after CURSOR] [--limit N]
-//   node do-work/read-list-view.mjs --config FILE --refresh ID [--sources '["source-id"]']
+//   node do-work/read-list-view.mjs --config FILE --refresh ID [--sources '["source-id"]'] [--paths '["/a/b.md"]'] [--dry-run yes]
+//
+// A refresh of a list whose source is declared original: "list" writes both ways (read-data/list-copy.mjs); --paths
+// settles only those documents (a file an app just wrote) and --dry-run yes plans without writing.
 //
 // The config is JSON: the door (read-data/door.mjs: transport, records, tools, filter), `names` as
 // read-data/list-view.mjs takes them, and optionally `source_answer_bytes` (the room a source tool's answer has in the
@@ -21,12 +24,13 @@ const rest = process.argv.slice(2);
 for (let index = 0; index < rest.length; index += 2) flags[rest[index].replace(/^--/, '')] = rest[index + 1];
 
 try {
-  if (!flags.config) throw new Error('usage: read-list-view.mjs --config FILE ((--list ID | --view ID) [--after CURSOR] [--limit N] | --refresh ID)');
+  if (!flags.config) throw new Error('usage: read-list-view.mjs --config FILE ((--list ID | --view ID) [--after CURSOR] [--limit N] | --refresh ID [--sources JSON] [--paths JSON] [--dry-run yes])');
   const config = JSON.parse(await readFile(flags.config, 'utf8'));
   const door = await openDoor(config);
   const answer = flags.refresh
     ? await refreshRowSources({ list: flags.refresh, names: config.names, source_answer_bytes: config.source_answer_bytes,
-      ...(flags.sources !== undefined ? { source_ids: JSON.parse(flags.sources) } : {}) }, door)
+      ...(flags.sources !== undefined ? { source_ids: JSON.parse(flags.sources) } : {}),
+      ...(flags.paths !== undefined ? { paths: JSON.parse(flags.paths) } : {}), ...(flags['dry-run'] === 'yes' ? { dry_run: true } : {}) }, door)
     : await readListView({ list: flags.list, view: flags.view, after: flags.after ?? null, limit: flags.limit ? Number(flags.limit) : undefined, names: config.names }, door);
   console.log(JSON.stringify(answer));
 } catch (error) {

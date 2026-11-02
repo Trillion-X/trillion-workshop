@@ -12,7 +12,8 @@
 //
 //   readDocumentRows({ root, folder?, match?, after?, limit?, backlinks?, most_bytes? }) → { rows, next }
 //   readNamespaceDocumentRows({ folder?, match?, after?, limit?, backlinks?, most_bytes? }, { door }) → { rows, next }
-//   changeDocumentRows({ root, folder?, rows: [{ id, values: { 'note.<key>': value | null }, if_identity? }] }) → { kept }
+//   changeDocumentRows({ root, folder?, rows: [{ id, values?: { 'note.<key>': value | null }, text?, if_identity? }],
+//     remove?: [{ id, if_identity }] }) → { kept, removed }
 //   splitIntoDocuments({ root, mapping, out?, leftover?, check? }) → the split's report
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -68,10 +69,12 @@ async function pageOf(files, { folder = '/', match, exclude, paths, paths_file, 
   return { rows, next: rows.at(-1).id };
 }
 
-export async function changeDocumentRows({ root, folder = '/', rows } = {}) {
-  if (!Array.isArray(rows) || !rows.length) throw say('bad_input', { what: 'rows must name at least one document and its values.' });
+export async function changeDocumentRows({ root, folder = '/', rows = [], remove = [] } = {}) {
+  if (!Array.isArray(rows) || !Array.isArray(remove) || !(rows.length + remove.length)) {
+    throw say('bad_input', { what: 'rows (each a document and its values or whole text) or remove must name at least one document.' });
+  }
   const read = documentRowSources({ files: await folderFiles(needRoot(root)) }).sources.documents;
-  return read.write({ source: { of: folderKey(folder) }, rows });
+  return read.write({ source: { of: folderKey(folder) }, rows, remove });
 }
 
 export async function splitIntoDocuments({ root, mapping, out, leftover, check = false } = {}) {

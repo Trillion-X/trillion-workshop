@@ -11,11 +11,11 @@
 //      rule reaches names under its folder; an identity is under no folder).
 //   2. A listing reads names only; a document's bytes come with `read`, page after page of the door's read_file until
 //      the document or the bytes asked for are read.
-//   3. A Namespace name has no conditional write in the files door yet, so `writeIfUnchanged` refuses: a property
-//      change is never written without knowing the document is still the one read.
+//   3. A Namespace name has no conditional write in the files door yet, so `writeIfUnchanged` and
+//      `removeIfUnchanged` refuse: a document is never written or removed without knowing it is still the one read.
 //
-//   namespaceFiles(files) → { foldersUnder, list, entry, read, writeIfUnchanged }, where files(operation, input) is the
-//   run's door.files.
+//   namespaceFiles(files) → { foldersUnder, list, entry, read, writeIfUnchanged, removeIfUnchanged }, where
+//   files(operation, input) is the run's door.files.
 const READ_BYTES = 262144;
 const say = (code, words) => Object.assign(new Error(words), { code });
 const folderOf = name => (name.endsWith('/') ? name : `${name}/`);
@@ -77,6 +77,9 @@ export function namespaceFiles(files) {
     },
     async writeIfUnchanged(name) {
       throw say('not_written', `${name} is a Namespace file, and the files door has no write that checks the file is still the one read.`);
+    },
+    async removeIfUnchanged(name) {
+      throw say('not_written', `${name} is a Namespace file, and the files door has no removal that checks the file is still the one read.`);
     },
   };
 }

@@ -22,7 +22,9 @@
 //      never lost: the change is made again on what the document now says, at most limits.write_attempts times. A
 //      caller that names the identity it read (if_identity) is refused instead when the document changed.
 //   3. A value is written only if it fits its property's kind (kind_values); file facts and formulas are worked out and
-//      never written; a document is removed as a file, never as a row.
+//      never written. A whole document (`text`, the copy a list that is the original writes) and a removal (`remove`)
+//      each name the identity they read (`if_identity`, null for a document not there yet) and are refused, never
+//      retried, when the document is no longer that one, so nothing written meanwhile is overwritten or removed.
 //   4. A formula may read another formula; each row's formulas are worked out once each (a per-row cache), and a formula
 //      that reaches itself is refused with the formulas it passed through, both when the sidecar is saved and when it is
 //      read (a sidecar written by hand is checked the same way).
@@ -36,7 +38,9 @@
 // written is the same subset: plain scalars when unambiguous, JSON-quoted strings otherwise, and `- item` lists.
 //
 //   documentRowSources({ files, evaluateBinding? }) → { sources: { documents: read } }, read({ source, limit, cursor,
-//     row_ids, backlinks }) → { rows, next_cursor }, read.fields({ source, ids }), read.write({ list, source, rows })
+//     row_ids, backlinks }) → { rows, next_cursor }, read.fields({ source, ids }),
+//     read.write({ source, rows: [{ id, values?, text?, if_identity? }], remove: [{ id, if_identity }] })
+//     → { kept: [{ id, values, identity }], removed: [names] }
 //   readDocumentTypes(files, folder) / saveDocumentTypes(files, folder, { types, formulas, expected_identity })
 //   readFrontmatter(text) / writeFrontmatter(text, { set, remove }) / parseDocument(text)
 import data from './document-properties.json' with { type: 'json' };
@@ -500,13 +504,23 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
   // Property changes: each row { id: document name, values: { 'note.<key>': value | null }, if_identity? } (invariants 2-3).
   read.write = async ({ source, rows = [], remove = [] }) => {
     const refuse = what => say('bad_document_property', { properties: NS.properties, what });
-    if (remove.length) throw refuse(`removing ${remove[0]}`);
     const folder = sourceFolder(source);
-    const sidecar = await readDocumentTypes(files, folder);
-    const kept = [];
-    for (const row of rows) {
-      const name = row?.id;
+    const named = name => {
       if (typeof name !== 'string' || !isDocument(name) || !(folder === '/' || name.startsWith(`${folder}/`))) throw say('not_a_document', { document: JSON.stringify(name) });
+      return name;
+    };
+    // A whole document and a removal name the identity they read: a string, or null for a document not there yet.
+    const readIdentity = (row, what) => {
+      if (!Object.hasOwn(row, 'if_identity') || (row.if_identity !== null && typeof row.if_identity !== 'string') || (what === 'removal' && row.if_identity === null)) {
+        throw say('bad_input', { what: `A ${what} of ${row.id} names the identity it read as if_identity${what === 'removal' ? '' : ' (null for a new document)'}.` });
+      }
+      return row.if_identity;
+    };
+    if (!Array.isArray(remove) || remove.some(row => !row || typeof row !== 'object')) throw refuse('a removal that is not { id, if_identity }');
+    const sidecar = await readDocumentTypes(files, folder);
+    const kept = [], removed = [];
+    for (const row of rows) {
+      const name = named(row?.id);
       const set = {}, gone = [];
       for (const [id, value] of Object.entries(row.values ?? {})) {
         const key = id.startsWith(`${NS.properties}.`) ? id.slice(NS.properties.length + 1) : null;
@@ -516,6 +530,15 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
         const fits = kind ? fitted(kind, value) : (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || (Array.isArray(value) && value.every(item => typeof item === 'string' || typeof item === 'number')) ? value : undefined);
         if (fits === undefined) throw say('bad_property_value', { property: id, document: name, kind: kind ?? 'text or list of texts', value: JSON.stringify(value) });
         set[key] = fits;
+      }
+      if (row.text !== undefined) {
+        if (typeof row.text !== 'string') throw say('bad_input', { what: `The text of ${name} is a string.` });
+        const expected = readIdentity(row, 'whole document');
+        const text = Object.keys(set).length || gone.length ? writeFrontmatter(row.text, { set, remove: gone }) : row.text;
+        const written = await files.writeIfUnchanged(name, text, expected, 'text/markdown; charset=utf-8');
+        if (written.conflict) throw say('document_changed', { document: name, expected: expected ?? 'nothing', current: written.current ?? 'nothing' });
+        kept.push({ name, identity: written.identity });
+        continue;
       }
       let identity = null;
       for (let attempt = 1; ; attempt += 1) {
@@ -530,9 +553,16 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
       }
       kept.push({ name, identity });
     }
+    for (const row of remove) {
+      const name = named(row.id);
+      const expected = readIdentity(row, 'removal');
+      const gone = await files.removeIfUnchanged(name, expected);
+      if (gone.conflict) throw say('document_changed', { document: name, expected, current: gone.current ?? 'nothing' });
+      removed.push(name);
+    }
     // What each changed document now says, read back once for all of them.
-    const after = new Map((await read({ source, row_ids: kept.map(row => row.name) })).rows.map(row => [row.id, row.values]));
-    return { kept: kept.map(row => ({ id: row.name, values: after.get(row.name) ?? {}, identity: row.identity })), removed: [] };
+    const after = new Map(kept.length ? (await read({ source, row_ids: kept.map(row => row.name) })).rows.map(row => [row.id, row.values]) : []);
+    return { kept: kept.map(row => ({ id: row.name, values: after.get(row.name) ?? {}, identity: row.identity })), removed };
   };
   return { sources: { [data.source]: read } };
 }

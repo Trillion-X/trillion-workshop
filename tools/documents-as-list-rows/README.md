@@ -107,6 +107,13 @@ Writing:
 - The new bytes are written and synced beside the document and renamed over it, so a reader sees the old document or the new one.
 - The answer is each changed document's new values and identity.
 
+### A whole document, and removing one
+
+A list that is the original writes its folder copy with the same tool (`tools/read-a-list-view`, `original: "list"`):
+- `rows: [{ id, text, values?, if_identity }]` writes the whole document. `if_identity` is the identity read (`null` for a document that is not there yet; its folders are made). `values` sets frontmatter keys on that text.
+- `remove: [{ id, if_identity }]` removes the document.
+- Both are refused (`document_changed`, exit 1 from the command line), never made again, when the document is no longer the one read, so nothing written meanwhile is overwritten or removed. The answer is `{ kept, removed }`.
+
 ## Frontmatter
 
 The YAML block between the first two `---` lines.

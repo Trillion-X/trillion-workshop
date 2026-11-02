@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:0426dd37d2be8c24e943a34389d69e70212982462377ea631be959318d0a3c17"
+  "blake3": "1f:ed2c3cb54ed740a30cd3690dd6f484d5990b5431a217a10d37ff0e3320491e13"
  },
  "fields": [
   {
@@ -595,8 +595,8 @@
    "id": "tool:change-a-document-row",
    "values": {
     "title": "Change fields of documents in my folder list",
-    "job": "Change or remove fields of documents' frontmatter in a folder I granted, each only if the document is still the one I read",
-    "description": "For each row { id, values: { note.<key>: value or null }, if_identity } rewrites only the frontmatter lines of the keys named: a value sets the key, null removes it, and other keys, comments and the body stay byte for byte. A value must fit the kind the folder's property-types.json gives the property; file facts cannot be written. When if_identity is given and the document changed since it was read, the change is refused and nothing is merged. The new bytes replace the document in one rename, and the answer is each changed document's new values and identity.",
+    "job": "Change or remove fields of documents' frontmatter in a folder I granted, write a whole document or remove one, each only if the document is still the one I read",
+    "description": "For each row { id, values: { note.<key>: value or null }, if_identity } rewrites only the frontmatter lines of the keys named: a value sets the key, null removes it, and other keys, comments and the body stay byte for byte. A value must fit the kind the folder's property-types.json gives the property; file facts cannot be written. When if_identity is given and the document changed since it was read, the change is refused and nothing is merged. A row with text { id, text, values?, if_identity } writes the whole document (if_identity null: only when no document is there, its folders made), and remove: [{ id, if_identity }] removes one; both are refused, never made again, when the document is no longer the one read. This is how a list that is the original writes its folder copy (tools/read-a-list-view). The new bytes replace the document in one rename, and the answer is each changed document's new values and identity, and the documents removed.",
     "status": "active",
     "maker": "maker:documents-as-list-rows",
     "licence_class": "licence:maker-own",

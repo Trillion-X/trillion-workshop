@@ -15,7 +15,7 @@
 //   4. A call is sent again only with its own request key (the records door's contract, tools/records-door README).
 //
 //   openDoor({ transport: { url, credential: { keychain_item } }, records, tools, local_tools? }, { keyOf? })
-//     → { read, list, run, write }
+//     → { read, list, run, write, history? }; records may name write_method and history_method
 //   local_tools: { <tool id>: { module, export, input? } }: the module's path under the Workshop's tools folder, the
 //   function it exports, and the input every run of it gets; its answer comes back as a run's `result`.
 import { execFile } from 'node:child_process';
@@ -100,6 +100,9 @@ export async function openDoor(config, { keyOf = keychainKey } = {}) {
   return {
     read: async (type, id) => (await call(records.address, records.read_method, { type, id }))?.value ?? null,
     list: query => call(records.address, records.list_method, query),
+    // A record's newest versions with their times, for the two-way sync of a list that is the original (list-copy.mjs);
+    // absent when the config names no history_method, and the sync then decides nothing by time.
+    ...(records.history_method ? { history: id => call(records.address, records.history_method, { id, limit: 2 }) } : {}),
     run,
     // A refresh's write, sent with the key it names so a write sent again answers its first answer.
     write: async (rows, { key }) => {

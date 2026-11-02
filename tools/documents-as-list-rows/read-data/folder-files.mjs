@@ -10,12 +10,13 @@
 //      are not listed.
 //   2. A document's identity is `1f:` and the BLAKE3 of its exact bytes (tools/content-identity), worked out when the
 //      document is read, so a listing reads no document.
-//   3. A conditional write puts the new bytes in place only if the document still has the identity the caller read:
-//      it reads and hashes the document again, answers { conflict, current } when it differs, and otherwise writes the
-//      bytes beside it and renames them over it in one step, so a reader sees the old document or the new one.
+//   3. A conditional write puts the new bytes in place only if the document still has the identity the caller read
+//      (null: there is no document yet, and its folders are made): it reads and hashes the document again, answers
+//      { conflict, current } when it differs, and otherwise writes the bytes beside it and renames them over it in one
+//      step, so a reader sees the old document or the new one. A conditional removal checks the same way, then unlinks.
 //
-//   folderFiles(root) → { foldersUnder, list, entry, read, writeIfUnchanged }
-import { lstat, mkdtemp, open, readdir, readFile, realpath, rename, rmdir, stat, writeFile } from 'node:fs/promises';
+//   folderFiles(root) → { foldersUnder, list, entry, read, writeIfUnchanged, removeIfUnchanged }
+import { lstat, mkdir, mkdtemp, open, readdir, readFile, realpath, rename, rmdir, stat, unlink, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative, sep } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
@@ -99,6 +100,7 @@ export async function folderFiles(root) {
       const current = now ? makeHashCodeHexFromBytes(now) : null;
       if (current !== expected) return { conflict: true, current };
       if (now && (await lstat(path)).isSymbolicLink()) throw Object.assign(new Error(`${name} is a link; change the document it points to.`), { code: 'not_a_document' });
+      if (!now) await mkdir(dirname(path), { recursive: true });
       const bytes = new TextEncoder().encode(text);
       // The new bytes are written and synced in an empty folder beside the document, then renamed over it; the folder,
       // empty again, is removed.
@@ -111,6 +113,15 @@ export async function folderFiles(root) {
       await rename(staged, path);
       await rmdir(scratch);
       return { identity: makeHashCodeHexFromBytes(bytes) };
+    },
+    async removeIfUnchanged(name, expected) {
+      const path = await pathOf(name);
+      const now = await readFile(path).catch(() => null);
+      const current = now ? makeHashCodeHexFromBytes(now) : null;
+      if (!now || current !== expected) return { conflict: true, current };
+      if ((await lstat(path)).isSymbolicLink()) throw Object.assign(new Error(`${name} is a link; remove the document it points to.`), { code: 'not_a_document' });
+      await unlink(path);
+      return { removed: true };
     },
   };
 }
