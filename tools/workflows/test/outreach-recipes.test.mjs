@@ -2,7 +2,7 @@
 // step names exactly one tool the Workshop or the host offers and is checked to have run it; every step after the first
 // has a check that reads the step just before it, so no step can be left out; each method's own shape (four
 // sentences, Saturday, the 100-point rubric, tracked apart from influence) is held by the step schemas and checks; and
-// the person's own choices (the source row's thresholds, which addresses to keep, the pacing row) are rows or inputs
+// the person's own choices (the rule row's thresholds, which addresses to keep, the pacing row) are rows or inputs
 // with the method's values as defaults, never pinned in a step schema. Nothing here sends anything.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -56,7 +56,7 @@ test('no step can be skipped: each step after the first checks the step just bef
 
 test('the recipes join the existing tools instead of building their own', () => {
   const folders = new Set(OUTREACH.flatMap(id => recipeToolIds(recipes.get(id))).map(tool => folderOf.get(tool)).filter(Boolean));
-  for (const folder of ['find-signals-of-need', 'research-a-creator-or-topic', 'how-someone-does-their-thing', 'send-messages', 'customer-follow-up', 'traffic-attribution', 'judge-words', 'funnels-and-offers', 'run-experiments', 'social-posts']) {
+  for (const folder of ['formulas', 'research-a-creator-or-topic', 'how-someone-does-their-thing', 'send-messages', 'customer-follow-up', 'traffic-attribution', 'judge-words', 'funnels-and-offers', 'run-experiments', 'social-posts']) {
     assert.ok(folders.has(folder), `a recipe step uses a tool of tools/${folder}`);
   }
 });
@@ -75,10 +75,11 @@ test('the call step uses the one conversation exchange that exists outside this 
   assert.ok(!rows.some(({ payload }) => /\bexchange\b/i.test(payload.job ?? '') && /phone|call/i.test(payload.job ?? '')), 'no Workshop row places a phone call');
 });
 
-test('job posts: thresholds in the source row (default 21 days, 10 to 200 people), three problems from the day-to-day section, four sentences citing the role and days open', () => {
+test('job posts: thresholds in the rule row (default 21 days, 10 to 200 people), three problems from the day-to-day section, four sentences citing the role and days open', () => {
   const id = 'workflow:reach-companies-with-a-long-open-job-post';
-  const source = json('../../find-signals-of-need/sources.json').records.find(row => row.id === 'open-job-posts');
-  assert.deepEqual(source.filters.map(filter => filter.test), [{ between: [10, 200] }, { at_least: 21 }]);
+  const source = json('../read-data/candidate-rules.json').records.find(row => row.id === 'open-job-posts');
+  assert.deepEqual(source.keep[0].requires.map(clause => [clause.fact, clause.op, clause.value]), [['employees', 'gte', 10], ['employees', 'lte', 200], ['open_seconds', 'gte', 21 * 86_400]]);
+  assert.deepEqual(source.signals.map(signal => [signal.rule.key, signal.weight]), [['open-a-month', 2], ['open-three-weeks', 1]]);
   // The thresholds live only in the source row: the step neither pins the shipped row nor repeats its numbers, so a
   // person's own source_row (say 14 days, 5 to 50 people) runs the same recipe.
   const find = stepOf(id, 'find');
@@ -107,9 +108,9 @@ test('local businesses: review signals, a separate identity, the person\'s addre
   const id = 'workflow:reach-local-businesses-by-zip-code';
   const identity = stepOf(id, 'identity');
   assert.ok(identity.checks.some(check => check.kind === 'differs-from' && check.path.join('.') === 'this.sending_domain' && check.of.join('.') === 'input.main_domain'));
-  const source = json('../../find-signals-of-need/sources.json').records.find(row => row.id === 'local-businesses-by-place');
-  assert.ok(['slow-quotes', 'review-spike'].every(signal => source.signals.some(row => row.id === signal)));
-  assert.equal(source.signals.find(row => row.id === 'review-spike').within_days, 90);
+  const source = json('../read-data/candidate-rules.json').records.find(row => row.id === 'local-businesses-by-place');
+  assert.ok(['slow-quotes', 'review-spike'].every(signal => source.signals.some(row => row.rule.key === signal)));
+  assert.equal(source.prepare.find(row => row.fact === 'recent_review_share').days, 90);
   // Which addresses to write to is the person's input; the default keeps gmail.com and info@ addresses.
   const patterns = recipes.get(id).input_schema.properties.address_patterns.default.map(source => new RegExp(source));
   assert.deepEqual(['info@example.com', 'user-29d2a398@example.com', 'owner@example.com', 'info@gmail', 'user-633bc76a@example.com'].map(address => patterns.some(pattern => pattern.test(address))), [true, true, false, false, false]);
@@ -155,4 +156,25 @@ test('the recipes name no person, company, place or address of their own', () =>
   const text = JSON.stringify(OUTREACH.map(id => recipes.get(id)));
   assert.doesNotMatch(text, /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[a-z]{2,}/, 'no email address');
   assert.doesNotMatch(text, /\b\d{5}\b/, 'no zip code');
+});
+
+test('the candidate rule rows are requests the Workshop rule owner runs: every rule holds or not on a made-up candidate, and none is a second rule language', async () => {
+  const { classifyByRules } = await import('../../formulas/do-work/classify-by-rules.mjs');
+  const rows = json('../read-data/candidate-rules.json').records;
+  const now = Date.parse('2026-11-02T00:00:00Z');
+  const candidates = {
+    'open-job-posts': { employees: 40, posted_at: '2026-09-20T00:00:00Z' },
+    'local-businesses-by-place': { slow_quote_reviews: 3, recent_reviews: 2, recent_review_share: 0.5 },
+    'vendors-by-verifiable-proof': { proof: { named_customers: 6, review_count: 120, review_rating: 4.2, uptime_percent: null, price_published: 1, security_attestations: 0, last_release_at: null } },
+  };
+  const fired = Object.fromEntries(rows.map(row => {
+    const record = candidates[row.id];
+    const kept = row.keep.every(rule => classifyByRules({ facts: row.facts, rules: [rule], record, now_ms: now }).result !== null);
+    return [row.id, { kept, signals: row.signals.filter(signal => classifyByRules({ facts: row.facts, rules: [signal.rule], record, now_ms: now }).result?.key === signal.rule.key).map(signal => signal.rule.key) }];
+  }));
+  assert.deepEqual(fired, {
+    'open-job-posts': { kept: true, signals: ['open-a-month', 'open-three-weeks'] },
+    'local-businesses-by-place': { kept: true, signals: ['slow-quotes', 'review-spike'] },
+    'vendors-by-verifiable-proof': { kept: true, signals: ['named-customers', 'many-reviews', 'price-on-the-page'] },
+  });
 });

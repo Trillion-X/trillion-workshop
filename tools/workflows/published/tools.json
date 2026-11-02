@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b2c62325041ac74b353aec670446d6eccfba37ad7256ee4f760dc77c38fdeec0"
+  "blake3": "1f:2b09cccc597345c71d638a72ffa481e1822060090d2c4804e9654fd87374388f"
  },
  "fields": [
   {
@@ -1950,21 +1950,6 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
-   }
-  },
-  {
-   "id": "tool:find-signals-of-need",
-   "values": {
-    "title": "Find candidates that show a need",
-    "job": "Find the companies, businesses or people whose own public facts show they need help (a job post open for weeks, reviews that name a delay, a burst of new reviews), score each on signals, and rank them",
-    "description": "Reads one signal-source row (source, or your own source_row): how an item maps to fields, which items to keep (filters) and which signals add to a score. Candidates come from items (give them when they come from your connection tool, such as a map data or job board connection) or, for a source row that declares a public request, from its address filled with parameters. Returns the kept candidates best score first, each with its key, name, address, place, the signals that fired with their evidence (the value measured and up to three matching snippets), score and rank, and the items it left out with the reason. A field an item lacks refuses a filter and keeps a signal quiet; it never counts as zero. It sends, posts and keeps nothing, holds no credential, and knows no site: sources.json ships sample rows (open-job-posts, local-businesses-by-place; the launch rows of group launches: launches-hacker-news, launches-product-hunt, launches-yc, launches-x, launches-github, filtered to the last 24 hours and scored on how fresh each launch is; vendors-by-verifiable-proof, which scores vendors only on metrics with a public proof) and every number and word in them is yours to change. now may be a date and time, such as 2026-11-02T10:30:00Z, for measures in hours. A new measure is a row in signal-measures.json.",
-    "status": "active",
-    "maker": "maker:find-signals-of-need",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "find-signals-of-need"
    }
   },
   {
@@ -7355,6 +7340,21 @@
      "placement:caller-sandbox"
     ],
     "folder": "walk-through-an-app-like-its-users"
+   }
+  },
+  {
+   "id": "tool:watch-my-sources",
+   "values": {
+    "title": "Watch my sources",
+    "job": "Watch the places I follow (any site's feed, a YouTube channel, a blog, a changelog, a page, a best-seller or trending list) and keep each new item as a row, weighed against what I am pursuing; only what moves a pursuit is handed to my AIs",
+    "description": "Reads each source marked Yes in the person's list signal-sources (made with its fields when missing, with starter places turned off) and keeps every item it has not kept before as a row of their list signals; a ranked-list source keeps each item's rank in ranked-items and makes a signal of each entry, climb, fall or drop-out. A source's first read is a quiet baseline. A page is watched by whether its words changed; an X account needs a feed address; a YouTube channel is read from its feed or, when YouTube refuses that, its videos page; an address that answers 'not changed' costs nothing. Reads at most 25 sources and weighs at most 20 items a run; the rest wait. The run asks no model and hands nothing in itself: when new items wait it answers weigh_wanted, one question { purpose, identity, messages, max_tokens } for the oldest batch, the same until it is answered; answer it and run again with weighed { identity, reply }. Each item that moves a pursuit comes back in arrivals, each exactly what the person's arrival door takes (route watch-sources, from_person false); the door keeps one arrival per route and source_id. Sends nothing outward and never writes to a source. Run it on a schedule (hourly) or when the person asks what is new in the places they follow. When the answer names weigh_wanted, answer that question yourself as the person's AI (reply with the JSON it asks for, nothing else) and run the tool again with weighed { identity, reply }. Hand each of arrivals to the person's arrival door as it is. Tell the person the moves; the rest is in their Signals list.",
+    "status": "active",
+    "maker": "maker:watch-my-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "watch-my-sources"
    }
   },
   {

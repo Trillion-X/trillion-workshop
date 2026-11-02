@@ -722,19 +722,17 @@
       "capability": "keep shared step-by-step playbooks any person's AI can follow",
       "owner": ["tools/workflows/"],
       "entry": "tools/workflows/tool-rows.json",
-      "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, each a row of the person's list of workflows; workflow:out-launch-a-new-launch (launch monitors over the launch source rows, reverse engineered within hours and handed to workflow:plan-a-launch-as-a-content-campaign within 24) and workflow:build-a-best-x-for-y-comparison (proof-scored comparison tables answer engines cite, sponsored placement kept apart) are recipe rows; the outreach recipes (open job posts, local businesses by zip code, a LinkedIn content system) join existing tools step by step, and host-tools.json names tools that live outside this repository, such as the phone call exchange, by their job"
+      "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, each a row of the person's list of workflows; workflow:out-launch-a-new-launch (launch monitors over the places the person watches with tool:watch-my-sources, reverse engineered within hours and handed to workflow:plan-a-launch-as-a-content-campaign within 24) and workflow:build-a-best-x-for-y-comparison (proof-scored comparison tables answer engines cite, sponsored placement kept apart) are recipe rows; the outreach recipes (open job posts, local businesses by zip code, a LinkedIn content system) join existing tools step by step, and host-tools.json names tools that live outside this repository, such as the phone call exchange, by their job"
     },
     {
-      "capability": "score outside candidates on weighted signals of need (age, mention counts, recent shares) under signal-source rows, filter and rank them",
-      "owner": ["tools/find-signals-of-need/"],
-      "entry": "tools/find-signals-of-need/tool-rows.json",
-      "evidence": "tools/find-signals-of-need/README.md: one finder; where candidates come from, how they map, what is kept and what scores are DATA rows, and a new measure is a row in signal-measures.json; launch sources (X, Product Hunt, YC launches, Hacker News, GitHub; group launches, scored by hours since launch) and vendors scored only on publicly proven metrics (group vendors) are source rows of the same finder, not code",
+      "capability": "watch the places a person follows (any site's feed, a YouTube channel, a blog, a changelog, a page, a best-seller or trending list) every hour, keep each new item once as a row of their list, weigh what is new against what they pursue and hand only what moves a pursuit to their AIs",
+      "owner": ["tools/watch-my-sources/"],
+      "entry": "tools/watch-my-sources/tool-rows.json",
+      "evidence": "tools/watch-my-sources/README.md: moved from Trillion-X/trillion src/watch-sources.mjs (2e57d9a49b); the places are rows of the person's signal-sources list, items rows of signals, a ranked list's ranks rows of ranked-items; a source's first read is a quiet baseline; the weighing question and the arrivals are handed to the AI that runs tool:watch-my-sources; Trillion's in-account run imports the same module",
       "distinct_from": [
-        {"job": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends", "why": "That owner searches records the person already holds and ranks people by activity points. This owner scores new candidates from a source row on dated and counted facts and keeps nothing."},
-        {"job": "evaluate formulas over rows", "why": "That owner keeps the rows that match a rule tree and labels records. This owner adds weighted signals into a score and ranks; it applies no rule tree and labels nothing."},
-        {"job": "rank a person's records in the order they should review them, and keep their accept or pass as their stand", "why": "That owner orders records the person already holds and keeps their decision. This owner scores new candidates from a source and keeps nothing."},
-        {"job": "measure traffic by where it came from: tracked links, visitors, leads and sales by source, ad return, conversions sent back to ad platforms", "why": "That owner measures visits and sales a business already has. This owner scores outside candidates before any contact and reads no visit."},
-        {"job": "research a creator or topic: gather its latest items and transcripts, and write a profile of it", "why": "That owner gathers the latest items of one feed or channel and prepares a profile request. This owner filters and scores many candidates on declared signals and gathers or profiles nothing."}
+        {"job": "research a creator or topic: gather its latest items and transcripts, and write a profile of it", "why": "That owner reads one feed or channel once, for a profile. This owner keeps watching every place a person follows, keeps each item once in their list and weighs what is new against their pursuits."},
+        {"job": "save what a person watches, reads and bookmarks elsewhere: X bookmarks, Pinterest pins, files that match a pattern", "why": "That owner keeps what the person themself saved elsewhere. This owner reads the places they follow for what those places published."},
+        {"job": "evaluate formulas over rows", "why": "That owner keeps the rows a rule tree matches and labels records. This owner reads outside places and asks a model whether an item moves a pursuit; it applies no rule tree."}
       ]
     },
     {

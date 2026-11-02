@@ -1,0 +1,368 @@
+{
+ "about": "The thresholds the outreach recipes hold candidates to, as requests to tool:classify-a-record (tools/formulas do-work/classify-by-rules.mjs, the Workshop's one rule owner), never a rule language of their own. A row's `facts` say what is read from a candidate record; each of its `keep` rules must hold for the candidate to stay; each `signals` entry is one rule with its weight: a candidate is classified once per signal with rules: [that rule], its signals are the keys that came back and its score is their weights added. `prepare` says, in words, any number the step works out from the candidate's own lists before it is classified (a count of reviews, a share), so the rule reads a plain number. A person's own row (the recipe's input source_row) has the same shape and replaces the shipped one; every number here is a default, not a law. Moved out of tools/find-signals-of-need/sources.json (2026-11-02) when that finder was deleted.",
+ "records": [
+  {
+   "id": "open-job-posts",
+   "label": "Companies whose job post has stayed open",
+   "meaning": "A role that has stayed open for weeks at a small company shows a problem it has not solved inside, and budget set aside for it. The post's own list of day-to-day duties says what is broken.",
+   "facts": [
+    {
+     "key": "employees",
+     "path": [
+      "employees"
+     ],
+     "as": "number"
+    },
+    {
+     "key": "open_seconds",
+     "path": [
+      "posted_at"
+     ],
+     "as": "age-seconds"
+    }
+   ],
+   "keep": [
+    {
+     "key": "fits",
+     "label": "Open 21 days or more at a company of 10 to 200 people",
+     "requires": [
+      {
+       "fact": "employees",
+       "op": "gte",
+       "value": 10
+      },
+      {
+       "fact": "employees",
+       "op": "lte",
+       "value": 200
+      },
+      {
+       "fact": "open_seconds",
+       "op": "gte",
+       "value": 1814400
+      }
+     ]
+    }
+   ],
+   "signals": [
+    {
+     "weight": 2,
+     "rule": {
+      "key": "open-a-month",
+      "label": "The post has been open for 30 days or more.",
+      "requires": [
+       {
+        "fact": "open_seconds",
+        "op": "gte",
+        "value": 2592000
+       }
+      ]
+     }
+    },
+    {
+     "weight": 1,
+     "rule": {
+      "key": "open-three-weeks",
+      "label": "The post has been open for 21 days or more.",
+      "requires": [
+       {
+        "fact": "open_seconds",
+        "op": "gte",
+        "value": 1814400
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "local-businesses-by-place",
+   "label": "Local businesses in a place, scored by what their reviews say",
+   "meaning": "A business whose customers keep naming one delay, or whose reviews suddenly pick up, has told you what it needs. Candidates for a place come from the person's map data connection.",
+   "prepare": [
+    {
+     "fact": "slow_quote_reviews",
+     "says": "How many of its reviews mention any of these words, ignoring capitals",
+     "words": [
+      "slow quote",
+      "slow to quote",
+      "never sent a quote",
+      "waited for a quote",
+      "quote took"
+     ]
+    },
+    {
+     "fact": "recent_reviews",
+     "says": "How many of its dated reviews fall in the last 90 days",
+     "days": 90
+    },
+    {
+     "fact": "recent_review_share",
+     "says": "Its dated reviews in the last 90 days divided by all its dated reviews",
+     "days": 90
+    }
+   ],
+   "facts": [
+    {
+     "key": "slow_quote_reviews",
+     "path": [
+      "slow_quote_reviews"
+     ],
+     "as": "number"
+    },
+    {
+     "key": "recent_reviews",
+     "path": [
+      "recent_reviews"
+     ],
+     "as": "number"
+    },
+    {
+     "key": "recent_review_share",
+     "path": [
+      "recent_review_share"
+     ],
+     "as": "number"
+    }
+   ],
+   "keep": [],
+   "signals": [
+    {
+     "weight": 3,
+     "rule": {
+      "key": "slow-quotes",
+      "label": "Reviews mention slow quotes.",
+      "requires": [
+       {
+        "fact": "slow_quote_reviews",
+        "op": "gte",
+        "value": 2
+       }
+      ]
+     }
+    },
+    {
+     "weight": 2,
+     "rule": {
+      "key": "review-spike",
+      "label": "A large share of the reviews are from the last 90 days.",
+      "requires": [
+       {
+        "fact": "recent_review_share",
+        "op": "gte",
+        "value": 0.4
+       }
+      ]
+     }
+    },
+    {
+     "weight": 1,
+     "rule": {
+      "key": "new-reviews",
+      "label": "At least 5 reviews came in during the last 90 days.",
+      "requires": [
+       {
+        "fact": "recent_reviews",
+        "op": "gte",
+        "value": 5
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "vendors-by-verifiable-proof",
+   "label": "Vendors in a category, scored only on proof they publish",
+   "meaning": "A 'best X for Y' comparison earns citations when every score can be checked. Each metric is a number someone can verify at a public address; a metric with no proof address is sent as null, which a rule reads as nothing proven, so it never fires a signal. A sponsored vendor is scored by the same row as everyone else: sponsorship is a label on the page, never a fact here.",
+   "facts": [
+    {
+     "key": "named_customers",
+     "path": [
+      "proof",
+      "named_customers"
+     ],
+     "as": "number"
+    },
+    {
+     "key": "review_count",
+     "path": [
+      "proof",
+      "review_count"
+     ],
+     "as": "number"
+    },
+    {
+     "key": "review_rating",
+     "path": [
+      "proof",
+      "review_rating"
+     ],
+     "as": "number"
+    },
+    {
+     "key": "uptime_percent",
+     "path": [
+      "proof",
+      "uptime_percent"
+     ],
+     "as": "number"
+    },
+    {
+     "key": "price_published",
+     "path": [
+      "proof",
+      "price_published"
+     ],
+     "as": "number"
+    },
+    {
+     "key": "security_attestations",
+     "path": [
+      "proof",
+      "security_attestations"
+     ],
+     "as": "number"
+    },
+    {
+     "key": "released",
+     "path": [
+      "proof",
+      "last_release_at"
+     ],
+     "as": "present"
+    },
+    {
+     "key": "release_age_seconds",
+     "path": [
+      "proof",
+      "last_release_at"
+     ],
+     "as": "age-seconds"
+    }
+   ],
+   "keep": [
+    {
+     "key": "reviewed",
+     "label": "At least one public review",
+     "requires": [
+      {
+       "fact": "review_count",
+       "op": "gte",
+       "value": 1
+      },
+      {
+       "fact": "price_published",
+       "op": "lte",
+       "value": 1
+      }
+     ]
+    }
+   ],
+   "signals": [
+    {
+     "weight": 3,
+     "rule": {
+      "key": "named-customers",
+      "label": "At least 5 customers are named in public case studies.",
+      "requires": [
+       {
+        "fact": "named_customers",
+        "op": "gte",
+        "value": 5
+       }
+      ]
+     }
+    },
+    {
+     "weight": 2,
+     "rule": {
+      "key": "many-reviews",
+      "label": "At least 100 public reviews on an independent review site.",
+      "requires": [
+       {
+        "fact": "review_count",
+        "op": "gte",
+        "value": 100
+       }
+      ]
+     }
+    },
+    {
+     "weight": 2,
+     "rule": {
+      "key": "well-rated",
+      "label": "Rated 4.5 or more out of 5 on that review site.",
+      "requires": [
+       {
+        "fact": "review_rating",
+        "op": "gte",
+        "value": 4.5
+       }
+      ]
+     }
+    },
+    {
+     "weight": 2,
+     "rule": {
+      "key": "reliable",
+      "label": "Its public status page shows 99.9% uptime or more over the last 90 days.",
+      "requires": [
+       {
+        "fact": "uptime_percent",
+        "op": "gte",
+        "value": 99.9
+       }
+      ]
+     }
+    },
+    {
+     "weight": 1,
+     "rule": {
+      "key": "price-on-the-page",
+      "label": "Its price is published on its own site, no sales call needed.",
+      "requires": [
+       {
+        "fact": "price_published",
+        "op": "gte",
+        "value": 1
+       }
+      ]
+     }
+    },
+    {
+     "weight": 2,
+     "rule": {
+      "key": "security-attested",
+      "label": "It publishes at least one independent security attestation (such as a SOC 2 report or an ISO 27001 certificate).",
+      "requires": [
+       {
+        "fact": "security_attestations",
+        "op": "gte",
+        "value": 1
+       }
+      ]
+     }
+    },
+    {
+     "weight": 1,
+     "rule": {
+      "key": "shipping",
+      "label": "It shipped a public release in the last 30 days.",
+      "requires": [
+       {
+        "fact": "released",
+        "op": "present"
+       },
+       {
+        "fact": "release_age_seconds",
+        "op": "lte",
+        "value": 2592000
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

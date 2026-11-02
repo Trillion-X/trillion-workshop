@@ -712,7 +712,7 @@
         "kind": "workflow-recipe",
         "id": "workflow:build-a-best-x-for-y-comparison",
         "label": "Build a 'best X for Y' comparison that answer engines cite",
-        "job": "For one category (X) and one buyer (Y) the person names: find the vendors buyers and answer engines weigh; choose only metrics a vendor can prove at a public address and read every value with its address and date; score the vendors with a vendor proof row of tools/find-signals-of-need, where a metric with no proof never counts; write a page whose quotable answer, structured comparison table (each cell linked to its proof), method and FAQ are in the served HTML with ItemList and FAQPage data, so answer engines can quote and cite it; keep sponsored placement in its own labelled block that never changes a score or a rank; publish only what the person approved, check it the way answer engines read it, hand it to workflow:keep-pages-cited-by-answer-engines and recheck the proof on a schedule.",
+        "job": "For one category (X) and one buyer (Y) the person names: find the vendors buyers and answer engines weigh; choose only metrics a vendor can prove at a public address and read every value with its address and date; score the vendors with a vendor proof row of rules (tools/workflows/read-data/candidate-rules.json, classified by tool:classify-a-record), where a metric with no proof never counts; write a page whose quotable answer, structured comparison table (each cell linked to its proof), method and FAQ are in the served HTML with ItemList and FAQPage data, so answer engines can quote and cite it; keep sponsored placement in its own labelled block that never changes a score or a rank; publish only what the person approved, check it the way answer engines read it, hand it to workflow:keep-pages-cited-by-answer-engines and recheck the proof on a schedule.",
         "produces": "A dated 'best X for Y' comparison page: a scored, proof-linked table, its method and FAQ, its structured data, labelled sponsored placements, the answer-engine readiness check, and the citation workflow it was handed to.",
         "input_schema": {
           "type": "object",
@@ -749,7 +749,7 @@
             },
             "source_row": {
               "type": "object",
-              "description": "The person's own vendor proof row for this category (a signal-source row with group vendors); vendors-by-verifiable-proof of tools/find-signals-of-need when left out"
+              "description": "The person's own vendor proof row for this category (tools/workflows/read-data/candidate-rules.json shape: facts, keep rules and weighted signal rules for tool:classify-a-record); vendors-by-verifiable-proof of tools/workflows/read-data/candidate-rules.json when left out"
             },
             "questions": {
               "type": "array",
@@ -810,7 +810,7 @@
         "source": {
           "from": "the person's request for a 'best X for Y' comparison-site workflow",
           "name": "Comparison pages answer engines cite: structured tables, vendors scored on verifiable proof, sponsored placement kept apart",
-          "note": "Adopted: one comparison per category and buyer; a structured, proof-linked table and FAQ in the served HTML with ItemList and FAQPage data, so an answer engine can quote and cite it; vendors scored by a vendor proof row of tools/find-signals-of-need (a metric with no public proof is null and never counts); sponsored placement as a labelled block with its disclosure and rel=\"sponsored\" links; the hand-off to workflow:keep-pages-cited-by-answer-engines and a dated proof recheck. Not adopted: letting a sponsor change a score, a rank or the quotable answer; scores from a vendor's unlabelled own claims; ranking by commission; and any metric no one else can check."
+          "note": "Adopted: one comparison per category and buyer; a structured, proof-linked table and FAQ in the served HTML with ItemList and FAQPage data, so an answer engine can quote and cite it; vendors scored by a vendor proof row of rules for tool:classify-a-record (a metric with no public proof is null and never counts); sponsored placement as a labelled block with its disclosure and rel=\"sponsored\" links; the hand-off to workflow:keep-pages-cited-by-answer-engines and a dated proof recheck. Not adopted: letting a sponsor change a score, a rank or the quotable answer; scores from a vendor's unlabelled own claims; ranking by commission; and any metric no one else can check."
         },
         "steps": [
           {
@@ -910,7 +910,7 @@
           {
             "id": "metrics",
             "title": "Choose the proof metrics: only numbers anyone can check",
-            "do": "Start from the fields and signals of input source_row, or of the vendors-by-verifiable-proof row of tools/find-signals-of-need when it is left out. Keep a metric only when a vendor could prove it at a public address someone else can open (a status page, an independent review site, a price page, named customer stories, a security page, a changelog), and say which kind of address proves it. Add the metrics buyers of this category weigh as new fields and signals of the person's own source row, each with plain words, a weight and a test; drop any metric no vendor can prove. Sponsorship is never a metric and never a field of the row. Copy the source row as it will be scored.",
+            "do": "Start from the facts and signals of input source_row, or of the vendors-by-verifiable-proof row of tools/workflows/read-data/candidate-rules.json when it is left out. Keep a metric only when a vendor could prove it at a public address someone else can open (a status page, an independent review site, a price page, named customer stories, a security page, a changelog), and say which kind of address proves it. Add the metrics buyers of this category weigh as new facts and signals of the person's own source row, each signal a rule with plain words, a weight and its clauses (at least, at most, equals, present); drop any metric no vendor can prove. Sponsorship is never a metric and never a fact of the row. Copy the source row as it will be scored.",
             "submit": {
               "type": "object",
               "required": [
@@ -1101,7 +1101,7 @@
           {
             "id": "score",
             "title": "Score the vendors with the proof row",
-            "do": "Call tool:find-signals-of-need with { source_row: the metrics step's source_row, now: today's date, items: one item per vendor { slug, name, url, proof: { <metric>: its proven value, or null when not proven } } }. Sponsors are scored exactly like every other vendor, from the same items. Copy the ranked vendors with their score, rank and the ids of the signals that fired, and every skipped vendor with the reason the finder gave; never change a score or an order by hand.",
+            "do": "For each vendor call tool:classify-a-record with { facts: the metrics step's source_row facts, rules: its keep rules, record: { slug, name, url, proof: { <metric>: its proven value, or null when not proven } }, now_ms: now }: a vendor no keep rule holds for is skipped with the rule's words. Classify each kept vendor once more per signal of the row with rules: [that signal's rule]; its signals are the keys that came back, its score their weights added, and its rank its place by score (then by name). Sponsors are scored exactly like every other vendor, from the same records. Copy the ranked vendors with their score, rank and the ids of the signals that fired, and every skipped vendor with the reason; never change a score or an order by hand.",
             "submit": {
               "type": "object",
               "required": [
@@ -22814,7 +22814,7 @@
         "kind": "workflow-recipe",
         "id": "workflow:out-launch-a-new-launch",
         "label": "Out-launch a new launch within its first 24 hours",
-        "job": "Each hour, read every launch source row (X, Product Hunt, YC launches, Hacker News, GitHub and any row the person adds to the launches group of tools/find-signals-of-need) for products that launched in the last 24 hours; keep the ones whose own pages compete for the person's buyers; reverse engineer each from public evidence within hours, every finding SEEN or INFERRED, and keep the teardown in the REA hub; draft a counter-launch from its gaps and the person's own proof and get the person's approval; then hand it to the person's marketing workflows (a launch record that starts workflow:plan-a-launch-as-a-content-campaign) to out-launch it. Target: handed off within 1 hour of the launch, and always within 24 hours, measured per launch. Nobody is contacted, no account is made, and nothing goes out without the person's approval.",
+        "job": "Each hour, read every launch place the person watches (rows of their Sources I watch list, read by tool:watch-my-sources: Show HN starts there turned off, and Product Hunt's feed, a launch newsletter or any other launch feed is a row they add) for products that launched in the last 24 hours; keep the ones whose own pages compete for the person's buyers; reverse engineer each from public evidence within hours, every finding SEEN or INFERRED, and keep the teardown in the REA hub; draft a counter-launch from its gaps and the person's own proof and get the person's approval; then hand it to the person's marketing workflows (a launch record that starts workflow:plan-a-launch-as-a-content-campaign) to out-launch it. Target: handed off within 1 hour of the launch, and always within 24 hours, measured per launch. Nobody is contacted, no account is made, and nothing goes out without the person's approval.",
         "produces": "For each competing launch of the last 24 hours: its teardown in the REA hub, the counter-launch the person approved, the launch campaign it was handed to, and the hours each took against the 1-hour target and the 24-hour deadline.",
         "input_schema": {
           "type": "object",
@@ -22842,18 +22842,7 @@
                 "type": "string",
                 "minLength": 2
               },
-              "description": "The ids of the launch source rows to read; every row of tools/find-signals-of-need/sources.json whose group is launches (X, Product Hunt, YC launches, Hacker News, GitHub and any row the person adds) when left out"
-            },
-            "source_rows": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              },
-              "description": "The person's own launch source rows, read as well, each a signal-source row with group launches"
-            },
-            "items_by_source": {
-              "type": "object",
-              "description": "For a source behind a login (Product Hunt, YC launches, X), the launches the person's own connection for it returned, keyed by the source id"
+              "description": "The ids of the rows of the person's Sources I watch list that are launch places; every source tool:watch-my-sources read when left out"
             },
             "own_product": {
               "type": "string",
@@ -22890,9 +22879,9 @@
           }
         },
         "source": {
-          "from": "the person's request for launch monitors over the Workshop's launch source rows",
+          "from": "the person's request for launch monitors over the places they watch",
           "name": "Out-launch a new launch: watch launch sources, reverse engineer within hours, hand off to the marketing workflows",
-          "note": "Adopted: launch sources as rows of tools/find-signals-of-need (group launches), so a new place to watch is a new row and no code; an hourly wake so a launch is seen within its first hour; reverse engineering from public evidence with SEEN and INFERRED kept apart, kept in the REA hub (tool:keep-a-reverse-engineered-thing); the hand-off through the person's launch record to workflow:plan-a-launch-as-a-content-campaign; a 1-hour target and a 24-hour deadline measured per launch. Not adopted: posting, replying or commenting on the launch from any account, contacting its makers or users, making accounts on the launch's product, and any comparison claim that is not SEEN; the person approves every counter-launch before it moves."
+          "note": "Adopted: launch places as rows of the person's own Sources I watch list, read by tool:watch-my-sources, so a new place to watch is a new row and no code; an hourly wake so a launch is seen within its first hour; reverse engineering from public evidence with SEEN and INFERRED kept apart, kept in the REA hub (tool:keep-a-reverse-engineered-thing); the hand-off through the person's launch record to workflow:plan-a-launch-as-a-content-campaign; a 1-hour target and a 24-hour deadline measured per launch. Not adopted: posting, replying or commenting on the launch from any account, contacting its makers or users, making accounts on the launch's product, and any comparison claim that is not SEEN; the person approves every counter-launch before it moves."
         },
         "wakes": [
           {
@@ -22915,8 +22904,8 @@
         "steps": [
           {
             "id": "read-launches",
-            "title": "Read what launched in the last 24 hours from every launch source row",
-            "do": "Take the launch sources: the ids in input sources, or, when it is left out, every row of tools/find-signals-of-need/sources.json whose group is launches, plus each row of input source_rows. For each one call tool:find-signals-of-need with { source (or source_row), now: the current date and time in UTC, such as 2026-11-02T10:30:00Z }. A row that declares a public request is read from its address (launches-github takes parameters { since: yesterday's date }); a row without one takes items: input items_by_source[<source id>], exactly as the person's connection returned them. A source with neither, or whose call fails, goes into not_read with the reason; it is never guessed or filled from memory. The rows themselves keep only launches from the last 24 hours and score the first hour highest. Then call tool:keep-a-reverse-engineered-thing with { action: \"read\", where: { kind: \"launch\" }, limit: 500 } and leave out every launch whose url or name is already kept there with the same found_by: a launch is reverse engineered once. For each remaining launch copy source, key, name, url, launched_at, hours_since_launch (now minus launched_at, in hours with one decimal), score and the ids of its signals, exactly as the finder returned them; order them by launched_at, oldest first, because the oldest is nearest its deadline.",
+            "title": "Read what launched in the last 24 hours from every launch place the person watches",
+            "do": "Run tool:watch-my-sources with {}. When its answer names weigh_wanted, answer that question yourself as the person's AI, judging each item against input market, and run it again with weighed { identity, reply }; hand each of its arrivals to the person's arrival door as it is. Every source it names in problems goes into not_read with its problem; it is never guessed or filled from memory. Then read the person's Signals list (the rows the run kept) and take each row whose source is one of input sources (every source the run read when it is left out) and whose published time is within the last 24 hours, never one kept as Seen before watching. Then call tool:keep-a-reverse-engineered-thing with { action: \"read\", where: { kind: \"launch\" }, limit: 500 } and leave out every launch whose url or name is already kept there with the same found_by: a launch is reverse engineered once. For each remaining launch copy source (its source row's id), key, name (its title), url (its link), launched_at (its published time) and hours_since_launch (now minus launched_at, in hours with one decimal), exactly as the Signals row holds them; order them by launched_at, oldest first, because the oldest is nearest its deadline.",
             "submit": {
               "type": "object",
               "required": [
@@ -22961,8 +22950,7 @@
                       "key",
                       "name",
                       "launched_at",
-                      "hours_since_launch",
-                      "score"
+                      "hours_since_launch"
                     ],
                     "properties": {
                       "source": {
@@ -22990,16 +22978,6 @@
                       "hours_since_launch": {
                         "type": "number",
                         "minimum": 0
-                      },
-                      "score": {
-                        "type": "number"
-                      },
-                      "signals": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "minLength": 1
-                        }
                       }
                     }
                   }
@@ -28227,7 +28205,7 @@
             },
             "source_row": {
               "type": "object",
-              "description": "The person's own signal-source row for tool:find-signals-of-need, with their own filters and signals; without it the shipped row named in the find step is used."
+              "description": "The person's own candidate rule row (tools/workflows/read-data/candidate-rules.json shape: facts, keep rules and weighted signal rules for tool:classify-a-record), with their own thresholds; without it the shipped row named in the find step is used."
             },
             "pacing": {
               "type": "string",
@@ -28250,7 +28228,7 @@
           {
             "id": "find",
             "title": "Find posts open 21 days or more at 10 to 200 person companies",
-            "do": "With tool:find-signals-of-need send input.source_row when the person gave their own signal-source row, else source \"open-job-posts\", and input.items (the job posts from the person's job board connection; without items the source row reads its own public request). Keep that row's filters as they are (the shipped row keeps posts open 21 days or more at companies of 10 to 200 people); never loosen them to get more prospects. Take at most input.limit (default 20), best score first. Hand back each prospect's key, company, role, address, the days open, the head count and the ids of the signals it matched, exactly as the finder measured them.",
+            "do": "Take input.source_row when the person gave their own candidate rule row, else the row \"open-job-posts\" of tools/workflows/read-data/candidate-rules.json, and input.items (the job posts from the person's job board connection). For each post call tool:classify-a-record with { facts: the row's facts, rules: the row's keep rules, record: the post, now_ms: now }: a post the keep rule does not hold for is left out. Classify each kept post once more per signal of the row, with rules: [that signal's rule]; its signals are the keys that came back and its score their weights added. Keep that row's rules as they are (the shipped row keeps posts open 21 days or more at companies of 10 to 200 people); never loosen them to get more prospects. Take at most input.limit (default 20), best score first. Hand back each prospect's key, company, role, address, the days open, the head count and the ids of the signals it matched, exactly as the rules measured them.",
             "submit": {
               "type": "object",
               "required": [
@@ -28260,7 +28238,7 @@
               ],
               "properties": {
                 "tool": {
-                  "const": "tool:find-signals-of-need"
+                  "const": "tool:classify-a-record"
                 },
                 "source": {
                   "type": "string",
@@ -28320,7 +28298,7 @@
             "checks": [
               {
                 "kind": "exists",
-                "says": "The step ran tool:find-signals-of-need, a tool the account has",
+                "says": "The step ran tool:classify-a-record, a tool the account has",
                 "path": [
                   "this",
                   "tool"
@@ -29508,7 +29486,7 @@
             },
             "source_row": {
               "type": "object",
-              "description": "The person's own signal-source row for tool:find-signals-of-need, with their own filters and signals; without it the shipped row named in the find step is used."
+              "description": "The person's own candidate rule row (tools/workflows/read-data/candidate-rules.json shape: facts, keep rules and weighted signal rules for tool:classify-a-record), with their own thresholds; without it the shipped row named in the find step is used."
             },
             "address_patterns": {
               "type": "array",
@@ -29606,7 +29584,7 @@
           {
             "id": "find",
             "title": "Score the zip code's businesses on their reviews",
-            "do": "With tool:find-signals-of-need send input.source_row when the person gave their own signal-source row, else source \"local-businesses-by-place\", and input.items (the businesses for input.zip_code and input.category from the person's map data connection) and parameters { zip_code }. The shipped row scores reviews that complain of slow quotes and a spike of new reviews in the last 90 days; keep only businesses with at least one review signal, best score first, and the domain they will be written from.",
+            "do": "Take input.source_row when the person gave their own candidate rule row, else the row \"local-businesses-by-place\" of tools/workflows/read-data/candidate-rules.json, and input.items (the businesses for input.zip_code and input.category from the person's map data connection). For each business first work out the numbers the row's prepare names from its own reviews (how many mention the slow-quote words, how many and what share fall in the last 90 days), then call tool:classify-a-record once per signal of the row with { facts: the row's facts, rules: [that signal's rule], record: the business with those numbers, now_ms: now }; its signals are the keys that came back and its score their weights added. The shipped row scores reviews that complain of slow quotes and a spike of new reviews in the last 90 days; keep only businesses with at least one review signal, best score first, and the domain they will be written from.",
             "submit": {
               "type": "object",
               "required": [
@@ -29618,7 +29596,7 @@
               ],
               "properties": {
                 "tool": {
-                  "const": "tool:find-signals-of-need"
+                  "const": "tool:classify-a-record"
                 },
                 "zip_code": {
                   "type": "string",
@@ -29677,7 +29655,7 @@
             "checks": [
               {
                 "kind": "exists",
-                "says": "The step ran tool:find-signals-of-need, a tool the account has",
+                "says": "The step ran tool:classify-a-record, a tool the account has",
                 "path": [
                   "this",
                   "tool"
