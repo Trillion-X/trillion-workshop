@@ -20,7 +20,7 @@
 # the squared distance between the two postures. Dividing by both lengths keeps a long clip from scoring worse only
 # for being long, so the number can rank several references against one clip (0 = the same postures). The
 # length-normalised DTW score is the idea used for word templates in the MIT-licensed joeblau/subvox
-# (references/rea-intake-2026-11-01/joeblau--subvox.md); the code here is written fresh.
+# (https://github.com/joeblau/subvox); the code here is written fresh.
 #
 # FAIL-CLOSED: missing/empty pose track, no usable person, or degenerate feature matrix -> non-zero
 # exit and an {"error": ...} line on stdout; never a silent wrong alignment.
