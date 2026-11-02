@@ -1,0 +1,195 @@
+{
+ "what_this_is": "Two share_from_private rule rows of another owner's record kinds (Trillion's src/space-settings.json), so the privacy rules of read-data/shareable-copy.mjs are tested at every depth, not only on the List rule this tool carries.",
+ "pursuit": {
+  "title": [
+   "title"
+  ],
+  "fields": [
+   "title",
+   "now",
+   "after",
+   "why_it_matters",
+   "status"
+  ]
+ },
+ "sales-contract": {
+  "title": [
+   "name"
+  ],
+  "fields": [
+   "name",
+   "contract"
+  ],
+  "nested": {
+   "contract": {
+    "fields": [
+     "name",
+     "parties",
+     "scope",
+     "included_usage",
+     "deliverables",
+     "milestones",
+     "purchased_assets",
+     "schedule",
+     "product",
+     "price_experiment",
+     "fulfillment",
+     "access_grants",
+     "start_date",
+     "end_date",
+     "cancellation",
+     "other_terms",
+     "total_amount",
+     "currency",
+     "rules",
+     "agreement_terms"
+    ],
+    "nested": {
+     "parties": {
+      "items": {
+       "fields": [
+        "role",
+        "name"
+       ]
+      }
+     },
+     "product": {
+      "fields": [
+       "name",
+       "description",
+       "terms"
+      ]
+     },
+     "rules": {
+      "items": {
+       "fields": [
+        "type",
+        "label",
+        "amount",
+        "total_amount",
+        "currency",
+        "recurrence",
+        "resource",
+        "condition",
+        "usage_limit",
+        "duration_amount",
+        "duration_unit",
+        "quantity",
+        "metric",
+        "period",
+        "pricing_rules"
+       ],
+       "nested": {
+        "pricing_rules": {
+         "fields": [
+          "per_unit_cents",
+          "included_units",
+          "tiers"
+         ],
+         "nested": {
+          "tiers": {
+           "items": {
+            "fields": [
+             "up_to",
+             "unit_amount_cents",
+             "flat_amount_cents"
+            ]
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "agreement_terms": {
+      "fields": [
+       "contract"
+      ],
+      "nested": {
+       "contract": {
+        "fields": [
+         "name",
+         "parties",
+         "scope",
+         "included_usage",
+         "access_grants",
+         "price",
+         "payment_schedule",
+         "sharing",
+         "start_date",
+         "end_date",
+         "cancellation",
+         "other_terms"
+        ],
+        "nested": {
+         "parties": {
+          "items": {
+           "fields": [
+            "role",
+            "name"
+           ]
+          }
+         },
+         "included_usage": {
+          "items": {
+           "fields": [
+            "service",
+            "quantity",
+            "unit",
+            "per",
+            "duration_minutes",
+            "term_months"
+           ]
+          }
+         },
+         "price": {
+          "fields": [
+           "status",
+           "amount_cents",
+           "currency",
+           "payment_timing",
+           "interval",
+           "interval_count"
+          ]
+         },
+         "payment_schedule": {
+          "fields": [
+           "status",
+           "interval",
+           "term"
+          ]
+         },
+         "sharing": {
+          "fields": [
+           "status",
+           "people",
+           "records"
+          ]
+         }
+        }
+       }
+      }
+     },
+     "price_experiment": {
+      "fields": [
+       "arms",
+       "assignment",
+       "eligibility",
+       "start_at",
+       "end_at",
+       "success_measure"
+      ],
+      "nested": {
+       "assignment": {
+        "fields": [
+         "status",
+         "method"
+        ]
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

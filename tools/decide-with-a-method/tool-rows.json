@@ -340,7 +340,7 @@
     "id": "tool:next-decision-question",
     "label": "Read a decision's next question",
     "job": "See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions",
-    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out.",
+    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. A question that asks for a recheck says which step was revised and the version of its answer. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out. With versions_of (a step id) it returns that step's versions, oldest first, each with who gave it, when, why it was revised and its answer.",
     "status": "active",
     "result_selector": "$.result",
     "input_schema": {
@@ -364,6 +364,11 @@
         "minLength": 1
        },
        "description": "Ids of this question's checks whose whole words (what a good answer does, what it refuses) to send back as explained"
+      },
+      "versions_of": {
+       "type": "string",
+       "minLength": 1,
+       "description": "A step of this decision with an answer: its versions are returned instead of the next question"
       }
      }
     },
@@ -489,16 +494,15 @@
     "kind": "ai-tool-descriptor",
     "id": "tool:answer-a-decision-question",
     "label": "Answer a decision's question",
-    "job": "Answer the question my method is asking about a decision, with each of its checks",
-    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. Keeps the answer as its own step record and returns the next question.",
+    "job": "Answer the question my method is asking about a decision, with each of its checks; change an answer I gave before with its reason; confirm an answer that must be asked again; or bring in an answer from another of my decisions",
+    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. revise changes an answer already given: it names because (why, in a few words) and keeps the old version, and every later answer of the decision is marked to be asked again, so the next question is the earliest of them. confirm, alone, keeps a re-asked answer unchanged. from, instead of answer, brings in another of the person's decisions' answer to the same step as it stood (its version, or the current one), with the evidence it cites, and checks it as a typed answer. A decided decision's answers change only after a failed result. Keeps the answer as its own step record and returns the next question.",
     "status": "active",
     "result_selector": "$.result",
     "input_schema": {
      "type": "object",
      "required": [
       "decision_id",
-      "step_id",
-      "answer"
+      "step_id"
      ],
      "additionalProperties": false,
      "properties": {
@@ -511,7 +515,8 @@
        "minLength": 1
       },
       "answer": {
-       "type": "object"
+       "type": "object",
+       "description": "The answer as the question's answer_schema says; not sent with from or with confirm"
       },
       "verdicts": {
        "type": "array",
@@ -546,6 +551,55 @@
       "usage": {
        "type": "object",
        "description": "What answering cost, as you count it (model calls, tokens, seconds, a model name)"
+      },
+      "from": {
+       "type": "object",
+       "required": [
+        "decision_id",
+        "step_id"
+       ],
+       "additionalProperties": false,
+       "description": "Bring in another of the person's decisions' answer to this step as it stood instead of sending answer",
+       "properties": {
+        "decision_id": {
+         "type": "string",
+         "minLength": 1
+        },
+        "step_id": {
+         "type": "string",
+         "minLength": 1
+        },
+        "version": {
+         "type": "integer",
+         "minimum": 1,
+         "description": "The version of that answer; the current one when left out"
+        }
+       }
+      },
+      "revise": {
+       "type": "object",
+       "required": [
+        "because"
+       ],
+       "additionalProperties": false,
+       "description": "Changes an answer already given: why it changes, in a few words; by names who changed it",
+       "properties": {
+        "because": {
+         "type": "string",
+         "minLength": 1,
+         "description": "Why the answer changes, in words"
+        },
+        "by": {
+         "type": "string",
+         "minLength": 1,
+         "description": "Who changed it, when not the calling AI"
+        }
+       }
+      },
+      "confirm": {
+       "type": "boolean",
+       "const": true,
+       "description": "Confirms a re-asked answer unchanged; sent alone"
       }
      }
     },
@@ -664,6 +718,178 @@
     },
     "needs": {
      "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:add-decision-evidence",
+    "label": "Add evidence to a decision",
+    "job": "Add evidence to a decision I am making, at any time, so that its answers can cite it, or bring it in from another of my decisions",
+    "description": "Adds evidence rows to a decision in the person's own records: each { ref, claim }, or { ref, from: { decision_id, ref } } to bring in another of the person's decisions' evidence as it stood. Each row is kept with when it came in. Rows can be added at any time, also after a decision is made; an answer may cite them at once. The same rows again replay; a ref that already says something else in the decision is refused. Returns the rows added and how many evidence rows the decision has.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "decision_id",
+      "evidence"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "decision_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The decision"
+      },
+      "evidence": {
+       "type": "array",
+       "minItems": 1,
+       "description": "The rows to add: each { ref, claim } or { ref, from: { decision_id, ref } }",
+       "items": {
+        "type": "object",
+        "required": [
+         "ref"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A ref unique in this decision"
+         },
+         "claim": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The fact, typed in"
+         },
+         "from": {
+          "type": "object",
+          "required": [
+           "decision_id",
+           "ref"
+          ],
+          "additionalProperties": false,
+          "properties": {
+           "decision_id": {
+            "type": "string",
+            "minLength": 1
+           },
+           "ref": {
+            "type": "string",
+            "minLength": 1
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "case_id"
+     ],
+     "properties": {
+      "case_id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/decisions.mjs",
+      "addDecisionEvidence"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-call",
+        "operations": [
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 10,
      "network_egress": false,
      "memory_mb": 256
     },
