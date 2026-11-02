@@ -1,0 +1,93 @@
+{
+  "_what": "Rules for tool:read-what-is-on-screen. Never-read apps (by bundle id) and window-title words are skipped before any text is read; never_read_url_words drop a page by its address; secret patterns are replaced with [removed] on this Mac before text leaves the tool; text_roles and text_attributes say which parts of the accessibility tree are words; url_attributes say where a browser keeps its page address; limits bound every read. wake_attributes are set to true on each app before reading, which makes Electron and Chromium apps expose their page text. words.needs_access is what the person is told when Accessibility is off. Change any of these by changing this file.",
+  "words": {
+    "needs_access": "Turn on Accessibility for the app that runs this tool in System Settings, Privacy & Security, so it can read what is on your screen."
+  },
+  "never_read_bundles": [
+    "com.apple.loginwindow",
+    "com.apple.keychainaccess",
+    "com.apple.systempreferences",
+    "com.apple.Passwords",
+    "com.apple.SecurityAgent",
+    "com.apple.ActivityMonitor",
+    "com.apple.Console",
+    "com.apple.DiskUtility",
+    "com.1password.1password",
+    "com.agilebits.onepassword7",
+    "com.bitwarden.desktop",
+    "com.lastpass.LastPass",
+    "com.dashlane.Dashlane",
+    "com.dashlane.dashlanephonefinal",
+    "com.keepersecurity.passwordmanager",
+    "org.keepassxc.keepassxc"
+  ],
+  "never_read_title_words": [
+    "(Private)",
+    "(InPrivate)",
+    "Incognito",
+    "Private Browsing",
+    "1Password",
+    "Bitwarden",
+    "Password",
+    "onetimesecret.com"
+  ],
+  "secret_patterns": [
+    "-----BEGIN [A-Z ]*PRIVATE KEY-----[\\s\\S]*?-----END [A-Z ]*PRIVATE KEY-----",
+    "\\bsk-ant-[A-Za-z0-9_-]{20,}",
+    "\\bsk-(proj-)?[A-Za-z0-9_-]{20,}",
+    "\\b(sk|rk|pk)_(live|test)_[A-Za-z0-9]{16,}",
+    "\\bxox[abprs]-[A-Za-z0-9-]{10,}",
+    "\\bgh[pousr]_[A-Za-z0-9]{30,}",
+    "\\bgithub_pat_[A-Za-z0-9_]{40,}",
+    "\\bAKIA[0-9A-Z]{16}\\b",
+    "\\bAIza[0-9A-Za-z_-]{35}\\b",
+    "\\bSG\\.[A-Za-z0-9_-]{16,}\\.[A-Za-z0-9_-]{16,}",
+    "\\bSK[0-9a-fA-F]{32}\\b",
+    "\\bkey-[0-9a-zA-Z]{32}\\b",
+    "\\beyJ[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}",
+    "\\b(?:\\d[ -]?){13,19}\\b",
+    "(?i)\\b(password|passcode|secret|api[_ -]?key|token)\\s*[:=]\\s*\\S{6,}"
+  ],
+  "text_roles": [
+    "AXStaticText",
+    "AXTextField",
+    "AXTextArea",
+    "AXHeading",
+    "AXLink",
+    "AXButton",
+    "AXCell",
+    "AXMenuItem",
+    "AXWebArea"
+  ],
+  "text_attributes": [
+    "AXValue",
+    "AXTitle",
+    "AXDescription"
+  ],
+  "url_attributes": [
+    "AXURL",
+    "AXDocument"
+  ],
+  "limits": {
+    "depth": 40,
+    "nodes": 4000,
+    "characters": 20000,
+    "poll_ms": 1000
+  },
+  "wake_attributes": [
+    "AXManualAccessibility",
+    "AXEnhancedUserInterface"
+  ],
+  "never_read_url_words": [
+    "keepersecurity.com",
+    "multipassword.com",
+    "onetimesecret.com",
+    "1password.com",
+    "bitwarden.com",
+    "lastpass.com",
+    "accounts.google.com/signin",
+    "login.",
+    "/login",
+    "/signin"
+  ]
+}
