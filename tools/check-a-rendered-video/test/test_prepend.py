@@ -12,6 +12,10 @@ from rendercheck import sfx  # noqa: E402
 from rendercheck.ctx import Context  # noqa: E402
 from rendercheck.checks import filler_words  # noqa: E402
 
+def still(n):
+    return [np.full((90, 160, 3), 40, np.uint8)] * n
+
+
 PREPEND = [[10.0, 12.0], [20.0, 21.0]]      # stitched part = 3 s: source 10-12 then 20-21, the rest of the video follows from its second 0
 
 
@@ -83,6 +87,34 @@ class Prepend(Base):
         self.assertIsNotNone(sfx.base_audio(Context(self.path('p.mp4'), {**spec, 'sound_base': 'base.mp4'}, limits())))
         self.assertIsNone(sfx.base_audio(Context(self.path('p.mp4'), {**spec, 'sound_base': 'long.mp4'}, limits())))
         self.assertIsNone(sfx.base_audio(Context(self.path('p.mp4'), spec, limits())))
+
+    def test_a_base_export_is_not_used_for_a_stitched_video(self):
+        cfg = limits()
+        cfg['sound_mix']['bases'] = {r'p\.mp4$': {'file': 'base.mp4', 't0': 0.0}}
+        write_video(self.path('base.mp4'), still(120))
+        add_audio(self.path('base.mp4'), np.zeros(16000 * 5, np.float32))
+        write_video(self.path('p.mp4'), still(120))
+        self.assertIn('base export', sfx.base_audio(Context(self.path('p.mp4'), {'edit': {'preview': [0, 5]}}, cfg))[1])
+        self.assertIsNone(sfx.base_audio(Context(self.path('p.mp4'), {'edit': {'preview': [0, 5], 'prepend': PREPEND}}, cfg)))
+
+    def test_a_plain_sibling_named_by_the_limits_is_the_sound_base(self):
+        cfg = limits()
+        cfg['sound_mix']['plain_sibling'] = [r'-\d+\.mp4$', '-0.mp4']
+        for name in ('m1-2.mp4', 'm1-0.mp4'):
+            write_video(self.path(name), still(120))
+            add_audio(self.path(name), np.zeros(16000 * 5, np.float32))
+        self.assertIn('plain sibling m1-0.mp4', sfx.base_audio(Context(self.path('m1-2.mp4'), {'edit': {'preview': [0, 5]}}, cfg))[1])
+        self.assertIsNone(sfx.base_audio(Context(self.path('m1-2.mp4'), {'edit': {'preview': [0, 5]}}, limits())))
+
+    def test_the_overlay_is_found_by_the_limits_overlay_globs(self):
+        os.makedirs(self.path('videos'))
+        write_video(self.path('videos/v-1.mp4'), still(24))
+        os.makedirs(self.path('out-2/v-1'))
+        write_video(self.path('out-2/v-1/overlay.mov'), still(24))
+        self.assertIsNone(Context(self.path('videos/v-1.mp4'), {}, limits()).overlay)
+        cfg = limits()
+        cfg['analysis']['overlay_globs'] = ['../out*/{id}/overlay.mov']
+        self.assertEqual(Context(self.path('videos/v-1.mp4'), {}, cfg).overlay, self.path('out-2/v-1/overlay.mov'))
 
     def test_filler_words_treats_a_stitch_as_editing_the_speech(self):
         self.assertEqual(filler_words.needs(self.ctx({'preview': [0, 5]})), filler_words.EMPTY_SET)

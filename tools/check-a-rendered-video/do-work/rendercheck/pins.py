@@ -22,8 +22,11 @@ CHECK_SECTIONS = {
     'exits': ('exits', ('exits', 'in_frame')),
     'dwell': ('dwell', ('dwell', 'in_frame', 'word_clip')),
     'type-sync': ('type_sync', ('type_sync',)),
+    'cutout-bottom': ('cutout_bottom', ('cutout_bottom',)),
     'backing': ('backing', ('backing',)),
     'movement': ('movement', ('movement',)),
+    'bridge': ('bridge', ('bridge', 'word_clip')),
+    'variety': ('variety', ('variety',)),
     'sound-harsh': ('sound_harsh', ('sound_harsh', 'sound_mix'), ('sfx.py',)),
     'sound-balance': ('sound_balance', ('sound_balance', 'sound_mix'), ('sfx.py',)),
     'settle': ('settle', ('settle', 'in_frame', 'dwell', 'movement'), ('checks/dwell.py',)),
@@ -31,17 +34,24 @@ CHECK_SECTIONS = {
     'text-size': ('text_size', ('text_size',)),
     'tempo': ('tempo', ('tempo', 'in_frame', 'dwell'), ('checks/dwell.py', 'checks/settle.py')),
     'zoom': ('zoom', ('zoom',)),
-    'placement': ('placement', ('placement',)),
+    'devices': ('devices', ('devices', 'variety'), ('checks/variety.py',)),
+    'placement': ('placement', ('placement',), ('checks/variety.py', 'checks/reused_footage.py')),
     'info-added': ('info_added', ('info_added', 'dwell'), ('checks/dwell.py',)),
     'motion-blur': ('motion_blur', ('motion_blur',)),
     'sound-sync': ('sound_sync', ('sound_sync',), ('sfx.py',)),
     'camera': ('camera', ('camera',)),
+    'reused-footage': ('reused_footage', ('reused_footage',)),
+    'label-time': ('label_time', ('label_time', 'variety'), ('checks/variety.py',)),
     'math-shown': ('math_shown', ('math_shown', 'dwell'), ('checks/dwell.py',)),
     'cue': ('cue', ('cue',)),
     'broll': ('broll', ('broll', 'face'), ('checks/dwell.py',)),
     'filler-words-cut': ('filler_words', ('filler_words',)),
     'sound-loops': ('sound_loops', ('sound_loops',), ('sfx.py',)),
+    'held-face': ('held_face', ('held_face', 'placement'), ('vision_landmarks.py', 'checks/placement.py', 'checks/variety.py', 'checks/reused_footage.py')),
 }
+# sections a check reads when the person's limits hold them, and does without otherwise (placement's side balance reads the variety ledger and names the
+# source files from the reused_footage cut project): covered by the check's pin, never required for it to run
+OPTIONAL_SECTIONS = {'placement': ('variety', 'reused_footage'), 'held-face': ('variety', 'reused_footage')}
 
 
 def _read(rel):
@@ -54,7 +64,7 @@ def check_pins(cfg):
     shared_code = {f: _read(f) for f in SHARED_FILES}
     out = {}
     for name, (module, sections, *helpers) in CHECK_SECTIONS.items():
-        body = {'sections': {s: cfg.get(s) for s in sorted(set(SHARED_SECTIONS) | set(sections))}, 'code': _read(f'checks/{module}.py'), 'shared_code': shared_code}
+        body = {'sections': {s: cfg.get(s) for s in sorted(set(SHARED_SECTIONS) | set(sections) | set(OPTIONAL_SECTIONS.get(name, ())))}, 'code': _read(f'checks/{module}.py'), 'shared_code': shared_code}
         if helpers:      # a check built on helper modules (sfx.py, ...) is voided by a change to them; checks without helpers keep their earlier pins
             body['helpers'] = {h: _read(h) for h in helpers[0]}
         out[name] = config.blake3_hex(json.dumps(body, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode())
