@@ -1,5 +1,5 @@
 {
-  "about": "Generated from published workflow views by do-work/rebuild-recipes.mjs; canonical account rows have been read back where synchronized. Pending account workflow rows: build-a-best-x-for-y-comparison, out-launch-a-new-launch, refresh-measurement-coverage. The account row owner remains the source of truth.",
+  "about": "Generated from published workflow views by do-work/rebuild-recipes.mjs; canonical account rows have been read back where synchronized. Pending account workflow rows: build-a-best-x-for-y-comparison, out-launch-a-new-launch, refresh-measurement-coverage, reach-companies-with-a-long-open-job-post, reach-local-businesses-by-zip-code, run-a-linkedin-content-system. The account row owner remains the source of truth.",
   "records": [
     {
       "payload": {
@@ -28168,6 +28168,2751 @@
     {
       "payload": {
         "kind": "workflow-recipe",
+        "id": "workflow:reach-companies-with-a-long-open-job-post",
+        "label": "Reach companies whose job post has stayed open",
+        "job": "Find companies whose job post has stayed open (by the shipped open-job-posts row: 21 days or more, at 10 to 200 people; the person's own source row replaces it), read the day-to-day section of each post, name its three biggest problems, and send each a four-sentence observation that cites the role and how long it has been open, paced from a separate inbox, with every reply and bounce handled and the funnel measured.",
+        "produces": "A list of researched prospects with a sent, judged four-sentence observation each, and the outreach funnel from found to customer.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "offer",
+            "from",
+            "time_zone",
+            "product_id"
+          ],
+          "properties": {
+            "offer": {
+              "type": "string",
+              "minLength": 3,
+              "description": "What the person helps with, in their own words; the criteria a prospect is researched against."
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Job posts from the person's job board connection, as it gives them. Without items the source row's own public request is read."
+            },
+            "from": {
+              "type": "string",
+              "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+              "description": "The separate sending identity: an address on a domain that is not the person's main domain."
+            },
+            "time_zone": {
+              "type": "string",
+              "minLength": 3,
+              "description": "The sending inbox's IANA time zone."
+            },
+            "product_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The product in the person's customer list these steps are recorded under."
+            },
+            "style_layers": {
+              "type": "object",
+              "description": "The layers of the sender's writing style: base, niche, group, person."
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The person's own rule rows every message is judged by."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 20
+            },
+            "source_row": {
+              "type": "object",
+              "description": "The person's own signal-source row for tool:find-signals-of-need, with their own filters and signals; without it the shipped row named in the find step is used."
+            },
+            "pacing": {
+              "type": "string",
+              "minLength": 1,
+              "default": "new-inbox-warmup",
+              "description": "The pacing row of tool:pace-sends-from-an-inbox the sending inbox follows, or pacing_row with the person's own."
+            }
+          }
+        },
+        "source": {
+          "from": "an outreach method people share for selling to companies whose job post stays open: the open role shows an unsolved problem and a budget, and its day-to-day section says what is broken",
+          "not_adopted": [
+            {
+              "part": "sending from the main inbox at volume",
+              "why": "sends go from a separate identity at the pace of tool:pace-sends-from-an-inbox"
+            }
+          ]
+        },
+        "steps": [
+          {
+            "id": "find",
+            "title": "Find posts open 21 days or more at 10 to 200 person companies",
+            "do": "With tool:find-signals-of-need send input.source_row when the person gave their own signal-source row, else source \"open-job-posts\", and input.items (the job posts from the person's job board connection; without items the source row reads its own public request). Keep that row's filters as they are (the shipped row keeps posts open 21 days or more at companies of 10 to 200 people); never loosen them to get more prospects. Take at most input.limit (default 20), best score first. Hand back each prospect's key, company, role, address, the days open, the head count and the ids of the signals it matched, exactly as the finder measured them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "source",
+                "prospects"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:find-signals-of-need"
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "prospects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "company",
+                      "role",
+                      "url",
+                      "days_open",
+                      "employees",
+                      "signals"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "company": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "role": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "url": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "days_open": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "employees": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "signals": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:find-signals-of-need, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "distinct-at-least",
+                "says": "At least one company was found",
+                "path": [
+                  "this",
+                  "prospects",
+                  "*",
+                  "key"
+                ],
+                "count": 1
+              }
+            ]
+          },
+          {
+            "id": "read-post",
+            "title": "Read the day-to-day section of each post",
+            "do": "For each prospect, open its post address with tool:read-public-web-page and copy its day-to-day section word for word: the part that says what the person in the role does each day (under a heading such as Responsibilities, What you will do or A day in the role). A post with no such section goes into skipped with why; it is never guessed or filled from the title.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "posts",
+                "skipped"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:read-public-web-page"
+                },
+                "posts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "role",
+                      "days_open",
+                      "url",
+                      "day_to_day"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "role": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "days_open": {
+                        "type": "integer",
+                        "minimum": 21
+                      },
+                      "url": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "day_to_day": {
+                        "type": "string",
+                        "minLength": 40
+                      }
+                    }
+                  },
+                  "minItems": 1
+                },
+                "skipped": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "why"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "why": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:read-public-web-page, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Every post read is a prospect the finder found",
+                "path": [
+                  "this",
+                  "posts",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "find",
+                  "prospects",
+                  "*",
+                  "key"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "The role is the one the finder found",
+                "path": [
+                  "this",
+                  "posts",
+                  "*",
+                  "role"
+                ],
+                "of": [
+                  "steps",
+                  "find",
+                  "prospects",
+                  "*",
+                  "role"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "The days open are the finder's measure",
+                "path": [
+                  "this",
+                  "posts",
+                  "*",
+                  "days_open"
+                ],
+                "of": [
+                  "steps",
+                  "find",
+                  "prospects",
+                  "*",
+                  "days_open"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "problems",
+            "title": "Name the three biggest problems each post shows",
+            "do": "For each post read, send tool:brief-a-prospect its key, input.offer as criteria, the company as name, the address, and the day-to-day section as material, and write the profile its request asks for. Name the three biggest problems the day-to-day section shows, biggest first, each with the exact words of the section it rests on. A problem the section does not show is not named.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "briefs"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:brief-a-prospect"
+                },
+                "briefs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "problems"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "problems": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "problem",
+                            "quote"
+                          ],
+                          "properties": {
+                            "problem": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "quote": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        "minItems": 3,
+                        "maxItems": 3
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:brief-a-prospect, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every post read is briefed",
+                "path": [
+                  "this",
+                  "briefs",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "read-post",
+                  "posts",
+                  "*",
+                  "key"
+                ]
+              },
+              {
+                "kind": "mentioned-in",
+                "says": "Every problem rests on words of the day-to-day section",
+                "path": [
+                  "this",
+                  "briefs",
+                  "*",
+                  "problems",
+                  "*",
+                  "quote"
+                ],
+                "in": [
+                  "steps",
+                  "read-post",
+                  "posts",
+                  "*",
+                  "day_to_day"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep each prospect as a row of the prospect list",
+            "do": "With tool:keep-a-prospect keep each briefed prospect as one row of the person's prospect list: the finder's prospect as found, the brief as its profile, status researched.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "kept"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:keep-a-prospect"
+                },
+                "kept": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "row_id"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "row_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:keep-a-prospect, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every briefed prospect is kept",
+                "path": [
+                  "this",
+                  "kept",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "problems",
+                  "briefs",
+                  "*",
+                  "key"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "style",
+            "title": "Build the sender's writing style",
+            "do": "With tool:layer-a-writing-style build the sender's style from input.style_layers (base, niche, group, person) and hand back its instruction_text, the levels it was built from and the keys of the kept prospects it will be written for.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "instruction_text",
+                "levels",
+                "for_keys"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:layer-a-writing-style"
+                },
+                "instruction_text": {
+                  "type": "string",
+                  "minLength": 20
+                },
+                "levels": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "for_keys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:layer-a-writing-style, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "The style is built for every kept prospect",
+                "path": [
+                  "this",
+                  "for_keys"
+                ],
+                "of": [
+                  "steps",
+                  "keep",
+                  "kept",
+                  "*",
+                  "key"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "write",
+            "title": "Write a four-sentence observation for each",
+            "do": "Write one message for each prospect in the sender's style, as exactly four sentences: (1) what you noticed, naming the role and how many days the post has been open; (2) the biggest problem the day-to-day section shows, in its own words; (3) what that usually costs a company of their size; (4) one low-effort question. No pitch, no link, no attachment. Find the address to write to in the brief's ways to reach them. Turn each into its body with tool:write-a-message-body-from-a-document.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "messages"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:write-a-message-body-from-a-document"
+                },
+                "messages": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "to",
+                      "role",
+                      "days_open",
+                      "sentences",
+                      "subject",
+                      "text",
+                      "body_html"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "to": {
+                        "type": "string",
+                        "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+                      },
+                      "role": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "days_open": {
+                        "type": "integer",
+                        "minimum": 21
+                      },
+                      "sentences": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "minItems": 4,
+                        "maxItems": 4
+                      },
+                      "subject": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "body_html": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:write-a-message-body-from-a-document, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every prospect the style was built for has a message",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "style",
+                  "for_keys"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "The role cited is the post's own",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "role"
+                ],
+                "of": [
+                  "steps",
+                  "read-post",
+                  "posts",
+                  "*",
+                  "role"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "The days open cited are the finder's measure",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "days_open"
+                ],
+                "of": [
+                  "steps",
+                  "find",
+                  "prospects",
+                  "*",
+                  "days_open"
+                ]
+              },
+              {
+                "kind": "mentioned-in",
+                "says": "Each message names the role",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "role"
+                ],
+                "in": [
+                  "this",
+                  "messages",
+                  "*",
+                  "text"
+                ]
+              },
+              {
+                "kind": "mentioned-in",
+                "says": "Each message says how long the post has been open",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "days_open"
+                ],
+                "in": [
+                  "this",
+                  "messages",
+                  "*",
+                  "text"
+                ]
+              },
+              {
+                "kind": "excludes-words",
+                "says": "An observation, not a pitch",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "text"
+                ],
+                "words": [
+                  "hope this finds you well",
+                  "just checking in",
+                  "book a demo",
+                  "limited time",
+                  "guarantee"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "judge",
+            "title": "Judge every message against the person's rules",
+            "do": "Judge every message with tool:judge-against-rules: the rules are input.rules and the sender style's rules. A message that does not pass is rewritten and judged again; only messages whose status is passed go on.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "judged"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:judge-against-rules"
+                },
+                "judged": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "status",
+                      "score"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "status": {
+                        "const": "passed"
+                      },
+                      "score": {
+                        "type": [
+                          "number",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:judge-against-rules, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every message passed the judge",
+                "path": [
+                  "this",
+                  "judged",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "write",
+                  "messages",
+                  "*",
+                  "key"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "pace",
+            "title": "Plan the sends from the separate inbox",
+            "do": "Show the person the passed messages and their addresses, and take their approval. Then with tool:pace-sends-from-an-inbox send pacing input.pacing (default new-inbox-warmup) or the person's own pacing_row, input.time_zone, the approved addresses as recipients, and this inbox's history, outcomes and suppressed addresses. Only due_now goes to the send step now; the rest wait for their slot; a paused inbox sends nothing. Nothing is sent to anyone the person has not approved on the list, and never from their main address.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "approved_by_person",
+                "keys",
+                "due_now",
+                "held"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:pace-sends-from-an-inbox"
+                },
+                "approved_by_person": {
+                  "const": true
+                },
+                "keys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "due_now": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+                  }
+                },
+                "held": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "recipient",
+                      "why"
+                    ],
+                    "properties": {
+                      "recipient": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "why": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:pace-sends-from-an-inbox, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Only messages that passed are planned",
+                "path": [
+                  "this",
+                  "keys"
+                ],
+                "of": [
+                  "steps",
+                  "judge",
+                  "judged",
+                  "*",
+                  "key"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "Only written-to addresses are due",
+                "path": [
+                  "this",
+                  "due_now"
+                ],
+                "of": [
+                  "steps",
+                  "write",
+                  "messages",
+                  "*",
+                  "to"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "send",
+            "title": "Send the due messages",
+            "do": "Send each due message with tool:send-an-email-with-resend from input.from, one recipient each, with its subject, body_html and text, and an idempotencyKey of the prospect key so a retry never sends twice. Never send to an address that is not in due_now. Nothing is sent to anyone the person has not approved on the list, and never from their main address.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "sent"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:send-an-email-with-resend"
+                },
+                "sent": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "recipient",
+                      "messageId"
+                    ],
+                    "properties": {
+                      "recipient": {
+                        "type": "string",
+                        "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+                      },
+                      "messageId": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:send-an-email-with-resend, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Only due addresses were sent to",
+                "path": [
+                  "this",
+                  "sent",
+                  "*",
+                  "recipient"
+                ],
+                "of": [
+                  "steps",
+                  "pace",
+                  "due_now"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "record",
+            "title": "Record each outreach as a customer step",
+            "do": "For each sent message, write an outreach step with tool:record-a-customer-step: contact_id the prospect key, product_id input.product_id, step outreach, evidence the role and days open cited.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "recorded"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:record-a-customer-step"
+                },
+                "recorded": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "recipient",
+                      "step_id"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "recipient": {
+                        "type": "string",
+                        "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+                      },
+                      "step_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:record-a-customer-step, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every sent message is recorded",
+                "path": [
+                  "this",
+                  "recorded",
+                  "*",
+                  "recipient"
+                ],
+                "of": [
+                  "steps",
+                  "send",
+                  "sent",
+                  "*",
+                  "recipient"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "outcomes",
+            "title": "Sort the bounces and replies",
+            "do": "As mail comes back, read the sending inbox and the provider's events and sort them with tool:sort-bounces-and-replies. A suppressed address is never sent to again; a reply stops the automatic messages and goes to the person to answer themselves; a soft bounce is retried once at its time. Hand the outcomes to the next run of the pace step.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "outcomes",
+                "suppress",
+                "replies"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:sort-bounces-and-replies"
+                },
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "recipient",
+                      "kind",
+                      "action"
+                    ],
+                    "properties": {
+                      "recipient": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "action": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "suppress": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "replies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:sort-bounces-and-replies, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Outcomes are for addresses this run recorded",
+                "path": [
+                  "this",
+                  "outcomes",
+                  "*",
+                  "recipient"
+                ],
+                "of": [
+                  "steps",
+                  "record",
+                  "recorded",
+                  "*",
+                  "recipient"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "measure",
+            "title": "Measure the outreach funnel",
+            "do": "With tool:measure-funnel-stages count the outreach from the customer steps: found, sent, replied, call booked, customer, grouped by the source row signals each prospect matched (on the shipped row: open three weeks, open a month), so the next run knows which signal pays.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "stages",
+                "replied",
+                "by_signal"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:measure-funnel-stages"
+                },
+                "stages": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "stage",
+                      "count"
+                    ],
+                    "properties": {
+                      "stage": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "count": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "minItems": 1
+                },
+                "replied": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "by_signal": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "signal",
+                      "stages"
+                    ],
+                    "properties": {
+                      "signal": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "stages": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "stage",
+                            "count"
+                          ],
+                          "properties": {
+                            "stage": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "count": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:measure-funnel-stages, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "The funnel counts every stage",
+                "path": [
+                  "this",
+                  "stages",
+                  "*",
+                  "stage"
+                ],
+                "values": [
+                  "found",
+                  "sent",
+                  "replied",
+                  "call booked",
+                  "customer"
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "Every reply is counted",
+                "path": [
+                  "this",
+                  "replied"
+                ],
+                "of": [
+                  "steps",
+                  "outcomes",
+                  "replies"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "Each group is a signal the finder matched",
+                "path": [
+                  "this",
+                  "by_signal",
+                  "*",
+                  "signal"
+                ],
+                "of": [
+                  "steps",
+                  "find",
+                  "prospects",
+                  "*",
+                  "signals",
+                  "*"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:reach-local-businesses-by-zip-code",
+        "label": "Reach local businesses by zip code",
+        "job": "Find the local businesses of one kind in a zip code from the person's map data connection, score them on what their reviews say (complaints about slow quotes, a spike in new reviews in the last 90 days), write to the addresses the person keeps (by default their gmail or info@ address) from a separate sending identity with one local detail in the first line, send on Saturday, then call the same list, with replies, bounces and calls recorded and the two openings compared.",
+        "produces": "A scored list of local businesses, a judged email with a local first line sent to each on Saturday, a call to each after, and which opening drew more replies.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "zip_code",
+            "category",
+            "items",
+            "from",
+            "main_domain",
+            "time_zone",
+            "product_id",
+            "region"
+          ],
+          "properties": {
+            "zip_code": {
+              "type": "string",
+              "minLength": 3,
+              "description": "The zip or postal code to look in."
+            },
+            "category": {
+              "type": "string",
+              "minLength": 2,
+              "description": "The kind of business, as the map data names it."
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The businesses from the person's map data connection (such as Google Maps) for the zip code and category, with their reviews, as it gives them."
+            },
+            "from": {
+              "type": "string",
+              "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+              "description": "The separate sending identity: an address on a domain that is not the person's main domain."
+            },
+            "main_domain": {
+              "type": "string",
+              "minLength": 3,
+              "description": "The person's main domain, which outreach never sends from."
+            },
+            "time_zone": {
+              "type": "string",
+              "minLength": 3,
+              "description": "The businesses' IANA time zone; Saturday and the calling hours are read in it."
+            },
+            "product_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "region": {
+              "type": "string",
+              "minLength": 3,
+              "description": "The Amazon SES region the sending identity is verified in."
+            },
+            "versions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 2,
+              "description": "The opening versions to compare; default detail-then-review and detail-then-question."
+            },
+            "style_layers": {
+              "type": "object"
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "source_row": {
+              "type": "object",
+              "description": "The person's own signal-source row for tool:find-signals-of-need, with their own filters and signals; without it the shipped row named in the find step is used."
+            },
+            "address_patterns": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "default": [
+                "^[^@\\s]+@gmail\\.com$",
+                "^info@[^@\\s]+\\.[^@\\s]+$"
+              ],
+              "description": "Regular expressions an address must match to be written to; the default keeps gmail.com and info@ addresses, the ones an owner reads themselves."
+            }
+          }
+        },
+        "source": {
+          "from": "an outreach method people share for selling to local businesses found by zip code on a map: score them on review complaints and a burst of new reviews, write to the owner's own inbox from a separate identity with a local first line on Saturday, then call the same list",
+          "not_adopted": [
+            {
+              "part": "scraping the map site",
+              "why": "businesses come from the person's own map data connection as items"
+            },
+            {
+              "part": "guessing personal addresses",
+              "why": "only the gmail or info@ address a business publishes is used"
+            }
+          ]
+        },
+        "steps": [
+          {
+            "id": "identity",
+            "title": "Confirm the separate sending identity",
+            "do": "With tool:list-email-sending-domains confirm the domain of input.from is verified and is not input.main_domain, so replies and sending reputation never touch the main domain. If it is not verified, or it is the main domain, stop here and tell the person.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "sending_domain",
+                "verified",
+                "separate_from_main"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:list-email-sending-domains"
+                },
+                "sending_domain": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "verified": {
+                  "const": true
+                },
+                "separate_from_main": {
+                  "const": true
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:list-email-sending-domains, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "mentioned-in",
+                "says": "The checked domain is the one input.from sends from",
+                "path": [
+                  "this",
+                  "sending_domain"
+                ],
+                "in": [
+                  "input",
+                  "from"
+                ]
+              },
+              {
+                "kind": "differs-from",
+                "says": "The sending identity is not on the main domain",
+                "path": [
+                  "this",
+                  "sending_domain"
+                ],
+                "of": [
+                  "input",
+                  "main_domain"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "find",
+            "title": "Score the zip code's businesses on their reviews",
+            "do": "With tool:find-signals-of-need send input.source_row when the person gave their own signal-source row, else source \"local-businesses-by-place\", and input.items (the businesses for input.zip_code and input.category from the person's map data connection) and parameters { zip_code }. The shipped row scores reviews that complain of slow quotes and a spike of new reviews in the last 90 days; keep only businesses with at least one review signal, best score first, and the domain they will be written from.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "zip_code",
+                "from_domain",
+                "source",
+                "prospects"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:find-signals-of-need"
+                },
+                "zip_code": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "from_domain": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "prospects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "name",
+                      "email",
+                      "signals",
+                      "score"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "email": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "signals": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "minItems": 1
+                      },
+                      "score": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:find-signals-of-need, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "mentioned-in",
+                "says": "The businesses are in the zip code asked for",
+                "path": [
+                  "this",
+                  "zip_code"
+                ],
+                "in": [
+                  "input",
+                  "zip_code"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "They will be written from the checked identity",
+                "path": [
+                  "this",
+                  "from_domain"
+                ],
+                "of": [
+                  "steps",
+                  "identity",
+                  "sending_domain"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "addresses",
+            "title": "Keep the businesses whose address the owner reads",
+            "do": "Keep only businesses whose published address matches one of input.address_patterns (default: a gmail.com address or an info@ address, which the owner reads themselves); hand back the patterns used and, for each kept business, the pattern its address matched. Every other business goes into skipped with why. Keep each with tool:keep-a-prospect: the finder's prospect as found, status found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "kept",
+                "skipped",
+                "patterns"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:keep-a-prospect"
+                },
+                "kept": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "email",
+                      "row_id",
+                      "pattern"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "email": {
+                        "type": "string",
+                        "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+                      },
+                      "row_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "pattern": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                },
+                "skipped": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "why"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "why": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "patterns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:keep-a-prospect, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Every kept business was found and scored",
+                "path": [
+                  "this",
+                  "kept",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "find",
+                  "prospects",
+                  "*",
+                  "key"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "The address is the one the business published",
+                "path": [
+                  "this",
+                  "kept",
+                  "*",
+                  "email"
+                ],
+                "of": [
+                  "steps",
+                  "find",
+                  "prospects",
+                  "*",
+                  "email"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "Each kept address matched one of the patterns used",
+                "path": [
+                  "this",
+                  "kept",
+                  "*",
+                  "pattern"
+                ],
+                "of": [
+                  "this",
+                  "patterns"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "local-detail",
+            "title": "Find one local detail for each",
+            "do": "For each kept business, read its website or its public listing with tool:read-public-web-page and pick one local detail a stranger could only know by looking: a street or landmark, a local team or event, a recent job in the area, a phrase from a review. Copy the words it rests on and the address they are on.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "details"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:read-public-web-page"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "local_detail",
+                      "quote",
+                      "source_url"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "local_detail": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "quote": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "source_url": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:read-public-web-page, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every kept business has a local detail",
+                "path": [
+                  "this",
+                  "details",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "addresses",
+                  "kept",
+                  "*",
+                  "key"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "versions",
+            "title": "Give each business one of two openings",
+            "do": "With tool:choose-what-a-visitor-sees assign each business one of input.versions (default detail-then-review and detail-then-question), the business key as the visitor, so the same business always gets the same opening and the two can be compared.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "experiment",
+                "assignments"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:choose-what-a-visitor-sees"
+                },
+                "experiment": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "assignments": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "version"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "version": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:choose-what-a-visitor-sees, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every business with a detail has an opening",
+                "path": [
+                  "this",
+                  "assignments",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "local-detail",
+                  "details",
+                  "*",
+                  "key"
+                ]
+              },
+              {
+                "kind": "distinct-at-least",
+                "says": "Two openings are compared",
+                "path": [
+                  "this",
+                  "assignments",
+                  "*",
+                  "version"
+                ],
+                "count": 2
+              }
+            ]
+          },
+          {
+            "id": "style",
+            "title": "Build the sender's writing style",
+            "do": "With tool:layer-a-writing-style build the sender's style from input.style_layers and hand back its instruction_text, its levels and the keys it will be written for.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "instruction_text",
+                "levels",
+                "for_keys"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:layer-a-writing-style"
+                },
+                "instruction_text": {
+                  "type": "string",
+                  "minLength": 20
+                },
+                "levels": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "for_keys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:layer-a-writing-style, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "The style is built for every business with an opening",
+                "path": [
+                  "this",
+                  "for_keys"
+                ],
+                "of": [
+                  "steps",
+                  "versions",
+                  "assignments",
+                  "*",
+                  "key"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "write",
+            "title": "Write each email with the local detail in its first line",
+            "do": "Write one short email to each business in the sender's style and its assigned opening. The first line holds its local detail; the next names what its reviews say (the slow quotes or the burst of new customers) in the reviews' own words; then one plain question. No attachment. Turn each into its body with tool:write-a-message-body-from-a-document.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "messages"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:write-a-message-body-from-a-document"
+                },
+                "messages": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "to",
+                      "version",
+                      "local_detail",
+                      "first_line",
+                      "subject",
+                      "text",
+                      "body_html"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "to": {
+                        "type": "string",
+                        "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+                      },
+                      "version": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "local_detail": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "first_line": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "subject": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "body_html": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:write-a-message-body-from-a-document, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every business the style was built for has an email",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "style",
+                  "for_keys"
+                ]
+              },
+              {
+                "kind": "mentioned-in",
+                "says": "The local detail is in the first line",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "local_detail"
+                ],
+                "in": [
+                  "this",
+                  "messages",
+                  "*",
+                  "first_line"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "The local detail is the one that was found",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "local_detail"
+                ],
+                "of": [
+                  "steps",
+                  "local-detail",
+                  "details",
+                  "*",
+                  "local_detail"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "Each email goes to the kept address",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "to"
+                ],
+                "of": [
+                  "steps",
+                  "addresses",
+                  "kept",
+                  "*",
+                  "email"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "Each email uses its assigned opening",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "version"
+                ],
+                "of": [
+                  "steps",
+                  "versions",
+                  "assignments",
+                  "*",
+                  "version"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "judge",
+            "title": "Judge every email against the person's rules",
+            "do": "Judge every email with tool:judge-against-rules: input.rules and the sender style's rules. One that does not pass is rewritten and judged again; only passed emails go on.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "judged"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:judge-against-rules"
+                },
+                "judged": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "status",
+                      "score"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "status": {
+                        "const": "passed"
+                      },
+                      "score": {
+                        "type": [
+                          "number",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:judge-against-rules, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every email passed the judge",
+                "path": [
+                  "this",
+                  "judged",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "write",
+                  "messages",
+                  "*",
+                  "key"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "pace",
+            "title": "Plan the sends for Saturday",
+            "do": "Show the person the passed emails and their addresses and take their approval. Then with tool:pace-sends-from-an-inbox send pacing saturday-local (or the person's own row that sends only on Saturday), input.time_zone, the approved addresses, and this inbox's history, outcomes and suppressed addresses. Only due_now goes to the send step; the rest wait for their Saturday slot. Nothing is sent to anyone the person has not approved on the list, and never from their main address.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "approved_by_person",
+                "send_day",
+                "keys",
+                "due_now",
+                "schedule"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:pace-sends-from-an-inbox"
+                },
+                "approved_by_person": {
+                  "const": true
+                },
+                "send_day": {
+                  "const": "saturday"
+                },
+                "keys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "due_now": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+                  }
+                },
+                "schedule": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "recipient",
+                      "local"
+                    ],
+                    "properties": {
+                      "recipient": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "local": {
+                        "type": "string",
+                        "pattern": "^saturday "
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:pace-sends-from-an-inbox, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Only emails that passed are planned",
+                "path": [
+                  "this",
+                  "keys"
+                ],
+                "of": [
+                  "steps",
+                  "judge",
+                  "judged",
+                  "*",
+                  "key"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "Only written-to addresses are due",
+                "path": [
+                  "this",
+                  "due_now"
+                ],
+                "of": [
+                  "steps",
+                  "write",
+                  "messages",
+                  "*",
+                  "to"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "send",
+            "title": "Send the due emails on Saturday",
+            "do": "Send each due email with tool:send-an-email-with-amazon-ses from input.from in input.region, one recipient each. Never send to an address that is not in due_now. Nothing is sent to anyone the person has not approved on the list, and never from their main address.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "sent"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:send-an-email-with-amazon-ses"
+                },
+                "sent": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "recipient",
+                      "messageId"
+                    ],
+                    "properties": {
+                      "recipient": {
+                        "type": "string",
+                        "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+                      },
+                      "messageId": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:send-an-email-with-amazon-ses, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Only due addresses were sent to",
+                "path": [
+                  "this",
+                  "sent",
+                  "*",
+                  "recipient"
+                ],
+                "of": [
+                  "steps",
+                  "pace",
+                  "due_now"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "outcomes",
+            "title": "Sort the bounces and replies",
+            "do": "Read the sending inbox and the provider's notifications and sort them with tool:sort-bounces-and-replies. A suppressed address is never written to or called; a reply stops the automatic messages and goes to the person.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "outcomes",
+                "suppress",
+                "replies"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:sort-bounces-and-replies"
+                },
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "recipient",
+                      "kind",
+                      "action"
+                    ],
+                    "properties": {
+                      "recipient": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "action": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "suppress": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "replies": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:sort-bounces-and-replies, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Outcomes are for addresses this run sent to",
+                "path": [
+                  "this",
+                  "outcomes",
+                  "*",
+                  "recipient"
+                ],
+                "of": [
+                  "steps",
+                  "send",
+                  "sent",
+                  "*",
+                  "recipient"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "record",
+            "title": "Record each email and reply as a customer step",
+            "do": "For each business sent to, write an outreach step with tool:record-a-customer-step (contact_id the business key, product_id input.product_id, evidence the local detail and the review signals), and a reply step for each reply.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "recorded"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:record-a-customer-step"
+                },
+                "recorded": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "recipient",
+                      "step_id"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "recipient": {
+                        "type": "string",
+                        "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+                      },
+                      "step_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:record-a-customer-step, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every sorted address is recorded",
+                "path": [
+                  "this",
+                  "recorded",
+                  "*",
+                  "recipient"
+                ],
+                "of": [
+                  "steps",
+                  "outcomes",
+                  "outcomes",
+                  "*",
+                  "recipient"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "call",
+            "title": "Call the same list",
+            "do": "Call the same list: for each business recorded, unless its address was suppressed or it asked not to be contacted, start a phone call with tool:start-an-exchange (the person's AgentPhone connection; the tool whose job is to start a conversation exchange with someone through a connected service, such as a phone call) to the business's published number, during its open hours, with an opening that refers to Saturday's email and its local detail. Every business on the list is either called or named in not_called with why.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "list",
+                "calls",
+                "not_called"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:start-an-exchange"
+                },
+                "list": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "calls": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "exchange_id"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "exchange_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                "not_called": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "why"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "why": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:start-an-exchange, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "The call list is the same list that was emailed",
+                "path": [
+                  "this",
+                  "list"
+                ],
+                "of": [
+                  "steps",
+                  "record",
+                  "recorded",
+                  "*",
+                  "key"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "Only businesses on the list are called",
+                "path": [
+                  "this",
+                  "calls",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "record",
+                  "recorded",
+                  "*",
+                  "key"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "call-outcomes",
+            "title": "Read how each call went",
+            "do": "Read each call with tool:read-an-exchange (the same AgentPhone connection) and say its outcome: no answer, voicemail, not interested, call back, meeting booked. A business that asked not to be contacted is added to the suppressed list.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "results"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:read-an-exchange"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "exchange_id",
+                      "outcome"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "exchange_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "outcome": {
+                        "enum": [
+                          "no answer",
+                          "voicemail",
+                          "not interested",
+                          "call back",
+                          "meeting booked"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:read-an-exchange, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every call started is read",
+                "path": [
+                  "this",
+                  "results",
+                  "*",
+                  "exchange_id"
+                ],
+                "of": [
+                  "steps",
+                  "call",
+                  "calls",
+                  "*",
+                  "exchange_id"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "compare",
+            "title": "Compare the two openings",
+            "do": "With tool:read-experiment-results sum the replies and booked meetings of each opening version over the businesses assigned it, and say which leads and by how much. Few businesses make a weak result; say so.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "counted",
+                "candidates",
+                "leader"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:read-experiment-results"
+                },
+                "counted": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "candidates": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "version",
+                      "rate"
+                    ],
+                    "properties": {
+                      "version": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "rate": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "minItems": 2
+                },
+                "leader": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:read-experiment-results, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every call outcome is counted",
+                "path": [
+                  "this",
+                  "counted"
+                ],
+                "of": [
+                  "steps",
+                  "call-outcomes",
+                  "results",
+                  "*",
+                  "key"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "Only the assigned openings are compared",
+                "path": [
+                  "this",
+                  "candidates",
+                  "*",
+                  "version"
+                ],
+                "of": [
+                  "steps",
+                  "versions",
+                  "assignments",
+                  "*",
+                  "version"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
         "id": "workflow:read-the-week-and-make-more-of-what-won",
         "label": "Read the week and make more of what won",
         "job": "Once a week, read the real numbers of every piece the person published in the window, rank each against the person's own median for its platform and kind, name the angle behind each piece, write a 'more of this' brief for each of the top 3 angles, retire only angles that failed 3 times and only formats past their declared minimum run, and list the organic winners above the person's outlier multiple as paid candidates for the person to approve. Every number comes from a tool call or the person's own analytics; where there is none, the answer is \"no data\". The AI reads, ranks and writes briefs; it never spends money, boosts, posts or deletes anything.",
@@ -32197,6 +34942,1303 @@
                   "url"
                 ],
                 "says": "Every top post named was ranked in the top quarter"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:run-a-linkedin-content-system",
+        "label": "Run a LinkedIn content system",
+        "job": "Build a voice guide from the person's real posts and transcripts, mine the questions buyers ask on calls, keep an outreach research desk, write posts that answer the objections of stalled deals, review each on a 100-point rubric where invented evidence blocks it, attribute results honestly (tracked conversions apart from influence), and turn the edits the person keeps making into rule proposals.",
+        "produces": "Approved, scheduled LinkedIn posts that each answer a stalled-deal objection, their tracked conversions and influence kept apart, and proposed voice rules from the person's own edits.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "posts",
+            "transcripts",
+            "call_transcripts",
+            "linkedin_account",
+            "landing_page",
+            "project"
+          ],
+          "properties": {
+            "posts": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "description": "The person's own published posts, as file names in their files."
+            },
+            "transcripts": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "description": "Transcripts of the person speaking (talks, podcasts, videos), as file names."
+            },
+            "call_transcripts": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "description": "Sales or discovery call transcripts, as file names."
+            },
+            "target_accounts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The accounts the research desk studies, as the person's list holds them."
+            },
+            "style_layers": {
+              "type": "object",
+              "description": "Base, niche and group layers; the person layer comes from their posts and transcripts."
+            },
+            "linkedin_account": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The LinkedIn destination id, as tool:list-post-destinations names it."
+            },
+            "landing_page": {
+              "type": "string",
+              "minLength": 8,
+              "description": "The page tracked links point at."
+            },
+            "project": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The traffic project the links and sales are counted in."
+            },
+            "stalled_days": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Days without a step after which a deal counts as stalled; default 21."
+            },
+            "min_score": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "The least rubric score a post may be published at; default 80."
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "source": {
+          "from": "a LinkedIn content system people share: a voice guide from the person's own words, buyer questions from calls, a research desk, posts aimed at what stalls deals, a scored review, attribution and edits turned into rules",
+          "not_adopted": [
+            {
+              "part": "counting every mention as a conversion",
+              "why": "tracked conversions and influence are kept apart"
+            },
+            {
+              "part": "applying edit rules automatically",
+              "why": "repeated edits become proposals the person accepts or not"
+            }
+          ]
+        },
+        "steps": [
+          {
+            "id": "voice-sources",
+            "title": "Read the person's own posts and transcripts",
+            "do": "Read every file in input.posts and input.transcripts whole. Keep only the person's own words (quoted others and other speakers are left out). With tool:brief-a-profile brief how the person writes and speaks from them: what they open with, their sentence length, words they use and never use, how they argue, how they end.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "read",
+                "brief_ref"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:brief-a-profile"
+                },
+                "read": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 2
+                },
+                "brief_ref": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:brief-a-profile, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every post is read",
+                "path": [
+                  "this",
+                  "read"
+                ],
+                "of": [
+                  "input",
+                  "posts"
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "Every transcript is read",
+                "path": [
+                  "this",
+                  "read"
+                ],
+                "of": [
+                  "input",
+                  "transcripts"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "voice-guide",
+            "title": "Layer the voice guide",
+            "do": "With tool:layer-a-writing-style layer input.style_layers (base, niche, group) under a person layer made from the voice brief, and hand back the instruction_text: the voice guide.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "from_brief",
+                "levels",
+                "instruction_text"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:layer-a-writing-style"
+                },
+                "from_brief": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "levels": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "instruction_text": {
+                  "type": "string",
+                  "minLength": 40
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:layer-a-writing-style, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "The person layer comes from the voice brief",
+                "path": [
+                  "this",
+                  "from_brief"
+                ],
+                "of": [
+                  "steps",
+                  "voice-sources",
+                  "brief_ref"
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The person's own layer is in the guide",
+                "path": [
+                  "this",
+                  "levels"
+                ],
+                "values": [
+                  "person"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep-voice",
+            "title": "Keep the voice guide as a profile",
+            "do": "Keep the voice guide with tool:keep-a-profile, so every draft names the profile that shaped it and is checked against it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "profile_ref",
+                "levels"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:keep-a-profile"
+                },
+                "profile_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "levels": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:keep-a-profile, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "The kept profile holds every level of the guide",
+                "path": [
+                  "this",
+                  "levels"
+                ],
+                "of": [
+                  "steps",
+                  "voice-guide",
+                  "levels"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "buyer-questions",
+            "title": "Mine the questions buyers ask on calls",
+            "do": "Read every call in input.call_transcripts with tool:read-an-export-of-my-conversations and pull out each question a buyer asked, in their own words, with the call it came from. Questions the seller asked are left out. Group questions that ask the same thing and keep the most common wording. Name the voice profile the posts will be written against.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "voice_profile_ref",
+                "calls_read",
+                "questions"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:read-an-export-of-my-conversations"
+                },
+                "voice_profile_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "calls_read": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "questions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "question",
+                      "quote",
+                      "call",
+                      "times_asked"
+                    ],
+                    "properties": {
+                      "question": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "quote": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "call": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "times_asked": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:read-an-export-of-my-conversations, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "The questions are for the kept voice profile",
+                "path": [
+                  "this",
+                  "voice_profile_ref"
+                ],
+                "of": [
+                  "steps",
+                  "keep-voice",
+                  "profile_ref"
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "Every call is read",
+                "path": [
+                  "this",
+                  "calls_read"
+                ],
+                "of": [
+                  "input",
+                  "call_transcripts"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "Every question comes from a call that was read",
+                "path": [
+                  "this",
+                  "questions",
+                  "*",
+                  "call"
+                ],
+                "of": [
+                  "this",
+                  "calls_read"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "objections",
+            "title": "Find the objections of stalled deals",
+            "do": "With tool:see-where-each-customer-is list the deals with no step for input.stalled_days (default 21) whose latest step is not a purchase. For each, write the objection that stalled it in the buyer's own words from its steps' evidence, and the buyer question from the calls closest to it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "stalled"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:see-where-each-customer-is"
+                },
+                "stalled": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "contact_id",
+                      "latest_step",
+                      "objection",
+                      "quote",
+                      "question"
+                    ],
+                    "properties": {
+                      "contact_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "latest_step": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "objection": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "quote": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "question": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:see-where-each-customer-is, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Each objection is tied to a question buyers asked",
+                "path": [
+                  "this",
+                  "stalled",
+                  "*",
+                  "question"
+                ],
+                "of": [
+                  "steps",
+                  "buyer-questions",
+                  "questions",
+                  "*",
+                  "question"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "research-desk",
+            "title": "Brief the target accounts on the research desk",
+            "do": "For each account in input.target_accounts, send tool:brief-a-prospect its key, the stalled objections and buyer questions as criteria, and its public material, and write the profile its request asks for: fit, biggest problems, why now, a case to cite, ways to reach them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "objections_used",
+                "accounts"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:brief-a-prospect"
+                },
+                "objections_used": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "accounts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "problems",
+                      "why_now"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "problems": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "minItems": 1
+                      },
+                      "why_now": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:brief-a-prospect, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "The desk researches against the stalled objections",
+                "path": [
+                  "this",
+                  "objections_used"
+                ],
+                "of": [
+                  "steps",
+                  "objections",
+                  "stalled",
+                  "*",
+                  "objection"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep-desk",
+            "title": "Keep the research desk rows",
+            "do": "Keep each researched account with tool:keep-a-prospect: the account as found, the brief as its profile, status researched.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "kept"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:keep-a-prospect"
+                },
+                "kept": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "row_id"
+                    ],
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "row_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:keep-a-prospect, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every researched account is kept",
+                "path": [
+                  "this",
+                  "kept",
+                  "*",
+                  "key"
+                ],
+                "of": [
+                  "steps",
+                  "research-desk",
+                  "accounts",
+                  "*",
+                  "key"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "draft",
+            "title": "Draft posts that answer the stalled objections",
+            "do": "Write one post for each of the most common stalled objections, in the voice guide, answering it the way the person answers it on a call. Every claim names its evidence: a call quote, one of the person's posts or transcripts, or a research desk row; nothing else. Keep each as a draft for input.linkedin_account with tool:draft-a-post, naming the voice profile.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "research_rows_read",
+                "posts"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:draft-a-post"
+                },
+                "research_rows_read": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "posts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "post_id",
+                      "answers",
+                      "text",
+                      "profile_ref",
+                      "evidence"
+                    ],
+                    "properties": {
+                      "post_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "answers": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "profile_ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "evidence": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "claim",
+                            "source"
+                          ],
+                          "properties": {
+                            "claim": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "source": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:draft-a-post, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "The desk rows read are kept rows",
+                "path": [
+                  "this",
+                  "research_rows_read"
+                ],
+                "of": [
+                  "steps",
+                  "keep-desk",
+                  "kept",
+                  "*",
+                  "row_id"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "Each post answers a stalled objection",
+                "path": [
+                  "this",
+                  "posts",
+                  "*",
+                  "answers"
+                ],
+                "of": [
+                  "steps",
+                  "objections",
+                  "stalled",
+                  "*",
+                  "objection"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "Each post is shaped by the kept voice profile",
+                "path": [
+                  "this",
+                  "posts",
+                  "*",
+                  "profile_ref"
+                ],
+                "of": [
+                  "steps",
+                  "keep-voice",
+                  "profile_ref"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "review",
+            "title": "Score each post on the 100-point rubric",
+            "do": "Judge every post with tool:judge-against-rules, with input.rules and the voice guide's rules, and score it on the rubric: relevance 25 (it answers the objection a stalled buyer has), evidence 25 (every claim rests on a named call, post, transcript or desk row), argument 20 (the reasoning holds step by step), voice 20 (it reads like the person's own posts), readability 10 (short lines, one idea each). A claim whose source is not among the transcripts, posts, calls and desk rows read is invented evidence: the post is blocked whatever its score and is rewritten. A post under input.min_score (default 80) is rewritten and scored again. Only passed posts go on.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "reviews"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:judge-against-rules"
+                },
+                "reviews": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "post_id",
+                      "scores",
+                      "total",
+                      "invented_evidence",
+                      "status"
+                    ],
+                    "properties": {
+                      "post_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "scores": {
+                        "type": "object",
+                        "required": [
+                          "relevance",
+                          "evidence",
+                          "argument",
+                          "voice",
+                          "readability"
+                        ],
+                        "properties": {
+                          "relevance": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 25
+                          },
+                          "evidence": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 25
+                          },
+                          "argument": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 20
+                          },
+                          "voice": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 20
+                          },
+                          "readability": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 10
+                          }
+                        }
+                      },
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100
+                      },
+                      "invented_evidence": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "maxItems": 0
+                      },
+                      "status": {
+                        "const": "passed"
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:judge-against-rules, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every drafted post passed the review",
+                "path": [
+                  "this",
+                  "reviews",
+                  "*",
+                  "post_id"
+                ],
+                "of": [
+                  "steps",
+                  "draft",
+                  "posts",
+                  "*",
+                  "post_id"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "track",
+            "title": "Make a tracked link for each post",
+            "do": "With tool:make-tracked-link make one link per passed post to input.landing_page in input.project: source linkedin, campaign the objection it answers, content the post id. Put the link in the post's first comment or its text.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "links"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:make-tracked-link"
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "post_id",
+                      "link"
+                    ],
+                    "properties": {
+                      "post_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "link": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:make-tracked-link, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every passed post has a tracked link",
+                "path": [
+                  "this",
+                  "links",
+                  "*",
+                  "post_id"
+                ],
+                "of": [
+                  "steps",
+                  "review",
+                  "reviews",
+                  "*",
+                  "post_id"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "approve",
+            "title": "The person approves each post",
+            "do": "Show the person each post as reviewed, with its score and link. Approve each one they approve with tool:approve-a-post exactly as they saw it; one they change goes back to the review step.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "approved"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:approve-a-post"
+                },
+                "approved": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "post_id",
+                      "approved_by"
+                    ],
+                    "properties": {
+                      "post_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "approved_by": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:approve-a-post, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Only posts with a tracked link are approved",
+                "path": [
+                  "this",
+                  "approved",
+                  "*",
+                  "post_id"
+                ],
+                "of": [
+                  "steps",
+                  "track",
+                  "links",
+                  "*",
+                  "post_id"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "schedule",
+            "title": "Set each approved post to go",
+            "do": "Set each approved post to go to input.linkedin_account at its time with tool:set-a-post-to-go-at-its-time; nothing is sent now.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "scheduled"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:set-a-post-to-go-at-its-time"
+                },
+                "scheduled": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "post_id",
+                      "status"
+                    ],
+                    "properties": {
+                      "post_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "status": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "minItems": 1
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:set-a-post-to-go-at-its-time, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every approved post is set to go",
+                "path": [
+                  "this",
+                  "scheduled",
+                  "*",
+                  "post_id"
+                ],
+                "of": [
+                  "steps",
+                  "approve",
+                  "approved",
+                  "*",
+                  "post_id"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "attribute",
+            "title": "Attribute results honestly",
+            "do": "After the posts have run, break down input.project's visits and sales by content with tool:break-down-visits-and-sales. Tracked: the sign-ups and sales whose visit came through a post's tracked link. Influence: a buyer who names a post on a call, in a reply or a form, with their words and where; influence is never added to the tracked counts. Say both, apart.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "posts_read",
+                "tracked",
+                "influenced"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:break-down-visits-and-sales"
+                },
+                "posts_read": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "tracked": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "post_id",
+                      "link",
+                      "visitors",
+                      "conversions"
+                    ],
+                    "properties": {
+                      "post_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "link": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "visitors": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "conversions": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  }
+                },
+                "influenced": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "post_id",
+                      "who",
+                      "quote",
+                      "where"
+                    ],
+                    "properties": {
+                      "post_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "who": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "quote": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "where": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:break-down-visits-and-sales, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "covers",
+                "says": "Every scheduled post is read",
+                "path": [
+                  "this",
+                  "posts_read"
+                ],
+                "of": [
+                  "steps",
+                  "schedule",
+                  "scheduled",
+                  "*",
+                  "post_id"
+                ]
+              },
+              {
+                "kind": "subset-of",
+                "says": "A tracked conversion came through a post's own tracked link",
+                "path": [
+                  "this",
+                  "tracked",
+                  "*",
+                  "link"
+                ],
+                "of": [
+                  "steps",
+                  "track",
+                  "links",
+                  "*",
+                  "link"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "edits-to-rules",
+            "title": "Turn recurring edits into rule proposals",
+            "do": "Pair each post's draft with what the person approved or published, and with tool:find-repeated-edits find the changes they made in several different drafts (min_distinct_drafts at least 2). Each becomes a proposed rule for the voice guide, shown to the person with the drafts it came from; nothing changes the guide until they accept it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "pairs_from",
+                "proposals"
+              ],
+              "properties": {
+                "tool": {
+                  "const": "tool:find-repeated-edits"
+                },
+                "pairs_from": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "proposals": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "rule",
+                      "drafts",
+                      "status"
+                    ],
+                    "properties": {
+                      "rule": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "drafts": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "minItems": 2
+                      },
+                      "status": {
+                        "const": "proposed"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The step ran tool:find-repeated-edits, a tool the account has",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Edits come from posts that ran",
+                "path": [
+                  "this",
+                  "pairs_from"
+                ],
+                "of": [
+                  "steps",
+                  "attribute",
+                  "posts_read"
+                ]
               }
             ]
           }
