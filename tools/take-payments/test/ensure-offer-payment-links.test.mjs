@@ -77,7 +77,7 @@ const offers = [
   { id: 'offer:member', label: 'Member', summary: 'Monthly bread box', post_purchase_route_path: '/account?paid=1', price_options: [{ id: 'price:member-monthly', amount_cents: 4000, currency: 'usd', payment_timing: 'subscription', interval: 'month' }] },
   { id: 'offer:session', label: 'Session', price_options: [{ id: 'price:session', amount_cents: 60000, currency: 'usd', payment_timing: 'one_time' }] },
 ];
-const setup = (send, extra = {}) => ensureOfferPaymentLinks({ offers, adjustments: [{ id: 'adj:review', kind: 'checkout-code-adjustment', code: 'REVIEW', scope: { offer_ids: ['offer:member'] }, adjustment: { kind: 'percent', percent: 100 }, max_redemptions: 10 }], owner: 'bakery-a', afterPaymentUrl: 'https://app.example/thanks/', send, ...extra });
+const setup = (send, extra = {}) => ensureOfferPaymentLinks({ offers, adjustments: [{ id: 'adj:review', kind: 'checkout-code-adjustment', code: 'REVIEW', scope: { offer_ids: ['offer:member'] }, adjustment: { kind: 'percent', percent: 100 }, max_redemptions: 10 }], owner: 'bakery-a', afterPaymentUrl: 'https://app.example/', send, ...extra });
 
 test('a read that searches carries its subject as the query, and a delete carries no body', () => {
   const read = buildStripeHttpRequest({ operation_id: 'operation:find-prices', input_facts: { operation_subject: { lookup_keys: ['price:a'], active: true } } });
@@ -100,7 +100,7 @@ test('every priced option gets a link carrying its offer and option, and free of
   assert.equal(session.payment_intent_data.metadata.offer_id, 'offer:session');
   assert.equal(session.customer_creation, 'always');
   assert.equal(member.after_completion.redirect.url, 'https://app.example/account?paid=1', 'a row that names its page is sent there');
-  assert.equal(session.after_completion.redirect.url, 'https://app.example/thanks/offer%3Asession', 'a row that names none is thanked at its own id under the address');
+  assert.equal(session.after_completion.redirect.url, 'https://app.example/', 'a row that names none returns to the address');
   assert.equal(state.prices[0].recurring.interval, 'month');
   assert.equal(state.prices[1].recurring, null);
   assert.deepEqual(result.codes, [{ code: 'REVIEW', active: true, used: 0, max: 10 }]);
