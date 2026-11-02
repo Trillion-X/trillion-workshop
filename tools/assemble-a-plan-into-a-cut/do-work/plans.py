@@ -1,4 +1,4 @@
-"""Steps that change plans before a cut: regroup a plan's segments, apply a titles list, and print a plan's outline.
+"""Steps that change plans before a cut: regroup a plan's segments, apply a titles list, print a plan's outline and a titles table.
 
 Every name a plan uses (its segment kinds, its title fields, its card prefixes) comes in the request; nothing here assumes a format.
 """
@@ -120,5 +120,22 @@ def outline(req):
         plan = json.loads(Path(path).read_text())
         rows = [{'i': i, 'kind': s['kind'], 'clip': s.get('clip'), 'seconds': round(s['to'] - s['from'], 3) if s.get('clip') else None,
                  'text': s.get('text', '')} for i, s in enumerate(plan['segments'])]
-        out.append({'slug': plan.get('slug'), 'recorded_seconds': round(sum(r['seconds'] or 0 for r in rows), 3), 'segments': rows})
+        head = {k: plan[k] for k in ('id', 'rank', 'title') if k in plan}
+        out.append({'slug': plan.get('slug'), **head, 'recorded_seconds': round(sum(r['seconds'] or 0 for r in rows), 3), 'segments': rows})
     return {'plans': out}
+
+
+def titles_table(req):
+    """a titles list as a Markdown table, one row per title: id, title (a title in `untitled` in bold, so it stands out) and each
+    field named in `columns`; a | inside a value becomes /
+
+    request: {"titles": {"titles": [{"id", "title", ...}]}, "untitled": [...], "columns": [field, ...]}"""
+    untitled, columns = set(req.get('untitled', [])), req.get('columns', [])
+
+    def cell(v):
+        return str('' if v is None else v).replace('|', '/')
+    lines = ['| ' + ' | '.join(['ID', 'Title', *columns]) + ' |', '|' + '---|' * (2 + len(columns))]
+    for t in req['titles']['titles']:
+        title = f"**{t['title']}**" if t['title'] in untitled else t['title']
+        lines.append('| ' + ' | '.join([cell(t['id']), cell(title), *(cell(t.get(c)) for c in columns)]) + ' |')
+    return {'table': '\n'.join(lines) + '\n', 'titles': len(req['titles']['titles'])}

@@ -13,6 +13,7 @@ steps
   regroup          rebuild plans as groups of a lead segment and members (request.shapes)
   retitle          apply a titles list to every plan of a folder (request.titles)
   outline          each plan as a numbered outline (request.plan_files)
+  titles-table     a titles list as a table of id, title and the fields named (request.titles)
   string-together  made cuts in order, a text card between each two, into one reel (request.films)
 
 The last line printed is {"result": ...} or {"error": "<what is wrong and what to change>"}.
@@ -55,10 +56,12 @@ def plan_files(req, slugs):
 
 def plan_checks(req, plan_file, work):
     """the request's plan_checks rows on one plan before its cut: (go, results). A row passes on pass_exit_codes (default [0]); an
-    exit code in advisory_exit_codes lets the cut go on with its output shown; any other result stops this plan."""
+    exit code in advisory_exit_codes lets the cut go on with its output shown (a review), unless the request sets advisory_stops
+    (the final cut: an advisory result stops it too); any other result stops this plan."""
     work.mkdir(parents=True, exist_ok=True)
     results = cut.run_checks(req.get('plan_checks', []), {'plan_file': str(plan_file), 'work': str(work)}, work)
-    return all(r['passed'] or r['advisory'] for r in results), results
+    final = bool(req.get('advisory_stops'))
+    return all(r['passed'] or (r['advisory'] and not final) for r in results), results
 
 
 def run(req, slugs):
@@ -124,9 +127,11 @@ def main(argv):
         return plans.retitle(req)
     if step == 'outline':
         return plans.outline(req)
+    if step == 'titles-table':
+        return plans.titles_table(req)
     if step == 'string-together':
         return reel.string_together(req)
-    raise Refused(f'unknown step {step}; the steps are timeline, lay-out, build, run, voice-lines, regroup, retitle, outline, string-together')
+    raise Refused(f'unknown step {step}; the steps are timeline, lay-out, build, run, voice-lines, regroup, retitle, outline, titles-table, string-together')
 
 
 if __name__ == '__main__':

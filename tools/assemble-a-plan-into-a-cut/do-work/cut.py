@@ -30,7 +30,8 @@ import faces
 import graphics
 import media
 from fill import Refused, fill, merged
-from plan_pieces import aspects_of, is_slides, pieces_of, span_key
+from plan_pieces import aspects_of, is_slides, pieces_of
+from spans import clip_words, source_for, span_key
 from timing import room
 
 HERE = Path(__file__).resolve().parent
@@ -78,19 +79,21 @@ class Plan:
         self.folder = self.file.with_suffix('')
         self._words = {}
 
-    def words_file(self, clip):
-        folder = (self.req.get('clips') or {}).get('words_folder')
-        if not folder:
-            raise Refused(f'{self.slug} cuts clip {clip}: the request needs clips.words_folder, the folder of <clip>.words.json')
-        return Path(folder) / f'{clip}.words.json'
+    def _clips(self):
+        return self.req.get('clips') or {}
 
     def source(self, clip):
-        found = (self.plan.get('sources') or {}).get(clip)
-        return found or json.loads(self.words_file(clip).read_text())['source']
+        try:
+            return source_for(clip, self.plan, self._clips().get('words_folder'))
+        except LookupError as e:
+            raise Refused(f'{self.slug} cuts clip {clip}: the request needs clips.words_folder, the folder of <clip>.words.json') from e
 
     def clip_words(self, clip):
         if clip not in self._words:
-            self._words[clip] = json.loads(self.words_file(clip).read_text())['words']
+            try:
+                self._words[clip] = clip_words(clip, self._clips().get('words_folder'), self._clips().get('wordtimes_folder'))
+            except LookupError as e:
+                raise Refused(f'{self.slug} cuts clip {clip}: the request needs clips.words_folder, the folder of <clip>.words.json') from e
         return self._words[clip]
 
     def look(self, clip):
@@ -120,7 +123,12 @@ class Plan:
             raise Refused(f'span {sid} has no row in {self.folder / rule.get("file", "grades.json")}: grade it before the cut')
         if g.get('treatment') == rule.get('as_is', 'as-is'):
             return source, 0.0
-        written = g.get('audio')
+        written, named = g.get('audio'), rule.get('audio_name')
+        if named:
+            expected = fill(named, {'span': sid})
+            if written and written != expected:
+                raise Refused(f"span {sid} is graded {g.get('grade')} ({g.get('treatment')}) but its graded file is named {written} in "
+                              f"{rule.get('file', 'grades.json')}, not {expected} as grades.audio_name says; regrade it or fix the row")
         if not written or not (self.folder / written).is_file():
             raise Refused(f"span {sid} is graded {g.get('grade')} ({g.get('treatment')}) but its graded file "
                           f"{self.folder / (written or '<none named>')} is missing; the source's own sound is only for as-is spans")
