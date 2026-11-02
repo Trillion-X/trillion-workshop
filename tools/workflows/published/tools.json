@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:acbe76e678274053277fed3f9f679cf6240ba6ec83db25e53ed10e2cf1e44cf0"
+  "blake3": "1f:0a9ae4113a38aabf526b53514795b2fc75e41ac61856a69d70f3cf23cb4ad948"
  },
  "fields": [
   {
@@ -454,6 +454,21 @@
      "placement:small-container"
     ],
     "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
+   "id": "tool:brief-a-prospect",
+   "values": {
+    "title": "Prepare the research request for a prospect",
+    "job": "Get the instruction my AI writes a research profile of a company or a prospect from: fit against my criteria, the biggest problems the material shows, why now, a case study to cite, ways to reach them",
+    "description": "Give key (one short name for the prospect, such as its website address, the same in every later action), criteria (what makes a good prospect for you), and the gathered material: material (one text) or evidence ([{ id, text }], such as a job post, a page of the company's site or its reviews, gathered with the other tools of this folder or tools/browse-public-page). Optional name, url and profile_ref (prospect:<key> when left out). Returns requests (as tool:write-a-profile-request does, with the prospect instruction before the material), row_id (where the profile is kept) and profile_shape (each field the profile must hold). The profile rules are DATA in do-work/prospect-list.json. It asks no model and keeps nothing: your AI writes the profile as one JSON object from instruction_text and hands it to tool:keep-a-prospect. Refuses a request with no criteria or no material.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "research-a-creator-or-topic"
    }
   },
   {
@@ -1908,6 +1923,21 @@
    }
   },
   {
+   "id": "tool:find-repeated-edits",
+   "values": {
+    "title": "Find the edits a writer keeps making",
+    "job": "Turn the changes a person keeps making to drafts into candidate style rules, only for changes that recur in several different drafts",
+    "description": "Give pairs of { id, original, edited }, the draft as written and as the person left it. Finds the words removed, added or replaced in each, counts the different drafts each change recurs in, and returns as candidates only those in at least min_distinct_drafts (3 when left out, never below 2). Each candidate has its example. Candidates are proposals for the person to approve; nothing is kept. Fewer different drafts than the minimum is refused.",
+    "status": "active",
+    "maker": "maker:how-someone-does-their-thing",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
    "id": "tool:find-scene-changes",
    "values": {
     "title": "Find scene changes in a video",
@@ -1920,6 +1950,21 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:find-signals-of-need",
+   "values": {
+    "title": "Find candidates that show a need",
+    "job": "Find the companies, businesses or people whose own public facts show they need help (a job post open for weeks, reviews that name a delay, a burst of new reviews), score each on signals, and rank them",
+    "description": "Reads one signal-source row (source, or your own source_row): how an item maps to fields, which items to keep (filters) and which signals add to a score. Candidates come from items (give them when they come from your connection tool, such as a map data or job board connection) or, for a source row that declares a public request, from its address filled with parameters. Returns the kept candidates best score first, each with its key, name, address, place, the signals that fired with their evidence (the value measured and up to three matching snippets), score and rank, and the items it left out with the reason. A field an item lacks refuses a filter and keeps a signal quiet; it never counts as zero. It sends, posts and keeps nothing, holds no credential, and knows no site: sources.json ships two sample rows (open-job-posts, local-businesses-by-place) and every number and word in them is yours to change. A new measure is a row in signal-measures.json.",
+    "status": "active",
+    "maker": "maker:find-signals-of-need",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "find-signals-of-need"
    }
   },
   {
@@ -2891,6 +2936,21 @@
    }
   },
   {
+   "id": "tool:keep-a-prospect",
+   "values": {
+    "title": "Keep, read, mark or remove a prospect in my prospect list",
+    "job": "Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes",
+    "description": "One row per prospect, under the key you give; keeping it again writes over the same row and leaves the fields you keep by hand. action keep (default): found = the facts a finder gave (name, url, place, source, size, signals, score) and/or profile = the research (profile, problems 1 to 3, triggers, case_study, channels). Every problem, trigger and channel carries basis stated (the material says it; evidence quotes it word for word) or inferred (a reading of it, with what it is read from). Send material with a profile and a stated quotation that is not in it is refused. A new row starts at the first status (found, or researched once a profile is kept). action mark: status (found, researched, drafted, contacted, replied, booked, won, lost, dropped) and/or notes. action read: one row by key, or a page of rows (optionally only one status, limit 1 to 500). action remove: one row by key. The fields, statuses and rules are DATA in do-work/prospect-list.json. It contacts nobody.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
    "id": "tool:keep-channels-latest-videos-and-captions",
    "values": {
     "title": "Keep the newest videos of channels and their captions",
@@ -3011,6 +3071,21 @@
      "placement:small-container"
     ],
     "folder": "person-profile"
+   }
+  },
+  {
+   "id": "tool:layer-a-writing-style",
+   "values": {
+    "title": "Layer a writing style from base to person",
+    "job": "Build the writing style for one writer by layering a base, a niche, a company or group and the person's own diction and syntax",
+    "description": "Give the layers in order (the base is added for you when you give none): niche, then group, then person, each { level, id, fields }. A later layer overrides an earlier one field by field; lists add to the earlier ones unless the layer names the field in replace, and off drops an entry an earlier layer added. Returns the merged style, which layers set each value, the instruction an AI writes from, and items for tool:keep-a-profile so the layered style is kept as a profile and drafts are checked with tool:check-a-draft-against-a-profile. It asks no model and keeps nothing. Layers out of order, an unknown level or field, or a layer with no id are refused.",
+    "status": "active",
+    "maker": "maker:how-someone-does-their-thing",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "how-someone-does-their-thing"
    }
   },
   {
@@ -3975,6 +4050,21 @@
      "placement:your-computer"
     ],
     "folder": "browser-saved-items"
+   }
+  },
+  {
+   "id": "tool:pace-sends-from-an-inbox",
+   "values": {
+    "title": "Pace sends from an inbox",
+    "job": "Say when each address on a list may be emailed from one sending inbox, so a new inbox warms up slowly, sends only on chosen days and hours, and stops when its mail bounces",
+    "description": "Give time_zone (the inbox's), recipients and a pacing row (pacing: new-inbox-warmup or saturday-local from read-data/inbox-pacing.json, or your own pacing_row): a ramp of sends a day by the inbox's day number, the least gap between sends, weekdays, local hours, how many days to leave an address after it was sent to, and when to pause (a share of hard bounces or any complaint among the last sends). Add history (every send this inbox made), outcomes (from tool:sort-bounces-and-replies) and suppressed addresses. Returns due_now (send these now, through a send tool), schedule (a slot for every address that may be sent to, in local time with its ramp day), held (each address left out and why: suppressed, bounced, unsubscribed, replied, sent to recently, listed twice, not an address, or the inbox is paused) and paused. It sends nothing and keeps nothing; every number, day and hour is a row you can change.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "send-messages"
    }
   },
   {
@@ -6869,6 +6959,21 @@
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:sort-bounces-and-replies",
+   "values": {
+    "title": "Sort bounces and replies",
+    "job": "Sort the bounces, complaints, unsubscribes and replies that came back from emails I sent, and say which addresses never to send to again, which to retry and which people wrote back",
+    "description": "Give events as your provider or mailbox gave them and event_source (plain, resend-webhook, amazon-ses-notification or mailbox-message from read-data/inbox-pacing.json, or your own event_source_row naming where the recipient, type, status, subject, text and time sit). Each event is read into those fields and the first outcome row whose every condition holds (a field equals one of its values, contains one of its words, or matches its pattern) names its kind (hard-bounce, soft-bounce, complaint, unsubscribe, reply, auto-reply, delivered) and action (suppress, stop-sequence, retry-later, hand-to-person, none). Returns outcomes (hand them to tool:pace-sends-from-an-inbox), suppress, stop, retry (with when), replies and the unmatched events. It sends, deletes and keeps nothing; your own outcome_rows replace the shipped ones.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
     ],
     "folder": "send-messages"
    }
