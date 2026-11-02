@@ -1,0 +1,53 @@
+{
+  "kind": "package-set-records",
+  "record_set": "list-clips-that-are-parts-of-a-series-tool-rows",
+  "what_this_is": "The Workshop row for the list-clips-that-are-parts-of-a-series folder: a script the person's AI runs on the person's own computer that lists the clips whose own words say they are part N of a series.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-clips-that-are-parts-of-a-series",
+        "label": "List the clips that say they are part of a series (runs on your computer)",
+        "job": "Find my clips that are part 1, part 2, part 3 of a series, from what is said in them",
+        "description": "Reads one or more moments files (one JSON row per spoken moment of a clip, as a transcript cut into moments gives) and lists every clip whose joined words say \"part <n>\" (a number, or one to fifteen in words) within its first 300 characters, the window changeable. Each line is the clip's name, path, source, the part words it said, and the clip's whole text, ordered by path so each clip reads once. Words like \"partly\", \"parts 5\" or \"department 4\" do not count. Moments of one clip may come from several files and in any order; they are joined by their number.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["moments"],
+          "properties": {
+            "moments": {
+              "type": "string",
+              "description": "One or more moments files (JSON Lines), put where {moments} is in the command. Each row has id (<clip>#<n>), text, and the clip's identity or name, path or source_file, and source."
+            },
+            "within": { "type": "integer", "description": "--within: how many characters from the clip's start the part words must be in (default 300)." },
+            "out": { "type": "string", "description": "--out: a file for the tab-separated lines; without it they print ahead of the summary." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Tab-separated lines (name, path, source, part words, whole text), then a last line {\"result\": {\"clips\", \"series_parts\", \"within\", \"out\"}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "python3 -I tools/list-clips-that-are-parts-of-a-series/do-work/series_parts.py {moments}",
+          "needs": [
+            "python",
+            "the person's clips transcribed and cut into moments (JSON Lines)"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Find the person's moments files (their transcripts cut into spoken moments); if they have only transcripts, cut them into moments first. Run `run` with every moments file, adding --out when the list is long. Read the last line: { result } says how many clips were read and how many name a part; { error } says what to change. Show the person the clips grouped by series, in part order, so they can see which parts they have and which are missing."
+        },
+        "maker": "maker:list-clips-that-are-parts-of-a-series",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Written for finding the numbered parts of short-video series among a person's own clips"
+        }
+      }
+    }
+  ]
+}
