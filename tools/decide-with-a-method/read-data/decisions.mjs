@@ -30,7 +30,7 @@ import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
-const { records: NAMES, words: WORDS, precedence } = settings;
+const { records: NAMES, words: WORDS, precedence, candidates: CANDIDATES } = settings;
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -200,15 +200,25 @@ const outOfTurn = (record, step, sent) => (step
   ? say('out_of_turn', { step: step.id, count: record.guidance.length, sent })
   : say('all_answered', { count: record.guidance.length }));
 
+// The options a decision chooses among: the ones its caller gave, or, for a decision opened from its goal and
+// constraints alone, the candidates its own method steps left standing (`candidates` in the settings).
+export const optionsOf = record => record.input.options ?? record.candidates ?? [];
+
+// A step's answer that lists what is still standing (the settings' `candidates.field`) becomes the candidates of a
+// decision opened without options; each item is its words, or { id, label }.
+const candidatesFrom = list => list.map((item, n) => (object(item) && nonempty(item.id) && nonempty(item.label)
+  ? { id: item.id, label: item.label } : { id: `${CANDIDATES.id_prefix}${n + 1}`, label: String(item) }));
+
 function validatedCase(input, cat) {
-  if (!object(input) || !nonempty(input.source_id) || !nonempty(input.goal) || !Array.isArray(input.evidence) || !Array.isArray(input.options) || input.options.length < 2) refuse('new_case');
+  if (!object(input) || !nonempty(input.source_id) || !nonempty(input.goal) || !Array.isArray(input.evidence)) refuse('new_case');
+  if (input.options !== undefined && (!Array.isArray(input.options) || input.options.length < 2)) refuse('new_case');
   const refs = new Set();
   for (const item of input.evidence) {
     if (!object(item) || !nonempty(item.ref) || !nonempty(item.claim) || refs.has(item.ref)) refuse('evidence_item');
     refs.add(item.ref);
   }
   const choices = new Set();
-  for (const item of input.options) {
+  for (const item of input.options ?? []) {
     if (!object(item) || !nonempty(item.id) || !nonempty(item.label) || choices.has(item.id)) refuse('option_item');
     choices.add(item.id);
   }
@@ -218,7 +228,7 @@ function validatedCase(input, cat) {
 
 const ready = (cat, record) => {
   const asked = cat.decisionFieldsAsked(record);
-  return { ai_instructions: [say('ready')], options: record.input.options.map(({ id, label }) => ({ id, label })), how_to_say_it: cat.howToSayIt(record), ...(asked.length ? { decision_fields: asked } : {}) };
+  return { ai_instructions: [say(optionsOf(record).length ? 'ready' : 'none_standing')], options: optionsOf(record).map(({ id, label }) => ({ id, label })), how_to_say_it: cat.howToSayIt(record), ...(asked.length ? { decision_fields: asked } : {}) };
 };
 
 async function guideReply(door, cat, record) {
@@ -230,6 +240,7 @@ async function guideReply(door, cat, record) {
     method_coverage: cat.methodCoverage(record), decision: record.decision ?? null,
     ...(record.workflow_plan ? { workflow_plan: record.workflow_plan } : {}),
     ...(similar ? { similar_decisions: similar } : {}),
+    ...(!record.input.options && question?.fields?.includes(CANDIDATES.field) ? { candidates_note: say('candidates_note', { field: CANDIDATES.field }) } : {}),
     ...(!question && !record.decision ? ready(cat, record) : {}),
   };
 }
@@ -241,7 +252,8 @@ export async function decisionOrRefuse(door, id, steps) {
   return record;
 }
 
-/** tool:start-a-decision. input { source_id, goal, evidence: [{ ref, claim }], options: [{ id, label }], method? } */
+/** tool:start-a-decision. input { source_id, goal, evidence: [{ ref, claim }], options?: [{ id, label }], method? }: with no
+ * options the method's own steps generate and rule out candidates (optionsOf). */
 export async function startADecision(input, { door }) {
   const methods = await methodsOf(door);
   const { id, method } = validatedCase(input, catalogue(methods));
@@ -302,6 +314,7 @@ export async function answerADecisionQuestion(input, { door }) {
   if (record.method?.answer_rules && cat.workflowsDue(record, step).length) {
     record.workflow_plan = { version: 1, step_id: step.id, items: structuredClone(input.answer.workflow_runs) };
   }
+  if (!record.input.options && Array.isArray(input.answer?.[CANDIDATES.field])) record.candidates = candidatesFrom(input.answer[CANDIDATES.field]);
   // The verdicts taken, each with who graded it, and how many checks were handed to the judge: a step answered with no
   // verdict for a check it asked shows as answered, not judged.
   const entry = { step_id: step.id, answer: input.answer, ...(checklist.length ? { checklist } : {}), verdicts, judged_checks: toJudge.length, ...(usage ? { usage } : {}), answered_at: new Date().toISOString() };
@@ -338,8 +351,8 @@ export async function makeTheDecision(input, { door }) {
   if (expectedGeneration !== undefined && (record.decision
     ? (record.decision_generation ?? 1) !== expectedGeneration || !same(record.decision, decision)
     : (record.decision_generation ?? 0) + 1 !== expectedGeneration)) refuse('generation_changed');
-  if (!record.input.options.some(option => option.id === decision.option_id)) {
-    refuse('unknown_option', { option: JSON.stringify(decision.option_id), options: record.input.options.map(option => `${JSON.stringify(option.id)} (${option.label})`).join(', ') });
+  if (!optionsOf(record).some(option => option.id === decision.option_id)) {
+    refuse('unknown_option', { option: JSON.stringify(decision.option_id), options: optionsOf(record).map(option => `${JSON.stringify(option.id)} (${option.label})`).join(', ') });
   }
   const cited = await citable(door, record, decision.evidence_refs.filter(ref => typeof ref === 'string'));
   if (decision.evidence_refs.length === 0 || decision.evidence_refs.some(ref => !cited.refs.has(ref))) refuse('decision_evidence');

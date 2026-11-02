@@ -298,3 +298,26 @@ test('sharing reads only the decision and the person\'s never-publish rows, and 
   const packed = row.invoke.files.package_files.map(item => item.package ?? item.module);
   for (const name of ['decide-with-a-method', 'learn-from-everyones-results', 'ask-a-small-model-for-a-verdict', 'content-identity', '@noble/hashes']) assert.ok(packed.includes(name), name);
 });
+
+test('a decision opened from its goal and constraints alone chooses among what its rule-out step leaves standing', async () => {
+  const door = account();
+  const method = plainMethod();
+  method.steps.splice(2, 0, { id: 'rule_out', question: 'Which options can be ruled out now, and what fact rules each one out?', fields: [{ name: 'ruled_out', label: 'Ruled out', list: true }, { name: 'still_standing', label: 'Still standing', list: true }] });
+  method.backbone[0].steps.push('rule_out');
+  door.put(`record:${settings.records.method_row}:plain`, `record:${settings.records.method_row}`, method);
+  const { options: _given, ...unbiased } = { ...opened, source_id: 'chat:no-options' };
+  await assert.rejects(startADecision({ ...unbiased, options: [opened.options[0]] }, { door }), /at least two options/, 'options given are still at least two');
+  const { case_id: id } = await startADecision(unbiased, { door });
+  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
+  const asked = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer }, { door });
+  assert.equal(asked.question.step_id, 'rule_out');
+  assert.match(asked.candidates_note, /opened with no options/, 'the step that lists what stands is told to generate and eliminate candidates');
+  await answerADecisionQuestion({ decision_id: id, step_id: 'rule_out', answer: { ruled_out: ['Close the camp: e1 shows twelve families still want it'], still_standing: ['Raise the price', 'Keep the price and add a kiln fee'], evidence_refs: ['e1', 'e2'] } }, { door });
+  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', answer: proofAnswer }, { door });
+  const ready = await nextDecisionQuestion({ decision_id: id }, { door });
+  assert.deepEqual(ready.options, [{ id: 'candidate:1', label: 'Raise the price' }, { id: 'candidate:2', label: 'Keep the price and add a kiln fee' }]);
+  await assert.rejects(makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'raise' } }, { door }), /unknown option/, 'only what still stands can be chosen');
+  const made = await makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'candidate:2' } }, { door });
+  assert.equal(door.value(id).decision.option_id, 'candidate:2');
+  assert.ok(made);
+});

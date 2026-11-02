@@ -53,7 +53,7 @@
     "explain_note": "The checklist names each check by its id and question. To read what a good answer to some of them does and what it refuses, call tool:next-decision-question again with explain: [their ids]; answer each check in your own words either way.",
     "explain_shape": "explain names the ids of this question's checks to explain, from 1 to {count} of them.",
     "explain_unknown": "This question does not ask {ids}: explain names ids from its checklist or verdict_checks.",
-    "new_case": "Give this decision a source_id (choose unique text; an existing conversation, message or file id is not required), goal (what is being decided), evidence (an array of {ref, claim}) and at least two options (each {id, label}). Correct the input and try again.",
+    "new_case": "Give this decision a source_id (choose unique text; an existing conversation, message or file id is not required), goal (what is being decided), evidence (an array of {ref, claim}: the facts and every non-negotiable constraint) and, only if you already hold them, at least two options (each {id, label}); leave options out to let the method's steps generate and rule out the candidates. Correct the input and try again.",
     "evidence_item": "Each evidence item needs a unique ref and claim",
     "option_item": "Each option needs a unique id and label",
     "method_name": "method must name a method id",
@@ -89,7 +89,9 @@
     "run_id_unchecked": "{label} names a run_id; a run cannot be checked by this tool yet, so leave run_id out and keep the plan.",
     "share_shape": "A rewrite is { situation, options: [words], chosen, why, measured_by }, each one words, and nothing else.",
     "share_not_safe": "The rewrite could still point to someone: {found}. Rewrite those parts in general terms and send it again.",
-    "share_check": "Ask {tool} whether these words could point to one person, with exactly this rubric and content, and send its whole answer back as reidentification."
+    "share_check": "Ask {tool} whether these words could point to one person, with exactly this rubric and content, and send its whole answer back as reidentification.",
+    "candidates_note": "This decision was opened with no options. Generate every candidate shape the goal allows, including ones no one has named, run each against every constraint in the evidence, and list in {field} only what no fact eliminated; record each eliminated candidate with the constraint that killed it. What you list there are the options the decision chooses among.",
+    "none_standing": "Every question is answered, but no candidate is still standing, so nothing can be chosen: a constraint eliminated every shape. Bring back the constraint that eliminated the last one and question it, or start a new decision with what you learned."
   },
   "share": {
     "never_publish_row": "never-publish",
@@ -162,5 +164,10 @@
     }
   },
   "writes": 256,
-  "write_bytes": 48000
+  "write_bytes": 48000,
+  "candidates": {
+    "about": "A decision may open from its goal and evidence (its facts and every non-negotiable constraint) with no options, so no option list written in advance biases it. Then the answer list `field` of whichever method step asks it (the universal method's rule_out) is what still stands; each item becomes an option `id_prefix` + its position (or keeps its own { id, label }), and the decision chooses among those.",
+    "field": "still_standing",
+    "id_prefix": "candidate:"
+  }
 }

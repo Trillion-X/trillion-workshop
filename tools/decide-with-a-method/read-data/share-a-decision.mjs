@@ -20,9 +20,9 @@ const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 // The decision as its owner saved it, reduced to what a stranger may learn from: the goal, the options, the one
 // chosen, why, the next action and how success is measured.
 function decisionFacts(record) {
-  const label = id => record.input.options.find(option => option.id === id)?.label ?? id;
+  const label = id => (record.input.options ?? record.candidates ?? []).find(option => option.id === id)?.label ?? id;
   return {
-    goal: record.input.goal, options: record.input.options.map(option => option.label), chosen: label(record.decision.option_id),
+    goal: record.input.goal, options: (record.input.options ?? record.candidates ?? []).map(option => option.label), chosen: label(record.decision.option_id),
     why: record.decision.reason, next_action: record.decision.next_action, measured_by: record.decision.success_measure,
   };
 }
