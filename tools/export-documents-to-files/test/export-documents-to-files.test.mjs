@@ -151,6 +151,7 @@ test('a page is written from a record and a descriptor, with its address and pro
   assert.match(output.artifact.bytes, /<h1>Any Record Can Publish<\/h1>/);
   assert.match(output.artifact.bytes, /future data still renders/);
   assert.match(output.artifact.bytes, /--accent-primary: #22c55e/);
+  assert.match(output.artifact.bytes, /--button-primary-text: #000000/, 'a mid-tone green takes black words (about 9:1), not white (about 2.3:1)');
   assert.deepEqual(output.artifact.projection_refs, ['projection:test']);
   assert.deepEqual({ ...output.proof }, {
     descriptor_ref: 'descriptor:test',
