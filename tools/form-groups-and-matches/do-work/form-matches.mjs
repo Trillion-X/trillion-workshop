@@ -3,7 +3,7 @@
 // tool:form-matches. One matching cycle of a program (a club, a cohort, a mentoring circle: the program is only its
 // data): search shortlists or scored candidates in, groups out, each with its prepared introduction and, for the
 // groups whose introduction may be sent, the connection to record. Nothing is sent and nothing is written here; the
-// connections are the answer for the caller to keep (tools/relationship-graph) and the introductions for the caller
+// connections are the answer for the caller to keep as relation records of the one record graph and the introductions for the caller
 // to send once their gate is ready.
 //
 //   { program_id, cycle, relationship_kind,

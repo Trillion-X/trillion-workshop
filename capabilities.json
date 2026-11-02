@@ -11,7 +11,8 @@
     { "path": "package-lock.json", "holds": "the locked package versions" },
     { "path": "node_modules", "holds": "installed packages" },
     { "path": "test", "holds": "the tests every tool row is checked by" },
-    { "path": "test-helpers", "holds": "helpers the tool tests share" }
+    { "path": "test-helpers", "holds": "helpers the tool tests share" },
+    { "path": "retired-paths.json", "holds": "the paths something else replaced here, which the commit gates refuse to see rebuilt" }
   ],
   "capabilities": [
     {
@@ -606,12 +607,6 @@
       "owner": ["tools/records-door/"],
       "entry": "tools/records-door/read-data/records-door.mjs",
       "evidence": "README.md:3 how a Workshop tool reaches the person's own records: the client for the records door the run was handed"
-    },
-    {
-      "capability": "map who is connected to whom from records: each person or company once, with its connections",
-      "owner": ["tools/relationship-graph/"],
-      "entry": "tools/relationship-graph/do-work/map-who-is-connected.mjs",
-      "evidence": "README.md:3 out comes each person or company once with the connections it is in"
     },
     {
       "capability": "add up revenue, refunds, net revenue and recurring revenue from any provider's payment events",

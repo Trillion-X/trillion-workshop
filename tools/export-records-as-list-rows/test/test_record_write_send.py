@@ -291,6 +291,28 @@ class Door(Pantry):
         self.assertEqual(second['to_write'], 0)
         self.assertTrue(sender.readback(self.door(), payload, baseline)['_refresh']['conflicts'])
 
+    def test_an_empty_baseline_value_adds_fields_to_held_rows_by_id_and_keeps_every_other_field(self):
+        ids = [f'record:stores:{n}' for n in range(4)]
+        baseline = {'commands': [{'input': {'records': [{'id': i, 'type': 'record:stores', 'value': {}} for i in ids]}}]}
+        added = [{'verdict': 'Checked', 'paths': ['a.md']}, {'verdict': 'Checked'}, {'verdict': 'Checked'}, {'verdict': 'Checked'}]
+        payload = {'commands': [{'input': {'records': [{'id': i, 'type': 'record:stores', 'value': v} for i, v in zip(ids, added)]}}]}
+        state = self.held()
+        state['records'] = {ids[0]: {'type': 'record:stores', 'value': {'name': 'One', 'lives': '{"where_now": "x"}'}},
+                            ids[1]: {'type': 'record:stores', 'value': {'name': 'Two', 'verdict': 'Checked'}},
+                            ids[2]: {'type': 'record:stores', 'value': {'name': 'Three', 'verdict': 'Someone else wrote this'}}}
+        self.account.write_text(json.dumps(state))
+        status = sender.send(self.door(), payload, self.status, lambda _: None, baseline)
+        self.assertEqual(status['written'], 1)
+        self.assertEqual(sorted((c['id'], c['path'], c['reason']) for c in status['conflicts']),
+                         [(ids[2], ['verdict'], 'live_changed'), (ids[3], [], 'live_deleted')])
+        held = self.held()['records']
+        self.assertEqual(held[ids[0]]['value'], {'name': 'One', 'lives': '{"where_now": "x"}', 'verdict': 'Checked', 'paths': ['a.md']})
+        self.assertEqual(held[ids[1]]['value'], {'name': 'Two', 'verdict': 'Checked'})
+        self.assertEqual(held[ids[2]]['value']['verdict'], 'Someone else wrote this')
+        self.assertNotIn(ids[3], held)
+        check = sender.readback(self.door(), payload, baseline)['record:stores']
+        self.assertEqual((check['held'], check['equal'], check['missing']), (3, 3, []))
+
     def test_baseline_does_not_resurrect_a_deleted_record_or_remove_an_edited_one(self):
         old = [{'id': f'record:stores:{n}', 'type': 'record:stores', 'value': {'name': 'Original'}} for n in range(3)]
         baseline = {'commands': [{'input': {'records': old}}]}
