@@ -31,7 +31,7 @@ const KEPT_ANSWER_CHARS = 4000;
 const POLICY_VERSION = /^[A-Za-z0-9._:-]{1,64}$/;
 const ALWAYS_OPEN = ['sending', 'unknown'];
 
-const POLICY_SHAPE = 'policy: { policy_version, decided_at?, orders: [{ instrument: { symbol, kind?, contract_multiplier? }, side, qty, order_type, limit_price?, time_in_force?, live, route_ref }], risk: { max_order_notional, max_daily_notional, day_time_zone } }';
+const POLICY_SHAPE = 'policy: { policy_version, decided_at?, orders: [{ instrument: { symbol, kind?, contract_multiplier? }, side, qty, order_type, limit_price?, time_in_force?, live, route_ref }], risk: { max_order_notional, max_daily_notional, day_time_zone, allowed_symbols? } }';
 const ROUTE_SHAPE = 'routes: { <route_ref>: { mode, instrument_requests, credential_injections, response_map, status_map, status_request?, open_statuses? } }';
 
 /** The held broker credentials of this mode: a JSON object of named text fields, read once from its descriptor. */
@@ -69,6 +69,9 @@ function checkedPolicy(input, mode) {
   for (const limit of ['max_order_notional', 'max_daily_notional']) {
     const value = numberOf(risk[limit]);
     if (value === null || value < 0) throw new Error(`policy.risk.${limit} must be a number the policy sets; no order is placed without both limits.`);
+  }
+  if (risk.allowed_symbols !== undefined && !(Array.isArray(risk.allowed_symbols) && risk.allowed_symbols.every(symbol => typeof symbol === 'string' && symbol !== ''))) {
+    throw new Error('policy.risk.allowed_symbols, when given, must be a list of the symbols this policy may trade, such as ["BREAD"]; leave it out to allow any symbol.');
   }
   try { dayIn(risk.day_time_zone, 0); } catch { throw new Error('policy.risk.day_time_zone must name the time zone the daily limit is counted in, such as "America/New_York".'); }
   if (!Array.isArray(policy.orders)) throw new Error(`policy.orders must be a list of orders. Give ${POLICY_SHAPE}.`);

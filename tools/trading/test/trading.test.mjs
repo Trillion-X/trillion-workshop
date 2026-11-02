@@ -31,6 +31,9 @@ test('with no policy nothing is sent, and the refusal says what to give', async 
     await assert.rejects(placePaperOrders({ policy: noLimits, routes: ROUTES }, context(door, broker)), /max_daily_notional must be a number/);
     await assert.rejects(placePaperOrders({ policy: policy({ zone: 'Mars/Olympus' }), routes: ROUTES }, context(door, broker)), /day_time_zone/);
     await assert.rejects(placePaperOrders({ policy: policy({ version: 'a/b' }), routes: ROUTES }, context(door, broker)), /policy_version/);
+    const badSymbols = policy();
+    badSymbols.risk.allowed_symbols = 'BREAD';
+    await assert.rejects(placePaperOrders({ policy: badSymbols, routes: ROUTES }, context(door, broker)), /allowed_symbols, when given, must be a list/);
     assert.equal(broker.seen.length, 0);
     assert.equal(fake.calls.length, 0);
   });
