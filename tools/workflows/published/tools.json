@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:14818eaf158ff4c2f73c7c073ec1bd8a51dde8977bc1eff20931e2e75e9f89f2"
+  "blake3": "1f:dce00179e403c81a8f5735a08ce9ed8f2ec10bce40e8aeb80e78ae895db2aa15"
  },
  "fields": [
   {
@@ -4185,6 +4185,21 @@
      "placement:small-container"
     ],
     "folder": "coordination-sessions"
+   }
+  },
+  {
+   "id": "tool:plan-my-time",
+   "values": {
+    "title": "Plan my time",
+    "job": "Plan the person's tasks into their free time and judge their meetings against their pursuits, like an auto-scheduling calendar: ASAP first, then hard deadlines, then what serves their most important pursuit, then due date; tasks wait for their blockers, long tasks split into pieces, hard deadlines may use time outside working hours. Returns each task's placed times, whether it fits (on track, past due, will not fit) and when it finishes, and proposes declining meetings that serve no pursuit when they keep more valuable work from meeting its deadline. Changes no calendar; apply the result with the calendar actions. Also reports each day's planned work against a daily cap with which tasks to move to tomorrow first, keeps fixed-time tasks exactly where they are, uses a task's own named schedule (theme days, a pursuit's hours), keeps a gap around work, flags tasks that keep rolling over for a decision, and ignores declined, all-day and free calendar events.",
+    "description": "Free time is the weekly schedule in the person's time zone, minus busy events, blocks and work already placed. Tasks are placed in this order: a fixed-time task at its exact time, then ASAP, then hard deadlines, then value (the weight of the pursuits it serves times its priority), then due date; a task waits until the tasks that block it end. A task shorter than the rules' first chunk is never split; a longer one is split only into pieces of at least the rules' minimum block. A hard-deadline task that cannot meet its deadline in working hours may use time outside them, and says so. Each task comes back as on_track, past_due, unfit_past_due, unfit_later, needs_decision (it has moved `rolled_over` days in a row), conflict (its fixed time is taken), blocked or not_planned (no length, already done, or a deadline long past), with the words that say why. A meeting that serves no pursuit and is not required is proposed for decline, lowest value first, only while declining it lets more valuable work meet its deadline; nothing is declined here. Each day's planned minutes come back against the rules' daily cap with the lowest-value movable tasks to move first. Every policy number is the rules file's (read-data/rules.json) and any of them can be overridden in the request's `rules`.",
+    "status": "active",
+    "maker": "maker:plan-my-time",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "plan-my-time"
    }
   },
   {
