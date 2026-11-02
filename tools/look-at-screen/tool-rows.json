@@ -1,0 +1,76 @@
+{
+  "kind": "tool-rows",
+  "record_set": "look-at-screen-tool-rows",
+  "what_this_is": "The Workshop row for tools/look-at-screen: a picture of every display on the person's Mac, taken only when the tool is run, with each picture's exact pixel size.",
+  "records": [
+    {
+      "id": "package::look-at-screen::tool::look-at-screen",
+      "address": "package::look-at-screen::tool::look-at-screen",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:look-at-screen",
+        "status": "active",
+        "label": "Look at my screen",
+        "job": "See what is on the person's Mac screen right now: a picture of every display, the main one first, each with its size in pixels so an AI can point at an exact spot. Looks only when run; nothing is captured in the background or kept on the Mac. Says plainly when Screen Recording is off.",
+        "description": "Runs on the person's own Mac. Asks the system whether Screen Recording is allowed and, if it is not, answers needs_access with the words that say what to turn on; nothing is captured. Otherwise it captures every display with the system's screen capture (the pointer too when `cursor` is true), shrinks each to at most `long_edge` pixels on its longest side, and answers one picture per display, the main display first, each with its width and height in pixels, its media type and its bytes as base64. The pictures are made smaller together until the whole answer fits what one run may return; the sizes in the answer are those of the pictures sent. The folder the pictures are made in is removed before the run ends, so nothing is kept on the Mac. The run needs the screen-recording capability granted to this tool.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "long_edge": {"type": "number", "minimum": 200, "maximum": 1600, "description": "Longest edge of each picture in pixels (at most 1600, the rules' own limit)"},
+            "cursor": {"type": "boolean", "description": "Include the mouse pointer in the picture"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "looked_at": {"type": "string"},
+            "said": {"type": "string"},
+            "needs_access": {"type": "string"},
+            "error": {"type": "string"},
+            "pictures": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["display", "main", "width", "height", "media_type", "base64"],
+                "properties": {
+                  "display": {"type": "integer"},
+                  "main": {"type": "boolean"},
+                  "width": {"type": "integer"},
+                  "height": {"type": "integer"},
+                  "media_type": {"type": "string"},
+                  "base64": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["see-the-screen"],
+          "workdir": "/opt/look-at-screen",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/look-at-screen/do-work/look-at-screen.mjs", "lookAtScreen"],
+          "stdin": {"fill": {"from": "input"}},
+          "files": {
+            "package_files": [
+              {"package": "look-at-screen", "paths": ["do-work", "read-data"], "at": "/opt/look-at-screen"},
+              {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"},
+              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {"expected_seconds": 5, "network_egress": false},
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:look-at-screen",
+        "provenance": {
+          "source": "A screen-pointing assistant's look-only-when-asked screen capture, built 2026-10-15 from reverse engineering: every display, exact pixel sizes so an AI can point"
+        }
+      }
+    }
+  ]
+}
