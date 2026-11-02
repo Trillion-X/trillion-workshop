@@ -7,7 +7,7 @@ A person who sells access (a class, a membership, a book, a course video) can ha
 `read-data/who-holds-access.mjs` is the only place that answers it, and every gate in this folder asks it again at the moment of the request, so a refund or an ended subscription closes the very next open.
 
 1. The buyer's **payment events** (`payment-event` records, the shape `tools/take-payments` keeps, checked before it keeps them) go through the person's **effect rules** (`access-effect-rule` records) into effects. A rule says which event kind it reads, which attributes must be present, what the effect is called and where its subject and object come from.
-2. The **lifecycle** (an `effect-lifecycle` record: which attribute names an episode, which effect kinds start, keep or end it) folds the effects into purchase episodes. A purchase starts one, a renewal keeps it, a cancellation or refund ends it, in any order of arrival. The `commercial-offer` rows say which `access_refs` an active episode gives; an offer that asks for no money is held by everyone.
+2. The **lifecycle** (an `effect-lifecycle` record: which attribute names an episode, which effect kinds start, keep or end it) folds the effects into purchase episodes. A purchase starts one, a renewal keeps it, a cancellation or refund ends it, in any order of arrival. The rows of the person's offers list (`record:commercial-offer`) say which `access_refs` an active episode gives; an offer that asks for no money is held by everyone.
 3. **Grants** the person wrote by hand (`access-grant` records: `{ kind: "license_access", subject, object: <access ref>, material: { grant_ref, valid_from_ms?, expires_at_ms? } }`, and `{ kind: "revoke", subject, material: { revokes_grant_ref } }` to end one) add access with an optional window. A window is inclusive at its start and ends exactly at its end; a window with a missing, invalid or inverted time is never held.
 
 With no `access-effect-rule` and no `effect-lifecycle` record, it reads `read-data/take-payments-events.json`: the event kinds and attributes `tools/take-payments` writes, and no product, offer, price or person. The starter rules name the buyer by the email address on the payment event; a person who names buyers another way (an account id carried in the payment's metadata) writes their own rule, and every gate here then names the buyer that way.
@@ -61,7 +61,7 @@ With no `access-effect-rule` and no `effect-lifecycle` record, it reads `read-da
 
 ## Limits
 
-The records door lists a kind and does not search a field, so each ask reads every `payment-event`, `commercial-offer` and `access-grant` record of the person. A seller with very many payments wants those records keyed so a buyer's can be listed by prefix; this folder does not change what `tools/take-payments` writes.
+The records door lists a kind and does not search a field, so each ask reads every `payment-event`, `record:commercial-offer` and `access-grant` record of the person. A seller with very many payments wants those records keyed so a buyer's can be listed by prefix; this folder does not change what `tools/take-payments` writes.
 
 ## Dependencies
 

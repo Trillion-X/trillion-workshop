@@ -43,7 +43,7 @@ function doorOf(byType) {
 }
 
 test('pricing a sale reads the offers from the person\'s records and shows what is due', async () => {
-  const context = { door: doorOf({ 'commercial-offer': offerRows }) };
+  const context = { door: doorOf({ 'record:commercial-offer': offerRows }) };
   const { quote, material } = await priceASale({ ...attempt, offerId: 'offer:cake', priceOptionId: 'price:cake' }, context);
   assert.equal(quote.amountDueTodayCents, '2500');
   assert.equal(quote.paymentMode, 'one_time');
@@ -51,6 +51,13 @@ test('pricing a sale reads the offers from the person\'s records and shows what 
   assert.deepEqual(material.accessRefs, []);
   // the whole answer is JSON: no bigint
   assert.doesNotThrow(() => JSON.stringify({ quote, material }));
+});
+
+test('the offers are the rows of the person\'s offers list, including a row made in the list with no kind', async () => {
+  const madeInTheList = offerRows.map(({ kind, ...row }) => row);
+  const context = { door: doorOf({ 'record:commercial-offer': madeInTheList, 'commercial-offer': [] }) };
+  const { quote } = await priceASale({ ...attempt, offerId: 'offer:box', priceOptionId: 'price:box:monthly' }, context);
+  assert.equal(quote.amountDueTodayCents, '1200');
 });
 
 test('starting a checkout sends one request with no key on it and returns the hosted address', async () => {
@@ -123,7 +130,7 @@ test('a webhook is believed only inside its window and with a matching signature
 });
 
 test('what a buyer paid must be a price the offer declares', async () => {
-  const context = { door: doorOf({ 'commercial-offer': offerRows }) };
+  const context = { door: doorOf({ 'record:commercial-offer': offerRows }) };
   assert.deepEqual(await checkWhatWasPaid({ offer_id: 'offer:cake', paid: { amountCents: 2500, currency: 'USD' } }, context), { matches: true, reason: '' });
   const wrong = await checkWhatWasPaid({ offer_id: 'offer:cake', paid: { amountCents: 100, currency: 'usd' } }, context);
   assert.equal(wrong.matches, false);
@@ -132,7 +139,7 @@ test('what a buyer paid must be a price the offer declares', async () => {
 });
 
 test('eligibility rules are the person\'s records, and a held ref changes what is shown', async () => {
-  const context = { door: doorOf({ 'commercial-offer': offerRows, 'offer-eligibility-rule': [{ id: 'elig:1', offer_id: 'offer:cake', requires_held: ['access:box'] }] }) };
+  const context = { door: doorOf({ 'record:commercial-offer': offerRows, 'offer-eligibility-rule': [{ id: 'elig:1', offer_id: 'offer:cake', requires_held: ['access:box'] }] }) };
   assert.deepEqual((await showOffersForABuyer({ held_access_refs: [] }, context)).offers.map(offer => offer.id), ['offer:box']);
   assert.deepEqual((await showOffersForABuyer({ held_access_refs: ['access:box'] }, context)).offers.map(offer => offer.id), ['offer:box', 'offer:cake']);
 });
@@ -147,7 +154,7 @@ test('payment links are made once per priced option and carry no key', async () 
     ['GET /v1/billing_portal/configurations', { data: [{ id: 'bpc_1', metadata: { owner: 'bakery-a' }, login_page: { url: 'https://billing.example/p' } }] }],
   ]);
   const sent = [];
-  const context = { door: doorOf({ 'commercial-offer': offerRows }), send: async request => { sent.push(request); return stripeAnswers.get(`${request.method} ${new URL(request.url).pathname}`) ?? { data: [] }; } };
+  const context = { door: doorOf({ 'record:commercial-offer': offerRows }), send: async request => { sent.push(request); return stripeAnswers.get(`${request.method} ${new URL(request.url).pathname}`) ?? { data: [] }; } };
   const made = await setUpStripePaymentLinks({ owner: 'bakery-a', after_payment_url: 'https://bakery.example/' }, context);
   assert.equal(made.links.length, 2);
   assert.equal(made.portal_url, 'https://billing.example/p');

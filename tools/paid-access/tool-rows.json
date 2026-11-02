@@ -61,7 +61,7 @@
             "fd": 3,
             "rights": [
               { "kind": "payment-event", "operations": ["records:list"] },
-              { "kind": "commercial-offer", "operations": ["records:list"] },
+              { "kind": "record:commercial-offer", "operations": ["records:list"] },
               { "kind": "access-grant", "operations": ["records:list"] },
               { "kind": "access-effect-rule", "operations": ["records:list"] },
               { "kind": "effect-lifecycle", "operations": ["records:list"] }
@@ -130,7 +130,7 @@
             "fd": 3,
             "rights": [
               { "kind": "payment-event", "operations": ["records:list"] },
-              { "kind": "commercial-offer", "operations": ["records:list"] },
+              { "kind": "record:commercial-offer", "operations": ["records:list"] },
               { "kind": "access-grant", "operations": ["records:list"] },
               { "kind": "access-effect-rule", "operations": ["records:list"] },
               { "kind": "effect-lifecycle", "operations": ["records:list"] }
@@ -278,7 +278,7 @@
             "rights": [
               { "kind": "paid-file", "operations": ["records:read"] },
               { "kind": "payment-event", "operations": ["records:list"] },
-              { "kind": "commercial-offer", "operations": ["records:list"] },
+              { "kind": "record:commercial-offer", "operations": ["records:list"] },
               { "kind": "access-grant", "operations": ["records:list"] },
               { "kind": "access-effect-rule", "operations": ["records:list"] },
               { "kind": "effect-lifecycle", "operations": ["records:list"] }
@@ -348,7 +348,7 @@
             "rights": [
               { "kind": "paid-file", "operations": ["records:read"] },
               { "kind": "payment-event", "operations": ["records:list"] },
-              { "kind": "commercial-offer", "operations": ["records:list"] },
+              { "kind": "record:commercial-offer", "operations": ["records:list"] },
               { "kind": "access-grant", "operations": ["records:list"] },
               { "kind": "access-effect-rule", "operations": ["records:list"] },
               { "kind": "effect-lifecycle", "operations": ["records:list"] }

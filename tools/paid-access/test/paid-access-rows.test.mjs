@@ -28,7 +28,7 @@ const PLAINTEXT = Buffer.from('a made-up chapter a buyer pays for', 'utf8');
 const ANA = 'ana@example.com';
 
 const record = (type, id, value) => ({ type, id, value });
-const offer = record('commercial-offer', 'offer:class', { id: 'offer:class', access_refs: ['access:course-a'], price_options: [{ id: 'price:class', amount_cents: 9000 }] });
+const offer = record('record:commercial-offer', 'offer:class', { id: 'offer:class', access_refs: ['access:course-a'], price_options: [{ id: 'price:class', amount_cents: 9000 }] });
 const paid = record('payment-event', 'payment-event:evt_1', { event_id: 'evt_1', event_kind: 'payment.confirmed', occurred_at: '2026-03-01T00:00:00.000Z', attributes: { provider_event_id: 'evt_1', customer_email: ANA, offer_id: 'offer:class', payment_intent_ref: 'pi_1', payment_status: 'paid' } });
 const refund = record('payment-event', 'payment-event:evt_2', { event_id: 'evt_2', event_kind: 'payment.refunded', occurred_at: '2026-03-02T00:00:00.000Z', attributes: { provider_event_id: 'evt_2', provider_object_ref: 'ch_1', payment_intent_ref: 'pi_1' } });
 

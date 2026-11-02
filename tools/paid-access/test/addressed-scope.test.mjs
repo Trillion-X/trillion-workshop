@@ -8,7 +8,7 @@ import { checkABuyerMayOpen } from '../do-work/paid-access.mjs';
 const NOW = Date.parse('2026-06-01T00:00:00Z');
 const scope = (required = [], over = {}) => ({ schema: ADDRESSED_EXPIRING_VALUE_SCOPE_SCHEMA, value_ref: 'page:bread-class', instance_ref: 'page:bread-class:spring', required_access_refs: required, ...over });
 const door = (events, offers = []) => ({
-  async *list({ type }) { for (const value of type === 'payment-event' ? events : type === 'commercial-offer' ? offers : []) yield { id: 'r', type, value }; },
+  async *list({ type }) { for (const value of type === 'payment-event' ? events : type === 'record:commercial-offer' ? offers : []) yield { id: 'r', type, value }; },
 });
 const offers = [{ id: 'offer:class', access_refs: ['access:bread-class'], price_options: [{ amount_cents: 9000 }] }];
 const paid = { event_id: 'evt_1', event_kind: 'payment.confirmed', occurred_at: '2026-03-01T00:00:00Z', attributes: { provider_event_id: 'evt_1', customer_email: 'ana@example.com', offer_id: 'offer:class', payment_intent_ref: 'pi_1', payment_status: 'paid' } };
