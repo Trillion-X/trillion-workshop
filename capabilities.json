@@ -1337,6 +1337,20 @@
       ]
     },
     {
+      "capability": "read what a person is doing on their Mac as text from the front window (the app, window title, page address and visible words) when they switch windows and on a timer for a short watch, never from a password manager, Keychain, Settings or a private browser window, with passwords, keys and card numbers removed on the Mac before anything leaves it",
+      "owner": ["tools/read-what-is-on-screen/"],
+      "entry": "tools/read-what-is-on-screen/tool-rows.json",
+      "evidence": "README.md:3 the front window's accessibility text, read on a window change and every tick for a watch, with never-read apps, titles and addresses and the secret patterns kept as DATA in read-data/rules.json; learned from a screen-reading continuity app",
+      "distinct_from": [
+        {"job": "see what is on the person's Mac screen right now: a picture of every display, each with its size in pixels", "why": "tools/look-at-screen takes a picture when asked and keeps no text; this one reads the words of the front window over a short watch and takes no picture"},
+        {"job": "act on a computer's apps, windows and command lines within declared bounds", "why": "computer-interface-actions acts on apps and windows; this one only reads the front window's words and acts on nothing"},
+        {"job": "record a web page as a demo video: play steps like a person would, with a drawn pointer and click ripples", "why": "tools/record-a-web-page loads a page address in a headless browser; this one reads whatever window is in front on the person's own Mac, in any app"},
+        {"job": "read a public web page: its title, words, links and the card it describes itself with; read a link into a preview card", "why": "tools/browse-public-page fetches a public address; this one reads the person's own front window, whatever app it is, and never fetches anything"},
+        {"job": "find a person's files by words, name, place, kind or spoken words in the index their computer already keeps", "why": "tools/find-files-in-an-index searches files already indexed; this one reads the words on screen now and indexes nothing"},
+        {"job": "take a person to the thing that needs them", "why": "tools/take-me-there opens the person on a waiting card; this one only reads what the person already has open and opens nothing"}
+      ]
+    },
+    {
       "capability": "see what is on the person's Mac screen right now: a picture of every display, the main one first, each with its size in pixels so an AI can point at an exact spot, taken only when asked and kept nowhere on the Mac",
       "owner": ["tools/look-at-screen/"],
       "entry": "tools/look-at-screen/tool-rows.json",
