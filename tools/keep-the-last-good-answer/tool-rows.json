@@ -17,7 +17,7 @@
         },
         "label": "Ask a web address, or give me the last answer it gave",
         "job": "Ask a web address for its answer and keep that answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing",
-        "description": "Give address (a web address that starts with http:// or https://) and key (a short name for this answer: lower-case letters, digits and hyphens, so the last answer can be found again); wait_seconds (1 to 120, default 20) is how long to wait for the address. The answer is JSON when the address says it is JSON and text otherwise, up to 256 KiB. When the address answers, the answer is kept in the person's own records under the key and returned with origin from-the-source. When it fails (an error status, no answer in time, an unreadable or too large body) or answers with nothing, the last answer kept under the key is returned with origin from-what-was-kept and when it was kept; an empty answer never replaces a good one. With nothing kept the origin is nothing-to-give and the answer is null. Failures are returned in words (source_failure, keep_failure, kept_failure), never raised: a failure to keep never costs the answer already in hand. The engine keeps this to public web addresses.",
+        "description": "Give address (a web address that starts with http:// or https://) and key (a short name for this answer: lower-case letters, digits and hyphens, so the last answer can be found again); wait_seconds (1 to 120, default 20) is how long to wait for the address. The answer is JSON when the address says it is JSON and text otherwise, up to 256 KiB. When the address answers, the answer is kept in the person's own records under the key and returned with origin from-the-source. When it fails (an error status, no answer in time, an unreadable or too large body) or answers with nothing, the last answer kept under the key is returned with origin from-what-was-kept and when it was kept; an empty answer never replaces a good one. With nothing kept the origin is nothing-to-give and the answer is null. Failures are returned in words (source_failure, keep_failure, kept_failure), never raised: a failure to keep never costs the answer already in hand. When the address answers 429 or 503 with a Retry-After header, retry_after_seconds says how long it asked to be left alone (seconds or a date, held to a day); the tool itself never waits or asks again. The engine keeps this to public web addresses.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -82,6 +82,14 @@
                 "string",
                 "null"
               ]
+            },
+            "retry_after_seconds": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "description": "When the address answered 429 or 503 with a Retry-After header: how many seconds it asked to be left alone (at most a day); null otherwise"
             },
             "said": {
               "type": "string"
