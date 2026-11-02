@@ -64,6 +64,45 @@ test('suppressed, bounced, complained, replied, recently sent, repeated and malf
   });
 });
 
+test('a later, weaker event never undoes a reply, a bounce or a complaint: the strongest action holds', () => {
+  const base = { pacing: 'new-inbox-warmup', time_zone: 'America/Chicago', now: '2026-12-15T15:00:00Z', recipients: ['a@example.com', 'b@example.com', 'c@example.com'] };
+  const answer = planSends({ ...base, outcomes: [
+    { recipient: 'a@example.com', kind: 'reply' }, { recipient: 'a@example.com', kind: 'auto-reply' },
+    { recipient: 'b@example.com', kind: 'hard-bounce' }, { recipient: 'b@example.com', kind: 'soft-bounce' },
+    { recipient: 'c@example.com', kind: 'delivered' }, { recipient: 'c@example.com', kind: 'complaint' }, { recipient: 'c@example.com', kind: 'delivered' },
+  ] });
+  assert.deepEqual(answer.held.map(entry => [entry.recipient, entry.why]), [
+    ['a@example.com', 'reply: answer them yourself'], ['b@example.com', 'suppressed: hard-bounce'], ['c@example.com', 'suppressed: complaint']]);
+  assert.deepEqual(answer.schedule, []);
+  // The sorter's own outcomes carry their action, and a person's outcome row may give a kind another action.
+  const sorted = sortOutcomes({ events: [{ recipient: 'a@example.com', type: 'reply' }, { recipient: 'a@example.com', type: 'message', subject: 'Out of office' }] });
+  assert.deepEqual(planSends({ ...base, recipients: ['a@example.com'], outcomes: sorted.outcomes }).held[0].why, 'reply: answer them yourself');
+});
+
+test('a soft bounce waits for its retry time, is then sent again once despite the leave-alone days, and only once', () => {
+  const base = { pacing: 'new-inbox-warmup', time_zone: 'UTC', recipients: ['soft@example.com'] };
+  const history = [{ recipient: 'soft@example.com', at: '2026-11-02T09:00:00Z' }];
+  const outcomes = sortOutcomes({ now: '2026-11-02T09:05:00Z', events: [{ recipient: 'soft@example.com', type: 'bounce', status: 'transient', at: '2026-11-02T09:05:00Z' }] }).outcomes;
+  assert.equal(outcomes[0].action, 'retry-later');
+  const early = planSends({ ...base, now: '2026-11-02T12:00:00Z', history, outcomes });
+  assert.deepEqual(early.held, [{ recipient: 'soft@example.com', why: 'soft-bounce: retry from 2026-11-03T09:05:00.000Z' }]);
+  const due = planSends({ ...base, now: '2026-11-03T10:00:00Z', history, outcomes });
+  assert.deepEqual(due.due_now, ['soft@example.com']);
+  const retried = planSends({ ...base, now: '2026-11-04T10:00:00Z', history: [...history, { recipient: 'soft@example.com', at: '2026-11-03T10:00:00Z' }], outcomes });
+  assert.deepEqual(retried.held, [{ recipient: 'soft@example.com', why: 'sent to within the last 30 days' }]);
+});
+
+test('local hours are read through tools/wall-time, so a clock change keeps the window at its wall-clock hour', () => {
+  const source = readFileSync(join(folder, 'read-data', 'inbox-pacing.mjs'), 'utf8');
+  assert.match(source, /from '\.\.\/\.\.\/wall-time\/read-data\/wall-time\.mjs'/);
+  assert.doesNotMatch(source, /new Intl\.DateTimeFormat/, 'no second wall-clock reader');
+  // US clocks go back on 2026-11-01: the Saturday before is UTC-5, the Saturday after UTC-6; both open at 08:00 local.
+  const before = planSends({ pacing: 'saturday-local', time_zone: 'America/Chicago', now: '2026-10-30T12:00:00Z', recipients: ['x@example.com'] });
+  const after = planSends({ pacing: 'saturday-local', time_zone: 'America/Chicago', now: '2026-11-06T12:00:00Z', recipients: ['x@example.com'] });
+  assert.deepEqual([before.schedule[0].at, after.schedule[0].at], ['2026-10-31T13:00:00.000Z', '2026-11-07T14:00:00.000Z']);
+  assert.throws(() => planSends({ pacing: 'saturday-local', time_zone: 'Mars/Olympus', recipients: ['x@example.com'] }), /not a time zone/);
+});
+
 test('the inbox pauses when its last sends bounce over the share, or draw a complaint', () => {
   const history = people(40).map((recipient, index) => ({ recipient, at: `2026-11-0${2 + (index % 5)}T10:00:00Z` }));
   const bounced = planSends({ pacing: 'new-inbox-warmup', time_zone: 'UTC', now: '2026-11-09T10:00:00Z', history, recipients: ['next@example.com'],
