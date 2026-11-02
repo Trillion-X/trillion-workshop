@@ -1,0 +1,27 @@
+{
+  "_what": "Paths that something else replaced in this repository, as DATA for the control plane's edit-time guard and commit-time gate. Retired code leaves the tree in one commit, after `git tag <tag> <last commit that has it>` (tag is retired/<name>-<retired_at>), so it moves into history and is not lost; a commit that deletes a file of an entry is refused unless its `tag` holds that file. Once a path is retired nothing new may be added to it or built on it: a change is refused when it adds lines to a path matching an entry's `path` (a move inside it or a deletion adds none), or adds a reference (a line matching one of the entry's `reference_patterns`, in a file `reference_judged` names that is not itself retired) to it; the refusal names `replaced_by`, where the work belongs. `path` is a glob: `*` is any characters but `/`, `**` any characters, and a match also covers everything under a matched folder.",
+  "reference_judged": {
+    "path_matches": "^.*$",
+    "path_excludes": "^retired-paths\\.json$"
+  },
+  "retired": [
+    {
+      "path": "tools/relationship-graph",
+      "replaced_by": "The one generic record graph: relations and activities over any records, from the engine's product/record-model.json (read and written through records:read, records:list and records:write), ported into this Workshop as the record-graph tools",
+      "retired_at": "2026-11-01",
+      "tag": "retired/relationship-graph-2026-11-01",
+      "reason": "Owner decision, 2026-11-01: killed; instance-solving; one generic record graph. A special model of who is connected to whom for people and companies solves one instance of what the record graph's relations and activities already do for any records.",
+      "allowed_exceptions": [],
+      "reference_patterns": [
+        "tools/relationship-graph\\b",
+        "maker:relationship-graph\\b",
+        "\\bmap-who-is-connected\\b",
+        "\\bkeep-who-is-connected\\b",
+        "\\brequest-a-connection-action\\b",
+        "\\bread-connection-graph\\b",
+        "(?i)who is connected to whom"
+      ]
+    }
+  ],
+  "awaiting_switch": []
+}
