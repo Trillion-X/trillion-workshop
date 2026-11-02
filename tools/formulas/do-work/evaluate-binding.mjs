@@ -4,9 +4,11 @@
 //   Evaluate a binding over a JSON value. A binding selects a value from the
 //   row (select.from "self", read at select.path) or states one (from
 //   "literal"), then runs a pipeline of operators over it. The operator set is
-//   the one the comparison rows in read-data/rule-operators.json use: and, or,
+//   the one the comparison rows in read-data/rule-operators.json use (and, or,
 //   not, eq, gt, ge, lt, le, in_list, index_of, is_null, is_empty, lower,
-//   contains, starts_with, join.
+//   contains, starts_with, join) and the three that build a value from a row's
+//   fields (coalesce, if, text_concat), each with the engine operator's
+//   semantics (trillion-rust crates/ops-core logical.rs and text.rs).
 //
 // Non-negotiable invariants
 //   - Three-state logic: and, or and not answer true, false or null (unknown).
@@ -141,6 +143,17 @@ const OPERATORS = {
     const delimiter = stringOrNull('join', known(args.delimiter));
     return list === null || delimiter === null ? null : list.map(text).join(delimiter);
   },
+  // The first value of `values` that is not unknown, else unknown (engine logical::coalesce).
+  'op:core.coalesce': (_input, args) => (Array.isArray(args.values) ? args.values : []).map(known).find(value => !isNull(value)) ?? null,
+  // The value received is the condition and must be true or false; `then` or `else` is the answer, an absent one
+  // unknown (engine logical::if_then_else, which refuses any other condition, unknown included).
+  'op:core.if': (input, args) => {
+    if (typeof input !== 'boolean') throw mismatch('if', 'boolean', known(input));
+    return known(input ? args.then : args.else);
+  },
+  // The text values of `values` one after another, unknown ones skipped; any other value is an error
+  // (engine text::concat_many).
+  'op:core.text_concat': (_input, args) => (Array.isArray(args.values) ? args.values : []).map(value => stringOrNull('concat', known(value))).filter(value => value !== null).join(''),
 };
 
 /** The operator ids this evaluator runs. */
