@@ -1,0 +1,148 @@
+{
+  "kind": "tool-rows",
+  "record_set": "plan-my-time-tool-rows",
+  "what_this_is": "The Workshop row for tools/plan-my-time: the person's tasks placed into their free time, and their meetings judged against their pursuits. It changes no calendar.",
+  "records": [
+    {
+      "id": "package::plan-my-time::tool::plan-my-time",
+      "address": "package::plan-my-time::tool::plan-my-time",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:plan-my-time",
+        "status": "active",
+        "label": "Plan my time",
+        "job": "Plan the person's tasks into their free time and judge their meetings against their pursuits, like an auto-scheduling calendar: ASAP first, then hard deadlines, then what serves their most important pursuit, then due date; tasks wait for their blockers, long tasks split into pieces, hard deadlines may use time outside working hours. Returns each task's placed times, whether it fits (on track, past due, will not fit) and when it finishes, and proposes declining meetings that serve no pursuit when they keep more valuable work from meeting its deadline. Changes no calendar; apply the result with the calendar actions. Also reports each day's planned work against a daily cap with which tasks to move to tomorrow first, keeps fixed-time tasks exactly where they are, uses a task's own named schedule (theme days, a pursuit's hours), keeps a gap around work, flags tasks that keep rolling over for a decision, and ignores declined, all-day and free calendar events.",
+        "description": "Free time is the weekly schedule in the person's time zone, minus busy events, blocks and work already placed. Tasks are placed in this order: a fixed-time task at its exact time, then ASAP, then hard deadlines, then value (the weight of the pursuits it serves times its priority), then due date; a task waits until the tasks that block it end. A task shorter than the rules' first chunk is never split; a longer one is split only into pieces of at least the rules' minimum block. A hard-deadline task that cannot meet its deadline in working hours may use time outside them, and says so. Each task comes back as on_track, past_due, unfit_past_due, unfit_later, needs_decision (it has moved `rolled_over` days in a row), conflict (its fixed time is taken), blocked or not_planned (no length, already done, or a deadline long past), with the words that say why. A meeting that serves no pursuit and is not required is proposed for decline, lowest value first, only while declining it lets more valuable work meet its deadline; nothing is declined here. Each day's planned minutes come back against the rules' daily cap with the lowest-value movable tasks to move first. Every policy number is the rules file's (read-data/rules.json) and any of them can be overridden in the request's `rules`.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "now": {"type": "string", "description": "Plan from this time (ISO); now when left out"},
+            "time_zone": {"type": "string", "description": "The person's time zone, like America/New_York (UTC when left out)"},
+            "window_days": {"type": "number", "minimum": 1, "maximum": 90},
+            "schedule": {"type": "object", "description": "Working hours per weekday: { monday: [{ from: \"09:00\", to: \"17:00\" }], ... }"},
+            "pursuits": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {"type": "string"},
+                  "needle_mover": {"type": "boolean", "description": "The pursuit that matters most; work for it counts for more"},
+                  "weight": {"type": "number"}
+                }
+              }
+            },
+            "tasks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": {"type": "string"},
+                  "title": {"type": "string"},
+                  "duration_minutes": {"type": "number"},
+                  "done_minutes": {"type": "number"},
+                  "priority": {"enum": ["asap", "high", "medium", "low"]},
+                  "deadline": {"enum": ["asap", "hard", "soft", "none"]},
+                  "due": {"type": "string"},
+                  "not_before": {"type": "string"},
+                  "snooze_until": {"type": "string"},
+                  "min_block_minutes": {"type": "number"},
+                  "blocked_by": {"type": "array", "items": {"type": "string"}},
+                  "pursuit_ids": {"type": "array", "items": {"type": "string"}},
+                  "schedule": {"type": "string", "description": "Name of a schedule in schedules or rules.schedules"},
+                  "preferred_start": {"type": "string", "description": "Start it at this time when free (ISO)"},
+                  "rigid": {"type": "boolean", "description": "With preferred_start: only that exact time, else fit conflict"},
+                  "rolled_over": {"type": "number", "description": "Days in a row it has moved to the next day"},
+                  "planned_for": {"type": "string", "description": "Local date (YYYY-MM-DD) it is committed to; counts toward that day's load"}
+                }
+              }
+            },
+            "meetings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "start", "end"],
+                "properties": {
+                  "id": {"type": "string"},
+                  "title": {"type": "string"},
+                  "start": {"type": "string"},
+                  "end": {"type": "string"},
+                  "required": {"type": "boolean"},
+                  "priority": {"enum": ["asap", "high", "medium", "low"]},
+                  "pursuit_ids": {"type": "array", "items": {"type": "string"}}
+                }
+              }
+            },
+            "busy": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["start", "end"],
+                "properties": {
+                  "start": {"type": "string"},
+                  "end": {"type": "string"},
+                  "all_day": {"type": "boolean"},
+                  "response": {"enum": ["accepted", "tentative", "declined", "none"]},
+                  "show_as": {"enum": ["busy", "free", "tentative"]}
+                }
+              }
+            },
+            "blocks": {
+              "type": "array",
+              "items": {"type": "object", "required": ["start", "end"], "properties": {"start": {"type": "string"}, "end": {"type": "string"}}}
+            },
+            "rules": {"type": "object", "description": "Overrides for the planning policy (window_days, stale_days, chunks, pursuit_weight, priority_weight, schedule, schedules, gap_minutes, slot_choice, daily_cap_minutes, rollover_alert_at)"},
+            "schedules": {"type": "object", "description": "Named working hours: { evenings: { monday: [{ from, to }] } }"},
+            "gap_minutes": {"type": "number", "minimum": 0},
+            "end_of_day": {"type": "object", "description": "Local date to the time that day's work must end: { \"2026-10-19\": \"15:00\" }"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "planned_at": {"type": "string"},
+            "time_zone": {"type": "string"},
+            "tasks": {"type": "array", "items": {"type": "object", "required": ["id", "fit"]}},
+            "meetings": {"type": "array", "items": {"type": "object", "required": ["id", "verdict"]}},
+            "days": {"type": "array", "items": {"type": "object", "required": ["date", "planned_minutes"]}}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {"package": "plan-my-time", "paths": ["do-work", "read-data"], "at": "/opt/plan-my-time"},
+              {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"},
+              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            ]
+          },
+          "workdir": "/opt/plan-my-time",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/plan-my-time/do-work/plan-my-time.mjs", "planMyTime"],
+          "stdin": {"fill": {"from": "input"}}
+        },
+        "result_selector": "$.result",
+        "needs": {"expected_seconds": 3, "network_egress": false},
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:plan-my-time",
+        "provenance": {
+          "source": "An auto-scheduling calendar's placement of tasks into free time and a daily planner's day caps, built 2026-10-15 from reverse engineering and ordered by the person's pursuits"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {"now": "2026-10-19T13:00:00Z", "tasks": [{"id": "write-the-update", "duration_minutes": 30}]},
+            "output_selector": "$.tasks[0].fit",
+            "contains": "on_track"
+          }
+        ]
+      }
+    }
+  ]
+}
