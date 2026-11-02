@@ -1477,6 +1477,17 @@
         {"job": "transcribe recordings with a time for every word", "why": "tools/audio-transcription times words in a recording; this one times a person's tasks in their week"},
         {"job": "plan tasks and to-do lists on a calendar: keep named task lists with counts, group and sort them, schedule a task onto a day or time, and turn an email into a task", "why": "the task tray keeps the person's lists and puts a task where the person drops it; this one chooses where every task goes by length, deadline, blockers and value, keeps no list and changes no task"}
       ]
+    },
+    {
+      "capability": "cover a person's workspace until every required setup step is done, then hold the one must-do row that unblocks the most until it is done, set aside with a reason or handed back to their AIs",
+      "owner": ["tools/hold-one-thing-until-done/"],
+      "entry": "tools/hold-one-thing-until-done/tool-rows.json",
+      "evidence": "README.md:3 reads the person's setup steps, must-do rows and hold setting through the records door, answers whether the cover stands and which one row is held, and writes each change of the hold setting on condition of the value just read",
+      "distinct_from": [
+        {"job": "hold a group to what it agreed: keep each agreement, work out when to remind and check, mark who kept it from the evidence handed in, and keep the scorecard", "why": "that job scores a group against agreements it made; this one decides which single row of one person's own must-do list their screen shows, and nothing else, until it is done"},
+        {"job": "read one page of what a person's list shows, from their records only", "why": "that job pages any list as it is; this one ranks one list's rows by what unblocks most and answers the one row the cover shows, with its asides, hand-backs and stakes"},
+        {"job": "show what is waiting on me and let me finish each thing where I see it", "why": "that job is the screen that draws the waiting list and the cover; this one is the decision the cover draws, and the hold setting it keeps"}
+      ]
     }
   ]
 }
