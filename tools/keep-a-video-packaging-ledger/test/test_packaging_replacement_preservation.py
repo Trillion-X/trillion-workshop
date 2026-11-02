@@ -9,7 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-TOOL = Path(__file__).resolve().parents[1]
+TOOL = Path(__file__).resolve().parents[1] / "do-work"
 PROJECTOR = TOOL / "project_packaging_ledger.py"
 
 

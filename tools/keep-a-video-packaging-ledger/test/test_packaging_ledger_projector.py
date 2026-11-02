@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 import sys
 
-TOOL = Path(__file__).resolve().parents[1]
+TOOL = Path(__file__).resolve().parents[1] / "do-work"
 sys.path.insert(0, str(TOOL))
 
 from project_packaging_ledger import (effective_thumbnail_analysis, normalize_thumbnail_identity,

@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 import sys
 
-TOOL = Path(__file__).resolve().parents[1]
+TOOL = Path(__file__).resolve().parents[1] / "do-work"
 sys.path.insert(0, str(TOOL))
 
 import blake3
