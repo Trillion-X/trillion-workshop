@@ -1,0 +1,20 @@
+{
+  "about": "The field names of a list whose rows say where a file is on the computer and how to get it back, and the words of its states. A caller whose list uses other names sends `shape` with only the names that differ.",
+  "fields": {
+    "path": "mac_path",
+    "state": "state",
+    "kind": "kind",
+    "frees": "frees",
+    "hold": "hold_reason",
+    "source_urls": ["source_url", "fetch_source"],
+    "recipe_files": "recipe_files",
+    "bytes": "bytes",
+    "checked": "checked_at"
+  },
+  "states": {
+    "saved": "Way back is saved: Mac copy can be freed",
+    "freed": "Mac copy freed"
+  },
+  "frees_words": { "file": "file", "folder": "folder", "none": "none" },
+  "quiet_hours": 6
+}

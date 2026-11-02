@@ -1,0 +1,7 @@
+{
+  "about": "How to ask whether a source still answers. The first row whose `match` fits the address gives the address that is asked: `{url}` is the address, `{encoded}` the address encoded for a query. A page that serves a removed item with a 200 needs its own row; the last row asks the address itself.",
+  "rows": [
+    { "match": "^https?://(www\\.)?(youtube\\.com/watch\\?v=|youtu\\.be/)", "ask": "https://www.youtube.com/oembed?format=json&url={encoded}", "why": "a removed or private video still serves its page; its oEmbed answers 404" },
+    { "match": "^https?://", "ask": "{url}", "why": "the address itself" }
+  ]
+}

@@ -16,6 +16,28 @@
   ],
   "capabilities": [
     {
+      "capability": "free the files and folders a person's own list says can be got back (a source address that still answers, a fetch source, or recipe files that are tracked, unchanged and pushed), checking each way back at run time and moving them to the Trash, as a dry run unless asked",
+      "owner": [
+        "tools/free-what-the-list-says-can-be-got-back/"
+      ],
+      "entry": "tools/free-what-the-list-says-can-be-got-back/tool-rows.json",
+      "evidence": "Searched before adding: no row frees disk space or removes files on the person's computer (the capability search found only the Gmail row that trashes mail, the files screen that deletes names in the person's Namespace, and the connected-drives tool, which lists a drive and never removes). The nearest existing piece is the Mac's disk-guard launchd job, a script that lives in agent scratch outside every owner: it deletes only stale build output and scratch there and states that it never touches media or sources. This tool is the generic counterpart for files the person's own list can get back, with the list shape and the proof as data.",
+      "distinct_from": [
+        {
+          "job": "search, read, organize, trash and restore a person's Gmail mail and threads, keep and send drafts and set their send-as signature",
+          "why": "That row trashes mail in the person's mailbox through Gmail; this one moves files on the person's computer to the Trash after proving each can be got back."
+        },
+        {
+          "job": "browse, upload, open, rename, move and delete my files and folders: list, card and board views, a folders tree, a file opened in its own tab, drag-and-drop upload with progress",
+          "why": "That screen manages the names in the person's own Namespace; this tool removes files from the person's computer, only those their list says can be got back."
+        },
+        {
+          "job": "the drives connected to the person's Mac, what is in one folder on one, what is on one by kind, its icon, and which programs are using one",
+          "why": "That owner only lists and reads a drive; it removes nothing and holds no list of ways back."
+        }
+      ]
+    },
+    {
       "capability": "reconcile generic execution receipts with source, meter and provider-price revisions so missing evidence makes forecast coverage visibly incomplete or stale",
       "owner": [
         "tools/keep-measurements-current/"

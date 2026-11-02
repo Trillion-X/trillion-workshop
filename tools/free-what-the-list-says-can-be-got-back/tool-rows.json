@@ -1,0 +1,167 @@
+{
+  "kind": "tool-rows",
+  "record_set": "free-what-the-list-says-can-be-got-back-tool-rows",
+  "what_this_is": "Free the files and folders a person's own list says can be got back: each way back is checked at run time and a file moves to the Trash only on a real run.",
+  "records": [
+    {
+      "id": "package::free-what-the-list-says-can-be-got-back::tool::free-what-the-list-says-can-be-got-back",
+      "address": "package::free-what-the-list-says-can-be-got-back::tool::free-what-the-list-says-can-be-got-back",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:free-what-the-list-says-can-be-got-back",
+        "id": "tool:free-what-the-list-says-can-be-got-back",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": true
+        },
+        "label": "Free the files my list says I can get back",
+        "job": "Free disk space by removing the files and folders my own list says I can get back, after checking each way back is still good",
+        "description": "Give rows (1 to 100 rows of the person's list, each { id, value }) and the folder the person granted for change. A row is freed only if its state says the way back is saved, nothing is written as holding it back, it names a file or folder inside the granted folder that is not a link and that git does not track, and every proof holds now: each source address or fetch source answers, and each recipe file is tracked, unchanged since its last commit and pushed. dry_run is true unless you send false: a dry run moves nothing and says, per row, whether it could be freed and why not. A real run moves each freed path to the Trash of its own volume and returns next_value, the row with its state set to freed, for you to write back. Space comes back when the Trash is emptied. The list's field names and state words are the defaults in read-data/kept-file-shape.json; send shape with only the names that differ.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "rows"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rows": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 100,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "object"
+                  }
+                }
+              },
+              "description": "Rows of the person's list of files and how to get them back"
+            },
+            "dry_run": {
+              "type": "boolean",
+              "description": "true (the default) moves nothing; send false to move the freed paths to the Trash"
+            },
+            "shape": {
+              "type": "object",
+              "description": "Only the field names, state words or quiet_hours that differ from read-data/kept-file-shape.json"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "dry_run",
+            "rows",
+            "can_free_count",
+            "can_free_bytes",
+            "freed_count",
+            "freed_bytes"
+          ],
+          "properties": {
+            "dry_run": {
+              "type": "boolean"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "free",
+                  "bytes"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "free": {
+                    "type": "boolean"
+                  },
+                  "bytes": {
+                    "type": "number"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "freed": {
+                    "type": "boolean"
+                  },
+                  "moved_to": {
+                    "type": "string"
+                  },
+                  "next_value": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "can_free_count": {
+              "type": "number"
+            },
+            "can_free_bytes": {
+              "type": "number"
+            },
+            "freed_count": {
+              "type": "number"
+            },
+            "freed_bytes": {
+              "type": "number"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/free-what-the-list-says-can-be-got-back",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/free-what-the-list-says-can-be-got-back/do-work/free-what-the-list-says-can-be-got-back.mjs",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.change-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "free-what-the-list-says-can-be-got-back",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/free-what-the-list-says-can-be-got-back"
+            }
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
