@@ -4,9 +4,11 @@
 // app's DecisionEngine (src/engine.mjs: admit, guide, decideGuided, decide, reportResult, recordCarriedOut) and the
 // record layout of its decision store (src/decision-store.mjs): a decision is one root record of type `decision`
 // holding its method snapshot and a running summary of its answered steps (`answered_steps`, each { step_id,
-// answered_at }); each answered step is a record of its own (`decision-step:<id>:<n>`) holding the answer and the checks
-// it was asked. Answering one step reads the decision's own fields, its scope answer and the step it repeats, never
-// every earlier answer. The Decisions screen reads these same records.
+// answered_at, checks, graded, graded_by }: how many checks the step handed its judge, how many verdicts came back and
+// who graded them, so anyone can see from the root whether a case was judged or only answered); each answered step is
+// a record of its own (`decision-step:<id>:<n>`) holding the answer, the checks it was asked and the verdicts taken.
+// Answering one step reads the decision's own fields, its scope answer and the step it repeats, never every earlier
+// answer. The Decisions screen reads these same records.
 //
 // The methods are the person's: rows of their Methods list (one per method) and of their Method checks list (one per
 // check, naming its step and method), row types in `records` of read-data/decide-with-a-method.json, so they see and
@@ -44,10 +46,16 @@ const stepKey = (id, n) => `${NAMES.step}${id}:${String(n).padStart(NAMES.step_d
 const callKey = (id, n) => `${NAMES.call}${id}:${String(n).padStart(NAMES.call_digits, '0')}`;
 // A logged call keeps what it was, never the payload it carried (the old store kept those apart and bounded).
 const bareCall = call => (object(call) ? Object.fromEntries(Object.entries(call).filter(([field]) => !['submission', 'problems'].includes(field))) : call);
-// A step's checks are kept as { checks } (a store keeps objects, not lists, once); callers read and write the list.
-const packStep = entry => (Array.isArray(entry?.checklist) ? { ...entry, checklist: { checks: entry.checklist } } : entry);
-const unpackStep = entry => (object(entry?.checklist) && Array.isArray(entry.checklist.checks) ? { ...entry, checklist: entry.checklist.checks } : entry);
-const stubOf = entry => ({ step_id: entry.step_id, answered_at: entry.answered_at });
+// A step's checks are kept as { checks } and its verdicts as { given } (a store keeps objects, not lists, once);
+// callers read and write the lists.
+const PACKED = { checklist: 'checks', verdicts: 'given' };
+const packStep = entry => (object(entry) ? Object.fromEntries(Object.entries(entry).map(([field, item]) => [field, PACKED[field] && Array.isArray(item) ? { [PACKED[field]]: item } : item])) : entry);
+const unpackStep = entry => (object(entry) ? Object.fromEntries(Object.entries(entry).map(([field, item]) => [field, PACKED[field] && object(item) && Array.isArray(item[PACKED[field]]) ? item[PACKED[field]] : item])) : entry);
+// A step read whole carries its verdicts; a step read as its stub carries the counts already made from them.
+const gradingOf = entry => (Array.isArray(entry.verdicts)
+  ? { checks: entry.judged_checks ?? entry.verdicts.length, graded: entry.verdicts.length, graded_by: [...new Set(entry.verdicts.map(verdict => verdict.graded_by))].join(', ') }
+  : Object.fromEntries(['checks', 'graded', 'graded_by'].filter(field => entry[field] !== undefined).map(field => [field, entry[field]])));
+const stubOf = entry => ({ step_id: entry.step_id, answered_at: entry.answered_at, ...gradingOf(entry) });
 const lostStep = stub => ({ step_id: stub?.step_id ?? null, answer: {}, answered_at: stub?.answered_at ?? null, lost: true });
 
 // Every row of one of the person's lists, in row id order, as its value; `where` keeps only the rows whose fields
@@ -282,7 +290,8 @@ export async function answerADecisionQuestion(input, { door }) {
   const cited = await citable(door, record, refs);
   cat.validateMethodAnswer(record, step, input.answer, cited.refs);
   noRunIds(input.answer?.workflow_runs, 'workflow_runs');
-  const { verdicts } = takeCallerVerdicts(cat.checkAnswersToJudge(record, step, input.answer), input.verdicts, { answer: input.answer, refs: [...cited.refs] });
+  const toJudge = cat.checkAnswersToJudge(record, step, input.answer);
+  const { verdicts } = takeCallerVerdicts(toJudge, input.verdicts, { answer: input.answer, refs: [...cited.refs] });
   const problems = judgedProblems(verdicts);
   if (problems.length) throw new AnswerProblems(problems);
   keepCited(record, cited.pursuits, refs);
@@ -293,7 +302,9 @@ export async function answerADecisionQuestion(input, { door }) {
   if (record.method?.answer_rules && cat.workflowsDue(record, step).length) {
     record.workflow_plan = { version: 1, step_id: step.id, items: structuredClone(input.answer.workflow_runs) };
   }
-  const entry = { step_id: step.id, answer: input.answer, ...(checklist.length ? { checklist } : {}), ...(usage ? { usage } : {}), answered_at: new Date().toISOString() };
+  // The verdicts taken, each with who graded it, and how many checks were handed to the judge: a step answered with no
+  // verdict for a check it asked shows as answered, not judged.
+  const entry = { step_id: step.id, answer: input.answer, ...(checklist.length ? { checklist } : {}), verdicts, judged_checks: toJudge.length, ...(usage ? { usage } : {}), answered_at: new Date().toISOString() };
   const n = record.guidance.length;
   record.guidance.push(entry);
   await writeDecision(door, recordsOf(record, n), `answer-a-decision-question:${id}:${n}`);

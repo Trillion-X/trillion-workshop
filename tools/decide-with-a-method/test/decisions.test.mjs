@@ -125,6 +125,28 @@ test('every check is answered, and a grounded refusal from the calling AI holds 
   assert.equal(passed.question.step_id, 'proof');
 });
 
+test('the verdicts taken are kept with their step and counted on the root, so an answered step shows whether it was judged', async () => {
+  const graded = account();
+  const { case_id: id } = await startADecision(opened, { door: graded });
+  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door: graded });
+  const meets = [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }];
+  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, verdicts: meets }, { door: graded });
+  assert.deepEqual(graded.value(`decision-step:${id}:001`).verdicts.given.map(verdict => [verdict.id, verdict.meets, verdict.graded_by]), [['outcome-before-after', true, 'second-judge-test']]);
+  assert.deepEqual(graded.value(id).answered_steps.map(({ step_id, checks, graded: count, graded_by }) => ({ step_id, checks, graded: count, graded_by })), [
+    { step_id: 'scope', checks: 0, graded: 0, graded_by: '' },
+    { step_id: 'outcome', checks: 1, graded: 1, graded_by: 'second-judge-test' },
+  ]);
+  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', answer: proofAnswer }, { door: graded });
+  assert.deepEqual(graded.value(id).answered_steps[1], { step_id: 'outcome', answered_at: graded.value(id).answered_steps[1].answered_at, checks: 1, graded: 1, graded_by: 'second-judge-test' }, 'a later write keeps the counts of a step it read as its stub');
+
+  const unjudged = account();
+  const { case_id: other } = await startADecision(opened, { door: unjudged });
+  await answerADecisionQuestion({ decision_id: other, step_id: 'scope', answer: scope }, { door: unjudged });
+  await answerADecisionQuestion({ decision_id: other, step_id: 'outcome', answer: outcomeAnswer }, { door: unjudged });
+  const [, outcome] = unjudged.value(other).answered_steps;
+  assert.deepEqual([outcome.checks, outcome.graded], [1, 0], 'answered with no verdict: one check asked, none judged');
+});
+
 test('an answer cites only the decision\'s evidence or a current pursuit, which is copied in as it stood', async () => {
   const door = account();
   door.put('pursuit:camp', 'pursuit', { title: 'Keep the camp running', now: 'Losing money', after: 'Covering costs', status: 'active' });
