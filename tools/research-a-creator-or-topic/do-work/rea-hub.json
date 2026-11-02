@@ -1,0 +1,148 @@
+{
+  "_what": "The REA hub as DATA: a list where people submit something they reverse engineered (the thing, what kind of thing it is, their notes, the public addresses it was read from, the artifacts they made, and the licence they share it under), each submission one row. do-work/rea-hub.mjs reads every rule from here: adding a field, a kind of thing or a licence is an edit to this file, never to code. `kind` of a field is `text` (words), `date` (a date or a date and time, such as 2026-11-02T10:30:00Z), `choice` (one of the values listed in `choices`, or of the top-level list `choices_from` names), `urls` (a list of http or https addresses), `words` (a list of short words, such as tags) or `entries` (a list of objects that each carry every key of `entry_keys`; a key also in `url_keys` must be an http or https address). `required` fields must be sent on create and can never be removed by edit; `least` and `most` bound a list. `set_by` names a field the hub writes itself (`create`: the time a row was submitted; `edit`: the time it last changed), which a caller cannot send. `key_from` names the field a row's key is made from when create is sent no key. `filter_by` lists the fields a page of rows may be narrowed by.",
+  "records": {
+    "type": "record:rea-hub",
+    "id_start": "record:rea-hub:",
+    "writes_at_most": 64
+  },
+  "key_from": "thing",
+  "filter_by": [
+    "kind",
+    "licence",
+    "status",
+    "found_by"
+  ],
+  "kinds": [
+    "product",
+    "app",
+    "site",
+    "api",
+    "growth-loop",
+    "launch",
+    "pricing",
+    "onboarding",
+    "content",
+    "ad",
+    "model",
+    "hardware",
+    "other"
+  ],
+  "licences": [
+    "CC0-1.0",
+    "CC-BY-4.0",
+    "CC-BY-SA-4.0",
+    "CC-BY-NC-4.0",
+    "MIT",
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "GPL-3.0-only",
+    "all-rights-reserved",
+    "unknown"
+  ],
+  "statuses": [
+    "submitted",
+    "in-review",
+    "published",
+    "withdrawn"
+  ],
+  "fields": [
+    {
+      "id": "thing",
+      "label": "What was reverse engineered",
+      "kind": "text",
+      "required": true,
+      "says": "the thing in a few words, such as the onboarding of a note-taking app"
+    },
+    {
+      "id": "kind",
+      "label": "Kind of thing",
+      "kind": "choice",
+      "choices_from": "kinds",
+      "required": true
+    },
+    {
+      "id": "notes",
+      "label": "Notes",
+      "kind": "text",
+      "required": true,
+      "says": "how it works, what was seen and what was inferred, in the submitter's own words"
+    },
+    {
+      "id": "urls",
+      "label": "Addresses read",
+      "kind": "urls",
+      "required": true,
+      "least": 1,
+      "most": 25,
+      "says": "the public addresses the thing was read from"
+    },
+    {
+      "id": "artifacts",
+      "label": "Artifacts",
+      "kind": "entries",
+      "entry_keys": [
+        "label",
+        "url"
+      ],
+      "url_keys": [
+        "url"
+      ],
+      "least": 0,
+      "most": 50,
+      "says": "what the submitter made from it (a diagram, a flow, a teardown, a dataset), each with a label and where it is"
+    },
+    {
+      "id": "licence",
+      "label": "Licence",
+      "kind": "choice",
+      "choices_from": "licences",
+      "required": true,
+      "says": "the licence the submitter shares the notes and artifacts under; unknown when not decided"
+    },
+    {
+      "id": "submitted_by",
+      "label": "Submitted by",
+      "kind": "text",
+      "required": true,
+      "says": "the handle the submitter chose to show"
+    },
+    {
+      "id": "status",
+      "label": "Status",
+      "kind": "choice",
+      "choices_from": "statuses",
+      "default": "submitted"
+    },
+    {
+      "id": "tags",
+      "label": "Tags",
+      "kind": "words",
+      "least": 0,
+      "most": 20
+    },
+    {
+      "id": "found_by",
+      "label": "Found by",
+      "kind": "text",
+      "says": "the source row a launch monitor found it with, such as launches-hacker-news"
+    },
+    {
+      "id": "launched_at",
+      "label": "Launched",
+      "kind": "date",
+      "says": "when the thing launched, when it is a launch"
+    },
+    {
+      "id": "submitted_at",
+      "label": "Submitted",
+      "kind": "date",
+      "set_by": "create"
+    },
+    {
+      "id": "updated_at",
+      "label": "Last changed",
+      "kind": "date",
+      "set_by": "edit"
+    }
+  ]
+}

@@ -1280,6 +1280,221 @@
      "source": "the rows-over-held-rows writer of the harvest tools, used for a prospect list whose fields are data"
     }
    }
+  },
+  {
+   "id": "package::research-a-creator-or-topic::tool::keep-a-reverse-engineered-thing",
+   "address": "package::research-a-creator-or-topic::tool::keep-a-reverse-engineered-thing",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:keep-a-reverse-engineered-thing",
+    "label": "Submit, read, edit or delete a reverse-engineered thing in the REA hub",
+    "status": "active",
+    "job": "Keep the things people reverse engineered in a hub: submit one with its notes, the addresses it was read from, the artifacts made from it and the licence it is shared under, then read, edit or delete it",
+    "description": "One row per submission in the REA hub (record:rea-hub:<key>). action fields: what a row holds, its kinds, licences and statuses. action create: fields = thing, kind, notes, urls (1 to 25 http or https addresses), licence and submitted_by are required; artifacts ([{ label, url }]), status (submitted when left out), tags, found_by (the launch source row it came from) and launched_at are optional; the key is made from thing unless you send key, and a key already held is refused. action read: one row by key, or a page of rows (limit 1 to 500) narrowed by where on kind, licence, status or found_by. action edit: key and the fields to change; null removes an optional field, and a required field can only be replaced. action delete: one row by key. action seed: writes the synthetic example rows of do-work/rea-hub-examples.json that are not held yet. submitted_at and updated_at are written by the hub (now, or today's time when left out). The fields, kinds, licences and statuses are DATA in do-work/rea-hub.json. It reads no address and contacts nobody.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "action": {
+       "enum": [
+        "fields",
+        "create",
+        "read",
+        "edit",
+        "delete",
+        "seed"
+       ]
+      },
+      "key": {
+       "type": "string",
+       "description": "The row's key (needed for edit and delete; read without it lists rows; create makes one from thing when left out)"
+      },
+      "fields": {
+       "type": "object",
+       "description": "The row's fields for create or edit (action fields lists them)"
+      },
+      "where": {
+       "type": "object",
+       "description": "Narrows a page of rows: kind, licence, status or found_by"
+      },
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 500
+      },
+      "now": {
+       "type": "string",
+       "description": "The time to write as submitted_at or updated_at; the current time when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "action"
+     ],
+     "properties": {
+      "action": {
+       "type": "string"
+      },
+      "key": {
+       "type": "string"
+      },
+      "row_id": {
+       "type": "string"
+      },
+      "row": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "found": {
+       "type": "boolean"
+      },
+      "created": {
+       "type": "boolean"
+      },
+      "changed": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "deleted": {
+       "type": "boolean"
+      },
+      "count": {
+       "type": "integer"
+      },
+      "rows": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "written": {
+       "type": "integer"
+      },
+      "keys": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "already_held": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "fields": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "filter_by": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/research-a-creator-or-topic",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/research-a-creator-or-topic/do-work/rea-hub.mjs",
+      "keepAReverseEngineeredThing"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "most_writes": 64,
+      "rights": [
+       {
+        "kind": "record:rea-hub",
+        "prefix": "record:rea-hub:",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "research-a-creator-or-topic",
+        "paths": [
+         "do-work/rea-hub.mjs",
+         "do-work/rea-hub.json",
+         "do-work/rea-hub-examples.json"
+        ],
+        "at": "/opt/research-a-creator-or-topic"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:research-a-creator-or-topic",
+    "provenance": {
+     "source": "the REA hub: a list where people submit what they reverse engineered, whose fields are data like the prospect list"
+    }
+   }
   }
  ]
 }
