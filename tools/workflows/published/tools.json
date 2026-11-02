@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:affed72cb3cb11375ba2d01cc0fb6ea7cafd2aa4d5e9e569db55605201132473"
+  "blake3": "1f:8e87bd5fff9b27b6e86327948bfea2d4595412f8626e0774c7093b5eb60b7292"
  },
  "fields": [
   {
@@ -6893,8 +6893,8 @@
    "id": "tool:start-a-decision",
    "values": {
     "title": "Start a decision with my method",
-    "job": "Start a decision my AI will make with my method: what is being decided, the facts, and the options",
-    "description": "Opens a decision in the person's own records from a source_id (the same source always opens the same decision; the same input again is that decision, different input is refused), its goal, its evidence ({ref, claim}, each ref unique) and at least two options ({id, label}), under the method named or the person's default (their Methods list). The decision keeps the exact method it was opened with. Returns case_id and the first question.",
+    "job": "Start a decision my AI will make with my method: what is being decided, the facts and constraints, and the options only if I already hold them",
+    "description": "Opens a decision in the person's own records from a source_id (the same source always opens the same decision; the same input again is that decision, different input is refused), its goal, its evidence ({ref, claim}, each ref unique: the facts and every non-negotiable constraint) and, only when the caller already holds them, at least two options ({id, label}); with no options the method's own steps generate the candidates and rule them out, and what the rule-out step leaves standing are the options, under the method named or the person's default (their Methods list). The decision keeps the exact method it was opened with. Returns case_id and the first question.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
