@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:860c80da4eeac733688985b8689f3157f4c725b377904d43c6d3c2817ef6501a"
+  "blake3": "1f:6096f51ba0ee63adabbffd59d9d4a0b93d0b48b07429e19bf946d919f3f119aa"
  },
  "fields": [
   {
@@ -604,6 +604,21 @@
      "placement:your-computer"
     ],
     "folder": "documents-as-list-rows"
+   }
+  },
+  {
+   "id": "tool:change-an-ai-job",
+   "values": {
+    "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs",
+    "job": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
+    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (the taker; needs words) and unstuck clears that; withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why.",
+    "status": "active",
+    "maker": "maker:hand-work-to-ais",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "hand-work-to-ais"
    }
   },
   {
@@ -2734,6 +2749,21 @@
      "placement:your-computer"
     ],
     "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
+   "id": "tool:hand-a-job-to-an-ai",
+   "values": {
+    "title": "Hand a job to one of my AIs, or to whichever takes it first",
+    "job": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
+    "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records.",
+    "status": "active",
+    "maker": "maker:hand-work-to-ais",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "hand-work-to-ais"
    }
   },
   {
@@ -5306,21 +5336,6 @@
    }
   },
   {
-   "id": "tool:read-what-is-on-screen",
-   "values": {
-    "title": "Read what is on my screen",
-    "job": "Read what the person is doing on their Mac as text from the front window (app, window title, page address and visible words), when they switch apps or windows and every minute, for a short watch, so their AIs keep continuity across the day. Never reads password managers, Keychain, Settings or private browser windows, and removes passwords, keys and card numbers on the Mac before anything leaves it. After a window's first read, later reads carry only the lines that changed. Uses no screenshots.",
-    "description": "Runs on the person's own Mac for `watch_seconds`. It reads the front window's accessibility text (never a picture) when the front app or its window title changes and again after `tick_seconds` of the same window, and answers one capture per read: when, app, bundle id, window title, page address and `reason` (changed or tick). A window's first capture in the run carries its whole `text`; later captures of it carry only the lines `added` and `removed`. An app listed in the rules' never-read apps, a window whose title holds a never-read word, and a page whose address holds a never-read word are skipped before any text is read. Text matching the rules' secret patterns (private keys, API keys and tokens, card numbers, `password:` values) is replaced with [removed] on the Mac before it is returned. When Accessibility is off the answer is needs_access with the words that say what to turn on. Every list in this behaviour is the tool's rules file, read-data/rules.json. The run needs the accessibility-reading capability granted to this tool.",
-    "status": "active",
-    "maker": "maker:read-what-is-on-screen",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "read-what-is-on-screen"
-   }
-  },
-  {
    "id": "tool:read-what-shipped",
    "values": {
     "title": "Note new releases or commits from a repository (runs on your computer)",
@@ -6250,6 +6265,21 @@
    }
   },
   {
+   "id": "tool:see-ai-work",
+   "values": {
+    "title": "See the work handed between my AIs: one job, or the newest that match",
+    "job": "Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with",
+    "description": "With `id`, reads that one ai-job record. Otherwise reads the person's ai-job records, kept to those whose status, to, from or taker equal what is given, and answers the newest `limit` of them by when they were sent (read-data/ai-work.json jobs_shown), with `more` true when more matched. A job comes back whole: its status, words, sender, the AI it is for, priority, outcome, taker and when taken, what blocks it, who gave it back and why, and its result and summary. Nothing is written.",
+    "status": "active",
+    "maker": "maker:hand-work-to-ais",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "hand-work-to-ais"
+   }
+  },
+  {
    "id": "tool:see-changes-in-a-project",
    "values": {
     "title": "See what changed in a project",
@@ -6278,6 +6308,21 @@
      "placement:small-container"
     ],
     "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:see-my-ais",
+   "values": {
+    "title": "See my AIs: which are live, what each can do and how many jobs each holds",
+    "job": "Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing",
+    "description": "Reads the person's ai records and counts the ai-job records each AI holds as taker. Each AI comes back with its id and its whole stored value, every cell as kept (a caller names it from those cells by its own formula; no name is made here), whether it is live (seen within the minutes its record names, else read-data/ai-work.json live_minutes_default) and when it was last seen. Live AIs come first, then the person's order. `can` keeps only AIs that can do every word given (an AI that can do `any` can do all); `live_only` keeps only live ones. Nothing is written.",
+    "status": "active",
+    "maker": "maker:hand-work-to-ais",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "hand-work-to-ais"
    }
   },
   {
@@ -7068,6 +7113,21 @@
     ],
     "listed_on": "2026-10-30T20:00:00Z",
     "folder": "take-requests"
+   }
+  },
+  {
+   "id": "tool:take-an-ai-job",
+   "values": {
+    "title": "Take the next job waiting for me, or one job by its id",
+    "job": "Take the next job another of my AIs left for me, so no other AI does it too",
+    "description": "Without `id`, reads the ai-job records a take may move (read-data/ai-work.json: waiting ones for any AI or for `as`, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole job as taken by `as` at this time, conditioned on the value it read. When another AI took that job first the write is refused and changes nothing, and the next one is tried, at most take_tries. `only_mine` keeps only jobs addressed to `as`. With `id`, takes that job or answers `taken: null` with reason changed (and the job as it now is) when another AI won it. `taken` is null when there was nothing to take.",
+    "status": "active",
+    "maker": "maker:hand-work-to-ais",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "hand-work-to-ais"
    }
   },
   {

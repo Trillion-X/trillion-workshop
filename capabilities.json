@@ -567,6 +567,98 @@
       "evidence": "README.md:3 a record is in one of a declared set of stages and moves only where a declared move allows it; bitfield-packages/packages/plan-lifecycle is this job for plans"
     },
     {
+      "capability": "keep the jobs my AIs hand each other as records in my account, so exactly one AI takes each job, and record who finished, failed, gave back or withdrew it",
+      "owner": ["tools/hand-work-to-ais/"],
+      "entry": "tools/hand-work-to-ais/tool-rows.json",
+      "evidence": "README.md:3 work is ai-job records and AIs are ai records in the person's own records; every change of a job is a records:write conditioned on the value just read, so of two AIs taking one job exactly one wins",
+      "distinct_from": [
+        {
+          "job": "hand a job to my AI from any button and get its answer back, and connect an AI first when none is connected",
+          "why": "that job is the app's buttons and screens that start a job and show its answer; this one is the lifecycle of the job records themselves, which those buttons, the trillion command and any AI call"
+        },
+        {
+          "job": "see every job my AIs handed each other and the tree of goals, decisions, jobs and people behind it, and the tasks each message I wrote was broken into, with progress",
+          "why": "that job draws screens over the jobs and the goals behind them; this one makes and changes the job records those screens read, with a condition on each change"
+        },
+        {
+          "job": "message my AIs from one box on any screen: choose where the message goes (my account or a pursuit), which saved action my AI will do, mention AIs, workflows and people, and keep unsent messages visible with Send again",
+          "why": "that job is the composer screen a person types into; this one is the job record a sent message becomes and every later change to it"
+        },
+        {
+          "job": "see what every AI connected to my account did: handed off work, ran a tool, saved a file, newest first, with a trace of one run",
+          "why": "that job is an activity screen over everything AIs did; this one makes and changes the handed-off job records"
+        },
+        {
+          "job": "leave a note about anything I have opened, sent to my AIs with the place it points at, and answer or react to any selected words where they appear",
+          "why": "that job is a note on a place in the app; this one is the job record an AI takes and finishes"
+        },
+        {
+          "job": "browse the people and AIs in my network as profile cards, ask to connect, and look at places people offer to stay",
+          "why": "that job is other people and their AIs in a network; this one lists the person's own AIs as the doers of their jobs"
+        },
+        {
+          "job": "focus the whole app on one goal or space, keep my goals, pick the one needle mover, and greet me on Home with the next step and what my AIs are working on",
+          "why": "that job is the Home screen and goals; it shows what AIs work on by reading the job records this one keeps"
+        },
+        {
+          "job": "hold a group to what it agreed: keep each agreement, work out when to remind and check, mark who kept it from the evidence handed in, and keep the scorecard",
+          "why": "that job keeps a group's agreements and scores people against them; this one hands units of work between AIs and records who took and finished each"
+        },
+        {
+          "job": "browse, publish, withdraw and wear everything my AI can use, split into mine and everyone's: tools, workflows, screens, looks and setups",
+          "why": "that job withdraws a published tool, workflow or look from the Marketplace; here withdraw means the sender takes back a job no AI took yet, and nothing is published"
+        },
+        {
+          "job": "move a record (a deal, an order, an applicant, a plan) through declared stages, only along declared moves",
+          "why": "that folder is the pure stage engine and is packed here; this one owns the ai-job stages and moves as DATA and writes each move to the person's records with a condition"
+        },
+        {
+          "job": "follow the jobs the person's AIs handed each other",
+          "why": "that job is the app's screen that follows the jobs; this one makes and changes the ai-job records the screen reads"
+        },
+        {
+          "job": "show a person's work to any agent-to-UI client: one of their AIs doing a job, with the steps it took, and let the person answer what is in the way",
+          "why": "that job streams one AI's run to a client screen; this one is the job records AIs hand, take and finish"
+        },
+        {
+          "job": "check that everything still works, check results that are due, weigh the steps my AIs left me and hand a job to another account",
+          "why": "that job is the operator's checks and hands work across accounts; this one hands jobs between one person's own AIs inside their own records"
+        },
+        {
+          "job": "add, change, time and remove the AIs on my account, and see when each one last worked",
+          "why": "that job keeps the ai records themselves; this one only reads them to say who is live and busy, and hands jobs between them"
+        },
+        {
+          "job": "have the AIs the person already pays for answer model work that can wait, so the service buys no model time of its own",
+          "why": "that job routes the service's own model questions to a person's AIs; this one is the person's AIs handing their own jobs to each other"
+        },
+        {
+          "job": "keep the result of a handed-off job exactly as it came back, prepared for storage before it is expanded in memory",
+          "why": "that job is the old app's byte-level keeping of a result before it is expanded; here a result is one field of the job record that the finishing write sets"
+        },
+        {
+          "job": "let an AI find a workflow for a job, read it, run it step by step with each answer checked and kept, and save or publish one it wrote",
+          "why": "that job runs a workflow's steps; this one hands whole jobs between AIs and records who took and finished each"
+        },
+        {
+          "job": "start a tool run for an account and keep each run as its own record, so a retry with the same request key never runs the tool twice",
+          "why": "that job runs a tool once per request key; this one is the jobs AIs hand each other, which those runs change"
+        },
+        {
+          "job": "turn a button press like ask my AI to look into this into one waiting job for the person's own AIs",
+          "why": "that job turns an app button into the words of one job; this one keeps that job's record and every later take, finish and give-back"
+        },
+        {
+          "job": "group my AIs by the app they connected, Claude Code, Codex, ChatGPT or Claude, with each session and agent under it",
+          "why": "that job groups AIs on a screen by app; this one answers which AIs are live and busy for handing work"
+        },
+        {
+          "job": "let a person accept a plan someone else pays for on their own account, so two sponsors never reserve the same place",
+          "why": "that job is paid plan acceptance; it shares only the idea of one winner, here of a job between AIs"
+        }
+      ]
+    },
+    {
       "capability": "judge a public page against saved craft rules at every width, with each finding boxed on a picture",
       "owner": ["tools/page-critic/"],
       "entry": "tools/page-critic/do-work/critique-a-page.mjs",

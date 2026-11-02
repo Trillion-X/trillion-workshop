@@ -1,0 +1,75 @@
+{
+  "what_this_is": "The rules of handing work between a person's AIs, as DATA read by read-data/ai-work.mjs. A job is one record of kind `job_kind` in the person's own records; an AI is one record of kind `ai_kind`. A job's `status` is one of `states`, and it changes only by a declared `transitions` row: { action, from, to, when, set, clear }. `when` is a condition of tools/move-records-through-declared-states (all, any, equals, at_least, at_most, absent) over the signals of the call: `is_taker` (the job's taker is the caller), `is_sender` (the job's from is the caller), `addressed_to_me` (the job names no AI, or names the caller) and `taken_minutes` (minutes since the job was taken; absent when it is not). The first row of the action from the job's status whose condition holds is the move. `set` names the fields the move writes, each from `as` (the caller's AI id), `now` (the time of the call), `input` (a field of the request) or `note` ({ by, at, words }: the caller, the time and a field of the request), `required` when the move needs that field and `most_chars` its longest (else `limits.words_chars`), and `clear` the fields it removes. Every move is one records:write of the whole job conditioned on the value just read (`expected`), so of two callers who read the same job only the first changes it. `remove_when` says who may delete a job, with the signal `terminal` too (the job's status is a terminal state). `take_order` sorts the waiting jobs a caller may take, first row first; `take_tries` is how many of them one take tries when another AI wins the one it tried. `most_jobs_read` and `most_ais_read` bound one call's reads, `jobs_shown` how many jobs a listing answers, and `live_minutes_default` how long after it was last seen an AI counts as live when its record names no minutes. Change a rule here, not in code: the stale-take time is the `taken_minutes` value of the take and release rows.",
+  "job_kind": "ai-job",
+  "ai_kind": "ai",
+  "start": "waiting",
+  "states": [
+    { "key": "waiting", "label": "Waiting for an AI" },
+    { "key": "taken", "label": "An AI is doing it" },
+    { "key": "done", "label": "Done", "terminal": true },
+    { "key": "failed", "label": "Could not be done", "terminal": true },
+    { "key": "withdrawn", "label": "Taken back by its sender", "terminal": true }
+  ],
+  "transitions": [
+    {
+      "action": "take", "from": "waiting", "to": "taken",
+      "when": { "equals": { "signal": "addressed_to_me", "value": true } },
+      "set": { "taker": { "from": "as" }, "taken_at": { "from": "now" } },
+      "clear": ["stuck", "released"]
+    },
+    {
+      "action": "take", "from": "taken", "to": "taken",
+      "when": { "all": [{ "equals": { "signal": "addressed_to_me", "value": true } }, { "at_least": { "signal": "taken_minutes", "value": 120 } }] },
+      "set": { "taker": { "from": "as" }, "taken_at": { "from": "now" } },
+      "clear": ["stuck", "released"]
+    },
+    {
+      "action": "release", "from": "taken", "to": "waiting",
+      "when": { "any": [{ "equals": { "signal": "is_taker", "value": true } }, { "at_least": { "signal": "taken_minutes", "value": 120 } }] },
+      "set": { "released": { "from": "note", "field": "because" } },
+      "clear": ["taker", "taken_at", "stuck"]
+    },
+    {
+      "action": "finish", "from": "taken", "to": "done",
+      "when": { "equals": { "signal": "is_taker", "value": true } },
+      "set": { "result": { "from": "input", "field": "result", "required": true, "most_chars": 60000 }, "summary": { "from": "input", "field": "summary" }, "finished_at": { "from": "now" }, "finished_by": { "from": "as" } },
+      "clear": ["stuck"]
+    },
+    {
+      "action": "fail", "from": "taken", "to": "failed",
+      "when": { "equals": { "signal": "is_taker", "value": true } },
+      "set": { "result": { "from": "input", "field": "result", "required": true, "most_chars": 60000 }, "summary": { "from": "input", "field": "summary" }, "finished_at": { "from": "now" }, "finished_by": { "from": "as" } },
+      "clear": ["stuck"]
+    },
+    {
+      "action": "stuck", "from": "taken", "to": "taken",
+      "when": { "equals": { "signal": "is_taker", "value": true } },
+      "set": { "stuck": { "from": "note", "field": "words", "required": true } },
+      "clear": []
+    },
+    {
+      "action": "unstuck", "from": "taken", "to": "taken",
+      "when": { "equals": { "signal": "is_taker", "value": true } },
+      "set": {},
+      "clear": ["stuck"]
+    },
+    {
+      "action": "withdraw", "from": "waiting", "to": "withdrawn",
+      "when": { "equals": { "signal": "is_sender", "value": true } },
+      "set": { "withdrawn": { "from": "note", "field": "because" } },
+      "clear": []
+    }
+  ],
+  "remove_when": { "any": [{ "equals": { "signal": "terminal", "value": true } }, { "equals": { "signal": "is_sender", "value": true } }] },
+  "take_order": [
+    { "field": "priority", "direction": "descending", "missing": 5 },
+    { "field": "sent_at", "direction": "ascending", "missing": "" }
+  ],
+  "take_tries": 5,
+  "default_priority": 5,
+  "most_jobs_read": 2000,
+  "most_ais_read": 2000,
+  "jobs_shown": { "default": 20, "most": 200 },
+  "live_minutes_default": 60,
+  "limits": { "job_chars": 20000, "words_chars": 2000, "id_chars": 200 }
+}

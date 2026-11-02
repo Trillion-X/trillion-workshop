@@ -1,0 +1,318 @@
+{
+  "kind": "tool-rows",
+  "record_set": "hand-work-to-ais-tool-rows",
+  "what_this_is": "The Workshop rows for tools/hand-work-to-ais: a person's AIs hand jobs to each other as ai-job records in the person's own records, and every change of a job is a write conditioned on the value just read, so two AIs never take the same job. The rules of who may do what and when are read-data/ai-work.json.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-my-ais",
+        "label": "See my AIs: which are live, what each can do and how many jobs each holds",
+        "status": "active",
+        "job": "Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing",
+        "description": "Reads the person's ai records and counts the ai-job records each AI holds as taker. Each AI comes back with its id and its whole stored value, every cell as kept (a caller names it from those cells by its own formula; no name is made here), whether it is live (seen within the minutes its record names, else read-data/ai-work.json live_minutes_default) and when it was last seen. Live AIs come first, then the person's order. `can` keeps only AIs that can do every word given (an AI that can do `any` can do all); `live_only` keeps only live ones. Nothing is written.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "can": { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "Words the AI must be able to do, such as [\"code\"]" },
+            "live_only": { "type": "boolean", "description": "Only AIs seen recently enough to count as live" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["ais"],
+          "properties": {
+            "ais": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "value", "live", "seen_at", "busy"],
+                "properties": {
+                  "id": { "type": "string" }, "value": { "type": "object", "description": "The AI's whole stored record value, every cell as kept" },
+                  "live": { "type": "boolean" },
+                  "seen_at": { "type": ["string", "null"] }, "busy": { "type": "integer", "minimum": 0 }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/hand-work-to-ais",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/hand-work-to-ais/read-data/ai-work.mjs", "seeMyAis"],
+          "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+          "files": {
+            "package_files": [
+              { "package": "hand-work-to-ais", "paths": ["read-data"], "at": "/opt/hand-work-to-ais" },
+              { "package": "move-records-through-declared-states", "paths": ["do-work/move-records-through-declared-states.mjs"], "at": "/opt/move-records-through-declared-states" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "ai", "operations": ["records:list"] },
+              { "kind": "ai-job", "operations": ["records:list"] }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:hand-work-to-ais"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:hand-a-job-to-an-ai",
+        "label": "Hand a job to one of my AIs, or to whichever takes it first",
+        "status": "active",
+        "job": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
+        "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records.",
+        "input_schema": {
+          "type": "object",
+          "required": ["as", "job"],
+          "additionalProperties": false,
+          "properties": {
+            "as": { "type": "string", "pattern": "^ai:", "description": "The sending AI's record id" },
+            "job": { "type": "string", "minLength": 1, "description": "What the AI is to do, in plain words" },
+            "to": { "type": ["string", "null"], "pattern": "^ai:", "description": "The AI it is for; left out or null, any AI" },
+            "priority": { "type": "integer", "minimum": 0, "maximum": 9 },
+            "outcome": { "type": "string", "minLength": 1, "description": "What done looks like" },
+            "label": { "type": "string", "minLength": 1, "description": "A short name for the job" },
+            "key": { "type": "string", "pattern": "^[A-Za-z0-9._:-]+$", "description": "The job's key; the same key sends it once" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["job_id", "status", "job"],
+          "properties": {
+            "job_id": { "type": "string" },
+            "status": { "type": "string", "enum": ["written", "already-there"] },
+            "job": { "type": ["object", "null"] }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/hand-work-to-ais",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/hand-work-to-ais/read-data/ai-work.mjs", "handAJob"],
+          "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+          "files": {
+            "package_files": [
+              { "package": "hand-work-to-ais", "paths": ["read-data"], "at": "/opt/hand-work-to-ais" },
+              { "package": "move-records-through-declared-states", "paths": ["do-work/move-records-through-declared-states.mjs"], "at": "/opt/move-records-through-declared-states" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 1,
+            "rights": [
+              { "kind": "ai", "operations": ["records:read"] },
+              { "kind": "ai-job", "operations": ["records:read", "records:write"] }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:hand-work-to-ais"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-ai-work",
+        "label": "See the work handed between my AIs: one job, or the newest that match",
+        "status": "active",
+        "job": "Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with",
+        "description": "With `id`, reads that one ai-job record. Otherwise reads the person's ai-job records, kept to those whose status, to, from or taker equal what is given, and answers the newest `limit` of them by when they were sent (read-data/ai-work.json jobs_shown), with `more` true when more matched. A job comes back whole: its status, words, sender, the AI it is for, priority, outcome, taker and when taken, what blocks it, who gave it back and why, and its result and summary. Nothing is written.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": { "type": "string", "pattern": "^ai-job:", "description": "One job's record id" },
+            "status": { "type": "string", "description": "A status in read-data/ai-work.json states, such as waiting or taken" },
+            "to": { "type": "string", "pattern": "^ai:" },
+            "from": { "type": "string", "pattern": "^ai:" },
+            "taker": { "type": "string", "pattern": "^ai:" },
+            "limit": { "type": "integer", "minimum": 1, "maximum": 200 }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["jobs", "more"],
+          "properties": {
+            "jobs": { "type": "array", "items": { "type": "object", "required": ["id", "status"] } },
+            "more": { "type": "boolean" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/hand-work-to-ais",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/hand-work-to-ais/read-data/ai-work.mjs", "seeAiWork"],
+          "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+          "files": {
+            "package_files": [
+              { "package": "hand-work-to-ais", "paths": ["read-data"], "at": "/opt/hand-work-to-ais" },
+              { "package": "move-records-through-declared-states", "paths": ["do-work/move-records-through-declared-states.mjs"], "at": "/opt/move-records-through-declared-states" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "ai-job", "operations": ["records:read", "records:list"] }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:hand-work-to-ais"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:take-an-ai-job",
+        "label": "Take the next job waiting for me, or one job by its id",
+        "status": "active",
+        "job": "Take the next job another of my AIs left for me, so no other AI does it too",
+        "description": "Without `id`, reads the ai-job records a take may move (read-data/ai-work.json: waiting ones for any AI or for `as`, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole job as taken by `as` at this time, conditioned on the value it read. When another AI took that job first the write is refused and changes nothing, and the next one is tried, at most take_tries. `only_mine` keeps only jobs addressed to `as`. With `id`, takes that job or answers `taken: null` with reason changed (and the job as it now is) when another AI won it. `taken` is null when there was nothing to take.",
+        "input_schema": {
+          "type": "object",
+          "required": ["as"],
+          "additionalProperties": false,
+          "properties": {
+            "as": { "type": "string", "pattern": "^ai:", "description": "The taking AI's record id" },
+            "id": { "type": "string", "pattern": "^ai-job:", "description": "Take this job rather than the next one" },
+            "only_mine": { "type": "boolean", "description": "Only jobs addressed to this AI by name" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["taken", "tried"],
+          "properties": {
+            "taken": { "type": ["object", "null"] },
+            "tried": { "type": "integer", "minimum": 0 },
+            "job_id": { "type": "string" },
+            "reason": { "type": "string", "enum": ["changed", "gone"] },
+            "job": { "type": ["object", "null"] }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/hand-work-to-ais",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/hand-work-to-ais/read-data/ai-work.mjs", "takeAJob"],
+          "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+          "files": {
+            "package_files": [
+              { "package": "hand-work-to-ais", "paths": ["read-data"], "at": "/opt/hand-work-to-ais" },
+              { "package": "move-records-through-declared-states", "paths": ["do-work/move-records-through-declared-states.mjs"], "at": "/opt/move-records-through-declared-states" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 1,
+            "rights": [
+              { "kind": "ai-job", "operations": ["records:read", "records:list", "records:write"] }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:hand-work-to-ais"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:change-an-ai-job",
+        "label": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs",
+        "status": "active",
+        "job": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
+        "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (the taker; needs words) and unstuck clears that; withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why.",
+        "input_schema": {
+          "type": "object",
+          "required": ["as", "id", "action"],
+          "additionalProperties": false,
+          "properties": {
+            "as": { "type": "string", "pattern": "^ai:", "description": "The acting AI's record id" },
+            "id": { "type": "string", "pattern": "^ai-job:", "description": "The job's record id" },
+            "action": { "type": "string", "enum": ["take", "release", "finish", "fail", "stuck", "unstuck", "withdraw", "remove"] },
+            "result": { "type": "string", "minLength": 1, "description": "What was done (finish) or why it could not be (fail)" },
+            "summary": { "type": "string", "minLength": 1, "description": "One line about the result" },
+            "because": { "type": "string", "minLength": 1, "description": "Why it is given back or withdrawn" },
+            "words": { "type": "string", "minLength": 1, "description": "What blocks it (stuck)" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["job_id", "moved", "from", "to", "job"],
+          "properties": {
+            "job_id": { "type": "string" },
+            "moved": { "type": "boolean" },
+            "from": { "type": "string" },
+            "to": { "type": ["string", "null"] },
+            "reason": { "type": "string", "enum": ["changed", "gone"] },
+            "job": { "type": ["object", "null"] }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/hand-work-to-ais",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/hand-work-to-ais/read-data/ai-work.mjs", "moveAJob"],
+          "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+          "files": {
+            "package_files": [
+              { "package": "hand-work-to-ais", "paths": ["read-data"], "at": "/opt/hand-work-to-ais" },
+              { "package": "move-records-through-declared-states", "paths": ["do-work/move-records-through-declared-states.mjs"], "at": "/opt/move-records-through-declared-states" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 1,
+            "rights": [
+              { "kind": "ai-job", "operations": ["records:read", "records:write"] }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:hand-work-to-ais"
+      }
+    }
+  ]
+}
