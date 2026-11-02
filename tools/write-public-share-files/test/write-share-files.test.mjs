@@ -86,7 +86,7 @@ test('a shared file whose bytes are not the identity its row names stops the run
 test('a link for named people reads no file of the person and writes no share files', async t => {
   const folder = await mkdtemp(join(tmpdir(), 'share-files-'));
   t.after(() => rm(folder, { recursive: true, force: true }));
-  const door = doorOf({ grant: grantOf({ scope: { kind: 'email', value: 'bo@example.com' } }) });
+  const door = doorOf({ grant: grantOf({ scope: { kind: 'email', value: 'user-23ef710c@example.com' } }) });
   const out = await writeShareFiles({ input: { origin: 'https://share.example', row_kind: 'record:dish' }, folder }, { door, now: NOW });
   assert.deepEqual(out.published, []);
   assert.equal(door.reads.some(read => read.startsWith('read_file')), false);

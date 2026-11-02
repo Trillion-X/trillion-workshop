@@ -30,7 +30,7 @@ test('a shared contract omits private fields at every configured depth', () => {
     contract: {
       name: 'Morgan agreement',
       private_notes: 'do not share',
-      parties: [{ role: 'buyer', name: 'Morgan', private_email: 'hidden@example.com' }],
+      parties: [{ role: 'buyer', name: 'Morgan', private_email: 'user-84ba9e1f@example.com' }],
       price_experiment: {
         assignment: { status: 'assigned', method: 'random', private_seed: 'secret' },
         private_notes: 'internal pricing',
