@@ -87,6 +87,19 @@ A file can also hold many rows: rules, checks, any objects with an id, in one ar
   "content": {"list_only": ["on", "why_off", "switched_by", "switched_at"]}}]}
 ```
 
+## One file made from many rows
+
+Some apps read one file at start (a coding harness reads AGENTS.md or CLAUDE.md), while the person keeps what it should say as rows every AI reads through the door (for instructions, the door's own `setting:ai-instruction:<id>` rows, which it lays over the shipped instructions). `--write-joined SPEC` makes that file from the rows, one direction only:
+
+```
+node tools/read-a-list-view/do-work/read-list-view.mjs --config FILE --write-joined '{"root":"/home/ada/project","name":"/AGENTS.md","type":"setting","prefixes":["setting:ai-instruction:bootstrap-"],"text_at":"value.text","order_at":"value.order","header":"<!-- Made from rows; change the rows. -->","most_bytes":8192}'
+```
+
+- The file is `header`, then the text of every row whose id starts with one of `prefixes`, in `order_at` order (then id), a blank line between. A row with no text is left out.
+- It is written through `tool:change-a-document-row` only while it is still the file read, and a second run with nothing changed writes nothing.
+- A copy bigger than `most_bytes`, or one with no rows, is refused and the file is left as it was: the app's start budget holds, and it is the rows that must shrink.
+- The answer is `{ name, rows, bytes, written, identity }`; `--dry-run yes` writes nothing. The person refuses hand edits to such a file with a guard of their own, so the rows stay the original.
+
 ## Bounds
 
 The bounds are this tool's own DATA, `limits` in `read-data/list-view.json`. Reading a list is this tool's job; the engine only stores and lists records. A caller never passes them.
@@ -148,6 +161,8 @@ It is not an engine row. A run the engine starts gets record rights for named re
 | `read-data/list-copy.mjs` | `syncRowSource(input, door)`: the two-way sync of a source declared `original: "list"`, which a refresh of that list runs. |
 | `test/json-items-copy.test.mjs` | The same sync on one made-up kitchen rules file that holds many rows: every item a row, a field changed in the list reaching the file with the rest of the file kept and a list-only switch kept off it, a rule an AI wrote under its own id becoming an item, an item changed in the file reaching the list and an item removed from the list leaving the file. |
 | `test/list-copy.test.mjs` | Tests on a made-up bakery's notes over the real door and the real documents tools: a new folder, a row any AI wrote, a taken name, a row another sync already made into its file, one part of a long document, both sides changed, removals on either side, a value only the list changed, `paths` and a dry run. |
+| `read-data/joined-copy.mjs` | `writeJoinedCopy(spec, door)`: one file made from many rows' text in order. |
+| `test/joined-copy.test.mjs` | One file from a made-up bakery's rule rows: order and header, nothing written twice, a changed row written, over budget or no rows refused with the file kept, a dry run and a bad spec. |
 
 ## Dependencies
 
