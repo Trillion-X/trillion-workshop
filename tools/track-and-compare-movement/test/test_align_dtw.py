@@ -77,6 +77,23 @@ class AlignDtw(unittest.TestCase):
         path = json.loads(out.read_text())["path"]
         self.assertEqual(path, [[i, i] for i in range(12)])       # identical tracks line up frame for frame
 
+    def test_distance_is_zero_for_the_same_movement_and_ranks_a_slowed_copy_above_a_different_movement(self):
+        """The length-normalised distance: 0 for identical tracks; the same swing at another speed is closer than a different pose."""
+        same, out = run(synthetic_track(20), synthetic_track(20), "--gamma", "0")
+        self.assertEqual(same.returncode, 0, same.stderr)
+        self.assertEqual(json.loads(out.read_text())["distance"], 0.0)
+        self.assertEqual(json.loads(same.stdout.strip().splitlines()[-1])["result"]["distance"], 0.0)
+
+        slowed, _ = run(synthetic_track(20), synthetic_track(40), "--gamma", "0")
+        crouch = synthetic_track(20)
+        for frame in crouch["persons"][0]["frames"]:
+            frame["kp"][13:17] = [[150, 230, 0.9], [50, 230, 0.9], [150, 260, 0.9], [50, 260, 0.9]]  # knees and ankles splayed
+        different, _ = run(synthetic_track(20), crouch, "--gamma", "0")
+        d_slowed = json.loads(slowed.stdout.strip().splitlines()[-1])["result"]["distance"]
+        d_different = json.loads(different.stdout.strip().splitlines()[-1])["result"]["distance"]
+        self.assertGreaterEqual(d_slowed, 0.0)
+        self.assertLess(d_slowed, d_different)
+
     def test_a_keypoint_that_is_not_a_number_is_refused(self):
         """A NaN would make every cost NaN and the path meaningless: it is refused with the reason, nothing is written."""
         bad = synthetic_track(12)

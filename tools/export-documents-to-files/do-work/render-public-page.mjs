@@ -289,7 +289,14 @@ function readableTextFor(background) {
     return normalized <= 0.03928 ? normalized / 12.92 : Math.pow((normalized + 0.055) / 1.055, 2.4);
   };
   const luminance = 0.2126 * channel(rgb.r) + 0.7152 * channel(rgb.g) + 0.0722 * channel(rgb.b);
-  return luminance > 0.5 ? '#000000' : '#ffffff';
+  // Pick whichever of black and white has the higher WCAG contrast ratio against the fill.
+  // A plain `luminance > 0.5` cut puts white on mid-tones such as #22c55e (about 2.3:1) where
+  // black reads at about 9:1; the two ratios cross near luminance 0.179, not 0.5.
+  // The idea is contrastingTextColor in the MIT-licensed bloxwap/chart (references/rea-intake-2026-11-01/bloxwap--chart.md);
+  // the code here is written fresh.
+  const againstBlack = (luminance + 0.05) / 0.05;
+  const againstWhite = 1.05 / (luminance + 0.05);
+  return againstBlack >= againstWhite ? '#000000' : '#ffffff';
 }
 
 function resolvePalette(tokens) {
