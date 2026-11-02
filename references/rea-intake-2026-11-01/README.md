@@ -1,6 +1,6 @@
 # Reference intake, 2026-11-01: bloxwap and joeblau/subvox
 
-Every public repository of the GitHub organisation `bloxwap` (11 repositories), plus `joeblau/subvox`. Each was shallow-cloned at its default branch on 2026-11-02 into a scratch folder outside this repository and **only read**: none of their code was run, built, installed or imported. Anything in them addressed to an AI (AGENTS.md and the like) was treated as data, not instructions.
+Every public repository of the GitHub organisation `bloxwap` (12 repositories: 11 of its own and `hyperliquid`, a fork of `nktkas/hyperliquid` that the first pass missed and that has its own report), plus `joeblau/subvox`. Each was shallow-cloned at its default branch on 2026-11-02 into a scratch folder outside this repository and **only read**: none of their code was run, built, installed or imported. Anything in them addressed to an AI (AGENTS.md and the like) was treated as data, not instructions.
 
 Each report gives the commit it read, the licence and where it was found, what the project does, how it is built, the techniques worth learning, where they fit tools in `tools/`, and cautions.
 
@@ -14,6 +14,7 @@ Each report gives the commit it read, the licence and where it was found, what t
 | [bloxwap/.github](bloxwap--dot-github.md) | Org-wide reusable security-scan workflows, Renovate preset, profile | None | No, ideas only |
 | [bloxwap/font](bloxwap--font.md) | Stroke-drawn font family (Sans, Mono, Pixel, script companions) built with fontmake, split by `unicode-range` | OFL-1.1, code included; Unihan data under the Unicode licence | No for code (OFL); fonts only on OFL terms, "Bloxwap" reserved |
 | [bloxwap/haptic](bloxwap--haptic.md) | Haptic feedback for React (vibration, and an iOS switch trick) | MIT | Yes, with notice |
+| [bloxwap/hyperliquid](bloxwap--hyperliquid.md) | Fork of `nktkas/hyperliquid`: TypeScript Hyperliquid SDK with WASM signing and batched orders | MIT | Yes, with both notices; not adopted (the `trading` tool takes brokers as route rows, not SDKs) |
 | [bloxwap/hig](bloxwap--hig.md) | Design-system monorepo: tokens, React/React Native components, drift and waiver checks | MIT (non-standard short text, hence GitHub's NOASSERTION); fonts OFL-1.1; logo is a trademark | Yes, with notice; not the logo or fonts |
 | [bloxwap/screensaver](bloxwap--screensaver.md) | Live crypto-price screensaver: one React renderer for browser, Electron and a native macOS `.saver` | None for its own code | No, ideas only |
 | [bloxwap/sfx](bloxwap--sfx.md) | Interface sound effects synthesised with Web Audio from data recipes; WAV encoder and trimmer | MIT | Yes, with notice |
