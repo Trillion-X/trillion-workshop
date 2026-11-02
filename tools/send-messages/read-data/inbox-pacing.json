@@ -1,0 +1,122 @@
+{
+  "about": "How fast one sending inbox may send, and what each bounce, reply or complaint means, as DATA. A pacing row is a ramp (how many sends a day, by the inbox's day number since its first send), the least gap between sends, the weekdays and local hours a send may go, how long to leave an address after it was sent to, and when to pause the whole inbox (a share of bounces or any complaint over the last sends). An outcome row says when it applies (every condition on a field of a normalised event must hold: equals one of the values, contains one of the words, or matches the pattern) and what it means (kind) and asks (action, one of the actions below). Event fields come from the event-sources rows, so a new provider is a new row. The first outcome row that applies wins. The actions are listed strongest first: when one address has several outcomes (a reply, then an out-of-office), the strongest action holds, so a later, weaker event never undoes a bounce, a complaint or a reply. Every number, word and weekday is a knob; a person's own rows replace these through pacing_row, outcome_rows and event_source_row.",
+  "actions": [
+    { "action": "suppress", "meaning": "Never send to this address again from any inbox; it is kept in the suppressed list." },
+    { "action": "stop-sequence", "meaning": "Send nothing more to this address in this outreach; a person may still write to them." },
+    { "action": "hand-to-person", "meaning": "A person reads it and answers it themselves; no automatic message follows." },
+    { "action": "retry-later", "meaning": "Send the same message again once after retry_after_hours." },
+    { "action": "none", "meaning": "Nothing changes." }
+  ],
+  "kinds": ["hard-bounce", "soft-bounce", "complaint", "unsubscribe", "reply", "auto-reply", "delivered"],
+  "pacing": [
+    {
+      "id": "new-inbox-warmup",
+      "label": "A new inbox that warms up over three weeks",
+      "ramp": [
+        { "from_day": 1, "per_day": 10 },
+        { "from_day": 8, "per_day": 20 },
+        { "from_day": 15, "per_day": 35 },
+        { "from_day": 22, "per_day": 50 }
+      ],
+      "min_gap_minutes": 6,
+      "weekdays": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+      "hours": { "from": 9, "to": 17 },
+      "leave_address_days": 30,
+      "pause_when": { "last_sends": 50, "bounce_share_at_least": 0.05, "complaints_at_least": 1 }
+    },
+    {
+      "id": "saturday-local",
+      "label": "Local businesses, sent on Saturday morning when owners read their own mail",
+      "ramp": [
+        { "from_day": 1, "per_day": 15 },
+        { "from_day": 15, "per_day": 30 }
+      ],
+      "min_gap_minutes": 8,
+      "weekdays": ["saturday"],
+      "hours": { "from": 8, "to": 12 },
+      "leave_address_days": 30,
+      "pause_when": { "last_sends": 40, "bounce_share_at_least": 0.05, "complaints_at_least": 1 }
+    }
+  ],
+  "event_sources": [
+    {
+      "id": "plain",
+      "label": "Events already in the plain shape",
+      "fields": { "recipient": "recipient", "type": "type", "status": "status", "subject": "subject", "text": "text", "at": "at" }
+    },
+    {
+      "id": "resend-webhook",
+      "label": "A Resend webhook event",
+      "fields": { "recipient": "data.to.0", "type": "type", "status": "data.bounce.type", "subject": "data.subject", "text": "data.bounce.message", "at": "created_at" }
+    },
+    {
+      "id": "amazon-ses-notification",
+      "label": "An Amazon SES notification",
+      "fields": { "recipient": "mail.destination.0", "type": "notificationType", "status": "bounce.bounceType", "subject": "mail.commonHeaders.subject", "text": "bounce.bouncedRecipients.0.diagnosticCode", "at": "mail.timestamp" }
+    },
+    {
+      "id": "mailbox-message",
+      "label": "A message that came back into the sending inbox (read from the mailbox)",
+      "fields": { "recipient": "from", "type": "kind", "status": "status", "subject": "subject", "text": "text", "at": "at" }
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "complaint",
+      "when": [{ "field": "type", "equals": ["complaint", "email.complained", "Complaint"] }],
+      "kind": "complaint",
+      "action": "suppress",
+      "says": "The person marked the message as spam."
+    },
+    {
+      "id": "hard-bounce",
+      "when": [{ "field": "type", "equals": ["bounce", "email.bounced", "Bounce"] }, { "field": "status", "equals": ["hard", "Permanent", "permanent"] }],
+      "kind": "hard-bounce",
+      "action": "suppress",
+      "says": "The address does not take mail."
+    },
+    {
+      "id": "bounce-no-such-user",
+      "when": [{ "field": "text", "matching": ["user unknown", "no such user", "does not exist", "address not found", "mailbox unavailable", "5.1.1"] }],
+      "kind": "hard-bounce",
+      "action": "suppress",
+      "says": "The mail server says there is no such mailbox."
+    },
+    {
+      "id": "soft-bounce",
+      "when": [{ "field": "type", "equals": ["bounce", "email.bounced", "Bounce", "email.delivery_delayed"] }],
+      "kind": "soft-bounce",
+      "action": "retry-later",
+      "retry_after_hours": 24,
+      "says": "The mail could not be delivered for now (a full mailbox or a busy server)."
+    },
+    {
+      "id": "unsubscribe",
+      "when": [{ "field": "text", "pattern": "\\b(unsubscribe|remove me|stop emailing|take me off|not interested)\\b" }],
+      "kind": "unsubscribe",
+      "action": "suppress",
+      "says": "The person asked to get nothing more."
+    },
+    {
+      "id": "auto-reply",
+      "when": [{ "field": "subject", "matching": ["out of office", "automatic reply", "auto-reply", "autoreply", "on vacation", "away from"] }],
+      "kind": "auto-reply",
+      "action": "none",
+      "says": "An automatic reply; nobody read the message yet."
+    },
+    {
+      "id": "reply",
+      "when": [{ "field": "type", "equals": ["reply", "message"] }],
+      "kind": "reply",
+      "action": "stop-sequence",
+      "says": "The person wrote back: stop the automatic messages and answer them yourself."
+    },
+    {
+      "id": "delivered",
+      "when": [{ "field": "type", "equals": ["delivered", "email.delivered", "Delivery"] }],
+      "kind": "delivered",
+      "action": "none",
+      "says": "The message arrived."
+    }
+  ]
+}
