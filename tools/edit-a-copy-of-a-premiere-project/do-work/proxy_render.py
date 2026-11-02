@@ -10,9 +10,11 @@ usage: python3 -I proxy_render.py PROJECT.prproj OUT.mp4 [--from TC --to TC] [--
 """
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
+from fractions import Fraction
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -47,6 +49,7 @@ def layers(p, tracks):
 
 def render_segment(seg_s, seg_e, lay, tpf, height, path):
     width = height * 16 // 9
+    rate = Fraction(TPS, tpf)  # the sequence frame rate, e.g. 24000/1001
     dur = (seg_e - seg_s) / TPS
     inputs, vchain, achain = [], [], []
 
@@ -67,9 +70,9 @@ def render_segment(seg_s, seg_e, lay, tpf, height, path):
                     vchain.append(f'[{base}][o{n}]overlay=format=auto[v{n}]')
                     base = f'v{n}'
     if base is None:
-        vchain.append(f'color=black:s={width}x{height}:r=24000/1001:d={dur:.6f},format=yuva420p[vb]')
+        vchain.append(f'color=black:s={width}x{height}:r={rate}:d={dur:.6f},format=yuva420p[vb]')
         base = 'vb'
-    vchain.append(f'[{base}]format=yuv420p,fps=24000/1001[vout]')
+    vchain.append(f'[{base}]format=yuv420p,fps={rate}[vout]')
     alabels = []
     for label in (k for k in lay if k[0] == 'A'):
         for s, e, src, cin in lay[label]:
@@ -120,7 +123,7 @@ def main():
         f.writelines(f"file '{x}'\n" for x in parts)
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', listing, '-c', 'copy', args.out],
                    check=True)
-    subprocess.run(['/usr/bin/trash', work], check=True)
+    shutil.rmtree(work)  # the segment files this run made
     print(f'wrote {args.out}: {len(parts)} segments, {(hi - lo) / TPS:.1f} s')
 
 
