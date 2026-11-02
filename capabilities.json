@@ -775,7 +775,7 @@
       "lives_at": ["bitfield-packages/packages/broadcast-delivery/", "bitfield-packages/packages/resend-email-sender/", "bitfield-packages/packages/imessage-messages-sender/"],
       "moves_to": "tools/send-messages/",
       "entry": "bitfield-packages/packages/broadcast-delivery/",
-      "evidence": "broadcast-delivery README.md:1 broadcast message delivery via provider adapters; resend-email-sender sends transactional email; imessage-messages-sender sends over Messages"
+      "evidence": "broadcast-delivery README.md:1 broadcast message delivery via provider adapters; resend-email-sender sends transactional email; imessage-messages-sender sends over Messages; tools/send-messages/README.md also paces a sending inbox (ramp, gap, days, hours, pause on bounces) and sorts bounces, complaints and replies, every pace, event source and outcome a DATA row in read-data/inbox-pacing.json"
     },
     {
       "capability": "search, read, organize, trash and restore a person's Gmail mail and threads, keep and send drafts and set their send-as signature, as the Google account the run names",
