@@ -4,7 +4,7 @@
 // colour, and a directionality. This is Society (which relationships exist, what they're
 // called) kept OUT of engine code — exactly like the bullet-marker catalog. A product adds
 // a relationship kind by adding a row here (or an injected override), never by editing a
-// dispatcher (L090). The graph engine (relationship-graph.ts) treats the kind as opaque; only
+// dispatcher (L090). The graph engine (group-graph.ts) treats the kind as opaque; only
 // this presentation layer names them.
 
 export interface RelationKindSpec {

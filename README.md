@@ -1,6 +1,6 @@
 # Trillion Workshop
 
-The open-source tools [Trillion](https://gettrillion.ai) offers to every person's AI. When an AI asks Trillion for a job ("work out my unit economics", "read this web page", "who is connected to whom"), Trillion finds the tool here by its job, runs it, checks what it gave back and hands the answer to the AI.
+The open-source tools [Trillion](https://gettrillion.ai) offers to every person's AI. When an AI asks Trillion for a job ("work out my unit economics", "read this web page", "check this video before it goes out"), Trillion finds the tool here by its job, runs it, checks what it gave back and hands the answer to the AI.
 
 Each tool is one folder: its code, the rows that tell Trillion what it does and how to run it, a README and its tests. Fork the repository, add or improve a tool, and open a pull request. Once it is merged, Trillion offers it to everyone.
 
@@ -117,9 +117,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `records-door` | A library: the client for the person's records door and the one command that runs a tool written as a function, handing it the door | (none: packed by `saved-examples`, `tell-the-person`, `social-posts`, `recently-deleted` and `print-here`) |
 | `records-door` | A library: the client for the person's records door and the one command that runs a tool written as a function, handing it the door | (none: packed by `saved-examples`, `tell-the-person`, `social-posts` and `recently-deleted`) |
 | `referral-codes-and-rewards` | Referral codes that earn a share of one product or one seller: make one, withdraw it, see which sales a typed code earns and what it earns, count an account's accepted referrals | `tool:make-a-referral-code`, `tool:withdraw-a-referral-code`, `tool:work-out-referral-codes` |
-| `relationship-graph` | Who is connected to whom, from any records | `tool:map-who-is-connected` |
 | `records-door` | A library: the client for the person's records door and the one command that runs a tool written as a function, handing it the door | (none: packed by `saved-examples`, `tell-the-person`, `social-posts` and `recently-deleted`) |
-| `relationship-graph` | Who is connected to whom, from any records | `tool:map-who-is-connected`, `tool:keep-who-is-connected`, `tool:request-a-connection-action` |
 | `reply-templates` | Fills a canned reply template with the details of a request (names, labels, any value) and gives back the finished reply, whatever its shape | `tool:expand-a-reply-template` |
 | `reservations` | A limited number of places (seats, rooms, slots, bays) held one by one with a waitlist, release and expiry, and reservations sorted by status | `tool:open-a-capacity-ledger`, `tool:hold-a-place`, `tool:release-a-place`, `tool:join-a-waitlist`, `tool:promote-from-the-waitlist`, `tool:expire-old-holds`, `tool:read-a-capacity-ledger`, `tool:sort-reservations-by-status` |
 | `research-a-creator-or-topic` | Gathers what is needed to research a creator or a topic: a feed's latest items, a channel's latest videos, a video's spoken words, a public web search, a saved list, and the request a profile is written from | `tool:list-the-latest-items-of-a-feed`, `tool:list-a-channels-latest-videos`, `tool:read-a-videos-captions`, `tool:search-the-public-web`, `tool:list-the-items-in-a-saved-file`, `tool:write-a-profile-request` |
