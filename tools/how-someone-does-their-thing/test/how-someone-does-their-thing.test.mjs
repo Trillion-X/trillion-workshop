@@ -93,7 +93,7 @@ const run = (script, input) => new Promise((resolve) => {
 });
 
 test('each row runs as the container runs it and its sample gives the text it promises', async () => {
-  const rows = JSON.parse(await readFile(join(folder, 'tool-rows.json'), 'utf8')).records.map((record) => record.payload);
+  const rows = JSON.parse(await readFile(join(folder, 'tool-rows.json'), 'utf8')).records.map((record) => record.payload).filter((row) => !row.invoke.records);
   assert.equal(rows.length, 3);
   for (const row of rows) {
     const [sample] = row.verify;

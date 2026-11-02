@@ -1030,7 +1030,7 @@
       "lives_at": ["bitfield-packages/packages/how-someone-does-their-thing/"],
       "moves_to": "tools/how-someone-does-their-thing/",
       "entry": "bitfield-packages/packages/how-someone-does-their-thing/",
-      "evidence": "how-someone-does-their-thing README.md:1 a profile record for a creator style, a user's voice or any reference pattern"
+      "evidence": "how-someone-does-their-thing README.md:1 a profile record for a creator style, a user's voice or any reference pattern; tools/how-someone-does-their-thing/README.md: the person's writing voice (voice-edit and voice-profile records, read, save, forget, keep an edit, repeated edits), moved from Trillion-X/trillion src/voice.mjs (ports/voice.json)"
     },
     {
       "capability": "generate images from a prompt with a chosen model",
