@@ -873,6 +873,13 @@
                   "read-data/inbox-pacing.json"
                 ],
                 "at": "/opt/send-messages"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
               }
             ]
           }
@@ -1069,6 +1076,13 @@
                   "read-data/inbox-pacing.json"
                 ],
                 "at": "/opt/send-messages"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
               }
             ]
           }
