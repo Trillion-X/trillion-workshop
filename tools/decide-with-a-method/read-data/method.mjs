@@ -164,6 +164,16 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     return method.steps.filter(step => !step.when || active[step.when] === true);
   }
 
+  // The step asked next: the first step of the method, in order, that has no answer yet or whose answer needs a recheck
+  // (a later step of a revised answer). Every step after an answer that was revised is flagged, so none is skipped.
+  function nextStepOf(record) {
+    const guidance = record.guidance ?? [];
+    return stepsFor(record).find(step => {
+      const entry = guidance.find(item => item.step_id === step.id);
+      return !entry || entry.needs_recheck === true;
+    }) ?? null;
+  }
+
   function methodCoverage(record) {
     const active = context(record);
     if (!active) return null;
@@ -468,14 +478,16 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
   }
 
   function currentQuestion(record) {
-    if (record.decision) return null;
-    const step = stepsFor(record)[record.guidance?.length ?? 0];
+    const step = nextStepOf(record);
     if (!step) return null;
     const method = methodOf(record);
     const fields = step.kind === 'scope' ? ['decision_context', 'omission_reasons'] : step.fields.map(field => field.name);
     const checklist = checklistFor(record, step);
     const stage = (method.backbone ?? []).find(item => item.steps.includes(step.id));
     const question = { step_id: step.id, ...(stage ? { stage: { id: stage.id, name: stage.name } } : {}), question: step.question, fields: checklist.length ? [...fields, 'checklist'] : fields, requires: ['evidence_refs'], optional: ['scratchpad'], answer_schema: answerSchema(method, step, checklist, workflowsDue(record, step)) };
+    // An answer a later revision reached again: which step was revised, and the version this answer is at.
+    const answered = (record.guidance ?? []).find(item => item.step_id === step.id);
+    if (answered?.needs_recheck) question.recheck = { revised_step: answered.recheck_of ?? null, version: answered.version ?? 1 };
     // Each check as its id and its question; what a good answer does and what it refuses come by id on request
     // (checkTexts), so a step of many checks is not sent whole every time it is asked.
     if (checklist.length) question.checklist = checklist.map(({ id, check }) => ({ id, check }));
@@ -505,7 +517,7 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
   // The whole words of the named checks of the current question (its checklist and due workflow runs): the check, what a
   // good answer does and what it refuses. An id the question does not ask is named back, never guessed.
   function checkTexts(record, ids) {
-    const step = record.decision ? null : stepsFor(record)[record.guidance?.length ?? 0];
+    const step = nextStepOf(record);
     const asked = step ? [
       ...checklistFor(record, step).map(row => ({ id: row.id, check: row.check, good_answer: row.good_answer, ...(row.refuses ? { refuses: row.refuses } : {}), skippable: skippable(step, row) })),
       ...workflowsDue(record, step).map(row => { const { id, check, good_answer, skippable: may } = workflowCheck(row); return { id, check, good_answer, skippable: may }; }),
@@ -515,7 +527,7 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
   }
 
   return {
-    defaultMethodId, methodOf, howToSayIt, listMethods, snapshotMethod, stepsFor, methodCoverage, checklistFor,
+    defaultMethodId, methodOf, howToSayIt, listMethods, snapshotMethod, stepsFor, nextStepOf, methodCoverage, checklistFor,
     workflowsDue, validateMethodAnswer, decisionFieldsFor, decisionFieldsToJudge, decisionFieldsAsked, decisionFieldsSaid,
     checkAnswersToJudge, verdictChecksFor, judgeContext, currentQuestion, checkTexts,
   };

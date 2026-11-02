@@ -4,9 +4,11 @@
 // app's DecisionEngine (src/engine.mjs: admit, guide, decideGuided, decide, reportResult, recordCarriedOut) and the
 // record layout of its decision store (src/decision-store.mjs): a decision is one root record of type `decision`
 // holding its method snapshot and a running summary of its answered steps (`answered_steps`, each { step_id,
-// answered_at, checks, graded, graded_by }: how many checks the step handed its judge, how many verdicts came back and
-// who graded them, so anyone can see from the root whether a case was judged or only answered); each answered step is
-// a record of its own (`decision-step:<id>:<n>`) holding the answer, the checks it was asked and the verdicts taken.
+// answered_at, checks, graded, graded_by, version, needs_recheck }: how many checks the step handed its judge, how many
+// verdicts came back and who graded them, which version of the answer is current, and whether a revision of an earlier
+// step has made it stand to be asked again); each answered step is a record of its own (`decision-step:<id>:<nnn>`)
+// holding the current answer, the checks it was asked and the verdicts taken. A superseded version of a step is kept
+// beside it (`decision-step:<id>:<nnn>:v<vvv>`), so a revision never overwrites what was answered.
 // Answering one step reads the decision's own fields, its scope answer and the step it repeats, never every earlier
 // answer. The Decisions screen reads these same records.
 //
@@ -16,9 +18,13 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. One source opens one decision; the same input again is that decision, different input is refused.
-//   2. A step is answered only in its turn; the same answer again replays, a different one is refused.
-//   3. An answer and a decision cite only the decision's own evidence or the person's current pursuits.
-//   4. A decided decision changes only after a failed result or check; the earlier one moves to decision_history.
+//   2. A step is answered in its turn; the same answer again replays, a different one is refused unless it is sent as a
+//      revision with its reason (`revise.because`), which keeps the old version and flags every later step to be asked again.
+//   3. An answer and a decision cite only the decision's own evidence or the person's current pursuits. Evidence is
+//      added as rows with the time they came in; an answer or an evidence row brought in from another of the person's
+//      decisions is copied as it stood and checked as a typed one is.
+//   4. A decided decision changes only after a failed result or check; the earlier one moves to decision_history, and
+//      its answers can be revised only after that failed result.
 //   5. A result is the person's: answered_by must be "person"; nothing here can mark it verified by a trusted source.
 //   6. A decision is kept as shared only by ./share-a-decision.mjs, after its privacy checks.
 import { readFileSync } from 'node:fs';
@@ -30,7 +36,7 @@ import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
-const { records: NAMES, words: WORDS, precedence, candidates: CANDIDATES } = settings;
+const { records: NAMES, words: WORDS, precedence, candidates: CANDIDATES, revision: REVISION, evidence: EVIDENCE, history: HISTORY } = settings;
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -43,6 +49,8 @@ export const refuse = (name, parts) => { throw new Error(say(name, parts)); };
 
 export const caseIdFor = sourceId => `${NAMES.case_prefix}${Buffer.from(sourceId).toString('base64url')}`;
 const stepKey = (id, n) => `${NAMES.step}${id}:${String(n).padStart(NAMES.step_digits, '0')}`;
+// A superseded version of a step, kept beside the step: its key, then the version (`:v001`, `:v002`, ...).
+const versionKey = (id, n, version) => `${stepKey(id, n)}${NAMES.version}${String(version).padStart(NAMES.version_digits, '0')}`;
 const callKey = (id, n) => `${NAMES.call}${id}:${String(n).padStart(NAMES.call_digits, '0')}`;
 // A logged call keeps what it was, never the payload it carried (the old store kept those apart and bounded).
 const bareCall = call => (object(call) ? Object.fromEntries(Object.entries(call).filter(([field]) => !['submission', 'problems'].includes(field))) : call);
@@ -51,11 +59,19 @@ const bareCall = call => (object(call) ? Object.fromEntries(Object.entries(call)
 const PACKED = { checklist: 'checks', verdicts: 'given' };
 const packStep = entry => (object(entry) ? Object.fromEntries(Object.entries(entry).map(([field, item]) => [field, PACKED[field] && Array.isArray(item) ? { [PACKED[field]]: item } : item])) : entry);
 const unpackStep = entry => (object(entry) ? Object.fromEntries(Object.entries(entry).map(([field, item]) => [field, PACKED[field] && object(item) && Array.isArray(item[PACKED[field]]) ? item[PACKED[field]] : item])) : entry);
+// Whether a step needs a recheck is kept on the root's summary only, so flagging later steps never rewrites their records.
+const FLAGS = ['needs_recheck', 'recheck_of', 'rechecked_at'];
+const stepRecordOf = entry => Object.fromEntries(Object.entries(entry).filter(([field]) => !FLAGS.includes(field)));
 // A step read whole carries its verdicts; a step read as its stub carries the counts already made from them.
 const gradingOf = entry => (Array.isArray(entry.verdicts)
   ? { checks: entry.judged_checks ?? entry.verdicts.length, graded: entry.verdicts.length, graded_by: [...new Set(entry.verdicts.map(verdict => verdict.graded_by))].join(', ') }
   : Object.fromEntries(['checks', 'graded', 'graded_by'].filter(field => entry[field] !== undefined).map(field => [field, entry[field]])));
-const stubOf = entry => ({ step_id: entry.step_id, answered_at: entry.answered_at, ...gradingOf(entry) });
+// Which version is current and whether it stands to be asked again. A step answered before versions existed is version 1.
+const flagsOf = entry => ({
+  version: entry.version ?? 1, needs_recheck: entry.needs_recheck === true,
+  ...(entry.recheck_of ? { recheck_of: entry.recheck_of } : {}), ...(entry.rechecked_at ? { rechecked_at: entry.rechecked_at } : {}),
+});
+const stubOf = entry => ({ step_id: entry.step_id, answered_at: entry.answered_at, ...gradingOf(entry), ...flagsOf(entry) });
 const lostStep = stub => ({ step_id: stub?.step_id ?? null, answer: {}, answered_at: stub?.answered_at ?? null, lost: true });
 
 // Every row of one of the person's lists, in row id order, as its value; `where` keeps only the rows whose fields
@@ -71,21 +87,22 @@ async function methodsOf(door) {
   return methods;
 }
 const catalogue = (methods, checks = []) => methodCatalogue(methods, checks, { grader: settings.grader });
-// The method functions with the check rows of the step `record` is at: that step's rows and the rows it names by id
-// (`check_ids`), each read with the door's `where`, so a call carries one step's checks, never the whole list.
-async function catalogueAt(door, methods, record) {
+// The method functions with the check rows of one step: that step's rows and the rows it names by id (`check_ids`), each
+// read with the door's `where`, so a call carries one step's checks, never the whole list. The step is the one given,
+// or the step asked next.
+async function catalogueAt(door, methods, record, step = undefined) {
   const bare = catalogue(methods);
-  const step = record.decision ? null : bare.stepsFor(record)[record.guidance?.length ?? 0];
-  if (!step || step.kind === 'scope') return bare;
-  const checks = await rowsOf(door, NAMES.check_row, { [NAMES.check_step_field]: step.id });
-  for (const id of step.check_ids ?? []) checks.push(...await rowsOf(door, NAMES.check_row, { [NAMES.check_id_field]: id }));
+  const current = step === undefined ? bare.nextStepOf(record) : step;
+  if (!current || current.kind === 'scope') return bare;
+  const checks = await rowsOf(door, NAMES.check_row, { [NAMES.check_step_field]: current.id });
+  for (const id of current.check_ids ?? []) checks.push(...await rowsOf(door, NAMES.check_row, { [NAMES.check_id_field]: id }));
   return catalogue(methods, checks);
 }
 
 // A decision kept apart (its root names its answered steps) or kept whole (its root holds its guidance itself).
 const keptWhole = root => Array.isArray(root.guidance) && !Array.isArray(root.answered_steps);
 
-/** The decision with its scope answer whole and every later step as its id and time; `steps` names others to read whole. */
+/** The decision with its scope answer whole and every later step as its summary; `steps` names others to read whole. */
 async function readDecision(door, id, steps = []) {
   const root = await door.read('decision', id);
   if (!root) return null;
@@ -94,22 +111,29 @@ async function readDecision(door, id, steps = []) {
   const wanted = new Set([0, ...stubs.flatMap((stub, n) => (steps.includes(stub.step_id) ? [n] : []))]);
   const guidance = [];
   for (const [n, stub] of stubs.entries()) {
-    guidance.push(wanted.has(n) ? unpackStep(await door.read('decision-step', stepKey(id, n))) ?? lostStep(stub) : stub);
+    if (wanted.has(n)) {
+      const whole = unpackStep(await door.read('decision-step', stepKey(id, n))) ?? lostStep(stub);
+      guidance.push({ ...whole, ...flagsOf(stub) });
+    } else guidance.push({ ...stub, ...flagsOf(stub) });
   }
   const { answered_steps: _stubs, ...own } = root;
   return { ...own, id, guidance };
 }
 
-/** The records one write keeps: the root with its running summary, and each step `from` on (all of them for a whole one). */
-function recordsOf(record, from) {
+/**
+ * The records one write keeps: the root with its running summary, the steps at `changed` (indices into the guidance),
+ * and the superseded versions `archived` ({ key, entry }). A decision kept whole is laid apart in this write: all its
+ * steps and its calls become records of their own.
+ */
+function recordsOf(record, changed = [], archived = []) {
   const { guidance = [], calls, whole, id, ...own } = record;
   // The method's id beside its snapshot, so a list that weighs decisions by method reads one short field.
   const root = { ...own, id, ...(own.method?.id ? { method_id: own.method.id } : {}), answered_steps: guidance.map(stubOf), call_count: record.call_count ?? (Array.isArray(calls) ? calls.length : 0) };
-  const start = whole ? 0 : from;
+  const steps = whole ? guidance.map((_, n) => n) : changed;
   return [
     { id, type: 'decision', value: root },
-    ...guidance.slice(start).map((entry, k) => ({ id: stepKey(id, start + k), type: 'decision-step', value: packStep(entry) })),
-    // A decision kept whole is laid apart in this write: its calls become records of their own beside it.
+    ...steps.map(n => ({ id: stepKey(id, n), type: 'decision-step', value: packStep(stepRecordOf(guidance[n])) })),
+    ...archived.map(({ key, entry }) => ({ id: key, type: 'decision-step', value: packStep(stepRecordOf(entry)) })),
     ...(whole && Array.isArray(calls) ? calls.map((call, n) => ({ id: callKey(id, n), type: 'decision-call', value: bareCall(call) })) : []),
   ];
 }
@@ -125,7 +149,7 @@ async function writeDecision(door, list, key) {
   return door.write([root], { key });
 }
 /** A decision kept again after a change to its own fields (its answered steps unchanged), under request key `key`. */
-export const keepDecision = (door, record, key) => writeDecision(door, recordsOf(record, record.guidance.length), key);
+export const keepDecision = (door, record, key) => writeDecision(door, recordsOf(record), key);
 
 const pursuitIsCurrent = item => item?.status !== 'ended' && item?.status !== 'archived';
 async function currentPursuits(door, most) {
@@ -236,7 +260,7 @@ async function guideReply(door, cat, record) {
   // At the moment of choice, what happened in similar earlier decisions.
   const similar = !question && !record.decision ? (await similarDecisions({ decision_id: record.id, limit: 5 }, { door })).similar_decisions : undefined;
   return {
-    case_id: record.id, source_id: record.source_id, question, ...(question?.checklist ? { explain: WORDS.explain_note } : {}), ...(await pursuitsFor(door, question)),
+    case_id: record.id, source_id: record.source_id, question, ...(question?.checklist ? { explain: WORDS.explain_note } : {}), ...(question?.recheck ? { recheck_note: say('recheck_note', { step: question.recheck.revised_step }) } : {}), ...(await pursuitsFor(door, question)),
     method_coverage: cat.methodCoverage(record), decision: record.decision ?? null,
     ...(record.workflow_plan ? { workflow_plan: record.workflow_plan } : {}),
     ...(similar ? { similar_decisions: similar } : {}),
@@ -266,14 +290,19 @@ export async function startADecision(input, { door }) {
     id, source_id: input.source_id, input, method, scratchpad: [], status: 'needs_decision', decision: null, actions: [], checks: [],
     pursuits_known: (await currentPursuits(door, 0)).length > 0, created_at: new Date().toISOString(), guidance: [],
   };
-  await writeDecision(door, recordsOf(record, 0), `start-a-decision:${id}`);
+  await writeDecision(door, recordsOf(record), `start-a-decision:${id}`);
   return guideReply(door, await catalogueAt(door, methods, record), record);
 }
 
-/** tool:next-decision-question. input { decision_id, explain? }: `explain` names checks of the current question, and
- * the reply is then only their whole words (what a good answer does, what it refuses) as `explained`, beside the step
- * they belong to; the question itself was already sent. */
+/** tool:next-decision-question. input { decision_id, explain? | versions_of? }: `explain` names checks of the current question,
+ * and the reply is then only their whole words (what a good answer does, what it refuses) as `explained`, beside the step
+ * they belong to; the question itself was already sent. `versions_of` names a step, and the reply is its versions, oldest
+ * first, each with who, when, why and its answer. */
 export async function nextDecisionQuestion(input, { door }) {
+  if (input.versions_of !== undefined) {
+    const record = await decisionOrRefuse(door, decisionId(input), nonempty(input.versions_of) ? [input.versions_of] : []);
+    return versionsReply(door, record, input.versions_of);
+  }
   const record = await decisionOrRefuse(door, decisionId(input));
   const cat = await catalogueAt(door, await methodsOf(door), record);
   if (input.explain === undefined) return guideReply(door, cat, record);
@@ -283,27 +312,183 @@ export async function nextDecisionQuestion(input, { door }) {
   return { case_id: record.id, step_id: cat.currentQuestion(record)?.step_id ?? null, explained: texts };
 }
 
-/** tool:answer-a-decision-question. input { decision_id, step_id, answer, verdicts?, usage? } */
+// The versions of one answered step, the newest HISTORY.most_versions at most, oldest first. A version that cannot be read
+// is named as lost, never left out.
+async function versionsReply(door, record, stepId) {
+  if (!nonempty(stepId)) refuse('versions_shape');
+  const at = record.guidance.findIndex(item => item.step_id === stepId);
+  if (at < 0 || record.guidance[at].lost) refuse('unanswered_step', { step: stepId });
+  const current = record.guidance[at];
+  const top = current.version ?? 1;
+  const versions = [];
+  for (let version = Math.max(1, top - HISTORY.most_versions + 1); version <= top; version += 1) {
+    const entry = version === top ? current : unpackStep(await door.read('decision-step', versionKey(record.id, at, version)));
+    if (!entry) { versions.push({ version, lost: true }); continue; }
+    versions.push({
+      version, current: version === top, answered_at: entry.answered_at ?? null, by: entry.by ?? null,
+      ...(entry.because ? { because: entry.because } : {}), ...(entry.from ? { from: entry.from } : {}),
+      ...(entry.superseded_at ? { superseded_at: entry.superseded_at } : {}), answer: entry.answer ?? {},
+    });
+  }
+  return { case_id: record.id, step_id: stepId, versions };
+}
+
+// What an answer call names: an answer or a `from`, not both; a confirmation alone; a revision with its reason.
+function answerShape(input) {
+  if (input.confirm !== undefined && input.confirm !== true) refuse('confirm_shape');
+  if (input.confirm === true && (input.answer !== undefined || input.from !== undefined || input.revise !== undefined)) refuse('confirm_alone');
+  if (input.answer !== undefined && input.from !== undefined) refuse('from_and_answer');
+  if (input.from !== undefined) fromShape(input.from);
+  if (input.revise !== undefined) reviseShape(input.revise);
+}
+const fromShape = from => {
+  if (!object(from) || !nonempty(from.decision_id) || !nonempty(from.step_id) || (from.version !== undefined && !(Number.isInteger(from.version) && from.version >= 1))) refuse('from_shape');
+};
+const reviseShape = revise => {
+  if (!object(revise) || Object.keys(revise).some(name => !['because', 'by'].includes(name))) refuse('revise_shape');
+  const count = nonempty(revise.because) ? revise.because.trim().split(/\s+/).length : 0;
+  if (count < REVISION.because_min_words || count > REVISION.because_max_words) refuse('revise_because', { min: REVISION.because_min_words, max: REVISION.because_max_words });
+  if (revise.by !== undefined && (!nonempty(revise.by) || revise.by.length > REVISION.by_max_chars)) refuse('revise_shape');
+};
+// A `from` names the same step of the same decision, and the version when one is named.
+const fromMatches = (stored, from) => Boolean(stored) && stored.decision_id === from.decision_id && stored.step_id === from.step_id && (from.version === undefined || from.version === stored.version);
+
+/** The answer a `from` brings in: the step of another of the person's decisions as it stood, at the version named (or its current
+ * one), and the evidence it cites that this decision does not have yet, each with where it came from. */
+async function copyStep(door, record, from, now) {
+  if (from.decision_id === record.id) refuse('from_self');
+  const source = await readDecision(door, from.decision_id, [from.step_id]);
+  if (!source) refuse('from_not_found');
+  const at = source.guidance.findIndex(item => item.step_id === from.step_id);
+  const current = at >= 0 ? source.guidance[at] : null;
+  if (!current || current.lost) refuse('from_step_missing', { step: from.step_id, version: from.version ?? 1 });
+  const version = from.version ?? current.version ?? 1;
+  let entry = current;
+  if (version !== (current.version ?? 1)) {
+    entry = source.whole ? null : unpackStep(await door.read('decision-step', versionKey(source.id, at, version)));
+    if (!entry) refuse('from_step_missing', { step: from.step_id, version });
+  }
+  const answer = structuredClone(entry.answer);
+  const have = new Set(record.input.evidence.map(item => item.ref));
+  const sourceRows = new Map((source.input.evidence ?? []).filter(item => !item.retracted_at).map(item => [item.ref, item]));
+  const evidence = [];
+  for (const ref of citedRefsIn(answer)) {
+    const row = sourceRows.get(ref);
+    if (row && !have.has(ref)) evidence.push({ ref, claim: row.claim, added_at: now, from: { decision_id: source.id, ref } });
+  }
+  return { answer, from: { decision_id: source.id, step_id: from.step_id, version }, evidence };
+}
+
+// Evidence rows as they are added: a claim typed, or a row brought in from another of the person's decisions as it stood.
+async function evidenceRows(door, record, items, now) {
+  const rows = [];
+  for (const item of items) {
+    if (!object(item) || !nonempty(item.ref)) refuse('evidence_shape');
+    if (item.from !== undefined) {
+      if (item.claim !== undefined || !object(item.from) || !nonempty(item.from.decision_id) || !nonempty(item.from.ref)) refuse('evidence_shape');
+      if (item.from.decision_id === record.id) refuse('from_self');
+      const source = await door.read('decision', item.from.decision_id);
+      if (!source) refuse('from_not_found');
+      const row = (source.input?.evidence ?? []).find(each => each.ref === item.from.ref && !each.retracted_at);
+      if (!row) refuse('evidence_from_missing', { ref: item.from.ref });
+      rows.push({ ref: item.ref, claim: row.claim, added_at: now, from: { decision_id: item.from.decision_id, ref: item.from.ref } });
+    } else {
+      if (!nonempty(item.claim)) refuse('evidence_shape');
+      rows.push({ ref: item.ref, claim: item.claim, added_at: now });
+    }
+  }
+  return rows;
+}
+// The decision's first evidence is kept as it was given; the original input stays as it was started, so the same
+// source with the same input is still that decision.
+const keepOriginal = record => { record.original_input ??= structuredClone(record.input); };
+// Rows added to the decision's evidence. A row with the same ref and claim is already there; the same ref with other words
+// is refused, so a citation never means two things.
+function takeEvidence(record, rows) {
+  for (const row of rows) {
+    const have = record.input.evidence.find(item => item.ref === row.ref);
+    if (have) {
+      if (have.claim === row.claim) continue;
+      refuse('evidence_ref_taken', { ref: row.ref });
+    }
+    keepOriginal(record);
+    record.input.evidence.push(row);
+  }
+}
+
+/** tool:add-decision-evidence. input { decision_id, evidence: [{ ref, claim } | { ref, from: { decision_id, ref } }] }: rows
+ * added at any time, each kept with when it came in; the same rows again replay, and an answer may cite them at once. */
+export async function addDecisionEvidence(input, { door }) {
+  const id = decisionId(input);
+  const items = input.evidence;
+  if (!Array.isArray(items) || items.length < 1 || items.length > EVIDENCE.most_per_call) refuse('evidence_count', { count: EVIDENCE.most_per_call });
+  const record = await decisionOrRefuse(door, id);
+  const rows = await evidenceRows(door, record, items, new Date().toISOString());
+  const before = record.input.evidence.length;
+  takeEvidence(record, rows);
+  const added = record.input.evidence.slice(before);
+  if (!added.length) return { case_id: id, added: [], replayed: true, evidence: record.input.evidence.length };
+  await writeDecision(door, recordsOf(record), `add-decision-evidence:${id}:${added.map(row => row.ref).join(',')}`);
+  return { case_id: id, added, evidence: record.input.evidence.length };
+}
+
+// A confirmation: the answer a re-asked step already has stands unchanged. Nothing is answered again and no version is made.
+async function confirmStep(door, methods, record, at) {
+  const entry = record.guidance[at];
+  entry.needs_recheck = false;
+  delete entry.recheck_of;
+  entry.rechecked_at = new Date().toISOString();
+  record.change_count = (record.change_count ?? 0) + 1;
+  await writeDecision(door, recordsOf(record), `confirm-a-decision-step:${record.id}:${at}:${record.change_count}`);
+  const reply = await guideReply(door, await catalogueAt(door, methods, record), record);
+  return { ...reply, confirmed: { step_id: entry.step_id, version: entry.version ?? 1 }, ready_for_decision: !reply.question };
+}
+
+/** tool:answer-a-decision-question. input { decision_id, step_id, answer?, from?, revise?: { because, by? }, confirm?: true,
+ * verdicts?, usage? }. An answer in its turn; a revision of any answered step with its reason (the old version is kept and
+ * every later step is flagged to be asked again); a confirmation of a re-asked step unchanged; `from` answers with another
+ * decision's step as it stood. */
 export async function answerADecisionQuestion(input, { door }) {
   const id = decisionId(input);
   if (!nonempty(input.step_id)) refuse('answer_needs_step');
+  answerShape(input);
   const methods = await methodsOf(door);
   const record = await decisionOrRefuse(door, id, [input.step_id]);
-  const cat = await catalogueAt(door, methods, record);
-  const replay = record.guidance.find(item => item.step_id === input.step_id);
-  if (replay) {
-    if (!same(replay.answer, input.answer)) refuse('different_answer');
-    return { ...(await guideReply(door, cat, record)), replayed: true };
+  const bare = catalogue(methods);
+  const at = record.guidance.findIndex(item => item.step_id === input.step_id);
+  const entry = at < 0 ? null : record.guidance[at];
+  const next = bare.nextStepOf(record);
+  const revising = input.revise !== undefined;
+  const flagged = Boolean(entry?.needs_recheck);
+  const replayed = async () => ({ ...(await guideReply(door, await catalogueAt(door, methods, record), record)), replayed: true });
+  if (input.confirm === true) {
+    if (!entry) refuse('unanswered_step', { step: input.step_id });
+    if (!flagged) return replayed();
+    if (!next || next.id !== input.step_id) throw new Error(outOfTurn(record, next, input.step_id));
+    return confirmStep(door, methods, record, at);
   }
-  if (record.decision) refuse('already_decided');
-  const step = cat.stepsFor(record)[record.guidance.length];
-  if (!step || step.id !== input.step_id) throw new Error(outOfTurn(record, step, input.step_id));
-  const refs = citedRefsIn(input.answer);
+  if (revising && !entry) refuse('unanswered_step', { step: input.step_id });
+  if (entry && !flagged && !revising) {
+    if (input.from !== undefined ? fromMatches(entry.from, input.from) : same(entry.answer, input.answer)) return replayed();
+    refuse('different_answer', { step: input.step_id });
+  }
+  if (record.decision && record.status !== 'correction_needed') refuse(revising ? 'revise_needs_failure' : 'already_decided');
+  if ((!entry || flagged) && (!next || next.id !== input.step_id)) throw new Error(outOfTurn(record, next, input.step_id));
+  const step = bare.stepsFor(record).find(item => item.id === input.step_id);
+  if (!step) refuse('revise_inactive', { step: input.step_id });
+  const cat = await catalogueAt(door, methods, record, step);
+  const now = new Date().toISOString();
+  const copied = input.from !== undefined ? await copyStep(door, record, input.from, now) : null;
+  const answer = copied ? copied.answer : input.answer;
+  if (entry && same(entry.answer, answer)) return flagged ? confirmStep(door, methods, record, at) : replayed();
+  if (flagged && !revising) refuse('different_answer', { step: input.step_id });
+  if (copied) takeEvidence(record, copied.evidence);
+  const refs = citedRefsIn(answer);
   const cited = await citable(door, record, refs);
-  cat.validateMethodAnswer(record, step, input.answer, cited.refs);
-  noRunIds(input.answer?.workflow_runs, 'workflow_runs');
-  const toJudge = cat.checkAnswersToJudge(record, step, input.answer);
-  const { verdicts } = takeCallerVerdicts(toJudge, input.verdicts, { answer: input.answer, refs: [...cited.refs] });
+  cat.validateMethodAnswer(record, step, answer, cited.refs);
+  noRunIds(answer?.workflow_runs, 'workflow_runs');
+  const toJudge = cat.checkAnswersToJudge(record, step, answer);
+  const { verdicts } = takeCallerVerdicts(toJudge, input.verdicts, { answer, refs: [...cited.refs] });
   const problems = judgedProblems(verdicts);
   if (problems.length) throw new AnswerProblems(problems);
   keepCited(record, cited.pursuits, refs);
@@ -312,17 +497,34 @@ export async function answerADecisionQuestion(input, { door }) {
   const checklist = cat.checklistFor(record, step).map(row => ({ id: row.id, check: row.check, identity: makeHashCodeHexFromBytes(new TextEncoder().encode(canonical(row))) }));
   const usage = usageOf(input.usage);
   if (record.method?.answer_rules && cat.workflowsDue(record, step).length) {
-    record.workflow_plan = { version: 1, step_id: step.id, items: structuredClone(input.answer.workflow_runs) };
+    record.workflow_plan = { version: 1, step_id: step.id, items: structuredClone(answer.workflow_runs) };
   }
-  if (!record.input.options && Array.isArray(input.answer?.[CANDIDATES.field])) record.candidates = candidatesFrom(input.answer[CANDIDATES.field]);
+  if (!record.input.options && Array.isArray(answer?.[CANDIDATES.field])) record.candidates = candidatesFrom(answer[CANDIDATES.field]);
   // The verdicts taken, each with who graded it, and how many checks were handed to the judge: a step answered with no
   // verdict for a check it asked shows as answered, not judged.
-  const entry = { step_id: step.id, answer: input.answer, ...(checklist.length ? { checklist } : {}), verdicts, judged_checks: toJudge.length, ...(usage ? { usage } : {}), answered_at: new Date().toISOString() };
-  const n = record.guidance.length;
-  record.guidance.push(entry);
-  await writeDecision(door, recordsOf(record, n), `answer-a-decision-question:${id}:${n}`);
+  const version = (entry?.version ?? 0) + 1;
+  const fresh = {
+    step_id: step.id, answer, ...(checklist.length ? { checklist } : {}), verdicts, judged_checks: toJudge.length, ...(usage ? { usage } : {}),
+    answered_at: now, version, by: revising && nonempty(input.revise.by) ? input.revise.by : REVISION.by,
+    ...(revising ? { because: input.revise.because, revised_from: entry.version ?? 1 } : {}),
+    ...(copied ? { from: copied.from } : {}),
+  };
+  const index = entry ? at : record.guidance.length;
+  const archived = [];
+  if (entry) {
+    // The version it replaces is kept as it was, and every later step must be asked again.
+    archived.push({ key: versionKey(id, index, entry.version ?? 1), entry: { ...entry, superseded_at: now } });
+    record.guidance[index] = fresh;
+    for (const later of record.guidance.slice(index + 1)) { later.needs_recheck = true; later.recheck_of = step.id; }
+  } else record.guidance.push(fresh);
+  const key = entry ? `answer-a-decision-question:${id}:${index}:v${version}` : `answer-a-decision-question:${id}:${index}`;
+  await writeDecision(door, recordsOf(record, [index], archived), key);
   const reply = await guideReply(door, await catalogueAt(door, methods, record), record);
-  return { ...reply, ready_for_decision: !reply.question };
+  return {
+    ...reply,
+    ...(entry ? { revised: { step_id: step.id, version, previous_version: entry.version ?? 1, needs_recheck: record.guidance.slice(index + 1).filter(item => item.needs_recheck).map(item => item.step_id) } } : {}),
+    ready_for_decision: !reply.question,
+  };
 }
 
 function decisionShape(decision, expectedGeneration) {
@@ -338,7 +540,8 @@ export async function makeTheDecision(input, { door }) {
   const cat = catalogue(await methodsOf(door));
   const record = await decisionOrRefuse(door, id, ['proof']);
   const decidedBefore = Boolean(record.decision);
-  if (!decidedBefore && (!record.guidance.length || record.guidance.length !== cat.stepsFor(record).length)) refuse('complete_first');
+  // Every question is answered and none of them stands to be asked again.
+  if (!record.guidance.length || cat.nextStepOf(record)) refuse('complete_first');
   if (!decidedBefore && object(decision) && cat.decisionFieldsFor(record).every(field => nonempty(decision[field.name]))) {
     const refs = record.input.evidence.filter(item => !item.retracted_at).map(item => item.ref);
     const { verdicts } = takeCallerVerdicts(cat.decisionFieldsToJudge(record, decision), input.verdicts, { answer: decision, refs });
@@ -375,10 +578,11 @@ export async function makeTheDecision(input, { door }) {
   record.decided_at = new Date().toISOString();
   const usage = usageOf(input.usage);
   if (usage) record.decision_usage = usage;
-  await writeDecision(door, recordsOf(record, record.guidance.length), `make-the-decision:${id}:${record.decision_generation}`);
+  await writeDecision(door, recordsOf(record), `make-the-decision:${id}:${record.decision_generation}`);
   return decidedReply(cat, record, false);
 }
 
+const outcomeRevision = record => (record.outcome_revision = (record.outcome_revision ?? 0) + 1);
 const carriedOut = record => Boolean(record?.decision) && (record.carried_out ?? []).some(entry => entry.decision_generation === (record.decision_generation ?? 1));
 function decidedReply(cat, record, already) {
   return {
@@ -390,7 +594,6 @@ function decidedReply(cat, record, already) {
   };
 }
 
-const outcomeRevision = record => (record.outcome_revision = (record.outcome_revision ?? 0) + 1);
 // The status a new piece of evidence gives the decision, when it is the current outcome.
 const applyOutcome = (record, entry) => {
   const current = currentDecisionOutcome(record, precedence);
@@ -434,7 +637,7 @@ export async function reportADecisionResult(input, { door }) {
   };
   record.reports.push(entry);
   applyOutcome(record, entry);
-  await writeDecision(door, recordsOf(record, record.guidance.length), `report-a-decision-result:${id}:${entry.source_ref}`);
+  await writeDecision(door, recordsOf(record), `report-a-decision-result:${id}:${entry.source_ref}`);
   return { case_id: id, report: entry, reports: record.reports.length, status: record.status };
 }
 
@@ -449,6 +652,6 @@ export async function sayWhatWasDone(input, { door }) {
   if (input.expected_generation !== undefined && input.expected_generation !== (record.decision_generation ?? 1)) refuse('said_generation_changed');
   const entry = { decision_generation: record.decision_generation ?? 1, state: input.state, what_happened: String(input.what_happened).slice(0, 4000), by: nonempty(input.by) ? String(input.by).slice(0, 200) : null, at: new Date().toISOString() };
   (record.carried_out ??= []).push(entry);
-  await writeDecision(door, recordsOf(record, record.guidance.length), `say-what-was-done:${id}:${record.carried_out.length}`);
+  await writeDecision(door, recordsOf(record), `say-what-was-done:${id}:${record.carried_out.length}`);
   return { case_id: id, carried_out: entry, status: record.status };
 }
