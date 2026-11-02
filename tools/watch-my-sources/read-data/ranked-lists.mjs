@@ -1,8 +1,8 @@
-// src/ranked-lists.mjs
+// tools/watch-my-sources/read-data/ranked-lists.mjs (moved from Trillion-X/trillion src/ranked-lists.mjs)
 //
 // Purpose
 //   A ranked list on a site (a best-seller list, a chart, a trending-products table) read as items with a rank, by the
-//   reader row of src/watch-sources.json `rank_readers` that matches the list's address, and how one item moved between
+//   reader row of watch-sources.json `rank_readers` that matches the list's address, and how one item moved between
 //   two days. Nothing here names a site: how to read one is a row, so a second site is a new row.
 //
 // Non-Negotiable Invariants

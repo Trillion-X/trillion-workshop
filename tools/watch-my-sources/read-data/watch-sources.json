@@ -1,9 +1,12 @@
 {
-  "_what": "What the Watch my sources tool (src/watch-sources.mjs, tool:watch-sources) keeps and says, as data: the two lists it makes when a person has not (their fields, kinds and choices), the limits of one run, the route its arrivals take (the attention rule for it is in src/attention.json), the question put to the person's model and the words of every refusal. A new kind of source, a new state or a new field is a row here; the tool names none of them. The weighing question goes through the purpose `signal-weigh` of src/model-routes.json.",
+  "_what": "What the Watch my sources tool (read-data/watch-sources.mjs, tool:watch-sources) keeps and says, as data: the two lists it makes when a person has not (their fields, kinds and choices), the limits of one run, the route its arrivals take (the person's attention rule for that route decides they are acted on), the question put to the person's model and the words of every refusal. A new kind of source, a new state or a new field is a row here; the tool names none of them. The weighing question goes through the person's model routes as the purpose `signal-weigh`.",
   "sources": {
     "id": "signal-sources",
     "label": "Sources I watch",
     "title_field": "name",
+    "starters": [
+      { "id": "show-hn", "values": { "name": "Show HN (Hacker News launches)", "address": "https://news.ycombinator.com/show", "feed": "https://hnrss.org/show", "kind": "feed", "watching": "No" } }
+    ],
     "fields": [
       { "id": "name", "label": "Name", "kind": "text" },
       { "id": "address", "label": "Address", "kind": "text" },
@@ -23,6 +26,7 @@
       { "id": "list_dated", "label": "Date the site gave its list", "kind": "text" }
     ]
   },
+  "_sources_starters": "sources.starters are the rows the list of places starts with when it is made, each off (Watching No) until the person turns it on, so following a place is their choice. Show HN came from the launch sources of tools/find-signals-of-need (2026-11-01), read here from its public feed like any other place.",
   "items": {
     "id": "signals",
     "label": "Signals",
@@ -69,7 +73,7 @@
   "_unseen_older_than_days": "An item a source lists that was never kept and was published this many days before the source was last read is old news the first read's cap left behind, so it is kept as Seen before watching, not New. A date-only or backdated publish time shortly before the last read still counts as new.",
   "_ranks": "A ranked-list source is read as a ranked list: each day's ranks are kept per item in the `ranked` list, and how an item moved since the day before becomes one signal. An item new to the list at rank_new_at_most or better entered; one that rose at least rank_climbed_places places, or at least rank_share_least_places places and rank_climbed_share of its old rank, climbed; one that fell rank_fell_places places, or rank_share_least_places places and rank_fell_share of its old rank, fell; one on the list before and not now dropped out. A source's first read keeps the ranks and hands nothing on. Each movement is kept once per item and day, so reading again the same day adds nothing. Days are UTC dates. rank_recent_days ranks are kept in an item's Recent ranks.",
   "rank_readers": {
-    "_what": "How to read a ranked list from a site, one row per site, matched by the address's host and a part of its path. `pages` are the addresses read for one list: the address with `append_path` added to its path and each `query` value set (a list shown 50 at a time over two pages). `items.from` is the way the page carries its data (src/ranked-lists.mjs FROM: `html-attribute-json` is a page attribute holding JSON, its HTML entities decoded; `nuxt-payload` is a Nuxt page payload, its references resolved), `list_path` the path to the items' array, a step {\"any\": true} standing for whichever key holds the rest; in each item `id_path`, `rank_path` (its position when left out) and `title_path`; `facts` the item's own facts kept with its rank; `dated_path` the date the site gave its list, so a list the site has not changed since the last read is not measured again. `titles` is a pattern whose named groups `id` and `title` give an item's title where the page carries it outside the items. `link` is the item's address, {id} filled. A second site is a new row here, never code.",
+    "_what": "How to read a ranked list from a site, one row per site, matched by the address's host and a part of its path. `pages` are the addresses read for one list: the address with `append_path` added to its path and each `query` value set (a list shown 50 at a time over two pages). `items.from` is the way the page carries its data (ranked-lists.mjs FROM: `html-attribute-json` is a page attribute holding JSON, its HTML entities decoded; `nuxt-payload` is a Nuxt page payload, its references resolved), `list_path` the path to the items' array, a step {\"any\": true} standing for whichever key holds the rest; in each item `id_path`, `rank_path` (its position when left out) and `title_path`; `facts` the item's own facts kept with its rank; `dated_path` the date the site gave its list, so a list the site has not changed since the last read is not measured again. `titles` is a pattern whose named groups `id` and `title` give an item's title where the page carries it outside the items. `link` is the item's address, {id} filled. A second site is a new row here, never code.",
     "rows": [
       {
         "name": "Amazon Best Sellers",
@@ -112,6 +116,7 @@
     "channel": "needs its feed address",
     "no_address": "needs an address",
     "no_text": "The page says nothing to read.",
+    "says_nothing": "The page says nothing about itself.",
     "failed_in_a_row": "{problem} It has failed {runs} runs in a row, since {since}.",
     "answered": "{host} answered {status} instead of a feed or a page.",
     "silent": "{host} did not answer.",

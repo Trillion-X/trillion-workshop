@@ -1,19 +1,21 @@
-// src/watch-sources.mjs
+// tools/watch-my-sources/read-data/watch-sources.mjs (moved from Trillion-X/trillion src/watch-sources.mjs)
 //
 // Purpose
 //   The outside places a person wants watched (any site's feed, a YouTube channel, a blog, a changelog, a page) are DATA
 //   ROWS of one of their lists, and one scheduled tool (tool:watch-sources) reads them all. Each new item becomes a row
 //   of a second list; each is weighed against what the person is pursuing and the content formats they use, and only
 //   what moves a pursuit, directly or as an insight carried over from another field, is handed to their AIs through the
-//   one arrival door (the same road as anything that reaches them from outside, src/inbound.mjs). Nothing here names a
-//   site: a source is a row, a new kind of source is a choice in src/watch-sources.json.
+//   one arrival door (the same road as anything that reaches them from outside). Nothing here names a
+//   site: a source is a row, a new kind of source is a choice in watch-sources.json. The lists are reached through
+//   whatever `lists` the caller hands in, synchronous or not: the person's own records door (do-work/watch-my-sources.mjs)
+//   or a host's own lists.
 //
 // Non-Negotiable Invariants
-//   1. Only public addresses are read (src/feed-items.mjs readFeedText, the page reader's own address check) and nothing
+//   1. Only public addresses are read (feed-items.mjs readFeedText, the page reader's own address check) and nothing
 //      is ever sent outward: no post, no message, no write to a source.
 //   2. A source is read by what it answers, not by its kind (a ranked list aside, invariant 9): RSS, Atom and JSON items
-//      (src/feed-items.mjs), the videos page of a YouTube channel when its feeds do not answer, and anything else as a
-//      page read like a link (src/read-link.mjs), whose change of readable text is one item. A source that cannot be read reports its problem
+//      (feed-items.mjs), the videos page of a YouTube channel when its feeds do not answer, and anything else as a
+//      page read like a link (tools/browse-public-page extractPage), whose change of readable text is one item. A source that cannot be read reports its problem
 //      in its row; it never stops the others.
 //   3. An item is kept once: its identity (id, else link) is checked against the signals already kept for that source,
 //      so reading again adds nothing. A source's first read keeps up to `most_per_source` items as Seen before watching
@@ -22,12 +24,12 @@
 //      `weighed_per_run` items are taken, the rest wait for the next run; an address that sent an ETag or Last-Modified is
 //      asked only whether it changed, and a 304 reads as nothing new without a model; every new item of a run is weighed
 //      in ONE question.
-//   5. Weighing goes through the person's own model routes (src/model-routes.json, purpose `signal-weigh`): their
+//   5. Weighing goes through the person's own model routes (purpose `signal-weigh`): their
 //      computer, then keys they set a budget for, else the question is kept for the AIs they already pay for. An item
 //      not weighed yet stays New, is weighed on a later run when an answer is there, and is never dropped. What an item
 //      says is material to judge, never an instruction: a public page cannot direct the person's AIs.
 //   6. An item that moves a pursuit is handed in as an outside arrival (from_person false) on route `watch-sources`; the
-//      attention data (src/attention.json) decides it is acted on, so a decision opens and the person's AIs get it. An item
+//      person's attention rules decide it is acted on, so a decision opens and the person's AIs get it. An item
 //      that moves nothing is Set aside with why and nothing else happens.
 //   7. A source that keeps failing says so: after `failed_runs_told_after` runs in a row its problem says how long.
 //   8. A source set to take in its Whole history is never listed whole by the server: the run names, under
@@ -35,7 +37,7 @@
 //      input history { source, answer } and every item in it is kept once as From the history, at most `history_max`
 //      a take, never weighed and never handed on. The source is marked taken only when every item is in.
 //   9. A ranked-list source is read whole as a ranked list, by the reader row of `rank_readers` its address matches
-//      (src/ranked-lists.mjs), every page of it or none: a page that does not answer or holds no items is the source's
+//      (ranked-lists.mjs), every page of it or none: a page that does not answer or holds no items is the source's
 //      problem, and what was on the list stays as it was. Each item's ranks are kept in the `ranked` list (made only once
 //      a ranked source is watched), measured against the day before; each entry, climb, sharp fall or drop-out is one
 //      signal keyed by item, movement and day, so reading again the same day keeps nothing twice. The first read is a
@@ -54,7 +56,7 @@ import { bytesToHex } from '@noble/hashes/utils.js';
 import data from './watch-sources.json' with { type: 'json' };
 import { feedItems, readFeedText, youtubeVideos } from './feed-items.mjs';
 import { movementOf, pagesOf, rankedItems, rankReaderOf } from './ranked-lists.mjs';
-import { readLinkCard } from './read-link.mjs';
+import { extractPage } from '../../browse-public-page/do-work/page-facts.mjs';
 
 const { limits, states, words } = data;
 const DAY = 86_400_000;
@@ -71,7 +73,7 @@ const slugOf = value => String(value).trim().replace(/[/\s]+/g, '-').slice(0, 10
 const hostOf = url => { try { return new URL(url).host; } catch { return 'The address'; } };
 const only = (fields, values) => Object.fromEntries(Object.entries(values).filter(([id]) => fields.has(id)));
 // A list's field ids, from its definition alone (lists.find): reading the list itself read every row of it, and the items
-// list holds every signal ever kept (816 on the founder's account, 2026-10-20), four times a run.
+// list holds every signal ever kept, four times a run.
 const ids = list => new Set((list?.fields ?? []).map(field => field.id));
 // A signal whose key names a change (a page's words, an item's move on a ranked list) shares its link with others, so
 // its link is not its identity.
@@ -148,11 +150,11 @@ async function readOne(source, read) {
     const parsed = feedItems(got.text, got.url);
     if (parsed) return { items: parsed.items, ...kept };
     if (one.feed) continue;
-    // Anything else is a page, read like a link: a change of its readable text is one item.
-    const replay = async () => new Response(got.text, { headers: { 'content-type': PAGE_TYPES.includes(got.type) ? got.type : 'text/plain' } });
-    const card = await readLinkCard(one.url, { fetchPage: replay });
-    if (!card.text.trim()) return { problem: card.unread ?? words.no_text };
-    return { page: { hash: hashOf(card.text), text: card.text }, ...kept };
+    // Anything else is a page, read like a link (the page facts a link's card is made of): a change of its readable text
+    // is one item.
+    const page = extractPage(got.text, new URL(one.url), !PAGE_TYPES.slice(0, 2).includes(got.type));
+    if (!page.text.trim()) return { problem: page.title ? words.no_text : words.says_nothing };
+    return { page: { hash: hashOf(page.text), text: page.text }, ...kept };
   }
   return { problem: last && last.status ? fill(words.answered, { host: hostOf(last.url), status: last.status }) : fill(words.silent, { host: hostOf(tries[0].url) }) };
 }
@@ -169,7 +171,7 @@ function replyObject(reply) {
 }
 
 /**
- * lists: the person's lists (src/lists.mjs). read(url, init) fetches. pursuits() -> their pursuits; formats() -> their
+ * lists: the person's lists, each call answered at once or as a promise. read(url, init) fetches. pursuits() -> their pursuits; formats() -> their
  * content formats; ask({ messages, max_tokens }) -> { reply } asks their model routes (throws when none answers);
  * arrive(arrival) hands one item in at the arrival door.
  */
@@ -186,37 +188,38 @@ export async function watchSources({ lists, read = fetch, pursuits = async () =>
   // The lists, made the way save_list makes one when the person has not, each link naming the list given for it. A link
   // field waits until the list it names is made: the ranked list is made only once a ranked source is watched.
   const listIds = { [data.sources.id]: sourcesId, [data.items.id]: itemsId, [data.ranked.id]: rankedId };
-  const keepList = (shape, id) => {
+  const keepList = async (shape, id) => {
     const definition = { ...shape, id, fields: shape.fields.map(field => (field.links_to ? { ...field, links_to: listIds[field.links_to] } : field)) };
-    const ready = field => !field.links_to || field.links_to === id || lists.has(field.links_to);
-    lists.ensure({ ...definition, fields: definition.fields.filter(ready) }, { actor });
+    const made = new Map(await Promise.all(definition.fields.filter(field => field.links_to && field.links_to !== id).map(async field => [field.links_to, await lists.has(field.links_to)])));
+    const ready = field => !field.links_to || field.links_to === id || made.get(field.links_to);
+    await lists.ensure({ ...definition, fields: definition.fields.filter(ready) }, { actor });
     // A list made by an earlier version lacks the fields added since (kept_run, 2026-10-08), and a row keeps only the
     // fields its list has, so they are added after the list's own; a field the person added or changed is left alone.
-    const fields = lists.find(id).fields;
+    const fields = (await lists.find(id)).fields;
     const missing = definition.fields.filter(field => ready(field) && !fields.some(one => one.id === field.id));
-    if (missing.length) lists.save({ id, fields: [...fields, ...missing] }, { actor });
+    if (missing.length) await lists.save({ id, fields: [...fields, ...missing] }, { actor });
   };
-  keepList(data.sources, sourcesId);
-  keepList(data.items, itemsId);
-  let sourceFields = ids(lists.find(sourcesId));
-  const itemFields = ids(lists.find(itemsId));
+  await keepList(data.sources, sourcesId);
+  await keepList(data.items, itemsId);
+  let sourceFields = ids(await lists.find(sourcesId));
+  const itemFields = ids(await lists.find(itemsId));
 
   const stamp = now();
   const iso = stamp.toISOString();
   const report = { read: 0, kept: 0, ranked: 0, moves: [], set_aside: 0, waiting: 0, problems: [], sources_waiting: 0 };
   if (input.history !== undefined) {
-    const history = takeHistory({ lists, sourcesId, itemsId, sourceFields, itemFields, actor, iso, stamp }, input.history);
+    const history = await takeHistory({ lists, sourcesId, itemsId, sourceFields, itemFields, actor, iso, stamp }, input.history);
     return { ...report, kept: history.kept, history };
   }
 
   // Which sources, longest unread first, and what each already holds.
-  const watched = lists.read(sourcesId).rows.filter(row => row.values.watching !== 'No');
+  const watched = (await lists.read(sourcesId)).rows.filter(row => row.values.watching !== 'No');
   let rankedFields = null;
   if (watched.some(row => row.values.kind === 'ranked-list')) {
-    keepList(data.ranked, rankedId);
-    keepList(data.sources, sourcesId);
-    sourceFields = ids(lists.find(sourcesId));
-    rankedFields = ids(lists.find(rankedId));
+    await keepList(data.ranked, rankedId);
+    await keepList(data.sources, sourcesId);
+    sourceFields = ids(await lists.find(sourcesId));
+    rankedFields = ids(await lists.find(rankedId));
   }
   watched.sort((a, b) => String(a.values.last_read ?? '').localeCompare(String(b.values.last_read ?? '')));
   const due = watched.slice(0, limits.sources_per_run);
@@ -224,7 +227,7 @@ export async function watchSources({ lists, read = fetch, pursuits = async () =>
   const held = new Map(), itemWrites = [], sourceWrites = [];
   // The items list is read once a run, its own values only (no linked or derived fields): what each source already holds,
   // and below the New signals to weigh, with what this run keeps added to it.
-  const itemRows = lists.read(itemsId, { only: [...itemFields] }).rows;
+  const itemRows = (await lists.read(itemsId, { only: [...itemFields] })).rows;
   for (const row of itemRows) {
     for (const sourceId of Array.isArray(row.values.source) ? row.values.source : [row.values.source]) {
       if (!sourceId) continue;
@@ -257,7 +260,7 @@ export async function watchSources({ lists, read = fetch, pursuits = async () =>
     let fresh = [];
     let onTheList = null;
     if (result.ranks) {
-      const kept = keepRanks({ lists, rankedId, rankedFields, row, name, ranks: result.ranks, stamp, actor });
+      const kept = await keepRanks({ lists, rankedId, rankedFields, row, name, ranks: result.ranks, stamp, actor });
       onTheList = kept.on_the_list;
       report.ranked += kept.written;
       for (const signal of kept.signals) {
@@ -303,8 +306,8 @@ export async function watchSources({ lists, read = fetch, pursuits = async () =>
     }) });
   }
   // What the run keeps, and each source's new state, are written once for the run, not once per source.
-  putAll(lists, itemsId, itemWrites, actor);
-  putAll(lists, sourcesId, sourceWrites, actor);
+  await putAll(lists, itemsId, itemWrites, actor);
+  await putAll(lists, sourcesId, sourceWrites, actor);
 
   await weigh({ lists, itemsId, itemRows, sourcesId, itemFields, pursuits, formats, ask, arrive, stamp, actor, report });
   const wanted = watched.filter(row => row.values.history === data.history.whole && !text(row.values.history_taken) && data.history.tools[row.values.kind])
@@ -317,24 +320,24 @@ export async function watchSources({ lists, read = fetch, pursuits = async () =>
   return report;
 }
 
-// Rows put in writes of at most limits.rows_per_write, the most the lists owner takes at once (src/lists.json too_many).
-function putAll(lists, listId, rows, actor) {
-  for (let at = 0; at < rows.length; at += limits.rows_per_write) lists.putRows(listId, { rows: rows.slice(at, at + limits.rows_per_write) }, { actor });
+// Rows put in writes of at most limits.rows_per_write, the most the lists owner takes at once (a Trillion list's too_many).
+async function putAll(lists, listId, rows, actor) {
+  for (let at = 0; at < rows.length; at += limits.rows_per_write) await lists.putRows(listId, { rows: rows.slice(at, at + limits.rows_per_write) }, { actor });
 }
 
 // One read of a ranked source, kept per item in the ranked list: its rank now, the rank of the day before it is measured
-// against, its best, the days it was listed and its recent ranks. Each item that moved since the day before (src/ranked-
+// against, its best, the days it was listed and its recent ranks. Each item that moved since the day before (ranked-
 // lists.mjs movementOf) makes one signal, keyed by item, movement and day, so reading again the same day measures against
 // the same day before and keeps nothing twice. A source with nothing on the list yet is a baseline: its ranks are kept and
 // no signal is made. -> { signals, on_the_list: [ranked row id], written }
-function keepRanks({ lists, rankedId, rankedFields, row, name, ranks, stamp, actor }) {
+async function keepRanks({ lists, rankedId, rankedFields, row, name, ranks, stamp, actor }) {
   const day = dayOf(stamp);
   const rowIdOf = id => `${slugOf(row.id)}-${hashOf(id)}`;
   const before = [].concat(row.values.on_the_list ?? []).filter(id => typeof id === 'string' && id);
   const baseline = !before.length;
   const now = new Map(ranks.map(item => [rowIdOf(item.id), item]));
   const named = [...new Set([...now.keys(), ...before])];
-  const held = new Map(lists.read(rankedId, { row_ids: named }).rows.map(one => [one.id, one.values]));
+  const held = new Map((await lists.read(rankedId, { row_ids: named })).rows.map(one => [one.id, one.values]));
   const writes = [];
   const signals = [];
   for (const rowId of named) {
@@ -361,14 +364,14 @@ function keepRanks({ lists, rankedId, rankedFields, row, name, ranks, stamp, act
     signals.push({ key: `rank:${id}:${movement}:${day}`, title: fill(words[movement], { ...shown, title }), link, published: stamp.toISOString(),
       summary: fill(words.rank_summary, { ...shown, source: name, best: Number.isFinite(best) ? best : shown.to, days, recent: recent.slice(-limits.rank_recent_days).join(' ') || words.off_the_list }) });
   }
-  putAll(lists, rankedId, writes, actor);
+  await putAll(lists, rankedId, writes, actor);
   return { signals, on_the_list: [...now.keys()], written: writes.length };
 }
 
 // Keeps a source's whole history, as listed by the tool its kind's `history` row names: each item once, From the history.
-function takeHistory({ lists, sourcesId, itemsId, sourceFields, itemFields, actor, iso, stamp }, history) {
+async function takeHistory({ lists, sourcesId, itemsId, sourceFields, itemFields, actor, iso, stamp }, history) {
   const sourceId = text(history?.source);
-  const row = lists.read(sourcesId).rows.find(one => one.id === sourceId);
+  const row = (await lists.read(sourcesId)).rows.find(one => one.id === sourceId);
   if (!row) throw new WatchSourcesError(fill(words.history_no_source, { name: sourceId }));
   const name = text(row.values.name) || row.id;
   if (row.values.history !== data.history.whole) throw new WatchSourcesError(fill(words.history_not_wanted, { name }));
@@ -377,7 +380,7 @@ function takeHistory({ lists, sourcesId, itemsId, sourceFields, itemFields, acto
   const entries = history?.answer?.[tool.entries];
   if (!Array.isArray(entries)) throw new WatchSourcesError(fill(words.history_no_entries, { name }));
   const mine = { keys: new Set(), links: new Set() };
-  for (const one of lists.read(itemsId).rows) {
+  for (const one of (await lists.read(itemsId)).rows) {
     if (![].concat(one.values.source).includes(row.id)) continue;
     if (one.values.key) mine.keys.add(one.values.key);
     if (one.values.link) mine.links.add(one.values.link);
@@ -397,16 +400,16 @@ function takeHistory({ lists, sourcesId, itemsId, sourceFields, itemFields, acto
   const writes = taken.map(item => ({ id: `${slugOf(row.id)}-${hashOf(item.key)}`, values: only(itemFields, {
     title: item.title.slice(0, 500), link: item.link || null, key: item.key, source: [row.id], state: states.history, kept_run: stamp.getTime(),
   }) }));
-  putAll(lists, itemsId, writes, actor);
+  await putAll(lists, itemsId, writes, actor);
   const left = fresh.length - taken.length;
-  if (!left) lists.putRows(sourcesId, { rows: [{ id: row.id, values: only(sourceFields, { history_taken: iso }) }] }, { actor });
+  if (!left) await lists.putRows(sourcesId, { rows: [{ id: row.id, values: only(sourceFields, { history_taken: iso }) }] }, { actor });
   return { source: row.id, kept: taken.length, already, left };
 }
 
 // The New signals of the OLDEST run that still has any, weighed in ONE question, at most `weighed_per_run` of them. Signals kept
 // later never change an open batch, so a question kept for the person's AIs is sent byte-identical until it is answered.
 async function weigh({ lists, itemsId, itemRows, sourcesId, itemFields, pursuits, formats, ask, arrive, stamp, actor, report }) {
-  const names = new Map(lists.read(sourcesId).rows.map(row => [row.id, text(row.values.name) || row.id]));
+  const names = new Map((await lists.read(sourcesId)).rows.map(row => [row.id, text(row.values.name) || row.id]));
   const keptRun = row => Number(row.values.kept_run) || 0;
   const waiting = itemRows.filter(row => row.values.state === states.new).sort((a, b) => keptRun(a) - keptRun(b) || a.id.localeCompare(b.id));
   const batch = waiting.filter(row => keptRun(row) === keptRun(waiting[0])).slice(0, limits.weighed_per_run);
@@ -450,7 +453,7 @@ async function weigh({ lists, itemsId, itemRows, sourcesId, itemFields, pursuits
     const title = text(row.values.title);
     const link = text(row.values.link);
     if (!pursuit && !(format && verdict.how === 'insight')) {
-      lists.putRows(itemsId, { rows: [{ id: row.id, values: only(itemFields, { state: states.set_aside, why: said || null, pursuit: null, how: null }) }] }, { actor });
+      await lists.putRows(itemsId, { rows: [{ id: row.id, values: only(itemFields, { state: states.set_aside, why: said || null, pursuit: null, how: null }) }] }, { actor });
       report.set_aside += 1;
       report.waiting -= 1;
       continue;
@@ -469,25 +472,8 @@ async function weigh({ lists, itemsId, itemRows, sourcesId, itemFields, pursuits
       report.problems.push({ name: source || data.route, problem: String(error?.message ?? error) });
       continue;
     }
-    lists.putRows(itemsId, { rows: [{ id: row.id, values: only(itemFields, { state: states.moves, pursuit: pursuit ? String(pursuit.id) : null, how, why }) }] }, { actor });
+    await lists.putRows(itemsId, { rows: [{ id: row.id, values: only(itemFields, { state: states.moves, pursuit: pursuit ? String(pursuit.id) : null, how, why }) }] }, { actor });
     report.moves.push({ title, link, pursuit: pursuit ? String(pursuit.id) : null, how, ...(format ? { format: String(format.id) } : {}) });
     report.waiting -= 1;
   }
 }
-
-export const watchSourcesActions = store => ({
-  'watch-sources': async input => watchSources({
-    lists: store.lists(),
-    pursuits: () => store.engine.pursuits(),
-    formats: async () => (await store.contentFormats().read()).formats,
-    // The person's own model routes (src/person-store.mjs askThroughRoutes): their computer, their keys within budget,
-    // else kept for the AIs they pay for.
-    ask: request => store.models().ask(data.weigh.purpose, request),
-    // The one arrival door (POST /mcp/api/inbound): taken, then settled when it opened a decision.
-    arrive: async arrival => {
-      const { answer, opened } = await store.takeArrival(arrival);
-      if (opened) await store.settleArrivals();
-      return answer;
-    },
-  }, input ?? {}),
-});
