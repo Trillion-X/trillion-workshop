@@ -1,4 +1,4 @@
-// computer/drive-tools/drive-inventory.mjs (carried over unchanged from an earlier standalone app)
+// tools/work-on-connected-drives/read-data/drive-inventory.mjs
 //
 // Purpose: what is on a drive, by kind (Videos, Audio, Pictures, ...), how much of each, and its largest files.
 //
@@ -26,7 +26,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { fileKinds, kindOf, kindLabel } from './file-kinds.mjs';
+import { fileKinds, kindOf, kindLabel } from '../../connected-drives/read-data/file-kinds.mjs';
 import { isAlive, readPid } from './work-control.mjs';
 
 const LARGEST = 10;

@@ -423,6 +423,15 @@
       "evidence": "README.md:3 the drives connected to the person's Mac, what is in one folder on one of them, the icon Finder shows, which programs are using one"
     },
     {
+      "capability": "copy or move files between the drives on a person's computer, pause or stop that work, find every place a file is, and eject a drive",
+      "owner": ["tools/work-on-connected-drives/"],
+      "entry": "tools/work-on-connected-drives/tool-rows.json",
+      "evidence": "README.md:3 list and pause/resume/stop the long file work on drives, copy or move between drives, and eject",
+      "distinct_from": [
+        { "job": "see the drives connected to a person's computer: what is on one, its icon, and which programs are using it", "why": "connected-drives only reads, once per run; this writes, stops programs and ejects, from one long-lived host that keeps the work's state." }
+      ]
+    },
+    {
       "capability": "give exact bytes their content identity",
       "owner": ["tools/content-identity/"],
       "entry": "tools/content-identity/read-data/identity.mjs",

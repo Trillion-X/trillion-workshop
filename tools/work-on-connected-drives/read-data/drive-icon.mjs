@@ -1,4 +1,4 @@
-// computer/drive-tools/drive-icon.mjs (carried over unchanged from an earlier standalone app)
+// tools/work-on-connected-drives/read-data/drive-icon.mjs
 //
 // Purpose: the icon Finder shows for one connected drive, as a PNG, so the web screen can show the person the drive
 // they recognise. macOS draws it (NSWorkspace iconForFile), which covers a custom .VolumeIcon.icns on the drive and the
