@@ -525,6 +525,100 @@ def r_json3_captions(path, ctx):
     return recs
 
 
+@reader("filmcraft_project_captions")
+def r_filmcraft_project_captions(path, ctx):
+    """Read editable caption records from an explicitly selected FilmCraft project sequence.
+
+    Times are exact source ticks converted with FilmCraft's declared ticks-per-second constant.
+    This measures editable project data, not pixels in an export or what was audible/spoken.
+    """
+    ticks_per_second = 254_016_000_000
+    doc = load_json(path, "FilmCraft project")
+    if not isinstance(doc, dict) or doc.get("format") != "filmcraft.project" or doc.get("schema_version") != 16:
+        raise WTError("FilmCraft captions require a schema_version 16 filmcraft.project file",
+                      "select a supported FilmCraft .fcproj project or add an explicitly versioned reader")
+    project = doc.get("project")
+    items = project.get("items") if isinstance(project, dict) else None
+    if not isinstance(items, dict):
+        raise WTError("FilmCraft project has no project.items map", "use an intact schema_version 16 project file")
+    sequence_id = ctx.get("opts", {}).get("sequence_id")
+    if sequence_id is None:
+        raise WTError("FilmCraft source needs an explicit sequence_id", "set sources.filmcraft_project_captions.sequence_id; active sequence selection is never guessed")
+    sequence_id = str(sequence_id)
+    item = items.get(sequence_id)
+    sequence = item.get("kind", {}).get("Sequence") if isinstance(item, dict) else None
+    if not isinstance(sequence, dict):
+        raise WTError(f"FilmCraft sequence_id {sequence_id!r} is absent or is not a Sequence",
+                      "choose an existing sequence item id from project.items")
+    tracks = sequence.get("caption_tracks")
+    if not isinstance(tracks, list):
+        raise WTError("selected FilmCraft sequence has no caption_tracks array", "use a supported project sequence")
+
+    recs, provenance, seen_record_ids = [], {}, set()
+    for track_index, track in enumerate(tracks):
+        if not isinstance(track, dict) or not isinstance(track.get("enabled"), bool):
+            raise WTError(f"invalid FilmCraft caption track at index {track_index}", "each track needs its source id, enabled flag, style and captions")
+        if not track["enabled"]:
+            continue  # The native renderer omits disabled caption tracks.
+        track_id = track.get("id")
+        captions = track.get("captions")
+        style = track.get("style")
+        if isinstance(track_id, bool) or not isinstance(track_id, int) or not isinstance(captions, list) or not isinstance(style, dict):
+            raise WTError(f"invalid enabled FilmCraft caption track at index {track_index}", "retain track id, style and captions from the source project")
+        if not isinstance(track.get("name"), str) or not isinstance(track.get("format"), str):
+            raise WTError(f"invalid FilmCraft caption track metadata at index {track_index}", "retain the track name and format")
+        if track["format"] not in ("Subtitle", "Cea608", "Cea708", "Teletext"):
+            raise WTError(f"unsupported FilmCraft caption format {track['format']!r}", "use one of the schema 16 caption formats")
+        if not isinstance(track.get("language", ""), str):
+            raise WTError(f"invalid FilmCraft caption language on track {track_id!r}", "retain a BCP-47 language string")
+        for caption_index, caption in enumerate(captions):
+            if not isinstance(caption, dict):
+                raise WTError(f"invalid FilmCraft caption {caption_index} on track {track_id!r}", "each caption must be an object")
+            caption_id, start, duration, text = (caption.get("id"), caption.get("start"),
+                                                 caption.get("duration"), caption.get("text"))
+            if isinstance(caption_id, bool) or not isinstance(caption_id, int) \
+                    or isinstance(start, bool) or not isinstance(start, int) or start < 0 \
+                    or isinstance(duration, bool) or not isinstance(duration, int) or duration <= 0 \
+                    or start > 2**63 - 1 or duration > 2**63 - 1 or start + duration > 2**63 - 1 \
+                    or not isinstance(text, str):
+                raise WTError(f"invalid FilmCraft caption timing or text on track {track_id!r}",
+                              "captions need an id, nonnegative integer start ticks, positive integer duration ticks and text")
+            settings = caption.get("settings", "")
+            if not isinstance(settings, str):
+                raise WTError(f"invalid FilmCraft cue settings on track {track_id!r}", "cue settings must remain a string")
+            record_id = f"filmcraft-{sequence_id}-track-{track_id}-caption-{caption_id}"
+            if record_id in seen_record_ids:
+                raise WTError(f"duplicate FilmCraft caption record id {record_id!r}",
+                              "repair duplicate track/caption ids in the source project before measuring it")
+            start_s, end_s = start / ticks_per_second, (start + duration) / ticks_per_second
+            card = {"text": text, "format": track["format"], "language": track.get("language", ""),
+                    "style": style, "cue_settings": settings, "duration_ticks": duration}
+            seen_record_ids.add(record_id)
+            recs.append({"id": record_id, "t0": start_s, "t1": end_s,
+                         "fields": {"text": text, "card": card}})
+            provenance[record_id] = {
+                "sequence_id": sequence_id, "track_index": track_index, "track_id": track_id,
+                "track_name": track["name"], "track_enabled": True, "caption_id": caption_id,
+                "start_ticks": start, "duration_ticks": duration, "raw_text": text,
+                "speaker": caption.get("speaker"), "cue_id": caption.get("cue_id"),
+                "cue_settings": settings, "track_style": style,
+            }
+    ctx["filmcraft_caption_source"] = {
+        "format": doc["format"], "schema_version": doc["schema_version"],
+        "sequence_id": sequence_id,
+        "active_sequence_id": str(doc.get("view", {}).get("active_sequence")) if isinstance(doc.get("view"), dict) else None,
+        "ticks_per_second": ticks_per_second,
+        "time_semantics": "source caption start and end ticks divided by FilmCraft ticks per second; split onscreen.word tokens inherit the whole card exposure interval, never a per-word onset",
+        "visibility_semantics": "disabled tracks excluded; this schema's Caption has no per-cue enabled flag; cue settings are retained as source text",
+        "style_semantics": "raw track style and cue settings are source configuration, not rendered OCR or verified pixel appearance",
+        "render_limit": "editable project source measurement only; exported pixels and audible speech are not verified",
+    }
+    ctx["filmcraft_caption_provenance"] = provenance
+    if not recs:
+        ctx["filmcraft_caption_status"] = "selected sequence has no enabled caption cues"
+    return recs
+
+
 @reader("html_json_records")
 def r_html_json_records(path, ctx):
     """Read authored records from an explicitly selected inert JSON script block.
@@ -654,6 +748,112 @@ def _float(v):
         return float(v)
     except (TypeError, ValueError):
         return None
+
+
+@reader("rhythm_segments")
+def r_rhythm(path, ctx):
+    d = load_json(path, "rhythm.json")
+    opts = ctx.get("opts") or {}
+    recs = []
+    for i, s in enumerate(d.get(opts.get("key", "shots")) or [], 1):
+        recs.append({"id": f"seg-{i:02d}", "t0": s.get("start"), "t1": s.get("end"),
+                     "fields": {"cut": "cut" if (s.get("start") or 0) > 0 else "start",
+                                "hold_s": round((s.get("end") or 0) - (s.get("start") or 0), 3),
+                                "camera": s.get("camera"), "zoom": s.get("zoom")}})
+    sd = d.get(opts["summary_key"]) if opts.get("summary_key") else d
+    summary = {k: sd.get(k) for k in ("cuts_per_min", "median_hold_s", "longest_hold_s", "moving_share",
+                                       "camera_moves_per_min") if isinstance(sd, dict) and sd.get(k) is not None}
+    if summary:
+        recs.append({"id": "rhythm-summary", "fields": summary})
+    return recs
+
+
+@reader("scan_events")
+def r_scan(path, ctx):
+    d = load_json(path, "scan.json")
+    recs = []
+    for i, e in enumerate(d.get("events", [])):
+        if "seconds" not in e:
+            continue
+        recs.append({"id": f"scan-{i:03d}", "t0": e["seconds"],
+                     "fields": {"kind": e.get("kind"), "strength": e.get("strength")}})
+    return recs
+
+
+_EV = re.compile(r"^\s*(\d+:\d{2}\.\d{2})\s+(\S+)\s+(.*)$")
+
+
+@reader("earshot_events")
+def r_earshot(path, ctx):
+    recs, on = [], False
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
+        if line.startswith("TRANSCRIPT"):
+            on = True
+            continue
+        if line.startswith("NOTES"):
+            on = False
+        if not on or line.lstrip().startswith("=="):
+            continue
+        m = _EV.match(line)
+        if not m:
+            continue
+        t, kind, rest = _clock(m.group(1)), m.group(2), m.group(3)
+        f = {"kind": kind, "what": rest.split("  ")[0].strip()}
+        mm = re.search(r"(-?\d+\.\d) dBFS\s+(\+?-?\d+\.\d) dB\s+(\d+) ms", rest)
+        if mm:
+            f.update(peak_dbfs=float(mm.group(1)), over_bed_db=float(mm.group(2)), length_ms=int(mm.group(3)))
+        mm = re.search(r"drop (\d+\.\d+) s", rest)
+        if mm:
+            f["length_ms"] = int(float(mm.group(1)) * 1000)
+        recs.append({"id": f"ev-{len(recs):03d}", "t0": t, "fields": f})
+    ctx["earshot_events_provenance"] = {
+        "reader": "earshot_events",
+        "source_path": str(Path(path).resolve()),
+        "qualification": (
+            "Semantic SFX, voice, genre and BPM labels are automatic hints, not listening-confirmed. "
+            "Reported event times, onset/peak and over-bed values are numeric measurements kept separate "
+            "from those labels; temporal proximity does not establish editorial intent."
+        ),
+    }
+    return recs
+
+
+@reader("earshot_sections")
+def r_sections(path, ctx):
+    text = Path(path).read_text(encoding="utf-8")
+    recs, on = [], False
+    for line in text.splitlines():
+        if line.startswith("SECTIONS"):
+            on = True
+            continue
+        if on and not line.strip():
+            break
+        m = re.match(r"^\s*(\d+:\d{2}\.\d{2})-(\d+:\d{2}\.\d{2})\s+(.*?)\s+(-?\d+) LUFS", line) if on else None
+        if m:
+            recs.append({"id": f"sec-{len(recs) + 1}", "t0": _clock(m.group(1)), "t1": _clock(m.group(2)),
+                         "fields": {"genre": m.group(3).strip(), "section_lufs": float(m.group(4))}})
+    f = {}
+    m = re.search(r"Loudness (-?\d+\.\d) LUFS integrated", text)
+    if m:
+        f["lufs"] = float(m.group(1))
+    m = re.search(r"true peak (-?\d+\.\d) dBTP", text)
+    if m:
+        f["true_peak"] = float(m.group(1))
+    m = re.search(r"~(\d+) BPM", text)
+    if m:
+        f["bpm"] = float(m.group(1))
+    if f:
+        recs.append({"id": "earshot-summary", "fields": f})
+    ctx["earshot_sections_provenance"] = {
+        "reader": "earshot_sections",
+        "source_path": str(Path(path).resolve()),
+        "qualification": (
+            "Genre, mood, music and speech labels are automatic classifier hints, not listening-confirmed. "
+            "Reported section/integrated loudness, true peak and BPM values are numeric measurements. "
+            "Classifier scores do not represent stem proportions or measured speech/music overlap."
+        ),
+    }
+    return recs
 
 
 @reader("post_json")

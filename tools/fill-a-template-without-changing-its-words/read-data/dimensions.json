@@ -184,6 +184,22 @@
       },
       "default_medium": "video"
     },
+    "filmcraft_project_captions": {
+      "what": "Enabled editable caption cues from an explicitly selected FilmCraft schema_version 16 project sequence (set the source's sequence_id): source text, exact cue interval and track style and settings, not exported pixels or spoken-word evidence.",
+      "needs": [],
+      "detect": {
+        "suffix": [
+          ".fcproj"
+        ],
+        "keys": [
+          "format",
+          "schema_version",
+          "project",
+          "view"
+        ]
+      },
+      "default_medium": "video"
+    },
     "tsv_rows": {
       "what": "A table with a header row (.tsv): one record per row = one structural unit; every column is a field, plus duration. A row does not by itself prove one physical take or edit. Rows without an id column get ids `<id_prefix>-NN` in order.",
       "needs": [],
@@ -194,6 +210,22 @@
       },
       "default_medium": "video",
       "id_prefix": "row"
+    },
+    "rhythm_segments": {
+      "what": "A motion-rhythm JSON: a list of segments (start, end, camera, zoom) under `key` (default `shots`), one record per segment (cut, hold_s, camera, zoom), plus 'rhythm-summary' (cuts_per_min, median_hold_s, longest_hold_s, moving_share, camera_moves_per_min) from the top level or `summary_key`.",
+      "needs": []
+    },
+    "scan_events": {
+      "what": "A temporal-scan JSON: `events` [{seconds, kind, strength}] (for example change and flash candidates), one record per event.",
+      "needs": []
+    },
+    "earshot_events": {
+      "what": "An earshot timeline text file: one record per event line of its TRANSCRIPT block (kind, what, peak_dbfs, over_bed_db, length_ms). Its labels are automatic hints and are qualified as such in the template.",
+      "needs": []
+    },
+    "earshot_sections": {
+      "what": "An earshot timeline text file: its SECTIONS block (genre, section_lufs) plus 'earshot-summary' (lufs, true_peak, bpm). Its labels are automatic hints and are qualified as such in the template.",
+      "needs": []
     },
     "post_json": {
       "what": "A post JSON as a public-post service returns it: paragraphs, links, mentions, hashtags, media, alt text, posting day and hour.",
@@ -474,7 +506,10 @@
           "tool": "tesseract <image> stdout --psm 3 tsv"
         },
         {
-          "method": "Authored text of the caption cues in an editor project; project source text is not pixel-level render verification"
+          "reader": "filmcraft_project_captions",
+          "field": "text",
+          "token": "word",
+          "method": "Authored text in enabled FilmCraft caption cues from the explicitly selected sequence; project source text is not pixel-level render verification"
         },
         {
           "reader": "html_json_records",
@@ -501,7 +536,9 @@
       "value_kind": "event",
       "measure": [
         {
-          "method": "Authored caption cue: text, cue interval, format, language, style and cue settings; not exported pixel verification"
+          "reader": "filmcraft_project_captions",
+          "field": "card",
+          "method": "Enabled FilmCraft source cue: authored text, cue interval, stream format, language, track style and cue settings; not exported pixel verification"
         },
         {
           "reader": null,
