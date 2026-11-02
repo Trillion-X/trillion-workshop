@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b2c62325041ac74b353aec670446d6eccfba37ad7256ee4f760dc77c38fdeec0"
+  "blake3": "1f:1e9e0b077c8e298ad547c294b16b742fa52a7370440240f9b5cd7fd0c0607079"
  },
  "fields": [
   {
@@ -1923,11 +1923,11 @@
    }
   },
   {
-   "id": "tool:find-repeated-edits",
+   "id": "tool:find-repeated-voice-edits",
    "values": {
-    "title": "Find the edits a writer keeps making",
-    "job": "Turn the changes a person keeps making to drafts into candidate style rules, only for changes that recur in several different drafts",
-    "description": "Give pairs of { id, original, edited }, the draft as written and as the person left it. Finds the words removed, added or replaced in each, counts the different drafts each change recurs in, and returns as candidates only those in at least min_distinct_drafts (3 when left out, never below 2). Each candidate has its example. Candidates are proposals for the person to approve; nothing is kept. Fewer different drafts than the minimum is refused.",
+    "title": "Find the edits a person repeats",
+    "job": "Find the word changes a person keeps making to drafts written for them",
+    "description": "Counts, over the person's kept edits (kind narrows them), the words removed, added or replaced, each once per draft, and returns the changes found in at least min_distinct_drafts different drafts (3 when left out, never below 2), each with an example edit_id. They are proposals to show the person before saving any into a profile with tool:save-voice. Writes nothing.",
     "status": "active",
     "maker": "maker:how-someone-does-their-thing",
     "licence_class": "licence:maker-own",
@@ -2085,6 +2085,21 @@
      "placement:small-container"
     ],
     "folder": "form-groups-and-matches"
+   }
+  },
+  {
+   "id": "tool:forget-voice",
+   "values": {
+    "title": "Forget how someone writes",
+    "job": "Forget part of what is kept about how this person writes",
+    "description": "Forgets one profile (profile_id from tool:read-voice), one edit (edit_id from tool:read-voice), or every edit (all_edits true, with kind to forget only one kind's). Returns forgot (how many) and said.",
+    "status": "active",
+    "maker": "maker:how-someone-does-their-thing",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "how-someone-does-their-thing"
    }
   },
   {
@@ -2966,6 +2981,21 @@
    }
   },
   {
+   "id": "tool:keep-a-voice-edit",
+   "values": {
+    "title": "Keep the person's edit of an AI's words",
+    "job": "Keep what the person changed in words an AI wrote for them, so their voice is learned from it",
+    "description": "Run when the person themselves changed words an AI wrote (a draft's caption): kind (like post), subject_id (what was edited), before (the AI's words), after (theirs) and before_by (the AI that wrote them). Nothing is kept when the words did not really change. Only the newest edits are kept. Returns edit, or edit null.",
+    "status": "active",
+    "maker": "maker:how-someone-does-their-thing",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
    "id": "tool:keep-channels-latest-videos-and-captions",
    "values": {
     "title": "Keep the newest videos of channels and their captions",
@@ -3071,21 +3101,6 @@
      "placement:small-container"
     ],
     "folder": "person-profile"
-   }
-  },
-  {
-   "id": "tool:layer-a-writing-style",
-   "values": {
-    "title": "Layer a writing style from base to person",
-    "job": "Build the writing style for one writer by layering a base, a niche, a company or group and the person's own diction and syntax",
-    "description": "Give the layers in order (the base is added for you when you give none): niche, then group, then person, each { level, id, fields }. A later layer overrides an earlier one field by field; lists add to the earlier ones unless the layer names the field in replace, and off drops an entry an earlier layer added. Returns the merged style, which layers set each value, the instruction an AI writes from, and items for tool:keep-a-profile so the layered style is kept as a profile and drafts are checked with tool:check-a-draft-against-a-profile. It asks no model and keeps nothing. Layers out of order, an unknown level or field, or a layer with no id are refused.",
-    "status": "active",
-    "maker": "maker:how-someone-does-their-thing",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "how-someone-does-their-thing"
    }
   },
   {
@@ -5365,6 +5380,21 @@
    }
   },
   {
+   "id": "tool:read-voice",
+   "values": {
+    "title": "Read how someone writes",
+    "job": "Read how this person writes before drafting anything for them: a post, an email, a message",
+    "description": "Read BEFORE you draft for this person. Returns how_to_use, the profile fields, the voice profiles saved so far (one per kind of writing), their newest edits to words an AI wrote (each with the draft as it was, before, and their words, after) and words they published (sent). Give kind to read one kind's profile and edits; limit is how many edits (1 to 50). Writes nothing.",
+    "status": "active",
+    "maker": "maker:how-someone-does-their-thing",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
    "id": "tool:read-what-a-running-app-shows",
    "values": {
     "title": "Read what a running app really shows",
@@ -6102,6 +6132,21 @@
      "placement:small-container"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:save-voice",
+   "values": {
+    "title": "Save how someone writes",
+    "job": "Save what you learned about how this person writes, for one kind of writing",
+    "description": "Saves what you learned from tool:read-voice as the voice profile of one kind of writing (kind, like post or email; leave out for a general one). fields are named by tool:read-voice's fields list; a field you give replaces that field, an empty one removes it, and the rest are kept. builds_on names the kinds of the profiles this one sits on, earliest first. Pass expected_set_at (the set_at you read) so a profile saved since is not overwritten. by is person only when the person saved it themselves. Returns profile and said.",
+    "status": "active",
+    "maker": "maker:how-someone-does-their-thing",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "how-someone-does-their-thing"
    }
   },
   {
