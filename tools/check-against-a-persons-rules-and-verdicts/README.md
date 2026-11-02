@@ -11,6 +11,11 @@ What decides, in order:
 
 Nothing passes on silence: a thing no rule applies to is unqualified, and a thing nothing of the person's judges is novel (held at review, failed at final).
 
+Two more things come from the person alone:
+
+- **A waiver.** Their agree on one exact line that names one rule (a stand with `rule`) waives that rule on that line, and the result lists it in `waived`. Nothing else waives anything: not a stand by anyone else, not disagree or partly, not a stand with no rule, not another line however close. A stand that names a rule is never a verdict on the whole thing.
+- **Their own words.** `do-work/spoken-origins.mjs` `withSpokenOrigins(units, spans, { fold })` marks a unit `own-words` (with its `span`) when every word is literally in one recording span the caller hands in, read through the person's fold; `unverified-speaker` when that span's speaker was never checked; else `added-words`. These go in the unit's `facts`, so a row's `held_when: { path: "origin", where: "own-words" }` holds, never fails, the person's own words. The literal match is `tools/pin-files-by-content` `literalPieces`.
+
 ## Run it
 
 ```
@@ -31,7 +36,10 @@ The last line is `{ "result": { status, passed, results, questions, lines } }`. 
 | `read-data/words.json` | Every word the tool says: its own finding ids, the words of each finding, the refusals. |
 | `do-work/check-copy.mjs` | `tool:check-copy`: the words of a site, a page, JSON, a deck or a picture reading, and the whole set, checked in one call. Reads units (`do-work/read-words.mjs`), hands them to the checker above, and adds the checks on the whole set that no unit can show: a locked line or promised feature gone (with the approval rule), an id gone from the baseline, a row for the wrong audience, an offer listing fewer lines than the others, a count that is not a published list view, a picture with no recorded reading. Exit 0 passed, 1 failed or a problem, 3 held. |
 | `do-work/check-copy-words.mjs` | The container entry for `tool:check-copy`: one JSON request on standard input, `{ result }` or `{ error }` on the last line. |
-| `do-work/read-words.mjs` | The unit readers: prose strings of any JSON, the visible lines of an HTML page and its JSON-LD, the `slide-words` block of a rendered deck, and Markdown headings, paragraphs, lists, table cells and fenced display text. It retains each block's role and mapped field; unresolved Markdown quotes and unsupported blocks become coverage problems. One unit per distinct content and judging context. Reads no file. |
+| `do-work/read-words.mjs` | The unit readers: prose strings of any JSON, the visible lines of an HTML page and its JSON-LD, the `slide-words` block of a rendered deck, and Markdown headings, paragraphs, lists, table cells and fenced display text. It retains each block's role and mapped field; unresolved Markdown quotes and unsupported blocks become coverage problems. Three declared readers read only what a profile names: `wordsOfSections` (a title and named sections; preamble and quotes counted, never kept), `wordsOfCueNarration` (typed frontmatter, cue headings, one unit per wrapped paragraph with its `cue_id`) and `wordsOfJsonRoles` (an owner's paths, each role's kind and field, context review per role). One unit per distinct content and judging context. Reads no file. |
+| `do-work/spoken-origins.mjs` | `withSpokenOrigins`: where each unit's words come from (`own-words`, `unverified-speaker`, `added-words`), from the spans the caller hands in. Imports `literalPieces` from `tools/pin-files-by-content`. |
+| `test/declared-readers.test.mjs` | The three declared readers and `tool:check-copy` reporting their issues as problems, on made-up documents. |
+| `test/waivers-asks-and-origins.test.mjs` | Waivers, what a model row's questions carry, and own-words origins, on made-up rules, lines and spans. |
 | `read-data/copy-grammar-rules.json` | The only rows kept for `tool:check-copy`: mechanical grammar, used when the caller sends no rules. No word list, no product, no person. |
 | `read-data/copy-words.json` | Every sentence `tool:check-copy` says that is not a rule's own: its refusals, problems and required-line wording. |
 | `test/check-copy.test.mjs` | `tool:check-copy` on made-up rules, lines, pages, decks and picture readings. |
@@ -46,14 +54,15 @@ The last line is `{ "result": { status, passed, results, questions, lines } }`. 
 |------|-------------------|------|
 | Unit | `{ text, kind, field?, path?, facts?, context?, context_requires_review?, context_requires_review_rules?, context_requires_review_checks?, also_found?, where? }` or `{ view, kind, ... }` | One thing to check. `facts` is what a row's `when` and `held_when` read. Context review can be all findings, selected rule ids, or selected grammar checks; only listed findings become uncertain and the other findings remain in force. `also_found` are findings the caller already has (each `outcome: fail` or `uncertain`). |
 | Rule document | `{ rows, fold, stage: { default }, stance_rule, novel: { rule, says }, agree_clears: { rules } }` | The person's own rules. `fold` is how two texts are one text (`tools/where-a-person-stands` `foldWith`). |
-| Stand | `{ kind, artifact, text? \| contains? \| view?, stance, why, at }` | As `tool:read-where-you-stand` gives it. `stance: null` is no stand. |
-| Result | `{ ...unit, verdict, breaks, uncertain, advisory, qualification, applicable_rule_ids }` | `advisory` is true when only unqualified model rows or `held_when` rows found something. |
-| Question | `{ id, rule, question, options, fail, text, context? }` | One sentence a model row asks about. |
-| `check` | `(units, rules, { answers, stands, verdictRules, stage, fieldsByKind, asOf }) -> { results, questions }` | The whole check. |
+| Stand | `{ kind, artifact, text? \| contains? \| view?, stance, why, at, rule?, by? }` | As `tool:read-where-you-stand` gives it. `stance: null` is no stand. With `rule`, an agree waives that rule on that exact text and judges nothing else. |
+| Result | `{ ...unit, verdict, breaks, uncertain, waived, advisory, qualification, applicable_rule_ids }` | `advisory` is true when only unqualified model rows or `held_when` rows found something. |
+| Question | `{ id, rule, question, options, fail, text, context?, adapter?, model?, examples? }` | One sentence a model row asks about, with the row's `ask.adapter`, `ask.model` and `ask.examples`; a finding from a row with an adapter names its `blake3` as `adapter`. |
+| `check` | `(units, rules, { answers, stands, verdictRules, stage, fieldsByKind, asOf, waivedBy }) -> { results, questions }` | The whole check. `waivedBy` (default `["person"]`) is whose stands may waive. |
+| `waivers` | `(stands, { by }) -> Set` | The exact (line, rule) pairs the person's stands waive. |
 | `examplesFromStands` | `(compiled, stands) -> { items, rows }` | Good and bad examples for the reading rows. |
 
 ## Dependencies
 
-**Depends on:** `tools/judge-words` (`makeJudge`, `ruleApplies`, `valuesAt`), `tools/where-a-person-stands` (`artifactRef`, `foldWith`), `@noble/hashes`, Node 24 in the tool container.
+**Depends on:** `tools/judge-words` (`makeJudge`, `ruleApplies`, `valuesAt`, `wordsIn`), `tools/where-a-person-stands` (`artifactRef`, `foldWith`), `tools/pin-files-by-content` (`literalPieces`, for `do-work/spoken-origins.mjs` only), `@noble/hashes`, Node 24 in the tool container.
 
 **Depended on by:** `tool-rows.json`; a content check that imports `do-work/rules-and-verdicts.mjs`.

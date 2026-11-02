@@ -44,6 +44,8 @@
  "lines_unit": "{verdict} [{kind}] {where}",
  "lines_finding": "  {rule}: \"{found}\"{p}. {says}{suggest}{why}",
  "lines_suggest": " Say {suggest}.",
+ "lines_waived": "WAIVED [{kind}] {where}",
+ "lines_waived_finding": "  {rule}: the person agreed to this exact line with this rule named, so it is waived here and nowhere else",
  "refused": {
   "rules": "rules is a non-empty list of rule rows: the rules the units are checked against.",
   "units": "units is a non-empty list of { text, kind } (or { view, kind } for a JSON artifact): the things to check.",
@@ -52,5 +54,10 @@
     "pairs": "A reading row's pairs[].rejected names a stand that is not a current exact stand on a text: {missing}. Pass that stand, or take the pair out of the row.",
     "context_review": "Context review selectors must name rule ids in rules and grammar checks in the judge. Unknown rule ids: {rules}. Unknown grammar checks: {checks}."
  },
- "usable": "usable"
+ "usable": "usable",
+ "origins": {
+  "own": "own-words",
+  "added": "added-words",
+  "unverified": "unverified-speaker"
+ }
 }
