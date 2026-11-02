@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { shareableCopy } from '../src/person-spaces.mjs';
+// tools/write-public-share-files/test/shareable-copy-privacy.test.mjs (moved from Trillion's test/shareable-copy-privacy.test.mjs)
+import { shareableCopy as copyBy } from '../read-data/shareable-copy.mjs';
+import data from '../read-data/share-files.json' with { type: 'json' };
+import fixture from './fixtures/share-from-private.json' with { type: 'json' };
+
+// The caller hands in its own rule table, as Trillion's person-spaces does with its share_from_private.
+const shareableCopy = (type, id, value, shape) => copyBy(type, id, value, shape, fixture);
 
 test('match-only fields leave as marks, including a field also used as the copy title', () => {
   const seen = [];
@@ -73,4 +79,18 @@ test('a shared builder contract includes agreed price and access while excluding
     } },
   });
   assert.doesNotMatch(JSON.stringify(copy.body), /secret|private_notes|metadata/);
+});
+
+test('the List rule this tool carries lets out only the fields, rows and files a list copy is made of', () => {
+  const copy = copyBy('list', 'list:one', {
+    label: 'One', about: 'About it', owner_notes: 'private',
+    fields: [{ id: 'name', label: 'Name', kind: 'text', formula: 'private' }],
+    rows: [{ id: 'r1', title: 'Row', values: { name: 'Row' }, private_ref: 'record:x:r1' }],
+    files: [{ identity: `1f:${'a'.repeat(64)}`, media_type: 'image/png', name: '/a.png', origin: 'private-bucket' }],
+  }, { leave_out: ['about'] });
+  assert.deepEqual(copy.body, { label: 'One', fields: [{ id: 'name', label: 'Name', kind: 'text' }],
+    rows: [{ id: 'r1', title: 'Row', values: { name: 'Row' } }], files: [{ identity: `1f:${'a'.repeat(64)}`, media_type: 'image/png', name: '/a.png' }] });
+  assert.equal(copy.title, 'One');
+  assert.throws(() => copyBy('pursuit', 'pursuit:x', {}), /cannot be shared/, 'a kind this tool carries no rule for never leaves');
+  assert.deepEqual(Object.keys(data.share_from_private), ['list']);
 });

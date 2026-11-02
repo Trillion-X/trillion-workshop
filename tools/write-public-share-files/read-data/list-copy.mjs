@@ -1,14 +1,15 @@
-// src/list-copy.mjs
+// tools/write-public-share-files/read-data/list-copy.mjs (moved from Trillion's src/list-copy.mjs)
 //
 // PURPOSE
 //   What of a person's list leaves through a share link, decided at the moment it is read. A list keeps every row; the
-//   copy others read keeps only the rows whose own "Shown when" rule holds right now (src/lists.json kind `shown-when`:
+//   copy others read keeps only the rows whose own "Shown when" rule holds right now (field kind `shown-when`:
 //   a formula-engine rule tree over the row's values plus `now`, the clock in milliseconds, and `opened`, how many
 //   times the link was opened), never the rules themselves, and names each picture, video or file a row holds
 //   (a kind row marked `media`) so the link can serve those bytes and nothing else of the person's files.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Nothing here names a kind of field: what a field is comes from its kind row in src/lists.json (`value: "rule"`
+//   1. Nothing here names a kind of field: what a field is comes from its kind row (`kinds`, by default
+//      read-data/share-files.json field_kinds, moved from Trillion's src/lists.json; `value: "rule"`
 //      is a rule, over the row itself unless its `rule_over` names something else, and only a rule over the row
 //      decides what shows; `media: true` holds a file, `ruleKind` is how the formula engine compares its value).
 //   2. A rule field never leaves: neither the field nor any row's rule is in the copy.
@@ -16,15 +17,17 @@
 //      shown by default.
 //   4. A file leaves only when a row that is shown names it and the person still has it; its identity is the one the
 //      link serves at /share/<code>/files/<identity>.
-//   5. A saved view that says how it is drawn (`display`, src/lists.mjs) leaves as { id, label, display, row_ids }: the
-//      ids of the rows it keeps among the rows that already leave, in its order, never its rules, search or sort. A view
-//      whose rules cannot be checked over the fields that leave is left out, never shown unfiltered.
+//   5. A saved view that says how it is drawn (`display`) leaves as { id, label, display, row_ids }: the ids of the rows
+//      it keeps among the rows that already leave, in its order, never its rules, search or sort. A view whose rules
+//      cannot be checked over the fields that leave, or that no `projectView` is given to read, is left out, never
+//      shown unfiltered.
 //
-import data from './lists.json' with { type: 'json' };
-import { projectSavedView } from '../parts/visual-database/read-data/saved-view-engine.mjs';
+// `kinds` (the field kind rows) and `projectView` (the saved-view projection, ({ view, fields, rows, filterRows,
+// ruleKindOf, now }) → { rows }) are handed in by the caller that owns them; the defaults are this tool's DATA and no
+// view projection.
+import data from './share-files.json' with { type: 'json' };
 
-const KINDS = new Map(data.field_kinds.map(row => [row.id, row]));
-const kindOf = field => KINDS.get(field.kind) ?? {};
+const kindTable = kinds => new Map((kinds ?? data.field_kinds).map(row => [row.id, row]));
 const FACTS = [{ id: 'now', kind: 'date' }, { id: 'opened', kind: 'number' }];
 
 // A value as the formula engine compares it: a date as milliseconds, everything else as kept.
@@ -37,11 +40,12 @@ const names = (tree, id) => tree?.kind === 'rule' ? tree.field === id : (tree?.r
 
 // The saved views of a list that say how they are drawn, each cut to the rows that leave (invariant 5). `fields` and `rows`
 // are the copy's own; a view is read through the shared projection, so it keeps what the app's view of it would.
-async function shownViews({ views, fields, rows, facts, filterRows }) {
+async function shownViews({ views, fields, rows, facts, filterRows, KINDS, projectView }) {
   const out = [];
+  if (typeof projectView !== 'function') return out;
   for (const view of (views ?? []).filter(item => item?.display?.as && !item.unresolved_filters?.length)) {
     try {
-      const kept = await projectSavedView({ view, fields, rows, filterRows, ruleKindOf: kind => KINDS.get(kind)?.ruleKind ?? kind, now: facts.now });
+      const kept = await projectView({ view, fields, rows, filterRows, ruleKindOf: kind => KINDS.get(kind)?.ruleKind ?? kind, now: facts.now });
       out.push({ id: view.id, label: view.label, display: view.display, row_ids: kept.rows.map(row => row.id) });
     } catch { /* unfinished rules, or a field that does not leave: this view does not leave */ }
   }
@@ -52,23 +56,26 @@ async function shownViews({ views, fields, rows, facts, filterRows }) {
  * The ids of the rows one saved view keeps among `rows` (the rows that already leave), in the view's order, or null when
  * its rules cannot be checked over `fields` (a link to that view then shows nothing, never every row).
  */
-export async function shownViewRows({ view, fields, rows, facts, filterRows }) {
-  if (view?.unresolved_filters?.length) return null;
+export async function shownViewRows({ view, fields, rows, facts, filterRows, kinds, projectView }) {
+  if (view?.unresolved_filters?.length || typeof projectView !== 'function') return null;
+  const KINDS = kindTable(kinds);
   try {
-    const kept = await projectSavedView({ view, fields, rows, filterRows, ruleKindOf: kind => KINDS.get(kind)?.ruleKind ?? kind, now: facts.now });
+    const kept = await projectView({ view, fields, rows, filterRows, ruleKindOf: kind => KINDS.get(kind)?.ruleKind ?? kind, now: facts.now });
     return kept.rows.map(row => row.id);
   } catch { return null; }
 }
 
 /**
- * fields: the list's fields ({ id, label, kind, choices? }); rows: [{ id, title, values }].
+ * fields: the list's fields ({ id, label, kind, choices? }); rows: [{ id, title, values }]. kinds, projectView: above.
  * facts: { now (ms), opened (count) }. views: the list's saved views (optional). filterRows: the formula engine's row filter ({ tree, fields, rows } → { matches,
  * incomplete }). fileOf(value): the person's approved file copy for an identity or a name, or null; may be asynchronous.
- * Returns { fields, rows, files, shown_views, names_opened }: the fields and rows that leave, the saved views drawn another
- * way with the row ids they keep, each file they name ({ identity,
- * media_type, name }), and whether any rule reads `opened` (so the link counts its opens).
+ * Returns { fields, rows, files, shown_views, names_opened, names_clock }: the fields and rows that leave, the saved views
+ * drawn another way with the row ids they keep, each file they name ({ identity, media_type, name }), whether any rule
+ * reads `opened` (so the link counts its opens) and whether any reads `now`.
  */
-export async function listCopy({ fields, rows, facts, filterRows, fileOf, views, share_when = null }) {
+export async function listCopy({ fields, rows, facts, filterRows, fileOf, views, share_when = null, kinds, projectView }) {
+  const KINDS = kindTable(kinds);
+  const kindOf = field => KINDS.get(field.kind) ?? {};
   // Only a rule over the row itself decides what shows; a rule over something else (a device's facts) never leaves.
   const ruled = fields.filter(field => kindOf(field).value === 'rule' && (kindOf(field).rule_over ?? 'row') === 'row');
   const media = new Set(fields.filter(field => kindOf(field).media).map(field => field.id));
@@ -91,7 +98,7 @@ export async function listCopy({ fields, rows, facts, filterRows, fileOf, views,
       const value = row.values?.[field.id];
       if (value === undefined) continue;
       if (!media.has(field.id)) { values[field.id] = value; continue; }
-      // A files field holds one file or several (src/lists.json kind file); each leaves as its identity.
+      // A files field holds one file or several (field kind file); each leaves as its identity.
       const identities = [];
       for (const item of [value].flat()) {
         const file = typeof item === 'string' ? await fileOf(item) : null;
@@ -114,7 +121,9 @@ export async function listCopy({ fields, rows, facts, filterRows, fileOf, views,
     fields: copiedFields,
     rows: kept,
     files: [...files.values()],
-    shown_views: await shownViews({ views, fields: copiedFields, rows: kept, facts, filterRows }),
+    shown_views: await shownViews({ views, fields: copiedFields, rows: kept, facts, filterRows, KINDS, projectView }),
     names_opened: names(share_when, 'opened') || rows.some(row => ruled.some(field => names(row.values?.[field.id], 'opened'))),
+    // Whether any rule reads the clock, so what shows can change with no change to a record.
+    names_clock: names(share_when, 'now') || rows.some(row => ruled.some(field => names(row.values?.[field.id], 'now'))),
   };
 }
