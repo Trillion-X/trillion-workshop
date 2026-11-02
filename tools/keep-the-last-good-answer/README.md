@@ -27,7 +27,7 @@ Ask a live source. If it answers, keep that answer. If it does not, hand back th
 
 - A source that answers with nothing has not answered, and never replaces a good kept answer. `0`, `''`, `false` and `[]` are answers.
 - Failing to keep never fails the answer. A kept answer that cannot be read is the same as none kept.
-- A source that answers 429 or 503 with `Retry-After` has its wait returned (`retry_after_seconds`) and said; the tool never waits or asks again itself. The idea comes from the MIT-licensed `bloxwap/smart-hyperevm` and `bloxwap/smart-solana` transports (see `references/rea-intake-2026-11-01/`); the code here is written fresh.
+- A source that answers 429 or 503 with `Retry-After` has its wait returned (`retry_after_seconds`) and said; the tool never waits or asks again itself. The idea comes from the MIT-licensed `bloxwap/smart-hyperevm` and `bloxwap/smart-solana` transports (https://github.com/bloxwap/smart-hyperevm and https://github.com/bloxwap/smart-solana); the code here is written fresh.
 - Nothing logs. Timeouts and retries belong to the ask, the only party that knows what a slow answer means.
 
 ## Dependencies
