@@ -33035,6 +33035,249 @@
     {
       "payload": {
         "kind": "workflow-recipe",
+        "id": "workflow:set-up-your-checks",
+        "label": "Set up your checks",
+        "job": "Keep every rule you hold your words to as one row of a list in your own Trillion, so every AI you use (on your computer, on the web, on your phone) judges with the same rules, and a rule you change is the rule every AI uses next. The Workshop's check tools do the judging; your list holds the rules; nothing about you is built into a tool.",
+        "produces": "Your list Word checks with the published starter rows and at least one rule of your own, each of your AIs able to run the check, a way to switch one check off with your reason, and one run that shows a changed rule is the rule used.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "own_rule_words",
+            "test_line"
+          ],
+          "properties": {
+            "own_rule_words": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Words or phrases the person never wants in their copy, in their own words (for example [\"artisanal\"])"
+            },
+            "own_rule_says": {
+              "type": "string",
+              "description": "What the person wants said when a line breaks the rule, in their own words"
+            },
+            "test_line": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A line that breaks the person's own rule, used to prove the check (for example \"Fresh artisanal loaves every morning\")"
+            }
+          }
+        },
+        "source": {
+          "from": "moving one person's hundreds of content checks out of files on one computer into lists in their own Trillion, judged by the Workshop's generic check tools",
+          "name": "The rule lives in one list; every AI reads it there",
+          "note": "Not adopted: copying rule files onto each computer (each copy drifts, and web or phone AIs cannot read it), and a check tool that knows any person's words. See also workflow:connect-every-ai-to-one-memory-list, which connects each AI to the same lists."
+        },
+        "steps": [
+          {
+            "id": "connect-this-ai",
+            "title": "Connect this AI to your Trillion",
+            "do": "Call the tool run_resource_operation with address @own-records, method records:list, a new request_key, and input {\"type\":\"list\",\"limit\":5}. If the call works, this AI is connected: go on. If this AI has no tool named run_resource_operation, it is not connected yet: follow the workflow \"Connect every AI to one memory list\" (workflow:connect-every-ai-to-one-memory-list) first, then come back to this step.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "connected"
+              ],
+              "properties": {
+                "connected": {
+                  "type": "boolean"
+                },
+                "lists_seen": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          {
+            "id": "find-the-check-tools",
+            "title": "Find the check tools",
+            "do": "For each of these ids, call run_resource_operation with address @workshop-tools, method tools:list and input {\"tool\":\"<the id>\"}: tool:check-against-a-persons-rules-and-verdicts (judges words against rule rows and the person's own verdicts) and tool:judge-against-rules (judges words against rule rows only). An answer with that id and an input_schema means the tool is there. If one is missing and this Trillion runs on the person's own computer, call tools:run with input {\"tool\":\"tool:keep-the-workshop-current\",\"input\":{}} once, then ask tools:list again. Report each id and whether it was found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tools"
+              ],
+              "properties": {
+                "tools": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "found"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "found": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "make-the-word-checks-list",
+            "title": "Make the list Word checks",
+            "do": "Call records:read at @own-records with input {\"id\":\"list:word-checks\"}. If its value is not null, the list is there: go on. If it is null, call records:write at @own-records with input {\"records\":[{\"id\":\"list:word-checks\",\"type\":\"list\",\"value\":{\"label\":\"Word checks\",\"row_type\":\"word-check\",\"title_field\":\"says\",\"judged_by\":\"tool:check-against-a-persons-rules-and-verdicts\",\"about\":\"My rules for every line a person reads, one row each. Every AI reads them here.\",\"fields\":[{\"id\":\"id\",\"kind\":\"text\",\"label\":\"Rule\"},{\"id\":\"says\",\"kind\":\"long-text\",\"label\":\"Says\"},{\"id\":\"words\",\"kind\":\"tags\",\"label\":\"Words\"},{\"id\":\"exact\",\"kind\":\"tags\",\"label\":\"Exact lines\"},{\"id\":\"pattern\",\"kind\":\"text\",\"label\":\"Pattern\"},{\"id\":\"check\",\"kind\":\"text\",\"label\":\"Grammar check\"},{\"id\":\"kinds\",\"kind\":\"tags\",\"label\":\"Kinds\"},{\"id\":\"because\",\"kind\":\"tags\",\"label\":\"Because\"},{\"id\":\"on\",\"kind\":\"choice\",\"label\":\"On\",\"choices\":[\"On\",\"Off\"]},{\"id\":\"why_off\",\"kind\":\"long-text\",\"label\":\"Why off\"},{\"id\":\"switched_by\",\"kind\":\"text\",\"label\":\"Switched by\"},{\"id\":\"switched_at\",\"kind\":\"date\",\"label\":\"Switched at\"}]}}]}. Then call records:read again and confirm the value is there.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "list",
+                "made_now"
+              ],
+              "properties": {
+                "list": {
+                  "type": "string"
+                },
+                "made_now": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          {
+            "id": "add-the-starter-rows",
+            "title": "Add the published starter rows",
+            "do": "Read the starter rows the Workshop publishes: the file https://raw.githubusercontent.com/Trillion-X/trillion-workshop/main/tools/check-against-a-persons-rules-and-verdicts/read-data/copy-grammar-rules.json, its rules array (mechanical grammar only: capitals, full stops, doubled words and the like; no word of any person). For each row, call records:read at @own-records with input {\"id\":\"record:word-check:<the row's id>\",\"type\":\"record:word-check\"}; if that value is null, write the row as it is: records:write with input {\"records\":[{\"id\":\"record:word-check:<the row's id>\",\"type\":\"record:word-check\",\"value\":<the row>}]}. Never overwrite a row that is already there: the person may have changed it. Report how many rows were added and how many were already there.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "added",
+                "already_there"
+              ],
+              "properties": {
+                "added": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "already_there": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          {
+            "id": "add-your-own-rule",
+            "title": "Add a rule of your own",
+            "do": "Use the person's words from own_rule_words. Make an id from them: lower case, words joined by dashes, starting with no- (for example no-artisanal). Write one row: records:write at @own-records with input {\"records\":[{\"id\":\"record:word-check:<that id>\",\"type\":\"record:word-check\",\"value\":{\"id\":\"<that id>\",\"says\":\"<own_rule_says, or: Not a word I use. Say the plain thing.>\",\"words\":<own_rule_words>,\"because\":[\"<the person's own words when they asked for this rule, and the date>\"]}}]}. Then read the row back with records:read and show the person the row as it is kept.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "rule_id"
+              ],
+              "properties": {
+                "rule_id": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "connect-each-ai",
+            "title": "Let each of your AIs run the check",
+            "do": "Every AI runs the same two calls before it shows the person words it wrote: (1) records:list at @own-records with input {\"type\":\"record:word-check\",\"limit\":500}, again with after set to the answer's next until next is null, keeping every row whose on is not Off; (2) tools:run at @workshop-tools with input {\"tool\":\"tool:check-against-a-persons-rules-and-verdicts\",\"input\":{\"rules\":<the values of the kept rows>,\"units\":[{\"text\":\"<each line>\",\"kind\":\"copy\"}],\"stage\":\"final\"}}. On a computer (Claude Code, Codex, Cursor), run the command trillion setup --harness claude-code,codex,cursor once in a terminal, so each of them reaches the person's Trillion, then tell each of them in its own instructions to run these two calls before showing copy. On the web or a phone (ChatGPT, Claude, Grok), connect Trillion as that AI's connector (workflow:connect-every-ai-to-one-memory-list) and tell it the same. A line the answer marks FAIL is rewritten before it is shown.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "ais"
+              ],
+              "properties": {
+                "ais": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "ran_the_check"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "ran_the_check": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "switch-a-check-off",
+            "title": "Switch one check off, only when the person says so",
+            "do": "An AI never switches a check off on its own, and never to make its own words pass. Only when the person asks for it in this conversation: read the row with records:read, then write it back with records:write with the same value plus on: \"Off\", why_off: the person's own words, switched_by: the person's name, switched_at: the time now (for example 2026-11-02T09:30:00Z). To switch it on again, write on: \"On\". Tell the person which check is off, since when and why, every time a check they switched off would have failed a line.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "switched"
+              ],
+              "properties": {
+                "switched": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "rule_id",
+                      "on",
+                      "why_off"
+                    ],
+                    "properties": {
+                      "rule_id": {
+                        "type": "string"
+                      },
+                      "on": {
+                        "type": "string",
+                        "enum": [
+                          "On",
+                          "Off"
+                        ]
+                      },
+                      "why_off": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "prove-a-changed-rule-is-used",
+            "title": "Prove a changed rule is the rule used",
+            "do": "Run the two calls of connect-each-ai on test_line. Its answer must say FAIL with the id from add-your-own-rule. Then change that rule in the list: records:write the row with one more word in words (the person picks it). Run the two calls again on a line holding only the new word: it must say FAIL with the same id. That shows the check reads the list as it is now, not a copy. Show the person both answers.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "first_failed_on",
+                "after_change_failed_on"
+              ],
+              "properties": {
+                "first_failed_on": {
+                  "type": "string"
+                },
+                "after_change_failed_on": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
         "id": "workflow:start-from-the-persons-own-work",
         "label": "Plan, design or advise from the person's own work",
         "job": "Plan something for a person (their week, a training season, a launch, a trip), design something for them (a screen, a programme, a logo) or advise them on a choice (keep or sell, which offer, what to do next), starting from their own work: find what their own body of work already says on the topic (their own frameworks, philosophy, notes, recordings, past AI conversations, files and pursuits), apply each of their frameworks and principles to the request, and give the result citing their own words with where each is kept, so the person never has to point an AI to their own material.",

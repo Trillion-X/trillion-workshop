@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "7de991ffc565d54041ff5cb5c635289c4290f935ebb50690f658e6e18924530d",
+  "blake3": "4b57f782378b0dc9922acef58b2f44b26fd2f5dff9cda25a114bae0c606ae01b",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -1252,6 +1252,20 @@
     "recipe": "workflow:connect-every-ai-to-one-memory-list",
     "source": "{\"from\":\"a person whose AIs on a computer, in web chats, on a phone and in services each kept separate memories, and whose files on one computer could not be written by the AIs anywhere else\"}",
     "title": "Connect every AI to one memory list"
+   }
+  },
+  {
+   "id": "set-up-your-checks",
+   "values": {
+    "title": "Set up your checks",
+    "recipe": "workflow:set-up-your-checks",
+    "job": "Keep every rule you hold your words to as one row of a list in your own Trillion, so every AI you use (on your computer, on the web, on your phone) judges with the same rules, and a rule you change is the rule every AI uses next. The Workshop's check tools do the judging; your list holds the rules; nothing about you is built into a tool.",
+    "produces": "Your list Word checks with the published starter rows and at least one rule of your own, each of your AIs able to run the check, a way to switch one check off with your reason, and one run that shows a changed rule is the rule used.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\":\"object\",\"required\":[\"own_rule_words\",\"test_line\"],\"properties\":{\"own_rule_words\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":1},\"description\":\"Words or phrases the person never wants in their copy, in their own words (for example [\\\"artisanal\\\"])\"},\"own_rule_says\":{\"type\":\"string\",\"description\":\"What the person wants said when a line breaks the rule, in their own words\"},\"test_line\":{\"type\":\"string\",\"minLength\":1,\"description\":\"A line that breaks the person's own rule, used to prove the check (for example \\\"Fresh artisanal loaves every morning\\\")\"}}}",
+    "source": "{\"from\":\"moving one person's hundreds of content checks out of files on one computer into lists in their own Trillion, judged by the Workshop's generic check tools\",\"name\":\"The rule lives in one list; every AI reads it there\",\"note\":\"Not adopted: copying rule files onto each computer (each copy drifts, and web or phone AIs cannot read it), and a check tool that knows any person's words. See also workflow:connect-every-ai-to-one-memory-list, which connects each AI to the same lists.\"}"
    }
   }
  ]
