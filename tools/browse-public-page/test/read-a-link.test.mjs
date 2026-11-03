@@ -172,7 +172,7 @@ const [row] = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.u
 test('the row runs the link reader in an internet container and packs the one page reader with it', () => {
   assert.equal(row.invoke.kind, 'container');
   assert.equal(row.invoke.internet, true);
-  assert.equal(row.result_selector, '$.result');
+  assert.equal(row.result_selector, '$');
   assert.deepEqual(row.invoke.argv, ['/usr/local/bin/node', '/opt/browse-public-page/do-work/read_a_link.mjs']);
   assert.deepEqual(row.invoke.files.package_files.paths, ['do-work/read_a_link.mjs', 'do-work/page-facts.mjs', 'do-work/page-conventions.json']);
 });

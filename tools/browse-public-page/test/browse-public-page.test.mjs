@@ -13,7 +13,7 @@ const run = input => spawnSync('node', [script], { input: JSON.stringify(input),
 test('shared browser tool uses the bundled Node reader in the network-enabled container', () => {
   const row = toolRecords.records[0].payload;
   assert.equal(row.id, 'tool:read-public-web-page');
-  assert.equal(row.result_selector, '$.result');
+  assert.equal(row.result_selector, '$');
   assert.equal(row.invoke.internet, true);
   assert.deepEqual(row.invoke.argv, ['/usr/local/bin/node', '/opt/browse-public-page/do-work/browse_public_page.mjs']);
   assert.deepEqual(row.invoke.files.package_files.paths, ['do-work/browse_public_page.mjs', 'do-work/page-facts.mjs', 'do-work/page-conventions.json', 'do-work/walk-archive.mjs', 'do-work/archive-facts.mjs']);
