@@ -8,7 +8,7 @@ Moved from Trillion-X/trillion (commit 2e57d9a49ba0eb2ff3a44fa711be1ff054e32b18)
 
 `tool:watch-my-sources` runs `do-work/watch-my-sources.mjs` `watchMySources` in a small container through the person's records door (`tools/records-door`):
 
-- The lists are records, as a Trillion list keeps them: the list `list:<id>` (type `list`) and each row `record:<row type>:<row id>` (type `record:<row type>`), reached by `read-data/lists-door.mjs`. A row is merged, never replaced; every write expects what was read, so a row changed by someone else in between refuses the write and nothing of it is kept.
+- The lists are records, as a Trillion list keeps them: the list `list:<id>` (type `list`) and each row `record:<row type>:<row id>` (type `record:<row type>`), reached by `tools/records-door/read-data/lists-door.mjs`. A row is merged, never replaced; every write expects what was read, so a row changed by someone else in between refuses the write and nothing of it is kept.
 - Pursuits are the person's `pursuit` records; content formats come in as `formats` (the caller reads them with content_formats).
 - The run asks no model and hands nothing in itself. When new items wait it answers `weigh_wanted` `{ purpose: "signal-weigh", identity, messages, max_tokens }`, the question for the oldest batch, byte for byte the same until it is answered; the AI that runs the tool answers it and runs again with `weighed` `{ identity, reply }`. A reply is used only for the question its identity names. Each item that moves a pursuit comes back in `arrivals`, each exactly what the arrival door takes (route `watch-sources`, `from_person: false`, `source_id`); the door keeps one arrival per route and source_id, so handing one in again adds nothing.
 - A source whose Take in is Whole history is named under `history_wanted` with the tool that lists it; that tool's answer comes back as `history` `{ source, answer }`.
@@ -23,7 +23,6 @@ The row's rights are the three lists and their rows, and listing `pursuit`; it r
 | `read-data/watch-sources.json` | The lists it makes (fields, choices, the starter places, each off), run limits, the arrival route, the weighing question, ranked-list readers, history tools and every refusal's words, as DATA. |
 | `read-data/feed-items.mjs` | One reader for every address followed: RSS, Atom, JSON items, a YouTube channel's videos page, and the bounded conditional read (ETag, Last-Modified, 304). |
 | `read-data/ranked-lists.mjs` | A ranked list read whole by its reader row, and how an item moved between two days. |
-| `read-data/lists-door.mjs` | `listsOverDoor(door)`: the lists over the records door, merged and conditional writes. |
 | `do-work/watch-my-sources.mjs` | `watchMySources(input, { door })`: the tool's run, with the weighing and hand-in answered for the caller. |
 | `ports/watch-sources.json` | The port contract: the Trillion sources, their BLAKE3 identities and the baseline copy. |
 | `tool-rows.json` | The Workshop row. |
