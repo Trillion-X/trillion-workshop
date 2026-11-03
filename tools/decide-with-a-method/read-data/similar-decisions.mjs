@@ -59,8 +59,10 @@ export function broughtBack(other) {
 export async function similarDecisions({ decision_id: id, limit } = {}, { door }) {
   if (typeof id !== 'string' || !id) refuse(WORDS.no_decision);
   const most = Math.min(Number.isInteger(limit) && limit > 0 ? limit : similar.limit, similar.most);
-  const record = await door.read('decision', id);
-  if (!record) refuse(WORDS.not_found);
+  const root = await door.read('decision', id);
+  if (!root) refuse(WORDS.not_found);
+  // A root whose largest fields are laid apart (fields_in_parts) reads them back, so its goal is weighed as it was.
+  const { record } = await laidTogether(door, id, root, []);
   const goals = [];
   for await (const row of door.list({ type: 'decision', order: similar.order, reverse: true, fields: ['input', 'method_id'], limit: similar.look_back })) {
     goals.push({ id: row.id, goal: row.value?.input?.goal ?? '', method: methodOf(row.value) });

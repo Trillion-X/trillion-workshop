@@ -80,13 +80,17 @@ export function memoryDoor() {
 // the root with its lists back inside it (`input.evidence`, `answered_steps`, `decision_history`, ...) and its method
 // snapshot, so a test can say what a decision holds without naming every record.
 export function caseView(door, id) {
-  const root = door.value(id);
-  if (!root?.counts) return root;
+  const kept = door.value(id);
+  if (!kept?.counts) return kept;
+  const { part } = settings.records;
+  const partsOf = (key, count) => Array.from({ length: count }, (_, n) => door.value(`${key}${part.suffix}${String(n).padStart(part.digits, '0')}`).text).join('');
+  // A root too large for one record keeps its largest fields in parts, named in `fields_in_parts`; they are put back.
+  const { fields_in_parts: moved, root_fields_in_parts: count, ...own } = kept;
+  const root = Array.isArray(moved) ? { ...own, ...JSON.parse(partsOf(`${id}:root-fields`, count)) } : kept;
   const whole = key => {
     const value = door.value(key);
     if (!Number.isInteger(value?.kept_in_parts)) return value;
-    const { part } = settings.records;
-    return JSON.parse(Array.from({ length: value.kept_in_parts }, (_, n) => door.value(`${key}${part.suffix}${String(n).padStart(part.digits, '0')}`).text).join(''));
+    return JSON.parse(partsOf(key, value.kept_in_parts));
   };
   const items = list => {
     const { type, digits } = settings.records.laid_apart[list];
