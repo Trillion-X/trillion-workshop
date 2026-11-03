@@ -1,0 +1,77 @@
+{
+  "_what": "When the Mac reader takes an accessibility snapshot, how it reads it and what it removes before anything leaves (read-data/snapshot-triggers.mjs; the event half is the Mac app's macos/App/ComputerReader.swift). `triggers` are the events that ask for one (each with its own debounce, and `periodic_seconds` for the timer). `throttle` spaces them: a global least gap and a per-app gap that doubles (up to `backoff_most`) while an app's snapshots come back unchanged and returns to normal when one changes. `skip_when` names facts that skip a snapshot (the Mac is locked, memory is under pressure). Every decision is counted by outcome so silence is never mistaken for nothing happening. `parsers` are per-app rows (app name part; which elements to select by role and label pattern; which fields to cut out with regular expressions) delivered as data like any capability; the first row matching the app is used, a row without `app_contains` is the generic one. `redact` are patterns removed from every field on the device, replaced by `replacement`.",
+  "triggers": [
+    {
+      "id": "app-activated",
+      "debounce_ms": 300
+    },
+    {
+      "id": "title-changed",
+      "debounce_ms": 800
+    },
+    {
+      "id": "input",
+      "debounce_ms": 2500
+    },
+    {
+      "id": "backgrounded",
+      "debounce_ms": 0
+    }
+  ],
+  "periodic_seconds": 30,
+  "throttle": {
+    "global_gap_ms": 1000,
+    "app_gap_ms": 5000,
+    "backoff_most": 8
+  },
+  "skip_when": [
+    "locked",
+    "memory_pressure"
+  ],
+  "parsers": [
+    {
+      "id": "generic-text",
+      "select": {
+        "roles": [
+          "text",
+          "statictext",
+          "textfield",
+          "textarea",
+          "heading"
+        ],
+        "label_matches": "."
+      },
+      "fields": {
+        "text": {
+          "from": "label",
+          "regex": "^(.*)$"
+        }
+      }
+    }
+  ],
+  "redact": [
+    {
+      "id": "email",
+      "pattern": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+    },
+    {
+      "id": "card-number",
+      "pattern": "\\b\\d(?:[ -]?\\d){12,18}\\b"
+    },
+    {
+      "id": "bearer-token",
+      "pattern": "\\b(?:eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{5,}|[A-Za-z0-9_-]{32,})\\b"
+    }
+  ],
+  "replacement": "[removed]",
+  "outcomes": [
+    "taken",
+    "debounced",
+    "throttled-global",
+    "throttled-app",
+    "skipped-locked",
+    "skipped-memory_pressure",
+    "unchanged",
+    "unknown-trigger"
+  ]
+}
