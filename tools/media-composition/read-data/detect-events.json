@@ -1,0 +1,51 @@
+{
+  "_what": "The detectors do-work/detect-events.mjs can run, and the streams its stream detectors walk. A different detector is a new row in `detectors`: a `program` row names a module of do-work and its export (it answers moments with a time and a strength); a `stream` row names a row of `streams`. A stream's encoder turns the recording into feature frames, its core carries a baseline from frame to frame (do-work/stream-core.mjs) and its heads, rows of their own, say what happened; retuning or swapping a head touches neither the encoder nor the core. `default_detector` is the row used when a run names none.",
+  "default_detector": "adaptive",
+  "detectors": [
+    {
+      "id": "sound-and-motion",
+      "program": "find-action-moments.mjs",
+      "event_kind": "stroke",
+      "note": "No weights: the loudness rise and the picture change, ranked by find-action-moments.mjs.",
+      "export": "findActionMoments",
+      "moments_key": "moments",
+      "confidence_field": "strength"
+    },
+    {
+      "id": "adaptive",
+      "stream": "sound-and-motion",
+      "note": "No weights: a running baseline of the loudness rise and the picture change; a frame well above what the recording has been like so far is an event. The heads are rows of `streams`."
+    }
+  ],
+  "streams": {
+    "sound-and-motion": {
+      "encoder": {
+        "module": "./stream-features.mjs",
+        "export": "featureFrames",
+        "step_s": 0.1
+      },
+      "features": [
+        "sound",
+        "motion"
+      ],
+      "core": {
+        "alpha": 0.05,
+        "floor": 0.0025,
+        "warmup_frames": 20
+      },
+      "heads": [
+        {
+          "kind": "stroke",
+          "weights": {
+            "sound": 1,
+            "motion": 0.25
+          },
+          "z_min": 3,
+          "z_full": 6,
+          "refractory_s": 1
+        }
+      ],
+      "note": "The core keeps a smoothed mean and variance per feature (alpha is how fast it forgets). A head adds its weighted deviations; at z_min an event is made, at z_full it is certain; refractory_s keeps one hit from being many events."
+    }
+  }
+}
