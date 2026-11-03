@@ -8,6 +8,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { moveCode } from '../do-work/move-code.mjs';
+import { requestsIn } from '../read-data/imports.mjs';
 
 const git = (folder, ...args) => execFileSync('git', ['-C', folder, ...args], { encoding: 'utf8' });
 const json = value => `${JSON.stringify(value, null, 2)}\n`;
@@ -197,4 +198,9 @@ test('a lane adds only the packages the files it moves import; a group that wait
     assert.deepEqual(done.applied.packages_added, ['tiny-thing']);
     assert.deepEqual(JSON.parse(readFileSync(join(destination, 'package.json'), 'utf8')).dependencies, { 'tiny-thing': '1.2.3' });
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
+
+test('a CSS @import written inside a string is not a module request', () => {
+  const text = "const css = 'h1{}@import \"/styles/shared.css\";@import \"../shared.css\";';\nimport './real.mjs';\n";
+  assert.deepEqual(requestsIn(text).map(item => item.specifier), ['./real.mjs']);
 });
