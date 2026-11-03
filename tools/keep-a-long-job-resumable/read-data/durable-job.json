@@ -1,0 +1,19 @@
+{
+  "_what": "Long local jobs that survive a closed laptop (read-data/durable-job.mjs). A job is started with a key; starting again with the same key returns the same job, never a second one. It answers a stream address with an expiry, the seed and version it was started with, and the pieces of output so far; any client can read from a cursor to resume, or cancel by the job id. `ttl_seconds` is how long a job's stream stays readable after it was last written; `most_jobs` and `most_chunks` bound what is kept. `states` are the words a job can be in. `file` is the jobs file's name inside the folder the person granted (change-a-folder).",
+  "file": "jobs.json",
+  "ttl_seconds": 3600,
+  "most_jobs": 200,
+  "most_chunks": 2000,
+  "stream_url": "trillion-job://{id}",
+  "states": {
+    "running": "running",
+    "done": "done",
+    "cancelled": "cancelled",
+    "expired": "expired"
+  },
+  "words": {
+    "no_job": "There is no job {id}.",
+    "needs_key": "Give a key so starting twice does not make two jobs.",
+    "finished": "The job {id} is {state}; it takes no more output."
+  }
+}
