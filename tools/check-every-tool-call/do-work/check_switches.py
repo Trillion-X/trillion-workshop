@@ -268,7 +268,7 @@ def run_the_check_list(event: dict, settings_file: str) -> tuple[int, str, str]:
         if isinstance(definition, dict) and definition.get("workshop_run"):
             guards.append({**definition, "id": definition.get("id") or guard})
     project = os.environ.get("CLAUDE_PROJECT_DIR") or event.get("cwd") or os.getcwd()
-    tools = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    tools = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
     tool_input = event.get("tool_input") if isinstance(event.get("tool_input"), dict) else {}
     event_name = event.get("hook_event_name", "")
     guards = guard_rows.chosen({"guards": guards, "scopes": {rules["scope"]: "/"}}, rules["harness"], event_name, event,
@@ -284,7 +284,8 @@ def run_the_check_list(event: dict, settings_file: str) -> tuple[int, str, str]:
         try:
             done = subprocess.run([filled(one) for one in guard["workshop_run"]], capture_output=True, text=True,
                                   timeout=guard.get("timeout_s", 60), cwd=project, stdin=subprocess.DEVNULL)
-            results.append((guard, done.returncode, done.stdout, done.stderr))
+            # A row's command is a plain command, not a hook: exit 0 passes in silence, a refusal says its output.
+            results.append((guard, done.returncode, done.stdout if done.returncode else "", done.stderr))
         except subprocess.TimeoutExpired:
             results.append((guard, 1, "", "%s timed out after %s s\n" % (guard["id"], guard.get("timeout_s", 60))))
         except OSError as error:

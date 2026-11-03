@@ -4,11 +4,11 @@
 // tool, another scope or an unmatched command does not run; a row marked Off still runs and the mark is said.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 const RUNNER = resolve(import.meta.dirname, '..', 'do-work', 'check_switches.py');
 
@@ -64,9 +64,10 @@ function settings(t, url, door = { url }) {
 }
 
 // The runner runs as its own process while this one keeps serving the made-up door.
-async function call(where, event, key) {
-  const child = spawn('python3', [RUNNER, 'run', where.file], {
-    env: { ...process.env, CHECK_LIST_STATE: where.state, ...(key ? { EXAMPLE_CHECK_LIST_KEY: key } : {}) },
+async function call(where, event, key, runner = RUNNER) {
+  const child = spawn('python3', [runner, 'run', where.file], {
+    env: { ...Object.fromEntries(Object.entries(process.env).filter(([name]) => name !== 'CLAUDE_PROJECT_DIR')),
+      CHECK_LIST_STATE: where.state, ...(key ? { EXAMPLE_CHECK_LIST_KEY: key } : {}) },
   });
   let stdout = '';
   let stderr = '';
@@ -77,8 +78,8 @@ async function call(where, event, key) {
   return { status, stderr, answer: stdout.trim() ? JSON.parse(stdout) : {} };
 }
 
-async function allowed(where, event, key) {
-  const { status, stderr, answer } = await call(where, event, key);
+async function allowed(where, event, key, runner) {
+  const { status, stderr, answer } = await call(where, event, key, runner);
   assert.equal(status, 0, stderr);
   return answer;
 }
@@ -132,4 +133,50 @@ test('the door can come from the environment, and without it the list is unreach
   t.after(() => { delete process.env.EXAMPLE_CHECK_LIST_DOOR; });
   const { status } = await call(named, { tool_name: 'Bash', tool_input: { command: 'git commit -m x' } }, 'made-up-key');
   assert.equal(status, 2);
+});
+
+// The port-contract row as the person's check list holds it: the runner starts this Workshop's judge on the command.
+const PORT_ROW = row('feature-code-has-a-port-contract', {
+  on: [{ harness: 'claude', event: 'PreToolUse', tools: 'Bash', scope: 'every-repository' }],
+  acts_on: { tools: 'Bash', fields: ['command'], matches: '\\bgit\\b[^\\n]*\\b(commit|push)\\b' },
+  workshop_run: ['node', '{tools}/check-a-port-against-its-source/do-work/check-a-repository-for-port-contracts.mjs',
+    '--root', '{repository}', '--for-command', '{tool_input.command}'],
+  failure_policy: 'deny',
+  timeout_s: 120,
+});
+
+function repository(t) {
+  const root = mkdtempSync(join(tmpdir(), 'check-every-tool-call-repository-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
+  const write = (path, text) => { mkdirSync(dirname(join(root, path)), { recursive: true }); writeFileSync(join(root, path), text); };
+  git('init', '-q', '-b', 'main');
+  write('README.md', 'made-up\n');
+  write('ports/feature-files.json', JSON.stringify({
+    schema: 'port-contracts/feature-files', since: null,
+    feature_files: [{ matches: '^tools/[^/]+/do-work/[^/]+\\.mjs$', added: true, grown_lines_over: 5 }],
+    contracts_match: '^tools/[^/]+/ports/[^/]+\\.json$', modes: ['SOURCE_FIRST_PORT', 'NO_PRIOR_OWNER'],
+  }));
+  git('add', '-A');
+  git('-c', 'user.name=t', '-c', 'user.email=t@example.test', 'commit', '-q', '-m', 'rules');
+  return { root, git, write };
+}
+
+test('the port-contract row refuses a commit of a feature file no contract claims, and lets other commits through', async (t) => {
+  const where = settings(t, await door(t, { records: [PORT_ROW] }));
+  const { root, git, write } = repository(t);
+  // Started through a link to this tool, as a computer's hooks reach the Workshop's export: {tools} is still found.
+  const linked = mkdtempSync(join(tmpdir(), 'check-every-tool-call-link-'));
+  t.after(() => rmSync(linked, { recursive: true, force: true }));
+  symlinkSync(resolve(import.meta.dirname, '..'), join(linked, 'check-every-tool-call'));
+  const runner = join(linked, 'check-every-tool-call', 'do-work', 'check_switches.py');
+  write('tools/made-up/do-work/made-up.mjs', 'export const madeUp = 1;\n');
+  git('add', '-A');
+  const refused = await call(where, { cwd: root, tool_name: 'Bash', tool_input: { command: 'git commit -m add' } }, 'made-up-key', runner);
+  assert.equal(refused.status, 2, refused.stderr);
+  assert.match(refused.stderr, /no contract in .* names tools\/made-up\/do-work\/made-up\.mjs/);
+  git('rm', '-q', '--cached', 'tools/made-up/do-work/made-up.mjs');
+  write('notes.md', 'made-up\n');
+  git('add', 'notes.md');
+  assert.deepEqual(await allowed(where, { cwd: root, tool_name: 'Bash', tool_input: { command: 'git commit -m notes' } }, 'made-up-key', runner), {});
 });
