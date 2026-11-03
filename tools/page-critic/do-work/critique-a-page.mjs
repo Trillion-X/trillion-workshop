@@ -15,7 +15,7 @@
 //   1. What counts as broken, and every threshold and selector, is DATA (read-data/page-craft-rules.json); each
 //      measurement is one entry of MEASURES, picked by its rule's id, and a rule a page's DATA leaves out is not run.
 //   2. A finding names the rule, the width, the words a person reads (the rule's `says` filled in) and where it is.
-//   3. The page is only read: nothing is clicked, typed or sent (it is scrolled once to wake lazy pictures); each link is asked once with GET and only its status read. An embedded frame is read through an isolated DevTools world, never changed.
+//   3. The page is only read: nothing is clicked, typed or sent (it is scrolled once to wake lazy pictures; for reduced_motion_hidden it is opened and scrolled once more first, with the browser asking for reduced motion through DevTools media emulation); each link is asked once with GET and only its status read. An embedded frame is read through an isolated DevTools world, never changed.
 //   4. However the run ends, the browser ends with it (tools/headless-browser/devtools.mjs).
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
@@ -26,6 +26,7 @@ import { openBrowser } from '../../headless-browser/devtools.mjs';
 import { bindControlNameEvidence, pageCraftMeasures, pageCraftHelpers as HELPERS } from './measure-page-craft.mjs';
 import { collectControlNames } from './collect-control-names.mjs';
 import { demoFramesForRule } from './frame-selection.mjs';
+import { reducedMotionFindings } from './measure-reduced-motion.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = Object.fromEntries(process.argv.slice(2).reduce((pairs, word, index, all) => (word.startsWith('--') ? [...pairs, [word.slice(2), all[index + 1]]] : pairs), []));
@@ -214,17 +215,42 @@ async function pagesToJudge() {
 // How old the newest date may be on each page: one number for every page, or { path: days } for some.
 const freshness = (() => { const given = args['fresh-within-days']; if (!given) return () => null; try { const read = JSON.parse(given); return url => (typeof read === 'number' ? read || null : read[new URL(url).pathname] ?? null); } catch { return () => null; } })();
 
-async function judge(page, url, width, checkedLinks) {
-  await page.send('Emulation.setDeviceMetricsOverride', { width: width.width, height: width.height, deviceScaleFactor: 1, mobile: width.width < 600 });
-  const answers = trackFrames(page);
-  answers.requests.clear();
-  answers.documents.clear();
+// Opened, settled and scrolled through once, the same way for the ordinary pass and the reduced-motion pass.
+async function open(page, url) {
   await page.send('Page.navigate', { url });
   await wait(craft.settle_ms);
   await evaluate(page, 'document.readyState === "complete" || new Promise(done => addEventListener("load", done, { once: true }))');
   await wait(craft.settle_ms);
   await scrollThrough(page);
+}
+
+// Every text element as the page shows it now (measure-reduced-motion.mjs), for the reduced_motion_hidden rule.
+const readTexts = (page, rule) => evaluate(page, `(() => { ${HELPERS} return firstScreenText({ rule: ${JSON.stringify(rule)}, selectors: ${JSON.stringify(craft.selectors)}, pathOf }); })()`);
+
+// The reduced-motion pass: the page opened again with the browser asking for reduced motion, read after the rule's
+// own settle wait, and the browser's ordinary media put back before the ordinary pass.
+async function readReducedMotion(page, url, rule) {
+  await page.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  try {
+    await open(page, url);
+    await wait(rule.settle_ms);
+    return await readTexts(page, rule);
+  } finally {
+    await page.send('Emulation.setEmulatedMedia', { features: [] });
+  }
+}
+
+async function judge(page, url, width, checkedLinks) {
+  await page.send('Emulation.setDeviceMetricsOverride', { width: width.width, height: width.height, deviceScaleFactor: 1, mobile: width.width < 600 });
   const rules = rulesAt(width);
+  const motion = rules.find(rule => rule.id === 'reduced_motion_hidden');
+  const reduced = motion ? await readReducedMotion(page, url, motion) : null;
+  const answers = trackFrames(page);
+  answers.requests.clear();
+  answers.documents.clear();
+  await open(page, url);
+  if (motion) await wait(motion.settle_ms);
+  const ordinary = motion ? await readTexts(page, motion) : null;
   const controlRule = rules.find(rule => rule.id === 'control_name');
   const controlNames = controlRule ? await collectControlNames({
     send: (method, params) => page.send(method, params),
@@ -242,7 +268,7 @@ async function judge(page, url, width, checkedLinks) {
     });
     measured = bindControlNameEvidence(measured, controlNames, after);
   }
-  const found = [...measured.found, ...demos, ...await judgeFrames(page, rules, width, url)];
+  const found = [...measured.found, ...demos, ...await judgeFrames(page, rules, width, url), ...(motion ? reducedMotionFindings(ordinary, reduced, motion) : [])];
   const hover = rules.find(rule => rule.id === 'no_hover');
   if (hover) found.push(...await withoutHover(page, hover));
   const broken = rules.find(rule => rule.id === 'broken_link');

@@ -1,5 +1,8 @@
 import { controlDomObservationExpression } from './collect-control-names.mjs';
 import { renderedLabelSizeMeasurements } from './measure-rendered-label-size.mjs';
+import { renderedFrameMeasures } from './measure-rendered-frame.mjs';
+import { pageRuleMeasures } from './measure-page-rules.mjs';
+import { firstScreenText } from './measure-reduced-motion.mjs';
 
 // Shared rendered-page craft measurements for the critic and release screen matrix.
 // No browser or service starts when this module is imported.
@@ -7,6 +10,9 @@ import { renderedLabelSizeMeasurements } from './measure-rendered-label-size.mjs
 export const pageCraftHelpers = String.raw`
   const controlDomObservation = ${controlDomObservationExpression};
   const renderedLabelSizeMeasurements = ${renderedLabelSizeMeasurements.toString()};
+  const renderedFrameMeasures = ${renderedFrameMeasures.toString()};
+  const pageRuleMeasures = ${pageRuleMeasures.toString()};
+  const firstScreenText = ${firstScreenText.toString()};
   const shown = element => { const box = element.getBoundingClientRect(); const style = getComputedStyle(element); return box.width > 0 && box.height > 0 && style.visibility !== 'hidden' && style.display !== 'none' && Number(style.opacity) > 0; };
   const words = element => (element.innerText || element.textContent || '').trim().replace(/\s+/g, ' ');
   const where = element => { const box = element.getBoundingClientRect(); return { x: Math.round(box.left), y: Math.round(box.top + window.scrollY), width: Math.round(box.width), height: Math.round(box.height) }; };
@@ -91,6 +97,8 @@ export const pageCraftMeasures = String.raw`(async ({ rules, selectors, freshDay
   const ownText = element => [...element.childNodes].some(node => node.nodeType === 3 && node.textContent.trim());
   let renderedLabels = null;
   const MEASURES = {
+    ...renderedFrameMeasures({ selectors, shown, words, vw, vh }),
+    ...pageRuleMeasures({ selectors, shown, words }),
     rendered_label_size: rule => {
       const rows = renderedLabelSizeMeasurements(rule);
       renderedLabels = rows.map(row => ({...row.values, selector:pathOf(row.element)}));
@@ -375,7 +383,7 @@ export const pageCraftMeasures = String.raw`(async ({ rules, selectors, freshDay
       text: hit.values.text,
       selector: hit.selector ?? (hit.element ? pathOf(hit.element) : undefined),
       ...(hit.identitySelector ? {identitySelector: hit.identitySelector, displaySelector: hit.displaySelector} : {}),
-      rect: hit.element ? where(hit.element) : null,
+      rect: hit.element ? where(hit.element) : (hit.rect ?? null),
     });
   }
   const links = all(selectors.links).map(element => ({ href: element.href, text: words(element).slice(0, 60) })).filter(link => /^https?:/.test(link.href) && !link.href.includes('#'));

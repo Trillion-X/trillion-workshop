@@ -1,5 +1,5 @@
 {
-  "what_this_is": "The craft rules a public page is judged against at every width in `widths` (tools/page-critic/do-work/critique-a-page.mjs, the Workshop tool tool:critique-a-public-page). Each rule is a row: its id, what it says to the person when broken (`says`, with {values}), and the numbers it measures against. Thresholds are DATA: changing what counts as too wide, too close to the edge, too long or too old is an edit here. `selectors` say which elements each rule looks at, so a page built another way is a row change, never a code change. A rule with `widths` is checked only at those widths. The four DATA-heavy rules read what a visitor sees: test_data (placeholder words and ids, in text, alt text and embedded frames), tiny_images (pictures and clips too small, too shrunk or too stretched), duplicate_cards (siblings titled the same once ids are removed) and stale_demo (an embedded live demo, matched by `demo_url_patterns`, that does not load, shows an error or stays empty, and looping clips that do not load). A rule with `in_frames` also runs inside every visible embedded frame.",
+  "what_this_is": "The craft rules a public page is judged against at every width in `widths` (tools/page-critic/do-work/critique-a-page.mjs, the Workshop tool tool:critique-a-public-page). Each rule is a row: its id, what it says to the person when broken (`says`, with {values}), and the numbers it measures against. Thresholds are DATA: changing what counts as too wide, too close to the edge, too long or too old is an edit here. `selectors` say which elements each rule looks at, so a page built another way is a row change, never a code change. A rule with `widths` is checked only at those widths. The four DATA-heavy rules read what a visitor sees: test_data (placeholder words and ids, in text, alt text and embedded frames), tiny_images (pictures and clips too small, too shrunk or too stretched), duplicate_cards (siblings titled the same once ids are removed) and stale_demo (an embedded live demo, matched by `demo_url_patterns`, that does not load, shows an error or stays empty, and looping clips that do not load). A rule with `in_frames` also runs inside every visible embedded frame. The rendered frame rows (F-1117: screen_side_margins, lopsided_section, blank_stretch, no_first_screen_title, untitled_section, left_edge_crowding; text at the browser edge stays edge_padding) read how the page sits in the browser; reduced_motion_hidden (F-1119) opens the page again asking for reduced motion and flags first-screen text that stays hidden; tab_order_positive, tab_order_backwards, heading_skip, heading_h1_count, page_title, page_lang, page_description and page_viewport (F-1149) are one-line rendered-page rules beside control_name, which already covers accessible names.",
   "widths": [
     {
       "id": "240",
@@ -54,7 +54,19 @@
     "supporting_text_controls": "button, a, input, textarea, select, label, legend, [role=\"button\"], [role=\"link\"], [role=\"alert\"], [role=\"status\"], [aria-live]",
     "eyebrow_ignored": "label, legend, button, a, [role=\"status\"], [role=\"alert\"], [aria-live], [data-record-type], [data-status], time, [datetime]",
     "inline_icon_actions": "h1 button, h2 button, p button",
-    "inline_icon_context": "h1, h2, p"
+    "inline_icon_context": "h1, h2, p",
+    "frame_ignored": "script, style, noscript, template, [data-critic-ignore]",
+    "frame_media": "img, video, canvas, svg, iframe, input:not([type='hidden']), button, select, textarea, [role='img']",
+    "frame_sections": "section, [role='region'], article",
+    "frame_titles": "h1, [role='heading'][aria-level='1']",
+    "frame_section_titles": "h1, h2, h3, h4, h5, h6, [role='heading']",
+    "motion_text": "h1, h2, h3, h4, h5, h6, p, li, a, button, span, label, figcaption, blockquote",
+    "motion_ignored": "script, style, noscript, template, [aria-hidden='true'], [data-critic-ignore]",
+    "tab_stops": "a[href], button, input:not([type='hidden']), select, textarea, summary, iframe, [tabindex], [contenteditable]:not([contenteditable='false'])",
+    "heading_levels": "h1, h2, h3, h4, h5, h6, [role='heading'][aria-level]",
+    "top_headings": "h1, [role='heading'][aria-level='1']",
+    "meta_description": "meta[name='description' i]",
+    "meta_viewport": "meta[name='viewport' i]"
   },
   "measurement_templates": {
     "rendered_label_size": {
@@ -355,6 +367,148 @@
       "in_frames": true,
       "source": "https://x.com/Voxyz_ai/status/2113254050170843418",
       "scope": "Rendered short adjacent secondary captions and configured production/evidence commentary, plus exact heading repetitions. The production phrase scan also reads visible SVG text leaves regardless of heading placement. Longer adjacent teaching prose and text needed by accessibility, controls, status, constraints or recovery are preserved."
+    },
+    {
+      "id": "screen_side_margins",
+      "says": "On {scope} the content's side margins are {left}px on the left and {right}px on the right.",
+      "says_by_kind": {
+        "small": "On {scope} the content comes {left}px from the left edge and {right}px from the right; keep at least {min_px}px on both sides.",
+        "lopsided": "On {scope} the content's margins are {left}px on the left and {right}px on the right; keep them within {max_difference_px}px of each other."
+      },
+      "widths": ["390", "1280"],
+      "min_px": 16,
+      "max_difference_px": 48,
+      "full_bleed_fraction": 0.98,
+      "count_background_images": true,
+      "most_elements": 6000,
+      "scope_words": {
+        "first_screen": "the first screen",
+        "whole_page": "the whole page"
+      },
+      "from": "F-1117 Rendered frame check"
+    },
+    {
+      "id": "lopsided_section",
+      "says": "The section \"{text}\" keeps its content to the {side} ({left}px on the left, {right}px on the right); centre it or let it fill the section.",
+      "widths": ["390", "1280"],
+      "min_section_px": 900,
+      "max_content_fraction": 0.7,
+      "max_imbalance": 0.3,
+      "count_background_images": true,
+      "most_elements": 6000,
+      "side_words": {
+        "left": "left",
+        "right": "right"
+      },
+      "from": "F-1117 Rendered frame check"
+    },
+    {
+      "id": "blank_stretch",
+      "says": "{px}px of the page from {from}px down shows nothing; keep empty stretches under {max_px}px.",
+      "widths": ["390", "1280"],
+      "max_screens": 0.75,
+      "count_background_images": true,
+      "most_elements": 6000,
+      "from": "F-1117 Rendered frame check"
+    },
+    {
+      "id": "no_first_screen_title",
+      "says": "The first screen ({fold}px) shows no title: no top-level heading and no text {min_px}px or larger. Say what the page is at the top.",
+      "widths": ["390", "1280"],
+      "min_title_px": 28,
+      "from": "F-1117 Rendered frame check"
+    },
+    {
+      "id": "untitled_section",
+      "says": "The section \"{text}\" has at least {min_words} words and no heading; give it one.",
+      "widths": ["390", "1280"],
+      "min_words": 40,
+      "from": "F-1117 Rendered frame check"
+    },
+    {
+      "id": "left_edge_crowding",
+      "says": "{count} blocks of text crowd within {within_px}px of the left edge while the right side keeps its room; give the left the same margin.",
+      "widths": ["390", "1280"],
+      "within_px": 32,
+      "min_count": 3,
+      "max_right_share": 0.5,
+      "from": "F-1117 Rendered frame check"
+    },
+    {
+      "id": "reduced_motion_hidden",
+      "says": "\"{text}\" shows on the first screen but stays hidden ({reason}) when the visitor asks for reduced motion; show it without the animation.",
+      "widths": ["390", "1280"],
+      "settle_ms": 1500,
+      "min_opacity": 0.1,
+      "min_shown_fraction": 0.5,
+      "most_text": 2000,
+      "most_findings": 8,
+      "reasons": {
+        "opacity": "see-through",
+        "visibility": "visibility hidden",
+        "display": "not displayed",
+        "off_screen": "moved off the screen",
+        "clipped": "clipped away",
+        "gone": "no longer on the page"
+      },
+      "from": "F-1119 Reduced-motion second pass"
+    },
+    {
+      "id": "tab_order_positive",
+      "says": "\"{text}\" has tabindex {tabindex}; positive tabindex breaks the Tab order, use 0 or the page's order.",
+      "widths": ["1280"],
+      "from": "F-1149 Rendered-page rules"
+    },
+    {
+      "id": "tab_order_backwards",
+      "says": "Tab moves from \"{from}\" back up {px}px to \"{text}\"; keep the Tab order going down the page.",
+      "widths": ["390", "1280"],
+      "max_jump_up_px": 120,
+      "from": "F-1149 Rendered-page rules"
+    },
+    {
+      "id": "heading_skip",
+      "says": "The heading \"{text}\" is an h{level} right after an h{previous}; do not skip heading levels.",
+      "widths": ["1280"],
+      "from": "F-1149 Rendered-page rules"
+    },
+    {
+      "id": "heading_h1_count",
+      "says": "The page has {count} top-level headings.",
+      "says_by_kind": {
+        "none": "The page has no h1; give it exactly one.",
+        "many": "The page has {count} h1 headings (another is \"{text}\"); keep at most {most}."
+      },
+      "widths": ["1280"],
+      "most": 1,
+      "from": "F-1149 Rendered-page rules"
+    },
+    {
+      "id": "page_title",
+      "says": "The page's <title> is missing or empty; name the page in it.",
+      "widths": ["1280"],
+      "min_chars": 1,
+      "from": "F-1149 Rendered-page rules"
+    },
+    {
+      "id": "page_lang",
+      "says": "The page has no <html lang>; name its language.",
+      "widths": ["1280"],
+      "from": "F-1149 Rendered-page rules"
+    },
+    {
+      "id": "page_description",
+      "says": "The page has no meta description; add one that says what the page is.",
+      "widths": ["1280"],
+      "min_chars": 1,
+      "from": "F-1149 Rendered-page rules"
+    },
+    {
+      "id": "page_viewport",
+      "says": "The page has no viewport meta with a width; add <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">.",
+      "widths": ["1280"],
+      "content_pattern": "\\bwidth\\s*=",
+      "from": "F-1149 Rendered-page rules"
     }
   ],
   "most_pages": 80,

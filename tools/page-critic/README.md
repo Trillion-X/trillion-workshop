@@ -7,7 +7,10 @@ Judges a public page against the saved craft rules at every width they name, and
 | File | Purpose |
 |------|---------|
 | `part.json` | What other parts and tools may use from this part. |
-| `do-work/critique-a-page.mjs` | Opens the page in a headless browser at each width, scrolls it once so lazy pictures and frames load, measures it in the page (and again inside each embedded frame, of any origin, for the rules that say `in_frames`), watches embedded live demos for up to `wait_seconds`, forces each control's hover look through DevTools, asks each link once, boxes every finding and photographs the whole page; prints one JSON line. |
+| `do-work/critique-a-page.mjs` | Opens the page in a headless browser at each width (first once more asking for reduced motion when `reduced_motion_hidden` is a rule), scrolls it once so lazy pictures and frames load, measures it in the page (and again inside each embedded frame, of any origin, for the rules that say `in_frames`), watches embedded live demos for up to `wait_seconds`, forces each control's hover look through DevTools, asks each link once, boxes every finding and photographs the whole page; prints one JSON line. |
+| `do-work/measure-rendered-frame.mjs` | The rendered frame check (F-1117), injected into the page by `measure-page-craft.mjs`: `screen_side_margins`, `lopsided_section`, `blank_stretch`, `no_first_screen_title`, `untitled_section`, `left_edge_crowding`. |
+| `do-work/measure-page-rules.mjs` | One-line rendered-page rules (F-1149), injected the same way: `tab_order_positive`, `tab_order_backwards`, `heading_skip`, `heading_h1_count`, `page_title`, `page_lang`, `page_description`, `page_viewport`. |
+| `do-work/measure-reduced-motion.mjs` | The reduced-motion second pass (F-1119): `firstScreenText` (run in the page in both passes) and `reducedMotionFindings` (compares them). |
 | `tool-rows.json` | The Workshop row Trillion reads for this folder: `tool:critique-a-public-page`, which packs `do-work`, `read-data` and `tools/headless-browser`'s `devtools.mjs` and `quiet-switches.json`. |
 | `test/` | The critic run against planted local pages (Playwright's Chromium, `test-helpers/chromium.mjs`). |
 | `read-data/page-craft-rules.json` | The craft rules as DATA: the widths, each rule's words and thresholds, and the selectors each rule reads. |
@@ -24,6 +27,29 @@ Judges a public page against the saved craft rules at every width they name, and
 `measurement_templates.rendered_label_size` supplies an optional rule definition for a caller-selected SVG teaching-label scope. The existing `rules` array is the public page critic's automatically executed policy at every configured width; it cannot hold an unconfigured selector/minimum without turning a lesson-specific bound into global policy. A consumer instantiates the template with `selector` and positive finite `min_height_px`, then passes it to the same `pageCraftMeasures` engine. There is one measurement implementation, in `measure-rendered-label-size.mjs`; this adds no second verifier or decision registry.
 
 The result retains `rendered_labels` for readable as well as too-small labels. It measures individual SVG character heights perpendicular to their screen-transformed baseline, rather than treating a rotated or multiline union box or sideways shear as readable type height. Hidden ancestors are excluded; unavailable geometry is a finding. This is a configured size check, separate from containment, clipping, contrast, glyph shape or comprehension. A consumer selects its own diagram parts and keeps its own bound; the shared template has no universal minimum or default label selection.
+
+### Rendered frame, reduced motion, Tab order, headings and metadata
+
+Every row below keeps its words (`says`, `says_by_kind`), thresholds and selectors in `page-craft-rules.json`; each says which item it comes from in `from`.
+
+| Rule | Widths | Fires when |
+|------|--------|------------|
+| `screen_side_margins` | 390, 1280 | On the first screen or the whole page, the drawn content's left or right margin is under `min_px`, or the two differ by more than `max_difference_px` (full-bleed boxes over `full_bleed_fraction` of the width are left out). |
+| `lopsided_section` | 390, 1280 | A section (`selectors.frame_sections`) at least `min_section_px` wide whose drawn lines fill under `max_content_fraction` of it and sit off-centre by more than `max_imbalance` of its width. |
+| `blank_stretch` | 390, 1280 | A vertical run of the page taller than `max_screens` screens with no text, picture, control or background picture. |
+| `no_first_screen_title` | 390, 1280 | The first screen has no `selectors.frame_titles` heading and no text of `min_title_px` or larger. |
+| `untitled_section` | 390, 1280 | A section with at least `min_words` words and no visible `selectors.frame_section_titles` heading. |
+| `left_edge_crowding` | 390, 1280 | At least `min_count` text blocks start within `within_px` of the left edge while under `max_right_share` as many come that near the right. |
+| `edge_padding` (existing) | 390, 1280 | Text touching the browser's edge: F-1117's "edge text" is this rule, not a new one. |
+| `reduced_motion_hidden` | 390, 1280 | The page is opened again with `prefers-reduced-motion: reduce` emulated (DevTools `Emulation.setEmulatedMedia`) and read after `settle_ms`; first-screen text (`selectors.motion_text`) seen in the ordinary pass is still see-through (under `min_opacity`), visibility hidden, not displayed, off the screen, clipped to under `min_shown_fraction`, or gone. The finding names the text and the reason from `reasons`. |
+| `control_name` (existing) | every width | Controls with no accessible name: F-1149's accessible-name rule is this one, not a new one. |
+| `tab_order_positive` | 1280 | A tab stop (`selectors.tab_stops`) has a tabindex above 0. |
+| `tab_order_backwards` | 390, 1280 | In Tab order (positive tabindex first, then the page's order) the next stop is more than `max_jump_up_px` above the one before. |
+| `heading_skip` | 1280 | A heading (`selectors.heading_levels`) is more than one level below the heading before it. |
+| `heading_h1_count` | 1280 | No `selectors.top_headings`, or more than `most`. |
+| `page_title`, `page_lang`, `page_description`, `page_viewport` | 1280 | `<title>` shorter than `min_chars`; no `<html lang>`; meta description shorter than `min_chars`; no viewport meta matching `content_pattern`. |
+
+`test/rendered-frame.test.mjs`, `test/reduced-motion-pass.test.mjs` and `test/page-rules-names-tab-headings-metadata.test.mjs` plant a page that makes each rule fire and a clean page that makes none fire.
 
 ## Dependencies
 
