@@ -180,3 +180,21 @@ test('an owner index keeps its own layout: staying rows keep their text, moved r
     assert.equal(after, own.replace('"owner": ["tools/labels/"]}\n', '"owner": ["tools/labels/"]},\n    {"capability": "weigh the beans", "owner": ["tools/weigh-beans/src/weigh.mjs"], "entry": "tools/weigh-beans/src/weigh.mjs", "evidence": "The weighing reads the shared scale and answers grams."}\n'));
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
+
+test('a lane adds only the packages the files it moves import; a group that waits brings its own later', () => {
+  const files = sourceFiles();
+  files['src/weigh.mjs'] = "import { scale } from '../lib/scale.mjs';\nimport tiny from 'tiny-thing';\nexport const weigh = n => scale(n) * 2 + tiny;\n";
+  const source = repository(files);
+  const destination = repository(destinationFiles());
+  try {
+    const plan = moveCode({ step: 'plan', row, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.packages_to_add, { 'tiny-thing': '1.2.3' });
+    moveCode({ step: 'apply', row, source_folder: source, destination_folder: destination, apply_groups: ['count-beans'] });
+    assert.equal(JSON.parse(readFileSync(join(destination, 'package.json'), 'utf8')).dependencies, undefined, 'count-beans imports no package');
+    git(source, 'add', '-A'); git(source, 'commit', '-q', '-m', 'lane one');
+    git(destination, 'add', '-A'); git(destination, 'commit', '-q', '-m', 'lane one');
+    const done = moveCode({ step: 'apply', row, source_folder: source, destination_folder: destination, apply_groups: ['weigh-beans'] });
+    assert.deepEqual(done.applied.packages_added, ['tiny-thing']);
+    assert.deepEqual(JSON.parse(readFileSync(join(destination, 'package.json'), 'utf8')).dependencies, { 'tiny-thing': '1.2.3' });
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
