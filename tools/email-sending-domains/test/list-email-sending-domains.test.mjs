@@ -46,3 +46,22 @@ test('the sending-key row asks for a sending-only key and keeps the reply\'s tok
   assert.ok(new RegExp(maker.input_schema.properties.keep_as.pattern).test('resend-sign-in-proof-key'));
   assert.ok(!new RegExp(maker.input_schema.properties.keep_as.pattern).test('Resend API Key'));
 });
+
+test('the domain rows add, read and check a domain with the held key in the header, and change no DNS', () => {
+  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const header = [{ secret_name: 'resend-api-key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }];
+  const add = rows.find(one => one.id === 'tool:add-an-email-sending-domain');
+  assert.deepEqual([add.invoke.kind, add.invoke.method, add.invoke.url], ['http', 'POST', 'https://api.resend.com/domains']);
+  assert.deepEqual(add.invoke.credential_injections, header);
+  assert.deepEqual(add.input_schema.required, ['name']);
+  const read = rows.find(one => one.id === 'tool:read-an-email-sending-domain');
+  assert.deepEqual([read.invoke.method, read.invoke.url], ['GET', 'https://api.resend.com/domains/{domain_id}']);
+  const check = rows.find(one => one.id === 'tool:check-an-email-sending-domain');
+  assert.deepEqual([check.invoke.method, check.invoke.url], ['POST', 'https://api.resend.com/domains/{domain_id}/verify']);
+  for (const row of [read, check]) {
+    assert.deepEqual(row.invoke.credential_injections, header);
+    const id = new RegExp(row.input_schema.properties.domain_id.pattern);
+    assert.ok(id.test('4dd369bc-aa82-4ff3-97de-514ae3000ee0') && !id.test('../api-keys') && !id.test('a/b'), row.id);
+  }
+  for (const row of [add, read, check]) assert.equal(row.result_selector, '$', row.id);
+});
