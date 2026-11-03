@@ -180,6 +180,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `invoke` (container) | `{ "kind": "container", "files": { "package_files": { "package": "<folder>", "paths": ["do-work"], "at": "/opt/<folder>" } }, "workdir", "argv": ["node", "do-work/<file>.mjs"], "stdin": { "fill": { "from": "input" } }, "stdout": "json" }` | Trillion packs the named files from this folder, runs `argv` in a sealed container with the input on standard input, and reads the last JSON line printed. |
 | Row source | `{ "kind": "tool-row-source", "id": "source:<name>", "list": { "records": { "package": "<folder>", "kind": "ai-tool-descriptor" } } }` | Lists the rows kept in a folder's `records.json` instead of `tool-rows.json`. |
 | `verify` | `[{ "kind": "sample-run", "input": {...}, "output_selector": "$.x", "contains": "..." }]` | Trillion runs the sample before offering the tool and refuses it when the output does not contain the expected text. |
+| `admit-attachments-to-a-message` | Decides how many of the files sent with a message are accepted (per-turn cap, daily quota, size ceiling) and says which limit stopped the rest | `tool:admit-attachments-to-a-message` |
 
 ## Folder layout
 
