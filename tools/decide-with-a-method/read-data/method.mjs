@@ -113,6 +113,15 @@ function workflowCheck(row) {
  * who judges the checks and the words the calling AI is given for it ({ grader, words }); the calling AI judges, so no
  * model is asked here.
  */
+// How many checks an answered step asked the judge and how many have a verdict: a step read whole counts its verdicts
+// against the checks it handed the judge, and a step read as its summary carries both counts. A step answered before
+// checks were counted asked none.
+export function ungradedOf(entry) {
+  const checks = entry?.checks ?? entry?.judged_checks ?? 0;
+  const graded = entry?.graded ?? (Array.isArray(entry?.verdicts) ? entry.verdicts.length : 0);
+  return { checks, graded, missing: Math.max(0, checks - graded) };
+}
+
 export function methodCatalogue(methodData, checkRows = [], { grader = { grader: 'self', words: '' } } = {}) {
   if (!Array.isArray(methodData) || !methodData.length) throw new Error('Install at least one method.');
   const methods = loadMethods(methodData);
@@ -164,13 +173,14 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     return method.steps.filter(step => !step.when || active[step.when] === true);
   }
 
-  // The step asked next: the first step of the method, in order, that has no answer yet or whose answer needs a recheck
-  // (a later step of a revised answer). Every step after an answer that was revised is flagged, so none is skipped.
+  // The step asked next: the first step of the method, in order, that has no answer yet, whose answer needs a recheck
+  // (a later step of a revised answer), or whose answer still lacks a judge's verdict on a check it asked. Every step
+  // after an answer that was revised is flagged, so none is skipped, and an ungraded step is asked until it is graded.
   function nextStepOf(record) {
     const guidance = record.guidance ?? [];
     return stepsFor(record).find(step => {
       const entry = guidance.find(item => item.step_id === step.id);
-      return !entry || entry.needs_recheck === true;
+      return !entry || entry.needs_recheck === true || ungradedOf(entry).missing > 0;
     }) ?? null;
   }
 
@@ -488,6 +498,12 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     // An answer a later revision reached again: which step was revised, and the version this answer is at.
     const answered = (record.guidance ?? []).find(item => item.step_id === step.id);
     if (answered?.needs_recheck) question.recheck = { revised_step: answered.recheck_of ?? null, version: answered.version ?? 1 };
+    // An answer kept before every check had a verdict: how many of its checks are graded, so the judge's verdicts on the
+    // rest are added to it (confirm with verdicts) before anything later is asked.
+    else if (answered && ungradedOf(answered).missing > 0) {
+      const { checks, graded } = ungradedOf(answered);
+      question.ungraded = { checks, graded, version: answered.version ?? 1 };
+    }
     // Each check as its id and its question; what a good answer does and what it refuses come by id on request
     // (checkTexts), so a step of many checks is not sent whole every time it is asked.
     if (checklist.length) question.checklist = checklist.map(({ id, check }) => ({ id, check }));
