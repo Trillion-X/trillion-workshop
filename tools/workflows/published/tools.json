@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:c82f031a8608211a88212da31b467b8b00c24fdaa29a6489281830c7ca167d97"
+  "blake3": "1f:144dc47988ecc4c3d57191ce611dbd230a49b1258179ce0b04e5301a5a4c90bb"
  },
  "fields": [
   {
@@ -1780,6 +1780,21 @@
      "placement:your-computer"
     ],
     "folder": "office-files"
+   }
+  },
+  {
+   "id": "tool:end-a-decision",
+   "values": {
+    "title": "End decisions no one will carry on",
+    "job": "Close decisions that will never be carried on, and keep why",
+    "description": "Sets each named decision's status to ended and keeps the status it had (previous_status), ended_at, ended_by and ended_because, with every other field unchanged and nothing deleted. Each write is conditioned on the value just read: a decision that changed meanwhile answers conflict. A decision in outcome_verified, correction_needed or verification is not ended. 1 to 256 decisions per call.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
    }
   },
   {
