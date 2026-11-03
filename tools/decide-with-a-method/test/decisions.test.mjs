@@ -278,8 +278,8 @@ test('the tool rows reach only the decision records, the person\'s pursuits and 
     assert.ok(row, `${id} has a row`);
     const rights = row.invoke.records.rights;
     for (const right of rights) assert.ok([...decisionKinds, 'pursuit', 'record:method', 'record:method-check'].includes(right.kind), `${id} reaches ${right.kind}`);
-    // Ending a decision changes its root alone, so it reaches no other part of a decision.
-    if (id !== 'tool:end-a-decision') for (const kind of decisionKinds.filter(each => each !== 'decision-call')) assert.ok(rights.some(right => right.kind === kind), `${id} reaches ${kind}, where a decision keeps its parts`);
+    // Ending a large old-layout decision goes through its record layout, so every decision tool reaches each laid-apart kind.
+    for (const kind of decisionKinds.filter(each => each !== 'decision-call')) assert.ok(rights.some(right => right.kind === kind), `${id} reaches ${kind}, where a decision keeps its parts`);
     if (['tool:add-decision-evidence', 'tool:end-a-decision'].includes(id)) assert.ok(!rights.some(right => right.kind.startsWith('record:')), 'adding evidence reads no method rows');
     else for (const kind of ['record:method', 'record:method-check']) assert.deepEqual(rights.find(right => right.kind === kind)?.operations, ['records:list'], `${id} only lists ${kind} rows`);
     assert.ok(!rights.some(right => right.kind === 'pursuit' && right.operations.includes('records:write')), `${id} never writes a pursuit`);
