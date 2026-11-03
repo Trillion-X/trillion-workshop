@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/screen-look/read-data/theme-from-inputs.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/screen-looks/read-data/theme-from-inputs.ts",
+      "source_identity": "1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
+      "identity": "1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6"
+    },
+    {
+      "from": "parts/screen-look/read-data/tint-look.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/screen-looks/read-data/tint-look.ts",
+      "source_identity": "1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab",
+      "identity": "1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab"
+    },
+    {
+      "from": "parts/screen-look/theme-inputs.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/screen-looks/theme-inputs.json",
+      "source_identity": "1f:5582aba889387a68e58fd14c6db1fdfc02bb0cfa2198fbd37a330f6535b0765f",
+      "identity": "1f:5582aba889387a68e58fd14c6db1fdfc02bb0cfa2198fbd37a330f6535b0765f"
+    },
+    {
+      "from": "parts/screen-look/tint-rules.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/screen-looks/tint-rules.json",
+      "source_identity": "1f:341745857d6b56c207d8096cc5582fcc0d853be7cf35b21764ab87e902107bfb",
+      "identity": "1f:341745857d6b56c207d8096cc5582fcc0d853be7cf35b21764ab87e902107bfb"
+    }
+  ]
+}
