@@ -1,13 +1,13 @@
-// test/diagram-tools.test.mjs
+// tools/draw-a-change-as-a-diagram/test/diagram-tools.test.mjs
 //
-// draw_diagram (src/diagram-tools.mjs): without a document it gives the writing brief and the exact outbound list; with one it is
+// draw_diagram (do-work/diagram-tools.mjs): without a document it gives the writing brief and the exact outbound list; with one it is
 // checked, contained, drawn as standalone SVG and a live command is checked against its ids; a bad document is refused with the
 // validator's words.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { makeTools } from '../src/tools.mjs';
+import { diagramTools } from '../do-work/diagram-tools.mjs';
 
-const tool = makeTools({ call: async () => ({}) }).find((item) => item.name === 'draw_diagram');
+const tool = diagramTools().find((item) => item.name === 'draw_diagram');
 const document = { lanes: [{ id: 'core', label: 'Core', nodes: [{ id: 'pay', label: 'Payment', delta: 'modified' }, { id: 'ledger', label: 'Ledger', delta: 'added' }] }], edges: [{ from: 'pay', to: 'ledger', delta: 'added' }] };
 const OPEN = String.fromCharCode(60);
 

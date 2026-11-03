@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/author-input.mjs
+// tools/draw-a-change-as-a-diagram/do-work/author-input.mjs
 //
 // WHAT LEAVES THE MACHINE WHEN A MODEL IS ASKED FOR A GRAPH: CHOSEN BY PRIORITY, FILTERED BEFORE ANYTHING IS SENT, LISTED EXACTLY.
 //
@@ -15,7 +15,7 @@
 //   4. Every exclusion, class, limit and word is DATA (./author-input.json). Pure: the same input and rules, the same list.
 //
 // Key concepts: `boundAuthorInput(files, rules?)` -> { sent, left_out, bytes }; `outboundList(bounded, rules?)` -> lines.
-import authorInput from './author-input.json' with { type: 'json' };
+import authorInput from '../read-data/author-input.json' with { type: 'json' };
 import { selectorTest } from './select-glob.mjs';
 
 const encoder = new TextEncoder();

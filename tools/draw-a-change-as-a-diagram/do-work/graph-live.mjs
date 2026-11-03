@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/graph-live.mjs
+// tools/draw-a-change-as-a-diagram/do-work/graph-live.mjs
 //
 // A READER'S OWN AI STEERS AN OPEN GRAPH PICTURE THROUGH A FEW TYPED COMMANDS; THE APP ONLY CHECKS EVERY ID.
 //
@@ -16,8 +16,8 @@
 //   5. Nothing here changes the document in hand.
 //
 // Key concepts: `graphAddresses(document)`, `resolveLiveCommand(document, command)`.
-import live from './graph-live.json' with { type: 'json' };
-import contract from './graph-contract.json' with { type: 'json' };
+import live from '../read-data/graph-live.json' with { type: 'json' };
+import contract from '../read-data/graph-contract.json' with { type: 'json' };
 import { renderGraphDocument, validateGraphDocument } from './graph-contract.mjs';
 import { applyGraphOps } from './graph-patch.mjs';
 

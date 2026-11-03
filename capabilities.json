@@ -1676,6 +1676,17 @@
       ]
     },
     {
+      "capability": "turn words or a code change into a checked diagram document of lanes, nodes and edges my AI writes, change it by typed operations bound to its identity, keep my fixes over it, and draw it as standalone SVG files",
+      "owner": ["tools/draw-a-change-as-a-diagram/"],
+      "entry": "tools/draw-a-change-as-a-diagram/tool-rows.json",
+      "evidence": "tools/draw-a-change-as-a-diagram/README.md:3 one graph contract (graph-contract.mjs), typed patches checked against the from and to identities (graph-patch.mjs), corrections kept beside an inferred document, the bounded model input (author-input.mjs) and the standalone SVG with its atlas (graph-svg.mjs), moved from old trillion parts/ui/show/layer-diagram",
+      "distinct_from": [
+        {"job": "lay out a diagram of boxes and arrows in layers so few arrows cross, with its own quality numbers, and draw it as a standalone SVG themed by the page's colours", "why": "that owner computes positions for any boxes and arrows handed in and diffs two of them; this one holds one typed graph document of change states that an AI authors, checks it by a contract, evolves it by identity-bound patches and human corrections, and draws it with baked palettes"},
+        {"job": "stage, diff and commit changes in a git working tree", "why": "that owner reads and makes git changes; this one draws a list of changed files (or a document written from a diff) as a picture and says exactly what of a diff a model would be shown"},
+        {"job": "relate any of a person's records with the role as data and keep what happened between them, then read the graph around a record and find how records connect", "why": "that owner keeps a person's records as a graph; this one draws one diagram document and keeps no records"}
+      ]
+    },
+    {
       "capability": "cover a person's workspace until every required setup step is done, then hold the one must-do row that unblocks the most until it is done, set aside with a reason or handed back to their AIs",
       "owner": ["tools/hold-one-thing-until-done/"],
       "entry": "tools/hold-one-thing-until-done/tool-rows.json",

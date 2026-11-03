@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/graph-authoring.mjs
+// tools/draw-a-change-as-a-diagram/do-work/graph-authoring.mjs
 //
 // ASKING A MODEL FOR A GRAPH DOCUMENT: THE VALIDATOR'S OWN RULES IN, THE HOST'S FACTS OVER, ONE REPAIR, SAFE WORDS OUT.
 //
@@ -22,8 +22,8 @@
 // Key concepts: `graphIdentifiers(document)`, `graphAuthoringBrief(rules?)`, `stampHostFields(document, host)`, `containModelText(text, rules?)`,
 // `authorGraphDocument({ ask, request, host })`.
 
-import authoring from './graph-authoring.json' with { type: 'json' };
-import contract from './graph-contract.json' with { type: 'json' };
+import authoring from '../read-data/graph-authoring.json' with { type: 'json' };
+import contract from '../read-data/graph-contract.json' with { type: 'json' };
 import { validateGraphDocument } from './graph-contract.mjs';
 import { boundAuthorInput, outboundList } from './author-input.mjs';
 

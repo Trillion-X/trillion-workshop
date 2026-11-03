@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/graph-svg.mjs
+// tools/draw-a-change-as-a-diagram/do-work/graph-svg.mjs
 //
 // A GRAPH DOCUMENT AS ONE STANDALONE SVG FILE: NO SCRIPT, NO OUTSIDE REFERENCE, COLOURS BAKED IN, NAMED BY ITS BYTES.
 //
@@ -25,12 +25,12 @@
 //
 // Key concepts: `graphDocumentSvg(document, { palette, orientation, animated })`, `graphSvgAssets(document)`.
 
-import svgRules from './graph-svg.json' with { type: 'json' };
-import contract from './graph-contract.json' with { type: 'json' };
-import { element, serialise, textOf } from '../server-rendered-page/markup-tree.mjs';
+import svgRules from '../read-data/graph-svg.json' with { type: 'json' };
+import contract from '../read-data/graph-contract.json' with { type: 'json' };
+import { element, serialise, textOf } from './markup-tree.mjs';
 import { graphIdentity, identityOf, validateGraphDocument } from './graph-contract.mjs';
 import { HEAD_BOX, layerDiagramAtlas, layerDiagramLayout, layerDiagramNodeParts } from './layer-diagram.mjs';
-import { screenLookFontFamily } from '../../../screen-look/read-data/resolve-screen-look-palette.js';
+import { screenLookFontFamily } from '../../screen-looks/read-data/resolve-screen-look-palette.js';
 
 const round = (value) => Math.round(value * 10) / 10;
 const fill = (template, values) => template.replace(/\{(\w+)\}/gu, (whole, name) => (name in values ? String(values[name]) : whole));

@@ -1,4 +1,4 @@
-// src/diagram-tools.mjs
+// tools/draw-a-change-as-a-diagram/do-work/diagram-tools.mjs
 //
 // WORDS OR A DIFF BECOME A DIAGRAM THE DOCUMENT PAGE SHOWS AND THE PERSON CAN EXPORT AS SVG, WITH THEIR OWN AI AS THE AUTHOR.
 //
@@ -12,10 +12,10 @@
 //   1. Nothing here calls a model: the document comes from the caller; a refused one comes back with the validator's own words.
 //   2. The page block returned is the document itself, which the document page already draws; the SVG files are exports of it.
 //   3. Read-only: nothing is stored or posted (picture_a_change posts).
-import { authorGraphDocument, graphAuthoringBrief, graphIdentifiers } from '../parts/ui/show/layer-diagram/graph-authoring.mjs';
-import { graphIdentity } from '../parts/ui/show/layer-diagram/graph-contract.mjs';
-import { graphSvgAssets } from '../parts/ui/show/layer-diagram/graph-svg.mjs';
-import { resolveLiveCommand } from '../parts/ui/show/layer-diagram/graph-live.mjs';
+import { authorGraphDocument, graphAuthoringBrief, graphIdentifiers } from './graph-authoring.mjs';
+import { graphIdentity } from './graph-contract.mjs';
+import { graphSvgAssets } from './graph-svg.mjs';
+import { resolveLiveCommand } from './graph-live.mjs';
 
 export const diagramTools = () => [
   { name: 'draw_diagram', description: 'Turns words or a code change into a diagram of lanes, nodes and edges, each marked added, changed, removed or unchanged. Call it first with request (and files: [{ path, text }] for a large input) and no document: it answers brief (the schema and message to write a graph document by) and outbound, the exact list of which files a model would be shown and which would not leave (secrets, lock files, binaries). Write the document, then call it again with document: it is checked (a refusal lists each problem with its path), its text is contained, and it answers page_block (put it in a document page, which draws it), svg_files (one standalone image per palette, named by the identity of its bytes), identity, identifiers (the ids to copy exactly), and, if command is given ({ kind: answer | show | sketch, ... }), that command checked against the document\'s ids with where the named parts are drawn and, for a sketch, the changed copy. It stores and posts nothing.', inputSchema: { type: 'object', properties: {

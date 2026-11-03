@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/layer-diagram.d.mts
+// tools/draw-a-change-as-a-diagram/do-work/layer-diagram.d.mts
 // Types for layer-diagram.mjs, for TypeScript callers such as LayerDiagram.tsx.
 
 export interface LayerDiagramPlacedMark { image: string | null; letters: string | null }

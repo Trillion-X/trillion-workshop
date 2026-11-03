@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/graph-contract.mjs
+// tools/draw-a-change-as-a-diagram/do-work/graph-contract.mjs
 //
 // A TYPED GRAPH DOCUMENT, CHECKED, THEN DRAWN THE SAME EVERY TIME.
 //
@@ -26,11 +26,11 @@
 // Key concepts: `graphIdentity(document)`, `validateGraphDocument(document, contract?)` -> { ok, errors, warnings, diagram },
 // `renderGraphDocument(document, contract?)` -> { ok, errors, warnings, html, atlas, identity }, `graphDocumentHtml`.
 
-import { blake3 } from '../../../live-namespace/do-work/blake3.mjs';
+import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import contract from './graph-contract.json' with { type: 'json' };
-import { escapeHtml } from '../server-rendered-page/escape-html.mjs';
-import { sanitizeErrorText } from '../safe-error-card/sanitize-error-text.ts';
+import contract from '../read-data/graph-contract.json' with { type: 'json' };
+import { escapeHtml } from './escape-html.mjs';
+import { sanitizeErrorText } from './sanitize-error-text.ts';
 import { layerDiagramAtlas, layerDiagramHtml, layerDiagramLayout } from './layer-diagram.mjs';
 
 const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);

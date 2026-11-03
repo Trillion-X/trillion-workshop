@@ -1,0 +1,14 @@
+{
+  "public": [
+    "do-work/requests.mjs",
+    "do-work/graph-contract.mjs",
+    "do-work/graph-patch.mjs",
+    "do-work/graph-svg.mjs",
+    "do-work/graph-authoring.mjs",
+    "do-work/graph-live.mjs",
+    "do-work/author-input.mjs",
+    "do-work/change-graph.mjs",
+    "do-work/change-picture.mjs",
+    "do-work/diagram-tools.mjs"
+  ]
+}

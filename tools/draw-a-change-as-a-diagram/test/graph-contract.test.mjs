@@ -1,4 +1,4 @@
-// test/graph-contract.test.mjs
+// tools/draw-a-change-as-a-diagram/test/graph-contract.test.mjs
 //
 // The typed graph contract (parts/ui/show/layer-diagram/graph-contract.mjs) checks a graph document in two passes and
 // draws a valid one through the layer diagram's one layout: the same document is the same bytes, its geometry sidecar
@@ -8,10 +8,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import contract from '../parts/ui/show/layer-diagram/graph-contract.json' with { type: 'json' };
-import { graphDocumentHtml, renderGraphDocument, validateGraphDocument } from '../parts/ui/show/layer-diagram/graph-contract.mjs';
-import { layerDiagramLayout } from '../parts/ui/show/layer-diagram/layer-diagram.mjs';
-import { documentPageHtml } from '../parts/ui/show/document-page/document-page-html.mjs';
+import contract from '../read-data/graph-contract.json' with { type: 'json' };
+import { graphDocumentHtml, renderGraphDocument, validateGraphDocument } from '../do-work/graph-contract.mjs';
+import { layerDiagramLayout } from '../do-work/layer-diagram.mjs';
 
 const change = () => ({
   schema_version: 1, id: 'change', label: 'A change to checkout', caption: 'Added, modified and removed parts with their context.',
@@ -137,11 +136,7 @@ test('an unknown kind draws plain with a warning, or is refused, as the DATA say
   assert.deepEqual(codes(document, strict), ['REFUSED_KIND']);
 });
 
-test('a document page block draws a valid graph and says why an invalid one cannot be drawn, escaped', () => {
-  const page = (graph) => documentPageHtml({ title: 'T', blocks: [{ heading: 'H', graph }] });
-  const ok = page(change());
-  assert.ok(ok.includes('class="layer-diagram"') && ok.includes('Ledger') && ok.includes('.layer-diagram__node'));
-  const refused = page({ ...change(), lanes: [{ id: 'l', nodes: [{ id: '<b>', label: 'x', delta: 'added' }] }] });
-  assert.ok(refused.includes('layer-diagram-refused') && refused.includes('BAD_ID') && !refused.includes('<b>'));
+
+test('no graph document draws nothing', () => {
   assert.equal(graphDocumentHtml(undefined), '');
 });

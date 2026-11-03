@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:22f7263d34850438cbc145bcd77f3b5b1a82aa49e35b6776cc081a0a15457224"
  },
  "fields": [
   {
@@ -1589,6 +1589,21 @@
    }
   },
   {
+   "id": "tool:correct-an-inferred-diagram",
+   "values": {
+    "title": "Keep a person's fixes over an inferred diagram",
+    "job": "Apply a person's kept fixes (rename, exclude, re-describe, move to a lane) over an inferred diagram after every regeneration, and say which fixes no longer match",
+    "description": "Give document (the inferred graph document) and corrections, rows of { select, exclude?, label?, detail?, lane? }: select is a node id or a glob where * matches any run of characters. Each row applies to every node it selects, in the order kept. Answers ok, the corrected document, how many operations applied, and unmatched (the selectors that matched no node, so a stale fix is seen). The inferred document is never edited.",
+    "status": "active",
+    "maker": "maker:draw-a-change-as-a-diagram",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "draw-a-change-as-a-diagram"
+   }
+  },
+  {
    "id": "tool:correct-resource-usage-settlement",
    "values": {
     "title": "Correct a resource usage settlement",
@@ -1780,6 +1795,21 @@
      "placement:small-container"
     ],
     "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:draw-a-diagram",
+   "values": {
+    "title": "Draw words or a code change as a diagram",
+    "job": "Turn words or a code change into a diagram of lanes, nodes and edges my AI writes, checked and drawn as standalone SVG files",
+    "description": "Call it first with request (and files: [{ path, text }] for a large input such as the files of a change) and no document: it answers brief (the system message and JSON Schema to write a graph document by) and outbound, the exact list of which files a model would be shown and which would not leave (secrets, lock files, binaries). Write the document, then call it again with document: it is checked (a refusal lists each problem with its path), its text is contained, the host fields given in host are stamped over it, and it answers page_block, svg_files (one standalone SVG per palette, named by the identity of its bytes), manifest, identity, identifiers and warnings; with command ({ kind: answer | show | sketch, ... }) that command is checked against the document's ids. Nothing is stored or posted; no model is called.",
+    "status": "active",
+    "maker": "maker:draw-a-change-as-a-diagram",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "draw-a-change-as-a-diagram"
    }
   },
   {
@@ -4597,6 +4627,21 @@
    }
   },
   {
+   "id": "tool:patch-a-diagram",
+   "values": {
+    "title": "Change a stored diagram by typed operations",
+    "job": "Change a stored graph document by typed operations, refused if it was written against an older copy or does not give the copy it promises",
+    "description": "Give document (the stored graph document) and patch { graph, from, to, ops }: graph is the document's id, from the identity of the document the patch was written against, to the identity it must give, ops the operations in order (set_document, add_lane, set_lane, remove_lane, add_node, set_node, move_node, remove_node, add_edge, set_edge, remove_edge). Answers ok, the new document and its identity, or the first refusal with its code, path and words. Removing a thing removes what points at it. The document given is never changed.",
+    "status": "active",
+    "maker": "maker:draw-a-change-as-a-diagram",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "draw-a-change-as-a-diagram"
+   }
+  },
+  {
    "id": "tool:pay-someone-a-share-through-stripe",
    "values": {
     "title": "Pay someone a share through Stripe",
@@ -4654,6 +4699,21 @@
      "placement:your-computer"
     ],
     "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
+   "id": "tool:picture-changed-files",
+   "values": {
+    "title": "Picture a list of changed files",
+    "job": "Turn a list of changed files into a diagram, a lane per folder and a node per file with its change state, drawn as standalone SVG files, with nothing sent anywhere",
+    "description": "Give files, the changed files as a code host lists them ({ filename, status, additions?, deletions?, previous_filename? }). Answers document (a valid graph document: a lane per folder, a node per file whose id is a hash of its path, the overflow gathered into one rest node whose counts add up) and the drawing: files (one standalone SVG per palette named by the identity of its bytes) and manifest. No model is called and nothing leaves the container.",
+    "status": "active",
+    "maker": "maker:draw-a-change-as-a-diagram",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "draw-a-change-as-a-diagram"
    }
   },
   {

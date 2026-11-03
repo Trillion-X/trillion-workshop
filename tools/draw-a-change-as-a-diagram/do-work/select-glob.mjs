@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/select-glob.mjs
+// tools/draw-a-change-as-a-diagram/do-work/select-glob.mjs
 //
 // The one way a selector with `*` wildcards becomes a test, shared by every place a graph document's inputs or
 // corrections are selected by name (./graph-patch.mjs corrections, ./author-input.mjs path rules).

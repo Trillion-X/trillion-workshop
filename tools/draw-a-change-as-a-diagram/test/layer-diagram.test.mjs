@@ -1,4 +1,4 @@
-// test/layer-diagram.test.mjs
+// tools/draw-a-change-as-a-diagram/test/layer-diagram.test.mjs
 //
 // The layer diagram draws who connects to what from DATA, in React and in server pages, from one layout.
 // It must be deterministic, drop what it cannot draw, never pass a caller value into markup unescaped,
@@ -6,8 +6,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { diagramImageSrc, layerDiagramHtml, layerDiagramLayout, layerDiagramNodeParts, LAYER_DIAGRAM_CSS } from '../parts/ui/show/layer-diagram/layer-diagram.mjs';
-import { documentPageHtml } from '../parts/ui/show/document-page/document-page-html.mjs';
+import { diagramImageSrc, layerDiagramHtml, layerDiagramLayout, layerDiagramNodeParts, LAYER_DIAGRAM_CSS } from '../do-work/layer-diagram.mjs';
 
 const spaces = {
   id: 'spaces',
@@ -213,10 +212,3 @@ test('it knows no product: a kitchen lays out like people and their AIs', () => 
   assert.equal(kitchen.edges[1].label, 'not today');
 });
 
-test('a document block draws its diagram, and the look is sent only with a page that has one', () => {
-  const withDiagram = documentPageHtml({ title: 't', description: 'd', blocks: [{ heading: 'Spaces', diagram: spaces }] });
-  assert.match(withDiagram, /<figure class="layer-diagram" role="img"/);
-  assert.match(withDiagram, /\.layer-diagram__edge--strong/);
-  const without = documentPageHtml({ title: 't', description: 'd', blocks: [{ heading: 'Plain', markdown: 'words' }] });
-  assert.doesNotMatch(without, /layer-diagram/);
-});

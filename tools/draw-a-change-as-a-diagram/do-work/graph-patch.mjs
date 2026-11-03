@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/graph-patch.mjs
+// tools/draw-a-change-as-a-diagram/do-work/graph-patch.mjs
 //
 // A GRAPH DOCUMENT THAT CHANGES BY TYPED OPERATIONS, AND HUMAN FIXES THAT OUTLIVE REGENERATION.
 //
@@ -25,8 +25,8 @@
 //
 // Key concepts: `applyGraphPatch(document, patch)`, `applyGraphOps(document, ops)`, `applyGraphCorrections(document, corrections)`.
 
-import patchRules from './graph-patch.json' with { type: 'json' };
-import contract from './graph-contract.json' with { type: 'json' };
+import patchRules from '../read-data/graph-patch.json' with { type: 'json' };
+import contract from '../read-data/graph-contract.json' with { type: 'json' };
 import { graphIdentity, validateGraphDocument } from './graph-contract.mjs';
 import { selectorTest } from './select-glob.mjs';
 

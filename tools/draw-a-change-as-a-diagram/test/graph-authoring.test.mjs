@@ -1,4 +1,4 @@
-// test/graph-authoring.test.mjs
+// tools/draw-a-change-as-a-diagram/test/graph-authoring.test.mjs
 //
 // Asking a model for a graph document (parts/ui/show/layer-diagram/graph-authoring.mjs): the message and the schema are the
 // validator's own rules read from DATA, the host's facts overwrite the model's, its words are made safe before they are
@@ -6,10 +6,10 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import contract from '../parts/ui/show/layer-diagram/graph-contract.json' with { type: 'json' };
-import authoring from '../parts/ui/show/layer-diagram/graph-authoring.json' with { type: 'json' };
-import { validateGraphDocument } from '../parts/ui/show/layer-diagram/graph-contract.mjs';
-import { authorGraphDocument, containDocumentText, containModelText, graphAuthoringBrief, readModelObject, repairMessage, stampHostFields } from '../parts/ui/show/layer-diagram/graph-authoring.mjs';
+import contract from '../read-data/graph-contract.json' with { type: 'json' };
+import authoring from '../read-data/graph-authoring.json' with { type: 'json' };
+import { validateGraphDocument } from '../do-work/graph-contract.mjs';
+import { authorGraphDocument, containDocumentText, containModelText, graphAuthoringBrief, readModelObject, repairMessage, stampHostFields } from '../do-work/graph-authoring.mjs';
 
 const good = () => ({
   schema_version: 99, id: 'change', label: 'A change',
@@ -130,7 +130,7 @@ test('a large input is bounded and filtered before the model sees it, and a dry 
 });
 
 test('every lane and node id has a name an AI can use as an identifier in code, stable and never shared', async () => {
-  const { graphIdentifiers } = await import('../parts/ui/show/layer-diagram/graph-authoring.mjs');
+  const { graphIdentifiers } = await import('../do-work/graph-authoring.mjs');
   const document = good();
   document.lanes.push({ id: '9-lane', label: 'L', nodes: [{ id: 'pay.v2', label: 'a', delta: 'added' }, { id: 'pay_v2', label: 'b', delta: 'added' }, { id: 'a-b', label: 'c', delta: 'added' }, { id: 'a_b', label: 'd', delta: 'added' }] });
   const { byId, byName } = graphIdentifiers(document);

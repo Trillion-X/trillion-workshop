@@ -1,4 +1,4 @@
-// test/graph-svg.test.mjs
+// tools/draw-a-change-as-a-diagram/test/graph-svg.test.mjs
 //
 // A graph document as one standalone SVG (parts/ui/show/layer-diagram/graph-svg.mjs): the same bytes every run, no script
 // and no outside reference, colours baked from DATA palettes, moving dots only where a look asks for them, geometry that
@@ -8,10 +8,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import svgRules from '../parts/ui/show/layer-diagram/graph-svg.json' with { type: 'json' };
-import contract from '../parts/ui/show/layer-diagram/graph-contract.json' with { type: 'json' };
-import { graphIdentity, renderGraphDocument } from '../parts/ui/show/layer-diagram/graph-contract.mjs';
-import { graphDocumentSvg, graphSvgAssets } from '../parts/ui/show/layer-diagram/graph-svg.mjs';
+import svgRules from '../read-data/graph-svg.json' with { type: 'json' };
+import contract from '../read-data/graph-contract.json' with { type: 'json' };
+import { graphIdentity, renderGraphDocument } from '../do-work/graph-contract.mjs';
+import { graphDocumentSvg, graphSvgAssets } from '../do-work/graph-svg.mjs';
 
 const change = () => ({
   schema_version: 1, id: 'change', label: 'A change to <checkout> & "billing"', caption: 'Added, changed and removed parts.',

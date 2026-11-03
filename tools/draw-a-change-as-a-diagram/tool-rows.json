@@ -1,0 +1,768 @@
+{
+  "kind": "tool-rows",
+  "record_set": "draw-a-change-as-a-diagram-tool-rows",
+  "what_this_is": "The Workshop rows for tools/draw-a-change-as-a-diagram: a graph document of lanes, nodes and edges that a person's AI writes from words or a code change, checked by one contract, changed by typed operations bound to its identity, kept corrected by a person's fixes, and drawn as standalone SVG files. Each row runs one function of do-work/requests.mjs in the small container; no row calls a model or the network.",
+  "records": [
+    {
+      "id": "package::draw-a-change-as-a-diagram::tool::draw-a-diagram",
+      "address": "package::draw-a-change-as-a-diagram::tool::draw-a-diagram",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:draw-a-diagram",
+        "label": "Draw words or a code change as a diagram",
+        "status": "active",
+        "job": "Turn words or a code change into a diagram of lanes, nodes and edges my AI writes, checked and drawn as standalone SVG files",
+        "description": "Call it first with request (and files: [{ path, text }] for a large input such as the files of a change) and no document: it answers brief (the system message and JSON Schema to write a graph document by) and outbound, the exact list of which files a model would be shown and which would not leave (secrets, lock files, binaries). Write the document, then call it again with document: it is checked (a refusal lists each problem with its path), its text is contained, the host fields given in host are stamped over it, and it answers page_block, svg_files (one standalone SVG per palette, named by the identity of its bytes), manifest, identity, identifiers and warnings; with command ({ kind: answer | show | sketch, ... }) that command is checked against the document's ids. Nothing is stored or posted; no model is called.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "string"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "text"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "document": {
+              "type": "object",
+              "description": "A graph document: { schema_version, id, label, caption?, lanes: [{ id, label?, nodes: [{ id, label, detail?, kind?, delta, min_height? }] }], edges: [{ from, to, kind?, label?, delta }] }"
+            },
+            "host": {
+              "type": "object",
+              "description": "Fields the host already knows (id, label, caption)"
+            },
+            "command": {
+              "type": "object"
+            },
+            "orientation": {
+              "type": "string",
+              "enum": [
+                "across",
+                "down"
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "ok"
+          ],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "brief": {
+              "type": "object"
+            },
+            "outbound": {
+              "type": "array"
+            },
+            "errors": {
+              "type": "array"
+            },
+            "identity": {
+              "type": "string"
+            },
+            "svg_files": {
+              "type": "object"
+            },
+            "manifest": {
+              "type": "object"
+            },
+            "page_block": {
+              "type": "object"
+            },
+            "identifiers": {
+              "type": "object"
+            },
+            "warnings": {
+              "type": "array"
+            },
+            "live": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "draw-a-change-as-a-diagram",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/draw-a-change-as-a-diagram"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/draw-a-change-as-a-diagram",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "do-work/run-request.mjs",
+            "drawDiagram"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:draw-a-change-as-a-diagram",
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "document": {
+                "schema_version": 1,
+                "id": "sample-change",
+                "label": "A sample change",
+                "lanes": [
+                  {
+                    "id": "core",
+                    "label": "Core",
+                    "nodes": [
+                      {
+                        "id": "orders",
+                        "label": "Orders",
+                        "delta": "modified"
+                      },
+                      {
+                        "id": "ledger",
+                        "label": "Ledger",
+                        "delta": "added"
+                      }
+                    ]
+                  }
+                ],
+                "edges": [
+                  {
+                    "from": "orders",
+                    "to": "ledger",
+                    "delta": "added"
+                  }
+                ]
+              },
+              "host": {
+                "id": "sample-change",
+                "label": "A sample change"
+              }
+            },
+            "output_selector": "$.identity",
+            "contains": "1f:"
+          }
+        ],
+        "provenance": {
+          "source": "moved from Trillion-X/trillion parts/ui/show/layer-diagram and src/diagram-tools.mjs (original code)"
+        }
+      }
+    },
+    {
+      "id": "package::draw-a-change-as-a-diagram::tool::patch-a-diagram",
+      "address": "package::draw-a-change-as-a-diagram::tool::patch-a-diagram",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:patch-a-diagram",
+        "label": "Change a stored diagram by typed operations",
+        "status": "active",
+        "job": "Change a stored graph document by typed operations, refused if it was written against an older copy or does not give the copy it promises",
+        "description": "Give document (the stored graph document) and patch { graph, from, to, ops }: graph is the document's id, from the identity of the document the patch was written against, to the identity it must give, ops the operations in order (set_document, add_lane, set_lane, remove_lane, add_node, set_node, move_node, remove_node, add_edge, set_edge, remove_edge). Answers ok, the new document and its identity, or the first refusal with its code, path and words. Removing a thing removes what points at it. The document given is never changed.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "document",
+            "patch"
+          ],
+          "properties": {
+            "document": {
+              "type": "object",
+              "description": "A graph document: { schema_version, id, label, caption?, lanes: [{ id, label?, nodes: [{ id, label, detail?, kind?, delta, min_height? }] }], edges: [{ from, to, kind?, label?, delta }] }"
+            },
+            "patch": {
+              "type": "object",
+              "required": [
+                "graph",
+                "from",
+                "to",
+                "ops"
+              ],
+              "properties": {
+                "graph": {
+                  "type": "string"
+                },
+                "from": {
+                  "type": "string"
+                },
+                "to": {
+                  "type": "string"
+                },
+                "ops": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "ok",
+            "errors"
+          ],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "errors": {
+              "type": "array"
+            },
+            "document": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "identity": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "draw-a-change-as-a-diagram",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/draw-a-change-as-a-diagram"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/draw-a-change-as-a-diagram",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "do-work/run-request.mjs",
+            "patchDiagram"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:draw-a-change-as-a-diagram",
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "document": {
+                "schema_version": 1,
+                "id": "sample-change",
+                "label": "A sample change",
+                "lanes": [
+                  {
+                    "id": "core",
+                    "label": "Core",
+                    "nodes": [
+                      {
+                        "id": "orders",
+                        "label": "Orders",
+                        "delta": "modified"
+                      },
+                      {
+                        "id": "ledger",
+                        "label": "Ledger",
+                        "delta": "added"
+                      }
+                    ]
+                  }
+                ],
+                "edges": [
+                  {
+                    "from": "orders",
+                    "to": "ledger",
+                    "delta": "added"
+                  }
+                ]
+              },
+              "patch": {
+                "graph": "sample-change",
+                "from": "1f:0",
+                "to": "1f:0",
+                "ops": []
+              }
+            },
+            "output_selector": "$.errors[0].code",
+            "contains": "STALE_BASE"
+          }
+        ],
+        "provenance": {
+          "source": "moved from Trillion-X/trillion parts/ui/show/layer-diagram and src/diagram-tools.mjs (original code)"
+        }
+      }
+    },
+    {
+      "id": "package::draw-a-change-as-a-diagram::tool::correct-an-inferred-diagram",
+      "address": "package::draw-a-change-as-a-diagram::tool::correct-an-inferred-diagram",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:correct-an-inferred-diagram",
+        "label": "Keep a person's fixes over an inferred diagram",
+        "status": "active",
+        "job": "Apply a person's kept fixes (rename, exclude, re-describe, move to a lane) over an inferred diagram after every regeneration, and say which fixes no longer match",
+        "description": "Give document (the inferred graph document) and corrections, rows of { select, exclude?, label?, detail?, lane? }: select is a node id or a glob where * matches any run of characters. Each row applies to every node it selects, in the order kept. Answers ok, the corrected document, how many operations applied, and unmatched (the selectors that matched no node, so a stale fix is seen). The inferred document is never edited.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "document",
+            "corrections"
+          ],
+          "properties": {
+            "document": {
+              "type": "object",
+              "description": "A graph document: { schema_version, id, label, caption?, lanes: [{ id, label?, nodes: [{ id, label, detail?, kind?, delta, min_height? }] }], edges: [{ from, to, kind?, label?, delta }] }"
+            },
+            "corrections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "select"
+                ],
+                "properties": {
+                  "select": {
+                    "type": "string"
+                  },
+                  "exclude": {
+                    "type": "boolean"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "lane": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "ok",
+            "errors",
+            "unmatched"
+          ],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "errors": {
+              "type": "array"
+            },
+            "document": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "applied": {
+              "type": "integer"
+            },
+            "unmatched": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "draw-a-change-as-a-diagram",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/draw-a-change-as-a-diagram"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/draw-a-change-as-a-diagram",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "do-work/run-request.mjs",
+            "correctDiagram"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:draw-a-change-as-a-diagram",
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "document": {
+                "schema_version": 1,
+                "id": "sample-change",
+                "label": "A sample change",
+                "lanes": [
+                  {
+                    "id": "core",
+                    "label": "Core",
+                    "nodes": [
+                      {
+                        "id": "orders",
+                        "label": "Orders",
+                        "delta": "modified"
+                      },
+                      {
+                        "id": "ledger",
+                        "label": "Ledger",
+                        "delta": "added"
+                      }
+                    ]
+                  }
+                ],
+                "edges": [
+                  {
+                    "from": "orders",
+                    "to": "ledger",
+                    "delta": "added"
+                  }
+                ]
+              },
+              "corrections": [
+                {
+                  "select": "ord*",
+                  "label": "Orders desk"
+                },
+                {
+                  "select": "ghost"
+                }
+              ]
+            },
+            "output_selector": "$.unmatched[0]",
+            "contains": "ghost"
+          }
+        ],
+        "provenance": {
+          "source": "moved from Trillion-X/trillion parts/ui/show/layer-diagram and src/diagram-tools.mjs (original code)"
+        }
+      }
+    },
+    {
+      "id": "package::draw-a-change-as-a-diagram::tool::picture-changed-files",
+      "address": "package::draw-a-change-as-a-diagram::tool::picture-changed-files",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:picture-changed-files",
+        "label": "Picture a list of changed files",
+        "status": "active",
+        "job": "Turn a list of changed files into a diagram, a lane per folder and a node per file with its change state, drawn as standalone SVG files, with nothing sent anywhere",
+        "description": "Give files, the changed files as a code host lists them ({ filename, status, additions?, deletions?, previous_filename? }). Answers document (a valid graph document: a lane per folder, a node per file whose id is a hash of its path, the overflow gathered into one rest node whose counts add up) and the drawing: files (one standalone SVG per palette named by the identity of its bytes) and manifest. No model is called and nothing leaves the container.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "files"
+          ],
+          "properties": {
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "filename"
+                ],
+                "properties": {
+                  "filename": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "additions": {
+                    "type": "integer"
+                  },
+                  "deletions": {
+                    "type": "integer"
+                  },
+                  "previous_filename": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "orientation": {
+              "type": "string",
+              "enum": [
+                "across",
+                "down"
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "document",
+            "ok"
+          ],
+          "properties": {
+            "document": {
+              "type": "object"
+            },
+            "ok": {
+              "type": "boolean"
+            },
+            "files": {
+              "type": "object"
+            },
+            "manifest": {
+              "type": "object"
+            },
+            "errors": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "draw-a-change-as-a-diagram",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/draw-a-change-as-a-diagram"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/draw-a-change-as-a-diagram",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "do-work/run-request.mjs",
+            "pictureChangedFiles"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:draw-a-change-as-a-diagram",
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "files": [
+                {
+                  "filename": "src/orders.mjs",
+                  "status": "modified",
+                  "additions": 3,
+                  "deletions": 1
+                },
+                {
+                  "filename": "docs/guide.md",
+                  "status": "added",
+                  "additions": 10,
+                  "deletions": 0
+                }
+              ]
+            },
+            "output_selector": "$.document.label",
+            "contains": "2 files"
+          }
+        ],
+        "provenance": {
+          "source": "moved from Trillion-X/trillion parts/ui/show/layer-diagram and src/diagram-tools.mjs (original code)"
+        }
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/layer-diagram.mjs
+// tools/draw-a-change-as-a-diagram/do-work/layer-diagram.mjs
 //
 // A PICTURE OF WHO CONNECTS TO WHAT, FROM DATA.
 //
@@ -25,7 +25,7 @@
 // `layerDiagramHtml(diagram)`, `LAYER_DIAGRAM_CSS`. Typed graph documents are read by ./graph-contract.mjs; this stays
 // the one layout and drawing.
 
-import { escapeHtml } from '../server-rendered-page/escape-html.mjs';
+import { escapeHtml } from './escape-html.mjs';
 
 const GEOMETRY = {
   across: { node_w: 204, node_h: 58, column_gap: 128, row_gap: 16, pad: 24, head: 34 },

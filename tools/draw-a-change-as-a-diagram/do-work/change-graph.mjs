@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/change-graph.mjs
+// tools/draw-a-change-as-a-diagram/do-work/change-graph.mjs
 //
 // A LIST OF CHANGED FILES AS A GRAPH DOCUMENT THE PICTURE ENGINE DRAWS: A LANE PER FOLDER, A NODE PER FILE, WITH ITS CHANGE STATE.
 //
@@ -16,7 +16,7 @@
 // Key concept: `changeGraph(files, rules?)` -> a graph document. `files`: [{ filename, status, additions, deletions, previous_filename? }].
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import rules from './change-graph.json' with { type: 'json' };
+import rules from '../read-data/change-graph.json' with { type: 'json' };
 
 const fill = (template, values) => template.replace(/\{(\w+)\}/gu, (whole, name) => (name in values ? String(values[name]) : whole));
 const idOf = (prefix, text) => `${prefix}:${bytesToHex(blake3(new TextEncoder().encode(text))).slice(0, 12)}`;

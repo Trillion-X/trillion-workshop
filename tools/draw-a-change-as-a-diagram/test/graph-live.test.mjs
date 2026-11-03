@@ -1,13 +1,13 @@
-// test/graph-live.test.mjs
+// tools/draw-a-change-as-a-diagram/test/graph-live.test.mjs
 //
 // A reader's own AI steers an open graph picture through typed commands (parts/ui/show/layer-diagram/graph-live.mjs): every id
 // is checked against the document, the parts named come back with where they are drawn, a sketch applies to a copy, and the
 // commands are DATA.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import liveRules from '../parts/ui/show/layer-diagram/graph-live.json' with { type: 'json' };
-import { renderGraphDocument } from '../parts/ui/show/layer-diagram/graph-contract.mjs';
-import { graphAddresses, resolveLiveCommand } from '../parts/ui/show/layer-diagram/graph-live.mjs';
+import liveRules from '../read-data/graph-live.json' with { type: 'json' };
+import { renderGraphDocument } from '../do-work/graph-contract.mjs';
+import { graphAddresses, resolveLiveCommand } from '../do-work/graph-live.mjs';
 
 const doc = () => ({
   schema_version: 1, id: 'change', label: 'Change',

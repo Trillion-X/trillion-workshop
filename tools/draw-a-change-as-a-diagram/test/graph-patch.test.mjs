@@ -1,4 +1,4 @@
-// test/graph-patch.test.mjs
+// tools/draw-a-change-as-a-diagram/test/graph-patch.test.mjs
 //
 // A stored graph document evolves by typed operations (parts/ui/show/layer-diagram/graph-patch.mjs): a patch is bound to
 // the document it was written against and to the document it must give, the first failing operation stops it with a
@@ -7,9 +7,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { graphIdentity, validateGraphDocument } from '../parts/ui/show/layer-diagram/graph-contract.mjs';
-import { applyGraphCorrections, applyGraphOps, applyGraphPatch } from '../parts/ui/show/layer-diagram/graph-patch.mjs';
-import patchRules from '../parts/ui/show/layer-diagram/graph-patch.json' with { type: 'json' };
+import { graphIdentity, validateGraphDocument } from '../do-work/graph-contract.mjs';
+import { applyGraphCorrections, applyGraphOps, applyGraphPatch } from '../do-work/graph-patch.mjs';
+import patchRules from '../read-data/graph-patch.json' with { type: 'json' };
 
 const base = () => ({
   schema_version: 1, id: 'checkout', label: 'Checkout',

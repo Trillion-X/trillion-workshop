@@ -1,13 +1,13 @@
-// test/graph-author-input.test.mjs
+// tools/draw-a-change-as-a-diagram/test/graph-author-input.test.mjs
 //
 // What leaves the machine when a model is asked for a graph document (parts/ui/show/layer-diagram/author-input.mjs):
 // secret-bearing and churn files never leave, source goes before lock-file-sized noise, one file at most is cut, and the
 // list of what leaves is exact.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import rules from '../parts/ui/show/layer-diagram/author-input.json' with { type: 'json' };
-import { boundAuthorInput, outboundList } from '../parts/ui/show/layer-diagram/author-input.mjs';
-import { selectorTest } from '../parts/ui/show/layer-diagram/select-glob.mjs';
+import rules from '../read-data/author-input.json' with { type: 'json' };
+import { boundAuthorInput, outboundList } from '../do-work/author-input.mjs';
+import { selectorTest } from '../do-work/select-glob.mjs';
 
 const file = (path, size, fill = 'a') => ({ path, text: fill.repeat(size) });
 
