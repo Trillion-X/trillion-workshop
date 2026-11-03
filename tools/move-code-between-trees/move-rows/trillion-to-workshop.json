@@ -59,7 +59,24 @@
     "src/show-rules-store.mjs",
     "src/public-app-file-store.mjs",
     "src/catch-up.mjs",
-    "src/record-model-tools.mjs"
+    "src/record-model-tools.mjs",
+    "methods/",
+    "records/workflow-recipe-records.json",
+    "records/execution-mode-records.json",
+    "records/starting-rules.json",
+    "records/copy-rules.json",
+    "records/commercial-offer-records.json",
+    "records/content-format-starters.json",
+    "records/feel-moments.json",
+    "records/delight-moments.json",
+    "communities/",
+    "cases/",
+    "src/awareness.json",
+    "src/life-map.json",
+    "src/pursuit-plan.json",
+    "src/story-settings.json",
+    "src/attention.json",
+    "src/workspace/walkthroughs/"
   ],
   "provider_calls": [
     {
@@ -101,18 +118,26 @@
   ],
   "keep_reasons": {
     "src/catch-up.mjs": "Another lane moves it as keep-copies-in-step; this move leaves it alone.",
-    "src/record-model-tools.mjs": "tools/record-graph already holds it; what only the old file has is merged there and the old file deleted, not moved as a second copy."
+    "src/record-model-tools.mjs": "tools/record-graph already holds it; what only the old file has is merged there and the old file deleted, not moved as a second copy.",
+    "methods/": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "records/workflow-recipe-records.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "records/execution-mode-records.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "records/starting-rules.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "records/copy-rules.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "records/commercial-offer-records.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "records/content-format-starters.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "records/feel-moments.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "records/delight-moments.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "communities/": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "cases/": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "src/awareness.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "src/life-map.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "src/pursuit-plan.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "src/story-settings.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "src/attention.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
+    "src/workspace/walkthroughs/": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist."
   },
   "groups": [
-    {
-      "id": "methods-and-pursuit-lens",
-      "owner": [
-        "methods/",
-        "src/pursuit-lens.mjs"
-      ],
-      "to": "tools/methods-and-pursuit-lens",
-      "capability": "the methods an AI works by, and how it sees what a person is pursuing: the places to look, the parts to read what it finds by, and rows of what to look for and what to do"
-    },
     {
       "id": "set-up-with-your-ai",
       "owner": [
