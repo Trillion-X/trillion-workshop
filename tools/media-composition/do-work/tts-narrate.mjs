@@ -6,11 +6,14 @@
  * the compositor mixes it blind as an `audio_graph.narration` entry. A new engine (piper, coqui,
  * elevenlabs, azure) is ONE more row here, zero engine changes. Voice + engine are DATA, never code.
  *
- * Usage: node tts-narrate.mjs <text> <out.wav> [producer=macos-say] [voice]
+ * Usage: node tts-narrate.mjs <text> <out.wav> [producer] [voice]
+ *   producer  left out (or empty): the first producer below whose program this computer has, so the computer is
+ *             known only by which speech program it reports, never by what kind it is
  * Output (stdout, JSON): { out, producer, voice, duration }
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, rmSync } from 'node:fs';
+import { delimiter, isAbsolute, join } from 'node:path';
 
 const ffmpegBin = process.env.MEDIA_FFMPEG_BIN ?? 'ffmpeg';
 const ffprobeBin = process.env.MEDIA_FFPROBE_BIN ?? 'ffprobe';
@@ -43,9 +46,21 @@ const TTS_PRODUCERS = {
   },
 };
 
+// The program each producer starts, as its producer above names it.
+const PROGRAM_OF = {
+  'macos-say': () => process.env.MEDIA_SAY_BIN ?? 'say',
+  'espeak-ng': () => process.env.MEDIA_ESPEAK_BIN ?? 'espeak-ng',
+};
+const has = program => (isAbsolute(program) ? existsSync(program)
+  : (process.env.PATH ?? '').split(delimiter).some(folder => folder && existsSync(join(folder, program))));
+
 const text = process.argv[2];
 const outWav = process.argv[3];
-const producer = process.argv[4] || 'macos-say';
+const producer = process.argv[4] || Object.keys(TTS_PRODUCERS).find(name => has(PROGRAM_OF[name]()));
+if (!producer) {
+  process.stderr.write(`[tts-narrate] this computer has none of the speech programs a producer starts (${Object.values(PROGRAM_OF).map(program => program()).join(', ')}); install one, or name a producer and its program\n`);
+  process.exit(2);
+}
 const voice = process.argv[5] || undefined;
 if (!text || !outWav) {
   process.stderr.write('[tts-narrate] usage: node tts-narrate.mjs <text> <out.wav> [producer] [voice]\n');
