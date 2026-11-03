@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/layout-parts.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/use-a-layout-as-a-shared-part/src/layout-parts.mjs",
+      "source_identity": "1f:7018f92a35c5f752b3ad7dedb2a70f58561c9622e0fca9889e97e331db60b188",
+      "identity": "1f:7018f92a35c5f752b3ad7dedb2a70f58561c9622e0fca9889e97e331db60b188"
+    },
+    {
+      "from": "src/layouts.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/use-a-layout-as-a-shared-part/src/layouts.json",
+      "source_identity": "1f:15fa272c66aa0e6c363b14858355e8593f884f173f8c066293bae32116011b48",
+      "identity": "1f:15fa272c66aa0e6c363b14858355e8593f884f173f8c066293bae32116011b48"
+    }
+  ]
+}

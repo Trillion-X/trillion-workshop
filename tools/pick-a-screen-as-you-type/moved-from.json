@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/input-parsers.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/pick-a-screen-as-you-type/src/input-parsers.json",
+      "source_identity": "1f:3fa6fa607fabc4e841163f3f91e5e5c19c8fa83fe2274b6e7608279aafe9dcae",
+      "identity": "1f:3fa6fa607fabc4e841163f3f91e5e5c19c8fa83fe2274b6e7608279aafe9dcae"
+    },
+    {
+      "from": "src/input-parsers.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/pick-a-screen-as-you-type/src/input-parsers.mjs",
+      "source_identity": "1f:428eb2ecc21c5b021979d460aaa5d69a0016f1385b8ce29b7704c55cff0c6876",
+      "identity": "1f:428eb2ecc21c5b021979d460aaa5d69a0016f1385b8ce29b7704c55cff0c6876"
+    },
+    {
+      "from": "src/instant-screens.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/pick-a-screen-as-you-type/src/instant-screens.json",
+      "source_identity": "1f:d3c279ce64e0dfdb97bbae5aebfa316310db32ffab258ac0c61bf50917428ee1",
+      "identity": "1f:d3c279ce64e0dfdb97bbae5aebfa316310db32ffab258ac0c61bf50917428ee1"
+    },
+    {
+      "from": "src/instant-screens.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/pick-a-screen-as-you-type/src/instant-screens.mjs",
+      "source_identity": "1f:e035ee6af3c51dd3d19eb6b11d15c0cd9da5c3e85a985f81120223f0d07a81de",
+      "identity": "1f:e035ee6af3c51dd3d19eb6b11d15c0cd9da5c3e85a985f81120223f0d07a81de"
+    },
+    {
+      "from": "src/word-match.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/pick-a-screen-as-you-type/src/word-match.mjs",
+      "source_identity": "1f:2692b8b826e05ac42f5c21b99022e65170ffd394c907ed59e6fb1a4ebf1977ff",
+      "identity": "1f:2692b8b826e05ac42f5c21b99022e65170ffd394c907ed59e6fb1a4ebf1977ff"
+    }
+  ]
+}
