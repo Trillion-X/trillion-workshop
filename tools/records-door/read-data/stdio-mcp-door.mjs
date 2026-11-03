@@ -2,7 +2,7 @@
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { recordsDoorFromCall, RecordsDoorError } from './records-door.mjs';
-import { wholeAnswer } from './byte-pages.mjs';
+import { pagedCall } from './byte-pages.mjs';
 
 export function openStdioRecordsDoor({ argv, resource = '@own-records', timeout_ms = 30000, max_answer_bytes = 16 * 1024 * 1024 } = {}) {
   if (!Array.isArray(argv) || !argv.length || argv.some(word => typeof word !== 'string' || !word)) throw new TypeError('The MCP client needs a nonempty argv array.');
@@ -62,8 +62,10 @@ export function openStdioRecordsDoor({ argv, resource = '@own-records', timeout_
     if (!Object.hasOwn(result, 'structuredContent')) throw new RecordsDoorError('mcp_invalid_answer', 'The MCP client returned no typed answer.', 'unknown');
     return result.structuredContent;
   }
-  async function call(method, input, key = `${method}:${randomUUID()}`, address = resource) {
-    return wholeAnswer(await once(method, input, key, address), after => once(method, { ...input, after_byte: after }, `${method}:${randomUUID()}`, address));
+  // Later byte pages are asked for with the first call's request key (byte-pages.mjs pagedCall).
+  const paged = pagedCall(once);
+  function call(method, input, key = `${method}:${randomUUID()}`, address = resource) {
+    return paged(method, input, key, address);
   }
   return { ...recordsDoorFromCall(call, { resource }), async close() {
     if (closed) return;
