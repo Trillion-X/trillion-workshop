@@ -1,0 +1,146 @@
+{
+  "_what": "The instruction, command and skill files the person already keeps for their other AIs, read in place and labelled by where they live (computer/other-ai-files.mjs, tool:other-ai-files). Nothing is copied into Trillion or written back to those folders. `sources` is one row per AI app; each `places` row says what kind of thing it holds and its shape: `file` (one file), `files` (every file in a folder with the given endings) or `skill_folders` (each folder inside it that holds `file`) or `mcp_servers` (the servers one JSON file lists under `key`: each is listed and read as its command or address with the NAMES of its environment variables, never their values, and is only ever a description: nothing here switches a server on). A new AI app, or another folder, is one more row. Every path is read under the person's home folder, and a folder's symbolic links are never followed.",
+  "most_files": 300,
+  "most_chars": 20000,
+  "sources": [
+    {
+      "id": "claude-code",
+      "label": "Claude Code",
+      "places": [
+        {
+          "kind": "instructions",
+          "shape": "file",
+          "path": "~/.claude/CLAUDE.md"
+        },
+        {
+          "kind": "commands",
+          "shape": "files",
+          "path": "~/.claude/commands",
+          "endings": [
+            ".md"
+          ]
+        },
+        {
+          "kind": "skills",
+          "shape": "skill_folders",
+          "path": "~/.claude/skills",
+          "file": "SKILL.md"
+        },
+        {
+          "kind": "mcp_servers",
+          "shape": "mcp_servers",
+          "path": "~/.claude.json",
+          "key": "mcpServers"
+        }
+      ]
+    },
+    {
+      "id": "codex",
+      "label": "Codex",
+      "places": [
+        {
+          "kind": "instructions",
+          "shape": "file",
+          "path": "~/.codex/AGENTS.md"
+        },
+        {
+          "kind": "commands",
+          "shape": "files",
+          "path": "~/.codex/prompts",
+          "endings": [
+            ".md"
+          ]
+        },
+        {
+          "kind": "skills",
+          "shape": "skill_folders",
+          "path": "~/.codex/skills",
+          "file": "SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": "cursor",
+      "label": "Cursor",
+      "places": [
+        {
+          "kind": "rules",
+          "shape": "files",
+          "path": "~/.cursor/rules",
+          "endings": [
+            ".mdc",
+            ".md"
+          ]
+        },
+        {
+          "kind": "commands",
+          "shape": "files",
+          "path": "~/.cursor/commands",
+          "endings": [
+            ".md"
+          ]
+        },
+        {
+          "kind": "skills",
+          "shape": "skill_folders",
+          "path": "~/.cursor/skills",
+          "file": "SKILL.md"
+        },
+        {
+          "kind": "mcp_servers",
+          "shape": "mcp_servers",
+          "path": "~/.cursor/mcp.json",
+          "key": "mcpServers"
+        }
+      ]
+    },
+    {
+      "id": "claude-desktop",
+      "label": "Claude Desktop",
+      "places": [
+        {
+          "kind": "mcp_servers",
+          "shape": "mcp_servers",
+          "path": "~/Library/Application Support/Claude/claude_desktop_config.json",
+          "key": "mcpServers"
+        }
+      ]
+    },
+    {
+      "id": "gemini-cli",
+      "label": "Gemini CLI",
+      "places": [
+        {
+          "kind": "instructions",
+          "shape": "file",
+          "path": "~/.gemini/GEMINI.md"
+        },
+        {
+          "kind": "mcp_servers",
+          "shape": "mcp_servers",
+          "path": "~/.gemini/settings.json",
+          "key": "mcpServers"
+        }
+      ]
+    },
+    {
+      "id": "windsurf",
+      "label": "Windsurf",
+      "places": [
+        {
+          "kind": "mcp_servers",
+          "shape": "mcp_servers",
+          "path": "~/.codeium/windsurf/mcp_config.json",
+          "key": "mcpServers"
+        }
+      ]
+    }
+  ],
+  "words": {
+    "unknown_source": "{source} is not one of the AI apps this Mac reads: {known}.",
+    "unknown_kind": "{kind} is not a kind any of them keeps: {known}.",
+    "not_listed": "{name} is not one of the files listed here.",
+    "cut": "Cut after {chars} characters of {total}.",
+    "hidden": "[hidden]"
+  }
+}
