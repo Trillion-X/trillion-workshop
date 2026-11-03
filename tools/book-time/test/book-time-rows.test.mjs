@@ -47,25 +47,29 @@ test('nothing is assumed: a missing window length or a bad date is refused in wo
 });
 
 test('a booking is kept once per key, starts where the request says, and refuses a time that is not open', async () => {
-  const first = await ok(request, ask('k1', '2026-08-10T14:30:00Z', { attendees: [{ name: 'Jane Rivera', email: 'guest@example.test' }], needs_confirmation: true }));
+  const first = await ok(request, ask('k1', '2026-08-10T14:00:00Z', { attendees: [{ name: 'Jane Rivera', email: 'guest@example.test' }], needs_confirmation: true }));
   assert.equal(first.result.booking.status, 'pending_confirmation');
-  assert.equal(first.result.booking.scheduled_end, '2026-08-10T15:15:00.000Z');
+  assert.equal(first.result.booking.scheduled_end, '2026-08-10T14:45:00.000Z');
   assert.equal(first.kept.find(item => item.id === 'booking:k1').value.attendees[0].email, 'guest@example.test');
-  const again = await ok(request, ask('k1', '2026-08-10T14:30:00Z'), first);
+  const again = await ok(request, ask('k1', '2026-08-10T14:00:00Z'), first);
   assert.equal(again.result.already_requested, true);
   assert.equal(again.calls.filter(call => call.method === 'records:write').length, 0);
-  const taken = await run(request, ask('k2', '2026-08-10T14:30:00Z'), first);
-  assert.match(taken.error, /That time is not open\. Open times on 2026-08-10: 09:00, 10:00\./);
+  // The booking at 09:00 to 09:45 holds its own start and every start it overlaps: 09:30 is gone, 10:00 is open.
+  const taken = await run(request, ask('k2', '2026-08-10T14:00:00Z'), first);
+  assert.match(taken.error, /That time is not open\. Open times on 2026-08-10: 10:00\./);
+  const overlapping = await run(request, ask('k2', '2026-08-10T14:30:00Z'), first);
+  assert.match(overlapping.error, /not open/);
   const offHours = await run(request, ask('k3', '2026-08-10T20:00:00Z'), first);
   assert.match(offHours.error, /not open/);
-  const paid = await ok(request, ask('k4', '2026-08-10T14:00:00Z', { needs_payment: true }), first);
+  const paid = await ok(request, ask('k4', '2026-08-10T15:00:00Z', { needs_payment: true }), first);
   assert.equal(paid.result.booking.status, 'pending_payment');
-  const instant = await ok(request, ask('k5', '2026-08-10T15:00:00Z'), paid);
+  const instant = await ok(request, ask('k5', '2026-08-17T14:00:00Z'), paid);
   assert.equal(instant.result.booking.status, 'confirmed');
 });
 
 test('a booking moves only where the lifecycle allows, and a cancel frees its time', async () => {
-  let last = await ok(request, ask('k1', '2026-08-10T14:00:00Z', { needs_confirmation: true }));
+  // A Monday far ahead, so a waiting booking's time has not passed when it is confirmed.
+  let last = await ok(request, ask('k1', '2036-08-11T14:00:00Z', { needs_confirmation: true }));
   const refused = await run(change, { booking_id: 'booking:k1', to: 'completed' }, last);
   assert.match(refused.error, /"pending_confirmation" cannot become "completed"\. It can become: confirmed, cancelled\./);
   last = await ok(change, { booking_id: 'booking:k1', to: 'confirmed' }, last);
@@ -77,7 +81,7 @@ test('a booking moves only where the lifecycle allows, and a cancel frees its ti
   assert.ok(last.result.booking.cancelled_at);
   const done = await run(change, { booking_id: 'booking:k1', to: 'confirmed' }, last);
   assert.match(done.error, /It is finished\./);
-  const freed = await ok(request, ask('k2', '2026-08-10T14:00:00Z'), last);
+  const freed = await ok(request, ask('k2', '2036-08-11T14:00:00Z'), last);
   assert.equal(freed.result.booking.status, 'confirmed');
   const none = await run(change, { booking_id: 'booking:nobody', to: 'confirmed' });
   assert.match(none.error, /There is no booking "booking:nobody"/);
