@@ -52,6 +52,14 @@
       "capability": "bring in what is new in each place on this computer (folders, sqlite stores, notes, recordings, pictures, carried conversations, contacts), each place a row"
     },
     {
+      "id": "bring-in-new-items-from-this-computer-fixtures",
+      "owner": [
+        "test/fixtures/photo-with-text.png"
+      ],
+      "to": "tools/bring-in-new-items-from-this-computer",
+      "capability": "the picture with words in it that the photo readers' tests read (by path, so the import closure does not follow it)"
+    },
+    {
       "id": "service-connections",
       "owner": [
         "parts/service-connections/**"

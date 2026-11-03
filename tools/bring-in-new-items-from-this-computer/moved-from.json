@@ -1,0 +1,169 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "computer/computer-sources.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.json",
+      "source_identity": "1f:a7cc4565f0950178f6367137d6f2fd228aa2896fdd36194be66d254b40c482cf",
+      "identity": "1f:a7cc4565f0950178f6367137d6f2fd228aa2896fdd36194be66d254b40c482cf"
+    },
+    {
+      "from": "computer/computer-sources.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.mjs",
+      "source_identity": "1f:0a1011b84c2d76422cbec2cf7f0fe864447ea75541623eb9c6f26393f49312b5",
+      "identity": "1f:0a1011b84c2d76422cbec2cf7f0fe864447ea75541623eb9c6f26393f49312b5"
+    },
+    {
+      "from": "computer/connections/imessage.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/connections/imessage.mjs",
+      "source_identity": "1f:3cbfb6115808778f7ef7676d83b28f82163c78b2031b4d70ff10eb7be0b8d312",
+      "identity": "1f:3cbfb6115808778f7ef7676d83b28f82163c78b2031b4d70ff10eb7be0b8d312"
+    },
+    {
+      "from": "computer/connections/incoming-items.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/connections/incoming-items.mjs",
+      "source_identity": "1f:d84bac3e85fd99e66ed7cb7b203fabd67c3d59118bffbd532df099950be80e99",
+      "identity": "1f:d84bac3e85fd99e66ed7cb7b203fabd67c3d59118bffbd532df099950be80e99"
+    },
+    {
+      "from": "computer/connections/README.md",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/connections/README.md",
+      "source_identity": "1f:fe5a10eb883e1c6b00400ee6596080b04e488a0a9876f0b2666a9dcc349d4a41",
+      "identity": "1f:fe5a10eb883e1c6b00400ee6596080b04e488a0a9876f0b2666a9dcc349d4a41"
+    },
+    {
+      "from": "computer/connections/whatsapp.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/connections/whatsapp.mjs",
+      "source_identity": "1f:8c0cd9e46be5096a8a84ff534a863d9c84af6b4077ff392a0295059281b6189f",
+      "identity": "1f:8c0cd9e46be5096a8a84ff534a863d9c84af6b4077ff392a0295059281b6189f"
+    },
+    {
+      "from": "computer/own-writes.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/own-writes.json",
+      "source_identity": "1f:0817f7baf8790acc7a9bfb03209d7900c9362147b479d49d0c1ced73117d150d",
+      "identity": "1f:0817f7baf8790acc7a9bfb03209d7900c9362147b479d49d0c1ced73117d150d"
+    },
+    {
+      "from": "computer/own-writes.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/own-writes.mjs",
+      "source_identity": "1f:93a05a13e8398a521595695f199eaa7a155ae233c0a27a20b9e3213e8ba37145",
+      "identity": "1f:93a05a13e8398a521595695f199eaa7a155ae233c0a27a20b9e3213e8ba37145"
+    },
+    {
+      "from": "computer/read-new-items.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/read-new-items.json",
+      "source_identity": "1f:1187cd0fd3da95f60871ad9303ea6a254a146910236750d00a2a2b994c7323a0",
+      "identity": "1f:1187cd0fd3da95f60871ad9303ea6a254a146910236750d00a2a2b994c7323a0"
+    },
+    {
+      "from": "computer/read-new-items.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/read-new-items.mjs",
+      "source_identity": "1f:eda4bd586774bf8de92826f6114de1ba3b84183cedc52e7dc4b3fd62676498ce",
+      "identity": "1f:eda4bd586774bf8de92826f6114de1ba3b84183cedc52e7dc4b3fd62676498ce"
+    },
+    {
+      "from": "computer/sync-contacts.js",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/sync-contacts.js",
+      "source_identity": "1f:f49ace4281febd418d7cb863ffa81c0270eaf69359038f4055598fed0d0a7f93",
+      "identity": "1f:f49ace4281febd418d7cb863ffa81c0270eaf69359038f4055598fed0d0a7f93"
+    },
+    {
+      "from": "computer/sync-contacts.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/sync-contacts.json",
+      "source_identity": "1f:2bf39e08d305241394f172391a56831f98e186187d7809fdf0f207f4c1e73021",
+      "identity": "1f:2bf39e08d305241394f172391a56831f98e186187d7809fdf0f207f4c1e73021"
+    },
+    {
+      "from": "computer/sync-contacts.zsh",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/computer/sync-contacts.zsh",
+      "source_identity": "1f:33c3c25c6cc51d94bc7c94fa36acf957d8c4e6f4868463af8c436d78946a8518",
+      "identity": "1f:33c3c25c6cc51d94bc7c94fa36acf957d8c4e6f4868463af8c436d78946a8518"
+    },
+    {
+      "from": "test/computer-sources-on-a-computer.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/test/computer-sources-on-a-computer.test.mjs",
+      "source_identity": "1f:906847d8afa1fcbd0592319968defc16bc56e041a8e8e6e7f93cae71077bf3cc",
+      "identity": "1f:906847d8afa1fcbd0592319968defc16bc56e041a8e8e6e7f93cae71077bf3cc"
+    },
+    {
+      "from": "test/fixtures/photo-with-text.png",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/test/fixtures/photo-with-text.png",
+      "source_identity": "1f:a741715292741f5ec5071ed7bfdaf378d07577394d6606e6679107834b8c323e",
+      "identity": "1f:a741715292741f5ec5071ed7bfdaf378d07577394d6606e6679107834b8c323e"
+    },
+    {
+      "from": "test/own-writes.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/test/own-writes.test.mjs",
+      "source_identity": "1f:9ed11994e11775d31740356394a9537b0ccdbbf91edf38f95dd44af6b4f0b325",
+      "identity": "1f:9ed11994e11775d31740356394a9537b0ccdbbf91edf38f95dd44af6b4f0b325"
+    },
+    {
+      "from": "test/read-new-items-child-limit.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/test/read-new-items-child-limit.test.mjs",
+      "source_identity": "1f:462138ab39351990498e2475e57653d7ecc7ea8d139ad6efc1dcd2126f74b6b8",
+      "identity": "1f:462138ab39351990498e2475e57653d7ecc7ea8d139ad6efc1dcd2126f74b6b8"
+    },
+    {
+      "from": "test/read-new-items-continuity.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/test/read-new-items-continuity.test.mjs",
+      "source_identity": "1f:d46ed4f5f30dfc2eaa419f925102e989bcd2b225ff88cad8cadfd51af9dbe0e4",
+      "identity": "1f:d46ed4f5f30dfc2eaa419f925102e989bcd2b225ff88cad8cadfd51af9dbe0e4"
+    },
+    {
+      "from": "test/read-new-items-quota-retry.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/test/read-new-items-quota-retry.test.mjs",
+      "source_identity": "1f:89c53e58c92767e2d4bced492d664ff38036a018adafc052e8ceaa88443eeb9c",
+      "identity": "1f:89c53e58c92767e2d4bced492d664ff38036a018adafc052e8ceaa88443eeb9c"
+    },
+    {
+      "from": "test/read-new-items-retryable-409.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/test/read-new-items-retryable-409.test.mjs",
+      "source_identity": "1f:3e6f1f838758b05428db8b0bc5af451ec58f3cb7c06c9eacfddb30cc8558e053",
+      "identity": "1f:3e6f1f838758b05428db8b0bc5af451ec58f3cb7c06c9eacfddb30cc8558e053"
+    },
+    {
+      "from": "test/read-new-items-timeout.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/test/read-new-items-timeout.test.mjs",
+      "source_identity": "1f:b2e6f9d4e640fece00da54cf2e7d46915ed7a6b1627e63d4c54a6dde8c558841",
+      "identity": "1f:b2e6f9d4e640fece00da54cf2e7d46915ed7a6b1627e63d4c54a6dde8c558841"
+    },
+    {
+      "from": "test/read-new-items.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/test/read-new-items.test.mjs",
+      "source_identity": "1f:17e36e174b67258f85cd02dbc73a0fc98ae1301ffcd8e45fed6a668c43e76652",
+      "identity": "1f:17e36e174b67258f85cd02dbc73a0fc98ae1301ffcd8e45fed6a668c43e76652"
+    },
+    {
+      "from": "test/read-new-photos-video.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bring-in-new-items-from-this-computer/test/read-new-photos-video.test.mjs",
+      "source_identity": "1f:4eaa5fff9042f7cef1c13406ea44f75f624d87e97650dbd4b3acbe0f97ed8d55",
+      "identity": "1f:4eaa5fff9042f7cef1c13406ea44f75f624d87e97650dbd4b3acbe0f97ed8d55"
+    }
+  ]
+}
