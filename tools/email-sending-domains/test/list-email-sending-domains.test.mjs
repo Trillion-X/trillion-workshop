@@ -65,3 +65,20 @@ test('the domain rows add, read and check a domain with the held key in the head
   }
   for (const row of [add, read, check]) assert.equal(row.result_selector, '$', row.id);
 });
+
+test('the sending-key rows list the keys and remove one by its id with the held key in the header, never sending a key', () => {
+  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const header = [{ secret_name: 'resend-api-key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }];
+  const list = rows.find(one => one.id === 'tool:list-sending-keys-with-resend');
+  assert.deepEqual([list.invoke.kind, list.invoke.method, list.invoke.url], ['http', 'GET', 'https://api.resend.com/api-keys']);
+  const remove = rows.find(one => one.id === 'tool:remove-a-sending-key-with-resend');
+  assert.deepEqual([remove.invoke.kind, remove.invoke.method, remove.invoke.url], ['http', 'DELETE', 'https://api.resend.com/api-keys/{api_key_id}']);
+  assert.deepEqual(remove.input_schema.required, ['api_key_id']);
+  const id = new RegExp(remove.input_schema.properties.api_key_id.pattern);
+  assert.ok(id.test('0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0') && !id.test('../domains') && !id.test('a/b'));
+  for (const row of [list, remove]) {
+    assert.deepEqual(row.invoke.credential_injections, header, row.id);
+    assert.equal(row.invoke.body_template, undefined, row.id);
+    assert.equal(row.result_selector, '$', row.id);
+  }
+});
