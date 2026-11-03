@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:57d8d07dcde9f4682b4db7d069b58192b21b26ded3555c632a6ad1f6330a6306"
  },
  "fields": [
   {
@@ -590,6 +590,21 @@
      "placement:your-computer"
     ],
     "folder": "export-records-as-list-rows"
+   }
+  },
+  {
+   "id": "tool:build-the-public-receptionist",
+   "values": {
+    "title": "Build the public receptionist",
+    "job": "Build the public receptionist on my rented Linux server from one committed version of its source",
+    "description": "Sends git archive of one commit of a local trillion-rust checkout (declared source only: no home folder, Git settings, credentials or local state) to the host, builds trillion-mcp-receptionist there with the given Rust toolchain, and runs its bootstrap-credential test. Answers the commit, its folder, the built file and the build's last lines.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
    }
   },
   {
@@ -3297,6 +3312,21 @@
    }
   },
   {
+   "id": "tool:install-the-built-receptionist",
+   "values": {
+    "title": "Install the built receptionist",
+    "job": "Install the receptionist I just built on my rented Linux server so it can run",
+    "description": "Checks that the receptionist built from the given commit is on the host, makes it runnable and, when install_path is given, puts a copy there in one rename. It starts and stops nothing.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
+   }
+  },
+  {
    "id": "tool:join-a-waitlist",
    "values": {
     "title": "Join a waitlist",
@@ -4916,6 +4946,21 @@
    }
   },
   {
+   "id": "tool:prepare-a-receptionist-build-host",
+   "values": {
+    "title": "Prepare a receptionist build host",
+    "job": "Make my rented Linux server able to build the public receptionist",
+    "description": "Installs the build packages given, makes the source folder, adds a swap file if there is none and installs the exact Rust toolchain given, over SSH as the host's administrator with the held key. It sets up no service user, DNS, TLS or public route.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
+   }
+  },
+  {
    "id": "tool:prepare-ad-conversions",
    "values": {
     "title": "Prepare sign-ups and payments to send back to Meta Ads and Google Ads",
@@ -5395,6 +5440,21 @@
      "placement:small-container"
     ],
     "folder": "person-profile"
+   }
+  },
+  {
+   "id": "tool:read-a-receptionist-build-host",
+   "values": {
+    "title": "Read a receptionist build host",
+    "job": "See what my receptionist build server has now: its Rust version, builds running, built copies and listening ports",
+    "description": "Reads the host's kernel, Rust version, memory, running compilers, source folders and built receptionists, which of the given ports are listening, and the given service user's sign-in state. Changes nothing.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
    }
   },
   {
