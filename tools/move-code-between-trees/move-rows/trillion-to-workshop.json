@@ -76,7 +76,8 @@
     "src/pursuit-plan.json",
     "src/story-settings.json",
     "src/attention.json",
-    "src/workspace/walkthroughs/"
+    "src/workspace/walkthroughs/",
+    "src/error-page-lines.json"
   ],
   "provider_calls": [
     {
@@ -119,23 +120,24 @@
   "keep_reasons": {
     "src/catch-up.mjs": "Another lane moves it as keep-copies-in-step; this move leaves it alone.",
     "src/record-model-tools.mjs": "tools/record-graph already holds it; what only the old file has is merged there and the old file deleted, not moved as a second copy.",
-    "methods/": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "records/workflow-recipe-records.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "records/execution-mode-records.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "records/starting-rules.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "records/copy-rules.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "records/commercial-offer-records.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "records/content-format-starters.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "records/feel-moments.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "records/delight-moments.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "communities/": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "cases/": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "src/awareness.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "src/life-map.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "src/pursuit-plan.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "src/story-settings.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "src/attention.json": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist.",
-    "src/workspace/walkthroughs/": "Opinion content: it becomes rows of the person's own lists, not Workshop files; its logic moves once those rows exist."
+    "methods/": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "records/workflow-recipe-records.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "records/execution-mode-records.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "records/starting-rules.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "records/copy-rules.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "records/commercial-offer-records.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "records/content-format-starters.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "records/feel-moments.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "records/delight-moments.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "communities/": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "cases/": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "src/awareness.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "src/life-map.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "src/pursuit-plan.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "src/story-settings.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "src/attention.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "src/workspace/walkthroughs/": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "src/error-page-lines.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door."
   },
   "groups": [
     {
