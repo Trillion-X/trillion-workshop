@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:d8cb7a156894ee20bf91ea08370a955f458dd0fd4f0ed0fbaa5cd87babbe1a35"
+  "blake3": "1f:a4ff0d9e40e7a92829352e033d3f443e5dc9a784c7983007a324a3c0aa7cf12f"
  },
  "fields": [
   {
@@ -6414,6 +6414,21 @@
     ],
     "listed_on": "2026-10-31T00:00:00Z",
     "folder": "notifications"
+   }
+  },
+  {
+   "id": "tool:register-trillion-in-my-ai-apps",
+   "values": {
+    "title": "Put Trillion in my AI apps' MCP settings, or take it out (runs on your computer)",
+    "job": "Add Trillion's MCP server entry to the config file of each AI app I name, preview exactly what changes first, or take the entry out again",
+    "description": "mcp-inspect answers what each named app has now (absent, registered, outdated, custom, blocked or not_installed). mcp-preview writes nothing and answers each file's exact before/after lines and a review_hash of the whole plan; mcp-register with --reviewed <hash> refuses every write when the plan changed meanwhile. An entry under the same name that matches none of Trillion's signatures is the person's own and is never changed or removed; every other key in the file is kept. An app not on this computer is answered not_installed and nothing is created for it. Writes are locked, backed up beside the file, refused for a symbolic link or a file changed meanwhile, and read back. The address is https, or http at the literal loopback host only. An entry is not a signed-in connection: each result names the sign-in still to do in that app. Each app's file, format and entry is a row of read-data/mcp-registration.json.",
+    "status": "active",
+    "maker": "maker:register-trillion-in-my-ai-apps",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "register-trillion-in-my-ai-apps"
    }
   },
   {
