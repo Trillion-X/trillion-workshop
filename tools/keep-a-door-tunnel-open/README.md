@@ -18,7 +18,8 @@ Keeps one door on this computer reachable from a server: one SSH reverse forward
 |------|-----------|------|
 | Configuration | `{ address, user, remotePort, localPort, knownHostsFile, publicKeyFile?, adminKeyFile? }` | The server's IPv4 address, the service user, both ports and the pinned-host file. `adminKeyFile` is the root identity for setup. All of it is the person's DATA; nothing here names a host. |
 | `connectionArguments` | `(c, { identityFile?, agentSocket? }) -> argv` | `ssh -N -T -R 127.0.0.1:<remote>:127.0.0.1:<local>` with the host key checked, batch mode and keep-alives. |
-| `administrationArguments` | `(c) -> argv` | `ssh -T` as root on the same pinned host with `adminKeyFile`; refuses with no identity. |
+| `administrationArguments` | `(c) -> argv` | `ssh -T` as root on the pinned host at `c.address` with `adminKeyFile`, through the run's proxy when `HTTPS_PROXY` names one; needs only the address, the pinned-host file and the identity, and refuses without them. |
+| `proxied` | `(proxy?) -> argv` | The ssh options for a run's loopback proxy (`ProxyCommand` through its CONNECT tunnel with the system `nc`) and a 30 second keepalive; a proxy that is not `http://127.0.0.1:<port>` or `localhost` is refused. |
 | `pinHost` | `(c, { run? }) -> knownHostsFile` | Keeps the server's one ed25519 key the first time; an existing file is never rescanned. |
 | `makeConnectionKey` | `(comment) -> { privateKey, publicKey }` | A new RSA 3072 key, the public half in OpenSSH form with the comment given. |
 | `prepareConnectionHost` | `(c, publicKey, { run? }) -> output` | Sends `prepare-a-tunnel-host.sh` with the user, port and public key to the server over SSH stdin. |
@@ -29,7 +30,7 @@ Keeps one door on this computer reachable from a server: one SSH reverse forward
 
 ## Running it
 
-The engine runs a Workshop row only inside its sandbox, where a run ends at its ceiling, reaches no SSH host and cannot reach the door it would forward to. Until it can (the waiting AI job `ai-job:engine-kept-run-for-door-tunnel-2026-11-03` names the three gaps), a launch agent runs this file from the engine's installed Workshop copy, never from a working checkout:
+The engine runs a Workshop row only inside its sandbox, where a run ends at its ceiling, reaches a server only through the engine's proxy and cannot reach the door it would forward to. Until it can (the waiting AI job `ai-job:engine-kept-run-for-door-tunnel-2026-11-03` names the three gaps), a launch agent runs this file from the engine's installed Workshop copy, never from a working checkout:
 
 ```
 node <installed workshop>/tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs install <configuration file> <label> <vault command> <its arguments...>
@@ -39,4 +40,4 @@ node <installed workshop>/tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunn
 
 **Depends on:** Node's standard library; `/usr/bin/ssh`, `ssh-agent`, `ssh-add` and `ssh-keyscan` on this computer; on the server, OpenSSH with `sshd_config.d` and systemd.
 
-**Depended on by:** `tools/renew-a-tls-certificate` (`administrationArguments`); the launch agent that keeps the public door's tunnel open.
+**Depended on by:** `tools/renew-a-tls-certificate` (`administrationArguments` and `proxied`, packed in each of its rows); the launch agent that keeps the public door's tunnel open.

@@ -48,7 +48,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "renew", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": { "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "keep-a-door-tunnel-open", "paths": ["do-work"], "at": "/opt/keep-a-door-tunnel-open" }] },
           "credential_mounts": [
             { "secret_name": "cloudflare-api-token", "fd": 3 },
             { "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }
@@ -96,7 +96,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "issue", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": { "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "keep-a-door-tunnel-open", "paths": ["do-work"], "at": "/opt/keep-a-door-tunnel-open" }] },
           "credential_mounts": [
             { "secret_name": "cloudflare-api-token", "fd": 3 },
             { "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }
@@ -142,7 +142,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "status", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": { "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "keep-a-door-tunnel-open", "paths": ["do-work"], "at": "/opt/keep-a-door-tunnel-open" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
@@ -186,7 +186,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "setup", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": { "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "keep-a-door-tunnel-open", "paths": ["do-work"], "at": "/opt/keep-a-door-tunnel-open" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
@@ -229,7 +229,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "update-owner", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": { "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "keep-a-door-tunnel-open", "paths": ["do-work"], "at": "/opt/keep-a-door-tunnel-open" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
@@ -272,7 +272,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "configure", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": { "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "keep-a-door-tunnel-open", "paths": ["do-work"], "at": "/opt/keep-a-door-tunnel-open" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
@@ -315,7 +315,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "activate", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": { "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "keep-a-door-tunnel-open", "paths": ["do-work"], "at": "/opt/keep-a-door-tunnel-open" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
@@ -358,7 +358,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "host-test", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": { "package": "renew-a-tls-certificate", "paths": ["do-work", "test/tls-host-owner.test.py"], "at": "/opt/renew-a-tls-certificate" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work", "test/tls-host-owner.test.py"], "at": "/opt/renew-a-tls-certificate" }, { "package": "keep-a-door-tunnel-open", "paths": ["do-work"], "at": "/opt/keep-a-door-tunnel-open" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",

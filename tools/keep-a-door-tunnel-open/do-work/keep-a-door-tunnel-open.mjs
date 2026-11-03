@@ -37,10 +37,21 @@ export function pinHost(c, { run = execFileSync } = {}) {
   writeFileSync(c.knownHostsFile, `${lines[0]}\n`, { mode: 0o600, flag: 'wx' });
   return c.knownHostsFile;
 }
+// The ssh options that reach the host through a run's proxy, when the run has one (http://127.0.0.1:<port>): a CONNECT
+// tunnel of that proxy (the system nc of macOS), and a keepalive every 30 seconds so a long quiet step (a DNS-01 wait)
+// never looks idle to the proxy.
+export function proxied(proxy) {
+  const keepalive = ['-o', 'ServerAliveInterval=30', '-o', 'ServerAliveCountMax=4'];
+  if (!proxy) return keepalive;
+  const { protocol, hostname, port } = URL.parse(proxy) ?? {};
+  if (protocol !== 'http:' || !['127.0.0.1', 'localhost'].includes(hostname) || !/^[0-9]{1,5}$/.test(port)) throw new Error('The run\'s proxy setting was refused.');
+  return ['-o', `ProxyCommand=/usr/bin/nc -X connect -x ${hostname}:${port} %h %p`, ...keepalive];
+}
+// Administration needs only the host's address, its pinned key and the identity, not the tunnel's user and ports.
 export function administrationArguments(c) {
-  checked(c);
+  if (!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(c.address) || typeof c.knownHostsFile !== 'string' || !c.knownHostsFile) throw new Error('The host administration address was refused.');
   if (!c.adminKeyFile) throw new Error('The host administration identity was refused.');
-  return ['-T', '-i', c.adminKeyFile, '-o', 'IdentitiesOnly=yes', '-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=yes', '-o', `UserKnownHostsFile=${c.knownHostsFile}`, '-o', 'ConnectTimeout=10', `root@${c.address}`];
+  return [...proxied(process.env.HTTPS_PROXY ?? process.env.https_proxy), '-T', '-i', c.adminKeyFile, '-o', 'IdentitiesOnly=yes', '-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=yes', '-o', `UserKnownHostsFile=${c.knownHostsFile}`, '-o', 'ConnectTimeout=10', `root@${c.address}`];
 }
 export function prepareConnectionHost(c, publicKey, { run = execFileSync } = {}) {
   checked(c);

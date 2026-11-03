@@ -10,12 +10,10 @@ Every row runs one process on the person's computer that reaches the server as r
 |------|---------|
 | `do-work/renew-a-tls-certificate.mjs` | The Mac side: checks the input, pins the server's key for the run, and runs each action on the server (`hostCommand`); writes the public host's nginx configuration (`publicProxy`); installs the host owner and its layout (`installHostOwner`); keeps a download and moves its pointer (`publishDownload`). As a command: `node renew-a-tls-certificate.mjs <action> <administration key file>` with the request on standard input and the DNS key on descriptor 3. |
 | `do-work/tls-host-owner.py` | The server side, installed at `host.owner`: certificate status, issue and renew (certbot DNS-01 with the key in an anonymous memory file), setup, the public host's configuration and services, and starting the receptionist as its own account with its certificate on descriptors 3 and 4. Reads every product fact from its layout file beside it (`host.owner` with `.json`). |
-| `do-work/host-administration.mjs` | `administrationArguments(c)`: the ssh arguments that reach a server as root with one identity and its pinned key, through the run's proxy (`proxied`) with a keepalive. Public (`part.json`) for other tools that administer a server. |
 | `ports/*.json` | The port contracts: these files were moved from an older owner, byte copy first. |
 | `test/renew-a-tls-certificate.test.mjs` | The Mac side's tests, on a made-up server, and the host owner's tests run here. |
 | `test/tls-host-owner.test.py` | The host owner's tests; the Linux-only ones (memory file, provider failure, dry run) run on the server through `tool:check-a-servers-tls-owner-on-the-server`. |
 | `tool-rows.json` | The rows below. |
-| `part.json` | What other tools may import from here. |
 
 ## Rows
 
@@ -71,6 +69,6 @@ The person declares a wake (a `wake-declaration` record in their own records, th
 
 ## Dependencies
 
-**Depends on:** Node's standard library, `/usr/bin/ssh` and `/usr/bin/nc` on the person's computer; on the server, Python 3, certbot with `python3-certbot-dns-cloudflare`, nginx, openssl, curl and systemd.
+**Depends on:** `tools/keep-a-door-tunnel-open` (`administrationArguments` and `proxied`, packed in every row at `/opt/keep-a-door-tunnel-open`), Node's standard library, `/usr/bin/ssh` and `/usr/bin/nc` on the person's computer; on the server, Python 3, certbot with `python3-certbot-dns-cloudflare`, nginx, openssl, curl and systemd.
 
-**Depended on by:** `tool-rows.json`, run by Trillion's local engine (a `container` row with `internet: true`, `credential_mounts` and `max_run_ms`); `do-work/host-administration.mjs` by tools that administer a server.
+**Depended on by:** `tool-rows.json`, run by Trillion's local engine (a `container` row with `internet: true`, `credential_mounts` and `max_run_ms`).

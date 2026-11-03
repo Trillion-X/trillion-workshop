@@ -27,6 +27,7 @@
     "the held key comes on descriptor 4 (a row's credential_mounts fd, or the launch agent's pipe from the vault command the configuration names), not by importing the older owner's vault reader by a relative path into another repository",
     "the configuration comes on standard input under `serve`, as a Workshop command reads its request",
     "the launch agent's label, its vault command and its environment are the installer's input, not a fixed label and a fixed PRODUCT_DATA_ROOT setting; its log is named after the configuration file",
+    "administration checks only the address and pinned-host file it uses (not the tunnel's user and ports), and reaches the host through a run's proxy when it has one (proxied: a CONNECT tunnel of the engine's loopback proxy and a 30 second keepalive), taken from renew-a-tls-certificate's port of the same lines so there is one administrationArguments",
     "the connection key's comment and the agent folder's name prefix are given or neutral, not the product's name",
     "the server setup keeps only the tunnel's part (the service user, its key and its sshd block, named after that user); the build host's packages, swap and Rust toolchain belong with the receptionist build, not the tunnel"
   ],

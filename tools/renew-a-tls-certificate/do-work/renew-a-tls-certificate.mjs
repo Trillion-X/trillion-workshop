@@ -11,7 +11,7 @@ import { execFileSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
-import { administrationArguments } from './host-administration.mjs';
+import { administrationArguments } from '../../keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs';
 
 const hostnamePattern = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
 // An absolute path with no quote, space or shell word in it, so it can sit inside the host's shell words.

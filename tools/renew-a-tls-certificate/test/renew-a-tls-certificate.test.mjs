@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { checkedTLS, hostCommand, publicProxy, publishDownload, installHostOwner, hostLayout, layoutFile, pinnedHost, heldValue } from '../do-work/renew-a-tls-certificate.mjs';
-import { administrationArguments, proxied } from '../do-work/host-administration.mjs';
+import { administrationArguments, proxied } from '../../keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs';
 
 // A made-up server: every fact below is the run's input, none is the tool's.
 const host = {
