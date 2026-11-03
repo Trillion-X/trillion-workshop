@@ -2,19 +2,25 @@
 // program prints (the engine's rule under every kind that runs a process, as an http row's picks from its reply), so a
 // row's own sample run (verify, kind sample-run) is run here the way the container runner runs it
 // (test-helpers/run-a-row.mjs) and the selector must find a value in that line. "$" is the line itself; "$.result" is
-// right only for a program that prints { result: ... }. A selector the line does not hold fails here, not as a refused
-// run on someone's computer. A row with no sample, or whose sample cannot run here, is listed by name and why, never
-// left out silently. Nothing here names a tool.
+// right only for a program that prints { result: ... }. A selector the line does not hold fails here, not as a failed
+// run on someone's computer. A row with no sample that runs is listed by name and why, never left out silently. A sample
+// seeds the records a row reads (records), answers a row with internet: true from recorded replies (replies, read on
+// shape_read_at) and gives made-up held values (held). Run by the push gate once for each tool folder, with that
+// folder in WORKSHOP_UNIT_FOLDER, it proves that folder's rows; run with none, it proves every row. Nothing here names
+// a tool.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { basename } from 'node:path';
 import { rows as readRows } from '../test-helpers/tool-rows.mjs';
 import { runRow, select } from '../test-helpers/run-a-row.mjs';
+import { staleReplies } from '../test-helpers/stand-in-egress.mjs';
 
-const processRows = readRows().map(({ payload }) => payload)
+const unit = process.env.WORKSHOP_UNIT_FOLDER ? basename(process.env.WORKSHOP_UNIT_FOLDER) : null;
+const processRows = readRows().filter(({ folder }) => unit === null || folder === unit).map(({ payload }) => payload)
   .filter(row => Array.isArray(row.invoke?.argv) && typeof row.result_selector === 'string');
 const samplesOf = row => [row.verify ?? []].flat().filter(check => check?.kind === 'sample-run' && 'input' in check);
 
-// Every sample of every row, run a few at a time: { row, ran } per sample.
+// Every sample of every row, run a few at a time: { row, sample, ran } per sample.
 async function runAll(limit = 8) {
   const work = processRows.flatMap(row => samplesOf(row).map(sample => ({ row, sample })));
   const done = [];
@@ -22,7 +28,8 @@ async function runAll(limit = 8) {
   await Promise.all(Array.from({ length: limit }, async () => {
     while (next < work.length) {
       const { row, sample } = work[next++];
-      done.push({ row, ran: await runRow(row, sample.input) });
+      const stale = staleReplies(sample);
+      done.push({ row, sample, ran: stale ? { cannot: stale } : await runRow(row, sample.input, sample) });
     }
   }));
   return done;
@@ -37,6 +44,7 @@ test('every process row\'s result_selector finds a value in the last line its ow
   const why = new Map();
   for (const { row, ran } of runs) {
     if (ran.cannot) { why.set(row.id, `its sample cannot run here: ${ran.cannot}`); continue; }
+    if (ran.unanswered.length) { why.set(row.id, `its sample asked for a reply it has not recorded: ${ran.unanswered.join(', ')}`); continue; }
     if (ran.code !== 0) {
       // A run that exits non-zero answers its error; the engine picks nothing from it, so it proves no selector.
       const said = ran.last?.error ?? ran.stderr.trim().split('\n').at(-1) ?? '';
@@ -50,10 +58,9 @@ test('every process row\'s result_selector finds a value in the last line its ow
         + (wrapped ? 'it prints { result }, so the selector is "$.result"' : 'it prints the value itself, so the selector is "$"'));
     }
   }
-  // Every row not proved by a sample of its own is listed by name and why, so a missing proof is seen.
   const unproved = processRows.filter(row => !proved.has(row.id))
-    .map(row => `${row.id}: ${samplesOf(row).length ? why.get(row.id) : 'it has no sample run'}`).sort();
-  t.diagnostic(`${processRows.length} process rows: ${proved.size} proved by their own sample, ${unproved.length} not proved here`);
+    .map(row => `${row.id}: ${samplesOf(row).length ? why.get(row.id) : 'it has no sample run; add one to its verify list'}`).sort();
+  t.diagnostic(`${processRows.length} process rows${unit ? ` in tools/${unit}` : ''}: ${proved.size} proved by their own sample, ${unproved.length} not proved`);
   for (const line of unproved) t.diagnostic(`  ${line}`);
   assert.deepEqual(wrong, [], `a selector its program's last line does not hold:\n${wrong.join('\n')}`);
 });
