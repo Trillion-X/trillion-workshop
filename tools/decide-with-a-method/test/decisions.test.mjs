@@ -755,6 +755,8 @@ test('a decision of any size fits: every record and every door write stays under
   assert.ok(total > 3 * 64 * 1024, `the case is far larger than one write (${total} bytes)`);
   const largestWrite = Math.max(...door.writes.map(write => write.bytes));
   assert.ok(largestWrite <= 64 * 1024, `every door write is under the cap (largest ${largestWrite})`);
+  const largestCarried = Math.max(...door.writes.map(write => write.carried));
+  assert.ok(largestCarried <= 64 * 1024, `every door write is under the cap however it is carried (largest ${largestCarried})`);
   const largest = {};
   for (const [key, kept] of mine) {
     const type = key === id ? 'decision' : kept.type;
@@ -983,4 +985,77 @@ test('a single conditioned record the door still refuses as 413 is ended through
   assert.deepEqual([answer.decisions[0].ended, answer.decisions[0].laid_apart], [true, true]);
   assert.equal(caseView(door, id).status, 'ended');
   assert.deepEqual(caseView(door, id).input.evidence, [{ ref: 'e1', claim: 'A made-up fact' }]);
+});
+
+// A made-up old-layout root of the shape measured on a real account: two evidence rows inline, one of them a whole
+// incoming chat message of about 67 KB (quotes, backslashes, newlines and emoji), the method snapshot inline, nothing else.
+function oldRootWithHugeClaim(id) {
+  const line = n => `Line ${n}: "Sure," she said \\ he typed C:\\camp\\notes — "let's book the 🏕️ venue" 🙂🎉\n\tthen: {"ok": true} ✓ café naïve 日本\n`;
+  let claim = '';
+  for (let n = 0; Buffer.byteLength(JSON.stringify(claim)) < 67700; n += 1) claim += line(n);
+  const source_id = 'message:2026-01-02T03:04:05.000Z:0a1b2c3d4e5f60718293a4b5c6d7e8f9';
+  const method = { ...plainMethod(), id: 'universal' };
+  return {
+    id, source_id, status: 'needs_decision', created_at: '2026-01-02T03:04:05.000Z',
+    input: {
+      source_id, method: 'universal',
+      goal: 'Choose which made-up venue the camp books for the spring weekend, given the cost, the travel time and the rooms it has for everyone who signed up so far, and say why.',
+      options: [{ id: 'lake', label: 'The made-up lake venue' }, { id: 'hill', label: 'The made-up hill venue' }],
+      evidence: [{ ref: 'e1', claim }, { ref: 'e2', claim: 'A made-up fact: the lake venue answered first, and its quote came in under the budget we set.' }],
+    },
+    method, scratchpad: {}, checks: [], answered_steps: [], actions: [],
+  };
+}
+
+test('an old-layout root whose one evidence claim is about 67 KB ends in writes that each fit the cap, losing nothing', async () => {
+  const door = memoryDoor();
+  const id = 'source:old-huge-claim';
+  const root = oldRootWithHugeClaim(id);
+  const claimBytes = Buffer.byteLength(JSON.stringify(root.input.evidence[0].claim));
+  assert.ok(claimBytes > 67000 && claimBytes < 68500, `the claim is about 67 KB (${claimBytes})`);
+  door.put(id, 'decision', root);
+  const answer = await endDecisions({ decisions: [{ decision_id: id, because: 'No one will carry it on.' }], by: 'test-agent' }, { door });
+  assert.deepEqual([answer.ended, answer.decisions[0].laid_apart], [1, true]);
+  for (const write of door.writes) assert.ok(write.bytes <= 64 * 1024 && write.carried <= 64 * 1024, `${write.key}: ${write.bytes} bytes, ${write.carried} as carried, is over the cap`);
+  const view = caseView(door, id);
+  assert.equal(view.status, 'ended');
+  assert.equal(view.previous_status, 'needs_decision');
+  assert.deepEqual(view.input.evidence, root.input.evidence, 'both claims, word for word');
+  for (const field of ['goal', 'options', 'source_id', 'method']) assert.deepEqual(view.input[field], root.input[field], `input.${field}`);
+  for (const field of ['source_id', 'created_at', 'scratchpad', 'checks', 'actions']) assert.deepEqual(view[field], root[field], field);
+  assert.deepEqual(view.method, root.method);
+  assert.ok(Buffer.byteLength(JSON.stringify(door.value(id))) < 4096, 'the root is laid apart');
+});
+
+test('a single evidence row of any size, added to a decision, is kept in writes that each fit the cap, and ends whole', async () => {
+  const door = account();
+  const { case_id: id } = await startADecision(opened, { door });
+  const line = n => `Row ${n}: "quoted \\ slashed" — naïve café 🏕️🙂 日本語\n\t{"nested": "\\"json\\""}\n`;
+  let claim = '';
+  for (let n = 0; claim.length < 250000; n += 1) claim += line(n);
+  await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim }] }, { door });
+  const answer = await endDecisions({ decisions: [{ decision_id: id, because: 'No one will carry it on.' }], by: 'test-agent' }, { door });
+  assert.equal(answer.ended, 1);
+  for (const write of door.writes) assert.ok(write.bytes <= 64 * 1024 && write.carried <= 64 * 1024, `${write.key}: ${write.bytes} bytes, ${write.carried} as carried, is over the cap`);
+  const view = caseView(door, id);
+  assert.equal(view.status, 'ended');
+  assert.deepEqual(view.input.evidence, [...opened.evidence, { ...view.input.evidence[2], ref: 'e3', claim }], 'every claim word for word');
+});
+
+test('a decision whose laid-apart write the door still refuses as 413 is answered not ended, and the others still end', async () => {
+  const door = memoryDoor();
+  const big = 'source:old-huge-claim', small = 'source:camp-small';
+  door.put(big, 'decision', oldRootWithHugeClaim(big));
+  door.put(small, 'decision', { status: 'needs_outcome', goal: 'A made-up goal' });
+  const write = door.write.bind(door);
+  door.write = async (list, options) => {
+    if (list.some(record => record.id.includes(big))) throw Object.assign(new Error('The records door answered 413.'), { code: 'http_413' });
+    return write(list, options);
+  };
+  const answer = await endDecisions({ decisions: [{ decision_id: big, because: 'Done with it.' }, { decision_id: small, because: 'Done with it.' }], by: 'test-agent' }, { door });
+  assert.deepEqual(answer.decisions.map(item => item.ended), [false, true]);
+  assert.equal(answer.decisions[0].too_large, true);
+  assert.equal(answer.decisions[0].reason, settings.words.end_too_large);
+  assert.equal(door.value(big).status, 'needs_decision', 'the decision is as it was');
+  assert.equal(door.value(small).status, 'ended');
 });
