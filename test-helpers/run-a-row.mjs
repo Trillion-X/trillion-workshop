@@ -9,7 +9,7 @@
 // that needs a key held for the person, one with a fill this runner does not read (a fetch), or one whose program is
 // not on this computer.
 import { spawn, spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, openSync, rmSync, statSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, openSync, realpathSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { root, tools } from './tool-rows.mjs';
@@ -99,7 +99,9 @@ export async function runRow(row, input) {
   if (why) return { cannot: why };
   const { invoke } = row;
   const specs = [invoke.files?.package_files ?? []].flat();
-  const there = mkdtempSync(join(tmpdir(), 'workshop-row-'));
+  // The real path of the temp folder: on macOS it is reached through the /var link, and a program that runs only when
+  // it is the started script (argv[1] equal to its own module path) would otherwise do nothing and print nothing.
+  const there = mkdtempSync(join(realpathSync(tmpdir()), 'workshop-row-'));
   const fake = invoke.records ? await startFakeDoor({ rights: invoke.records.rights ?? [], mostWrites: invoke.records.most_writes }) : null;
   try {
     lay(specs, there);

@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "email-sending-domains-tool-rows",
-  "what_this_is": "The Workshop rows for the email-sending-domains folder: which domains the person's email-sending account (Resend) may send from, adding one, reading one and asking the account to check its DNS records again, and a sending-only key kept in the vault. The person's held key reaches the list's one process on a private pipe (credential_mounts fd 3) and the http rows' Authorization header only; none sends email or changes DNS.",
+  "what_this_is": "The Workshop rows for the email-sending-domains folder: which domains the person's email-sending account (Resend) may send from, adding one, reading one and asking the account to check its DNS records again, and a sending-only key kept in the vault, listing those keys and removing one. The person's held key reaches the list's one process on a private pipe (credential_mounts fd 3) and the http rows' Authorization header only; none sends email or changes DNS.",
   "records": [
     {
       "payload": {
@@ -89,6 +89,77 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
         "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/api-keys/create-api-key" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-sending-keys-with-resend",
+        "label": "List sending keys with Resend",
+        "job": "See the keys my email-sending account has: each one's id, name and when it was made",
+        "description": "Lists the keys of the person's email-sending account (Resend), with the key they connected: each key's id, name and when it was made, never a key itself (the provider shows a key only once, when it is made). It only reads.",
+        "status": "active",
+        "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
+        "output_schema": {
+          "type": "object",
+          "required": ["data"],
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "created_at": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/api-keys",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/api-keys/list-api-keys" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:remove-a-sending-key-with-resend",
+        "label": "Remove a sending key with Resend",
+        "job": "Turn off one key of my email-sending account, by its id, so it can never send again",
+        "description": "Removes one key of the person's email-sending account (Resend) by its id (the id tool:make-a-sending-key-with-resend or tool:list-sending-keys-with-resend answered), with the key they connected. Anything still holding the removed key can no longer send. The vault's copy is removed with the vault's own remove.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["api_key_id"],
+          "properties": { "api_key_id": { "type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$" } }
+        },
+        "output_schema": { "type": "object" },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/api-keys/{api_key_id}",
+          "method": "DELETE",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/api-keys/delete-api-key" }
       }
     },
     {
