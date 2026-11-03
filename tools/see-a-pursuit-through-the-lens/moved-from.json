@@ -1,0 +1,18 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/pursuit-lens.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/see-a-pursuit-through-the-lens/src/pursuit-lens.mjs",
+      "source_identity": "1f:a7de055df17c90f6fa6970560ac1d48fb7b4e5c1c8fdd605497d29dff21cfc4d",
+      "identity": "1f:a7de055df17c90f6fa6970560ac1d48fb7b4e5c1c8fdd605497d29dff21cfc4d",
+      "reads_rows": [
+        "methods/pursuit-lens.json"
+      ]
+    }
+  ]
+}

@@ -1706,6 +1706,8 @@
       ],
       "entry": "tools/build-a-docs-site/parts/docs-site/README.md",
       "evidence": "tools/build-a-docs-site/parts/docs-site/README.md:3"
-    }
+    },
+    {"capability": "place a person's pursuits on a map of a full life, what they serve and which parts of life they touch, with their own map as a list", "owner": ["tools/place-pursuits-on-a-life-map/src/life-map.mjs"], "entry": "tools/place-pursuits-on-a-life-map/src/life-map.mjs", "evidence": "tools/place-pursuits-on-a-life-map/src/life-map.mjs:3"},
+    {"capability": "tell an AI how to look at what a person is pursuing: where to look and what to do about it", "owner": ["tools/see-a-pursuit-through-the-lens/src/pursuit-lens.mjs"], "entry": "tools/see-a-pursuit-through-the-lens/src/pursuit-lens.mjs", "evidence": "tools/see-a-pursuit-through-the-lens/src/pursuit-lens.mjs:1"}
   ]
 }
