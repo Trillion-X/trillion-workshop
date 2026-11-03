@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:1b48a1ec27f7c299b80bca3c4dc7591ab4e3a5991b783f6265770cb4a6dab750"
  },
  "fields": [
   {
@@ -8740,6 +8740,21 @@
      "placement:deployed-container"
     ],
     "folder": "legal-document-builder"
+   }
+  },
+  {
+   "id": "tool:write-message-models-for-every-app",
+   "values": {
+    "title": "Write the message models every app reads from one list (runs on your computer)",
+    "job": "Write the Swift and TypeScript message models two apps and the web use to talk to each other, from one list of models",
+    "description": "Reads one models file (models, each with its fields and types, and targets naming the type name, protocols and output file each app uses) and writes a Swift file per Swift target and one TypeScript declaration, so the apps cannot read the same message two ways. --check exits 1 and names each file that is behind its models file; --write (the default) brings them up to date. Nothing about any model is built in: the models are the person's rows.",
+    "status": "active",
+    "maker": "maker:write-message-models-for-every-app",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "write-message-models-for-every-app"
    }
   },
   {
