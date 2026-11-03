@@ -7,6 +7,17 @@
     "read-data/caption-lines.ts",
     "read-data/caption-styles.mjs",
     "read-data/caption-styles.json",
-    "read-data/looks.mjs"
+    "read-data/looks.mjs",
+    "do-work/read-narration-captions.mjs",
+    "read-data/range-complement.mjs",
+    "read-data/compose-timeline.ts",
+    "read-data/preview-grade.mjs",
+    "read-data/position-track.mjs",
+    "do-work/make-pictures-and-sounds.json",
+    "read-data/auto-edit.mjs",
+    "read-data/edit-command-log.mjs",
+    "read-data/media-versions.mjs",
+    "read-data/suggestion-stream.json",
+    "read-data/track-alignment.mjs"
   ]
 }

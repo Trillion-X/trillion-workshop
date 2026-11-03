@@ -1,0 +1,414 @@
+{
+ "what_this_is": "Receipts for the move of trillion's parts/media-composition into this folder: each moved file with the trillion path it came from, the files this folder already held byte for byte (reused), and the paths where the two copies differed and this folder's copy was kept.",
+ "from": {
+  "repository": "Trillion-X/trillion",
+  "commit": "8bb09122368b2a0cfcb52c0df58d824dfe3ec6a8",
+  "folder": "parts/media-composition"
+ },
+ "moved": [
+  {
+   "to": "do-work/README.md",
+   "from": "parts/media-composition/do-work/README.md"
+  },
+  {
+   "to": "do-work/align-clips.mjs",
+   "from": "parts/media-composition/do-work/align-clips.mjs"
+  },
+  {
+   "to": "do-work/author-aligned-split.mjs",
+   "from": "parts/media-composition/do-work/author-aligned-split.mjs"
+  },
+  {
+   "to": "do-work/author-beat-montage.mjs",
+   "from": "parts/media-composition/do-work/author-beat-montage.mjs"
+  },
+  {
+   "to": "do-work/author-concat-edl.mjs",
+   "from": "parts/media-composition/do-work/author-concat-edl.mjs"
+  },
+  {
+   "to": "do-work/author-cover-text.mjs",
+   "from": "parts/media-composition/do-work/author-cover-text.mjs"
+  },
+  {
+   "to": "do-work/author-decisions-from-records.ts",
+   "from": "parts/media-composition/do-work/author-decisions-from-records.ts"
+  },
+  {
+   "to": "do-work/author-effect-stack.mjs",
+   "from": "parts/media-composition/do-work/author-effect-stack.mjs"
+  },
+  {
+   "to": "do-work/author-reel-plan.mjs",
+   "from": "parts/media-composition/do-work/author-reel-plan.mjs"
+  },
+  {
+   "to": "do-work/batch-produce-reels.mjs",
+   "from": "parts/media-composition/do-work/batch-produce-reels.mjs"
+  },
+  {
+   "to": "do-work/build-edit-decisions.ts",
+   "from": "parts/media-composition/do-work/build-edit-decisions.ts"
+  },
+  {
+   "to": "do-work/card-layout.mjs",
+   "from": "parts/media-composition/do-work/card-layout.mjs"
+  },
+  {
+   "to": "do-work/cut-out-a-person.py",
+   "from": "parts/media-composition/do-work/cut-out-a-person.py"
+  },
+  {
+   "to": "do-work/decode-audio-peaks.ts",
+   "from": "parts/media-composition/do-work/decode-audio-peaks.ts"
+  },
+  {
+   "to": "do-work/detect-beats-browser.ts",
+   "from": "parts/media-composition/do-work/detect-beats-browser.ts"
+  },
+  {
+   "to": "do-work/detect-crop.mjs",
+   "from": "parts/media-composition/do-work/detect-crop.mjs"
+  },
+  {
+   "to": "do-work/detect-highlights.mjs",
+   "from": "parts/media-composition/do-work/detect-highlights.mjs"
+  },
+  {
+   "to": "do-work/detect-motion.mjs",
+   "from": "parts/media-composition/do-work/detect-motion.mjs"
+  },
+  {
+   "to": "do-work/detect-scenes-browser.ts",
+   "from": "parts/media-composition/do-work/detect-scenes-browser.ts"
+  },
+  {
+   "to": "do-work/detect-track-browser.ts",
+   "from": "parts/media-composition/do-work/detect-track-browser.ts"
+  },
+  {
+   "to": "do-work/edit-op-schemas.ts",
+   "from": "parts/media-composition/do-work/edit-op-schemas.ts"
+  },
+  {
+   "to": "do-work/export-xmeml.md",
+   "from": "parts/media-composition/do-work/export-xmeml.md"
+  },
+  {
+   "to": "do-work/make-browser-preview.py",
+   "from": "parts/media-composition/do-work/make-browser-preview.py"
+  },
+  {
+   "to": "do-work/make-pictures-and-sounds.json",
+   "from": "parts/media-composition/do-work/make-pictures-and-sounds.json"
+  },
+  {
+   "to": "do-work/make-pictures-and-sounds.mjs",
+   "from": "parts/media-composition/do-work/make-pictures-and-sounds.mjs"
+  },
+  {
+   "to": "do-work/place-captions.mjs",
+   "from": "parts/media-composition/do-work/place-captions.mjs"
+  },
+  {
+   "to": "do-work/premiere-project-handoff.md",
+   "from": "parts/media-composition/do-work/premiere-project-handoff.md"
+  },
+  {
+   "to": "do-work/premiere-project-handoff.mjs",
+   "from": "parts/media-composition/do-work/premiere-project-handoff.mjs"
+  },
+  {
+   "to": "do-work/read-narration-captions.mjs",
+   "from": "parts/media-composition/do-work/read-narration-captions.mjs"
+  },
+  {
+   "to": "do-work/retime-to-fit.mjs",
+   "from": "parts/media-composition/do-work/retime-to-fit.mjs"
+  },
+  {
+   "to": "do-work/split-layout.mjs",
+   "from": "parts/media-composition/do-work/split-layout.mjs"
+  },
+  {
+   "to": "do-work/video-pipeline.json",
+   "from": "parts/media-composition/do-work/video-pipeline.json"
+  },
+  {
+   "to": "do-work/video-pipeline.mjs",
+   "from": "parts/media-composition/do-work/video-pipeline.mjs"
+  },
+  {
+   "to": "do-work/write-media-composition-record.ts",
+   "from": "parts/media-composition/do-work/write-media-composition-record.ts"
+  },
+  {
+   "to": "read-data/README.md",
+   "from": "parts/media-composition/read-data/README.md"
+  },
+  {
+   "to": "read-data/auto-cleanup.ts",
+   "from": "parts/media-composition/read-data/auto-cleanup.ts"
+  },
+  {
+   "to": "read-data/auto-edit.json",
+   "from": "parts/media-composition/read-data/auto-edit.json"
+  },
+  {
+   "to": "read-data/auto-edit.mjs",
+   "from": "parts/media-composition/read-data/auto-edit.mjs"
+  },
+  {
+   "to": "read-data/beat-sync.ts",
+   "from": "parts/media-composition/read-data/beat-sync.ts"
+  },
+  {
+   "to": "read-data/compose-timeline.ts",
+   "from": "parts/media-composition/read-data/compose-timeline.ts"
+  },
+  {
+   "to": "read-data/edit-capabilities.ts",
+   "from": "parts/media-composition/read-data/edit-capabilities.ts"
+  },
+  {
+   "to": "read-data/edit-command-log.json",
+   "from": "parts/media-composition/read-data/edit-command-log.json"
+  },
+  {
+   "to": "read-data/edit-command-log.mjs",
+   "from": "parts/media-composition/read-data/edit-command-log.mjs"
+  },
+  {
+   "to": "read-data/highlight-scorer.ts",
+   "from": "parts/media-composition/read-data/highlight-scorer.ts"
+  },
+  {
+   "to": "read-data/live-effect-preview.mjs",
+   "from": "parts/media-composition/read-data/live-effect-preview.mjs"
+  },
+  {
+   "to": "read-data/materialize-edl.ts",
+   "from": "parts/media-composition/read-data/materialize-edl.ts"
+  },
+  {
+   "to": "read-data/media-composition-descriptors.ts",
+   "from": "parts/media-composition/read-data/media-composition-descriptors.ts"
+  },
+  {
+   "to": "read-data/media-versions.json",
+   "from": "parts/media-composition/read-data/media-versions.json"
+  },
+  {
+   "to": "read-data/media-versions.mjs",
+   "from": "parts/media-composition/read-data/media-versions.mjs"
+  },
+  {
+   "to": "read-data/narration-source.ts",
+   "from": "parts/media-composition/read-data/narration-source.ts"
+  },
+  {
+   "to": "read-data/object-mask-binding.mjs",
+   "from": "parts/media-composition/read-data/object-mask-binding.mjs"
+  },
+  {
+   "to": "read-data/object-mask-geometry.mjs",
+   "from": "parts/media-composition/read-data/object-mask-geometry.mjs"
+  },
+  {
+   "to": "read-data/position-track.mjs",
+   "from": "parts/media-composition/read-data/position-track.mjs"
+  },
+  {
+   "to": "read-data/preview-grade.mjs",
+   "from": "parts/media-composition/read-data/preview-grade.mjs"
+  },
+  {
+   "to": "read-data/range-complement.mjs",
+   "from": "parts/media-composition/read-data/range-complement.mjs"
+  },
+  {
+   "to": "read-data/read-media-editor-layout-state.ts",
+   "from": "parts/media-composition/read-data/read-media-editor-layout-state.ts"
+  },
+  {
+   "to": "read-data/read-media-workspace.ts",
+   "from": "parts/media-composition/read-data/read-media-workspace.ts"
+  },
+  {
+   "to": "read-data/read-transcript-words.ts",
+   "from": "parts/media-composition/read-data/read-transcript-words.ts"
+  },
+  {
+   "to": "read-data/suggestion-stream.json",
+   "from": "parts/media-composition/read-data/suggestion-stream.json"
+  },
+  {
+   "to": "read-data/suggestion-stream.mjs",
+   "from": "parts/media-composition/read-data/suggestion-stream.mjs"
+  },
+  {
+   "to": "read-data/summarize-draft-operations.mjs",
+   "from": "parts/media-composition/read-data/summarize-draft-operations.mjs"
+  },
+  {
+   "to": "read-data/timed-text.mjs",
+   "from": "parts/media-composition/read-data/timed-text.mjs"
+  },
+  {
+   "to": "read-data/track-alignment.json",
+   "from": "parts/media-composition/read-data/track-alignment.json"
+  },
+  {
+   "to": "read-data/track-alignment.mjs",
+   "from": "parts/media-composition/read-data/track-alignment.mjs"
+  },
+  {
+   "to": "test/suggestion-stream.test.mjs",
+   "from": "test/suggestion-stream.test.mjs",
+   "path_only_change": "imports ../parts/media-composition/ -> ../"
+  },
+  {
+   "to": "test/media-versions.test.mjs",
+   "from": "test/media-versions.test.mjs",
+   "path_only_change": "imports ../parts/media-composition/ -> ../"
+  },
+  {
+   "to": "test/edit-command-log.test.mjs",
+   "from": "test/edit-command-log.test.mjs",
+   "path_only_change": "imports ../parts/media-composition/ -> ../"
+  },
+  {
+   "to": "test/track-alignment-measure.test.mjs",
+   "from": "test/track-alignment-measure.test.mjs",
+   "path_only_change": "imports ../parts/media-composition/ -> ../"
+  },
+  {
+   "to": "test/narration-caption-binding.test.mjs",
+   "from": "test/narration-caption-binding.test.mjs",
+   "path_only_change": "imports ../parts/media-composition/ -> ../"
+  }
+ ],
+ "reused_byte_for_byte": [
+  "do-work/author-karaoke-captions.mjs",
+  "do-work/beat-onset-picker.mjs",
+  "do-work/blur-faces-not-agreed.py",
+  "do-work/change-speed-over-a-range.mjs",
+  "do-work/choose-by-threshold.mjs",
+  "do-work/color-match.mjs",
+  "do-work/cut-and-caption.mjs",
+  "do-work/detect-beats.mjs",
+  "do-work/effect-registry.mjs",
+  "do-work/export-editor-timeline.mjs",
+  "do-work/export-xmeml.mjs",
+  "do-work/extract-poster.mjs",
+  "do-work/find-action-moments.mjs",
+  "do-work/find-recurring-voices.py",
+  "do-work/name-a-voice.py",
+  "do-work/pick-poster-frame.mjs",
+  "do-work/reframe-to-a-size.mjs",
+  "do-work/resolve-render-dimensions.mjs",
+  "do-work/save-cover-frame.mjs",
+  "do-work/segment-person-matte.py",
+  "do-work/stage-reuse.mjs",
+  "do-work/track-moving-subject.mjs",
+  "do-work/visual-overlay-order.mjs",
+  "read-data/adjustment-layers.mjs",
+  "read-data/caption-lines.ts",
+  "read-data/looks.json",
+  "read-data/stored-bytes.json"
+ ],
+ "kept_this_copy": [
+  {
+   "path": "README.md",
+   "why": "this folder's README, with rows for the moved files"
+  },
+  {
+   "path": "do-work/auto-reframe.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/detect-events.mjs",
+   "why": "this folder's copy (moved in earlier with stream-core.mjs) is kept here; trillion's copy stays in trillion because its callers use its local-model detector row, which this copy's read-data/detect-events.json does not hold"
+  },
+  {
+   "path": "do-work/detect-quality.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/detect-scenes.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/detect-silence.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/detect-track.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/grade-a-video.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/layer-over-video.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/measure-loudness.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/relink-editor-projects.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/relink-in-resolve.py",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/render-an-edit.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/stream-features.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/tts-narrate.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "do-work/video-compose.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "part.json",
+   "why": "union: trillion's public files that moved are added"
+  },
+  {
+   "path": "read-data/caption-styles.json",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "read-data/caption-styles.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "read-data/layers-to-edit.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "read-data/looks.mjs",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "read-data/reframe-camera.json",
+   "why": "this folder's copy is trillion's with more (newer features or public wording; same exports)"
+  },
+  {
+   "path": "records.json",
+   "why": "this folder's rows are kept; trillion's three app rows (run-an-app-job, build-native-app, use-an-app-on-this-computer) run trillion-only code and stay there"
+  }
+ ]
+}
