@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:c9d7964faac2e0e5eb622680a546b15bc11242a202f4607d702cad5107c4aa4a"
+  "blake3": "1f:e1f98bb860e342bd43ba32f4470e12589b1c4c510e67670a65e5210d9a464a76"
  },
  "fields": [
   {
@@ -1665,7 +1665,7 @@
    "values": {
     "title": "Critique a public page",
     "job": "Judge public web pages (one page, or every page a sitemap lists) against the saved craft rules at phone and desktop width, with a marked picture of each",
-    "description": "Opens the page (url), or every page a sitemap lists (pages_from, less the paths skip names), at 390 and 1280 pixels (the widths are DATA in parts/page-critic/read-data/page-craft-rules.json) and checks it against the craft rules: headings wider than their measure, body text wider than about half the page, small label lines above headings, text too close to the browser's edge, links to anchors that are not on the page, links that do not open, cards that look openable but are not, a page whose newest date is older than fresh_within_days (one number, or { \"/path\": days } for some pages), a page many screens long, and controls that look the same with a pointer on them. Each finding says what to change, in plain words, and where; each width is kept as a whole-page picture in your files with every finding boxed and numbered. The page is only read.",
+    "description": "Opens the page (url), or every page a sitemap lists (pages_from, less the paths skip names), at 390 and 1280 pixels (the widths are DATA in parts/page-critic/read-data/page-craft-rules.json) and checks it against the craft rules: headings wider than their measure, body text wider than about half the page, small label lines above headings, text too close to the browser's edge, links to anchors that are not on the page, links that do not open, cards that look openable but are not, a page whose newest date is older than fresh_within_days (one number, or { \"/path\": days } for some pages), a page many screens long, controls that look the same with a pointer on them, side margins too small or lopsided, a section pushed to one side, long blank stretches, no title on the first screen, long sections with no heading, text crowding the left edge, first-screen text that stays hidden when the visitor asks for reduced motion, controls with no accessible name, a Tab order that jumps back up the page or uses a positive tabindex, heading levels that skip or a page with no h1 or more than one, and a missing title, language, description or viewport. Each finding says what to change, in plain words, and where; each width is kept as a whole-page picture in your files with every finding boxed and numbered. The page is only read.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
