@@ -16,8 +16,8 @@ test('an item answered with a quota 409 is asked again after the short wait and 
   let clock = '2026-10-21T11:00:00Z';
   const answers = [{status: 409, body: {error: 'Resource quota: measurement_or_receipt_uncertain'}}, {status: 200, body: {message_id: 'm', arrival_id: 'arrival:photo'}}];
   const asked = [];
-  const carrier = readNewItems({carriers: [{route: 'Photos', reader: 'apple-notes', store: dir, settle_seconds: 0}], stateFile, keep: async () => {},
-    readers: {'apple-notes': async () => [{...item}]}, now: () => new Date(clock),
+  const carrier = readNewItems({carriers: [{route: 'Photos', reader: 'photos-stand-in', store: dir, settle_seconds: 0}], stateFile, keep: async () => {},
+    readers: {'photos-stand-in': async () => [{...item}]}, now: () => new Date(clock),
     account: async (route, {body}) => { asked.push(body.source_id); return answers.shift() ?? assert.fail('asked more than twice'); }});
   await carrier.tick();
   const state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));

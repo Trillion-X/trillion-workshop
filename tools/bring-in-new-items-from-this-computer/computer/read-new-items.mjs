@@ -4,9 +4,10 @@
 // email, an event, a photo, a download) reaches their Trillion account's one door (/mcp/api/inbound, dev/trillion
 // src/inbound.mjs), where it is kept word for word and handed to whichever of their AIs takes it first. Each place is
 // a row's `read` block in computer-sources.json (route, reader, store, settle_seconds, and the reader's own fields); a
-// reader is a leaf in READERS that turns a store into items { source_id, title, text, at, file?, picture? }. Most places
-// need no leaf of their own: `sqlite` runs the row's query against the row's stores, and `folder` lists the row's
-// folder, so a new place is one more row.
+// reader is a leaf in READERS that turns a store into items { source_id, title, text, at, file?, picture? }. No place
+// has a leaf of its own: `sqlite` runs the row's query against the row's stores (a notes store, a recordings store, a
+// chat database), `folder` lists the row's folder, and `incoming` reads what a carried connection kept, so a new place
+// on any computer is one more row.
 //
 // Invariants:
 // - Read only for provider stores. They are opened read-only and never written.
@@ -24,8 +25,9 @@
 //   restart part way through never loses the status or sends again what already went.
 // - One item that cannot be sent (its file vanished or will not open) is recorded as `failed` and skipped until the
 //   next look; the items after it still go.
-// - The core names no app: routes, stores, queries and folders are DATA; app knowledge lives only in the rows and in
-//   the few reader leaves whose store is not a query away (apple-notes, voice-memos).
+// - The core names no app: routes, stores, queries, decoders' paths and folders are DATA; app knowledge lives only in
+//   the rows. A store kept in its own format is read by a decoder named for the format (typedstream-string,
+//   gzip-protobuf-text), never for the app.
 // - When the account cannot take anything (not signed in, plan, busy, unreachable), every place waits (1 minute,
 //   doubling to 30), so a struggling account is not asked again every look. Nothing is lost: what was not sent is read
 //   again after. When it turns away one item (a 4xx about that item), only that item waits, until it changes or the
@@ -84,18 +86,21 @@ import {bytesToHex} from '@noble/hashes/utils.js';
 import {accessPaneAddress, placesOf} from './computer-sources.mjs';
 import {readIncomingItems, assertIncomingAllowed, acknowledgeIncomingItem} from './connections/incoming-items.mjs';
 
-const APPLE_EPOCH_SECONDS = 978307200;
-const fromAppleTime = seconds => new Date((Number(seconds) + APPLE_EPOCH_SECONDS) * 1000);
+const SECONDS_TO_2001 = 978307200;
+const from2001 = seconds => new Date((Number(seconds) + SECONDS_TO_2001) * 1000);
 const expand = place => place.replace(/^~(?=\/)/, os.homedir());
 
 // The times a store keeps, to and from a Date. A row whose store keeps another unit converts it in its query.
 const TIMES = {
-  'apple-seconds': {to: fromAppleTime, from: date => date.getTime() / 1000 - APPLE_EPOCH_SECONDS},
+  'seconds-since-2001': {to: from2001, from: date => date.getTime() / 1000 - SECONDS_TO_2001},
   'unix-seconds': {to: seconds => new Date(Number(seconds) * 1000), from: date => date.getTime() / 1000},
 };
 
-// Decoders a row names for a column its store keeps in its own format: [{from, decoder, into}].
+// Decoders a row names for a column its store keeps in its own format: [{from, decoder, into, ...the decoder's fields}].
 export const DECODERS = {
+  // A gzipped protobuf message whose words are at the step's `path` of length-delimited field numbers (a notes store
+  // keeps a note's body this way: document 2, note 3, note_text 2).
+  'gzip-protobuf-text'(bytes, step = {}) { return gzippedProtobufText(bytes, step.path ?? []); },
   // An NSAttributedString archive (typedstream), as Messages keeps a message's words: the string after `NSString`,
   // its length in one byte, or 0x81 and two bytes, or 0x82 and four (little-endian).
   'typedstream-string'(bytes) {
@@ -177,11 +182,11 @@ export function protobufFields(bytes) {
   return fields;
 }
 
-/** The text of one Apple Notes body (gzipped NoteStoreProto: document 2, note 3, note_text 2), or null. */
-export function appleNoteText(gzipped) {
-  if (!gzipped) return null;
+/** The words at `fields` (length-delimited field numbers, outermost first) of a gzipped protobuf message, or null. */
+export function gzippedProtobufText(gzipped, fields) {
+  if (!gzipped || !fields.length) return null;
   let message = gunzipSync(gzipped);
-  for (const field of [2, 3, 2]) {
+  for (const field of fields) {
     const found = protobufFields(message).find(item => item.field === field && item.wire === 2);
     if (!found) return null;
     message = found.value;
@@ -189,8 +194,6 @@ export function appleNoteText(gzipped) {
   return new TextDecoder().decode(message);
 }
 
-const columnsOf = (db, table) => new Set(db.prepare(`PRAGMA table_info(${table})`).all().map(column => column.name));
-const pick = (columns, name, as) => (columns.has(name) ? `${as}.${name}` : 'NULL');
 
 // The picture a sqlite row keeps (`file`: {try, whole, folder, name, long_edge, smaller, missing}): the first of the places
 // in `try` (path templates filled from the row, relative to `files_from`: the edited picture and the original first, then
@@ -208,7 +211,8 @@ const fileOf = (carrier, store, row, values) => {
       .map(template => path.resolve(root, fill(template, row))).find(candidate => existsSync(candidate));
     if (original) {
       const ext = path.extname(original).slice(1).toLowerCase();
-      return {note: '', file: {path: original, name: fill(video.name, {...values, ext}), folder: fill(video.folder ?? plan.folder, values),
+      const folder = video.folder ?? plan.folder;
+      return {note: '', file: {path: original, name: fill(video.name, {...values, ext}), ...(folder ? {folder: fill(folder, values)} : {}),
         media_type: video.media_types?.[ext] ?? 'application/octet-stream'}};
     }
   }
@@ -227,47 +231,29 @@ const fileOfStill = (plan, root, row, values) => {
     file: {path: found.path, name: fill(plan.name, values), folder: fill(plan.folder, values), media_type: 'image/jpeg', long_edge: plan.long_edge}};
 };
 
-// Reader leaves: (carrier, since: Date) -> items. Each knows one app's own store and nothing else.
+// A row's query, or the first of its queries the store's columns answer.
+const queryRows = (db, query, bound) => {
+  const queries = Array.isArray(query) ? query : [query];
+  for (const [index, text] of queries.entries()) {
+    try { return db.prepare(text).all(bound); }
+    catch (error) { if (index === queries.length - 1 || !/no such column/i.test(error.message)) throw error; }
+  }
+  return [];
+};
+
+// Reader leaves: (carrier, since: Date) -> items. Each knows one kind of store, never an app.
 export const READERS = {
   incoming(carrier) { return readIncomingItems(expand(carrier.store), {includeDelivered: carrier.include_delivered === true}); },
-  'apple-notes'(carrier, since) {
-    const db = new DatabaseSync(expand(carrier.store), {readOnly: true});
-    try {
-      const has = columnsOf(db, 'ZICCLOUDSYNCINGOBJECT');
-      const rows = db.prepare(`SELECT o.ZIDENTIFIER AS id, COALESCE(${pick(has, 'ZTITLE1', 'o')}, ${pick(has, 'ZTITLE', 'o')}) AS title,
-          o.ZMODIFICATIONDATE1 AS modified, ${pick(has, 'ZISPASSWORDPROTECTED', 'o')} AS locked, ${pick(has, 'ZMARKEDFORDELETION', 'o')} AS deleted,
-          ${pick(has, 'ZTITLE2', 'f')} AS folder, ${pick(has, 'ZFOLDERTYPE', 'f')} AS folder_type, d.ZDATA AS data
-        FROM ZICCLOUDSYNCINGOBJECT o JOIN ZICNOTEDATA d ON d.Z_PK = o.ZNOTEDATA LEFT JOIN ZICCLOUDSYNCINGOBJECT f ON f.Z_PK = o.ZFOLDER
-        WHERE o.ZMODIFICATIONDATE1 > ?`).all((since.getTime() / 1000) - APPLE_EPOCH_SECONDS);
-      const skip = new Set(carrier.skip_folders ?? []);
-      // Folder type 1 is the app's own Recently Deleted folder.
-      return rows.filter(row => row.id && !row.locked && !row.deleted && Number(row.folder_type) !== 1 && !skip.has(row.folder))
-        .map(row => ({source_id: row.id, title: row.title ?? null, text: appleNoteText(row.data), at: fromAppleTime(row.modified).toISOString()}))
-        .filter(item => item.text?.trim());
-    } finally { db.close(); }
-  },
-  'voice-memos'(carrier, since) {
-    const db = new DatabaseSync(expand(carrier.store), {readOnly: true});
-    try {
-      const has = columnsOf(db, 'ZCLOUDRECORDING');
-      const rows = db.prepare(`SELECT ${pick(has, 'ZUNIQUEID', 'r')} AS id, COALESCE(${pick(has, 'ZENCRYPTEDTITLE', 'r')}, ${pick(has, 'ZCUSTOMLABEL', 'r')}) AS title,
-          r.ZDATE AS recorded, ${pick(has, 'ZDURATION', 'r')} AS seconds, r.ZPATH AS file FROM ZCLOUDRECORDING r WHERE r.ZDATE > ? AND r.ZPATH IS NOT NULL`).all((since.getTime() / 1000) - APPLE_EPOCH_SECONDS);
-      const folder = path.dirname(expand(carrier.store));
-      return rows.filter(row => row.id).map(row => {
-        const file = path.isAbsolute(row.file) ? row.file : path.join(folder, row.file);
-        const length = Math.round(Number(row.seconds) || 0);
-        return {source_id: row.id, title: row.title ?? null, at: fromAppleTime(row.recorded).toISOString(),
-          text: `A voice memo${row.title ? ` called "${row.title}"` : ''}, ${Math.floor(length / 60)}:${String(length % 60).padStart(2, '0')} long. Its sound is the attached file.`,
-          file: {path: file, name: `${row.title || 'Voice memo'} ${fromAppleTime(row.recorded).toISOString().slice(0, 16).replace('T', ' ')}${path.extname(file)}`, media_type: 'audio/mp4'}};
-      }).filter(item => existsSync(item.file.path));
-    } finally { db.close(); }
-  },
   // Any SQLite store: the row's `query` runs against every store its `store` names (wildcards allowed), with `:since`
   // in the row's `time` unit, and returns source_id, at, title?, text?, picture? and any values its templates use.
   // `text` (a template) builds the words from those values; `decode` turns a column kept in the store's own format
-  // into words. A store without the query's table (a second, empty store beside the real one) is passed over.
+  // into words. A store without the query's table (a second, empty store beside the real one) is passed over. `query`
+  // may be a list: the first that the store's columns answer is used, so a store whose app version lacks a column is
+  // still read. `skip` ({column: [values]}) leaves out rows with a listed value; a `file` with `required` leaves out a
+  // row whose file is not on this computer (a recording kept only in a cloud), so it is read again once it is here.
   sqlite(carrier, since) {
-    const time = TIMES[carrier.time ?? 'apple-seconds'];
+    const time = TIMES[carrier.time ?? 'seconds-since-2001'];
+    if (!time) throw new Error(`no time unit called ${carrier.time}: a row's time is one of ${Object.keys(TIMES).join(', ')}`);
     const stores = placesOf(carrier.store, os.homedir());
     if (!stores.length) { readdirSync(baseOf(carrier.store)); throw new Error(`nothing at ${carrier.store}`); }
     const items = [];
@@ -278,11 +264,12 @@ export const READERS = {
       // A query may also take :before (the oldest time a back-fill has reached; none means no bound) and :limit (a
       // back-fill's batch; -1 is no limit), as the `backfill` option reads the past.
       const bound = {since: time.from(since), before: carrier.before === undefined ? 1e15 : time.from(new Date(carrier.before)), limit: carrier.limit ?? -1};
-      try { rows = db.prepare(carrier.query).all(bound); answered += 1; }
+      try { rows = queryRows(db, carrier.query, bound); answered += 1; }
       catch (error) { if (!/no such table/i.test(error.message)) throw error; lastError = error; continue; }
       finally { db.close(); }
       for (const row of rows) {
-        for (const {from, decoder, into} of carrier.decode ?? []) if (!row[into]) row[into] = DECODERS[decoder](row[from]);
+        if (Object.entries(carrier.skip ?? {}).some(([column, values]) => values.includes(row[column]))) continue;
+        for (const step of carrier.decode ?? []) if (!row[step.into]) row[step.into] = DECODERS[step.decoder](row[step.from], step);
         const decoded = new Set((carrier.decode ?? []).map(step => step.from));
         const values = Object.fromEntries(Object.entries(row).filter(([key, value]) => !decoded.has(key) && !(value instanceof Uint8Array)));
         const at = time.to(row.at).toISOString();
@@ -290,6 +277,7 @@ export const READERS = {
         Object.assign(values, {at, ...timeValues(at), source_id: String(row.source_id ?? ''), title: row.title ?? null});
         values.text = carrier.text ? fill(carrier.text, values) : row.text;
         const kept = carrier.file ? fileOf(carrier, store, row, values) : null;
+        if (carrier.file?.required && !kept?.file) continue;
         if (kept) values.text = `${values.text}${kept.note}`;
         items.push({...values, picture: picture && existsSync(picture) ? picture : undefined, ...(kept?.file ? {file: kept.file} : {})});
       }
@@ -413,6 +401,8 @@ export function readNewItems({carriers, account, keep, stateFile, workdir = path
   let running = false;
   // Seconds this look has spent reading pictures (`see`); a place's `see.look_budget_seconds` caps it (see seenOf).
   let seeing = 0;
+  // A reader is one of READERS, or one the caller hands in by name (a stand-in, or a reader another tool adds).
+  const knownReader = name => Object.hasOwn(READERS, name) || (readers !== CHILD_READERS && Object.hasOwn(readers, name));
   const quiet = () => state.account_quiet_until && Date.parse(state.account_quiet_until) > now().getTime();
   function wait(reason) {
     state.account_quiet_for = Math.min(Math.max((state.account_quiet_for ?? 30) * 2, 60), 1800);
@@ -688,7 +678,7 @@ export function readNewItems({carriers, account, keep, stateFile, workdir = path
   async function carry(carrier) {
     const held = state[carrier.route] ??= {since: now().toISOString(), sent: {}};
     held.first_since ??= held.since;
-    if (!Object.hasOwn(READERS, carrier.reader)) return (held.status = `no reader called ${carrier.reader}`);
+    if (!knownReader(carrier.reader)) return (held.status = `no reader called ${carrier.reader}`);
     const read = readers[carrier.reader];
     let items;
     // A grouped place reads each window whole: from the start of the window `since` falls in, never before the first run.
@@ -821,7 +811,7 @@ export function readNewItems({carriers, account, keep, stateFile, workdir = path
       const found = [], refused = [];
       for (const carrier of carriers) {
         if (routes && !routes.includes(carrier.route)) continue;
-        if (!Object.hasOwn(READERS, carrier.reader)) continue;
+        if (!knownReader(carrier.reader)) continue;
         let items;
         try { items = await readers[carrier.reader]({...carrier, include_delivered: true}, new Date(0)); }
         catch (error) { refused.push({route: carrier.route, status: refusedByMacOS(error) ? 'needs access' : String(error.message ?? error)}); continue; }

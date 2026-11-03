@@ -14,8 +14,8 @@ const run = async body => {
   const stateFile = path.join(dir, 'state.json');
   let clock = '2026-10-21T11:00:00Z';
   const asked = [];
-  const carrier = readNewItems({carriers: [{route: 'Photos', reader: 'apple-notes', store: dir, settle_seconds: 0}], stateFile, keep: async () => {},
-    readers: {'apple-notes': async () => [{source_id: 'photo', title: 'Photo', text: 'a photo', at: '2026-10-21T10:00:00.000Z'}]}, now: () => new Date(clock),
+  const carrier = readNewItems({carriers: [{route: 'Photos', reader: 'photos-stand-in', store: dir, settle_seconds: 0}], stateFile, keep: async () => {},
+    readers: {'photos-stand-in': async () => [{source_id: 'photo', title: 'Photo', text: 'a photo', at: '2026-10-21T10:00:00.000Z'}]}, now: () => new Date(clock),
     account: async () => { asked.push(clock); return asked.length === 1 ? {status: 409, body} : {status: 200, body: {message_id: 'm', arrival_id: 'arrival:photo'}}; }});
   await carrier.tick();
   const rewind = () => { const state = JSON.parse(fs.readFileSync(stateFile, 'utf8')); state.Photos.since = '2026-10-21T00:00:00.000Z'; fs.writeFileSync(stateFile, JSON.stringify(state)); };
