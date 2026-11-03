@@ -15,6 +15,8 @@
 //   decision-call:<id>:<nnnnnn>          one logged call of a decision once kept whole
 //   decision-method:<identity>           the method snapshot, kept once by its content identity and shared by it
 //   decision-part:<key>:part:<nnn>       a piece of any one of these too large for one record (`record_bytes`)
+//   decision-part:<id>:root-fields:part:<nnn>  the root's largest fields, when the root alone is over `record_bytes`
+//                                        (named on the root in `fields_in_parts`, and put back on it when read)
 //
 // The root names each list's length (`counts`), its method's id and identity, and the identity of the input it was
 // started with, so the same source with the same input is still that decision. A root written before this layout
@@ -130,13 +132,60 @@ function cut(text, bound) {
   }
   return part ? [...parts, part] : parts;
 }
+// A root over `record_bytes` (carried) keeps its largest fields, largest first, as one value laid apart in parts of
+// `decision-part` under <its id> + ROOT_FIELDS, until it fits: the root names them in `fields_in_parts` and the number of
+// parts in `root_fields_in_parts`, and a reader puts them back (joinLaid). An old-layout root with a 100 KB
+// `method_history` was too large for any write; the fields that say what the decision is and where it stands never move.
+const ROOT_FIELDS = ':root-fields';
+const IN_PARTS = 'fields_in_parts';
+const PARTS_COUNT = 'root_fields_in_parts';
+const ROOT_BOOKKEEPING = [IN_PARTS, PARTS_COUNT];
+const STAYS = new Set([
+  'id', 'status', 'previous_status', 'ended_at', 'ended_by', 'ended_because', 'decided_at', 'created_at', 'source_id',
+  'method_id', 'method_identity', 'input_identity', 'counts', 'decision', IN_PARTS, PARTS_COUNT,
+]);
+const staysOnRoot = field => STAYS.has(field) || field.startsWith('ended_');
+const rootFieldsKey = id => `${id}${ROOT_FIELDS}`;
+const partShell = key => carriedBytes({ id: partKey(key, 10 ** NAMES.part.digits - 1), type: NAMES.part.type, value: { of: key, at: 10 ** NAMES.part.digits - 1, text: '' } });
+function rootFitted(id, root) {
+  const entry = value => ({ id, type: 'decision', value });
+  if (carriedBytes(entry(root)) <= settings.record_bytes) return { root, parts: [] };
+  const movable = Object.keys(root).filter(field => !staysOnRoot(field)).sort((a, b) => carriedBytes(root[b]) - carriedBytes(root[a]));
+  const kept = { ...root };
+  const moved = {};
+  // The names and count are on the root while it is measured, so the root that fits is the root written.
+  const marked = () => ({ ...kept, [IN_PARTS]: Object.keys(moved), [PARTS_COUNT]: 10 ** NAMES.part.digits - 1 });
+  for (const field of movable) {
+    moved[field] = kept[field];
+    delete kept[field];
+    if (carriedBytes(entry(marked())) <= settings.record_bytes) break;
+  }
+  const key = rootFieldsKey(id);
+  const texts = cut(JSON.stringify(moved), settings.record_bytes - partShell(key));
+  const parts = texts.map((text, n) => ({ id: partKey(key, n), type: NAMES.part.type, value: { of: key, at: n, text } }));
+  return { root: { ...kept, [IN_PARTS]: Object.keys(moved), [PARTS_COUNT]: texts.length }, parts };
+}
+/** The root's fields laid apart in parts (fields_in_parts), put back on it; a root that names none is as it is. */
+export function rootFieldsIn(id, root, get) {
+  if (!object(root) || !Array.isArray(root[IN_PARTS]) || !Number.isInteger(root[PARTS_COUNT])) return root;
+  const { [IN_PARTS]: names, [PARTS_COUNT]: count, ...own } = root;
+  const key = rootFieldsKey(id);
+  // Every part is asked for at once, so a reader reads them together.
+  const parts = Array.from({ length: count }, (_, n) => get(NAMES.part.type, partKey(key, n)));
+  if (parts.some(part => part === undefined)) return undefined;
+  if (parts.some(part => typeof part?.text !== 'string')) return { ...own, lost_fields: names };
+  const text = parts.map(part => part.text).join('');
+  let moved;
+  try { moved = JSON.parse(text); } catch { return { ...own, lost_fields: names }; }
+  return { ...own, ...Object.fromEntries(names.filter(name => name in moved).map(name => [name, moved[name]])) };
+}
+
 function fitted(records) {
   const out = [];
   for (const record of records) {
     if (record.value === null || record.type === 'decision' || carriedBytes(record) <= settings.record_bytes) { out.push(record); continue; }
     // Room for the text is the bound less the part record around it, its key at the widest part number.
-    const shell = carriedBytes({ id: partKey(record.id, 10 ** NAMES.part.digits - 1), type: NAMES.part.type, value: { of: record.id, at: 10 ** NAMES.part.digits - 1, text: '' } });
-    const texts = cut(JSON.stringify(record.value), settings.record_bytes - shell);
+    const texts = cut(JSON.stringify(record.value), settings.record_bytes - partShell(record.id));
     const short = Object.fromEntries(Object.entries(record.value).filter(([, item]) => ['string', 'number', 'boolean'].includes(typeof item) && JSON.stringify(item).length <= 200));
     for (const [n, text] of texts.entries()) out.push({ id: partKey(record.id, n), type: NAMES.part.type, value: { of: record.id, at: n, text } });
     out.push({ id: record.id, type: record.type, value: { ...short, kept_in_parts: texts.length } });
@@ -200,8 +249,9 @@ export const isLaid = root => object(root?.counts) && typeof root.input_identity
  */
 export function joinLaid(id, root, get, lists = LIST_NAMES, { method = false } = {}) {
   const loaded = {};
-  const record = { ...root, input: { ...root.input } };
-  const counts = object(root.counts) ? root.counts : null;
+  const own = rootFieldsIn(id, root, get) ?? root;
+  const record = { ...own, input: { ...own.input } };
+  const counts = object(own.counts) ? own.counts : null;
   if (counts?.[FOLDED]) {
     const items = itemsIn(get, id, FOLDED, counts[FOLDED]);
     loaded[FOLDED] = items.map(canonical);
@@ -213,10 +263,10 @@ export function joinLaid(id, root, get, lists = LIST_NAMES, { method = false } =
     loaded[list] = items.map(canonical);
     LISTS[list].into(record, items);
   }
-  if (method && root.method_identity) {
-    const key = methodKey(root.method_identity);
+  if (method && own.method_identity) {
+    const key = methodKey(own.method_identity);
     const kept = wholeValue(key, get(NAMES.method, key), get);
-    if (kept?.method) { record.method = kept.method; loaded.method_identity = root.method_identity; }
+    if (kept?.method) { record.method = kept.method; loaded.method_identity = own.method_identity; }
   }
   delete record.counts;
   return { record, loaded };
@@ -230,7 +280,7 @@ const keptWhole = root => Array.isArray(root.guidance) && !Array.isArray(root.an
 export function joinDecision(id, root, get, steps = []) {
   if (keptWhole(root)) return { ...root, id, whole: true };
   const { record, loaded } = joinLaid(id, root, get, LIST_NAMES, { method: true });
-  let stubs = Array.isArray(root.answered_steps) ? root.answered_steps : [];
+  let stubs = Array.isArray(record.answered_steps) ? record.answered_steps : [];
   if (object(root.counts)) {
     stubs = itemsIn(get, id, 'answered_steps', root.counts.answered_steps ?? 0);
     loaded.answered_steps = stubs.map(canonical);
@@ -268,7 +318,7 @@ function changedItems(id, list, items, was = []) {
 export function recordsOf(record, changed = [], archived = []) {
   const { guidance = [], calls, whole, id, method, input = {}, input_identity: kept, ...rest } = record;
   const loaded = LOADED.get(record) ?? {};
-  const own = Object.fromEntries(Object.entries(rest).filter(([field]) => !MOVED.includes(field) && field !== 'counts'));
+  const own = Object.fromEntries(Object.entries(rest).filter(([field]) => !MOVED.includes(field) && ![...ROOT_BOOKKEEPING, 'counts'].includes(field)));
   const counts = {};
   const items = [];
   for (const list of LIST_NAMES) {
@@ -289,8 +339,10 @@ export function recordsOf(record, changed = [], archived = []) {
     call_count: record.call_count ?? (Array.isArray(calls) ? calls.length : 0),
   };
   const steps = whole ? guidance.map((_, n) => n) : changed;
+  const { root: fittedRoot, parts: rootParts } = rootFitted(id, root);
   return [
-    { id, type: 'decision', value: root },
+    { id, type: 'decision', value: fittedRoot },
+    ...rootParts,
     ...steps.map(n => ({ id: stepKey(id, n), type: 'decision-step', value: packStep(stepRecordOf(guidance[n])) })),
     ...archived.map(({ key, entry }) => ({ id: key, type: 'decision-step', value: packStep(stepRecordOf(entry)) })),
     ...(whole && Array.isArray(calls) ? calls.map((call, n) => ({ id: callKey(id, n), type: 'decision-call', value: bareCall(call) })) : []),
