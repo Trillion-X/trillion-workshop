@@ -1,0 +1,67 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SET-UP-MY-ACCOUNT-GET-STARTED-SCREEN",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "engine-shrink lane 2, 2026-11-03: the setup screens leave the engine",
+  "message_multihash": "1f:aede9244cab742b15cc0534e0582688b24a1ef76d97778e0bd87b6847d302c97",
+  "quote": "Lane 2, the setup screens leave the engine: move them to a Workshop tool (or tools) with their reader code. Move code, never rewrite it. Carry the original tests and their assertions."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+   "path_multihash": "1f:c2e767786aa9e9e558c84294f52f7b10293aa217dd3f363f5ebaad50fb6329db",
+   "lines": [
+    143,
+    286
+   ],
+   "multihash": "1f:2f81f97f2c67b6baee4dcb31172973e7a65d3f840006108b51f8141addbd22a1",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/set-up-my-account/read-data/get-started-screen.mjs",
+   "baseline_commit_message": "set-up-my-account: the Get started steps and screen, moved byte for byte from trillion"
+  }
+ ],
+ "preserve": [
+  "every decision, word and fail-closed rule of the source: an unread fact or rule source is unknown, never done"
+ ],
+ "allowed_deltas": [
+  "import paths: the module's imports are its neighbours in read-data/, tools/run-experiments (score-candidates.ts), tools/wall-time and tools/formulas",
+  "the module header names its imports; aiAppGuides receives facts.installs"
+ ],
+ "banned_substitutions": [
+  "a second copy of the setup steps, checks or screen in the engine",
+  "a rewrite of the moved decisions"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:2f81f97f2c67b6baee4dcb31172973e7a65d3f840006108b51f8141addbd22a1",
+  "target_multihash_at_baseline": "1f:2f81f97f2c67b6baee4dcb31172973e7a65d3f840006108b51f8141addbd22a1",
+  "commit": "63e501b9afd6c1cebec6c6eb04428a1e14da04d7",
+  "recorded_at": "2026-11-03T23:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export function getStartedFacts",
+   "function setupAccessSteps"
+  ],
+  "test_refs": [
+   "tools/set-up-my-account/test/setup-steps.test.mjs",
+   "tools/set-up-my-account/test/setup-checks.test.mjs",
+   "tools/set-up-my-account/test/setup-screen-plain.test.mjs",
+   "tools/set-up-my-account/test/see-what-is-left-to-set-up.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}
