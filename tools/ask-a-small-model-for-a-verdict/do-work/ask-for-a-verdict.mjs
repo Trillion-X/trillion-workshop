@@ -75,11 +75,12 @@
 //     [--passes 2] [--sure-at 0.8]
 
 import {readFile} from 'node:fs/promises'
-import {readFileSync, writeFileSync, writeSync, ftruncateSync, mkdirSync, readdirSync, openSync, closeSync, fsyncSync, renameSync, unlinkSync, lstatSync, fstatSync, readSync, constants} from 'node:fs'
+import {readFileSync, writeFileSync, writeSync, ftruncateSync, mkdirSync, readdirSync, openSync, closeSync, fsyncSync, renameSync, unlinkSync, linkSync, lstatSync, fstatSync, readSync, constants} from 'node:fs'
+import {hostname} from 'node:os'
 import {spawnSync} from 'node:child_process'
 import {randomUUID} from 'node:crypto'
 import {isDeepStrictEqual} from 'node:util'
-import {resolve, dirname, relative, sep} from 'node:path'
+import {resolve, dirname, relative, sep, join} from 'node:path'
 import {pathToFileURL, fileURLToPath} from 'node:url'
 import {makeHashCodeHexFromBytes} from '../../content-identity/read-data/identity.mjs'
 
@@ -713,6 +714,36 @@ const LEGACY_LOCK_STALE_MS = 10 * 60 * 1000
 // Fixed once, so the same holder always writes the same bytes.
 const PROCESS_STARTED = new Date(Math.round(Date.now() - process.uptime() * 1000)).toISOString()
 
+// A place whose open(2) takes no kernel lock holds the same lock by the name's existence instead. Its file is linked
+// into place whole (marker and holder line together), so it is never empty, and is removed by its holder on release.
+// The holder names its place, so a lock whose process ended on this place is taken, and a lock held from another
+// place sharing the folder is never taken. Which way a folder uses is asked of the place, never assumed from its kind.
+const CACHE_HELD_MARKER = Buffer.from('trillion.judge-cache-held-lock/v1\n', 'utf8')
+const heldByName = new Set()
+const kernelLocksIn = new Map()
+
+/** Whether open(2) in this folder takes the O_EXLOCK kernel lock: a second nonblocking open of a held file is refused. */
+export function kernelOpenLocksIn(folder) {
+  if (kernelLocksIn.has(folder)) return kernelLocksIn.get(folder)
+  let honoured = false
+  if (constants.O_NOFOLLOW !== undefined && constants.O_NONBLOCK !== undefined) {
+    const probe = join(folder, `.lock-probe-${randomUUID()}`)
+    const flags = constants.O_RDWR | constants.O_NOFOLLOW | constants.O_NONBLOCK | O_EXLOCK
+    let first = null
+    try {
+      first = openSync(probe, flags | constants.O_CREAT | constants.O_EXCL, 0o600)
+      try { closeSync(openSync(probe, flags)) }
+      catch (error) { honoured = error.code === 'EAGAIN' || error.code === 'EWOULDBLOCK' }
+    } catch { return false }
+    finally {
+      if (first !== null) try { closeSync(first) } catch {}
+      try { unlinkSync(probe) } catch {}
+    }
+  }
+  kernelLocksIn.set(folder, honoured)
+  return honoured
+}
+
 function cacheLockStat(path, descriptor) {
   const held = fstatSync(descriptor, {bigint: true}), named = lstatSync(`${path}.lock`, {bigint: true})
   if (!held.isFile() || !named.isFile() || held.dev !== named.dev || held.ino !== named.ino
@@ -726,10 +757,11 @@ function verifyCacheLock(path, descriptor) {
   const before = cacheLockStat(path, descriptor)
   // A legacy sentinel holdCacheLock did not reclaim is still busy under that earlier protocol.
   if (before.size === 0n) throw Object.assign(new Error('legacy cache lock remains held by existence'), {code: 'EAGAIN'})
-  if (before.size < BigInt(CACHE_LOCK_MARKER.length)) throw new Error('cache lock protocol is unavailable')
+  const byName = heldByName.has(descriptor), marker = byName ? CACHE_HELD_MARKER : CACHE_LOCK_MARKER
+  if (before.size < BigInt(marker.length)) throw new Error('cache lock protocol is unavailable')
   const bytes = Buffer.alloc(Number(before.size))
-  if (readSync(descriptor, bytes, 0, bytes.length, 0) !== bytes.length
-      || !bytes.subarray(0, CACHE_LOCK_MARKER.length).equals(CACHE_LOCK_MARKER) || !holderLineIsValid(bytes.subarray(CACHE_LOCK_MARKER.length)))
+  if (readSync(descriptor, bytes, 0, bytes.length, 0) !== bytes.length || !bytes.subarray(0, marker.length).equals(marker)
+      || !(byName ? namedHolderOf(bytes.subarray(marker.length))?.pid === process.pid : holderLineIsValid(bytes.subarray(marker.length))))
     throw new Error('cache lock protocol is unavailable')
   const after = cacheLockStat(path, descriptor)
   if (['dev', 'ino', 'size', 'mtimeNs', 'ctimeNs', 'mode', 'uid', 'nlink'].some(key => before[key] !== after[key]))
@@ -745,6 +777,89 @@ function holderLineIsValid(bytes) {
     return Number.isSafeInteger(holder?.pid) && holder.pid > 0 && typeof holder.started === 'string'
       && Number.isFinite(Date.parse(holder.started)) && Object.keys(holder).length === 2
   } catch { return false }
+}
+
+/** The holder of a lock held by name, {pid, started, place}, or null when the line is not one. */
+function namedHolderOf(bytes) {
+  if (bytes.length === 0 || bytes[bytes.length - 1] !== 0x0a) return null
+  try {
+    const holder = JSON.parse(new TextDecoder('utf-8', {fatal: true}).decode(bytes.subarray(0, -1)))
+    return Number.isSafeInteger(holder?.pid) && holder.pid > 0 && typeof holder.started === 'string'
+      && Number.isFinite(Date.parse(holder.started)) && typeof holder.place === 'string' && holder.place
+      && Object.keys(holder).length === 3 ? holder : null
+  } catch { return null }
+}
+
+/** Whether a process on this place is still running: one that cannot be signalled but exists counts as running. */
+function processRuns(pid) {
+  try { process.kill(pid, 0); return true } catch (error) { return error.code !== 'ESRCH' }
+}
+
+/** Takes away a lock held by name whose holder ended on this place; anything else there stays and counts as busy. */
+function setAsideEndedHolder(path) {
+  const name = `${path}.lock`
+  let descriptor
+  try { descriptor = openSync(name, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK) }
+  catch (error) { if (error.code === 'ENOENT') return true; throw error }
+  try {
+    const held = fstatSync(descriptor)
+    if (!held.isFile() || held.size > CACHE_HELD_MARKER.length + CACHE_LOCK_HOLDER_BYTES) return false
+    const bytes = Buffer.alloc(held.size)
+    if (readSync(descriptor, bytes, 0, bytes.length, 0) !== bytes.length || !bytes.subarray(0, CACHE_HELD_MARKER.length).equals(CACHE_HELD_MARKER)) return false
+    const holder = namedHolderOf(bytes.subarray(CACHE_HELD_MARKER.length))
+    if (!holder || holder.place !== hostname() || processRuns(holder.pid)) return false
+    // Move aside exactly the file read. If the name held another file by then, its live holder took it after the
+    // read: it is linked back, and if that fails its holder's next check sees the name changed and writes nothing.
+    const aside = `${name}.${randomUUID()}.ended`
+    renameSync(name, aside)
+    const moved = lstatSync(aside)
+    if (moved.dev !== held.dev || moved.ino !== held.ino) {
+      try { linkSync(aside, name) } catch {}
+      unlinkSync(aside)
+      return false
+    }
+    unlinkSync(aside)
+    process.stderr.write(`ask-for-a-verdict: reclaimed ${name}, held by process ${holder.pid} on this place, which has ended\n`)
+    return true
+  } finally { closeSync(descriptor) }
+}
+
+/** The cache's writer lock held by its name's existence, for a place whose open(2) takes no kernel lock. */
+function holdCacheLockByName(path) {
+  const name = `${path}.lock`, whole = `${name}.${randomUUID()}.new`
+  const line = Buffer.from(`${JSON.stringify({pid: process.pid, started: PROCESS_STARTED, place: hostname()})}\n`, 'utf8')
+  let descriptor = null, mine = false
+  try {
+    descriptor = openSync(whole, constants.O_RDWR | constants.O_NOFOLLOW | constants.O_CREAT | constants.O_EXCL, 0o600)
+    writeFileSync(descriptor, Buffer.concat([CACHE_HELD_MARKER, line])); fsyncSync(descriptor)
+    for (const last of [false, true]) {
+      try { linkSync(whole, name); mine = true; break }
+      catch (error) {
+        if (error.code !== 'EEXIST') throw error
+        if (last || !setAsideEndedHolder(path)) throw Object.assign(new Error('cache lock is held'), {code: 'EAGAIN'})
+      }
+    }
+    unlinkSync(whole)
+    heldByName.add(descriptor)
+    verifyCacheLock(path, descriptor)
+    return descriptor
+  } catch (error) {
+    try { unlinkSync(whole) } catch {}
+    if (descriptor !== null) releaseCacheLock(path, descriptor, mine)
+    throw error
+  }
+}
+
+/** Lets the cache's writer lock go: a kernel lock by closing it, a lock held by name by also removing its own name. */
+export function releaseCacheLock(path, descriptor, named = heldByName.has(descriptor)) {
+  heldByName.delete(descriptor)
+  try {
+    if (named) {
+      const held = fstatSync(descriptor), now = lstatSync(`${path}.lock`)
+      if (held.dev === now.dev && held.ino === now.ino) unlinkSync(`${path}.lock`)
+    }
+  } catch {}
+  finally { closeSync(descriptor) }
 }
 
 /** Name this process as the holder, after the marker. Only the kernel lock's holder writes here. */
@@ -767,8 +882,9 @@ function legacyLockIsAbandoned(path, descriptor) {
 
 /** The cache's exclusive writer lock as an open descriptor (close it to release); throws EAGAIN while another holds it. */
 export function holdCacheLock(path) {
-  if (process.platform !== 'darwin' || constants.O_NOFOLLOW === undefined || constants.O_NONBLOCK === undefined)
-    throw Object.assign(new Error('kernel open locks are unavailable here'), {code: 'ENOTSUP'})
+  if (constants.O_NOFOLLOW === undefined || constants.O_NONBLOCK === undefined)
+    throw Object.assign(new Error('safe open flags are unavailable here'), {code: 'ENOTSUP'})
+  if (!kernelOpenLocksIn(dirname(path))) return holdCacheLockByName(path)
   const flags = constants.O_RDWR | constants.O_NOFOLLOW | constants.O_NONBLOCK | O_EXLOCK
   let descriptor = null, created = false
   try {
@@ -868,8 +984,9 @@ export function rememberedIn(path) {
     finally {
       if (descriptor !== null) try { closeSync(descriptor) } catch {}
       if (temporary) try { unlinkSync(temporary) } catch {}
-      // The lock file stays: removing it would let a waiter lock a new file while this name is still held.
-      if (lock !== null) try { closeSync(lock) } catch {}
+      // A kernel lock's file stays: removing it would let a waiter lock a new file while this name is still held.
+      // A lock held by name is removed by its holder only, and only while the name is still its own file.
+      if (lock !== null) try { releaseCacheLock(path, lock) } catch {}
     }
   }
   return {
