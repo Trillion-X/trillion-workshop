@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/plan-move.mjs", "read-data/apply-move.mjs", "read-data/check-move.mjs", "read-data/imports.mjs"]
+}

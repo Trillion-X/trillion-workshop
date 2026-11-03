@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:1956da88e25f8e9e25301a71201f9c5d1b046cfadaebb82d2d9baeef74848dfd"
+  "blake3": "1f:c82f031a8608211a88212da31b467b8b00c24fdaa29a6489281830c7ca167d97"
  },
  "fields": [
   {
@@ -4248,6 +4248,21 @@
      "placement:small-container"
     ],
     "folder": "book-time"
+   }
+  },
+  {
+   "id": "tool:move-code-between-trees",
+   "values": {
+    "title": "Move a group of files from one code tree to another, with everything they import",
+    "job": "Move groups of code files from one repository to another byte for byte, with every file they import and their tests, delete the originals so one copy remains, and prove the moved files are the same bytes and still load and pass their tests",
+    "description": "Give step (plan, apply or check), the move row (row, or row_file such as move-rows/trillion-to-workshop.json), source_folder and destination_folder (git working copies on this computer). The row is data: the two trees, which owner rows go to which folder (its groups, or groups_from an owner index whose rows name a destination), keep (paths that must stay; a group importing one is held), provider_calls (calls that must not be left in a moved file) and calls (find/replace rows that swap a provider call for a records door call). plan changes nothing and answers each group with its owner files, import closure, tests and why it is held; every file with where it lands (its group folder, or shared_folder when more than one group imports it) and how its imports change; and the files that stay and import a moved file from the destination package. apply carries the plan out on both working copies (apply_groups carries out some groups only, placing shared files as the whole plan would), moves owner-index rows whose files all moved, and writes moved-from.json in each destination folder. check proves a move from those receipts on a clean checkout: each file is its source commit bytes but for import paths and swapped calls, every import reaches the same file, the source no longer holds it, every module loads, and its own tests pass.",
+    "status": "active",
+    "maker": "maker:move-code-between-trees",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "move-code-between-trees"
    }
   },
   {

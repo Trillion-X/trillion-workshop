@@ -16,10 +16,19 @@ const rows = readRows();
 // A folder with no row of its own is a library: some row packs files from it (invoke.files.package_files).
 const packed = new Set(rows.flatMap(({ payload }) => [payload.invoke?.files?.package_files ?? []].flat().map(item => item.package)));
 
-test('every tool folder offers at least one row, or is a library a row packs', () => {
+// Or it is a part another code tree imports from this package (moved here by tools/move-code-between-trees): its
+// part.json names that tree in imported_by, and its moved-from.json names where each file came from.
+const importedPart = folder => {
+  const part = join(tools, folder, 'part.json');
+  if (!existsSync(part)) return false;
+  const named = json(part).imported_by;
+  return Array.isArray(named) && named.length > 0 && named.every(name => typeof name === 'string' && name) && existsSync(join(tools, folder, 'moved-from.json'));
+};
+
+test('every tool folder offers at least one row, or is a library a row packs, or a part another tree imports', () => {
   for (const folder of folders) {
-    assert.ok(rows.some(row => row.folder === folder) || packed.has(folder),
-      `tools/${folder} offers no row and no row packs it: add a tool-rows.json`);
+    assert.ok(rows.some(row => row.folder === folder) || packed.has(folder) || importedPart(folder),
+      `tools/${folder} offers no row, no row packs it, and its part.json names no tree that imports it: add a tool-rows.json`);
   }
 });
 

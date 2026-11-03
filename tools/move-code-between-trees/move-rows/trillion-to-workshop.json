@@ -1,0 +1,100 @@
+{
+  "id": "move:trillion-to-workshop",
+  "about": "The old Trillion app's features move into the Workshop byte for byte. Groups come from the rows of Trillion's capabilities.json that name moves_to. Engine pieces (sign-in and the door, the stores, the Worker entry) stay: they are ported to Rust, not moved. Provider calls (Durable Object storage, KV, env bindings) are swapped for the records door's calls by the calls rows; a group with a provider call no row swaps is held. The KV rows swap only to calls the records door offers (read and write at @own-records) and need a door the caller hands in; a credential read from an env binding has no call swap, because the door hands credentials by handle through the tool row's invoke.connection, so such a group is held until its row declares that.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "42aff4e9dc",
+    "test_folders": [
+      "test"
+    ],
+    "owner_index": {
+      "file": "capabilities.json",
+      "rows": "capabilities",
+      "owner": "owner",
+      "entry": "entry",
+      "evidence": "evidence",
+      "drop_fields": [
+        "moves_to"
+      ]
+    }
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code",
+    "owner_index": {
+      "file": "capabilities.json",
+      "rows": "capabilities",
+      "fields": [
+        "capability",
+        "owner",
+        "entry",
+        "evidence",
+        "distinct_from"
+      ]
+    }
+  },
+  "groups_from": {
+    "index": "capabilities.json",
+    "rows": "capabilities",
+    "owner": "owner",
+    "to": "moves_to",
+    "label": "capability"
+  },
+  "keep": [
+    "src/worker.mjs",
+    "src/sign-in-*",
+    "src/web-sign-in.mjs",
+    "src/native-resource-sign-in.mjs",
+    "src/passkey-*",
+    "src/passwords.*",
+    "src/session-cookie.mjs",
+    "src/session-pairing.mjs",
+    "src/person-store.mjs",
+    "src/person-store-purpose.mjs",
+    "src/namespace-store.mjs",
+    "src/local-store.mjs",
+    "src/decision-store.mjs",
+    "src/share-collection-store.mjs",
+    "src/show-rules-store.mjs",
+    "src/public-app-file-store.mjs"
+  ],
+  "provider_calls": [
+    {
+      "id": "durable-object",
+      "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+    },
+    {
+      "id": "durable-object-storage",
+      "find": "\\b(?:ctx|state|this)\\.storage\\b|\\bstorage\\.sql\\b"
+    },
+    {
+      "id": "kv",
+      "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+    },
+    {
+      "id": "env-binding",
+      "find": "(?<![.\\w$])env\\.[A-Z][A-Z0-9_]+\\b"
+    }
+  ],
+  "calls": [
+    {
+      "id": "kv-get-json",
+      "means": "A KV read of one JSON entry becomes records:read at @own-records: the record kind is the binding's name, the id the key.",
+      "find": "(?<![.\\w$])env\\.([A-Z][A-Z0-9_]*_KV)\\.get\\(\\s*([^,()]+?)\\s*,\\s*\\{\\s*type:\\s*'json'\\s*\\}\\s*\\)",
+      "replace": "door.read('$1', $2)"
+    },
+    {
+      "id": "kv-put-json",
+      "means": "A KV write of one JSON text becomes records:write at @own-records of that value.",
+      "find": "(?<![.\\w$])env\\.([A-Z][A-Z0-9_]*_KV)\\.put\\(\\s*([^,()]+?)\\s*,\\s*JSON\\.stringify\\(([^()]+)\\)\\s*\\)",
+      "replace": "door.write([{ id: $2, type: '$1', value: $3 }])"
+    },
+    {
+      "id": "kv-delete",
+      "means": "A KV delete becomes records:write of null for that id.",
+      "find": "(?<![.\\w$])env\\.([A-Z][A-Z0-9_]*_KV)\\.delete\\(\\s*([^()]+?)\\s*\\)",
+      "replace": "door.write([{ id: $2, type: '$1', value: null }])"
+    }
+  ]
+}
