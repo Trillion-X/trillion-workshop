@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:c83fbfd4716ba6961636d4ff6b0a450aa1240c203ef9112dc5a230bc6202ab3c"
+  "blake3": "1f:487dc596f7b7a79811001c1559a35afae7b68a060a13e95921b54e9f74bb12b1"
  },
  "fields": [
   {
@@ -349,6 +349,44 @@
    }
   },
   {
+   "id": "tool:apply-a-pair-state-message",
+   "values": {
+    "title": "Apply a device's message to a recording session",
+    "job": "Update a multi-camera recording session when one device (a camera, a watch, a remote control) joins, leaves, reports its state or hands over the primary role",
+    "description": "Give session ({ id, states, primary?, devices? }: states are the states a device can report, the first being where a joining device starts; leave out primary and devices for a new session) and message ({ session, device, type }): type join (role primary or secondary, default secondary), leave, state (state: one of the session's states) or handover (from: the current primary, device: the one taking over). Returns the session after the message. A message for another session, with no device, from a device that never joined, joining twice, taking a primary that is held, handing over from a device that is not primary, naming an unknown state or type, changes nothing and returns the session as it was with ignored { reason, message }. Exactly one device is primary; the primary leaving leaves none. Nothing is kept: hand the returned session in with the next message.",
+    "status": "active",
+    "maker": "maker:media-composition",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "media-composition",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:apply-a-view-patch",
+   "values": {
+    "title": "Rebuild an answer from its changes",
+    "job": "Rebuild the answer a screen should show from the answer it holds and the changes it was sent",
+    "description": "Give answer (what tool:make-a-view-patch returned: whole with text, or with patch) and previous, the JSON text the screen holds. Returns { text, held } where held is { identity, text } to keep for the next ask, or { stale: true } when the patch was made against a different answer, cannot be applied, or does not rebuild its stated identity, so the screen should read the whole answer again.",
+    "status": "active",
+    "maker": "maker:build-a-screen-from-patches",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "build-a-screen-from-patches",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:apply-new-titles-to-my-plans",
    "values": {
     "title": "Put new titles into my video plans and the cards that name them (runs on your computer)",
@@ -361,6 +399,22 @@
      "placement:your-computer"
     ],
     "folder": "assemble-a-plan-into-a-cut"
+   }
+  },
+  {
+   "id": "tool:approve-a-pairing-code",
+   "values": {
+    "title": "Approve a pairing code",
+    "job": "Let a waiting sender's messages through by approving the pairing code they were given",
+    "description": "Give code (case and spaces do not matter) and, optionally, source_id. A code works once, only before it expires, and only for the source it was issued for. Returns source_id, sender and said; an unknown, used or expired code is refused with what to do.",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders"
    }
   },
   {
@@ -575,6 +629,25 @@
      "placement:small-container"
     ],
     "folder": "document-sections"
+   }
+  },
+  {
+   "id": "tool:build-a-screen-spec-from-a-patch-stream",
+   "values": {
+    "title": "Build a screen from lines of changes",
+    "job": "Build a screen made of shared parts from the lines of JSON changes an AI wrote for it, and say which lines or parts did not fit",
+    "description": "Give text: lines, each one RFC 6902 change (add, replace or remove), a list of changes, or a whole spec, to { root, elements, state, reads }; optionally requests, the screen's declared requests by name. Every complete line is applied in order; a line that is not JSON, uses another op, changes another path or is too long is left out and said without stopping the rest. Returns spec (each element checked against its part's declared props and fixed where it can be), said (the lines left out), fixes and problems (an unknown part, a missing required prop, no root or a root never sent).",
+    "status": "active",
+    "maker": "maker:build-a-screen-from-patches",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "build-a-screen-from-patches",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -2375,6 +2448,21 @@
    }
   },
   {
+   "id": "tool:find-snippets",
+   "values": {
+    "title": "Find snippets",
+    "job": "Find the snippets I saved, by a word in them or a tag, so I can put one into what I am writing",
+    "description": "Give query (every word must be in the title, words or tags) and tag, both optional, and limit (at most 100). Returns snippets, most recently used or saved first, each with snippet_id, title, text, tags, blanks (the {name} blanks in it), set_at, uses and used_at; and more, how many matched beyond limit. Changes nothing.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
+   }
+  },
+  {
    "id": "tool:find-the-event-that-starts-one-tour",
    "values": {
     "title": "Find the event that starts or replays one guided tour",
@@ -2432,6 +2520,25 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:fit-a-tool-list-in-a-budget",
+   "values": {
+    "title": "Fit a tool list in a budget",
+    "job": "Shrink a list of tools for an AI so it fits in a number of characters, keeping as much detail as fits",
+    "description": "Give tools (MCP tool entries: name, description, inputSchema), budget_chars (a positive number of characters of the JSON list) and, optionally, names (tools to keep in full whatever the budget). The list is tried at levels full, brief (first sentence of each description), schema-only (no descriptions) and names (schemas reduced to an open object); the first whose whole list fits is sent, and the last when none fit. No tool is renamed, reordered or dropped. Returns tools and listing { level, chars, budget_chars, fits, tools, said when shortened, unknown and unknown_said for names no tool has }. Without a positive budget_chars the list comes back unchanged with an empty listing.",
+    "status": "active",
+    "maker": "maker:list-tools-for-an-ai",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "list-tools-for-an-ai",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -2526,6 +2633,25 @@
      "placement:your-computer"
     ],
     "folder": "workflows"
+   }
+  },
+  {
+   "id": "tool:gate-telemetry-by-privacy",
+   "values": {
+    "title": "May telemetry send about this page",
+    "job": "Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is",
+    "description": "Give surface (site, public-page, elsewhere, app or service) and path of the served page, optionally declared (the privacy class its handler declared) and sink (page_script, page_events, client_health or server_events). The class is the longest matching route's; a declared class can only make it more private. A surface and path no route names, or a declared class that is not known, is 'unknown', which feeds no sink. Returns class and sinks (the sinks that class may feed); with sink, also sink and may_send. A sink that is not one of the four is refused.",
+    "status": "active",
+    "maker": "maker:gate-telemetry-by-privacy",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "gate-telemetry-by-privacy",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -3405,6 +3531,21 @@
    }
   },
   {
+   "id": "tool:keep-a-thread-summary",
+   "values": {
+    "title": "Keep a conversation summary",
+    "job": "Keep a short summary of this conversation, so the next AI that opens it reads a few lines instead of every message",
+    "description": "Give conversation_id (and app), summary (at most 4000 characters) and latest: { id, at } of the conversation's newest message now, as the messages owner shows it (its newest message from reading the conversation). The summary covers through that message; keeping again replaces it. Returns summary (summary_id, app, conversation_id, summary, through_message_id, through_at, set_at) and said. Refuses a missing conversation_id, an empty summary, and a conversation with no latest message. The messages themselves are not touched; the words it says name trillion's read_messages and save_thread_summary tools.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
+   }
+  },
+  {
    "id": "tool:keep-a-voice-edit",
    "values": {
     "title": "Keep the person's edit of an AI's words",
@@ -3693,6 +3834,25 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:list-paired-senders",
+   "values": {
+    "title": "Paired senders and waiting codes",
+    "job": "List which senders are paired and which pairing codes are waiting, for one source or all",
+    "description": "Optional source_id narrows to one source. With source_id and sender, also answers is_paired for that sender. Returns waiting [{ source_id, sender, code, expires_at }] (expired codes left out) and paired [{ source_id, sender, paired_at }]. It changes nothing.",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -4042,6 +4202,25 @@
      "placement:your-computer"
     ],
     "folder": "email-sending-domains"
+   }
+  },
+  {
+   "id": "tool:make-a-view-patch",
+   "values": {
+    "title": "Send only what changed in an answer",
+    "job": "Turn the next JSON answer a screen will read into just the changes from the answer it already holds, when that is smaller",
+    "description": "Give previous and next, each the JSON text of one answer. Returns the next answer as { status, content_type, identity, patch: { from, to, ops } } (ops are RFC 6902 add, remove and replace; from and to are the BLAKE3 identities of the canonical JSON before and after) when the patch is under 0.6 of the whole; otherwise the whole answer with its text (and its identity). An answer under 2000 or over 400000 characters, or one that is not JSON, is answered whole without an identity. Text that is not a string is refused.",
+    "status": "active",
+    "maker": "maker:build-a-screen-from-patches",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "build-a-screen-from-patches",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -4657,6 +4836,22 @@
    }
   },
   {
+   "id": "tool:pair-an-unknown-sender",
+   "values": {
+    "title": "Give an unknown sender a pairing code",
+    "job": "Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve",
+    "description": "Give source_id (the event source the message came in on) and sender (the sender's own id on that source). Returns { paired: true } when the sender is already paired; otherwise code (8 characters with no 0, O, 1 or I), expires_at (an hour from now) and said. Asking again for the same sender gives the same code; a source with 3 codes waiting gives no more ({ full: true, said }).",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders"
+   }
+  },
+  {
    "id": "tool:pay-someone-a-share-through-stripe",
    "values": {
     "title": "Pay someone a share through Stripe",
@@ -4714,6 +4909,25 @@
      "placement:your-computer"
     ],
     "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
+   "id": "tool:pick-the-release-a-host-runs",
+   "values": {
+    "title": "Pick the release a host version runs",
+    "job": "Tell which release of a published tool a given Trillion version runs, or which version it needs",
+    "description": "Give row (a published tool row, optionally with minimum_host_version and earlier_releases, newest first) and host_version (the version of the Trillion that will run it, like 2026.10.1). Versions compare part by part, missing parts are zero. Returns release: the row itself when its minimum is met, else the first earlier release whose minimum is met (without its earlier_releases); when none runs, release is null and oldest_needed names the oldest version any release runs on. A missing host_version is refused.",
+    "status": "active",
+    "maker": "maker:list-tools-for-an-ai",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "list-tools-for-an-ai",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -5292,6 +5506,25 @@
    }
   },
   {
+   "id": "tool:quote-untrusted-words",
+   "values": {
+    "title": "Quote a stranger's words safely",
+    "job": "Make someone else's words safe to quote into what an AI reads, so hidden characters or a fake tag cannot sneak instructions in",
+    "description": "Give text (another party's words: mail, an imported chat, a web page, a title) and, optionally, max (the most code points the quote may hold, ellipsis included; 8000 when left out). The text is normalised to NFC; control and format characters are removed (bidi overrides, zero-width characters, the byte order mark), except newline and tab; '<' and its full-width and angle-bracket lookalikes become '&lt;'; then it is cut by code points, never inside a surrogate pair or an escape, ending with an ellipsis. Returns quoted and code_points. Never give the person's own words: only the copy handed to an AI is quoted, the original is not changed.",
+    "status": "active",
+    "maker": "maker:quote-untrusted-words",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "quote-untrusted-words",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:randomize-a-result",
    "values": {
     "title": "Make the private bit for a result",
@@ -5485,6 +5718,21 @@
      "placement:your-computer"
     ],
     "folder": "build-and-install-the-public-receptionist"
+   }
+  },
+  {
+   "id": "tool:read-a-thread-summary",
+   "values": {
+    "title": "Read a conversation summary",
+    "job": "Read the summary kept of this conversation and whether newer messages have come since it was written",
+    "description": "Give conversation_id (and app) and message_times: the times of the conversation's newest messages as the messages owner shows them (its newest page, like the last 100, is enough). Returns summary (null when none is kept yet), newer_messages (how many of message_times come after the message the summary covers through), stale (newer_messages above 0) and said, so a stale summary is never taken for the conversation's present. Changes nothing.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
    }
   },
   {
@@ -6587,6 +6835,36 @@
    }
   },
   {
+   "id": "tool:remove-a-snippet",
+   "values": {
+    "title": "Remove a snippet",
+    "job": "Remove one of my saved snippets",
+    "description": "Give snippet_id (from tool:find-snippets). The snippet record is removed; words already sent are not touched. Returns removed, snippet_id and said. Refuses an unknown snippet_id.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:remove-a-thread-summary",
+   "values": {
+    "title": "Remove a conversation summary",
+    "job": "Remove the summary kept of this conversation",
+    "description": "Give conversation_id (and app). Only the summary record is removed; the messages are not touched. Returns removed and said. Refuses a conversation with no summary kept.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
+   }
+  },
+  {
    "id": "tool:remove-my-notification-device",
    "values": {
     "title": "Remove my notification device",
@@ -6951,6 +7229,21 @@
    }
   },
   {
+   "id": "tool:save-a-snippet",
+   "values": {
+    "title": "Save a snippet",
+    "job": "Save words I send again and again as a snippet, with blanks like {name} to fill each time, or change one I saved",
+    "description": "Give title (what you call it) and text (the words, with {name} where something changes each time; a blank is a lowercase name in braces), and tags (short words) if you like. Without snippet_id it makes a new snippet; with snippet_id (from tool:find-snippets) it changes that one, keeping the fields left out. Give expected_set_at (the set_at tool:find-snippets showed) to refuse the change when it was saved again since. Returns snippet: snippet_id, title, text, tags, blanks, set_at, uses. Refuses a snippet with no title or no words, an unknown snippet_id, and a 501st snippet. A snippet is the person's own snippet record; saving sends nothing anywhere.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
+   }
+  },
+  {
    "id": "tool:save-interest-in-an-email-update",
    "values": {
     "title": "Save someone's interest in one email update",
@@ -6978,6 +7271,25 @@
      "placement:small-container"
     ],
     "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
+   "id": "tool:say-a-tools-hints-in-its-description",
+   "values": {
+    "title": "Say a tool's hints in its description",
+    "job": "Make a tool's description say in words what its read-only, destructive, idempotent and open-world hints say",
+    "description": "Give tool (an MCP tool entry with description and annotations: readOnlyHint, destructiveHint, idempotentHint, openWorldHint). Returns the same tool with one sentence added after its description for each matching rule (reads only; confirm with the person before removing; adds or sets only; reaches outside), in rule order. A sentence the description already says is not added again, and a tool with no annotations comes back as it is.",
+    "status": "active",
+    "maker": "maker:list-tools-for-an-ai",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "list-tools-for-an-ai",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -8339,6 +8651,25 @@
    }
   },
   {
+   "id": "tool:tell-if-a-tool-changes-anything",
+   "values": {
+    "title": "Tell if a tool changes anything",
+    "job": "Tell whether a tool only reads or changes things, from its own operation name",
+    "description": "Give tool (a tool descriptor: id, and optionally read_only and invoke.action). read_only: true is a read; otherwise the operation (invoke.action, or the id without tool:) is a read when it starts with a read verb such as read, list, find, show, check, search, get or view followed by -. Anything else, including an operation not understood, is a write. Returns write_class: 'read' or 'write'.",
+    "status": "active",
+    "maker": "maker:list-tools-for-an-ai",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "list-tools-for-an-ai",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:tell-it-when-it-was-wrong",
    "values": {
     "title": "Tell a judge it was wrong, so it is tested on that case from now on (runs on your computer)",
@@ -8494,6 +8825,22 @@
    }
   },
   {
+   "id": "tool:unpair-a-sender",
+   "values": {
+    "title": "Unpair a sender",
+    "job": "Stop letting a paired sender's messages through, so they are unknown again",
+    "description": "Give source_id and sender. The sender is no longer paired for that source; their next message gets a new code. Returns source_id, sender and said.",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders"
+   }
+  },
+  {
    "id": "tool:unstage-changes",
    "values": {
     "title": "Take files out of the next commit",
@@ -8507,6 +8854,21 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "git-changes"
+   }
+  },
+  {
+   "id": "tool:use-a-snippet",
+   "values": {
+    "title": "Use a snippet",
+    "job": "Fill in one of my snippets with this time's names and give me its words to put in what I am writing",
+    "description": "Give snippet_id (from tool:find-snippets) and values: { name: words } for each {name} blank. Returns snippet_id, title, text (the words with every given blank filled wherever it appears), left_blank (the blanks given no value, left exactly as written) and said naming them, so nothing is sent with a hole unseen. It counts the use (uses, used_at) and never changes the snippet's words. It sends nothing. Refuses an unknown snippet_id.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "social-posts"
    }
   },
   {
@@ -8811,6 +9173,25 @@
      "placement:your-computer"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:write-a-post-for-a-place",
+   "values": {
+    "title": "Write a post for one place",
+    "job": "Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show",
+    "description": "Give blocks (heading, paragraph, code, list, checklist, image with an optional dark_url, collapsible holding more blocks) and exactly one of surface (github_comment, gitlab_note, bitbucket_comment or plain_message), capability (a record with html, collapsibles, checkboxes, dialect 'markdown' or 'plain', max_chars or null, theme { strategy 'picture', 'suffix' or 'single' } and unproven) or place (a post place whose format may carry caption_max_characters and source). Optional marker is put first and kept through any cut. Returns body, degraded (the capabilities the place lacked, so the body did without them), unproven_used (capabilities relied on that nobody has confirmed for that place), truncated (a body over max_chars is cut at a block boundary and says so) and the capability record used. An unknown surface, more or fewer than one of surface, capability or place, or an unknown block type is refused. It posts nothing.",
+    "status": "active",
+    "maker": "maker:write-a-post-for-each-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "write-a-post-for-each-place",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
