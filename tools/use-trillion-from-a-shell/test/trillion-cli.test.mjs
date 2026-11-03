@@ -169,7 +169,7 @@ test('this AI\'s record carries facts only: owner from the door, app, model, pro
   assert.equal(aiRecordOf(me, { account: ACCOUNT }).where, 'a terminal on this computer');
 
   // git answers: the remote's last part only (its address may carry a sign-in), and the branch.
-  const answers = { 'rev-parse': { status: 0, stdout: '/Users/someone/dev/checkout-2\nfeature/cards\n' }, config: { status: 0, stdout: 'https://someone:ghp_SECRETVALUE@github.com/Trillion-X/trillion.git\n' } };
+  const answers = { 'rev-parse': { status: 0, stdout: '/home/someone/dev/checkout-2\nfeature/cards\n' }, config: { status: 0, stdout: 'https://someone:ghp_SECRETVALUE@github.com/Trillion-X/trillion.git\n' } };
   const exec = (command, args) => answers[args[0]];
   assert.deepEqual(placeOf({ exec }), { repository: 'trillion', branch: 'feature/cards' });
   answers.config = { status: 1, stdout: '' };
@@ -179,9 +179,9 @@ test('this AI\'s record carries facts only: owner from the door, app, model, pro
   answers['rev-parse'] = { status: 128, stdout: '' };
   assert.deepEqual(placeOf({ exec }), {}, 'outside a repository nothing is said');
 
-  const env = { CLAUDECODE: '1', CLAUDE_CODE_SESSION_ID: '5b1f0c2e-8a4d-4e3b-9c1a-7d2e6f4a9b10', TRILLION_KEY: KEY, HOME: '/Users/someone', SECRET_TOKEN: 'sk_live_abc' };
+  const env = { CLAUDECODE: '1', CLAUDE_CODE_SESSION_ID: '5b1f0c2e-8a4d-4e3b-9c1a-7d2e6f4a9b10', TRILLION_KEY: KEY, HOME: '/home/someone', SECRET_TOKEN: 'sk_live_abc' };
   const record = JSON.stringify(aiRecordOf(agentOf({ env, computer: 'mac', model: null }), { account: ACCOUNT, repository: 'trillion', branch: 'main' }));
-  for (const value of [KEY, '/Users/someone', 'sk_live_abc', '5b1f0c2e-8a4d']) assert.ok(!record.includes(value), `the record does not carry ${value}`);
+  for (const value of [KEY, '/home/someone', 'sk_live_abc', '5b1f0c2e-8a4d']) assert.ok(!record.includes(value), `the record does not carry ${value}`);
 });
 
 test('send says when the receiver sees the job', () => {
