@@ -1,0 +1,66 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MAIL-SENDER",
+  "status": "BASELINED",
+  "directive": {
+    "message_multihash": "1f:4e6568a9dacce83e8dd6725ff3bd10987392194ba3c7e2db4c0278aeb90c232f",
+    "quote": "Same language, so it's a SOURCE_FIRST_PORT: byte copy first, then edits."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "6051f304da",
+      "path": "src/mail-sender.mjs",
+      "lines": [
+        122,
+        210
+      ],
+      "multihash": "1f:e1a9101fba13b9013994c4c6a87c640ca4cbf27aef2dde1f10bf0fe3a4e1b997",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the cloud job that deletes the old sign-in files, with src/mail-admission.mjs and src/mail-settings.json"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/send-messages/do-work/mail-sender.mjs"
+    }
+  ],
+  "preserve": [
+    "the sender comes only from the mail row (the one from, or a written email's owner row of senders.rows); a caller adds only its reply_to",
+    "every email to one address is written down under it, a sign-in or share code without its subject",
+    "a send over a per-person limit for its kind is not sent and answers limited with the limit's words",
+    "a proof account's own address is never handed to the provider, is still written down, and spends none of the day",
+    "the allowance is taken before the provider is asked; once only keep_back of the day's most remain only the kept_for kinds go, and the day's most stops every kind",
+    "only a code the provider's row lists as refused before dispatch gives the allowance back; any other failure answers unknown, keeps counting and is never sent again blindly",
+    "a provider saying its own day is full fills the day",
+    "a written email goes as a BCC to the account's own address, never twice to the same person, and answers its sent copy",
+    "subscription mail carries its one-click unsubscribe headers and its visible consent footer, and refuses before delivery without them"
+  ],
+  "allowed_deltas": [
+    "the rules are the account's own mail-settings record settings:mail, copied from read-data/mail-settings.json the first time, not one file for every account; it ships with no sender and no postal address",
+    "the sent log and the day are the account's own mail-sent and mail-day records through the records door, one write conditioned on what was read in place of the shared pool's SQL transaction (the older owner's src/mail-admission.mjs: its policy is kept here, its tables are not)",
+    "the provider is a row of read-data/message-providers.json reached through the sending seam, and how its refusals read is the mail row's providers entry, not a Cloudflare Email Sending binding and its codes",
+    "the older owner's KV path before the shared pool, the proof inbox keeper and the receiving side's refusal of an address are not moved: nothing here keeps KV or receives mail",
+    "the email is drawn by the sending seam in the person's look, not by this file"
+  ],
+  "banned_substitutions": [
+    "a sender taken from the request",
+    "sending again a message whose first send may have gone",
+    "a code's subject in a record",
+    "a limit counted after the provider was asked"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T19:40:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:e1a9101fba13b9013994c4c6a87c640ca4cbf27aef2dde1f10bf0fe3a4e1b997",
+    "target_multihash_at_baseline": "1f:e1a9101fba13b9013994c4c6a87c640ca4cbf27aef2dde1f10bf0fe3a4e1b997"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": []
+  }
+}
