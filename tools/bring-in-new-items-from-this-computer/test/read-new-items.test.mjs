@@ -11,7 +11,12 @@ import os from 'node:os';
 import path from 'node:path';
 import {gzipSync} from 'node:zlib';
 import {DatabaseSync} from 'node:sqlite';
-import {appleNoteText, readNewItems, READERS, DECODERS, grouped} from '../computer/read-new-items.mjs';
+import {gzippedProtobufText, readNewItems, READERS, DECODERS, grouped} from '../computer/read-new-items.mjs';
+
+// The notes place as its row in computer-sources.json reads it (the generic sqlite reader, its query and decoder),
+// without the row's settle_seconds, so each test says its own.
+const placeRead = route => JSON.parse(fs.readFileSync(new URL('../computer/computer-sources.json', import.meta.url), 'utf8')).sources.find(row => row.read?.route === route).read;
+const {settle_seconds: _notesSettle, ...notesPlace} = placeRead('Apple Notes');
 
 const EPOCH = 978307200;
 const appleTime = iso => Date.parse(iso) / 1000 - EPOCH;
@@ -34,8 +39,9 @@ function noteStore(dir, notes) {
   return file;
 }
 
-test('the text of a note comes out of its gzipped body exactly', () => {
-  assert.equal(appleNoteText(noteBody('Pickles\n\nand lean  beef')), 'Pickles\n\nand lean  beef');
+test('the text of a note comes out of its gzipped body exactly, at the field path its row names', () => {
+  assert.equal(gzippedProtobufText(noteBody('Pickles\n\nand lean  beef'), notesPlace.decode[0].path), 'Pickles\n\nand lean  beef');
+  assert.equal(DECODERS['gzip-protobuf-text'](noteBody('x'), {path: [2, 3, 2]}), 'x');
 });
 
 test('a note changed after the carrier started is sent once it settles, once per version', async () => {
@@ -50,7 +56,7 @@ test('a note changed after the carrier started is sent once it settles, once per
   ]);
   const sent = [];
   const account = async (route, {body}) => { sent.push([route, body]); return {status: 200, body: {message_id: `m_${sent.length}`, arrival_id: `arrival:${sent.length}`, repeated: false}}; };
-  const carrier = readNewItems({carriers: [{route: 'Apple Notes', reader: 'apple-notes', store, settle_seconds: 120, skip_folders: ['Private']}], account, keep: async () => assert.fail('no files'), stateFile: path.join(dir, 'state.json'), now: () => clock});
+  const carrier = readNewItems({carriers: [{...notesPlace, store, settle_seconds: 120, skip: {folder: ['Private']}}], account, keep: async () => assert.fail('no files'), stateFile: path.join(dir, 'state.json'), now: () => clock});
   await carrier.tick();
   assert.deepEqual(sent, [], 'nothing is sent on the first look: the old note predates it and the new one is still changing');
   clock = new Date('2026-09-27T20:06:00Z');
@@ -62,7 +68,7 @@ test('a note changed after the carrier started is sent once it settles, once per
   assert.deepEqual(sent, [['/inbound', {route: 'Apple Notes', source_id: 'new', text: 'Film the backup weapon drill', at: '2026-09-27T20:05:00.000Z', title: 'Pottery'}]]);
   await carrier.tick();
   assert.equal(sent.length, 1, 'the same version is sent once');
-  const again = readNewItems({carriers: [{route: 'Apple Notes', reader: 'apple-notes', store, settle_seconds: 120, skip_folders: ['Private']}], account, keep: async () => {}, stateFile: path.join(dir, 'state.json'), now: () => clock});
+  const again = readNewItems({carriers: [{...notesPlace, store, settle_seconds: 120, skip: {folder: ['Private']}}], account, keep: async () => {}, stateFile: path.join(dir, 'state.json'), now: () => clock});
   await again.tick();
   assert.equal(sent.length, 1, 'the cursor survives a restart');
   assert.equal(again.status()[0].last_sent.arrival_id, 'arrival:1');
@@ -129,10 +135,10 @@ test('a refused answer leaves the note to be sent on a later look', async () => 
   const store = noteStore(dir, [{id: 'n', title: 'N', text: 'words', at: '2026-09-27T20:05:00Z'}]);
   let answer = {status: 402, body: {error: 'On the free plan nothing is kept.'}};
   const sent = [];
-  const carrier = readNewItems({carriers: [{route: 'Apple Notes', reader: 'apple-notes', store}], account: async (route, {body}) => { sent.push(body.source_id); return answer; }, keep: async () => {}, stateFile: path.join(dir, 'state.json'), now: () => new Date('2026-09-27T20:00:00Z')});
+  const carrier = readNewItems({carriers: [{...notesPlace, store}], account: async (route, {body}) => { sent.push(body.source_id); return answer; }, keep: async () => {}, stateFile: path.join(dir, 'state.json'), now: () => new Date('2026-09-27T20:00:00Z')});
   await carrier.tick();
   let clock = '2026-09-27T20:10:00Z';
-  const later = readNewItems({carriers: [{route: 'Apple Notes', reader: 'apple-notes', store}], account: async (route, {body}) => { sent.push(body.source_id); return answer; }, keep: async () => {}, stateFile: path.join(dir, 'state.json'), now: () => new Date(clock)});
+  const later = readNewItems({carriers: [{...notesPlace, store}], account: async (route, {body}) => { sent.push(body.source_id); return answer; }, keep: async () => {}, stateFile: path.join(dir, 'state.json'), now: () => new Date(clock)});
   await later.tick();
   assert.match(later.status()[0].status, /402: On the free plan/);
   answer = {status: 200, body: {message_id: 'm_x', arrival_id: 'arrival:x', repeated: false}};
@@ -152,8 +158,8 @@ test('a recovered item clears its old failure and reports what the reader saw', 
   const item = {source_id: 'n', title: 'N', text: 'words', at: '2026-10-07T10:01:00.000Z'};
   let clock = '2026-10-07T10:00:00.000Z';
   let answer = {status: 400, body: {error: 'temporarily refused'}};
-  const reader = readNewItems({carriers: [{route: 'Apple Notes', reader: 'apple-notes', settle_seconds: 0}], stateFile,
-    readers: {'apple-notes': async () => [item]}, keep: async () => {},
+  const reader = readNewItems({carriers: [{route: 'Apple Notes', reader: 'notes-stand-in', settle_seconds: 0}], stateFile,
+    readers: {'notes-stand-in': async () => [item]}, keep: async () => {},
     account: async () => answer, now: () => new Date(clock), turnedAway: {ask_again_minutes: 1}});
   await reader.tick();
   clock = '2026-10-07T10:02:00.000Z';
@@ -171,8 +177,8 @@ test('a recovered item clears its old failure and reports what the reader saw', 
   legacy['Apple Notes'].failed = {source_id: 'n', error: 'old refusal', at: clock};
   legacy['Apple Notes'].refused = {n: 'old refusal marker'};
   fs.writeFileSync(stateFile, JSON.stringify(legacy));
-  const restarted = readNewItems({carriers: [{route: 'Apple Notes', reader: 'apple-notes', settle_seconds: 0}], stateFile,
-    readers: {'apple-notes': async () => [item]}, keep: async () => {}, account: async () => assert.fail('already delivered'), now: () => new Date(clock)});
+  const restarted = readNewItems({carriers: [{route: 'Apple Notes', reader: 'notes-stand-in', settle_seconds: 0}], stateFile,
+    readers: {'notes-stand-in': async () => [item]}, keep: async () => {}, account: async () => assert.fail('already delivered'), now: () => new Date(clock)});
   await restarted.tick();
   assert.equal(restarted.status()[0].failed, null, 'old failure does not survive a confirmed delivery');
   assert.deepEqual(JSON.parse(fs.readFileSync(stateFile, 'utf8'))['Apple Notes'].refused, {});
@@ -187,8 +193,8 @@ test('an item the account turns away waits alone until it changes or its hour pa
   const memos = [{source_id: 'memo', title: 'Memo', text: 'a memo', at: '2026-10-06T10:02:00.000Z'}];
   const asked = [];
   let clock = '2026-10-06T11:00:00Z';
-  const look = () => readNewItems({carriers: [{route: 'Apple Notes', reader: 'apple-notes', store: dir, settle_seconds: 0}, {route: 'Voice Memos', reader: 'voice-memos', store: dir, settle_seconds: 0}], stateFile, keep: async () => assert.fail('no files'),
-    readers: {'apple-notes': async () => notes.map(item => ({...item})), 'voice-memos': async () => memos.map(item => ({...item}))},
+  const look = () => readNewItems({carriers: [{route: 'Apple Notes', reader: 'notes-stand-in', store: dir, settle_seconds: 0}, {route: 'Voice Memos', reader: 'recordings-stand-in', store: dir, settle_seconds: 0}], stateFile, keep: async () => assert.fail('no files'),
+    readers: {'notes-stand-in': async () => notes.map(item => ({...item})), 'recordings-stand-in': async () => memos.map(item => ({...item}))},
     now: () => new Date(clock),
     account: async (route, {body}) => { asked.push(body.source_id); return body.text === 'too much' ? {status: 400, body: {error: 'messages[0].text is 388140 characters; at most 200000.'}} : {status: 200, body: {message_id: 'm', arrival_id: `arrival:${body.source_id}`}}; }});
   await look().tick();
@@ -219,9 +225,9 @@ test('words longer than long_text go whole as a text file beside the item, which
   const stateFile = path.join(dir, 'state.json');
   const long = `${'a'.repeat(30)}${'b'.repeat(30)}`;
   const kept = [], bodies = [];
-  const look = () => readNewItems({carriers: [{route: 'Apple Notes', reader: 'apple-notes', store: dir, settle_seconds: 0}], stateFile, workdir: path.join(dir, 'work'),
+  const look = () => readNewItems({carriers: [{route: 'Apple Notes', reader: 'notes-stand-in', store: dir, settle_seconds: 0}], stateFile, workdir: path.join(dir, 'work'),
     longText: {characters: 30, file_name: '{title}', rest: '\n\n(the whole {characters} characters are in "{name}")'},
-    readers: {'apple-notes': async () => [{source_id: 'n', title: 'Plan: v2', text: long, at: '2026-10-06T10:00:00.000Z'}, {source_id: 's', title: 'Short', text: 'short', at: '2026-10-06T10:01:00.000Z'}]},
+    readers: {'notes-stand-in': async () => [{source_id: 'n', title: 'Plan: v2', text: long, at: '2026-10-06T10:00:00.000Z'}, {source_id: 's', title: 'Short', text: 'short', at: '2026-10-06T10:01:00.000Z'}]},
     now: () => new Date('2026-10-06T11:00:00Z'),
     keep: async file => { kept.push({name: file.name, media_type: file.media_type, words: fs.readFileSync(file.path, 'utf8')}); return {id: '1f:words', name: file.name}; },
     account: async (route, {body}) => { bodies.push(body); return {status: 200, body: {message_id: 'm', arrival_id: 'arrival:n'}}; }});
@@ -247,8 +253,8 @@ test('a store that reads shows working at once, saved, and one item that cannot 
   ];
   const sent = [];
   let statusWhenKeeping = null;
-  const carrier = readNewItems({carriers: [{route: 'Voice Memos', reader: 'voice-memos', store: path.join(dir, 'x.db'), settle_seconds: 0}], stateFile,
-    readers: {'voice-memos': async () => items.map(item => ({...item}))},
+  const carrier = readNewItems({carriers: [{route: 'Voice Memos', reader: 'recordings-stand-in', store: path.join(dir, 'x.db'), settle_seconds: 0}], stateFile,
+    readers: {'recordings-stand-in': async () => items.map(item => ({...item}))},
     now: () => new Date('2026-09-27T21:00:00Z'),
     keep: async file => { statusWhenKeeping ??= JSON.parse(fs.readFileSync(stateFile, 'utf8'))['Voice Memos'].status; if (file.path === '/nope.m4a') throw new Error('ENOENT: no such file'); return {id: '1f:ab', name: file.name}; },
     account: async (route, {body}) => { sent.push(body.source_id); return {status: 200, body: {message_id: 'm_1', arrival_id: 'arrival:1', repeated: false}}; }});
@@ -257,8 +263,8 @@ test('a store that reads shows working at once, saved, and one item that cannot 
   const state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
   state['Voice Memos'].since = '2026-09-27T00:00:00.000Z';
   fs.writeFileSync(stateFile, JSON.stringify(state));
-  const second = readNewItems({carriers: [{route: 'Voice Memos', reader: 'voice-memos', store: path.join(dir, 'x.db'), settle_seconds: 0}], stateFile,
-    readers: {'voice-memos': async () => items.map(item => ({...item}))},
+  const second = readNewItems({carriers: [{route: 'Voice Memos', reader: 'recordings-stand-in', store: path.join(dir, 'x.db'), settle_seconds: 0}], stateFile,
+    readers: {'recordings-stand-in': async () => items.map(item => ({...item}))},
     now: () => new Date('2026-09-27T21:00:00Z'),
     keep: async file => { statusWhenKeeping = JSON.parse(fs.readFileSync(stateFile, 'utf8'))['Voice Memos'].status; if (file.path === '/nope.m4a') throw new Error('ENOENT: no such file'); return {id: '1f:ab', name: file.name}; },
     account: async (route, {body}) => { sent.push(body.source_id); return {status: 200, body: {message_id: 'm_1', arrival_id: 'arrival:1', repeated: false}}; }});
@@ -283,8 +289,8 @@ test('a place that hears sends its recording with the words said in it, kept bes
   const words = {text: 'Ship the editor this week.', segments: [], heard_whole: true};
   const heard = [], kept = [], bodies = [];
   let answer = 503;
-  const look = () => readNewItems({carriers: [{route: 'Voice Memos', reader: 'voice-memos', store: path.join(dir, 'x.db'), settle_seconds: 0, hear: {text: '{text}\n\nWhat was said:\n{words}'}}], stateFile,
-    readers: {'voice-memos': async () => [{...item}]},
+  const look = () => readNewItems({carriers: [{route: 'Voice Memos', reader: 'recordings-stand-in', store: path.join(dir, 'x.db'), settle_seconds: 0, hear: {text: '{text}\n\nWhat was said:\n{words}'}}], stateFile,
+    readers: {'recordings-stand-in': async () => [{...item}]},
     now: () => new Date('2026-10-05T11:00:00Z'),
     hear: async file => { heard.push(file); return words; },
     keepWords: async (identity, value) => { kept.push([identity, value.text]); },
@@ -304,8 +310,8 @@ test('a place that hears sends its recording with the words said in it, kept bes
   assert.ok(JSON.parse(fs.readFileSync(stateFile, 'utf8'))['Voice Memos'].sent.memo, 'sent once the account answered');
   // A place without `hear`, or a recording nothing here can hear, goes as before.
   const plain = [];
-  const without = readNewItems({carriers: [{route: 'Voice Memos', reader: 'voice-memos', store: path.join(dir, 'x.db'), settle_seconds: 0, hear: {text: '{text} {words}'}}], stateFile: path.join(dir, 'other.json'), workdir: path.join(dir, 'other-work'),
-    readers: {'voice-memos': async () => [{...item, source_id: 'other'}]}, now: () => new Date('2026-10-05T11:00:00Z'),
+  const without = readNewItems({carriers: [{route: 'Voice Memos', reader: 'recordings-stand-in', store: path.join(dir, 'x.db'), settle_seconds: 0, hear: {text: '{text} {words}'}}], stateFile: path.join(dir, 'other.json'), workdir: path.join(dir, 'other-work'),
+    readers: {'recordings-stand-in': async () => [{...item, source_id: 'other'}]}, now: () => new Date('2026-10-05T11:00:00Z'),
     hear: async () => null, keep: async file => ({id: '1f:memo', name: file.name}),
     account: async (route, {body}) => { plain.push(body.text); return {status: 200, body: {message_id: 'message:voice-memo'}}; }});
   await without.tick();
@@ -319,14 +325,14 @@ test('a place that hears sends its recording with the words said in it, kept bes
 test('each look reads in a fresh child process and a missing store reports the reader\'s own error', async () => {
   const {CHILD_READERS} = await import('../computer/read-new-items.mjs');
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
-  await assert.rejects(CHILD_READERS['apple-notes']({store: path.join(dir, 'missing', 'NoteStore.sqlite')}, new Date()), /unable to open database/);
+  await assert.rejects(CHILD_READERS.sqlite({...notesPlace, store: path.join(dir, 'missing', 'NoteStore.sqlite')}, new Date()), /no such file or directory/);
 });
 
 test('a store macOS will not open is reported and its Privacy pane opened once', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
   let opened = 0;
-  const carrier = readNewItems({carriers: [{route: 'Apple Notes', reader: 'apple-notes', store: path.join(dir, 'NoteStore.sqlite')}], account: async () => assert.fail(), keep: async () => {}, stateFile: path.join(dir, 'state.json'),
-    readers: {'apple-notes': () => { throw new Error('unable to open database file'); }}, openAccessPane: () => { opened += 1; }});
+  const carrier = readNewItems({carriers: [{route: 'Apple Notes', reader: 'notes-stand-in', store: path.join(dir, 'NoteStore.sqlite')}], account: async () => assert.fail(), keep: async () => {}, stateFile: path.join(dir, 'state.json'),
+    readers: {'notes-stand-in': () => { throw new Error('unable to open database file'); }}, openAccessPane: () => { opened += 1; }});
   await carrier.tick();
   await carrier.tick();
   assert.equal(opened, 1);
@@ -341,7 +347,7 @@ test('a search finds older notes too, by every word in the title or text, and se
     {id: 'other', title: 'Groceries', text: 'pickles, beef', at: '2026-09-21T10:00:00Z'},
     {id: 'locked', title: 'Distribution secret', text: 'locked away', at: '2026-09-22T10:00:00Z', locked: true},
   ]);
-  const carrier = readNewItems({carriers: [{route: 'Apple Notes', reader: 'apple-notes', store}, {route: 'Elsewhere', reader: 'apple-notes', store: path.join(dir, 'missing', 'x.sqlite')}],
+  const carrier = readNewItems({carriers: [{...notesPlace, store}, {...notesPlace, route: 'Elsewhere', store: path.join(dir, 'missing', 'x.sqlite')}],
     account: async () => assert.fail('a search sends nothing'), keep: async () => assert.fail(), stateFile: path.join(dir, 'state.json'), now: () => new Date('2026-09-28T00:00:00Z')});
   assert.deepEqual((await carrier.search('DISTRIBUCION')).items.map(item => item.source_id), ['later'], 'accents and case are ignored');
   const found = await carrier.search('plan');
@@ -360,7 +366,7 @@ test('while the account struggles every place waits, from 1 minute doubling to 3
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'written-elsewhere-'));
   const store = noteStore(dir, [{id: 'a', title: 'A', text: 'one', at: '2026-09-27T20:05:00Z'}]);
   let clock = Date.parse('2026-09-27T20:00:00Z'), asked = 0, answer = {status: 503, body: {error: 'busy'}};
-  const carrier = readNewItems({carriers: [{route: 'Apple Notes', reader: 'apple-notes', store}, {route: 'Also', reader: 'apple-notes', store}], account: async () => { asked += 1; return answer; }, keep: async () => {}, stateFile: path.join(dir, 'state.json'), readers: READERS, now: () => new Date(clock)});
+  const carrier = readNewItems({carriers: [{...notesPlace, store}, {...notesPlace, route: 'Also', store}], account: async () => { asked += 1; return answer; }, keep: async () => {}, stateFile: path.join(dir, 'state.json'), readers: READERS, now: () => new Date(clock)});
   await carrier.tick();
   assert.equal(asked, 0, 'the first look only marks where reading starts');
   clock = Date.parse('2026-09-27T20:10:00Z');
@@ -402,7 +408,7 @@ test('any SQLite store is read by its row: the query, its time unit, decoded wor
   insert.run('m3', at('2026-09-27T20:25:00Z'), 'c2', 'Ada', 'other chat', null);
   insert.run('m4', at('2026-09-27T21:10:00Z'), 'c1', 'Sam', 'next hour', null);
   db.close();
-  const carrier = {route: 'Messages', reader: 'sqlite', store: file, time: 'apple-seconds', cursor: 'moves', reread_minutes: 0, settle_seconds: 60,
+  const carrier = {route: 'Messages', reader: 'sqlite', store: file, time: 'seconds-since-2001', cursor: 'moves', reread_minutes: 0, settle_seconds: 60,
     query: 'SELECT guid AS source_id, date / 1000000000.0 AS at, chat AS conversation, chat AS title, who, text, body FROM message WHERE date > :since * 1000000000',
     decode: [{from: 'body', decoder: 'typedstream-string', into: 'text'}], group: {by: 'conversation', window_minutes: 60, title: 'Messages with {title}', line: '{who}: {text}'}};
   const items = READERS.sqlite(carrier, new Date('2026-09-27T20:00:00Z'));
@@ -576,13 +582,13 @@ test('one item whose file the storage will not finish waits alone; the places af
   let clock = Date.parse('2026-10-08T11:00:00Z');
   const sent = [];
   const items = {
-    'voice-memos': [{source_id: 'memo', title: 'M', text: 'a memo', at: '2026-10-08T10:00:00.000Z', file: {path: memo, name: 'M.m4a', media_type: 'audio/mp4'}}],
+    'recordings-stand-in': [{source_id: 'memo', title: 'M', text: 'a memo', at: '2026-10-08T10:00:00.000Z', file: {path: memo, name: 'M.m4a', media_type: 'audio/mp4'}}],
     folder: [{source_id: 'photo', title: 'P', text: 'a photo', at: '2026-10-08T10:01:00.000Z'}],
     sqlite: [{source_id: 'text', title: 'T', text: 'a text', at: '2026-10-08T10:02:00.000Z'}],
   };
   const storage = new Error('503: The storage service did not finish this file (Durable Object is overloaded)');
   let keepAttempts = 0;
-  const look = () => readNewItems({carriers: [['Voice Memos', 'voice-memos'], ['Photos', 'folder'], ['Messages', 'sqlite']].map(([route, reader]) => ({route, reader, store: dir, settle_seconds: 0})), stateFile,
+  const look = () => readNewItems({carriers: [['Voice Memos', 'recordings-stand-in'], ['Photos', 'folder'], ['Messages', 'sqlite']].map(([route, reader]) => ({route, reader, store: dir, settle_seconds: 0})), stateFile,
     readers: Object.fromEntries(Object.entries(items).map(([reader, list]) => [reader, async () => list.map(item => ({...item}))])),
     now: () => new Date(clock), keep: async file => { keepAttempts += 1; if (keepAttempts <= 7) throw storage; return {id: 'kept-memo', name: file.name}; },
     account: async (route, {body}) => { sent.push(body); return {status: 200, body: {message_id: 'm', arrival_id: `arrival:${body.source_id}`}}; }});
@@ -628,7 +634,7 @@ test('under an account-wide 503 on the door each look starts at the next place',
   let clock = Date.parse('2026-10-08T11:00:00Z');
   const asked = [];
   let live = false;
-  const routes = ['One', 'Two', 'Three'], readerOf = {One: 'apple-notes', Two: 'voice-memos', Three: 'folder'};
+  const routes = ['One', 'Two', 'Three'], readerOf = {One: 'notes-stand-in', Two: 'recordings-stand-in', Three: 'folder'};
   const look = () => readNewItems({carriers: routes.map(route => ({route, reader: readerOf[route], store: dir, settle_seconds: 0})), stateFile,
     readers: Object.fromEntries(routes.map(route => [readerOf[route], async () => live ? [{source_id: route, title: route, text: route, at: '2026-10-08T10:00:00.000Z'}] : []])),
     now: () => new Date(clock), keep: async () => assert.fail('no files'),
@@ -653,7 +659,7 @@ test('after a place sets the account-wide wait, the next look starts at the plac
   let clock = Date.parse('2026-10-08T11:00:00Z');
   const asked = [];
   let live = false;
-  const routes = ['Quiet', 'Stuck', 'Behind', 'Last'], readerOf = {Quiet: 'apple-notes', Stuck: 'voice-memos', Behind: 'folder', Last: 'wispr-flow'};
+  const routes = ['Quiet', 'Stuck', 'Behind', 'Last'], readerOf = {Quiet: 'notes-stand-in', Stuck: 'recordings-stand-in', Behind: 'folder', Last: 'wispr-flow'};
   const look = () => readNewItems({carriers: routes.map(route => ({route, reader: readerOf[route], store: dir, settle_seconds: 0})), stateFile,
     readers: Object.fromEntries(routes.map(route => [readerOf[route], async () => live && route !== 'Quiet' ? [{source_id: route, title: route, text: route, at: '2026-10-08T10:00:00.000Z'}] : []])),
     now: () => new Date(clock), keep: async () => assert.fail('no files'),
