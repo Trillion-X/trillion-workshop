@@ -82,6 +82,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `how-someone-does-their-thing` | Keeps a profile of how a person or creator does their thing (style, voice) from their own records, and checks a draft carries the profile's references | `tool:brief-a-profile`, `tool:keep-a-profile`, `tool:check-a-draft-against-a-profile` |
 | `internet-archive` | Searches the Internet Archive and reads one item's metadata and file list, keeping its rights fields | `tool:search-internet-archive`, `tool:read-internet-archive-item` |
 | `judge-words` | Checks words, a plan or anything else made against a person's rule rows (by kind, by value path, with tests that say what must hold), saying what breaks which rule and why; gives a piece of work a short plain title from its own words | `tool:judge-against-rules`, `tool:make-a-plain-work-title` |
+| `keep-copies-in-step` | Whether every copy of a person's things is in step: each device's report, and each record two copies changed apart as the record now and the other versions, settled by keeping one, both or a merged one; every write on condition of what was read | `tool:see-if-my-copies-are-in-step`, `tool:say-how-this-device-stands`, `tool:settle-two-versions` |
 | `keep-the-last-good-answer` | Asks a web address and keeps its answer in the person's records; when the address cannot answer, gives back the last answer it gave and when it was kept; the primitive (ask a live source, keep, fall back) is public | `tool:ask-a-web-address-or-give-the-last-answer` |
 | `know-who-is-in-this` | Tells who is in a recording or a picture from voices and faces people enrolled with consent: enrols a voice or face, names who said each stretch of a transcript (unknown voices keep their number through a listening), finds and names the faces in a picture or video | `tool:enrol-a-voice-or-face`, `tool:who-is-in-this`, `tool:find-faces` |
 | `listen-for-a-while` | Listens to the microphone until a time the person gives, hears each piece on their computer, names each turn from the voices people enrolled and writes it as a heard row as it is said; the sound never leaves the computer | `tool:listen-for-a-while` |
@@ -199,6 +200,21 @@ trillion-workshop/
 ├── licence-classes.json
 └── test/every-tool-row.test.mjs
 ```
+
+## The records a tool keeps
+
+A tool row may hold `record_model`: the record kinds, indexes and links that tool keeps, in the shape of a record
+model (`kinds`, `indexes`, `value_kinds`, `declared_by`, `field_kinds`, `links`, `relations`, `activities`). Trillion
+reads the rows of the tools installed for a person and joins every tool's `record_model` into the one model their
+records are kept by: a list one tool after another, an object by its keys. The engine itself names no kind but the
+few it writes itself. Two tools may not declare one kind, one index or one key (`test/every-record-model.test.mjs`).
+
+A kind row is `{ type, properties?, guard_properties?, parts?, erasable?, erasable_key?, erase_with?, erase_fields?,
+stays_on_this_device?, table? }`: `erasable` fields are sealed under a key of the record's own, so erasing the record
+erases their words; `stays_on_this_device: true` keeps every record of the kind off any road that leaves the
+person's computer. An index row is `{ type, name, paths, where?, carry?, backfill? }`.
+`tools/keep-a-record-library-valid` holds, unchanged, the kinds whose owning tool is not here yet; move a kind to the
+tool that writes it when you add that tool.
 
 ## Add a tool
 
