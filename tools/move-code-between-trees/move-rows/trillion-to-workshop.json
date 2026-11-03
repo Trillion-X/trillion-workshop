@@ -79,7 +79,13 @@
     "src/workspace/walkthroughs/",
     "src/error-page-lines.json",
     "src/action-completeness.mjs",
-    "records/action-completeness.json"
+    "records/action-completeness.json",
+    "macos/",
+    "ios/",
+    "native-apps/",
+    "extension/",
+    "computer/",
+    "harness/"
   ],
   "read_as_rows": [
     "methods/",
@@ -161,7 +167,13 @@
     "src/workspace/walkthroughs/": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
     "src/error-page-lines.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
     "src/action-completeness.mjs": "The source's development standard (AGENTS.md, Complete actions by default) names records/action-completeness.json as its shared policy, which the source's workflow engine and entry points run: the policy and its owner stay with the source.",
-    "records/action-completeness.json": "The source's development standard (AGENTS.md, Complete actions by default) names records/action-completeness.json as its shared policy, which the source's workflow engine and entry points run: the policy and its owner stay with the source."
+    "records/action-completeness.json": "The source's development standard (AGENTS.md, Complete actions by default) names records/action-completeness.json as its shared policy, which the source's workflow engine and entry points run: the policy and its owner stay with the source.",
+    "macos/": "The apps and their release road move to Trillion-X/trillion-apps through their own move (computer/ to the Workshop and harness/ by its capabilities rows, in that same move); this move leaves them alone.",
+    "ios/": "The apps and their release road move to Trillion-X/trillion-apps through their own move (computer/ to the Workshop and harness/ by its capabilities rows, in that same move); this move leaves them alone.",
+    "native-apps/": "The apps and their release road move to Trillion-X/trillion-apps through their own move (computer/ to the Workshop and harness/ by its capabilities rows, in that same move); this move leaves them alone.",
+    "extension/": "The apps and their release road move to Trillion-X/trillion-apps through their own move (computer/ to the Workshop and harness/ by its capabilities rows, in that same move); this move leaves them alone.",
+    "computer/": "The apps and their release road move to Trillion-X/trillion-apps through their own move (computer/ to the Workshop and harness/ by its capabilities rows, in that same move); this move leaves them alone.",
+    "harness/": "The apps and their release road move to Trillion-X/trillion-apps through their own move (computer/ to the Workshop and harness/ by its capabilities rows, in that same move); this move leaves them alone."
   },
   "groups": [
     {
