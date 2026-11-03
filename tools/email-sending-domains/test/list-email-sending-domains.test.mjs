@@ -31,3 +31,18 @@ test('a refused or missing key says what to do, without the key', async () => {
   await assert.rejects(listDomains({ key: canary, fetchImpl: answering(401, {}) }), error => /Connect the account again/.test(error.message) && !error.message.includes(canary));
   await assert.rejects(listDomains({ key: '', fetchImpl: answering(200, {}) }), /Connect the email-sending account first/);
 });
+
+test('the sending-key row asks for a sending-only key and keeps the reply\'s token in the vault, never in the answer', () => {
+  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const maker = rows.find(one => one.id === 'tool:make-a-sending-key-with-resend');
+  assert.equal(maker.invoke.kind, 'http');
+  assert.equal(maker.invoke.url, 'https://api.resend.com/api-keys');
+  assert.deepEqual(maker.invoke.body_template.permission, { const: 'sending_access' });
+  assert.deepEqual(maker.invoke.credential_injections, [
+    { secret_name: 'resend-api-key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } },
+  ]);
+  assert.deepEqual(maker.invoke.reply_holds_values, [{ from: 'token', secret_name_from_input: 'keep_as' }]);
+  assert.deepEqual(maker.input_schema.required, ['name', 'keep_as']);
+  assert.ok(new RegExp(maker.input_schema.properties.keep_as.pattern).test('resend-sign-in-proof-key'));
+  assert.ok(!new RegExp(maker.input_schema.properties.keep_as.pattern).test('Resend API Key'));
+});
