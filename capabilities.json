@@ -433,6 +433,15 @@
       "evidence": "README.md:3 the drives connected to the person's Mac, what is in one folder on one of them, the icon Finder shows, which programs are using one"
     },
     {
+      "capability": "copy or move files between the drives on a person's computer, pause or stop that work, find every place a file is, and eject a drive",
+      "owner": ["tools/work-on-connected-drives/"],
+      "entry": "tools/work-on-connected-drives/tool-rows.json",
+      "evidence": "README.md:3 list and pause/resume/stop the long file work on drives, copy or move between drives, and eject",
+      "distinct_from": [
+        { "job": "see the drives connected to a person's computer: what is on one, its icon, and which programs are using it", "why": "connected-drives only reads, once per run; this writes, stops programs and ejects, from one long-lived host that keeps the work's state." }
+      ]
+    },
+    {
       "capability": "give exact bytes their content identity",
       "owner": ["tools/content-identity/"],
       "entry": "tools/content-identity/read-data/identity.mjs",
@@ -691,6 +700,15 @@
       "owner": ["tools/print-here/"],
       "entry": "tools/print-here/tool-rows.json",
       "evidence": "README.md:3 prints a file from the person's files on a printer their Mac already has, and says which printers it has"
+    },
+    {
+      "capability": "keep distracting apps closed and Focus on, on the person's computer, until a set time",
+      "owner": ["tools/hold-a-computer-quiet/"],
+      "entry": "tools/hold-a-computer-quiet/tool-rows.json",
+      "evidence": "README.md:3 keeps the apps a hold names closed whenever they open, and Focus on, until the hold's own end time",
+      "distinct_from": [
+        { "job": "keep a group's agreements, remind and score who kept them", "why": "hold-to-it keeps agreements between people and scores them; this closes apps and switches Focus on one computer until a time, and knows nothing of agreements." }
+      ]
     },
     {
       "capability": "say how long Recently Deleted and Archived keep a person's files, by their own setting",

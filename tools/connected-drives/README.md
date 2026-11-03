@@ -11,10 +11,10 @@ The drives connected to the person's Mac, what is in one folder on one of them, 
 | `read-data/draw-icon.js` | The icon macOS draws for a path, as a PNG (`osascript -l JavaScript`, the path an argument). |
 | `read-data/drive-identity.mjs` | What one mounted volume is (real mount, internal, kind, ejectable), from diskutil's plist. |
 | `read-data/drive-folder.mjs` | One folder on a drive, a page at a time, and `driveOf`, the check that a path really is on a connected drive. |
-| `read-data/drive-processes.mjs` | The programs with files open on a drive, from `lsof -Fpcn`. |
+| `read-data/drive-processes.mjs` | The programs with files open on a drive, from `lsof -Fpcn`, and `readProcessRows`, each process named the way the person knows it (from `ps`; a script by its script). |
 | `read-data/file-kinds.mjs`, `read-data/file-kinds.json` | What kind of file a name is (videos, audio, pictures, ...), as DATA. |
 | `tool-rows.json` | `tool:list-connected-drives`, `tool:list-a-drive-folder`, `tool:see-what-is-on-a-drive`, `tool:get-a-drive-icon`, `tool:name-what-holds-a-drive`. |
-| `part.json` | Nothing here is imported by other code. |
+| `part.json` | `drives.mjs` (`hiddenIn`), `drive-identity.mjs`, `drive-folder.mjs`, `drive-processes.mjs` and `file-kinds.mjs`/`.json`, which `tools/work-on-connected-drives` imports. |
 | `test/drives.test.mjs` | Tests against a pretend `/Volumes` and pretend commands. |
 
 ## Key Types / Functions
@@ -30,4 +30,4 @@ The drives connected to the person's Mac, what is in one folder on one of them, 
 
 **Depends on:** `tools/records-door` (`run-an-export.mjs`), Node's standard library, and the Mac's `mount`, `diskutil`, `lsof` and `osascript`.
 
-**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) after the person grants `see-connected-drives`.
+**Depended on by:** `tool-rows.json`; `tools/work-on-connected-drives` (the public files `part.json` lists). The local engine runs the rows on the person's computer (`computer` kind) after the person grants `see-connected-drives`.
