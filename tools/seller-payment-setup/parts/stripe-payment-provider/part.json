@@ -1,0 +1,11 @@
+{
+  "public": [
+    "process/parse-stripe-signature.mjs",
+    "process/compare-and-map-stripe-webhook.mjs",
+    "process/map-stripe-webhook-event.mjs",
+    "process/ensure-offer-payment-links.mjs",
+    "data/stripe-webhook-event-map.json",
+    "data/stripe-operation-map.json",
+    "process/build-stripe-http-request.mjs"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/capability-effect-lifecycle/data/effect-lifecycles.json",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/paid-capability-state/parts/capability-effect-lifecycle/data/effect-lifecycles.json",
+      "source_identity": "1f:9ab18812333fdf4189fa3cb41a1ed34114a7ca381d4e6966ccf49134e94c2141",
+      "identity": "1f:9ab18812333fdf4189fa3cb41a1ed34114a7ca381d4e6966ccf49134e94c2141"
+    },
+    {
+      "from": "parts/capability-effect-lifecycle/do-work/current-capability-state.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/paid-capability-state/parts/capability-effect-lifecycle/do-work/current-capability-state.mjs",
+      "source_identity": "1f:62ec6b0e87fcf49078710ab9d4de4813350469a64a620fa45f3551bf6368a027",
+      "identity": "1f:62ec6b0e87fcf49078710ab9d4de4813350469a64a620fa45f3551bf6368a027"
+    },
+    {
+      "from": "parts/capability-effect-lifecycle/part.json",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/paid-capability-state/parts/capability-effect-lifecycle/part.json",
+      "source_identity": "1f:43c33a19236d2b5a312921c1a4bc119fe658c7c4221509e5e8cc66ee7a8a6b69",
+      "identity": "1f:43c33a19236d2b5a312921c1a4bc119fe658c7c4221509e5e8cc66ee7a8a6b69"
+    }
+  ]
+}

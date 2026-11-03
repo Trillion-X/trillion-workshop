@@ -1,0 +1,99 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/stripe-payment-provider/data/stripe-operation-map.json",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/data/stripe-operation-map.json",
+      "source_identity": "1f:1d969cb2ef57ae6194ceb4078bd55b20b9b1ee9cf853114be150a550c645aa6c",
+      "identity": "1f:1d969cb2ef57ae6194ceb4078bd55b20b9b1ee9cf853114be150a550c645aa6c"
+    },
+    {
+      "from": "parts/stripe-payment-provider/data/stripe-webhook-event-map.json",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/data/stripe-webhook-event-map.json",
+      "source_identity": "1f:c88f0ee3d97d90032f9804567aa0e89b288786e212a84f54c76ae0ab6f41982f",
+      "identity": "1f:c88f0ee3d97d90032f9804567aa0e89b288786e212a84f54c76ae0ab6f41982f"
+    },
+    {
+      "from": "parts/stripe-payment-provider/part.json",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/part.json",
+      "source_identity": "1f:9e1dc34ec404887cf83a5d569570884b008f405fadb8c2b48e16d57f7586b8fd",
+      "identity": "1f:9e1dc34ec404887cf83a5d569570884b008f405fadb8c2b48e16d57f7586b8fd"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/build-stripe-http-request.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/process/build-stripe-http-request.mjs",
+      "source_identity": "1f:be60aba978e4cdfebb0f14e590433f7708b2647722eec6791aeaba3031930fff",
+      "identity": "1f:be60aba978e4cdfebb0f14e590433f7708b2647722eec6791aeaba3031930fff"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/compare-and-map-stripe-webhook.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/process/compare-and-map-stripe-webhook.mjs",
+      "source_identity": "1f:bb5992004836e5766a66c2e7f873575dbfee9bf7eb27b1825337e6063c05fc52",
+      "identity": "1f:bb5992004836e5766a66c2e7f873575dbfee9bf7eb27b1825337e6063c05fc52"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/ensure-offer-payment-links.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/process/ensure-offer-payment-links.mjs",
+      "source_identity": "1f:b37b8797657291e85223f8c420d10f3e517cf4ad9f8bc6c7c13c65f57bf726bd",
+      "identity": "1f:b37b8797657291e85223f8c420d10f3e517cf4ad9f8bc6c7c13c65f57bf726bd"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/map-stripe-webhook-event.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/process/map-stripe-webhook-event.mjs",
+      "source_identity": "1f:7231867eeff577836b365ae3344a0ede779801df7d2bb5124f401d463bfc9561",
+      "identity": "1f:7231867eeff577836b365ae3344a0ede779801df7d2bb5124f401d463bfc9561"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/parse-stripe-signature.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/process/parse-stripe-signature.mjs",
+      "source_identity": "1f:309e00aa999b692baa48d8c97415932da1563a671acf8582d0f3a755b21df96a",
+      "identity": "1f:309e00aa999b692baa48d8c97415932da1563a671acf8582d0f3a755b21df96a"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/quantity-for-checkout.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/process/quantity-for-checkout.mjs",
+      "source_identity": "1f:84e32f5dc6c62339c3e3ce2847ada22edca4d5717f109d831cac5e491c5aaf51",
+      "identity": "1f:e4c069e9940e9069c4ee45f5c12a2a65fe1282d8169b007fc3cf59332e3df187"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/read-cli-input.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/process/read-cli-input.mjs",
+      "source_identity": "1f:059a91626d6141f4eda4eec5a827dccd4cb03fc9f95ce6b719f0d719e8379a7c",
+      "identity": "1f:059a91626d6141f4eda4eec5a827dccd4cb03fc9f95ce6b719f0d719e8379a7c"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/stripe-form-encode.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/process/stripe-form-encode.mjs",
+      "source_identity": "1f:dd258dc6942813f8f689f5ab8ca896177a9f780e72d7388063ae17b2ed624c04",
+      "identity": "1f:dd258dc6942813f8f689f5ab8ca896177a9f780e72d7388063ae17b2ed624c04"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/stripe-request-mapper.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/parts/stripe-payment-provider/process/stripe-request-mapper.mjs",
+      "source_identity": "1f:3e945d5d11b2beec8cf853cfac557678ef34d02c32dbebf8d8b0abff0ee0f0d7",
+      "identity": "1f:3e945d5d11b2beec8cf853cfac557678ef34d02c32dbebf8d8b0abff0ee0f0d7"
+    },
+    {
+      "from": "test/offer-payment-links.test.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/seller-payment-setup/test/offer-payment-links.test.mjs",
+      "source_identity": "1f:93762a74e9877771770dbaa43c95efcdce8f82ea724072a9cacb6182e3c5a71a",
+      "identity": "1f:93762a74e9877771770dbaa43c95efcdce8f82ea724072a9cacb6182e3c5a71a"
+    }
+  ]
+}

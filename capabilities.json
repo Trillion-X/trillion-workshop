@@ -1670,6 +1670,113 @@
     {"capability": "answer copy-rule asks with a person's local models", "lives_at": ["source-repo-a/tools/copy-gate/decider_layer.py"], "moves_to": "tools/ask-a-small-model-for-a-verdict/", "entry": "source-repo-a/tools/copy-gate/decider_layer.py", "evidence": "held in Trillion-X/source-repo-a", "blocker": "bound to the person's own model snapshot, adapters, model cache and labelled lines; its fit-lines math now calls the Workshop"},
     {"capability": "log a person's verdicts on copy lines and write their stances", "lives_at": ["source-repo-a/tools/copy-gate/verdicts.mjs"], "moves_to": "tools/where-a-person-stands/", "entry": "source-repo-a/tools/copy-gate/verdicts.mjs", "evidence": "held in Trillion-X/source-repo-a", "blocker": "the verdict log is the person's data, pick items read film pick ledgers, and stance writes go to the person's own account"},
     {"capability": "fetch, transcribe and audit one channel's video corpus", "lives_at": ["source-repo-a/tools/nfx-fetch/"], "moves_to": "tools/audio-transcription/", "entry": "source-repo-a/tools/nfx-fetch/", "evidence": "held in Trillion-X/source-repo-a", "blocker": "the download step and corpus-specific scripts (findings, audits, device rows); its judge and text output were ported"},
-    {"capability": "extract, merge and index video principles with a person's own terms", "lives_at": ["source-repo-a/tools/principles/extract.py", "source-repo-a/tools/principles/build.py", "source-repo-a/tools/principles/merge_spec.py", "source-repo-a/tools/principles/make_index.py"], "moves_to": "tools/cite-principles-from-captions/", "entry": "source-repo-a/tools/principles/extract.py", "evidence": "held in Trillion-X/source-repo-a", "blocker": "the person's terms, caps, lanes, merges and index prose are written as code; they become terms/caps/lanes/merge DATA and intro/outro files, then these files go"}
+    {"capability": "extract, merge and index video principles with a person's own terms", "lives_at": ["source-repo-a/tools/principles/extract.py", "source-repo-a/tools/principles/build.py", "source-repo-a/tools/principles/merge_spec.py", "source-repo-a/tools/principles/make_index.py"], "moves_to": "tools/cite-principles-from-captions/", "entry": "source-repo-a/tools/principles/extract.py", "evidence": "held in Trillion-X/source-repo-a", "blocker": "the person's terms, caps, lanes, merges and index prose are written as code; they become terms/caps/lanes/merge DATA and intro/outro files, then these files go"},
+    {
+      "capability": "serve command-line MCP servers as web MCP endpoints, with a session each, a working folder per session and idle sessions closed",
+      "owner": [
+        "tools/serve-command-line-mcp-servers-on-the-web/parts/stdio-mcp-gateway/README.md",
+        "tools/serve-command-line-mcp-servers-on-the-web/parts/stdio-mcp-gateway/do-work/gateway.mjs",
+        "tools/serve-command-line-mcp-servers-on-the-web/parts/stdio-mcp-gateway/do-work/serve.mjs",
+        "tools/serve-command-line-mcp-servers-on-the-web/parts/stdio-mcp-gateway/part.json"
+      ],
+      "entry": "tools/serve-command-line-mcp-servers-on-the-web/parts/stdio-mcp-gateway/README.md",
+      "evidence": "parts/README.md: do-work/gateway.mjs createGateway serves stdio MCP servers as streamable-HTTP ones at /<app>/mcp with a session id, bounded sessions, idle reaping and a working folder per session."
+    },
+    {
+      "capability": "turn a docs manifest (site facts, navigation, pages, two colour palettes) into every file of a docs site",
+      "owner": [
+        "tools/build-a-docs-site/parts/docs-site/README.md",
+        "tools/build-a-docs-site/parts/docs-site/do-work/build-docs-site.mjs",
+        "tools/build-a-docs-site/parts/docs-site/part.json"
+      ],
+      "entry": "tools/build-a-docs-site/parts/docs-site/README.md",
+      "evidence": "parts/docs-site/README.md: turns a docs manifest into every file a Mintlify docs site is made of, run as tool:build-docs-site; the AI saves and pushes the files to the person's repository."
+    },
+    {
+      "capability": "start seller payment setup and send the seller to the payment provider's hosted onboarding",
+      "owner": [
+        "tools/seller-payment-setup/parts/stripe-payment-provider/data/stripe-operation-map.json",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/data/stripe-webhook-event-map.json",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/part.json",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/build-stripe-http-request.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/compare-and-map-stripe-webhook.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/ensure-offer-payment-links.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/map-stripe-webhook-event.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/parse-stripe-signature.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/quantity-for-checkout.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/read-cli-input.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/stripe-form-encode.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/stripe-request-mapper.mjs",
+        "tools/shared-code/src/workspace/seller-payment-connect.mjs",
+        "tools/take-payments/read-data/quantity-limits.json"
+      ],
+      "entry": "tools/shared-code/src/workspace/seller-payment-connect.mjs",
+      "evidence": "A seller starts payment setup and is sent to Stripe's hosted onboarding.",
+      "distinct_from": [
+        {
+          "job": "take payments with Stripe",
+          "why": "This is the code that lives in the app (a different repository); it moves to its own Workshop folder, and the other row is the tool that does the work or the matching package."
+        }
+      ]
+    },
+    {
+      "capability": "work out the current state of a paid capability from its payment events",
+      "owner": [
+        "tools/paid-capability-state/parts/capability-effect-lifecycle/data/effect-lifecycles.json",
+        "tools/paid-capability-state/parts/capability-effect-lifecycle/do-work/current-capability-state.mjs",
+        "tools/paid-capability-state/parts/capability-effect-lifecycle/part.json"
+      ],
+      "entry": "tools/paid-capability-state/parts/capability-effect-lifecycle/data/effect-lifecycles.json",
+      "evidence": "Current state of a paid capability from its payment events.",
+      "distinct_from": [
+        {
+          "job": "say which paid access a buyer holds now, check a buyer may open a gated thing, and deliver a paid file only to a buyer who holds its access",
+          "why": "This is the code that lives in the app (a different repository); it moves to its own Workshop folder, and the other row is the tool that does the work or the matching package."
+        }
+      ]
+    },
+    {
+      "capability": "build a Mintlify docs site from a docs manifest",
+      "owner": [
+        "tools/build-a-docs-site/parts/docs-site/README.md",
+        "tools/build-a-docs-site/parts/docs-site/do-work/build-docs-site.mjs",
+        "tools/build-a-docs-site/parts/docs-site/part.json"
+      ],
+      "entry": "tools/build-a-docs-site/parts/docs-site/README.md",
+      "evidence": "tools/build-a-docs-site/parts/docs-site/README.md:3"
+    },
+    {
+      "capability": "take payments through Stripe and track a paid capability's state",
+      "owner": [
+        "tools/paid-capability-state/parts/capability-effect-lifecycle/data/effect-lifecycles.json",
+        "tools/paid-capability-state/parts/capability-effect-lifecycle/do-work/current-capability-state.mjs",
+        "tools/paid-capability-state/parts/capability-effect-lifecycle/part.json",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/data/stripe-operation-map.json",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/data/stripe-webhook-event-map.json",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/part.json",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/build-stripe-http-request.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/compare-and-map-stripe-webhook.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/ensure-offer-payment-links.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/map-stripe-webhook-event.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/parse-stripe-signature.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/quantity-for-checkout.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/read-cli-input.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/stripe-form-encode.mjs",
+        "tools/seller-payment-setup/parts/stripe-payment-provider/process/stripe-request-mapper.mjs",
+        "tools/take-payments/read-data/quantity-limits.json"
+      ],
+      "entry": "tools/seller-payment-setup/parts/stripe-payment-provider/part.json",
+      "evidence": "parts/README.md:44",
+      "distinct_from": [
+        {
+          "job": "see payments and bank accounts and take payments through a connected provider",
+          "why": "This part is Trillion's own Stripe checkout and webhooks; the service connection row reads a person's own payment and bank accounts."
+        },
+        {
+          "job": "take payments with Stripe",
+          "why": "This is the app's copy of the Stripe payment provider; the Workshop tool tools/take-payments has the same job and is the owner it moves to."
+        }
+      ]
+    }
   ]
 }

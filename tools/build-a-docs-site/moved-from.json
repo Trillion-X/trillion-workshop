@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/docs-site/do-work/build-docs-site.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/build-a-docs-site/parts/docs-site/do-work/build-docs-site.mjs",
+      "source_identity": "1f:0de7760f86b10fc8076dc557e0a21d744df66659ccad459ff10bb3e03c081bfb",
+      "identity": "1f:0de7760f86b10fc8076dc557e0a21d744df66659ccad459ff10bb3e03c081bfb"
+    },
+    {
+      "from": "parts/docs-site/part.json",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/build-a-docs-site/parts/docs-site/part.json",
+      "source_identity": "1f:f808df2e8e54a3b6243c7a83d3827e45c8a65cd8c2c5bdeb7c31a4ac8f55d2cf",
+      "identity": "1f:f808df2e8e54a3b6243c7a83d3827e45c8a65cd8c2c5bdeb7c31a4ac8f55d2cf"
+    },
+    {
+      "from": "parts/docs-site/README.md",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/build-a-docs-site/parts/docs-site/README.md",
+      "source_identity": "1f:569e8d27c8bb5d56798e591ac6879760ce5de266043626bbb94aa6b9b2618279",
+      "identity": "1f:569e8d27c8bb5d56798e591ac6879760ce5de266043626bbb94aa6b9b2618279"
+    },
+    {
+      "from": "test/docs-site.test.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/build-a-docs-site/test/docs-site.test.mjs",
+      "source_identity": "1f:3a8f7b82a64904f8356016bb134810324347ecff8422087b1b3c2f03bf06e25c",
+      "identity": "1f:3a8f7b82a64904f8356016bb134810324347ecff8422087b1b3c2f03bf06e25c"
+    }
+  ]
+}

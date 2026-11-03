@@ -1,0 +1,17 @@
+{
+  "kind": "capability-effect-lifecycle-set",
+  "lifecycles": [
+    {
+      "kind": "capability-effect-lifecycle",
+      "id": "capability-effect-lifecycle.payment-provider",
+      "comment": "How payment effects start, continue and end a person's access to an offer. One purchase is one episode, found by the first of episode_keys present on the effect; later effects on the same episode (a renewal, a cancellation, a refund) move that episode's state. Adding an effect kind is one transition row.",
+      "episode_keys": ["subscription_id", "payment_intent_ref", "episode_ref", "provider_object_ref"],
+      "transitions": [
+        { "effect_kind": "payment.confirmed", "to": "active", "when": { "attribute": "payment_status", "in": ["paid", "no_payment_required"] } },
+        { "effect_kind": "subscription.renewed", "to": "active" },
+        { "effect_kind": "subscription.ended", "to": "ended" },
+        { "effect_kind": "payment.refunded", "to": "ended" }
+      ]
+    }
+  ]
+}
