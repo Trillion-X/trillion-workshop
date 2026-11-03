@@ -1591,6 +1591,17 @@
         {"job": "show the shared calendar screen with event forms, invitation answers, colours and private notes", "why": "that owner places events on a time grid; this one places a graph's nodes in layers by its edges"},
         {"job": "arrange time blocks for a day, week, month or agenda view", "why": "that owner places blocks on a time axis; this one places a graph's nodes in layers by its edges"}
       ]
+    },
+    {
+      "capability": "cover a person's workspace until every required setup step is done, then hold the one must-do row that unblocks the most until it is done, set aside with a reason or handed back to their AIs",
+      "owner": ["tools/hold-one-thing-until-done/"],
+      "entry": "tools/hold-one-thing-until-done/tool-rows.json",
+      "evidence": "README.md:3 reads the person's setup steps, must-do rows and hold setting through the records door, answers whether the cover stands and which one row is held, and writes each change of the hold setting on condition of the value just read",
+      "distinct_from": [
+        {"job": "hold a group to what it agreed: keep each agreement, work out when to remind and check, mark who kept it from the evidence handed in, and keep the scorecard", "why": "that job scores a group against agreements it made; this one decides which single row of one person's own must-do list their screen shows, and nothing else, until it is done"},
+        {"job": "read one page of what a person's list shows, from their records only", "why": "that job pages any list as it is; this one ranks one list's rows by what unblocks most and answers the one row the cover shows, with its asides, hand-backs and stakes"},
+        {"job": "show what is waiting on me and let me finish each thing where I see it", "why": "that job is the screen that draws the waiting list and the cover; this one is the decision the cover draws, and the hold setting it keeps"}
+      ]
     }
   ]
 }
