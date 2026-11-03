@@ -1762,6 +1762,24 @@
       "evidence": "tools/build-a-docs-site/parts/docs-site/README.md:3"
     },
     {"capability": "place a person's pursuits on a map of a full life, what they serve and which parts of life they touch, with their own map as a list", "owner": ["tools/place-pursuits-on-a-life-map/"], "entry": "tools/place-pursuits-on-a-life-map/tool-rows.json", "evidence": "tools/place-pursuits-on-a-life-map/README.md: moved from Trillion-X/trillion src/life-map.mjs (42aff4e9dc); its content is read as rows of the person's lists through their records door, or handed in by Trillion's in-account run"},
-    {"capability": "tell an AI how to look at what a person is pursuing: where to look and what to do about it", "owner": ["tools/see-a-pursuit-through-the-lens/"], "entry": "tools/see-a-pursuit-through-the-lens/tool-rows.json", "evidence": "tools/see-a-pursuit-through-the-lens/README.md: moved from Trillion-X/trillion src/pursuit-lens.mjs (42aff4e9dc); its content is read as rows of the person's lists through their records door, or handed in by Trillion's in-account run"}
+    {"capability": "tell an AI how to look at what a person is pursuing: where to look and what to do about it", "owner": ["tools/see-a-pursuit-through-the-lens/"], "entry": "tools/see-a-pursuit-through-the-lens/tool-rows.json", "evidence": "tools/see-a-pursuit-through-the-lens/README.md: moved from Trillion-X/trillion src/pursuit-lens.mjs (42aff4e9dc); its content is read as rows of the person's lists through their records door, or handed in by Trillion's in-account run"},
+    {
+      "capability": "keep a long job on the person's computer resumable: one job per key, its output kept as numbered pieces any client can read on from a cursor, finish or cancel",
+      "owner": [
+        "tools/keep-a-long-job-resumable/"
+      ],
+      "entry": "tools/keep-a-long-job-resumable/tool-rows.json",
+      "evidence": "README.md:3 starting with a key already used gives back that same job; its output is kept as numbered pieces, any client can read on from a cursor",
+      "distinct_from": [
+        {
+          "job": "hand jobs between a person's AIs as their own records",
+          "why": "tools/hand-work-to-ais hands a job from one AI to another and tracks who takes it; this keeps one long job's output on one computer so a reader can resume from a cursor, and knows nothing of who does it"
+        },
+        {
+          "job": "hold the one must-do row that unblocks the most until it is done",
+          "why": "tools/hold-one-thing-until-done chooses which task a person is held to; this stores a running job's output pieces and its state"
+        }
+      ]
+    }
   ]
 }
