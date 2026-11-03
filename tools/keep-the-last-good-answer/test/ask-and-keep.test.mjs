@@ -7,7 +7,7 @@ import { createServer } from 'node:http';
 import { runRow, rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { askAndKeep, KIND } from '../read-data/ask-and-keep.mjs';
+import { askAndKeep, KIND, retryAfterSeconds } from '../read-data/ask-and-keep.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const row = rowOf(rows, 'tool:ask-a-web-address-or-give-the-last-answer');
@@ -15,7 +15,7 @@ const row = rowOf(rows, 'tool:ask-a-web-address-or-give-the-last-answer');
 // A made-up source whose next answer the test chooses.
 async function source(t) {
   let next = { status: 200, type: 'application/json', body: JSON.stringify({ price: 3 }) };
-  const server = createServer((_request, reply) => { reply.writeHead(next.status, { 'content-type': next.type }); reply.end(next.body); });
+  const server = createServer((_request, reply) => { reply.writeHead(next.status, { 'content-type': next.type, ...next.headers }); reply.end(next.body); });
   await new Promise(done => server.listen(0, '127.0.0.1', done));
   t.after(() => new Promise(done => server.close(done)));
   return { address: `http://127.0.0.1:${server.address().port}/prices`, answer: (reply) => { next = reply; } };
@@ -105,4 +105,41 @@ test('the keep is one write of one record with a key that names the answer it ke
     assert.equal(fake.calls.find(call => call.method === 'records:write').key, 'kept-answer:keep:a:2026-01-01T00:00:00.000Z');
     assert.deepEqual([...fake.kept.values()].map(record => record.value.answer), ['fine']);
   } finally { await fake.close(); }
+});
+
+test('Retry-After is read as seconds or a date, held to a day, and nothing when it is missing or unreadable', () => {
+  const now = new Date('2026-11-01T12:00:00Z');
+  assert.equal(retryAfterSeconds('120', now), 120);
+  assert.equal(retryAfterSeconds(' 0 ', now), 0);
+  assert.equal(retryAfterSeconds('Sun, 01 Nov 2026 12:01:30 GMT', now), 90);
+  assert.equal(retryAfterSeconds('Sun, 01 Nov 2026 11:00:00 GMT', now), 0, 'a date already past means ask now');
+  assert.equal(retryAfterSeconds('999999999', now), 86400);
+  for (const unreadable of [undefined, null, '', '-5', '1.5', 'soon', '2026-11-01T12:00:30Z']) assert.equal(retryAfterSeconds(unreadable, now), null, String(unreadable));
+});
+
+test('a source that says "not now" with Retry-After has the wait returned and said; other failures carry none', async () => {
+  const door = { read: async () => ({ answer: { price: 3 }, kept_at: '2026-11-01T11:00:00.000Z' }), write: async () => {} };
+  const reply = (status, headers) => async () => new Response('busy', { status, headers });
+  const busy = await askAndKeep({ address: 'https://example.test/a', key: 'a' }, { door, fetch: reply(429, { 'retry-after': '30' }) });
+  assert.equal(busy.origin, 'from-what-was-kept');
+  assert.deepEqual(busy.answer, { price: 3 });
+  assert.equal(busy.retry_after_seconds, 30);
+  assert.match(busy.said, /asked not to be asked again for 30 seconds/);
+  const down = await askAndKeep({ address: 'https://example.test/a', key: 'a' }, { door, fetch: reply(503, { 'retry-after': 'Sun, 01 Nov 2026 12:00:01 GMT' }), now: () => new Date('2026-11-01T12:00:00Z') });
+  assert.equal(down.retry_after_seconds, 1);
+  assert.match(down.said, /for 1 second\./);
+  const plain = await askAndKeep({ address: 'https://example.test/a', key: 'a' }, { door, fetch: reply(500, { 'retry-after': '30' }) });
+  assert.equal(plain.retry_after_seconds, null, 'only 429 and 503 carry a wait');
+  assert.doesNotMatch(plain.said, /asked not to be asked/);
+  const noHeader = await askAndKeep({ address: 'https://example.test/a', key: 'a' }, { door, fetch: reply(429, {}) });
+  assert.equal(noHeader.retry_after_seconds, null);
+});
+
+test('the row carries the wait through the container run', async t => {
+  const web = await source(t);
+  web.answer({ status: 429, type: 'text/plain', body: 'slow down', headers: { 'retry-after': '45' } });
+  const run = await runRow(row, { address: web.address, key: 'busy' });
+  assert.equal(run.status, 0, run.error);
+  assert.equal(run.result.origin, 'nothing-to-give');
+  assert.equal(run.result.retry_after_seconds, 45);
 });

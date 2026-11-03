@@ -94,7 +94,7 @@ const run = (script, input) => new Promise((resolve) => {
 
 test('each row runs as the container runs it and its sample gives the text it promises', async () => {
   const rows = JSON.parse(await readFile(join(folder, 'tool-rows.json'), 'utf8')).records.map((record) => record.payload);
-  assert.equal(rows.length, 3);
+  assert.equal(rows.length, 5);
   for (const row of rows) {
     const [sample] = row.verify;
     const script = row.invoke.argv[1].replace('do-work/', '');
