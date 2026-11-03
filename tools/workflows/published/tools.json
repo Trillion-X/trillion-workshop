@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:e2418ad8b9dcf49178b5bc133059f387effb88f9faf6b4d0214978ca4151f9f8"
+  "blake3": "1f:bf74a60c1fab7b80a6a737583b4bb2bcc2c73037530474c21f8211cf9bf30705"
  },
  "fields": [
   {
@@ -925,6 +925,21 @@
    }
   },
   {
+   "id": "tool:check-an-action-policy",
+   "values": {
+    "title": "Check my AI action policy",
+    "job": "Check my AI action policy before I rely on it: rules it cannot evaluate, unknown behaviours, repeated ids and rules that can never decide because an earlier rule always does",
+    "description": "Takes the fields the policy rules may read from an action and the policy (rules in order, each with an id, an optional `when` rule tree and a `then`). Answers ok and a list of problems, each with the rule id, a problem name (unknown-behaviour, incomplete-when, repeated-id or never-decides) and a sentence saying what is wrong. A rule never decides when another rule with the same `when` always holds first: any rule with the same `when` as a refusing rule, or an earlier rule with the same `when` as it. Nothing is changed; a request that cannot be run is refused with a sentence that says what to send.",
+    "status": "active",
+    "maker": "maker:decide-agent-actions",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-agent-actions"
+   }
+  },
+  {
    "id": "tool:check-challenge-definitions",
    "values": {
     "title": "Check my challenge definitions",
@@ -1362,6 +1377,21 @@
    }
   },
   {
+   "id": "tool:compare-two-diagrams",
+   "values": {
+    "title": "Compare two versions of a diagram",
+    "job": "Tell me what changed between two versions of a diagram: boxes and arrows added, removed or changed, and what changed on each",
+    "description": "Takes a before and an after, each with boxes (an id, and optionally a label, a size, a lane and a style) and arrows (from, to, an optional id and label). Boxes match by id. Arrows match by id when they have one, else by from, to and label. Answers the boxes added, removed and changed (the label, lane, style, width or height that differs, each with its before and after) and the arrows added, removed and changed (an arrow with an id whose label, from or to differs), all ordered by id; an arrow without an id is named \"from -> to\" or \"from -> to : label\". Two diagrams that differ only in the order of their lists have no difference. Positions are not compared: lay both out and compare their positions where that matters.",
+    "status": "active",
+    "maker": "maker:lay-out-a-diagram",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "lay-out-a-diagram"
+   }
+  },
+  {
    "id": "tool:compose-a-writing-instruction",
    "values": {
     "title": "Build the instruction to write from",
@@ -1508,6 +1538,21 @@
      "placement:small-container"
     ],
     "folder": "evaluate-progress"
+   }
+  },
+  {
+   "id": "tool:decide-an-agent-action",
+   "values": {
+    "title": "Decide whether my AI may take this action",
+    "job": "Decide whether an action my AI is about to take may run, must ask me first, or is refused, from my action policy, the grants I gave and what I declined",
+    "description": "Takes the action (for example a tool, a target and arguments), the fields the policy rules may read from it, the person's policy (rules in order, each with an id, its words, an optional `when` rule tree and a `then`, plus an optional `otherwise` and `paused`), the grants given, the actions declined with when, the time of the person's last message, the actions the person asked for, the thread, whether anyone can be asked now, and the time now. Answers allow, ask or refuse, the rule, grant or earlier decline that decided, its words, what to do about retrying, the action's identity, the grant to mark used (for a once grant) and the rules it could not evaluate. Order: a paused policy refuses; refusing rules come next, and a refusing rule it cannot evaluate refuses too; an action declined earlier stays refused until the person has spoken since; then a matching grant allows; then the other rules in order (a rule it cannot evaluate is skipped, never allows); then the policy's `otherwise`, else ask. An ask no one can be asked becomes a refusal that says to continue without it. With dry_run the same decision is answered with enforced false, so the caller lets the action run and keeps the record of what would have been decided. A request that cannot be run is refused with a sentence that says what to send.",
+    "status": "active",
+    "maker": "maker:decide-agent-actions",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-agent-actions"
    }
   },
   {
@@ -3074,6 +3119,21 @@
    }
   },
   {
+   "id": "tool:lay-out-a-diagram",
+   "values": {
+    "title": "Lay out a diagram of boxes and arrows",
+    "job": "Lay out a diagram of boxes and arrows so few arrows cross, and give me the positions, the arrow routes, how many arrows cross and a picture of it as SVG",
+    "description": "Takes the boxes (an id, and optionally a label, a size, a lane and a style) and the arrows between them (from, to, an optional id and label). Breaks cycles by reversing the arrows that close them (reported, and drawn in their real direction), puts every box in a layer, orders the boxes inside each layer to cut crossings (counted exactly, before and after), places them without overlap, spreads the arrow ends along each side of a box and routes each arrow as a list of points. Optional lanes (a list of lane ids in order) keep every box of a lane in its own band with the same layers lining up across lanes; direction \"right\" lays layers out left to right. Answers each box's position, size, layer, order and lane, each arrow's route, the drawing's width and height, quality numbers (crossings before and after, reversed arrows, layers, virtual points) and, unless draw is false, a standalone SVG whose colours are page variables (--diagram-background, --diagram-ink, --diagram-node-fill, --diagram-node-stroke, --diagram-edge) with fallbacks. A box's style may hold only fill, stroke, stroke-width, stroke-dasharray, font-weight, font-style and opacity, with plain values. The same request always gives the same answer. Takes no diagram text: send the boxes and arrows as data. An arrow to an unknown box, two boxes with one id, a lane not in lanes, a style outside the list and a request over the limits (1000 boxes, 5000 arrows, 200 characters in a label) are refused with a sentence saying what to send.",
+    "status": "active",
+    "maker": "maker:lay-out-a-diagram",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "lay-out-a-diagram"
+   }
+  },
+  {
    "id": "tool:lay-out-a-profile",
    "values": {
     "title": "Lay out a person's profile",
@@ -4245,6 +4305,21 @@
      "placement:your-computer"
     ],
     "folder": "trading"
+   }
+  },
+  {
+   "id": "tool:plan-a-column-fill",
+   "values": {
+    "title": "Fill a column by asking my sources in order",
+    "job": "Fill one column of my list row by row by asking my sources in my order until one gives an answer that passes my check, paying only for the sources each row needs: tell me the next calls to run, and turn what they answered into values",
+    "description": "Takes rows, where each row's id is, the column (field), the sources in the order to ask them (each a Workshop tool, its input built from the row's fields or fixed values, where the value is in its answer, its cost and its source kind), an accept check (a tools/formulas rule tree over the answer as field value), an optional run_if rule tree over the rows, and the attempts already made with what each answered. Answers the next calls to make, one source at a time per row, each with a request key (the content identity of row, source, tool and input, so a retry is never paid twice); the values found, each as an offer settle-field-values reads; the rows skipped (run_if does not hold, already has a value while keep_existing holds) and the rows out of sources with what each source did. Run it again with the new attempts until done. stop_after_same_failure stops a row whose sources keep giving the same rejected answer; most_calls bounds one run.",
+    "status": "active",
+    "maker": "maker:field-values",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "field-values"
    }
   },
   {
@@ -6931,6 +7006,21 @@
    }
   },
   {
+   "id": "tool:set-fields-by-rules",
+   "values": {
+    "title": "Set fields on the rows my rules match",
+    "job": "Set fields on the rows my rules match, like coding transactions by merchant and amount: my rule groups in order, the first matching rule sets each field, never over a value I set myself, with a preview of what each rule would change",
+    "description": "Takes rows, the fields (an id, a kind and a path into each row), and groups of rules in the order they are tried. A rule is a tools/formulas rule tree (when; left out matches every row) and the fields it sets, each to a value or to another field of the row. For every row the first rule that matches and sets a field decides that field; rules that set different fields all apply, and a later rule setting the same field is listed as shadowed. A field already holding a value from a stronger source (a person, or a source the rows do not record when the precedence says unknown sources hold) is not changed and is answered as held, naming who holds it. When the rows keep who wrote each field (provenance: where, and the keys for the kind and the writer), each change carries the rule as its writer, and a field a rule set that no rule sets now goes back to empty. Nothing is written: the answer holds the changes, each changed row as it would be, and per rule the rows it matches and how many it changes, finds already set, cannot change and shadows. An unfinished rule sets nothing and is named in incomplete.",
+    "status": "active",
+    "maker": "maker:field-values",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "field-values"
+   }
+  },
+  {
    "id": "tool:set-up-someone-i-pay-in-stripe",
    "values": {
     "title": "Set up someone I pay in Stripe",
@@ -6976,6 +7066,21 @@
     "flags": [
      "keeps-records"
     ]
+   }
+  },
+  {
+   "id": "tool:settle-field-values",
+   "values": {
+    "title": "Say who set each value and which source wins",
+    "job": "Say which value each field of my rows keeps when several sources offered one, who set it, and why the others lost: what I typed beats my rules, my rules beat imported sources, and those beat an AI's guess, with the AI's reasons and confidence kept beside its value",
+    "description": "Takes offers, each a value for one field of one row with its source (kind, by, at, confidence) and optionally its basis (reasoning, citations). Each field keeps the offer the precedence puts first: source kinds strongest first (person, rule, source, ai by default, or the person's own precedence), then inside one kind the newest, then the most confident, then the order handed in. An offer below its kind's confidence floor never wins and is set aside with the reason. An offer with withdraws: true takes back what that same source offered earlier, so the field falls back to the next offer. as_of answers the value a field held at that time. Every other offer is kept beside the winner with why it lost, and a field whose two best offers tie with different values says contested.",
+    "status": "active",
+    "maker": "maker:field-values",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "field-values"
    }
   },
   {
