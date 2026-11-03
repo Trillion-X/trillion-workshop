@@ -25,7 +25,7 @@ import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { JSON_CODEC, hash, json, read, writeConfig } from './config-file.mjs';
-import { localDoorAddress } from './local-door.mjs';
+import { localDoorAddress } from '../../use-trillion-from-a-shell/do-work/local-door.mjs';
 
 export const MCP_ACTIONS = ['mcp-inspect', 'mcp-preview', 'mcp-register', 'mcp-unregister'];
 const SCHEMA = 'trillion.mcp-registration-report/v1';

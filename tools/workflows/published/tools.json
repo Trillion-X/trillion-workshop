@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:a4ff0d9e40e7a92829352e033d3f443e5dc9a784c7983007a324a3c0aa7cf12f"
+  "blake3": "1f:ff77ac1e8abf43a420a3027ae177bd51b21bbd9868290dc892c39f75b8d733b5"
  },
  "fields": [
   {
@@ -8451,6 +8451,21 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "git-changes"
+   }
+  },
+  {
+   "id": "tool:use-trillion-from-a-shell",
+   "values": {
+    "title": "Use Trillion from any AI's shell: the trillion command (runs on your computer)",
+    "job": "Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own",
+    "description": "The `trillion` command. Every command is ONE call of the engine's one MCP tool (run_resource_operation) at the account's door: the Trillion Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `trillion` on the PATH and writes the skill for each AI app here; whoami, who, publish, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; tools and call list and run Workshop tools; op runs any engine operation. The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `trillion update` names who updates it: the command never updates itself.",
+    "status": "active",
+    "maker": "maker:use-trillion-from-a-shell",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "use-trillion-from-a-shell"
    }
   },
   {

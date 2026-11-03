@@ -1,4 +1,4 @@
-// tools/register-trillion-in-my-ai-apps/do-work/local-door.mjs
+// tools/use-trillion-from-a-shell/do-work/local-door.mjs
 //
 // Moved from Trillion-X/trillion harness/local-door.mjs.
 //
