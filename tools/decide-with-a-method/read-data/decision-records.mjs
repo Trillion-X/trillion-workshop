@@ -24,11 +24,12 @@
 // root's input again and removes those records. A change too large for one door message goes in
 // parts with the root last, so a reader never meets a root that counts records not written yet; a reader takes only the
 // first `counts` items of each list, so a part written before a write that failed is never read.
-import { readFileSync } from 'node:fs';
+// The settings are imported, not read from disk, so the join also runs where this file is bundled (the old engine's Worker).
+import settings from './decide-with-a-method.json' with { type: 'json' };
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 
-const settings = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
+
 const { records: NAMES } = settings;
 const LAID = NAMES.laid_apart;
 const utf8 = new TextEncoder();
