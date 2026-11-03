@@ -2,7 +2,6 @@
  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
  "id": "REF-KEEP-COPIES-IN-STEP-FROM-TRILLION",
  "status": "ADAPTED",
- "_paths": "Each path is under the folder holding both checkouts, each by its repository's own name: trillion/ (Trillion-X/trillion at the commit each source names) and trillion-workshop/. Validate from that folder: node trillion-workshop/tools/check-a-port-against-its-source/do-work/validate-reference-adaptation-contract.mjs validate trillion-workshop/tools/keep-copies-in-step/ports/catch-up.json --stage pre-edit. The validator measures sources[0] against targets[0]; every other row names its pair the same way.",
  "directive": {
   "thread_id": "cloud job 2026-11-03: empty trillion-rust product/ in parallel lanes, lane 4",
   "message_multihash": "1f:13036fc8f75273156b9e6e722b129b4d38d2709fe03d90c77c8d9b1c67e29fb6",
@@ -11,34 +10,34 @@
  "mode": "SOURCE_FIRST_PORT",
  "sources": [
   {
-   "repository": "Trillion-X/trillion",
-   "commit": "b4e3c05abe5660652a58c054fba304efe4cee49e",
-   "path": "trillion/src/catch-up.mjs",
+   "repository": "trillion",
+   "commit": "b4e3c05abe",
+   "path": "src/catch-up.mjs",
    "multihash": "1f:290b9239019f83a88b2c97d511035eae6e458291a41e0452f541b2c8ee9733a3",
    "ownership": "repository-owned",
    "old_copy": {
-    "deleted_by": "2026-11-06T00:00:00Z"
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that deletes src/catch-up.mjs, records/catch-up.json, test/catch-up.test.mjs and the /work/api/catch-up route in src/worker.mjs"
    }
   },
   {
-   "repository": "Trillion-X/trillion",
-   "commit": "b4e3c05abe5660652a58c054fba304efe4cee49e",
-   "path": "trillion/records/catch-up.json",
+   "repository": "trillion",
+   "commit": "b4e3c05abe",
+   "path": "records/catch-up.json",
    "multihash": "1f:ef72d3ac0c66f04c50c841d71446dcc7e8c607f2ddae62485bdd21bb022e2f69",
    "ownership": "repository-owned",
    "old_copy": {
-    "deleted_by": "2026-11-06T00:00:00Z"
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that deletes src/catch-up.mjs, records/catch-up.json, test/catch-up.test.mjs and the /work/api/catch-up route in src/worker.mjs"
    }
   }
  ],
  "targets": [
   {
-   "path": "trillion-workshop/tools/keep-copies-in-step/read-data/catch-up.mjs",
-   "baseline_commit_message": "Move keep-copies-in-step from Trillion-X/trillion, byte for byte"
+   "path": "tools/keep-copies-in-step/read-data/catch-up.mjs"
   },
   {
-   "path": "trillion-workshop/tools/keep-copies-in-step/read-data/catch-up.json",
-   "baseline_commit_message": "Move keep-copies-in-step from Trillion-X/trillion, byte for byte"
+   "path": "tools/keep-copies-in-step/read-data/catch-up.json"
   }
  ],
  "preserve": [
@@ -67,16 +66,17 @@
   "recorded_at": "2026-11-03T20:00:00Z",
   "rows": [
    {
-    "path": "trillion-workshop/tools/keep-copies-in-step/read-data/catch-up.mjs",
+    "path": "tools/keep-copies-in-step/read-data/catch-up.mjs",
     "source_multihash": "1f:290b9239019f83a88b2c97d511035eae6e458291a41e0452f541b2c8ee9733a3",
     "target_multihash_at_baseline": "1f:290b9239019f83a88b2c97d511035eae6e458291a41e0452f541b2c8ee9733a3"
    },
    {
-    "path": "trillion-workshop/tools/keep-copies-in-step/read-data/catch-up.json",
+    "path": "tools/keep-copies-in-step/read-data/catch-up.json",
     "source_multihash": "1f:ef72d3ac0c66f04c50c841d71446dcc7e8c607f2ddae62485bdd21bb022e2f69",
     "target_multihash_at_baseline": "1f:ef72d3ac0c66f04c50c841d71446dcc7e8c607f2ddae62485bdd21bb022e2f69"
    }
-  ]
+  ],
+  "commit": "786994a726b0f3bb563824bbc7a6089fa0cdd06c"
  },
  "proof": {
   "minimum_meaningful_line_retention": 0.8,
@@ -90,8 +90,8 @@
    "export async function handleCatchUpRequest"
   ],
   "test_refs": [
-   "trillion-workshop/tools/keep-copies-in-step/test/catch-up.test.mjs",
-   "trillion-workshop/tools/keep-copies-in-step/test/copies.test.mjs"
+   "tools/keep-copies-in-step/test/catch-up.test.mjs",
+   "tools/keep-copies-in-step/test/copies.test.mjs"
   ],
   "render_refs": [],
   "originality_ref": null
