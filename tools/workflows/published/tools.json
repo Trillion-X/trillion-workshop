@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:6a407059556b226d2c9655b1caf88111acf0b6f8a3b3253512f2a71e5872b23a"
  },
  "fields": [
   {
@@ -1244,6 +1244,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:check-nested-input",
+   "values": {
+    "title": "Check nested input within limits",
+    "job": "Check an untrusted nested value (an imported document, pasted rich text, list row values from an AI) before it is rendered or stored: refuse it in plain words when it is nested deeper than 100 levels, holds more than 100,000 values, or refers back to itself",
+    "description": "Give value (any JSON) and, optionally, limits ({ max_depth, max_nodes }) tighter than the defaults. Returns ok and nodes when the value is fine, or ok false with reason (too_deep, too_many_nodes, cycle), the limit crossed and said, the words the person reads. The walk keeps its own stack, so a very deep value never overflows the call stack.",
+    "status": "active",
+    "maker": "maker:walk-nested-input-within-limits",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "walk-nested-input-within-limits"
    }
   },
   {
