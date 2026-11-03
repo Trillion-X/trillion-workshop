@@ -24,6 +24,11 @@
       "repository": "trillion-workshop",
       "path": "tools/page-critic/",
       "why": "This tool itself: the rule rows (read-data/page-craft-rules.json), the reduced-motion second pass (do-work/critique-a-page.mjs), the README and the test of the measures this contract claims."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/conversations/test/python/test_transcript_mapper.py",
+      "why": "Its test_map_page_metadata maps the metadata of a saved conversation's page into a transcript; it does not judge whether a rendered page carries a title, language, viewport and description."
     }
   ],
   "proof": {
