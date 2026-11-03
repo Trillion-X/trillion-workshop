@@ -82,6 +82,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `how-someone-does-their-thing` | Keeps a profile of how a person or creator does their thing (style, voice) from their own records, and checks a draft carries the profile's references | `tool:brief-a-profile`, `tool:keep-a-profile`, `tool:check-a-draft-against-a-profile` |
 | `internet-archive` | Searches the Internet Archive and reads one item's metadata and file list, keeping its rights fields | `tool:search-internet-archive`, `tool:read-internet-archive-item` |
 | `judge-words` | Checks words, a plan or anything else made against a person's rule rows (by kind, by value path, with tests that say what must hold), saying what breaks which rule and why; gives a piece of work a short plain title from its own words | `tool:judge-against-rules`, `tool:make-a-plain-work-title` |
+| `keep-copies-in-step` | Whether every copy of a person's things is in step: each device's report, and each record two copies changed apart as the record now and the other versions, settled by keeping one, both or a merged one; every write on condition of what was read | `tool:see-if-my-copies-are-in-step`, `tool:say-how-this-device-stands`, `tool:settle-two-versions` |
 | `keep-the-last-good-answer` | Asks a web address and keeps its answer in the person's records; when the address cannot answer, gives back the last answer it gave and when it was kept; the primitive (ask a live source, keep, fall back) is public | `tool:ask-a-web-address-or-give-the-last-answer` |
 | `know-who-is-in-this` | Tells who is in a recording or a picture from voices and faces people enrolled with consent: enrols a voice or face, names who said each stretch of a transcript (unknown voices keep their number through a listening), finds and names the faces in a picture or video | `tool:enrol-a-voice-or-face`, `tool:who-is-in-this`, `tool:find-faces` |
 | `listen-for-a-while` | Listens to the microphone until a time the person gives, hears each piece on their computer, names each turn from the voices people enrolled and writes it as a heard row as it is said; the sound never leaves the computer | `tool:listen-for-a-while` |
@@ -143,6 +144,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `screen-looks` | Turns a look's colour, size and font tokens into concrete values and the stylesheet a document carries, with the person's own font faces (runs on the person's computer) | `tool:resolve-a-look` |
 | `send-messages` | Sends a message to one person or a list through the provider the person chooses (an email by Amazon SES or Resend, a text by Twilio, or Messages on the person's Mac), from words or a template, turns a document into a message body first, and keeps who agreed to get which emails (email courses and their queued lessons, one-update interest lists, unsubscribing) | `tool:send-an-email-with-amazon-ses`, `tool:send-an-email-with-resend`, `tool:send-a-text-with-twilio`, `tool:send-a-message-on-this-mac`, `tool:write-a-message-body-from-a-document`, `tool:sign-someone-up-for-an-email-course-with-resend`, `tool:sign-someone-up-for-an-email-course-with-amazon-ses`, `tool:send-due-email-lessons-with-resend`, `tool:send-due-email-lessons-with-amazon-ses`, `tool:save-interest-in-an-email-update`, `tool:stop-an-email-course`, `tool:who-agreed-to-get-which-emails` |
 | `send-to-a-place` | Posts a note, or anything picked, to a public web address as JSON, as a page in a Notion database, or as a message in a Slack channel, the last two through the person's own connection | `tool:send-to-a-webhook`, `tool:add-to-notion`, `tool:post-to-slack` |
+| `sync-files-between-my-computers` | Says where the sync of a person's files on one computer stands (starting, synced, syncing, offline, conflict, error and why); its library also holds LAN peers of the same account that fill a whole file by its BLAKE3 identity, and folder bindings that back up a local folder into a Trillion folder | `tool:say-where-file-sync-stands` |
 | `take-payments` | Sells with the person's own Stripe account: prices a sale from their offers, starts a hosted checkout, recovers and looks up checkouts, schedules later payments, counts pay-in-N installments, cancels subscriptions, keeps lasting payment links, checks a Stripe event before believing it, checks what a buyer paid, decides which offers a buyer may see, pays people through Stripe Connect | `tool:price-a-sale`, `tool:start-a-stripe-checkout`, `tool:start-a-stripe-checkout-that-pays-someone-else`, `tool:look-up-a-stripe-checkout`, `tool:find-a-completed-stripe-checkout`, `tool:schedule-the-later-payments-in-stripe`, `tool:count-a-paid-installment-in-stripe`, `tool:cancel-a-stripe-subscription`, `tool:tag-a-stripe-subscription`, `tool:set-up-stripe-payment-links`, `tool:check-a-stripe-event`, `tool:check-what-a-buyer-paid`, `tool:show-which-offers-a-buyer-may-see`, `tool:set-up-someone-i-pay-in-stripe`, `tool:pay-someone-a-share-through-stripe`, `tool:rehearse-a-payment-schedule-in-stripe-test-mode` |
 | `take-requests` | Requests kept as records, handed to the owner who can act on them and closed by the owner's receipt | `tool:take-a-request`, `tool:hand-a-request-to-its-owner`, `tool:record-the-owners-receipt`, `tool:my-requests` |
 | `social-posts` | The person's posts: drafted, checked for each place, approved as reviewed, set to go at their time and sent to each place once its time has come, where each can go among the person's connected accounts, on a calendar between two times, and how each published post did in each place (its counts, the visitors its link brought and their sales) | `tool:list-post-destinations`, `tool:draft-a-post`, `tool:check-a-post`, `tool:approve-a-post`, `tool:set-a-post-to-go-at-its-time`, `tool:take-back-a-post`, `tool:send-a-post-to-<place>` (one per place), `tool:send-each-post-at-its-time`, `tool:check-the-instagram-connection`, `tool:check-the-facebook-page-connection`, `tool:read-post-calendar`, `tool:see-how-each-post-did` |
@@ -198,6 +200,21 @@ trillion-workshop/
 ├── licence-classes.json
 └── test/every-tool-row.test.mjs
 ```
+
+## The records a tool keeps
+
+A tool row may hold `record_model`: the record kinds, indexes and links that tool keeps, in the shape of a record
+model (`kinds`, `indexes`, `value_kinds`, `declared_by`, `field_kinds`, `links`, `relations`, `activities`). Trillion
+reads the rows of the tools installed for a person and joins every tool's `record_model` into the one model their
+records are kept by: a list one tool after another, an object by its keys. The engine itself names no kind but the
+few it writes itself. Two tools may not declare one kind, one index or one key (`test/every-record-model.test.mjs`).
+
+A kind row is `{ type, properties?, guard_properties?, parts?, erasable?, erasable_key?, erase_with?, erase_fields?,
+stays_on_this_device?, table? }`: `erasable` fields are sealed under a key of the record's own, so erasing the record
+erases their words; `stays_on_this_device: true` keeps every record of the kind off any road that leaves the
+person's computer. An index row is `{ type, name, paths, where?, carry?, backfill? }`.
+`tools/keep-a-record-library-valid` holds, unchanged, the kinds whose owning tool is not here yet; move a kind to the
+tool that writes it when you add that tool.
 
 ## Add a tool
 

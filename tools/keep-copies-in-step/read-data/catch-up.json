@@ -1,0 +1,22 @@
+{
+  "_what": "How the person's store keeps whether every copy is in step (src/catch-up.mjs): a device row is written again only when its state, waiting count, kind or title changed or its last catch-up moved by more than rewrite_after_ms; the newest most_devices devices and most_apart records kept as two versions are read. A record kept apart names its versions with `words` (the record as it is now, and the other, each with the words of its keep button), takes its title from the first of `title_fields` it holds, and keep both writes each other version as a record named after it with `both_suffix` and a number. A copy of the records that settles with the store (record-sync.mjs copyPositions) is shown as the device that named it with its report (`copy_id`), else as a device of its own titled `words.copy_title`, in `copy_state` as of its last settle.",
+  "rewrite_after_ms": 3600000,
+  "most_devices": 40,
+  "most_apart": 200,
+  "words": {
+    "now": "As it is now",
+    "other": "The other version",
+    "keep_now": "Keep it as it is",
+    "keep_other": "Keep the other version",
+    "copy_title": "Another copy of your records"
+  },
+  "title_fields": [
+    "title",
+    "name",
+    "label",
+    "goal",
+    "text"
+  ],
+  "both_suffix": "-kept-",
+  "copy_state": "caught-up"
+}

@@ -249,7 +249,29 @@
       "output_selector": "$.stance_record.id",
       "contains": "stance:title:1f:"
      }
-    ]
+    ],
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "record-stance",
+          "properties": {
+            "record": "text",
+            "kind": "text",
+            "about": "objects",
+            "stance": "text",
+            "said": "text",
+            "why": "text",
+            "by": "text",
+            "at": "text",
+            "decision_generation": "number",
+            "earlier": "objects",
+            "correction": "object"
+          },
+          "_read_by": "src/record-stance.mjs: the person's stand, its history and durable correction recovery"
+        }
+      ]
+    }
    }
   },
   {

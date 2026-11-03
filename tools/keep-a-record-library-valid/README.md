@@ -124,3 +124,12 @@ A `format` row sets `{ json: { indent, ensure_ascii, trailing_newline } }` (defa
 **Depends on:** Python 3.10+; for every command that records or checks a file identity, BLAKE3 (the `blake3` python module, else the `b3sum` command); Pillow, only for `frame-pages`; the `sqlite3` command, only for a `sqlite-rows` builder; and, only for `adopt-window`, the public modules `wt_core` and `wt_ops` of the Workshop tool `fill-a-template-without-changing-its-words`, read from the folder beside this one.
 
 **Depended on by:** nothing in this repository. A library's own schema file lives with the library.
+
+## The record kinds held here
+
+The `record_model` of `tool:check-a-record-library` holds, unchanged, the record kinds and indexes whose owning tool
+was not found when the engine's one record model left it (trillion-rust `src/record_model_policy/record-model.json`
+and `src/record_indexes/record-indexes.json`, from old trillion `src/record-model.json` and `src/record-indexes.json`).
+Trillion joins them into each person's record model like any tool's, so a record of one of these kinds still opens,
+seals its erasable fields and, for a kind marked `stays_on_this_device`, stays on the person's computer. Each kind
+moves to the tool that writes it once that tool is here, or to the person's own lists.
