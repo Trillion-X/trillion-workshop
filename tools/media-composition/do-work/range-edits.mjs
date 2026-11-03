@@ -1,4 +1,4 @@
-// src/range-edits.mjs
+// tools/media-composition/do-work/range-edits.mjs
 //
 // PURPOSE
 //   Edits to a person's recording, text or timeline as KEPT RANGES over the original, never as new content. A range is

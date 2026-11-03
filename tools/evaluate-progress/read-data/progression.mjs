@@ -1,5 +1,5 @@
 // Levels, rewards and streaks from facts, configured entirely by DATA: facts -> measures -> a band -> what a person
-// can claim. The logic is the tested code from bitfield-packages, vendored into src/community-logic: measures run
+// can claim. The logic is the tested code from bitfield-packages, vendored into this folder (read-data/, beside it): measures run
 // through progression-evaluator's deriveMeasure over its op pack (count, sum, distinct, ratio, band, rank, latest,
 // quantile, formula, weighted-rank and more), levels through its band membership, rewards through its
 // evaluateProgression rules, and streaks through group's habit cadence. This file only joins them.
@@ -11,12 +11,12 @@
 // `weighted_count` (each input's count times its weight) and `capped_count` (per-period, total and minimum limits, so a
 // reward cannot be gamed) are the ops added to the vendored pack, injected the way derive-measure expects ops to be. Levels are one band table over one measure; rewards name a measure and the
 // amount it must reach; a streak names a cadence ({ period: day | week | month, times }) and which facts count.
-import { deriveMeasure } from './community-logic/derive-measure.ts';
-import { measureOps } from './community-logic/measure-ops.ts';
-import { bandIndexOf } from './community-logic/band-membership.ts';
-import { evaluateProgression } from './community-logic/evaluate-progression.ts';
-import { cadenceFromRaw, cadenceLabel, cadenceStreak, currentPeriodProgress } from './community-logic/board-habit-cadence.ts';
-import { habitLogFromRaw } from './community-logic/board-habit.ts';
+import { deriveMeasure } from './derive-measure.ts';
+import { measureOps } from './measure-ops.ts';
+import { bandIndexOf } from './band-membership.ts';
+import { evaluateProgression } from './evaluate-progression.ts';
+import { cadenceFromRaw, cadenceLabel, cadenceStreak, currentPeriodProgress } from './board-habit-cadence.ts';
+import { habitLogFromRaw } from './board-habit.ts';
 
 // The length of a bucket a rate cap counts within; a unit not listed here is not a rate cap.
 const BUCKET_MS = { minute: 60_000, hour: 3_600_000, day: 86_400_000, week: 604_800_000 };

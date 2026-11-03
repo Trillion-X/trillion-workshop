@@ -1,4 +1,4 @@
-// src/private-mode.mjs
+// tools/listen-for-a-while/read-data/private-mode.mjs
 //
 // Purpose
 //   An opt-in private mode for meetings (end-to-end encrypted ones, or any space that asks): a table of which features are
@@ -6,7 +6,7 @@
 //   short security code both sides can compare out of band. With the mode off, every feature is available.
 //
 // Non-negotiable invariants
-//   1. Which features exist and which a private mode takes away are DATA (src/private-mode.json `features`); this file names none.
+//   1. Which features exist and which a private mode takes away are DATA (private-mode.json `features`); this file names none.
 //   2. Mode off means everything on. Mode on means a feature is available only if its row says `private: true`; a feature with no
 //      row is NOT available in private mode (unknown means off), so a new feature cannot leak by being forgotten.
 //   3. The security code is BLAKE3 of the sorted key list, shown as groups of digits; the same keys give the same code on every

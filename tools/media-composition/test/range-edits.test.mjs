@@ -1,7 +1,7 @@
 // test/range-edits.test.mjs: an edit is kept ranges over the original, so it cannot invent; exports wait for ready pieces.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyKept, checkOutputLength, coverage, keptRanges, keptTotal, refuseUntilReady, removedRanges } from '../src/range-edits.mjs';
+import { applyKept, checkOutputLength, coverage, keptRanges, keptTotal, refuseUntilReady, removedRanges } from '../do-work/range-edits.mjs';
 
 test('kept ranges are sorted, merged when touching, and the removed ranges are the rest', () => {
   const kept = keptRanges([{ start: 10, end: 20 }, { start: 0, end: 5 }, { start: 5, end: 8 }], 30);
