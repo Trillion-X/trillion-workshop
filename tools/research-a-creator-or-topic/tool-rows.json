@@ -1116,6 +1116,170 @@
      "source": "the library's fetch-posts script, as a polite queue over a public post mirror (a third-party service the settings name)"
     }
    }
+  },
+  {
+   "id": "package::research-a-creator-or-topic::tool::brief-a-prospect",
+   "address": "package::research-a-creator-or-topic::tool::brief-a-prospect",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:brief-a-prospect",
+    "label": "Prepare the research request for a prospect",
+    "status": "active",
+    "job": "Get the instruction my AI writes a research profile of a company or a prospect from: fit against my criteria, the biggest problems the material shows, why now, a case study to cite, ways to reach them",
+    "description": "Give key (one short name for the prospect, such as its website address, the same in every later action), criteria (what makes a good prospect for you), and the gathered material: material (one text) or evidence ([{ id, text }], such as a job post, a page of the company's site or its reviews, gathered with the other tools of this folder or tools/browse-public-page). Optional name, url and profile_ref (prospect:<key> when left out). Returns requests (as tool:write-a-profile-request does, with the prospect instruction before the material), row_id (where the profile is kept) and profile_shape (each field the profile must hold). The profile rules are DATA in do-work/prospect-list.json. It asks no model and keeps nothing: your AI writes the profile as one JSON object from instruction_text and hands it to tool:keep-a-prospect. Refuses a request with no criteria or no material.",
+    "input_schema": {
+     "type": "object",
+     "required": ["key", "criteria"],
+     "additionalProperties": false,
+     "properties": {
+      "key": { "type": "string", "minLength": 1, "description": "One short name for the prospect, with no /" },
+      "criteria": {
+       "anyOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+       ],
+       "description": "What makes a good prospect for you"
+      },
+      "name": { "type": "string" },
+      "url": { "type": "string" },
+      "material": { "type": "string" },
+      "evidence": {
+       "type": "array",
+       "items": { "type": "object", "required": ["text"], "properties": { "id": { "type": "string" }, "text": { "type": "string" } } }
+      },
+      "profile_ref": { "type": "string" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["key", "row_id", "profile_shape", "subject_ref", "profile_ref", "skipped", "requests"],
+     "properties": {
+      "key": { "type": "string" },
+      "row_id": { "type": "string" },
+      "profile_shape": { "type": "object" },
+      "subject_ref": { "type": "string" },
+      "profile_ref": { "type": "string" },
+      "skipped": { "type": "array", "items": { "type": "string" } },
+      "requests": { "type": "array", "items": { "type": "object", "required": ["request_id", "instruction_text"] } }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/work",
+     "stdout": "json",
+     "argv": ["/usr/local/bin/node", "/opt/research-a-creator-or-topic/do-work/prospects.mjs"],
+     "stdin": { "fill": { "from": "input" } },
+     "files": {
+      "package_files": {
+       "package": "research-a-creator-or-topic",
+       "paths": ["do-work/prospects.mjs", "do-work/prospect-list.json", "do-work/harvest-parts.mjs", "do-work/write-a-profile-request.mjs"],
+       "at": "/opt/research-a-creator-or-topic"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:research-a-creator-or-topic",
+    "provenance": {
+     "source": "tool:write-a-profile-request generalised from a creator or a topic to a prospect; the instruction and the fields are data"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "key": "bakery.example", "criteria": "a bakery that has had a role open for weeks", "material": "Head baker wanted. Day to day: scale recipes." },
+      "output_selector": "$.requests[0].instruction_text",
+      "contains": "Material:\nHead baker wanted."
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::research-a-creator-or-topic::tool::keep-a-prospect",
+   "address": "package::research-a-creator-or-topic::tool::keep-a-prospect",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:keep-a-prospect",
+    "label": "Keep, read, mark or remove a prospect in my prospect list",
+    "status": "active",
+    "job": "Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes",
+    "description": "One row per prospect, under the key you give; keeping it again writes over the same row and leaves the fields you keep by hand. action keep (default): found = the facts a finder gave (name, url, place, source, size, signals, score) and/or profile = the research (profile, problems 1 to 3, triggers, case_study, channels). Every problem, trigger and channel carries basis stated (the material says it; evidence quotes it word for word) or inferred (a reading of it, with what it is read from). Send material with a profile and a stated quotation that is not in it is refused. A new row starts at the first status (found, or researched once a profile is kept). action mark: status (found, researched, drafted, contacted, replied, booked, won, lost, dropped) and/or notes. action read: one row by key, or a page of rows (optionally only one status, limit 1 to 500). action remove: one row by key. The fields, statuses and rules are DATA in do-work/prospect-list.json. It contacts nobody.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "action": { "enum": ["keep", "mark", "read", "remove"] },
+      "key": { "type": "string", "description": "The prospect's key (needed for keep, mark and remove; read without it lists rows)" },
+      "found": { "type": "object", "description": "Facts a finder gave: name, url, place, source, size, signals, score" },
+      "profile": { "type": "object", "description": "The research: profile, problems, triggers, case_study, channels" },
+      "material": { "type": "string", "description": "The words the profile was written from, so every stated quotation can be checked" },
+      "now": { "type": "string", "description": "The date to write as researched_at; today when left out" },
+      "status": { "type": "string" },
+      "notes": { "type": "string" },
+      "limit": { "type": "integer", "minimum": 1, "maximum": 500 }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["action"],
+     "properties": {
+      "action": { "type": "string" },
+      "key": { "type": "string" },
+      "row_id": { "type": "string" },
+      "written": { "type": "integer" },
+      "created": { "type": "boolean" },
+      "row": { "type": ["object", "null"] },
+      "found": { "type": "boolean" },
+      "count": { "type": "integer" },
+      "rows": { "type": "array", "items": { "type": "object" } },
+      "removed": { "type": "boolean" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/research-a-creator-or-topic",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/research-a-creator-or-topic/do-work/prospects.mjs",
+      "keepAProspect"
+     ],
+     "stdin": { "fill": { "from": "input" } },
+     "records": {
+      "fd": 3,
+      "most_writes": 64,
+      "rights": [
+       { "kind": "record:prospects", "prefix": "record:prospects:", "operations": ["records:read", "records:list", "records:write"] }
+      ]
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "research-a-creator-or-topic",
+        "paths": ["do-work/prospects.mjs", "do-work/prospect-list.json", "do-work/harvest-parts.mjs", "do-work/harvest-settings.json", "do-work/write-a-profile-request.mjs"],
+        "at": "/opt/research-a-creator-or-topic"
+       },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+       {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 128 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:research-a-creator-or-topic",
+    "provenance": {
+     "source": "the rows-over-held-rows writer of the harvest tools, used for a prospect list whose fields are data"
+    }
+   }
   }
  ]
 }

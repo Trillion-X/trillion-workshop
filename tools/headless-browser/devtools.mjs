@@ -9,7 +9,9 @@
 //   - Every Chromium starts with this part's quiet switches first (quiet-switches.json).
 //   - A browser that does not answer its first call in 30 s, or a DevTools call with no answer in 60 s, ends with a BrowserProblem
 //     naming what stopped, instead of leaving the run waiting for hours.
-//   - However the calling run ends, the browser process ends with it and its throwaway profile folder is removed.
+//   - However the calling run ends, the browser process ends with it and its throwaway profile folder is removed: at once
+//     when it can be, else a second later or when the process exits (a helper process may still be writing it), never by
+//     failing the run.
 //   - How many browsers may run at once on a computer is the runner's to decide, not this file's: a tool opens one
 //     browser when it is run.
 //   - A run told a proxy (HTTPS_PROXY, as the engine tells every internet:true run) sends the browser's traffic through
@@ -18,6 +20,20 @@
 //     reach nothing else. Which addresses are public is the engine's to judge, never this file's.
 import { spawn } from 'node:child_process';
 import { accessSync, constants, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+
+// The killed browser's helper processes (renderer, GPU, network) can outlive it for a moment and keep writing the
+// throwaway profile, so removing it can meet ENOTEMPTY even after retries. Cleanup of a temporary folder never fails
+// the caller's run: what cannot be removed now is removed once more a second later, and again when the process exits.
+const leftProfiles = new Set();
+const removeFolder = folder => rmSync(folder, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+const removeNow = (folder, remove) => { try { remove(folder); leftProfiles.delete(folder); return true; } catch { return false; } };
+process.once('exit', () => { for (const folder of leftProfiles) removeNow(folder, removeFolder); });
+/** Remove a throwaway profile folder; never throws. `remove` is the remover (rmSync with retries), given in tests. */
+export function removeProfile(folder, { remove = removeFolder, laterMs = 1000 } = {}) {
+  if (removeNow(folder, remove)) return;
+  leftProfiles.add(folder);
+  setTimeout(() => removeNow(folder, remove), laterMs).unref();
+}
 import { tmpdir, userInfo } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -156,8 +172,7 @@ export async function openBrowser(executable, { width, height, switches = [] } =
     closed = true;
     try { toBrowser.destroy(); fromBrowser.destroy(); } catch { /* already closed */ }
     child.kill('SIGKILL');
-    // The killed browser may still be writing its profile for a moment, so removing it retries briefly.
-    rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+    removeProfile(profile);
   };
   return {
     send: (method, params) => send(method, params, sessionId),
@@ -169,7 +184,7 @@ export async function openBrowser(executable, { width, height, switches = [] } =
     if (child?.pid && child.exitCode === null && child.signalCode === null) {
       try { child.kill('SIGKILL'); } catch { /* process already exited */ }
     }
-    if (profile) rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+    if (profile) removeProfile(profile);
     throw error;
   }
 }

@@ -1,0 +1,42 @@
+{
+  "about": "The layered writing style as DATA. A style is built from layers read in this order: base, then niche, then group (a company or any group of writers), then person (their own idiolect). A later layer overrides an earlier one field by field. The fields, how each merges and the sentence each adds to the instruction an AI writes from are rows here; adding a field is adding a row. A niche, group or person layer is the caller's own record, never shipped here.",
+  "levels": [
+    { "level": "base", "meaning": "The words every writer is held to." },
+    { "level": "niche", "meaning": "What a kind of reader or market expects, such as a trade or a type of buyer." },
+    { "level": "group", "meaning": "How one company or team writes." },
+    { "level": "person", "meaning": "One writer's own diction and syntax." }
+  ],
+  "merges": [
+    { "merge": "list", "meaning": "Later layers add entries to the earlier ones. The layer's replace names the field to start again from that layer. The layer's off names entries to drop (by value, or by id for entries that have one)." },
+    { "merge": "range", "meaning": "An object of { min, max } bounds. A later layer's bound replaces the earlier bound of the same name." },
+    { "merge": "text", "meaning": "One sentence. A later layer replaces it." }
+  ],
+  "fields": [
+    { "field": "diction.prefer", "merge": "list", "says": "Prefer these words and phrases: {value}." },
+    { "field": "diction.avoid", "merge": "list", "says": "Never use these words and phrases: {value}." },
+    { "field": "diction.phrases", "merge": "list", "says": "Phrases this writer uses naturally, with their source: {value}." },
+    { "field": "syntax.sentence_words", "merge": "range", "says": "Keep sentences within these word counts: {value}." },
+    { "field": "syntax.paragraph_sentences", "merge": "range", "says": "Keep paragraphs within these sentence counts: {value}." },
+    { "field": "syntax.openers", "merge": "list", "says": "Open with one of these moves: {value}." },
+    { "field": "syntax.closers", "merge": "list", "says": "Close with one of these moves: {value}." },
+    { "field": "syntax.punctuation", "merge": "list", "says": "Punctuation habits: {value}." },
+    { "field": "rules", "merge": "list", "says": "Rules for every draft: {value}." },
+    { "field": "register", "merge": "text", "says": "Register: {value}" }
+  ],
+  "layers": [
+    {
+      "level": "base",
+      "id": "base",
+      "fields": {
+        "register": "Plain and specific. One clear point for one reader.",
+        "syntax.sentence_words": { "max": 28 },
+        "diction.avoid": ["revolutionary", "game-changing", "synergy", "cutting-edge"],
+        "rules": [
+          { "id": "no-invented-evidence", "text": "Do not invent customers, results, figures, stories or quotations. Use only what the supplied sources show." },
+          { "id": "evidence-apart-from-inference", "text": "Say which statements are what a source shows and which are your inference." },
+          { "id": "specific-over-general", "text": "Prefer a concrete detail from the supplied material over a general claim." }
+        ]
+      }
+    }
+  ]
+}

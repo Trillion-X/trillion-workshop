@@ -326,7 +326,7 @@ async function versionsReply(door, record, stepId) {
     if (!entry) { versions.push({ version, lost: true }); continue; }
     versions.push({
       version, current: version === top, answered_at: entry.answered_at ?? null, by: entry.by ?? null,
-      ...(entry.because ? { because: entry.because } : {}), ...(entry.from ? { from: entry.from } : {}),
+      ...(entry.because ? { because: entry.because } : {}), ...(entry.from ? { from: entry.from } : {}), ...(entry.confirmed_at ? { confirmed_at: entry.confirmed_at } : {}),
       ...(entry.superseded_at ? { superseded_at: entry.superseded_at } : {}), answer: entry.answer ?? {},
     });
   }
@@ -444,10 +444,58 @@ async function confirmStep(door, methods, record, at) {
   return { ...reply, confirmed: { step_id: entry.step_id, version: entry.version ?? 1 }, ready_for_decision: !reply.question };
 }
 
+// A confirmation with verdicts: the answer stands and the judge's verdicts on its checks are added as a new version of the
+// step, each added verdict kept with when it came in. A verdict the step already has stands, and one that differs is refused.
+// Verdicts are checked as a typed answer's are. Returns null when no verdict is new, so the caller replays or confirms.
+async function confirmWithVerdicts(door, methods, record, at, step, given, now) {
+  const entry = record.guidance[at];
+  const cat = await catalogueAt(door, methods, record, step);
+  const cited = await citable(door, record, citedRefsIn(entry.answer));
+  const toJudge = cat.checkAnswersToJudge(record, step, entry.answer);
+  const { verdicts } = takeCallerVerdicts(toJudge, given, { answer: entry.answer, refs: [...cited.refs] });
+  const problems = judgedProblems(verdicts);
+  if (problems.length) throw new AnswerProblems(problems);
+  const kept = new Map((entry.verdicts ?? []).map(item => [item.id, item]));
+  const added = [];
+  for (const verdict of verdicts) {
+    const have = kept.get(verdict.id);
+    if (!have) added.push({ ...verdict, added_at: now });
+    else if (have.meets !== verdict.meets || have.graded_by !== verdict.graded_by) refuse('verdict_taken', { check: verdict.id });
+  }
+  if (!added.length) return null;
+  const version = (entry.version ?? 1) + 1;
+  const archived = [{ key: versionKey(record.id, at, entry.version ?? 1), entry: { ...entry, superseded_at: now } }];
+  // The same answer as it stood, with the checks it was asked and every verdict kept. Why it was given or brought in is kept too.
+  record.guidance[at] = {
+    step_id: entry.step_id, answer: entry.answer, ...(entry.checklist ? { checklist: entry.checklist } : {}),
+    verdicts: [...(entry.verdicts ?? []), ...added], judged_checks: toJudge.length, ...(entry.usage ? { usage: entry.usage } : {}),
+    answered_at: entry.answered_at, confirmed_at: now, version, by: entry.by,
+    ...(entry.because ? { because: entry.because, revised_from: entry.revised_from } : {}),
+    ...(entry.from ? { from: entry.from } : {}),
+    ...(entry.needs_recheck ? { rechecked_at: now } : {}),
+  };
+  await writeDecision(door, recordsOf(record, [at], archived), `confirm-a-decision-step:${record.id}:${at}:v${version}`);
+  const reply = await guideReply(door, await catalogueAt(door, methods, record), record);
+  return { ...reply, confirmed: { step_id: entry.step_id, version, verdicts_added: added.map(item => item.id) }, ready_for_decision: !reply.question };
+}
+
+// A revision of a decided decision's answer reopens it: the decision it had moves to decision_history, marked reopened by
+// the revision with its reason and when, and the decision is open until it is made again with tool:make-the-decision.
+// A share of it stays in the history, not on the open decision.
+function reopen(record, { step_id, because, now }) {
+  const entry = { decision: record.decision, decided_at: record.decided_at, revised_at: now, reopened: { by: 'revision', step_id, because, at: now } };
+  if (record.shared) { entry.shared = record.shared; delete record.shared; }
+  (record.decision_history ??= []).push(entry);
+  record.decision = null;
+  delete record.decided_at;
+  record.status = 'needs_decision';
+}
+
 /** tool:answer-a-decision-question. input { decision_id, step_id, answer?, from?, revise?: { because, by? }, confirm?: true,
  * verdicts?, usage? }. An answer in its turn; a revision of any answered step with its reason (the old version is kept and
- * every later step is flagged to be asked again); a confirmation of a re-asked step unchanged; `from` answers with another
- * decision's step as it stood. */
+ * every later step is flagged to be asked again; on a decided decision it reopens the decision, which must be made again); a
+ * confirmation of a re-asked step unchanged, or with verdicts added as a new version of the same answer (a decided decision stays
+ * decided); `from` answers with another decision's step as it stood. */
 export async function answerADecisionQuestion(input, { door }) {
   const id = decisionId(input);
   if (!nonempty(input.step_id)) refuse('answer_needs_step');
@@ -463,16 +511,23 @@ export async function answerADecisionQuestion(input, { door }) {
   const replayed = async () => ({ ...(await guideReply(door, await catalogueAt(door, methods, record), record)), replayed: true });
   if (input.confirm === true) {
     if (!entry) refuse('unanswered_step', { step: input.step_id });
-    if (!flagged) return replayed();
-    if (!next || next.id !== input.step_id) throw new Error(outOfTurn(record, next, input.step_id));
-    return confirmStep(door, methods, record, at);
+    if (flagged && (!next || next.id !== input.step_id)) throw new Error(outOfTurn(record, next, input.step_id));
+    if (input.verdicts !== undefined) {
+      const step = bare.stepsFor(record).find(item => item.id === input.step_id);
+      if (!step || entry.lost) refuse('confirm_inactive', { step: input.step_id });
+      const added = await confirmWithVerdicts(door, methods, record, at, step, input.verdicts, new Date().toISOString());
+      if (added) return added;
+    }
+    return flagged ? confirmStep(door, methods, record, at) : replayed();
   }
   if (revising && !entry) refuse('unanswered_step', { step: input.step_id });
   if (entry && !flagged && !revising) {
     if (input.from !== undefined ? fromMatches(entry.from, input.from) : same(entry.answer, input.answer)) return replayed();
     refuse('different_answer', { step: input.step_id });
   }
-  if (record.decision && record.status !== 'correction_needed') refuse(revising ? 'revise_needs_failure' : 'already_decided');
+  // A decided decision is reopened by a revision of one of its answers; any other new answer waits for a failed result.
+  const reopening = Boolean(record.decision) && record.status !== 'correction_needed';
+  if (reopening && !revising) refuse('already_decided');
   if ((!entry || flagged) && (!next || next.id !== input.step_id)) throw new Error(outOfTurn(record, next, input.step_id));
   const step = bare.stepsFor(record).find(item => item.id === input.step_id);
   if (!step) refuse('revise_inactive', { step: input.step_id });
@@ -511,6 +566,7 @@ export async function answerADecisionQuestion(input, { door }) {
   };
   const index = entry ? at : record.guidance.length;
   const archived = [];
+  if (reopening) reopen(record, { step_id: step.id, because: input.revise.because, now });
   if (entry) {
     // The version it replaces is kept as it was, and every later step must be asked again.
     archived.push({ key: versionKey(id, index, entry.version ?? 1), entry: { ...entry, superseded_at: now } });
@@ -523,6 +579,7 @@ export async function answerADecisionQuestion(input, { door }) {
   return {
     ...reply,
     ...(entry ? { revised: { step_id: step.id, version, previous_version: entry.version ?? 1, needs_recheck: record.guidance.slice(index + 1).filter(item => item.needs_recheck).map(item => item.step_id) } } : {}),
+    ...(reopening ? { reopened: { from_generation: decisionGeneration(record), step_id: step.id, because: input.revise.because, at: now, note: say('reopened_note', { step: step.id }) } } : {}),
     ready_for_decision: !reply.question,
   };
 }

@@ -191,6 +191,139 @@
      }
     ]
    }
+  },
+  {
+   "id": "package::how-someone-does-their-thing::tool::layer-a-writing-style",
+   "address": "package::how-someone-does-their-thing::tool::layer-a-writing-style",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:layer-a-writing-style",
+    "label": "Layer a writing style from base to person",
+    "status": "active",
+    "job": "Build the writing style for one writer by layering a base, a niche, a company or group and the person's own diction and syntax",
+    "description": "Give the layers in order (the base is added for you when you give none): niche, then group, then person, each { level, id, fields }. A later layer overrides an earlier one field by field; lists add to the earlier ones unless the layer names the field in replace, and off drops an entry an earlier layer added. Returns the merged style, which layers set each value, the instruction an AI writes from, and items for tool:keep-a-profile so the layered style is kept as a profile and drafts are checked with tool:check-a-draft-against-a-profile. It asks no model and keeps nothing. Layers out of order, an unknown level or field, or a layer with no id are refused.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "layers": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": ["level", "id", "fields"],
+        "additionalProperties": false,
+        "properties": {
+         "level": { "type": "string", "description": "base, niche, group or person" },
+         "id": { "type": "string", "description": "The name of this layer, kept as the evidence of every value it sets" },
+         "fields": { "type": "object", "description": "The fields this layer sets, nested ({ diction: { avoid: [...] } }) or flat (\"diction.avoid\")" },
+         "replace": { "type": "array", "items": { "type": "string" }, "description": "List fields to start again from this layer instead of adding to" },
+         "off": { "type": "array", "description": "Entries (or rule ids) an earlier layer added that this layer drops" }
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["layers", "style", "provenance", "instruction_text", "items"],
+     "properties": {
+      "layers": { "type": "array" },
+      "style": { "type": "object" },
+      "provenance": { "type": "object" },
+      "instruction_text": { "type": "string" },
+      "items": { "type": "array", "items": { "type": "object", "required": ["kind", "value", "evidence"] } }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "how-someone-does-their-thing", "paths": ["do-work", "read-data"], "at": "/opt/how-someone-does-their-thing" } },
+     "workdir": "/opt/how-someone-does-their-thing",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/layer-a-writing-style.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:how-someone-does-their-thing",
+    "provenance": { "source": "tools/how-someone-does-their-thing" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "layers": [{ "level": "person", "id": "person:sample-writer", "fields": { "diction.prefer": ["plainly"] } }] },
+      "output_selector": "$.items",
+      "contains": "layer:person:person:sample-writer"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::how-someone-does-their-thing::tool::find-repeated-edits",
+   "address": "package::how-someone-does-their-thing::tool::find-repeated-edits",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-repeated-edits",
+    "label": "Find the edits a writer keeps making",
+    "status": "active",
+    "job": "Turn the changes a person keeps making to drafts into candidate style rules, only for changes that recur in several different drafts",
+    "description": "Give pairs of { id, original, edited }, the draft as written and as the person left it. Finds the words removed, added or replaced in each, counts the different drafts each change recurs in, and returns as candidates only those in at least min_distinct_drafts (3 when left out, never below 2). Each candidate has its example. Candidates are proposals for the person to approve; nothing is kept. Fewer different drafts than the minimum is refused.",
+    "input_schema": {
+     "type": "object",
+     "required": ["pairs"],
+     "additionalProperties": false,
+     "properties": {
+      "pairs": {
+       "type": "array",
+       "minItems": 2,
+       "items": {
+        "type": "object",
+        "required": ["id", "original", "edited"],
+        "additionalProperties": false,
+        "properties": { "id": { "type": "string" }, "original": { "type": "string" }, "edited": { "type": "string" } }
+       }
+      },
+      "min_distinct_drafts": { "type": "integer", "minimum": 2, "description": "How many different drafts a change must recur in; 3 when left out" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["drafts", "min_distinct_drafts", "candidates", "below_threshold", "said"],
+     "properties": {
+      "drafts": { "type": "integer" },
+      "min_distinct_drafts": { "type": "integer" },
+      "candidates": { "type": "array", "items": { "type": "object", "required": ["rule", "from", "to", "distinct_drafts", "draft_ids", "example"] } },
+      "below_threshold": { "type": "integer" },
+      "said": { "type": "string" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": { "package": "how-someone-does-their-thing", "paths": ["do-work", "read-data"], "at": "/opt/how-someone-does-their-thing" } },
+     "workdir": "/opt/how-someone-does-their-thing",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/find-repeated-edits.mjs"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "result_selector": "$.result",
+    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:how-someone-does-their-thing",
+    "provenance": { "source": "tools/how-someone-does-their-thing" },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "min_distinct_drafts": 2, "pairs": [{ "id": "d1", "original": "We utilize tools.", "edited": "We use tools." }, { "id": "d2", "original": "They utilize a plan.", "edited": "They use a plan." }] },
+      "output_selector": "$.candidates",
+      "contains": "utilize"
+     }
+    ]
+   }
   }
  ]
 }

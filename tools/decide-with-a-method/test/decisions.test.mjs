@@ -193,7 +193,7 @@ test('a decision needs every question, its fields, a known option and the decisi
   assert.equal(root.decision_generation, 1);
   assert.deepEqual(root.decision_usage, { model_calls: 3 });
   assert.equal((await makeTheDecision({ decision_id: id, decision }, { door })).already_decided, true);
-  await assert.rejects(makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'keep' } }, { door }), /requires a failed result/);
+  await assert.rejects(makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'keep' } }, { door }), /needs a failed result/);
 });
 
 test('a result is the person\'s; a failed one opens the decision for a new one, and the first is kept', async () => {
@@ -363,7 +363,7 @@ test('a revised answer is a new version: the old one is kept and readable, and e
   const sameAgain = await answerADecisionQuestion({ decision_id: id, step_id: 'proof', answer: proofAnswer }, { door });
   assert.deepEqual(sameAgain.confirmed, { step_id: 'proof', version: 1 }, 'the same answer sent again confirms it unchanged');
   assert.equal(door.value(`decision-step:${id}:002`).version, 1);
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true, answer: proofAnswer }, { door }), /confirm alone/);
+  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true, answer: proofAnswer }, { door }), /sent alone/);
   assert.equal(sameAgain.question, null, 'confirmed unchanged: nothing is asked again');
   assert.equal(sameAgain.ready_for_decision, true);
   assert.equal(door.value(id).answered_steps[2].needs_recheck, false);
@@ -387,23 +387,172 @@ test('a retried identical call replays: the same answer, the same revision, a co
   assert.equal(door.value(`decision-step:${id}:001:v002`), null, 'and no third version appears');
 });
 
-test('a decided decision changes its answers only after a failed result, and its decision waits until every answer is asked again', async () => {
+test('a revision of a decided decision reopens it: the decision moves to history marked reopened, the answer gets its new version, later answers are asked again, and the decision is made again', async () => {
   const door = account();
   const id = await answered(door);
   await makeTheDecision({ decision_id: id, decision }, { door });
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln }, { door }), /only after a failed result/);
-  await reportADecisionResult({ decision_id: id, result: 'met', summary: 'Twelve families signed up', answered_by: 'person' }, { door });
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln }, { door }), /only after a failed result/, 'a met result does not reopen it');
-  await reportADecisionResult({ decision_id: id, result: 'failed', summary: 'Only four families signed up', answered_by: 'person' }, { door });
   const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln }, { door });
-  assert.equal(reply.question.step_id, 'proof');
-  assert.equal(reply.decision.option_id, 'raise', 'the decision stands until a new one is made');
-  await assert.rejects(makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'keep' } }, { door }), /Complete the guided questions/);
+  assert.deepEqual(reply.revised, { step_id: 'outcome', version: 2, previous_version: 1, needs_recheck: ['proof'] });
+  assert.equal(reply.question.step_id, 'proof', 'the later answer is asked again before anything is decided');
+  assert.equal(reply.reopened.from_generation, 1);
+  assert.equal(reply.reopened.because, becauseKiln.because);
+  assert.equal(reply.decision, null, 'the decision is open');
+  assert.equal(reply.ready_for_decision, false);
+
+  const root = door.value(id);
+  assert.equal(root.decision, null);
+  assert.equal(root.status, 'needs_decision');
+  assert.equal(root.decision_generation, 1, 'the generation is kept until the new decision is made');
+  assert.equal(root.decision_history.length, 1);
+  assert.equal(root.decision_history[0].decision.option_id, 'raise', 'the decision it had is kept whole');
+  assert.deepEqual(root.decision_history[0].reopened, { by: 'revision', step_id: 'outcome', because: becauseKiln.because, at: root.decision_history[0].reopened.at });
+  assert.equal(door.value(`decision-step:${id}:001:v001`).answer.current_state, outcomeAnswer.current_state, 'the old answer is still kept');
+  assert.equal(door.value(`decision-step:${id}:001`).answer.current_state, revisedOutcome.current_state);
+
+  await assert.rejects(makeTheDecision({ decision_id: id, decision }, { door }), /Complete the guided questions/, 'the open decision is not made while a later answer waits');
   await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true }, { door });
   const made = await makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'keep', reason: 'Families left at the higher price' } }, { door });
   assert.equal(made.decision.option_id, 'keep');
-  assert.equal(door.value(id).decision_generation, 2);
-  assert.equal(door.value(id).decision_history[0].decision.option_id, 'raise');
+  assert.equal(made.already_decided, undefined);
+  const after = door.value(id);
+  assert.equal(after.decision_generation, 2);
+  assert.equal(after.status, 'needs_outcome');
+  assert.equal(after.decision_history.length, 1, 'the decision made again does not repeat the reopened one');
+  assert.equal(after.decision_history[0].decision.option_id, 'raise');
+});
+
+test('a reopened decision keeps its earlier report apart: a result given for the new decision is its own, not a repeat of the old one', async () => {
+  const door = account();
+  const id = await answered(door);
+  await makeTheDecision({ decision_id: id, decision }, { door });
+  await reportADecisionResult({ decision_id: id, result: 'met', summary: 'Twelve families signed up', answered_by: 'person' }, { door });
+  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln }, { door });
+  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true }, { door });
+  await makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'keep', reason: 'Families left at the higher price' } }, { door });
+  const met = await reportADecisionResult({ decision_id: id, result: 'met', summary: 'Twelve families signed up', answered_by: 'person' }, { door });
+  assert.equal(met.repeated, undefined);
+  assert.equal(met.reports, 2);
+  assert.equal(met.report.decision_generation, 2);
+});
+
+test('a retried revision of a decided decision replays: it reopens once, and nothing is written twice', async () => {
+  const door = account();
+  const id = await answered(door);
+  await makeTheDecision({ decision_id: id, decision }, { door });
+  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln }, { door });
+  door.writes.length = 0;
+  const again = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln }, { door });
+  assert.equal(again.replayed, true);
+  assert.deepEqual(door.writes, [], 'the same revision sent again writes nothing');
+  assert.equal(door.value(id).decision_history.length, 1, 'and reopens nothing twice');
+  assert.equal(door.value(`decision-step:${id}:001:v002`), null);
+});
+
+test('a revision of a decided decision that gives the answer it already has replays, and does not reopen it', async () => {
+  const door = account();
+  const id = await answered(door);
+  await makeTheDecision({ decision_id: id, decision }, { door });
+  const same = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, revise: becauseKiln }, { door });
+  assert.equal(same.replayed, true);
+  assert.equal(same.decision.option_id, 'raise', 'the decision stands');
+  assert.equal(door.value(id).decision_history, undefined);
+});
+
+test('after a failed result a revision changes the answer and the decision stands until a new one is made, as before', async () => {
+  const door = account();
+  const id = await answered(door);
+  await makeTheDecision({ decision_id: id, decision }, { door });
+  await reportADecisionResult({ decision_id: id, result: 'met', summary: 'Twelve families signed up', answered_by: 'person' }, { door });
+  await reportADecisionResult({ decision_id: id, result: 'failed', summary: 'Only four families signed up', answered_by: 'person' }, { door });
+  const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln }, { door });
+  assert.equal(reply.question.step_id, 'proof');
+  assert.equal(reply.reopened, undefined, 'a failed result is not a reopen');
+  assert.equal(reply.decision.option_id, 'raise', 'the decision stands until a new one is made');
+  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true }, { door });
+  const made = await makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'keep', reason: 'Families left at the higher price' } }, { door });
+  assert.equal(made.decision.option_id, 'keep');
+  const root = door.value(id);
+  assert.equal(root.decision_generation, 2);
+  assert.equal(root.decision_history.length, 1);
+  assert.equal(root.decision_history[0].decision.option_id, 'raise');
+  assert.equal(root.decision_history[0].reopened, undefined, 'the decision kept on a failed result carries no reopen mark');
+});
+
+test('verdicts added to an answered step keep its answer: a new version with the same answer and the verdicts, who graded them and when', async () => {
+  const door = account();
+  const id = await answered(door);
+  const meets = [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }];
+  const added = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: meets }, { door });
+  assert.deepEqual(added.confirmed, { step_id: 'outcome', version: 2, verdicts_added: ['outcome-before-after'] });
+  assert.equal(added.question, null, 'the answer stands and every question is still answered');
+  assert.equal(added.ready_for_decision, true);
+  const step = door.value(`decision-step:${id}:001`);
+  assert.equal(step.version, 2);
+  assert.deepEqual(step.answer, outcomeAnswer, 'the answer did not change');
+  assert.deepEqual(step.verdicts.given.map(item => [item.id, item.meets, item.graded_by]), [['outcome-before-after', true, 'second-judge-test']]);
+  assert.ok(step.verdicts.given[0].added_at, 'each verdict added keeps when it came in');
+  assert.ok(step.confirmed_at, 'the version says when it was confirmed');
+  assert.deepEqual(door.value(`decision-step:${id}:001:v001`).verdicts, { given: [] }, 'the version it replaces is kept as it was: no verdicts');
+  assert.equal(door.value(id).answered_steps[1].graded, 1);
+  assert.equal(door.value(id).answered_steps[1].version, 2);
+
+  const versions = await nextDecisionQuestion({ decision_id: id, versions_of: 'outcome' }, { door });
+  assert.deepEqual(versions.versions.map(item => [item.version, item.current]), [[1, false], [2, true]]);
+  assert.ok(versions.versions[1].confirmed_at, 'the history shows the confirmation');
+});
+
+test('verdicts added to a decided decision keep it decided: nothing reopens, and the decision and its history stand', async () => {
+  const door = account();
+  const id = await answered(door);
+  await makeTheDecision({ decision_id: id, decision }, { door });
+  const notAsked = await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true, verdicts: [{ check: 'not-asked', meets: true, rests_on: 'e1', graded_by: 'second-judge-test' }] }, { door });
+  assert.equal(notAsked.replayed, true, 'a verdict for a check the step did not ask is not taken');
+  const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }] }, { door });
+  assert.equal(reply.decision.option_id, 'raise', 'still decided');
+  assert.equal(reply.reopened, undefined);
+  assert.equal(reply.question, null);
+  const root = door.value(id);
+  assert.equal(root.decision.option_id, 'raise');
+  assert.equal(root.status, 'needs_outcome');
+  assert.equal(root.decision_generation, 1);
+  assert.equal(root.decision_history, undefined, 'nothing moved to the history');
+  assert.equal(door.value(`decision-step:${id}:001`).version, 2);
+  assert.deepEqual(door.value(`decision-step:${id}:001`).answer, outcomeAnswer);
+});
+
+test('a verdict confirmation is replayed when sent again, refuses a grounded refusal, takes no verdict that rests on nothing, and never changes a verdict kept', async () => {
+  const door = account();
+  const id = await answered(door);
+  const refused = [{ check: 'outcome-before-after', meets: false, rests_on: 'e2', missing: 'which state it should end up in', graded_by: 'second-judge-test' }];
+  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: refused }, { door }), /checklist\.outcome-before-after: .*which state it should end up in/);
+  assert.equal(door.value(`decision-step:${id}:001`).version, 1, 'a refused confirmation writes nothing');
+  const restsOnNothing = [{ check: 'outcome-before-after', meets: true, rests_on: 'nothing of this answer', graded_by: 'second-judge-test' }];
+  assert.equal((await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: restsOnNothing }, { door })).replayed, true, 'a verdict that rests on nothing is not taken, as a typed one is not');
+  const ungroundedRefusal = [{ check: 'outcome-before-after', meets: false, rests_on: 'e2', missing: 'a spreadsheet of costs', graded_by: 'second-judge-test' }];
+  assert.equal((await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: ungroundedRefusal }, { door })).replayed, true, 'an ungrounded refusal is ignored');
+  const meets = [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }];
+  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: meets }, { door });
+  door.writes.length = 0;
+  assert.equal((await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: meets }, { door })).replayed, true, 'the same confirmation again replays');
+  assert.deepEqual(door.writes, [], 'and writes nothing');
+  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'another-judge' }] }, { door }), /already has a different verdict/, 'a verdict kept is never changed');
+  assert.equal(door.value(`decision-step:${id}:001`).version, 2, 'and no third version appears');
+  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: meets, answer: outcomeAnswer }, { door }), /sent alone/);
+});
+
+test('a verdict confirmation on a step flagged to be asked again takes its verdicts in its turn, clears its flag, and is refused out of turn', async () => {
+  const door = account();
+  const id = await answered(door);
+  const widened = { decision_context: { worth_weighing: true, compare_existing: true }, omission_reasons: {}, evidence_refs: ['e1'] };
+  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: widened, revise: { because: 'A nearby class also runs this spring' } }, { door });
+  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true, verdicts: [] }, { door }), /waiting for its "outcome"/);
+  const meets = [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }];
+  const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: meets }, { door });
+  assert.deepEqual(reply.confirmed, { step_id: 'outcome', version: 2, verdicts_added: ['outcome-before-after'] });
+  assert.equal(reply.question.step_id, 'proof', 'the next question is the one still flagged');
+  const root = door.value(id);
+  assert.equal(root.answered_steps[1].needs_recheck, false);
+  assert.equal(root.answered_steps[2].needs_recheck, true, 'the step after it is still to be asked again');
 });
 
 test('evidence added at any time is kept with when it came in, the same start still opens that decision, and an answer may cite the new evidence', async () => {

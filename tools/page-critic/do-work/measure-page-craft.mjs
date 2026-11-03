@@ -202,6 +202,31 @@ export const pageCraftMeasures = String.raw`(async ({ rules, selectors, freshDay
       const px = Math.round(Math.min(box.left, vw - box.right));
       return px < rule.min_px && box.width < vw - 1 ? { values: { text: words(element).slice(0, 60), px, min_px: rule.min_px }, element } : null;
     }),
+    // A phone zooms the page into a field whose text is under the row's min_px (16px on iOS Safari).
+    input_zoom: rule => all(selectors.text_fields).map(element => {
+      const px = parseFloat(getComputedStyle(element).fontSize);
+      const text = (element.getAttribute('aria-label') || element.getAttribute('placeholder') || element.getAttribute('name') || element.tagName.toLowerCase()).slice(0, 60);
+      return px < rule.min_px ? { values: { text, px: Math.round(px * 10) / 10, min_px: rule.min_px }, element } : null;
+    }),
+    // A :hover style not guarded by a media query the row names as pointer-only (hover: hover, pointer: fine) sticks
+    // after a tap on a touch screen. Read from the page's own style sheets; one a browser will not let the page read
+    // (another origin) is passed over.
+    sticky_hover: rule => {
+      const guarded = new RegExp(rule.hover_media, 'i');
+      const hits = [];
+      const walk = (cssRules, inGuard) => {
+        for (const cssRule of cssRules) {
+          const media = cssRule.conditionText ?? cssRule.media?.mediaText ?? '';
+          if (cssRule.cssRules && !(cssRule.selectorText)) { walk(cssRule.cssRules, inGuard || guarded.test(media)); continue; }
+          if (!cssRule.selectorText || !/:hover\b/.test(cssRule.selectorText) || inGuard) continue;
+          const resting = cssRule.selectorText.split(',').filter(part => /:hover\b/.test(part)).map(part => part.replace(/:hover\b/g, '').trim() || '*');
+          const element = resting.map(selector => { try { return [...document.querySelectorAll(selector)].find(shown); } catch { return null; } }).find(Boolean);
+          if (element) hits.push({ values: { text: cssRule.selectorText.slice(0, 60) }, element });
+        }
+      };
+      for (const sheet of document.styleSheets) { let cssRules; try { cssRules = sheet.cssRules; } catch { continue; } walk(cssRules, guarded.test(sheet.media?.mediaText ?? '')); }
+      return hits;
+    },
     overflow_outside_container: rule => all(selectors.overflowing).filter(element => !element.closest(selectors.overflow_ignored)).map(element => {
       const box = element.getBoundingClientRect();
       const container = element.parentElement.closest(selectors.containers);
