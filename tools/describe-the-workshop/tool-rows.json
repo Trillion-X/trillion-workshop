@@ -1,0 +1,82 @@
+{
+  "kind": "tool-rows",
+  "record_set": "describe-the-workshop-tool-rows",
+  "what_this_is": "The Workshop row for tools/describe-the-workshop: one tool's whole row, from the shared rows the caller holds and the person's own saved row, with the sample rule of where it runs.",
+  "records": [
+    {
+      "id": "package::describe-the-workshop::tool::describe-a-tool",
+      "address": "package::describe-the-workshop::tool::describe-a-tool",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:describe-a-tool",
+        "label": "Describe a tool",
+        "status": "active",
+        "job": "Show me one tool's whole row, so I can see how it is written and how to call it",
+        "description": "Give the tool's id and the rows the Workshop answered (tools:list) as shared. Reads your own saved row of that tool (record type tool, id tool:<tool id>), or takes it as saved. Your saved row, unless deleted, replaces the shared row of the same id. Answers the tool's descriptor, who made it (this account or shared), the sample rule of the place it runs (read-only or dry-run samples on a person's own computer, owed until a computer connects), the sample-run checks of your own runnable tool, and the next call to make: save_tool for your own, run_tool for a shared tool that runs, nothing for a screen. A tool there is nothing of to describe answers an error naming find_tool_for_job. It reads one row and changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tool_id"],
+          "properties": {
+            "tool_id": { "type": "string", "description": "The id of the tool to describe" },
+            "shared": { "type": "array", "items": { "type": "object" }, "description": "The rows the Workshop answered: ai-tool-descriptor rows, and tool-placement and tool-licence-class rows when known" },
+            "saved": { "type": ["object", "null"], "description": "Your saved row of this tool to use instead of reading it; null when you have none" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["tool_id", "made_by", "descriptor", "next_call"],
+          "properties": {
+            "tool_id": { "type": "string" },
+            "made_by": { "type": "string" },
+            "descriptor": { "type": "object" },
+            "sample_rule": { "type": "object" },
+            "samples": { "type": "array" },
+            "next_call": { "type": ["object", "null"] }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "describe-the-workshop", "paths": ["do-work", "read-data"], "at": "/opt/describe-the-workshop" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "workdir": "/opt/describe-the-workshop",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/describe-the-workshop/do-work/describe.mjs", "describeATool"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "tool", "operations": ["records:read"] }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:describe-the-workshop",
+        "result_selector": "$.result",
+        "provenance": { "source": "trillion src/workshop.mjs describeTool (1625-1655) and src/workshop-sample-rules.mjs, moved here; the trillion-rust engine's describe route (GET /work/api/workshop/describe/<id>, src/workshop_describe.rs) deleted when this row took it over" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "tool_id": "tool:sample-screen",
+              "shared": [{ "kind": "ai-tool-descriptor", "id": "tool:sample-screen", "label": "Sample screen", "screen": { "kind": "parts" } }],
+              "saved": null
+            },
+            "output_selector": "$.made_by",
+            "contains": "shared"
+          }
+        ]
+      }
+    }
+  ]
+}
