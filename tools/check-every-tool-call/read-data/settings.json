@@ -1,0 +1,19 @@
+{
+  "what_this_is": "The settings check_switches.py run uses when the session names none (CHECK_LIST_SETTINGS): the door and the key come from the session's environment, CHECK_LIST_DOOR (the person's door, https://<door>/mcp) and CHECK_LIST_KEY (the session's own key), so no repository names anyone's door. Without them every tool call says check list unreachable.",
+  "door": {
+    "url_from": {"env": "CHECK_LIST_DOOR"},
+    "address": "@own-records",
+    "method": "records:list",
+    "key_from": {"env": "CHECK_LIST_KEY"},
+    "page": 20,
+    "timeout_seconds": 10
+  },
+  "types": [{"type": "record:hook-guard", "id_prefix": "record:hook-guard:"}],
+  "field": "on",
+  "off_value": "Off",
+  "detail_fields": ["why_off", "switched_by", "switched_at"],
+  "snapshot": {"file": "check-switches.json", "refresh_seconds": 60},
+  "honour_off": false,
+  "harness": "claude",
+  "scope": "every-repository"
+}

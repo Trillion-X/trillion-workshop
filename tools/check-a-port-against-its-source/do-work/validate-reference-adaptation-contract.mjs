@@ -33,7 +33,9 @@ function words(text) { return new Set(String(text ?? '').replace(/([a-z0-9])([A-
 function redacted(text, redactions) {
   return redactions.reduce((out, one) => (typeof one?.from === 'string' && one.from && typeof one?.to === 'string' ? out.split(one.from).join(one.to) : out), text);
 }
-function named(source) { return `${source.repository}@${String(source.commit).slice(0, 12)}:${source.path}`; }
+function named(source) {
+  return `${source.repository}@${String(source.commit).slice(0, 12)}:${source.path ?? `path ${source.path_multihash}`}`;
+}
 
 function readPngDimensions(path) {
   const bytes = readFileSync(path);
@@ -326,15 +328,16 @@ function checkOldCopy(source, contract, options, errors, deferred) {
     if (!Number.isFinite(recorded)) errors.push('baseline.recorded_at is required to judge old_copy.deleted_by');
     else if (due - recorded > options.oldCopyDaysAtMost * DAY_MS) errors.push(`source ${named(source)}: old_copy.deleted_by is more than ${options.oldCopyDaysAtMost} days after baseline.recorded_at`);
   }
-  const lives = options.readers?.lives?.(source.repository, source.path) ?? null;
+  const path = options.readers?.pathOf?.(source) ?? source.path;
+  const lives = path ? options.readers?.lives?.(source.repository, path) ?? null : null;
   if (lives === null) {
-    deferred.push(`whether ${source.repository}:${source.path} has left its main line is not readable here`);
+    deferred.push(`whether the old copy ${named(source)} has left its main line is not readable here`);
     return;
   }
   if (!lives) return;
   const now = options.now ? Date.parse(options.now) : Date.now();
-  if (now > due) errors.push(`the old copy ${source.repository}:${source.path} still lives after its deleted_by ${old.deleted_by}: two copies of one job`);
-  else if (contract.status === 'VERIFIED') errors.push(`VERIFIED while the old copy ${source.repository}:${source.path} still lives: one copy is part of done`);
+  if (now > due) errors.push(`the old copy ${named(source)} still lives after its deleted_by ${old.deleted_by}: two copies of one job`);
+  else if (contract.status === 'VERIFIED') errors.push(`VERIFIED while the old copy ${named(source)} still lives: one copy is part of done`);
 }
 
 // NO_PRIOR_OWNER: nothing older does this job. The claim carries the search that found nothing (proof.search: the job
@@ -469,12 +472,13 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
   const sourceTexts = [];
   for (const one of sources) {
     if (one?.repository !== undefined || one?.commit !== undefined) {
-      if (!one?.repository || !/^[0-9a-f]{7,64}$/.test(String(one?.commit ?? '')) || !one?.path) {
-        errors.push('a source named by repository needs repository, commit (a commit identity) and path');
+      if (!one?.repository || !/^[0-9a-f]{7,64}$/.test(String(one?.commit ?? '')) || !(one?.path || BLAKE3_MULTIHASH.test(String(one?.path_multihash ?? '')))) {
+        errors.push('a source named by repository needs repository, commit (a commit identity) and path, or path_multihash for a private repository');
         continue;
       }
       const bytes = options.readers?.readSource?.(one) ?? null;
-      if (bytes === null) deferred.push(`source ${named(one)} is not readable here`);
+      if (bytes === null && options.readers?.checkout?.(one.repository)) errors.push(`source ${named(one)} is not in that commit`);
+      else if (bytes === null) deferred.push(`source ${named(one)} is not readable here`);
       else {
         sourceTexts.push(one === source ? redacted(bytes.toString('utf8'), redactions) : bytes.toString('utf8'));
         if (multihash(bytes) !== one.multihash) errors.push(`source multihash drift: ${named(one)}`);

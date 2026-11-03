@@ -11,7 +11,10 @@
 //
 //   gitReaders({ root, repositories?, tree? }) -> {
 //     self                          the repository's name: its main checkout's folder name
-//     readSource(source)            Buffer | null   the bytes of source.path at source.commit
+//     pathOf(source)                string | null   source.path, or the path at source.commit whose BLAKE3 identity is
+//                                                   source.path_multihash (a source in a private repository, named
+//                                                   without printing its path into a public one)
+//     readSource(source)            Buffer | null   the bytes of that path at source.commit
 //     readTarget(path)              Buffer | null   the bytes of a path of `root` in `tree` (a commit, ':' for the staged
 //                                                   index, or undefined for the file on disk)
 //     targetAtCommit(commit, path)  Buffer | null   the bytes of a path of `root` at a commit
@@ -22,6 +25,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const MAX_BUFFER = 1 << 28;
 
@@ -57,13 +61,20 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     return main;
   };
   const show = (folder, spec) => (folder ? git(folder, ['show', spec], { bytes: true }) : null);
+  const pathOf = (source) => {
+    if (source?.path) return source.path;
+    const folder = source?.repository && source?.commit && source?.path_multihash ? checkout(source.repository) : null;
+    const listed = folder ? git(folder, ['ls-tree', '-r', '--name-only', source.commit]) : null;
+    return listed?.split('\n').find((path) => path && makeHashCodeHexFromBytes(Buffer.from(path)) === source.path_multihash) ?? null;
+  };
   return {
     self,
     checkout,
     mainOf,
+    pathOf,
     readSource(source) {
-      if (!source?.repository || !source?.commit || !source?.path) return null;
-      return show(checkout(source.repository), `${source.commit}:${source.path}`);
+      const path = source?.repository && source?.commit ? pathOf(source) : null;
+      return path ? show(checkout(source.repository), `${source.commit}:${path}`) : null;
     },
     readTarget(path) {
       if (tree === undefined) {
