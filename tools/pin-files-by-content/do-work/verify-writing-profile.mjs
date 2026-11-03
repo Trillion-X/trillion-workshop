@@ -38,7 +38,7 @@ const sourceHeading=line=>{
 };
 
 export function verifyWritingProfile(documentBytes, profile, reviews = null) {
-  const invalid = kind => ({schema:'writing-profile-readback-v1', status:'invalid', findings:[{kind}], assurance:'No semantic, factual, speaker or author-voice assurance.'});
+  const invalid = (kind, detail = {}) => ({schema:'writing-profile-readback-v1', status:'invalid', findings:[{kind, ...detail}], assurance:'No semantic, factual, speaker or author-voice assurance.'});
   let text;
   try {text=decode(documentBytes);} catch {return invalid('document_invalid_utf8');}
   if (!text.trim() || !record(profile) || profile.schema!=='writing-profile-v1' || profile.document_role!=='current_prose'
@@ -64,12 +64,20 @@ export function verifyWritingProfile(documentBytes, profile, reviews = null) {
   if (explicitComponentCoverage && (requirementIds.size!==componentCoverageIds.length
       || componentCoverageIds.some(id=>!requirementIds.has(id)))) return invalid('invalid_component_requirements');
   const rules=[...profile.rejections,...profile.superseded_terms];
+  // A rule row is judged field by field so a refusal names the list, the position and the field (never the text).
+  // `authority` is the person's own provenance label for the rule; any non-empty label is a valid row.
+  const ruleFault=(r,ids)=>{
+    if (!record(r)) return 'row';
+    if (!nonempty(r.id) || ids.has(r.id)) return 'id';
+    if (!nonempty(r.text) || normalizeWriting(r.text).length<8 || (r.scope==='heading' && /[\r\n]/u.test(r.text))) return 'text';
+    if (!nonempty(r.authority)) return 'authority';
+    if (r.scope!==undefined && !['document','heading'].includes(r.scope)) return 'scope';
+    return null;
+  };
   const ids=new Set();
-  for (const r of rules) {
-    if (!record(r) || !nonempty(r.id) || ids.has(r.id) || !nonempty(r.text)
-        || normalizeWriting(r.text).length<8 || !['author_confirmed','source_confirmed'].includes(r.authority)
-        || (r.scope!==undefined && !['document','heading'].includes(r.scope))
-        || (r.scope==='heading' && /[\r\n]/u.test(r.text))) return invalid('invalid_rule');
+  for (const [rule_index,r] of rules.entries()) {
+    const field=ruleFault(r,ids);
+    if (field) { const inRejections=rule_index<profile.rejections.length; return invalid('invalid_rule',{list:inRejections?'rejections':'superseded_terms', rule_index:inRejections?rule_index:rule_index-profile.rejections.length, field}); }
     ids.add(r.id);
   }
   if (profile.protected_literals.some(x=>!nonempty(x)) || profile.required_components.some(x=>!nonempty(x))
@@ -79,8 +87,15 @@ export function verifyWritingProfile(documentBytes, profile, reviews = null) {
       || !Array.isArray(sectionOrder) || sectionOrder.some(x=>!nonempty(x)||/[\r\n]/u.test(x)||sourceHeading(x)!==x)
       || new Set(sectionOrder).size!==sectionOrder.length) return invalid('invalid_required_section_order');
   const originals=profile.original_sources??[];
-  if (!Array.isArray(originals) || originals.some(x=>!record(x)||!/^[a-f0-9]{64}$/.test(x.blake3??'')||!['author_text','author_correction','author_declared_protocol'].includes(x.authority))
-      || new Set(originals.map(x=>x.blake3)).size!==originals.length) return invalid('invalid_original_source_allowlist');
+  if (!Array.isArray(originals)) return invalid('invalid_original_source_allowlist',{field:'list'});
+  // `authority` on an allowlist row is the person's provenance label; the gate is the review row: its
+  // `source_authority` must be one of the three author labels and match the allowlist row for that source.
+  const seenSources=new Set();
+  for (const [source_index,x] of originals.entries()) {
+    const field=!record(x)?'row':!/^[a-f0-9]{64}$/.test(x.blake3??'')||seenSources.has(x.blake3)?'blake3':!nonempty(x.authority)?'authority':null;
+    if (field) return invalid('invalid_original_source_allowlist',{source_index,field});
+    seenSources.add(x.blake3);
+  }
   const findings=[];
   const blocks=writingBlocks(text), normalized=normalizeWriting(text), rendered=normalizeWriting(visibleWriting(text));
   const hashes=hashBuffers([documentBytes,...(reviews===null?[]:blocks.map(block=>Buffer.from(block.text)))]);
