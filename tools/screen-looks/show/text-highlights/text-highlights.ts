@@ -15,7 +15,7 @@
 //      clean (its marks removed, its observer disconnected).
 
 import settings from './text-highlights.json' with { type: 'json' }
-import '../../../screen-look/show/text-highlights.css'
+import '../text-highlights.css'
 
 type HighlightRegistry = { set: (name: string, highlight: unknown) => void; delete: (name: string) => void }
 type HighlightConstructor = new (...ranges: Range[]) => unknown

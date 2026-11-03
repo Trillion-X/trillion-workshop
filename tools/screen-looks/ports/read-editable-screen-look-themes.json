@@ -1,0 +1,51 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-READ-EDITABLE-SCREEN-LOOK-THEMES",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "path": "parts/screen-look/read-data/read-editable-screen-look-themes.ts",
+      "multihash": "1f:2620fb1f1d074f54ca4810bb2d160484083ba142a8c948cab9d79d8527b7519a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T23:00:00Z",
+        "deleted_with": "the paired Trillion-X/trillion pull request of the src/workspace part 1 move, once its callers no longer import it"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/screen-looks/read-data/read-editable-screen-look-themes.ts"
+    }
+  ],
+  "preserve": [
+    "a look record is read with each bad value degraded, never failing the look"
+  ],
+  "allowed_deltas": [
+    "none: the file moved byte for byte"
+  ],
+  "banned_substitutions": [
+    "a rewritten copy of the old file"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T23:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:2620fb1f1d074f54ca4810bb2d160484083ba142a8c948cab9d79d8527b7519a",
+    "target_multihash_at_baseline": "1f:2620fb1f1d074f54ca4810bb2d160484083ba142a8c948cab9d79d8527b7519a",
+    "commit": "7dc48a49da0c45b3ed9f0e10fd8e99eae9fa90e8"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/screen-looks/test/colour-ladder.test.ts",
+      "tools/screen-looks/test/tint-look.test.ts"
+    ]
+  }
+}

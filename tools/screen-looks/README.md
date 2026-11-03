@@ -12,6 +12,15 @@ A look is tokens; this resolves them into concrete colours and fonts and one sty
 | `do-work/resolve-a-look.mjs` | `node do-work/resolve-a-look.mjs <request.json> [--css <out.css>]`: reads the look and the face files, prints the values, writes the stylesheet. |
 | `do-work/read-current-worn-look.mjs` | `readCurrentWornLook(input, { door })`: reads the current screen-look and own-theme records plus the day plan and look rules; returns `DeviceLooks` tokens, current blend, ahead changes and next read time. |
 | `read-data/look-over-time.mjs`, `read-data/look-scheme.mjs` | Pure schedule placement/blending and colour/readability behavior used by the account look reader; `.d.mts` files preserve TypeScript signatures. |
+| `read-data/colour-ladder.ts`, `colour-ladder.json` | What a look does with a value it cannot draw: the value as given, the default look's, then a neutral grey; unsafe text takes the default. Never throws. |
+| `read-data/read-editable-screen-look-themes.ts`, `read-data/screen-look-record.ts` | Reading a look record with each bad value degraded, and writing one through `changeScreenLookTokens`, which refuses a bad value in words. |
+| `read-data/tint-look.ts`, `tint-rules.json` | Any-tint looks that stay readable: the picked colour keeps only its hue, the rules pin OKLCH lightness and fit chroma. Same bytes and path as the copy pull request 56 adds. |
+| `read-data/type-register.ts`, `type-registers.json`, `look-tuning.json` | One register id swaps every type role of a look (compact sans, editorial serif); a token the look lacks is skipped. |
+| `show/copy-guard.ts`, `show/copy-guard.json` | Copy guard for theme ink: selected text painted in the rendered theme's own ink is copied without it. |
+| `show/text-highlights/`, `show/text-highlights.css` | Text highlights drawn with the CSS Custom Highlight API: ranges over text nodes registered in `CSS.highlights`, the page's DOM never rewritten. |
+| `ports/*.json` | The port contracts of the files above (SOURCE_FIRST_PORT from Trillion-X/trillion). |
+| `moved-from.json` | Where each moved file came from. |
+| `test/colour-ladder.test.ts`, `test/tint-look.test.ts`, `test/copy-guard.test.mjs` | Their original tests and assertions; only import paths differ. |
 | `tool-rows.json` | `tool:resolve-a-look`, an `on-your-computer` row. |
 | `part.json` | Public palette, stylesheet and look DATA for other tools to import. |
 | `test/resolve-a-look.test.mjs` | A made-up look and made-up face bytes: concrete values, only the named faces, unsafe values refused. |

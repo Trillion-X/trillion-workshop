@@ -17,7 +17,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import settings from './copy-guard.json' with { type: 'json' };
-import { colourOf } from '../../../screen-look/read-data/look-scheme.ts';
+import { colourOf } from '../read-data/look-scheme.ts';
 
 export type Scheme = 'light' | 'dark';
 export interface CopyGuardSettings {
