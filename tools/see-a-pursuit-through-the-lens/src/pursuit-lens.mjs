@@ -1,8 +1,16 @@
-// How an AI sees what a person is pursuing, as DATA in ../methods/pursuit-lens.json: the places to look, the parts
-// to read what it finds by (what goes on inside the person, the game around them, the one move that matters), and
-// rows of what to look for and what to do, each written from a file and section of the founder's own frameworks.
-// Where a row came from (`source`) stays in the repository: the build strips it and nothing here sends it out.
-import lens from '../methods/pursuit-lens.json' with { type: 'json' };
+// How an AI sees what a person is pursuing, as DATA: the places to look, the parts to read what it finds by (what goes
+// on inside the person, the game around them, the one move that matters), and rows of what to look for and what to do.
+// The lens is the person's own rows, handed in by whoever calls this: useLens(lens) once (Trillion's own in-account
+// run hands in the rows it keeps), or each function's `data` (the Workshop row reads them from the person's lists
+// through their records door, do-work/see-a-pursuit-through-the-lens.mjs). Where a row came from (`source`) is never
+// sent out by anything here.
+let lens = null;
+
+/** Hand in the lens ({ opening, parts, closing, rows }) the functions read when they are given none. */
+export function useLens(data) {
+  lens = data;
+  return lens;
+}
 
 // Where a joining interview's answers are kept in the person's own files, so any of their AIs can continue it.
 export const JOINING_INTERVIEW_FILE = '/Pursuits/joining interview.json';

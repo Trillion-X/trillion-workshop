@@ -1,5 +1,1 @@
-{
-  "imported_by": [
-    "Trillion-X/trillion"
-  ]
-}
+{"public": ["src/pursuit-lens.mjs"], "imported_by": ["Trillion-X/trillion"]}
