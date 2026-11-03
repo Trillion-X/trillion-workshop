@@ -1,0 +1,60 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SOCIAL-POSTS-SNIPPETS-FROM-TRILLION-DOOR",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "Every job of old trillion ends as a Workshop tool; a Workshop tool reaches the person's records through the records door."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "save, find, use and remove the person's snippets and keep, read and remove a conversation's summary, giving the moved snippet and thread-summary code its eeaf over the person's own records through their records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/social-posts/read-data/drafts-over-door.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/social-posts/",
+   "why": "This tool itself: snippets.mjs and thread-summaries.mjs are moved byte for byte from trillion src/snippets.mjs and src/thread-summaries.mjs; this file only hands them an eeaf held from the person's snippet and thread-summary records and the thread's ends from the row's input."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "save, find, use and remove the person's snippets through their records door",
+    "keep and read a conversation's summary through the records door",
+    "an eeaf held over the records door, run in passes",
+    "use a snippet with its blanks filled"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "heldEeafOver",
+    "passesOverDoor",
+    "saveASnippet",
+    "keepAThreadSummary"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "886da97848b8ec1b26c3c06938f23557529ea4c8"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/social-posts/test/snippets.test.mjs",
+   "tools/social-posts/test/drafts-over-door.test.mjs"
+  ]
+ }
+}
