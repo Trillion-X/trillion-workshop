@@ -1,0 +1,21 @@
+#!/bin/sh
+# A stand-in for the engine's trillion-local, for tools/start-a-place's tests: it writes each call's words to the file
+# FAKE_TRILLION_CALLS names, one line per call, and answers the two calls the tool makes. `place id CONFIG` prints
+# FAKE_PLACE_ID (a made-up id); `serve CONFIG` copies the config it was given beside the calls file and stays running,
+# or with FAKE_SERVE_FAIL stops at once the way the engine refuses a config, with a stage word.
+[ -n "$FAKE_TRILLION_CALLS" ] || { echo "FAKE_TRILLION_CALLS names no calls file" >&2; exit 2; }
+printf '%s\n' "$*" >> "$FAKE_TRILLION_CALLS"
+if [ "$1" = place ] && [ "$2" = id ] && [ $# -eq 3 ]; then
+  [ -f "$3" ] || { echo "config: the place config is missing" >&2; exit 1; }
+  [ -n "$FAKE_ID_FAIL" ] && { echo "place-key: the place key file is not readable" >&2; exit 1; }
+  echo "$FAKE_PLACE_ID"
+  exit 0
+fi
+if [ "$1" = serve ] && [ $# -eq 2 ]; then
+  cp "$2" "$FAKE_TRILLION_CALLS.serve.json"
+  [ -n "$FAKE_SERVE_FAIL" ] && { echo "the place stopped at stage config: public_origin must be the scheme and host only" >&2; exit 1; }
+  echo "serving"
+  exec sleep 60
+fi
+echo "usage: trillion-local serve PLACE_CONFIG_FILE" >&2
+exit 2
