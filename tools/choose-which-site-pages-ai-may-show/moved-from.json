@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/public-app-ai-app.json",
+      "commit": "ac89260b32e2081d3ae6c59877f1bdb40e41876e",
+      "to": "tools/choose-which-site-pages-ai-may-show/src/public-app-ai-app.json",
+      "source_identity": "1f:93b19dd41ba963e3c19b27a02319b6dfe59a77d3b2106e62e7a97728f4462862",
+      "identity": "1f:93b19dd41ba963e3c19b27a02319b6dfe59a77d3b2106e62e7a97728f4462862"
+    },
+    {
+      "from": "src/public-app-ai-pages.mjs",
+      "commit": "ac89260b32e2081d3ae6c59877f1bdb40e41876e",
+      "to": "tools/choose-which-site-pages-ai-may-show/src/public-app-ai-pages.mjs",
+      "source_identity": "1f:af28e563005807a6abde1ccd517c5b396086fcf634ea838a67ebefaa1133d895",
+      "identity": "1f:b0e442d871022404a7b9e1188192d340dd7f09b198e02404a9f5d491ef5eb0ac"
+    }
+  ]
+}
