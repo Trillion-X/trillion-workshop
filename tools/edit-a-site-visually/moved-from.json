@@ -1,0 +1,64 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/read-data/css-resource-urls.mjs",
+      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
+      "to": "tools/edit-a-site-visually/parts/ui/read-data/css-resource-urls.mjs",
+      "source_identity": "1f:d8b92a407835dee14f1507d89eba7303ea6b63c28198a9cbc745186590e36eef",
+      "identity": "1f:d8b92a407835dee14f1507d89eba7303ea6b63c28198a9cbc745186590e36eef"
+    },
+    {
+      "from": "src/public-app-capabilities.mjs",
+      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
+      "to": "tools/edit-a-site-visually/src/public-app-capabilities.mjs",
+      "source_identity": "1f:78b27eeb743462065ba7bc254278b31073d64b02c5fa941b03d5941e632d9268",
+      "identity": "1f:78b27eeb743462065ba7bc254278b31073d64b02c5fa941b03d5941e632d9268"
+    },
+    {
+      "from": "src/public-app-definition.mjs",
+      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
+      "to": "tools/edit-a-site-visually/src/public-app-definition.mjs",
+      "source_identity": "1f:b8f3dcaaa622cdea5572928c0e2a97d3f8a3ca9ccc21cf156c76abcc0eedce19",
+      "identity": "1f:b8f3dcaaa622cdea5572928c0e2a97d3f8a3ca9ccc21cf156c76abcc0eedce19"
+    },
+    {
+      "from": "src/public-app-editor-model.mjs",
+      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
+      "to": "tools/edit-a-site-visually/src/public-app-editor-model.mjs",
+      "source_identity": "1f:ad757ba4639e936faa4693ec1832927d071c061b3b5194bc7ae5b68f3e30822a",
+      "identity": "1f:2989213d49003a02c24626b7bc8ba20f941aaf8feee847ef376ae2d2943377b3"
+    },
+    {
+      "from": "src/public-app-published-contract.mjs",
+      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
+      "to": "tools/edit-a-site-visually/src/public-app-published-contract.mjs",
+      "source_identity": "1f:fded3e19cb008857afd3926844b609416a04f9f86cada0e54257a61cd86fec2b",
+      "identity": "1f:fded3e19cb008857afd3926844b609416a04f9f86cada0e54257a61cd86fec2b"
+    },
+    {
+      "from": "test/public-app-editor-pages.test.mjs",
+      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
+      "to": "tools/edit-a-site-visually/test/public-app-editor-pages.test.mjs",
+      "source_identity": "1f:06ba515574ce09352177b50b1170e559214d8ab82bed978f4e38e2f847242025",
+      "identity": "1f:06ba515574ce09352177b50b1170e559214d8ab82bed978f4e38e2f847242025"
+    },
+    {
+      "from": "test/public-app-element-addresses.test.mjs",
+      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
+      "to": "tools/edit-a-site-visually/test/public-app-element-addresses.test.mjs",
+      "source_identity": "1f:dc793e33c9d83ffb5b9e4d97a4a08f0bd5ae70bcd7e886a55e9a904b5532715e",
+      "identity": "1f:caa79d9b6a1bd613213fd601b3529fc3860f30f49d757ce67d3c99c7c295bdbf"
+    },
+    {
+      "from": "test/visual-css-export-ownership.test.mjs",
+      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
+      "to": "tools/edit-a-site-visually/test/visual-css-export-ownership.test.mjs",
+      "source_identity": "1f:b4dd186d09385ca6b8d086f39774c54c182cb1bd5001acfd2d742aee9a050e89",
+      "identity": "1f:b4dd186d09385ca6b8d086f39774c54c182cb1bd5001acfd2d742aee9a050e89"
+    }
+  ]
+}

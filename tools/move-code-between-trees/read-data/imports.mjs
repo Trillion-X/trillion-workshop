@@ -37,10 +37,10 @@ export function requestsIn(text) {
     const start = match.index + match[0].lastIndexOf(specifier, match[0].length - 1);
     found.push({ specifier, start, end: start + specifier.length, how, whole: [match.index, match.index + match[0].length] });
   };
-  for (const m of code.matchAll(/(?<![.\w$])(?:import|export)\s+(?:type\s+)?[^'"`;()]*?\bfrom\s*(['"])(?<spec>[^'"\n]+)\1/g)) add(m, 'static');
-  for (const m of code.matchAll(/(?<![.\w$])import\s*(['"])(?<spec>[^'"\n]+)\1/g)) add(m, 'effect');
-  for (const m of code.matchAll(/(?<![.\w$])import\(\s*(['"`])(?<spec>[^'"`$\n]+)\1\s*[,)]/g)) add(m, 'dynamic');
-  for (const m of code.matchAll(/(?<![.\w$])require\(\s*(['"])(?<spec>[^'"\n]+)\1\s*\)/g)) add(m, 'require');
+  for (const m of code.matchAll(/(?<![.\w$@])(?:import|export)\s+(?:type\s+)?[^'"`;()]*?\bfrom\s*(['"])(?<spec>[^'"\n]+)\1/g)) add(m, 'static');
+  for (const m of code.matchAll(/(?<![.\w$@])import\s*(['"])(?<spec>[^'"\n]+)\1/g)) add(m, 'effect');
+  for (const m of code.matchAll(/(?<![.\w$@])import\(\s*(['"`])(?<spec>[^'"`$\n]+)\1\s*[,)]/g)) add(m, 'dynamic');
+  for (const m of code.matchAll(/(?<![.\w$@])require\(\s*(['"])(?<spec>[^'"\n]+)\1\s*\)/g)) add(m, 'require');
   for (const m of code.matchAll(/new\s+URL\(\s*(['"])(?<spec>\.{1,2}\/[^'"\n]+)\1\s*,\s*import\.meta\.url\s*\)/g)) add(m, 'url');
   const seen = new Set();
   return found.filter(item => { const key = `${item.start}`; if (seen.has(key)) return false; seen.add(key); return true; })
