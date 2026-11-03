@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { addDecisionEvidence, answerADecisionQuestion, caseIdFor, endDecisions, makeTheDecision, nextDecisionQuestion, reportADecisionResult, sayWhatWasDone, startADecision } from '../read-data/decisions.mjs';
 import { shareADecision } from '../read-data/share-a-decision.mjs';
-import { joinDecision, readDecision, readStep } from '../read-data/decision-records.mjs';
+import { joinDecision, readDecision, readStep, recordsOf, writeDecision } from '../read-data/decision-records.mjs';
 import { similarDecisions } from '../read-data/similar-decisions.mjs';
 import { methodCatalogue } from '../read-data/method.mjs';
 import { caseView, memoryDoor, plainChecks, plainMethod, today } from './fixtures.mjs';
@@ -1058,4 +1058,75 @@ test('a decision whose laid-apart write the door still refuses as 413 is answere
   assert.equal(answer.decisions[0].reason, settings.words.end_too_large);
   assert.equal(door.value(big).status, 'needs_decision', 'the decision is as it was');
   assert.equal(door.value(small).status, 'ended');
+});
+
+// A made-up old-layout root of the shape measured on a real account: one field, `method_history`, far larger than the
+// door's cap (here about 300 KB, with quotes and characters past ASCII), beside small fields of a few hundred bytes each.
+function oldRootWithLargeField(id) {
+  const method_history = Array.from({ length: 1400 }, (_, n) => ({
+    at: `2026-01-${String(1 + (n % 28)).padStart(2, '0')}T03:04:05.000Z`, from: n % 2 ? 'plain' : 'universal', to: n % 2 ? 'universal' : 'plain',
+    because: `Made-up switch ${n}: "the camp venue" changed — café naïve 🏕️, so the method was weighed again and written out at length.`,
+  }));
+  const input = { source_id: 'chat:old-history', goal: 'Pick the made-up camp venue', options: opened.options, evidence: [{ ref: 'e1', claim: 'A made-up fact about the venue' }] };
+  return {
+    id, source_id: 'chat:old-history', status: 'needs_outcome', created_at: '2026-01-02T03:00:00.000Z',
+    input, original_input: { ...input, note: 'As first given' }, method: plainMethod(), method_history,
+    carried_out: [{ decision_generation: 1, state: 'done', what_happened: 'A made-up receipt', by: 'test-agent', at: '2026-01-03T03:00:00.000Z' }],
+    decision: { option_id: 'raise', reason: 'A made-up reason' },
+  };
+}
+
+test('an old-layout root with a 300 KB field is ended in writes that each fit the cap, and reads back the same', async () => {
+  const door = memoryDoor();
+  const id = 'source:old-history';
+  const root = oldRootWithLargeField(id);
+  const size = Buffer.byteLength(JSON.stringify(root.method_history));
+  assert.ok(size > 280000 && size < 340000, `the field is about 300 KB (${size})`);
+  door.put(id, 'decision', root);
+  const answer = await endDecisions({ decisions: [{ decision_id: id, because: 'No one will carry it on.' }], by: 'test-agent' }, { door });
+  assert.equal(answer.decisions[0].ended, true);
+  assert.equal(answer.decisions[0].previous_status, 'needs_outcome');
+  assert.ok(door.writes.length > 0);
+  assert.ok(door.writes.every(write => write.bytes <= 64 * 1024 && write.carried <= 64 * 1024), 'every write fits the cap, plain and as carried');
+  const kept = door.value(id);
+  assert.deepEqual(kept.fields_in_parts, ['method_history'], 'only the largest field is moved');
+  assert.ok(Buffer.byteLength(JSON.stringify(kept)) <= settings.record_bytes, 'the root fits one record');
+  for (const field of ['id', 'status', 'previous_status', 'ended_at', 'ended_by', 'ended_because', 'created_at', 'source_id', 'method_id', 'method_identity', 'input_identity', 'counts', 'decision']) assert.ok(field in kept, `${field} stays on the root`);
+  const view = caseView(door, id);
+  assert.deepEqual(view.method_history, root.method_history);
+  assert.equal(view.fields_in_parts, undefined);
+  const { original_input: _laidElsewhere, ...rest } = root;
+  for (const [field, value] of Object.entries(rest)) {
+    if (field === 'status') assert.equal(view.status, 'ended');
+    else assert.deepEqual(view[field], value, `${field} reads back the same`);
+  }
+  assert.equal(view.previous_status, 'needs_outcome');
+  const read = await readDecision(door, id);
+  assert.deepEqual(read.method_history, root.method_history, 'readDecision puts the field back');
+  assert.equal(read.fields_in_parts, undefined);
+  // A list that names only some fields still sees the small ones on the root.
+  const listed = [];
+  for await (const row of door.list({ type: 'decision', fields: ['status', 'source_id', 'decision'] })) listed.push(row.value);
+  assert.deepEqual(listed, [{ status: 'ended', source_id: root.source_id, decision: root.decision }]);
+  // Its next change keeps it whole: written again, it still reads back the same.
+  door.writes.length = 0;
+  await writeDecision(door, recordsOf(read), `again:${id}`);
+  assert.ok(door.writes.every(write => write.bytes <= 64 * 1024 && write.carried <= 64 * 1024));
+  assert.deepEqual((await readDecision(door, id)).method_history, root.method_history);
+});
+
+test('a root under the bound is written as before, with no fields in parts', async () => {
+  const door = memoryDoor();
+  const id = 'source:old-small';
+  const root = { ...oldRootWithLargeField(id), method_history: [{ at: '2026-01-02T03:04:05.000Z', from: 'plain', to: 'universal', because: 'A made-up switch' }] };
+  door.put(id, 'decision', root);
+  const answer = await endDecisions({ decisions: [{ decision_id: id, because: 'Done with it.' }], by: 'test-agent' }, { door });
+  assert.equal(answer.decisions[0].ended, true);
+  const kept = door.value(id);
+  assert.equal(kept.fields_in_parts, undefined);
+  assert.equal(kept.root_fields_in_parts, undefined);
+  assert.ok(![...door.records.keys()].some(key => key.includes(':root-fields')), 'no root-field parts are written');
+  const [records] = [recordsOf(await readDecision(door, id))];
+  assert.equal(records[0].value.fields_in_parts, undefined);
+  assert.ok(!records.some(record => record.id.includes(':root-fields')));
 });
