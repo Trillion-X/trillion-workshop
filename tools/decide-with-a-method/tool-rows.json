@@ -2033,7 +2033,7 @@
     "id": "tool:end-a-decision",
     "label": "End decisions no one will carry on",
     "job": "Close decisions that will never be carried on, and keep why",
-    "description": "Sets each named decision's status to ended and keeps the status it had (previous_status), ended_at, ended_by and ended_because, with every other field unchanged and nothing deleted. Each write is conditioned on the value just read: a decision that changed meanwhile answers conflict. A decision in outcome_verified, correction_needed or verification is not ended. 1 to 256 decisions per call.",
+    "description": "Sets each named decision's status to ended and keeps the status it had (previous_status), ended_at, ended_by and ended_because, with every other field unchanged and nothing deleted. Each write is conditioned on the value just read: a decision that changed meanwhile answers conflict. A decision whose root is too large to send with its condition in one 64 KiB message is ended through its record layout instead, checked by a second read just before the write, and answers laid_apart. A decision in outcome_verified, correction_needed or verification is not ended. 1 to 256 decisions per call.",
     "status": "active",
     "result_selector": "$.result",
     "input_schema": {

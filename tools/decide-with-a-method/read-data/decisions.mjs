@@ -652,24 +652,51 @@ export async function sayWhatWasDone(input, { door }) {
 
 // A decision no one will carry on is ended, never deleted: its status becomes `ending.status` and the status it had,
 // when, who and why stay on the record beside every field it already had. Each write is conditioned on the value just
-// read (`expected`), so a decision that changed in between is left as it is and answered as a conflict.
+// read (`expected`), so a decision that changed in between is left as it is and answered as a conflict. A root too large
+// to send beside its own `expected` in one door message is ended through the decision's layout (endLaidApart).
 const CHANGED = 'original_command_conflict';
-const contentKey = (prefix, list) => `${prefix}:${makeHashCodeHexFromBytes(new TextEncoder().encode(canonical(list)))}`;
-async function writeEnded(door, batch, answers) {
+const TOO_LARGE = 'http_413';
+const utf8 = new TextEncoder();
+const bytesOf = value => utf8.encode(JSON.stringify(value)).length;
+const contentKey = (prefix, list) => `${prefix}:${makeHashCodeHexFromBytes(utf8.encode(canonical(list)))}`;
+const ENDED_FIELDS = ['status', 'previous_status', 'ended_at', 'ended_by', 'ended_because'];
+
+// The engine's `expected` must carry the whole old root, and a root this large (an old-layout root with its lists inline
+// can be 70 KB) cannot fit beside itself in one 64 KiB message. So this path ends the decision the way sayWhatWasDone
+// keeps a change: read it with its lists, set the ending fields, and lay it apart so every write fits, its root last. It
+// checks for a change by reading the raw root a second time just before the write; the window between that read and
+// the write is not covered.
+async function endLaidApart(door, { id, root, value }, answers) {
+  const record = await readDecision(door, id);
+  if (!record) { answers.set(id, { decision_id: id, ended: false, reason: WORDS.not_found }); return; }
+  for (const field of ENDED_FIELDS) record[field] = value[field];
+  const again = await door.read('decision', id);
+  if (canonical(again) !== canonical(root)) {
+    answers.set(id, { decision_id: id, ended: false, conflict: true, reason: WORDS.end_changed });
+    return;
+  }
+  await writeDecision(door, recordsOf(record), `end-a-decision:${id}`);
+  answers.set(id, { decision_id: id, ended: true, previous_status: value.previous_status, ended_at: value.ended_at, laid_apart: true });
+}
+
+async function writeEnded(door, batch, answers, roots) {
   try {
     await door.write(batch, { key: contentKey('end-a-decision', batch) });
     for (const { id, value } of batch) answers.set(id, { decision_id: id, ended: true, previous_status: value.previous_status, ended_at: value.ended_at });
   } catch (error) {
-    if (error?.code !== CHANGED) throw error;
-    // A refused write changed nothing; each of its decisions is tried alone, so one that changed holds back only itself.
-    if (batch.length > 1) for (const record of batch) await writeEnded(door, [record], answers);
+    if (error?.code !== CHANGED && error?.code !== TOO_LARGE) throw error;
+    // A refused write changed nothing; each of its decisions is tried alone, so one that changed, or one too large for
+    // the door with its `expected`, holds back only itself.
+    if (batch.length > 1) for (const record of batch) await writeEnded(door, [record], answers, roots);
+    else if (error.code === TOO_LARGE) await endLaidApart(door, { id: batch[0].id, root: roots.get(batch[0].id), value: batch[0].value }, answers);
     else answers.set(batch[0].id, { decision_id: batch[0].id, ended: false, conflict: true, reason: WORDS.end_changed });
   }
 }
 
 /** tool:end-a-decision. input { decisions: [{ decision_id, because }] (1 to ending.most, each id once), by }: answers
  * { ended, not_ended, decisions: [{ decision_id, ended, ... }] } in the order asked. A decision already ended answers
- * ended with already; one whose status is in ending.keeps_open, or that is not there, is not ended. */
+ * ended with already; one whose status is in ending.keeps_open, or that is not there, is not ended. One whose conditioned
+ * write is over `write_bytes` is ended through its layout and answers laid_apart. */
 export async function endDecisions(input, { door }) {
   const { ending } = settings;
   const asked = input?.decisions;
@@ -679,7 +706,9 @@ export async function endDecisions(input, { door }) {
   const at = new Date().toISOString();
   const by = String(input.by).slice(0, settings.revision.by_max_chars);
   const answers = new Map();
+  const roots = new Map();
   const records = [];
+  const large = [];
   for (const { decision_id: id, because } of asked) {
     const root = await door.read('decision', id);
     if (!root) answers.set(id, { decision_id: id, ended: false, reason: WORDS.not_found });
@@ -687,10 +716,14 @@ export async function endDecisions(input, { door }) {
     else if (ending.keeps_open.includes(root.status)) answers.set(id, { decision_id: id, ended: false, status: root.status, reason: say('end_kept_open', { status: root.status }) });
     else {
       const value = { ...root, status: ending.status, previous_status: root.status ?? null, ended_at: at, ended_by: by, ended_because: String(because).slice(0, ending.because_max_chars) };
-      records.push({ id, type: 'decision', value, expected: { type: 'decision', value: root } });
+      const record = { id, type: 'decision', value, expected: { type: 'decision', value: root } };
+      roots.set(id, root);
+      if (bytesOf({ records: [record] }) <= settings.write_bytes) records.push(record);
+      else large.push({ id, root, value });
     }
   }
-  for (const batch of writeBatches(records, writeBounds)) await writeEnded(door, batch, answers);
+  for (const batch of writeBatches(records, writeBounds)) await writeEnded(door, batch, answers, roots);
+  for (const item of large) await endLaidApart(door, item, answers);
   const decisions = asked.map(({ decision_id: id }) => answers.get(id));
   const ended = decisions.filter(item => item.ended).length;
   return { ended, not_ended: decisions.length - ended, decisions };
