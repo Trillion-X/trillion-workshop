@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { addDecisionEvidence, answerADecisionQuestion, caseIdFor, makeTheDecision, nextDecisionQuestion, reportADecisionResult, sayWhatWasDone, startADecision } from '../read-data/decisions.mjs';
+import { addDecisionEvidence, answerADecisionQuestion, caseIdFor, endDecisions, makeTheDecision, nextDecisionQuestion, reportADecisionResult, sayWhatWasDone, startADecision } from '../read-data/decisions.mjs';
 import { shareADecision } from '../read-data/share-a-decision.mjs';
 import { readStep } from '../read-data/decision-records.mjs';
 import { similarDecisions } from '../read-data/similar-decisions.mjs';
@@ -272,14 +272,15 @@ test('a decision kept whole is laid apart at its next change, its calls kept as 
 const decisionKinds = ['decision', 'decision-step', 'decision-call', ...Object.values(settings.records.laid_apart).map(list => list.type), settings.records.method, settings.records.part.type];
 
 test('the tool rows reach only the decision records, the person\'s pursuits and their method lists', () => {
-  const tools = ['tool:start-a-decision', 'tool:next-decision-question', 'tool:answer-a-decision-question', 'tool:add-decision-evidence', 'tool:make-the-decision', 'tool:report-a-decision-result', 'tool:say-what-was-done'];
+  const tools = ['tool:start-a-decision', 'tool:next-decision-question', 'tool:answer-a-decision-question', 'tool:add-decision-evidence', 'tool:make-the-decision', 'tool:report-a-decision-result', 'tool:say-what-was-done', 'tool:end-a-decision'];
   for (const id of tools) {
     const row = rows.find(each => each.id === id);
     assert.ok(row, `${id} has a row`);
     const rights = row.invoke.records.rights;
     for (const right of rights) assert.ok([...decisionKinds, 'pursuit', 'record:method', 'record:method-check'].includes(right.kind), `${id} reaches ${right.kind}`);
-    for (const kind of decisionKinds.filter(each => each !== 'decision-call')) assert.ok(rights.some(right => right.kind === kind), `${id} reaches ${kind}, where a decision keeps its parts`);
-    if (id === 'tool:add-decision-evidence') assert.ok(!rights.some(right => right.kind.startsWith('record:')), 'adding evidence reads no method rows');
+    // Ending a decision changes its root alone, so it reaches no other part of a decision.
+    if (id !== 'tool:end-a-decision') for (const kind of decisionKinds.filter(each => each !== 'decision-call')) assert.ok(rights.some(right => right.kind === kind), `${id} reaches ${kind}, where a decision keeps its parts`);
+    if (['tool:add-decision-evidence', 'tool:end-a-decision'].includes(id)) assert.ok(!rights.some(right => right.kind.startsWith('record:')), 'adding evidence reads no method rows');
     else for (const kind of ['record:method', 'record:method-check']) assert.deepEqual(rights.find(right => right.kind === kind)?.operations, ['records:list'], `${id} only lists ${kind} rows`);
     assert.ok(!rights.some(right => right.kind === 'pursuit' && right.operations.includes('records:write')), `${id} never writes a pursuit`);
   }
@@ -800,4 +801,86 @@ test('a root written while options were laid apart reads them back and folds the
   assert.equal(folded.counts.options, undefined);
   assert.equal(door.value(`decision-option:${id}:000`), null, 'and their records are removed');
   assert.equal((await startADecision(opened, { door })).case_id, id, 'the same start is still that decision');
+});
+
+test('ending decisions keeps every field they had, adds what they were, when, who and why, and deletes nothing', async () => {
+  const door = memoryDoor();
+  const a = 'source:camp-a', b = 'source:camp-b';
+  const first = { id: a, status: 'needs_outcome', goal: 'Pick a made-up venue', decision: { option_id: 'venue-1', reason: 'It was closer.' }, carried_out: [{ state: 'done', what_happened: 'Booked it.' }], answered_steps: [{ step_id: 'scope' }] };
+  const second = { id: b, status: 'invalid_source', goal: 'A made-up goal' };
+  door.put(a, 'decision', first);
+  door.put(b, 'decision', second);
+  const count = door.records.size;
+  const answer = await endDecisions({ decisions: [{ decision_id: a, because: 'No one will carry it on.' }, { decision_id: b, because: 'Its source was never valid.' }], by: 'test-agent' }, { door });
+  assert.equal(answer.ended, 2);
+  assert.equal(answer.not_ended, 0);
+  for (const [old, because] of [[first, 'No one will carry it on.'], [second, 'Its source was never valid.']]) {
+    const now = door.value(old.id);
+    assert.equal(now.status, 'ended');
+    assert.equal(now.previous_status, old.status);
+    assert.equal(now.ended_by, 'test-agent');
+    assert.equal(now.ended_because, because);
+    assert.ok(!Number.isNaN(Date.parse(now.ended_at)), 'ended_at is a time');
+    for (const [name, value] of Object.entries(old)) if (name !== 'status') assert.deepEqual(now[name], value, `${name} is kept`);
+    assert.deepEqual(Object.keys(now).sort(), [...Object.keys(old), 'previous_status', 'ended_at', 'ended_by', 'ended_because'].sort());
+  }
+  assert.equal(door.writes.length, 1, 'one write');
+  assert.equal(door.records.size, count, 'nothing deleted');
+  const again = await endDecisions({ decisions: [{ decision_id: a, because: 'Again.' }, { decision_id: b, because: 'Again.' }], by: 'test-agent' }, { door });
+  assert.deepEqual(again.decisions.map(item => item.already), [true, true]);
+  assert.equal(again.ended, 2);
+  assert.equal(door.writes.length, 1, 'ending again writes nothing');
+});
+
+test('a decision with a checked result or a correction to keep is never ended', async () => {
+  const door = memoryDoor();
+  const statuses = settings.ending.keeps_open;
+  assert.deepEqual(statuses, ['outcome_verified', 'correction_needed', 'verification']);
+  const kept = statuses.map((status, n) => ({ id: `source:camp-${n}`, status, goal: 'A made-up goal' }));
+  for (const value of kept) door.put(value.id, 'decision', value);
+  const answer = await endDecisions({ decisions: kept.map(value => ({ decision_id: value.id, because: 'Tidying.' })), by: 'test-agent' }, { door });
+  assert.equal(answer.ended, 0);
+  assert.equal(answer.not_ended, 3);
+  for (const [n, item] of answer.decisions.entries()) {
+    assert.equal(item.ended, false);
+    assert.equal(item.status, statuses[n]);
+    assert.deepEqual(door.value(kept[n].id), kept[n], 'unchanged');
+  }
+  assert.equal(door.writes.length, 0);
+});
+
+test('a decision that changed after it was read is not ended, the others are, and a missing one is not there', async () => {
+  const door = memoryDoor();
+  door.put('source:camp-a', 'decision', { status: 'needs_outcome', goal: 'A made-up goal' });
+  door.put('source:camp-b', 'decision', { status: 'needs_outcome', goal: 'Another made-up goal' });
+  const read = door.read.bind(door);
+  door.read = async (type, id) => {
+    const value = await read(type, id);
+    if (id === 'source:camp-b') door.put(id, 'decision', { status: 'decided', goal: 'Changed by another writer' });
+    return value;
+  };
+  const answer = await endDecisions({ decisions: [{ decision_id: 'source:camp-a', because: 'Done with it.' }, { decision_id: 'source:camp-b', because: 'Done with it.' }, { decision_id: 'source:camp-missing', because: 'Done with it.' }], by: 'test-agent' }, { door });
+  assert.equal(answer.decisions[0].ended, true);
+  assert.deepEqual({ ended: answer.decisions[1].ended, conflict: answer.decisions[1].conflict }, { ended: false, conflict: true });
+  assert.equal(answer.decisions[2].ended, false);
+  assert.equal(answer.decisions[2].reason, 'No decision has that id.');
+  assert.equal(answer.ended, 1);
+  assert.equal(answer.not_ended, 2);
+  assert.equal(door.value('source:camp-a').status, 'ended');
+  assert.deepEqual(door.value('source:camp-b'), { status: 'decided', goal: 'Changed by another writer' }, 'the other writer\'s value is kept');
+});
+
+test('ending refuses a call that is not 1 to 256 decisions, each named once with a because, by someone', async () => {
+  const door = memoryDoor();
+  door.put('source:camp-a', 'decision', { status: 'needs_outcome' });
+  const one = { decision_id: 'source:camp-a', because: 'Done with it.' };
+  const bad = [
+    { decisions: Array.from({ length: 257 }, (_, n) => ({ decision_id: `source:camp-${n}`, because: 'Done.' })), by: 'test-agent' },
+    { decisions: [], by: 'test-agent' },
+    { decisions: [{ decision_id: 'source:camp-a' }], by: 'test-agent' },
+    { decisions: [one, one], by: 'test-agent' },
+    { decisions: [one] },
+  ];
+  for (const input of bad) await assert.rejects(endDecisions(input, { door }), /Name 1 to 256 decisions/);
+  assert.equal(door.writes.length, 0);
 });
