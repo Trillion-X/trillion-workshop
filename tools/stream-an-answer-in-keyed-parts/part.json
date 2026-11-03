@@ -1,5 +1,1 @@
-{
-  "imported_by": [
-    "Trillion-X/trillion"
-  ]
-}
+{"public": ["do-work/stream-an-answer-in-keyed-parts.mjs", "src/keyed-parts.mjs"]}
