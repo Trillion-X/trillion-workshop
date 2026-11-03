@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:dcee23f3a9bf8f3ce88b901cb48b5ce37f45c03057a06f70827262b8fb305488"
+  "blake3": "1f:fa5a93c4171edead402c9e3a123b0e03a236c8e986119774987bd977181d48da"
  },
  "fields": [
   {
@@ -6891,6 +6891,21 @@
    }
   },
   {
+   "id": "tool:say-how-this-device-stands",
+   "values": {
+    "title": "Say how this device stands",
+    "job": "Keep how this device of mine stands: caught up, offline or still holding changes",
+    "description": "Keeps one device's report in your device rows (setting:catch_up_devices): device_id (the id the device keeps for itself), state, waiting (the changes it still holds), at (when its writes last reached your store), title, kind and copy_id (the copy of your records it keeps). The row is written only when what you would see changed, or when its last catch-up moved by more than an hour; at most 40 devices are kept, newest first. One write, only while the rows are still what was read: rows changed meanwhile answer conflict and nothing is written.",
+    "status": "active",
+    "maker": "maker:keep-copies-in-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-copies-in-step"
+   }
+  },
+  {
    "id": "tool:say-lines-in-a-candidate-voice-model",
    "values": {
     "title": "Say some lines in a voice model I am trying out, cloned from my reference recording (runs on your Mac)",
@@ -7199,6 +7214,21 @@
      "placement:small-container"
     ],
     "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:see-if-my-copies-are-in-step",
+   "values": {
+    "title": "See if my copies are in step",
+    "job": "Show me whether every copy of my things is in step, and which records two of my devices changed apart",
+    "description": "Reads your device rows (setting:catch_up_devices) and every record two copies changed apart (kept-apart records) of the kind you name as thing_type, and answers devices (each device's state, waiting changes and when it last caught up; a copy of your records you send in positions is shown once, as the device that named it or as a copy of its own) and versions (each record kept apart: the record as it is now first, then one side per other version, with the words of its keep button). other_kinds names the kinds of other records kept apart, to ask about next. It reads and changes nothing.",
+    "status": "active",
+    "maker": "maker:keep-copies-in-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-copies-in-step"
    }
   },
   {
@@ -7793,6 +7823,21 @@
      "placement:small-container"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:settle-two-versions",
+   "values": {
+    "title": "Settle two versions",
+    "job": "Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
+    "description": "Writes what you chose for one record kept apart (id, from see-if-my-copies-are-in-step): keep one (side, the id of the version to keep), both (each other version is kept as a record of its own, named after it with -kept- and a number that no record holds yet), or merged (value, the merged record). What you chose is written first and the kept versions are removed in the same write, so every copy takes it like any change. thing_type is the kind of the record. Every write stands only on what was read: a record changed meanwhile answers conflict and nothing is written.",
+    "status": "active",
+    "maker": "maker:keep-copies-in-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-copies-in-step"
    }
   },
   {
