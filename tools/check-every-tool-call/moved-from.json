@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here from the hook dispatcher on the person's computer, a private repository: each names its source commit, the BLAKE3 identity of its source path (from_path_identity, so the path itself is not published), of its source bytes and of its bytes as first committed here (the same bytes). check_switches.py then gained the run verb and a door named by the environment (ports/check-switches.json); the dispatcher there imports these copies.",
+  "source": "ai-command-center",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from_path_identity": "1f:5154217ac46e949bcbc25b43fb2e1fa255c48242a83bbd59c896a33d0adfe585",
+      "commit": "81151798b4c874ff1dd475b1abc850d1808beb38",
+      "to": "tools/check-every-tool-call/do-work/check_switches.py",
+      "source_identity": "1f:b0292f75dbf66af953e6aff4cdbebf2c10764e55e447268fcdf950b647fb01fd",
+      "identity": "1f:b0292f75dbf66af953e6aff4cdbebf2c10764e55e447268fcdf950b647fb01fd"
+    },
+    {
+      "from_path_identity": "1f:a547a74c60e4db2b87f53d0d3b7c1fc5db928bcc97860db9aaf78c236bc068ca",
+      "commit": "81151798b4c874ff1dd475b1abc850d1808beb38",
+      "to": "tools/check-every-tool-call/do-work/guard_rows.py",
+      "source_identity": "1f:b33686af6395ffed6bf5d4a84f8b07085d60eb8fcdbb556af0b95cfebaadccee",
+      "identity": "1f:b33686af6395ffed6bf5d4a84f8b07085d60eb8fcdbb556af0b95cfebaadccee"
+    }
+  ]
+}
