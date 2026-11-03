@@ -5,7 +5,8 @@
 // (src/engine.mjs) over the person's `decision` records, read through the records door the run was handed.
 //
 // A decision is weighed on its goal and method alone, read from the newest decisions' own fields (`input` and
-// `method_id`, never their method snapshot, answers or calls), and only the few kept are read whole. A decision whose
+// `method_id`, never their method snapshot, answers or calls), and only the few kept are read with their options,
+// candidates and reports (records of their own beside the root, ./decision-records.mjs). A decision whose
 // root predates method_id is weighed as the default method until its next change writes it. The look back is bounded, never every decision.
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -15,6 +16,7 @@
 //   3. Every weight and bound is read from read-data/decide-with-a-method.json, none is written here.
 import { readFileSync } from 'node:fs';
 import { decisionStatus } from './decision-outcome.mjs';
+import { laidTogether } from './decision-records.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
 const { similar, precedence, words: WORDS } = settings;
@@ -66,8 +68,10 @@ export async function similarDecisions({ decision_id: id, limit } = {}, { door }
   }
   const kept = [];
   for (const { id: keptId } of closest({ ...record, id }, goals, most)) {
-    const other = await door.read('decision', keptId);
-    if (other) kept.push(broughtBack({ ...other, id: keptId }));
+    const root = await door.read('decision', keptId);
+    if (!root) continue;
+    const { record: other } = await laidTogether(door, keptId, root, ['options', 'candidates', 'reports']);
+    kept.push(broughtBack({ ...other, id: keptId }));
   }
   return { similar_decisions: kept };
 }

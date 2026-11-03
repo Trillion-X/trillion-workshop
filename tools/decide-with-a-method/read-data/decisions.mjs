@@ -2,15 +2,16 @@
 //
 // Decisions a person's AI makes with a method, as Workshop tools over the person's own records. Ported from the old
 // app's DecisionEngine (src/engine.mjs: admit, guide, decideGuided, decide, reportResult, recordCarriedOut) and the
-// record layout of its decision store (src/decision-store.mjs): a decision is one root record of type `decision`
-// holding its method snapshot and a running summary of its answered steps (`answered_steps`, each { step_id,
-// answered_at, checks, graded, graded_by, version, needs_recheck }: how many checks the step handed its judge, how many
-// verdicts came back and who graded them, which version of the answer is current, and whether a revision of an earlier
-// step has made it stand to be asked again); each answered step is a record of its own (`decision-step:<id>:<nnn>`)
-// holding the current answer, the checks it was asked and the verdicts taken. A superseded version of a step is kept
-// beside it (`decision-step:<id>:<nnn>:v<vvv>`), so a revision never overwrites what was answered.
-// Answering one step reads the decision's own fields, its scope answer and the step it repeats, never every earlier
-// answer. The Decisions screen reads these same records.
+// record layout of its decision store (src/decision-store.mjs): a decision is one root record of type `decision` and
+// records of its own beside it, laid out by ./decision-records.mjs so a decision of any size fits under the door's write
+// cap: the root holds only fields each set by one call and counts and pointers; each evidence row, each answered step's
+// summary (`decision-answered-step`, { step_id, answered_at, checks, graded, graded_by, version, needs_recheck }), each
+// answered step whole (`decision-step:<id>:<nnn>`: the current answer, the checks it was asked and the verdicts taken),
+// each superseded version of a step (`decision-step:<id>:<nnn>:v<vvv>`, so a revision never overwrites what was
+// answered), each option, report, receipt, earlier decision and cited pursuit is a record of its own linked to the
+// decision's id, and the method snapshot is kept once by its content identity. Answering one step reads the decision's
+// own fields, its evidence and summaries, its scope answer and the step it repeats, never every earlier answer whole.
+// The Decisions screen reads these same records.
 //
 // The methods are the person's: rows of their Methods list (one per method) and of their Method checks list (one per
 // check, naming its step and method), row types in `records` of read-data/decide-with-a-method.json, so they see and
@@ -32,47 +33,21 @@ import { AnswerProblems, judgedProblems, methodCatalogue, refusalWords } from '.
 import { takeCallerVerdicts } from './verdicts.mjs';
 import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCurrent } from './decision-outcome.mjs';
 import { similarDecisions } from './similar-decisions.mjs';
-import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { canonical, inputIdentity, laidTogether, readDecision, readStep, recordsOf, versionKey, writeDecision } from './decision-records.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
 const { records: NAMES, words: WORDS, precedence, candidates: CANDIDATES, revision: REVISION, evidence: EVIDENCE, history: HISTORY } = settings;
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
-// Same content in any key order is the same request, so a retried call replays instead of failing.
-export const canonical = value => JSON.stringify(value, (key, item) => object(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b))) : item);
+export { canonical };
 const same = (a, b) => canonical(a) === canonical(b);
 // What Trillion says, filled from the decision; a filled value loses its trailing full stop, as the old words did.
 export const say = (name, parts = {}) => WORDS[name].replace(/\{(\w+)\}/g, (_, key) => String(parts[key] ?? '').trim().replace(/[.\s]+$/, ''));
 export const refuse = (name, parts) => { throw new Error(say(name, parts)); };
 
 export const caseIdFor = sourceId => `${NAMES.case_prefix}${Buffer.from(sourceId).toString('base64url')}`;
-const stepKey = (id, n) => `${NAMES.step}${id}:${String(n).padStart(NAMES.step_digits, '0')}`;
-// A superseded version of a step, kept beside the step: its key, then the version (`:v001`, `:v002`, ...).
-const versionKey = (id, n, version) => `${stepKey(id, n)}${NAMES.version}${String(version).padStart(NAMES.version_digits, '0')}`;
-const callKey = (id, n) => `${NAMES.call}${id}:${String(n).padStart(NAMES.call_digits, '0')}`;
-// A logged call keeps what it was, never the payload it carried (the old store kept those apart and bounded).
-const bareCall = call => (object(call) ? Object.fromEntries(Object.entries(call).filter(([field]) => !['submission', 'problems'].includes(field))) : call);
-// A step's checks are kept as { checks } and its verdicts as { given } (a store keeps objects, not lists, once);
-// callers read and write the lists.
-const PACKED = { checklist: 'checks', verdicts: 'given' };
-const packStep = entry => (object(entry) ? Object.fromEntries(Object.entries(entry).map(([field, item]) => [field, PACKED[field] && Array.isArray(item) ? { [PACKED[field]]: item } : item])) : entry);
-const unpackStep = entry => (object(entry) ? Object.fromEntries(Object.entries(entry).map(([field, item]) => [field, PACKED[field] && object(item) && Array.isArray(item[PACKED[field]]) ? item[PACKED[field]] : item])) : entry);
-// Whether a step needs a recheck is kept on the root's summary only, so flagging later steps never rewrites their records.
-const FLAGS = ['needs_recheck', 'recheck_of', 'rechecked_at'];
-const stepRecordOf = entry => Object.fromEntries(Object.entries(entry).filter(([field]) => !FLAGS.includes(field)));
-// A step read whole carries its verdicts; a step read as its stub carries the counts already made from them.
-const gradingOf = entry => (Array.isArray(entry.verdicts)
-  ? { checks: entry.judged_checks ?? entry.verdicts.length, graded: entry.verdicts.length, graded_by: [...new Set(entry.verdicts.map(verdict => verdict.graded_by))].join(', ') }
-  : Object.fromEntries(['checks', 'graded', 'graded_by'].filter(field => entry[field] !== undefined).map(field => [field, entry[field]])));
-// Which version is current and whether it stands to be asked again. A step answered before versions existed is version 1.
-const flagsOf = entry => ({
-  version: entry.version ?? 1, needs_recheck: entry.needs_recheck === true,
-  ...(entry.recheck_of ? { recheck_of: entry.recheck_of } : {}), ...(entry.rechecked_at ? { rechecked_at: entry.rechecked_at } : {}),
-});
-const stubOf = entry => ({ step_id: entry.step_id, answered_at: entry.answered_at, ...gradingOf(entry), ...flagsOf(entry) });
-const lostStep = stub => ({ step_id: stub?.step_id ?? null, answer: {}, answered_at: stub?.answered_at ?? null, lost: true });
 
 // Every row of one of the person's lists, in row id order, as its value; `where` keeps only the rows whose fields
 // equal it, filtered by the door so the rows a call does not use never cross it.
@@ -99,55 +74,6 @@ async function catalogueAt(door, methods, record, step = undefined) {
   return catalogue(methods, checks);
 }
 
-// A decision kept apart (its root names its answered steps) or kept whole (its root holds its guidance itself).
-const keptWhole = root => Array.isArray(root.guidance) && !Array.isArray(root.answered_steps);
-
-/** The decision with its scope answer whole and every later step as its summary; `steps` names others to read whole. */
-async function readDecision(door, id, steps = []) {
-  const root = await door.read('decision', id);
-  if (!root) return null;
-  if (keptWhole(root)) return { ...root, id, whole: true };
-  const stubs = Array.isArray(root.answered_steps) ? root.answered_steps : [];
-  const wanted = new Set([0, ...stubs.flatMap((stub, n) => (steps.includes(stub.step_id) ? [n] : []))]);
-  const guidance = [];
-  for (const [n, stub] of stubs.entries()) {
-    if (wanted.has(n)) {
-      const whole = unpackStep(await door.read('decision-step', stepKey(id, n))) ?? lostStep(stub);
-      guidance.push({ ...whole, ...flagsOf(stub) });
-    } else guidance.push({ ...stub, ...flagsOf(stub) });
-  }
-  const { answered_steps: _stubs, ...own } = root;
-  return { ...own, id, guidance };
-}
-
-/**
- * The records one write keeps: the root with its running summary, the steps at `changed` (indices into the guidance),
- * and the superseded versions `archived` ({ key, entry }). A decision kept whole is laid apart in this write: all its
- * steps and its calls become records of their own.
- */
-function recordsOf(record, changed = [], archived = []) {
-  const { guidance = [], calls, whole, id, ...own } = record;
-  // The method's id beside its snapshot, so a list that weighs decisions by method reads one short field.
-  const root = { ...own, id, ...(own.method?.id ? { method_id: own.method.id } : {}), answered_steps: guidance.map(stubOf), call_count: record.call_count ?? (Array.isArray(calls) ? calls.length : 0) };
-  const steps = whole ? guidance.map((_, n) => n) : changed;
-  return [
-    { id, type: 'decision', value: root },
-    ...steps.map(n => ({ id: stepKey(id, n), type: 'decision-step', value: packStep(stepRecordOf(guidance[n])) })),
-    ...archived.map(({ key, entry }) => ({ id: key, type: 'decision-step', value: packStep(stepRecordOf(entry)) })),
-    ...(whole && Array.isArray(calls) ? calls.map((call, n) => ({ id: callKey(id, n), type: 'decision-call', value: bareCall(call) })) : []),
-  ];
-}
-
-// One write when it fits one door message (`writes` records, `write_bytes` bytes); otherwise the steps and calls first
-// and the root last, so a root never names a step that is not there yet. Each part keeps its own request key, so a write
-// sent again answers the receipt it already saved.
-const writeBounds = { rows: settings.writes, bytes: settings.write_bytes };
-async function writeDecision(door, list, key) {
-  if (writeBatches(list, writeBounds).length === 1) return door.write(list, { key });
-  const [root, ...parts] = list;
-  for (const [at, batch] of writeBatches(parts, writeBounds).entries()) await door.write(batch, { key: `${key}:part:${at}` });
-  return door.write([root], { key });
-}
 /** A decision kept again after a change to its own fields (its answered steps unchanged), under request key `key`. */
 export const keepDecision = (door, record, key) => writeDecision(door, recordsOf(record), key);
 
@@ -283,11 +209,11 @@ export async function startADecision(input, { door }) {
   const { id, method } = validatedCase(input, catalogue(methods));
   const current = await readDecision(door, id);
   if (current) {
-    if (canonical(current.original_input ?? current.input) !== canonical(input)) refuse('source_changed', { source_id: input.source_id, case_id: id });
+    if ((current.input_identity ?? inputIdentity(current.original_input ?? current.input)) !== inputIdentity(input)) refuse('source_changed', { source_id: input.source_id, case_id: id });
     return guideReply(door, await catalogueAt(door, methods, current), current);
   }
   const record = {
-    id, source_id: input.source_id, input, method, scratchpad: [], status: 'needs_decision', decision: null, actions: [], checks: [],
+    id, source_id: input.source_id, input, input_identity: inputIdentity(input), method, scratchpad: [], status: 'needs_decision', decision: null, actions: [], checks: [],
     pursuits_known: (await currentPursuits(door, 0)).length > 0, created_at: new Date().toISOString(), guidance: [],
   };
   await writeDecision(door, recordsOf(record), `start-a-decision:${id}`);
@@ -322,7 +248,7 @@ async function versionsReply(door, record, stepId) {
   const top = current.version ?? 1;
   const versions = [];
   for (let version = Math.max(1, top - HISTORY.most_versions + 1); version <= top; version += 1) {
-    const entry = version === top ? current : unpackStep(await door.read('decision-step', versionKey(record.id, at, version)));
+    const entry = version === top ? current : await readStep(door, versionKey(record.id, at, version));
     if (!entry) { versions.push({ version, lost: true }); continue; }
     versions.push({
       version, current: version === top, answered_at: entry.answered_at ?? null, by: entry.by ?? null,
@@ -365,7 +291,7 @@ async function copyStep(door, record, from, now) {
   const version = from.version ?? current.version ?? 1;
   let entry = current;
   if (version !== (current.version ?? 1)) {
-    entry = source.whole ? null : unpackStep(await door.read('decision-step', versionKey(source.id, at, version)));
+    entry = source.whole ? null : await readStep(door, versionKey(source.id, at, version));
     if (!entry) refuse('from_step_missing', { step: from.step_id, version });
   }
   const answer = structuredClone(entry.answer);
@@ -387,8 +313,9 @@ async function evidenceRows(door, record, items, now) {
     if (item.from !== undefined) {
       if (item.claim !== undefined || !object(item.from) || !nonempty(item.from.decision_id) || !nonempty(item.from.ref)) refuse('evidence_shape');
       if (item.from.decision_id === record.id) refuse('from_self');
-      const source = await door.read('decision', item.from.decision_id);
-      if (!source) refuse('from_not_found');
+      const root = await door.read('decision', item.from.decision_id);
+      if (!root) refuse('from_not_found');
+      const { record: source } = await laidTogether(door, item.from.decision_id, root, ['evidence']);
       const row = (source.input?.evidence ?? []).find(each => each.ref === item.from.ref && !each.retracted_at);
       if (!row) refuse('evidence_from_missing', { ref: item.from.ref });
       rows.push({ ref: item.ref, claim: row.claim, added_at: now, from: { decision_id: item.from.decision_id, ref: item.from.ref } });
@@ -399,9 +326,9 @@ async function evidenceRows(door, record, items, now) {
   }
   return rows;
 }
-// The decision's first evidence is kept as it was given; the original input stays as it was started, so the same
-// source with the same input is still that decision.
-const keepOriginal = record => { record.original_input ??= structuredClone(record.input); };
+// The decision's first evidence is kept as it was given; the identity of the input it was started with is kept, so the
+// same source with the same input is still that decision.
+const keepOriginal = record => { record.input_identity ??= inputIdentity(record.original_input ?? record.input); };
 // Rows added to the decision's evidence. A row with the same ref and claim is already there; the same ref with other words
 // is refused, so a citation never means two things.
 function takeEvidence(record, rows) {
