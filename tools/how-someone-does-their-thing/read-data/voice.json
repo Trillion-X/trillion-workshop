@@ -1,0 +1,34 @@
+{
+  "_what": "How a person's writing voice is kept (read-data/voice.mjs, moved from Trillion-X/trillion src/voice.mjs). Two record types: an edit (what the person changed in words an AI wrote: before and after, kept the moment they change a draft) and a profile (what an AI has learned about how this person writes, as the named fields below). Everything that varies is a row here: the types, the sizes, the profile's fields, the words an AI is told. A field is added or removed by editing `profile_fields`; nothing in code names one. `sent` names the records whose words the person sent (their newest `scan` records of `type` whose status is `status`, the words in `text_field`). `repeated` is the fewest different drafts a word change must recur in to be shown as repeated.",
+  "edit_type": "voice-edit",
+  "profile_type": "voice-profile",
+  "kind_pattern": "^[a-z][a-z0-9-]{0,39}$",
+  "any_kind": "all",
+  "max_edit_chars": 4000,
+  "keep_edits": 300,
+  "max_profiles": 40,
+  "max_field_chars": 2000,
+  "read": { "edits": 15, "sent": 10, "sent_chars": 1500 },
+  "sent": { "type": "post", "status": "posted", "text_field": "caption", "scan": 200 },
+  "repeated": { "min_distinct_drafts": 3 },
+  "profile_fields": [
+    { "id": "how_they_write", "label": "How they write", "description": "In their own terms: length, warmth, directness, how they open and close." },
+    { "id": "words_they_use", "label": "Words and phrases they use", "description": "Words, phrases and spellings they reach for or put in when they change a draft." },
+    { "id": "words_they_avoid", "label": "Words and phrases they take out", "description": "What they delete or replace when they edit a draft." },
+    { "id": "examples", "label": "Their own lines to copy", "description": "Short lines from what they wrote or sent that sound most like them." },
+    { "id": "builds_on", "label": "Profiles it builds on", "description": "The kinds of the profiles this one sits on, earliest first, such as a base everyone is held to, then a market or kind of reader, then a company or team. Read those first; this profile's fields override theirs field by field." }
+  ],
+  "words": {
+    "how_to_use": "Write the way this person writes. Read profiles first, then the edits: each edit is an AI's draft (before) beside the words the person changed it to (after). After drafting, if their edits show something the profile lacks, save it with tool:save-voice. Sent shows words they published. A profile's builds_on names the profiles it sits on: read them first, earliest first, and let each later one override. tool:find-repeated-voice-edits shows the word changes their edits repeat.",
+    "no_profile": "No profile is saved yet. Learn from the edits and sent words below, then save one with tool:save-voice.",
+    "stale": "This profile was saved again at {set_at}, not at {expected}, since you read it. Read it again with tool:read-voice and edit from what it shows now.",
+    "unknown_field": "{field} is not a field of a voice profile. The fields are: {fields}.",
+    "too_many_profiles": "An account keeps at most {max} voice profiles, one for each kind of writing. Save into one that exists, or forget one first.",
+    "bad_kind": "kind is a short lower-case name for what is written (like post or email), at most 40 letters, digits and dashes.",
+    "nothing_named": "Name what to forget: profile_id, edit_id, or all_edits true.",
+    "forgot": "Forgot {count}.",
+    "repeat_minimum": "min_distinct_drafts is a whole number of at least 2: one draft never makes a pattern.",
+    "repeated": "These word changes recur across different drafts the person edited. They are proposals: show them to the person before saving any into a profile.",
+    "none_repeated": "No word change recurs in enough different drafts yet."
+  }
+}
