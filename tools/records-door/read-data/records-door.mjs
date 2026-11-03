@@ -70,9 +70,10 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
     throw new RecordsDoorError('no_door', 'This run was not handed a records door.');
   }
 
-  // A record too big for one message comes as pages of its own bytes; the same call with after_byte reads on.
+  // A record too big for one message comes as pages of its own bytes; the same call with the same request key and
+  // after_byte reads on. The engine serves later pages only to the key that made the answer.
   async function call(method, input, key = `${method}:${randomUUID()}`, address = resource, retryTransport = false) {
-    return wholeAnswer(await callOnce(method, input, key, address, retryTransport), after => callOnce(method, { ...input, after_byte: after }, `${method}:${randomUUID()}`, address, retryTransport));
+    return wholeAnswer(await callOnce(method, input, key, address, retryTransport), after => callOnce(method, { ...input, after_byte: after }, key, address, retryTransport));
   }
 
   async function callOnce(method, input, key, address, retryTransport = false) {
