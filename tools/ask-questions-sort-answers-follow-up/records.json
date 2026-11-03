@@ -106,7 +106,7 @@
      "placement:deployed-container"
     ],
     "maker": "maker:ask-questions-sort-answers-follow-up",
-    "result_selector": "$.result",
+    "result_selector": "$",
     "provenance": {
      "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up"
     },
@@ -259,7 +259,7 @@
      "placement:deployed-container"
     ],
     "maker": "maker:ask-questions-sort-answers-follow-up",
-    "result_selector": "$.result",
+    "result_selector": "$",
     "provenance": {
      "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up"
     },
@@ -470,7 +470,7 @@
      "placement:deployed-container"
     ],
     "maker": "maker:ask-questions-sort-answers-follow-up",
-    "result_selector": "$.result",
+    "result_selector": "$",
     "provenance": {
      "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up"
     },

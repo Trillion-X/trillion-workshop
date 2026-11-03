@@ -100,7 +100,7 @@
      "placement:deployed-container"
     ],
     "maker": "maker:traffic-attribution",
-    "result_selector": "$.result",
+    "result_selector": "$",
     "provenance": {
      "source": "bitfield-packages packages/traffic-attribution"
     },
@@ -288,7 +288,7 @@
      "placement:deployed-container"
     ],
     "maker": "maker:traffic-attribution",
-    "result_selector": "$.result",
+    "result_selector": "$",
     "provenance": {
      "source": "bitfield-packages packages/traffic-attribution"
     },
@@ -652,7 +652,7 @@
      "placement:deployed-container"
     ],
     "maker": "maker:traffic-attribution",
-    "result_selector": "$.result",
+    "result_selector": "$",
     "provenance": {
      "source": "trillion parts/traffic-attribution"
     },
@@ -945,7 +945,7 @@
      "placement:deployed-container"
     ],
     "maker": "maker:traffic-attribution",
-    "result_selector": "$.result",
+    "result_selector": "$",
     "provenance": {
      "source": "trillion parts/traffic-attribution"
     },

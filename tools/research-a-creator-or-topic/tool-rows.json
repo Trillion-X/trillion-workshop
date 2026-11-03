@@ -94,7 +94,7 @@
       }
      }
     },
-    "result_selector": "$.result",
+    "result_selector": "$",
     "needs": {
      "expected_seconds": 15,
      "network_egress": true,
@@ -208,7 +208,7 @@
       }
      }
     },
-    "result_selector": "$.result",
+    "result_selector": "$",
     "needs": {
      "expected_seconds": 15,
      "network_egress": true,
@@ -340,7 +340,7 @@
       }
      }
     },
-    "result_selector": "$.result",
+    "result_selector": "$",
     "needs": {
      "expected_seconds": 5,
      "network_egress": false,
@@ -1179,7 +1179,7 @@
       }
      }
     },
-    "result_selector": "$.result",
+    "result_selector": "$",
     "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
     "licence_class": "licence:maker-own",
     "placements": ["placement:small-container"],

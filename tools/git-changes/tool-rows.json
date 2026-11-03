@@ -123,7 +123,7 @@
       ]
      }
     },
-    "result_selector": "$.result.result",
+    "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/git-worktree (refresh-git-worktree)"
     }
@@ -224,7 +224,7 @@
       ]
      }
     },
-    "result_selector": "$.result.result",
+    "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/git-worktree (fetch-git-diff)"
     }
@@ -329,7 +329,7 @@
       ]
      }
     },
-    "result_selector": "$.result.result",
+    "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/git-worktree (stage-git-files)"
     }
@@ -434,7 +434,7 @@
       ]
      }
     },
-    "result_selector": "$.result.result",
+    "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/git-worktree (unstage-git-files)"
     }
@@ -535,7 +535,7 @@
       ]
      }
     },
-    "result_selector": "$.result.result",
+    "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/git-worktree (commit-git-changes)"
     }

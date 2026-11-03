@@ -14,6 +14,8 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `licence-classes.json` | The licence classes a row may name, which licences each covers and where each lets a tool run. |
 | `test/every-tool-row.test.mjs` | Checks every folder's rows the way Trillion reads them: files named exist, licence classes are listed, ids are unique. |
 | `test/lockfile-licences.test.mjs` | Checks every package in `package-lock.json` has a licence `licence-classes.json` lists, in a class that lets it run wherever this repository's tools run. |
+| `test/every-process-row-selector.test.mjs` | Runs every row that runs a program on its own sample, as the container runner does, and checks its `result_selector` finds a value in the program's last JSON line (`"$"` for a program that prints the value itself, `"$.result"` for one that prints `{ result }`); lists by name every row it could not prove that way. |
+| `test-helpers/run-a-row.mjs` | Runs one such row on this computer: its packed files laid at their places, its argv and stdin filled, the stand-in records door for a row that reads records. |
 | `test-helpers/vitest-shim.mjs` | The part of vitest's API the `.test.ts` files use, on `node:test`. |
 | `test-helpers/tool-rows.mjs` | Reads every folder's rows; both root tests use it. |
 | `test-helpers/lockfile-licences.mjs` | Judges a lock's licences against the licence classes. |

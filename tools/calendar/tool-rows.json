@@ -40,7 +40,7 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:deployed-container"],
         "maker": "maker:calendar",
-        "result_selector": "$.result",
+        "result_selector": "$",
         "provenance": { "source": "bitfield-packages packages/calendar (the time-block projection, accounts and sync states)" },
         "verify": [
           {
@@ -94,7 +94,7 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:deployed-container"],
         "maker": "maker:calendar",
-        "result_selector": "$.result",
+        "result_selector": "$",
         "provenance": { "source": "bitfield-packages packages/calendar (the view descriptors, the day and month grids and the overlap packing)" },
         "verify": [
           {
@@ -155,7 +155,7 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:deployed-container"],
         "maker": "maker:calendar",
-        "result_selector": "$.result",
+        "result_selector": "$",
         "provenance": { "source": "bitfield-packages packages/calendar (the Google calendar sync workflow's request and normalizer)" },
         "verify": null
       }
