@@ -1,0 +1,57 @@
+{
+  "kind": "package-set-records",
+  "record_set": "find-outlier-videos-against-their-channel-median-tool-rows",
+  "what_this_is": "The Workshop row for the find-outlier-videos-against-their-channel-median folder: a script the person's AI runs on the person's own computer that finds the videos in a table of many channels' videos that did far better than their own channel usually does.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-outlier-videos-against-their-channel-median",
+        "label": "Find the videos that did far better than their own channel usually does (runs on your computer)",
+        "job": "Find the outlier videos: the ones that got many times more views than their channel normally gets",
+        "description": "Reads a tab-separated table of videos (one header line, one row per video, from any number of channels or other sources) and writes the outliers: each titled video whose views are at least 5 times its own source's median views and at least 10,000, both thresholds changeable. A source's median counts every titled row of that source with a whole-number view count; rows with no title or no view count are skipped. Writes a table of ratio, views, kind, channel, source, median, n (videos in the median), url and title, in the input's order. The columns are found by number or header name, so any export works. Judges views against the channel's own usual, not against other channels: a small channel's breakout counts as much as a big one's.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["videos", "output"],
+          "properties": {
+            "videos": {
+              "type": "string",
+              "description": "The tab-separated table of videos, put where {videos} is in the command. By default the columns are: 0 source, 1 kind, 3 url, 4 views, 6 channel, 7 title; any other layout is given with --source-col, --kind-col, --url-col, --views-col, --channel-col and --title-col (a number or a header name)."
+            },
+            "output": {
+              "type": "string",
+              "description": "The outliers table to write, put where {output} is in the command."
+            },
+            "min_ratio": { "type": "number", "description": "--min-ratio: how many times the source median a video needs (default 5)." },
+            "min_views": { "type": "integer", "description": "--min-views: the fewest views an outlier may have (default 10000)." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"outliers\", \"rows_read\", \"found\", \"sources\", \"min_ratio\", \"min_views\"}} or {\"error\": \"what to change\"}. The outliers table is the answer."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "python3 -I tools/find-outlier-videos-against-their-channel-median/do-work/find_outliers.py {videos} {output}",
+          "needs": [
+            "python",
+            "a tab-separated table of videos with their views and channels"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Find or make the person's table of videos (for example from a yt-dlp --flat-playlist --print listing of the channels they follow), check which column holds the source, kind, url, views, channel and title, and pass any that differ from the defaults with the --*-col flags. Add --min-ratio and --min-views when the person wants a looser or stricter bar. Read the last line: { result } says how many outliers were found in how many sources; { error } says what to change. Show the person the outliers, highest ratio first, with their channel's median so the jump is plain."
+        },
+        "maker": "maker:find-outlier-videos-against-their-channel-median",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "The outlier rule used in title research: views over the channel's own median, with a floor of views"
+        }
+      }
+    }
+  ]
+}

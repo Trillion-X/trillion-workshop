@@ -34,7 +34,7 @@ test('the row runs on the person\'s computer and names the script that exists', 
 });
 
 test('the pure readers keep their promises', () => {
-  for (const file of ['test_captions.py', 'test_extraction.py']) {
+  for (const file of ['test_captions.py', 'test_extraction.py', 'test_verify.py']) {
     const out = run(join(folder, 'test', file));
     assert.equal(out.status, 0, out.stderr);
   }
@@ -119,6 +119,33 @@ test('registry merges rows by the person\'s groups, counts evidence by independe
     { with_ids: ['P-003'], how: 'weeds or habit', recorded_by: 'the test file' }]);
   assert.deepEqual(daily.contradicts, [{ with_ids: ['P-002'], how: 'weeds or habit', recorded_by: 'the test file' }]);
   assert.deepEqual(JSON.parse(readFileSync(join(work, 'map.json'), 'utf8')), { 'R-1': 'P-001', 'R-2': 'P-001', 'R-3': 'P-002', 'R-4': 'P-003' });
+});
+
+test('index writes the registry\'s counts, strongest principles, contradiction pairs, stages, channels and lanes, with the person\'s own prose', () => {
+  const intro = join(work, 'intro.md');
+  writeFileSync(intro, 'Made-up garden principles. The soil rows are {ids:R-2,R-1}; the habit row is {ids:R-4}.\n');
+  const outro = join(work, 'outro.md');
+  writeFileSync(outro, '## Method\n\nA made-up method.\n');
+  const index = join(work, 'INDEX.md');
+  const out = tool('index', '--registry', join(work, 'principles.jsonl'), '--corpus', corpus, '--views-table', join(work, 'views.tsv'),
+    '--id-map', join(work, 'map.json'), '--intro', intro, '--outro', outro, '--title', 'Garden principles', '--out', index);
+  assert.equal(out.status, 0, out.stderr);
+  assert.deepEqual({ ...lastLine(out.stdout), lines: undefined }, { principles: 3, index, lines: undefined });
+  const text = readFileSync(index, 'utf8');
+  assert.ok(text.startsWith('# Garden principles\n\nMade-up garden principles. The soil rows are P-001; the habit row is P-003.\n'));
+  assert.match(text, /- \*\*3 principles\*\*: 2 stated, 1 demonstrated only, 0 both\./);
+  assert.match(text, /- \*\*4 verbatim quotes\*\* and \*\*1 demonstrations\*\*\./);
+  assert.match(text, /- \*\*2 contradiction pairs\*\* between principles, plus 1 one-sided/);
+  assert.match(text, /- Corpus read: 5 videos from 2 channels\./);
+  assert.match(text, /^\| 1 \| P-001 \| Look after the soil first\. \| 2 \| [\d.]+ \| Channel Alpha \[vidA1@5\]\(https:\/\/youtu\.be\/vidA1\?t=5\) 1\.82x; Channel Beta /m);
+  assert.match(text, /^- P-002 Pull weeds before they seed\. \(Channel Alpha; e\.g\. vidA2@10\)$/m);
+  assert.match(text, /^\| P-001 Look after the soil first\. \| P-002 Pull weeds before they seed\. \| leave or pull \|$/m);
+  assert.match(text, /^\| P-002 .* \| P-003 .* \| weeds or habit \|$/m);
+  assert.match(text, /^\| stage one \| 2 \|$/m);
+  assert.match(text, /^\| Channel Alpha \| 3 \| 3 \| 2 \| 1 \|$/m, 'videos read, listed in the catalog, principles stated and demonstrated');
+  assert.match(text, /^### Channels in the catalog with no videos read\n\nNone\.$/m);
+  assert.match(text, /^soil 1, feeding 1, weeds 1, habit 1\.$/m);
+  assert.ok(text.endsWith('## Method\n\nA made-up method.\n'));
 });
 
 test('registry without a lanes or merge file keeps each row on its own with no stages', () => {

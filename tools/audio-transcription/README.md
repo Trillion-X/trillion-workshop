@@ -12,12 +12,13 @@ The audio-transcription package's local Whisper transcription with word times, a
 | `do-work/__tests__/` | The package's 39 tests, unchanged. |
 | `runtime/local-whisper/` | The package's contained runtime contract and image recipe, unchanged. |
 | `show/`, `things-to-store-and-run.json`, `entry-to-package-data-map.json` | The package's screen, its data and its entry map, unchanged; the package's tests read them. |
-| `do-work/audio_transcription.py` | The seam: `transcribe` (runs the package's script and adds the recording's length), `find-loops` and `repair`. |
+| `do-work/audio_transcription.py` | The seam: `transcribe` (runs the package's script and adds the recording's length, path and when it was made), `transcribe-many`, `find-loops`, `repair`, `repair-many`, `judge`, `index` and `text`. |
+| `read-data/transcript_reports.py` | Pure: when a recording was made (camera sidecar XML or file time), the index line and totals, the judge of a whole answer, and timed paragraphs. |
 | `read-data/whisper_loops.py` | Pure: what a loop is, the windows to hear again, moving a heard window into place, and the splice. |
 | `tool-rows.json` | The row `tool:transcribe-audio-and-repair-whisper-loops`: `on-your-computer`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/audio-transcription-seam.test.mjs` | Runs the seam on a tone made with ffmpeg and a stand-in `whisper-cli` that loops the way Whisper does. |
-| `test/test_whisper_loops.py`, `test/fake_whisper_cli.py` | The pure readers, and the stand-in recognizer. |
+| `test/test_whisper_loops.py`, `test/test_transcript_reports.py`, `test/fake_whisper_cli.py` | The pure readers, and the stand-in recognizer. |
 
 ## How to run it
 
@@ -26,6 +27,12 @@ brew install whisper-cpp ffmpeg
 python3 do-work/audio_transcription.py transcribe --audio ./take.wav --out ./take.json --model-path ./ggml-tiny.en.bin
 python3 do-work/audio_transcription.py find-loops --transcript ./take.json
 python3 do-work/audio_transcription.py repair --transcript ./take.json --audio ./take.wav --model-path ./ggml-tiny.en.bin
+
+python3 do-work/audio_transcription.py transcribe-many --recordings ./card --pattern '*.MP4' --out-dir ./transcripts --workers 3 --max-load 80 --model-path ./ggml-tiny.en.bin
+python3 do-work/audio_transcription.py repair-many --transcript ./transcripts/*.json --workers 2 --model-path ./ggml-tiny.en.bin
+python3 do-work/audio_transcription.py index --transcripts ./transcripts
+python3 do-work/audio_transcription.py judge --transcript ./transcripts/*.json
+python3 do-work/audio_transcription.py text --transcript ./transcripts/C0001.json --out ./C0001.txt
 ```
 
 Options: `--whisper-cli PATH`, `--ffmpeg PATH`, `--out FILE` (for `repair`; default is in place). The model file is the person's own choice; a larger one hears better.
@@ -35,6 +42,14 @@ Options: `--whisper-cli PATH`, `--ffmpeg PATH`, `--out FILE` (for `repair`; defa
 - A segment is a loop when one sentence fills at least half of it and is said at least four times, or when it says exactly what the segment before it said.
 - Loop segments less than 15 seconds apart join into one window, padded 4 seconds each side and kept inside the recording. A window is heard again when it holds four or more loop segments or lasts 8 seconds or more.
 - Each window is cut from the recording and heard again with whisper.cpp's context off (`-mc 0`). The package's own `normalize_whisper_json` reads the answer, so the words carry the same `timing_source`. A segment that still loops is left out, with its words. Any loop that survives elsewhere is removed and kept in `removed_hallucinated`. `repaired_windows` records the windows, and a transcript that has it is not repaired twice. Segments are numbered again and `full_text` is made again.
+
+## Many recordings, and what to trust
+
+- `transcribe-many` writes `<name>.json` for every file in `--recordings` that matches `--pattern`, skips one already written, hears `--workers` at once and waits while the 1-minute load average is above `--max-load`. Every transcript also carries `source` (the recording's path), `recorded_at` and `recorded_at_from`: the `CreationDate` of a camera's sidecar XML beside the recording (`<stem>M01.XML` or `<stem>.XML`), else the file's modified time.
+- `repair-many` repairs each transcript from the recording its `source` names; one without a `source` is refused by name.
+- `index` writes `index.tsv` (name, duration, words, segments, first line) and prints recordings, hours, silent ones, segments and words.
+- `judge` rejects a whole answer when one segment's text is a quarter or more of all segments and said three or more times, one run of four words comes back at least max(6, half the minutes) times, under 18% of more than 40 words are different words, there are under 30 words a minute, or more than half the segments carry a no-speech probability over 0.6 (when the recognizer gives one). It names each reason.
+- `text` writes `# title`, the source, a blank line, then `[m:ss] paragraph` lines, a new paragraph at the first segment 30 seconds (`--paragraph-seconds`) after the last began. It refuses a transcript `judge` rejects, unless `--even-if-rejected`.
 
 ## Not ported
 

@@ -578,7 +578,16 @@
     "cover_key": "covers_a_roll",
     "non_graphic_types": [
       "sound"
-    ]
+    ],
+    "base_slack_s": 0.1,
+    "visible_frac": 0.05,
+    "lane_root_regex": "^.*/lane-[a-z]+/",
+    "scope_regex": "/lane-[b-z]/",
+    "timeline_glob": "lane-{lane}/out-*/{option}/timeline.json",
+    "left_below": 0.4,
+    "right_above": 0.6,
+    "max_side_share": 0.55,
+    "min_options_for_side": 4
   },
   "info_added": {
     "informational_types": [
@@ -851,5 +860,138 @@
     "loose": [
       "like"
     ]
+  },
+  "cutout_bottom": {
+    "types": [
+      "cutout"
+    ],
+    "edge_key": "bottom_edge",
+    "styled_values": [
+      "torn",
+      "textured",
+      "outlined"
+    ],
+    "sample_fps": 4,
+    "strip_px": 160,
+    "max_gap_px": 2,
+    "min_height_frac": 0.4,
+    "reach_px": 120,
+    "min_run_s": 0.5,
+    "sheet_opaque_frac": 0.9,
+    "paper_delta": 18,
+    "pixel_alpha": 128,
+    "look_alike": {
+      "type_substrings": [
+        "cutout",
+        "cut_out",
+        "cut-out",
+        "person",
+        "segment",
+        "matte"
+      ],
+      "keys": [
+        "segment",
+        "matte",
+        "person",
+        "cutout",
+        "cut_out"
+      ],
+      "kinds": [
+        "person",
+        "segment",
+        "matte",
+        "cutout"
+      ]
+    },
+    "ref_offset_px": 60,
+    "ref_width_px": 120,
+    "band_std_max": 20.0,
+    "band_hue_tol": 0.06,
+    "band_min_ratio": 0.5,
+    "band_max_ratio": 1.1,
+    "min_step": 40.0,
+    "not_person_types": [
+      "object_cutout"
+    ]
+  },
+  "bridge": {
+    "model": "a-local-model",
+    "endpoint": "http://127.0.0.1:11434/api/generate",
+    "timeout_s": 60,
+    "inserted_slack_s": 0.3,
+    "join_slack_s": 0.6,
+    "inserted_label": "Narrator",
+    "speaker_label": "Speaker",
+    "not_a_transition": [
+      "he",
+      "she",
+      "it",
+      "they",
+      "we",
+      "i",
+      "you",
+      "none",
+      "null",
+      "n",
+      "a"
+    ],
+    "prompt": "Line A ({sa}): \"{a}\"\nLine B ({sb}): \"{b}\"\nDoes Line B change subject, speaker or purpose, and which words at its start carry the viewer across? Answer with JSON only: {{\"changes\": true or false, \"link\": \"quoted words or none\", \"why\": \"...\"}}",
+    "attempts": 2,
+    "backoff_s": 1,
+    "keep_alive": "5m"
+  },
+  "variety": {
+    "scope_regex": "/lane-[b-z]/",
+    "ledger": "ledger/technique-ledger.jsonl",
+    "map": "ledger/technique-map.json",
+    "max_moments_per_technique": 3,
+    "chapter1_max_share": 0.2,
+    "min_moments_for_share": 5
+  },
+  "devices": {
+    "scope_regex": "/lane-[b-z]/",
+    "spec_glob": "lane-{lane}/specs-*/{option}.json",
+    "neutral_types": [
+      "sound",
+      "clear"
+    ],
+    "max_moments_per_device": 3
+  },
+  "reused_footage": {
+    "scope_regex": "/lane-[b-z]/",
+    "project": "source-cut.fcproj",
+    "sequence_name": "Source cut",
+    "ticks_per_second": 254016000000,
+    "min_overlap_s": 1.0,
+    "pick_glob": "PICKS-*.md",
+    "mention": "(?i)(same (footage|take|clip|shot)|plays again|opens the film)"
+  },
+  "label_time": {
+    "scope_regex": "/lane-[b-z]/",
+    "tolerance_s": 1.0,
+    "pick_glob": "PICKS-*.md",
+    "watch_globs": {
+      "lane": [
+        "*watch*"
+      ],
+      "film": [
+        "WHOLE VIDEO*"
+      ]
+    }
+  },
+  "held_face": {
+    "timeout_s": 60,
+    "frame_width": 1920,
+    "frame_height": 1080,
+    "sample_fractions": [
+      0.1,
+      0.5,
+      0.9
+    ],
+    "eye_open_min": 0.28,
+    "open_reference": 0.32,
+    "min_hold_s": 0.5,
+    "mouth_open_warn": 0.35,
+    "mouth_min_hold_s": 2.0
   }
 }

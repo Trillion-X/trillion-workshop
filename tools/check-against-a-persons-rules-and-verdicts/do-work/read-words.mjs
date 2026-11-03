@@ -1,4 +1,4 @@
-// tools/check-copy/do-work/read-words.mjs
+// tools/check-against-a-persons-rules-and-verdicts/do-work/read-words.mjs
 //
 // Purpose
 //   Turns what a site or a deck publishes into units of words, so one check judges them all. A unit is
@@ -11,8 +11,13 @@
 //   2. A source that yields no words is an error the caller sees (`wordsOfDeck` throws); nothing here turns "no words found"
 //      into a pass.
 //   3. One unit per distinct (kind, text), carrying every place it was found, so a line used on ten pages is judged once.
+//   4. A reader whose shape is declared (wordsOfSections, wordsOfCueNarration, wordsOfJsonRoles) reads only what its profile
+//      or owner names. Anything else in the source (preamble, a quote of a source, code, an unknown section, a string no
+//      role claims) is an issue the caller sees, never a unit and never a silent exclusion; a profile it cannot use is
+//      itself an issue. Text it leaves out is counted, never copied into the result.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
+import { wordsIn } from '../../judge-words/do-work/judge-words.mjs';
 
 const NOT_PROSE = [
   /^(?:\/|#|https?:|mailto:|tel:|data:)/,
@@ -235,4 +240,197 @@ export function distinctUnits(found, defaults = {}) {
     byKey.get(key).where.push(where);
   }
   return [...byKey.values()].map(unit => ({ ...unit, where: unit.where.slice(0, 3).join('; ') + (unit.where.length > 3 ? ` (+${unit.where.length - 3})` : '') }));
+}
+
+const headingKey = value => value.normalize('NFKC').trim().replace(/\s+/gu, ' ').toLocaleLowerCase('en-US');
+const nonempty = value => typeof value === 'string' && value.trim().length > 0;
+
+/**
+ * Reads a Markdown document made of declared sections: the first level-one heading is its title, and each level-two
+ * heading the profile names opens a section whose paragraphs, list items and lower headings are its words. Everything
+ * else is accounted for, never silently judged or dropped: text before the first section is preamble (counted, its text
+ * not kept), a quote is an unresolved source quote (counted and an issue, its text not kept), an unknown section and the
+ * text under it are issues, and a required section that never opens, a missing title and an empty body are issues.
+ *
+ * profile: { title_kind, sections: [{ heading, kind, heading_kind?, keeps_headings? }], required?: [heading],
+ *   fields?: { <kind>: <field> } }. A section with keeps_headings reads every later heading below the title as one of its
+ * own (a script whose scene headings are words), so no level-two heading leaves it.
+ * Returns { units, issues, excluded: { preamble_lines, unresolved_quote_lines }, public_body_units }.
+ */
+export function wordsOfSections(markdown, where = 'markdown', profile = {}) {
+  const units = [], issues = [], excluded = { preamble_lines: 0, unresolved_quote_lines: 0 };
+  const sections = Array.isArray(profile.sections) ? profile.sections : [];
+  if (typeof markdown !== 'string' || !nonempty(profile.title_kind) || !sections.length
+      || sections.some(section => !nonempty(section.heading) || !nonempty(section.kind))) {
+    return { units, issues: [{ kind: 'invalid_reader_profile' }], excluded, public_body_units: 0 };
+  }
+  const byKey = new Map(sections.map(section => [headingKey(section.heading), section]));
+  const opened = new Set();
+  let current = null, unknown = false, titleSeen = false, bodyUnits = 0;
+  const add = (text, kind, line, role) => {
+    if (!text.trim()) return;
+    units.push({ text: text.trim(), kind, where: `${where}:${line}`, facts: { content_role: role },
+      ...(profile.fields?.[kind] ? { field: profile.fields[kind] } : {}) });
+    if (role === 'public_body') bodyUnits++;
+  };
+  markdown.split(/\r?\n/u).forEach((raw, index) => {
+    const line = raw.trim(), number = index + 1;
+    const heading = /^(#{1,6})\s+(.+?)\s*#*\s*$/u.exec(line);
+    if (heading) {
+      const depth = heading[1].length, title = heading[2].trim();
+      if (depth === 1) {
+        if (!titleSeen) { titleSeen = true; add(title, profile.title_kind, number, 'public_title'); }
+        else issues.push({ kind: 'repeated_document_title', line: number });
+        return;
+      }
+      if (current?.keeps_headings) { add(title, current.heading_kind ?? profile.title_kind, number, 'public_heading'); return; }
+      if (depth === 2) {
+        const section = byKey.get(headingKey(title));
+        if (section) { current = section; unknown = false; opened.add(headingKey(section.heading)); }
+        else if (!current && !unknown) excluded.preamble_lines++;
+        else { current = null; unknown = true; issues.push({ kind: 'unknown_section', line: number }); }
+        return;
+      }
+      if (current) add(title, current.heading_kind ?? profile.title_kind, number, 'public_heading');
+      else if (unknown) issues.push({ kind: 'content_under_unrecognized_section', line: number });
+      else excluded.preamble_lines++;
+      return;
+    }
+    if (!line) return;
+    if (!current && !unknown) { excluded.preamble_lines++; return; }
+    if (unknown) { issues.push({ kind: 'content_under_unrecognized_section', line: number }); return; }
+    if (line.startsWith('>')) { excluded.unresolved_quote_lines++; issues.push({ kind: 'unresolved_quote_role', line: number }); return; }
+    add(line.replace(/^(?:[-*+]\s+|\d+[.)]\s+)/u, ''), current.kind, number, 'public_body');
+  });
+  if (!titleSeen) issues.push({ kind: 'missing_document_title' });
+  for (const required of profile.required ?? []) if (!opened.has(headingKey(required))) issues.push({ kind: 'missing_required_section', section: required });
+  if (!bodyUnits) issues.push({ kind: 'missing_public_body' });
+  return { units, issues, excluded, public_body_units: bodyUnits };
+}
+
+/**
+ * Reads narration split into cues: optional flat frontmatter between `---` lines (only the fields the profile declares,
+ * each a string or a number), then one heading per cue at the profile's level whose text is the cue id, then the cue's
+ * ordinary prose. A paragraph that wraps over lines is one unit, and each unit keeps its `cue_id`. Quotes, code (fenced,
+ * inline or indented), lists, tables, rules, markup, text outside a cue, an empty cue, a repeated or malformed cue id and
+ * any frontmatter it cannot read are issues, never words.
+ *
+ * profile: { kind, field?, cue_heading_level, cue_id_pattern, frontmatter?: { fields: { <name>: "string" | "number" },
+ *   required?: [name] } }. Returns { units, issues, frontmatter, cue_ids }.
+ */
+export function wordsOfCueNarration(markdown, where = 'narration', profile = {}) {
+  const units = [], issues = [], cueIds = [], frontmatter = {};
+  const metadata = profile.frontmatter ?? { fields: {}, required: [] };
+  let cueId = null;
+  try { cueId = new RegExp(profile.cue_id_pattern, 'u'); } catch { cueId = null; }
+  if (typeof markdown !== 'string' || !nonempty(profile.kind) || !cueId || typeof profile.cue_id_pattern !== 'string'
+      || !Number.isInteger(profile.cue_heading_level) || profile.cue_heading_level < 1 || profile.cue_heading_level > 6
+      || !metadata.fields || typeof metadata.fields !== 'object' || Object.values(metadata.fields).some(type => !['string', 'number'].includes(type))
+      || (metadata.required ?? []).some(key => !Object.hasOwn(metadata.fields, key))) {
+    return { units, issues: [{ kind: 'invalid_reader_profile' }], frontmatter, cue_ids: cueIds };
+  }
+  const lines = markdown.split(/\r?\n/u);
+  let index = 0, active = null, paragraph = [], paragraphLine = null, fence = null;
+  const flush = () => {
+    if (paragraph.length && active) {
+      const text = paragraph.join(' ').trim();
+      if (text) units.push({ text, kind: profile.kind, cue_id: active.id, where: `${where}:${paragraphLine}`, facts: { content_role: 'cue_narration' },
+        ...(nonempty(profile.field) ? { field: profile.field } : {}) });
+    }
+    paragraph = [];
+    paragraphLine = null;
+  };
+  const finishCue = () => {
+    flush();
+    if (active && active.units === units.length) issues.push({ kind: 'empty_cue', cue_id: active.id, line: active.line });
+    active = null;
+  };
+  if (lines[0] === '---') {
+    const end = lines.indexOf('---', 1);
+    if (end < 0) issues.push({ kind: 'unterminated_frontmatter' });
+    else {
+      for (let at = 1; at < end; at++) {
+        const match = /^([A-Za-z][A-Za-z0-9_-]*):[ \t]*(.*?)[ \t]*$/u.exec(lines[at]);
+        if (!match) { issues.push({ kind: 'invalid_frontmatter_line', line: at + 1 }); continue; }
+        const [, key, value] = match;
+        const type = Object.hasOwn(metadata.fields, key) ? metadata.fields[key] : null;
+        if (!type) { issues.push({ kind: 'unknown_frontmatter_field', line: at + 1 }); continue; }
+        if (Object.hasOwn(frontmatter, key)) { issues.push({ kind: 'duplicate_frontmatter_field', line: at + 1 }); continue; }
+        if (type === 'string' && value && !/^['"`]|['"`]$/u.test(value)) frontmatter[key] = value;
+        else if (type === 'number' && /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/u.test(value) && Number.isFinite(Number(value))) frontmatter[key] = Number(value);
+        else issues.push({ kind: 'invalid_frontmatter_value', line: at + 1 });
+      }
+      if (end === 1) issues.push({ kind: 'empty_frontmatter' });
+      for (const key of metadata.required ?? []) if (!Object.hasOwn(frontmatter, key)) issues.push({ kind: 'missing_frontmatter_field', field: key });
+      index = end + 1;
+    }
+  }
+  const cueHeading = new RegExp(`^#{${profile.cue_heading_level}}\\s+(.+?)\\s*#*\\s*$`, 'u');
+  for (; index < lines.length; index++) {
+    const raw = lines[index], line = raw.trim(), number = index + 1;
+    if (fence) { if (new RegExp(`^${fence.marker}{${fence.length},}\\s*$`, 'u').test(line)) fence = null; continue; }
+    if (!line) { flush(); continue; }
+    if (/^(?: {4,}|\t)/u.test(raw)) { flush(); issues.push({ kind: 'code_shape', ...(active ? { cue_id: active.id } : {}), line: number }); continue; }
+    if (line.startsWith('#')) {
+      const heading = cueHeading.exec(line);
+      finishCue();
+      if (!heading) { issues.push({ kind: 'unknown_heading_shape', line: number }); continue; }
+      const id = heading[1].replace(/\s+#+$/u, '').trim();
+      if (!cueId.test(id)) { issues.push({ kind: 'invalid_cue_id', line: number }); continue; }
+      if (cueIds.includes(id)) { issues.push({ kind: 'duplicate_cue_id', cue_id: id, line: number }); continue; }
+      cueIds.push(id);
+      active = { id, line: number, units: units.length };
+      continue;
+    }
+    if (!active) { issues.push({ kind: 'text_outside_cue', line: number }); continue; }
+    if (line.startsWith('>')) { flush(); issues.push({ kind: 'unresolved_quote', cue_id: active.id, line: number }); continue; }
+    const open = /^(`{3,}|~{3,})/u.exec(line);
+    if (open) { flush(); issues.push({ kind: 'code_shape', cue_id: active.id, line: number }); fence = { marker: open[1][0], length: open[1].length }; continue; }
+    if (line.includes('`')) { flush(); issues.push({ kind: 'code_shape', cue_id: active.id, line: number }); continue; }
+    if (/^(?:[-*+]\s+|\d+[.)]\s+|\|)/u.test(line) || /^(?:-{3,}|\*{3,}|_{3,})$/u.test(line) || /^<\/?[A-Za-z!]/u.test(line)) {
+      flush(); issues.push({ kind: 'unknown_content_shape', cue_id: active.id, line: number }); continue;
+    }
+    if (paragraphLine === null) paragraphLine = number;
+    paragraph.push(line);
+  }
+  finishCue();
+  if (!cueIds.length) issues.push({ kind: 'missing_cues' });
+  return { units, issues, frontmatter, cue_ids: cueIds };
+}
+
+/**
+ * Reads the words an owner declares in any JSON value, and only those: `owner.paths` (dot paths, `*` one level, `**` any
+ * depth) select the strings, and each `owner.roles` row ({ paths, kind, field, context_requires_review? }) gives the
+ * strings at its paths their kind and field. A string two roles claim, a role reaching outside the selected words, a
+ * selected string no role claims (when roles are declared) and an owner whose paths match nothing are issues. A role
+ * with context_requires_review marks its units for context review, so a word finding holds them and never fails them.
+ *
+ * owner: { paths, kind, field?, roles? }. Returns { units, issues }.
+ */
+export function wordsOfJsonRoles(value, where = 'json', owner = {}) {
+  const issues = [];
+  if (!Array.isArray(owner.paths) || !owner.paths.length || owner.paths.some(path => !nonempty(path)) || !nonempty(owner.kind)
+      || (owner.roles !== undefined && (!Array.isArray(owner.roles) || owner.roles.some(role => !Array.isArray(role.paths) || !role.paths.length
+        || !nonempty(role.kind) || !nonempty(role.field))))) {
+    return { units: [], issues: [{ kind: 'invalid_json_owner' }] };
+  }
+  const selected = wordsIn(value, { paths: owner.paths });
+  const selectedPaths = new Set(selected.map(row => JSON.stringify(row.path)));
+  const roles = new Map();
+  for (const role of owner.roles ?? []) for (const row of wordsIn(value, { paths: role.paths })) {
+    const key = JSON.stringify(row.path);
+    if (!selectedPaths.has(key)) issues.push({ kind: 'role_outside_selected_words', path: row.path });
+    if (roles.has(key)) issues.push({ kind: 'ambiguous_word_role', path: row.path });
+    roles.set(key, role);
+  }
+  const units = selected.map(row => {
+    const role = roles.get(JSON.stringify(row.path));
+    if (owner.roles && !role) issues.push({ kind: 'unclassified_word_role', path: row.path });
+    const field = role?.field ?? owner.field ?? row.field;
+    return { text: row.text, kind: role?.kind ?? owner.kind, where: `${where}#${row.path.map(String).join('.')}`, path: row.path,
+      facts: { content_role: role?.kind ?? owner.kind }, ...(field ? { field } : {}),
+      ...(role?.context_requires_review ? { context_requires_review: true } : {}) };
+  });
+  if (!units.length) issues.push({ kind: 'owner_paths_matched_no_words' });
+  return { units, issues };
 }

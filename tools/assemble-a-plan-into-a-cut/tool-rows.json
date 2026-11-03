@@ -17,7 +17,7 @@
     "input_schema": {
      "type": "object",
      "properties": {
-      "input": {"type": "string", "description": "The request file (JSON) on the person's computer, put where {input} is in the command: pieces (the piece table), plans {folder, skip} or plan_file, clips {words_folder}, looks, grades, voice {folder, word_timer, say}, face_reader {argv}, overlay_renderer, devices, checks, plan_checks, folders {work, seen, specs, holds_log}, refs, rules. README: The request."},
+      "input": {"type": "string", "description": "The request file (JSON) on the person's computer, put where {input} is in the command: pieces (the piece table), plans {folder, skip} or plan_file, clips {words_folder}, looks, grades, voice {folder, word_timer, say}, face_reader {argv}, overlay_renderer, devices, checks, plan_checks, advisory_stops, folders {work, seen, specs, holds_log}, refs, rules. README: The request."},
       "step": {"type": "string", "enum": ["timeline", "lay-out", "build", "run"], "description": "Put where {step} is in the command."},
       "slug": {"type": "string", "description": "The plan to cut, by its file name in plans.folder, put where {slug} is (run takes any number, or none for every plan)."}
      },
@@ -102,13 +102,13 @@
     "label": "Put new titles into my video plans and the cards that name them (runs on your computer)",
     "status": "active",
     "job": "Change the titles of my video plans to the ones in my titles list, and fix every card that points to an old title",
-    "description": "Reads the person's titles list (one row per plan id, with its new title and any fields to copy) and applies it to every plan in a folder: the new title, the fields the request names, and every card segment whose text is an old title or a prefix the request names plus an old title. A title that is one of the request's placeholder words keeps the withdrawn title under its own field and leaves its cards as they are. A row may name the old title of a plan that is gone, so cards pointing at it are renamed too.",
-    "input_schema": {"type": "object", "properties": {"input": {"type": "string", "description": "The request file: plans_folder, titles {titles: [{id, title, old_title?}]}, untitled, card_kind, card_prefixes, copy_from_row, copy_from_doc, fields. Put where {input} is."}}, "required": ["input"]},
-    "output_schema": {"type": "object", "description": "{\"result\": {\"plans\": [{\"id\", \"title\", ...copied fields}]}}"},
+    "description": "Reads the person's titles list (one row per plan id, with its new title and any fields to copy) and applies it to every plan in a folder: the new title, the fields the request names, and every card segment whose text is an old title or a prefix the request names plus an old title. A title that is one of the request's placeholder words keeps the withdrawn title under its own field and leaves its cards as they are. A row may name the old title of a plan that is gone, so cards pointing at it are renamed too. Also: titles-table, the titles list as a Markdown table (id, title with each placeholder in bold, and the columns the request names), to show the person before or after the change.",
+    "input_schema": {"type": "object", "properties": {"input": {"type": "string", "description": "The request file: plans_folder, titles {titles: [{id, title, old_title?}]}, untitled, card_kind, card_prefixes, copy_from_row, copy_from_doc, fields; for titles-table: titles, untitled, columns. Put where {input} is."}, "step": {"type": "string", "enum": ["retitle", "titles-table"]}}, "required": ["input", "step"]},
+    "output_schema": {"type": "object", "description": "{\"result\": {\"plans\": [{\"id\", \"title\", ...copied fields}]}} for retitle; {\"result\": {\"table\", \"titles\"}} for titles-table"},
     "invoke": {
      "kind": "on-your-computer",
      "get_it": ["clone the Workshop repository (package.json repository.url)"],
-     "run": "python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py retitle --request {input}",
+     "run": "python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py {step} --request {input}",
      "needs": ["python"],
      "say": "Show the person each plan's id and its title after the change, and which ones are still placeholders."
     },

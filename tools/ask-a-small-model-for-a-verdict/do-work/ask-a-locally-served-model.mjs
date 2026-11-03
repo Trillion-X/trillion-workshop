@@ -22,6 +22,8 @@
 // provider row's `protocol`: where it lists its models, where it chats, whether it
 // takes the answer's schema, and where its reply keeps the text.
 
+import {freshLocalClassifierFetch} from './fresh-local-classifier-fetch.mjs'
+
 /** Answer kinds: the words that ask for the shape, and the schema the answer must fit. */
 export const KINDS = {
   // A text model has nowhere to put criteria, so what a yes and a no mean
@@ -111,7 +113,7 @@ export async function candidates(settings, read = null) {
   if (!Number.isFinite(timeoutSeconds) || timeoutSeconds <= 0 || timeoutSeconds > 60)
     throw new Error('local inventory needs a finite timeout greater than zero and at most 60 seconds')
   const protocol = protocolOf(settings.protocol)
-  const readJson = read ?? (url => fetch(url, {
+  const readJson = read ?? (url => freshLocalClassifierFetch(url, {
     signal: AbortSignal.timeout(Math.max(1, Math.ceil(timeoutSeconds * 1000))), redirect: 'error',
   }).then(reply => { if (!reply.ok) throw new Error('inventory unavailable'); return reply.json() }))
   // The reading limit is a fact about the model the person chose, declared on
@@ -141,7 +143,7 @@ export async function candidates(settings, read = null) {
       ...(model.digest ? {identity: model.digest} : {}), reach: {endpoint, timeoutSeconds, protocol: settings.protocol}}))
 }
 
-export async function ask({candidate, question, shape, content, content_parts = []}, post = fetch) {
+export async function ask({candidate, question, shape, content, content_parts = []}, post = freshLocalClassifierFetch) {
   // This adapter sends text only. A model that advertises vision does not get
   // addressed inputs or their bytes from here. Never calibrate or judge an
   // incomplete request by silently dropping its required evidence.

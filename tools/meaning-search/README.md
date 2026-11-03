@@ -7,16 +7,22 @@ meaning-search, packaged as Workshop tools. It finds the items of a person's vec
 | `tool:find-similar-to-a-vector` | `action:find-similar-vector` | `query_vector_base64`: base64 of JSON `{"vector": [...]}`, made by the model the descriptor names. For a set of picture vectors, `tool:words-as-picture-vector` turns words into one. |
 | `tool:find-similar-by-meaning` | `action:find-similar` | `query_text`, embedded by the descriptor's model at its `model_endpoint` (the package's Ollama embedder) |
 
+Both take an optional `spread: { per_file, seconds_apart }` so many neighbouring frames of one take do not fill the answer: the package ranks up to the descriptor's `result_limit`, then, best first, an item is set aside when its file already has `per_file` items in the answer or one closer than `seconds_apart` to it (an item with no time counts once per file), and the rest is cut to `limit`. Scores and order stay the package's; `result.spread` says how many were set aside.
+
+`tool:make-a-picture-vector-set-of-my-videos` makes such a set on the person's own computer (`do-work/make_picture_vector_set.py`, below).
+
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `do-work/process-scripts/` | The package's process scripts, copied unchanged: `prepare-semantic-index-process-input.mjs`, `ann-index.mjs`, `nearest-embedding-facts.mjs`, `embed-text-ollama.mjs`, `pyjson.mjs`, `make-embedding-facts-from-command-output.py`, and their tests `canonical-multihash.test.mjs` and `test_make_embedding_facts.py`. `canonical_multihash.mjs` has one change: it takes BLAKE3 from `tools/content-identity` and checks the canonical `1f:<64 lowercase hex>` form directly. |
-| `read-data/meaning-search.mjs` | The seam: `findSimilarVector` and `findSimilar`. It runs the scripts in the order the package's actions ran them. |
+| `read-data/meaning-search.mjs` | The seam: `findSimilarVector` and `findSimilar`. It runs the scripts in the order the package's actions ran them, then applies a `spread` when one is asked for (`spreadItems`). |
+| `do-work/make_picture_vector_set.py` | Builds a picture vector set from a folder of videos: one frame every `--every` seconds (2), key frames only, small, an optional `--lut` (log footage) and `--proxy` (a smaller copy on the same timeline, a pattern with `{dir}` and `{stem}`), CLIP ViT-B-32 openai (`--model`, `--pretrained`). Writes `frames.npy` (float16, normalised), `frames.jsonl` (`video`, `path`, `t`, `decoded`), `done.json` (resumable: a run goes on where the last stopped, a new folder adds only its videos) and `vector-set.json` (the descriptor's `vector_set` member and the model). Needs ffmpeg, numpy, torch, open_clip_torch and Pillow. |
 | `read-data/meaning-search.json` | The record kind of the descriptors, the files door read operation, the read span, and the names the package writes facts under. |
-| `tool-rows.json` | The two rows. They run through `tools/records-door`'s `run-an-export.mjs`, list descriptor records and read the person's files, and change nothing. |
+| `tool-rows.json` | Three rows. The two search rows run through `tools/records-door`'s `run-an-export.mjs`, list descriptor records and read the person's files, and change nothing. `tool:make-a-picture-vector-set-of-my-videos` runs the builder on the person's computer. |
 | `part.json` | Nothing here is imported by other code. |
-| `test/meaning-search.test.mjs` | Synthetic vector sets through a stand-in door. Covers ranking, half-precision vectors, `min_score`, the package's refusals, spoken lines embedded by a stand-in model, the package's Python test and the rows. |
+| `test/meaning-search.test.mjs` | Synthetic vector sets through a stand-in door. Covers ranking, half-precision vectors, `min_score`, the package's refusals, spoken lines embedded by a stand-in model, the spread, the builder on solid-colour videos with a stand-in picture model (frames and times, resuming, the proxy) and its set searched by the seam, the package's Python test and the rows. |
+| `test/synthetic_picture_set.py` | Makes the solid-colour videos and runs the builder with a stand-in model (a frame's mean colour). |
 
 ## Key Types / Functions
 
@@ -32,7 +38,7 @@ meaning-search, packaged as Workshop tools. It finds the items of a person's vec
 - Every ranking decision is the package's. The seam only reads the descriptor and the files, builds the package's index plan, filters the embedding facts to the ANN candidates (the record-store query the package's workflow made) and maps each answer address back to its item.
 - Scores compare only vectors from the model the descriptor names. A query vector of another length scores -1 and never passes `min_score`.
 - The index is built from the vector set on every run and is not kept afterwards. The vector set is read every run anyway, so the index is always current, and the package's readiness check has nothing to check.
-- Nothing here names a person, drive, model or index. All of these are the descriptor's DATA. The rows read descriptor records and files and write nothing.
+- The seam names no person, drive, model or index. All of these are the descriptor's DATA. The search rows read descriptor records and files and write nothing. The builder names only its default model (CLIP ViT-B-32 openai, changed with `--model` and `--pretrained`) and writes only into the `--out` folder; the videos, the LUT and the proxy pattern are arguments.
 
 ## Not ported
 
@@ -49,6 +55,7 @@ These parts of the package only commit to or read from the retired record store.
 - `tools/records-door` (`run-an-export.mjs`, and `door.files` for the files door);
 - `tools/content-identity` (BLAKE3);
 - Node, and Python 3 for `make-embedding-facts-from-command-output.py` (standard library only);
-- for `tool:find-similar-by-meaning`, an Ollama-compatible endpoint the run can reach.
+- for `tool:find-similar-by-meaning`, an Ollama-compatible endpoint the run can reach;
+- for `do-work/make_picture_vector_set.py`, ffmpeg, numpy, torch, open_clip_torch and Pillow on the person's computer.
 
 **Depended on by:** the rows in `tool-rows.json`.

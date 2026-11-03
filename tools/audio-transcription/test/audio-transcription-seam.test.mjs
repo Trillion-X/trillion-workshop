@@ -99,3 +99,71 @@ test('a recognizer that cannot produce a transcript says why and the exit says s
   assert.equal(bad.status, 2);
   assert.ok(lastLine(bad.stdout).failed.code);
 });
+
+test('the readers behind transcribe-many, judge, index and text keep their promises', () => {
+  const out = run('python3', ['-B', join(folder, 'test', 'test_transcript_reports.py')]);
+  assert.equal(out.status, 0, out.stderr);
+});
+
+test('transcribe-many does every recording in a folder once, with its path and when it was made', { skip }, () => {
+  const folderOfTakes = join(work, 'takes');
+  mkdirSync(folderOfTakes);
+  for (const name of ['A001.wav', 'A002.wav']) {
+    assert.equal(run('ffmpeg', ['-y', '-v', 'error', '-f', 'lavfi', '-i', 'sine=frequency=330:duration=60', join(folderOfTakes, name)]).status, 0);
+  }
+  writeFileSync(join(folderOfTakes, 'A001M01.XML'), '<Meta><CreationDate value="2031-04-05T06:07:08+01:00"/></Meta>');
+  const many = join(work, 'many');
+  const before = calls().length;
+  const first = tool('transcribe-many', '--recordings', folderOfTakes, '--pattern', '*.wav', '--out-dir', many, '--workers', '2', ...engine());
+  assert.equal(first.status, 0, first.stderr);
+  assert.deepEqual([lastLine(first.stdout).ok, lastLine(first.stdout).skipped], [2, 0]);
+  const one = JSON.parse(readFileSync(join(many, 'A001.json'), 'utf8'));
+  assert.equal(one.source, join(folderOfTakes, 'A001.wav'));
+  assert.deepEqual([one.recorded_at, one.recorded_at_from], ['2031-04-05T06:07:08+01:00', 'sidecar:A001M01.XML']);
+  assert.equal(JSON.parse(readFileSync(join(many, 'A002.json'), 'utf8')).recorded_at_from, 'file-modified-time');
+  const again = lastLine(tool('transcribe-many', '--recordings', folderOfTakes, '--pattern', '*.wav', '--out-dir', many, ...engine()).stdout);
+  assert.deepEqual([again.ok, again.skipped], [0, 2]);
+  assert.equal(calls().length - before, 2, 'a recording already done is not heard again');
+});
+
+test('repair-many repairs each transcript from the recording it names, and index counts the folder', { skip }, () => {
+  const many = join(work, 'many');
+  const paths = ['A001.json', 'A002.json'].map(name => join(many, name));
+  const out = tool('repair-many', '--transcript', ...paths, '--workers', '2', ...engine());
+  assert.equal(out.status, 0, out.stderr);
+  assert.deepEqual(lastLine(out.stdout).transcripts.map(t => t.status), ['repaired 1 windows, removed 0', 'repaired 1 windows, removed 0']);
+  assert.deepEqual(JSON.parse(readFileSync(paths[1], 'utf8')).repaired_windows, [[16, 40]]);
+  const orphan = join(work, 'orphan.json');
+  writeFileSync(orphan, JSON.stringify({ duration: 10, segments: [], words: [] }));
+  const refused = tool('repair-many', '--transcript', orphan, ...engine());
+  assert.equal(refused.status, 2);
+  assert.match(lastLine(refused.stdout).transcripts[0].status, /names no source recording/);
+  const index = lastLine(tool('index', '--transcripts', many).stdout);
+  assert.deepEqual({ ...index, index: undefined }, { index: undefined, recordings: 2, hours: 0.03, silent: 0, segments: 6, words: 24 });
+  const lines = readFileSync(join(many, 'index.tsv'), 'utf8').trim().split('\n');
+  assert.equal(lines[0], 'name\tduration\twords\tsegments\tfirst_line');
+  assert.equal(lines[1], 'A001\t60.0\t12\t3\thello there everyone');
+});
+
+test('judge rejects an answer too thin or looped to trust, and text writes timed paragraphs only from one it accepts', { skip }, () => {
+  const thin = join(work, 'many', 'A001.json');
+  const verdict = lastLine(tool('judge', '--transcript', thin).stdout).verdicts[0];
+  assert.equal(verdict.accepted, false);
+  assert.match(verdict.reasons.join(), /words per minute 12/);
+  const refused = tool('text', '--transcript', thin, '--out', join(work, 'thin.txt'));
+  assert.equal(refused.status, 2);
+  assert.ok(!existsSync(join(work, 'thin.txt')), 'nothing is written for a rejected answer');
+  assert.equal(tool('text', '--transcript', thin, '--out', join(work, 'thin.txt'), '--even-if-rejected').status, 0);
+  const words = Array.from({ length: 90 }, (_, i) => `w${i}`);
+  const good = join(work, 'good.json');
+  writeFileSync(good, JSON.stringify({ duration: 60, source: '/recordings/B007.wav',
+    segments: [0, 1, 2].map(i => ({ start: i * 20, end: i * 20 + 18, text: words.slice(i * 30, i * 30 + 30).join(' ') })),
+    words: words.map((t, i) => ({ t, start: i * 0.6, end: i * 0.6 + 0.5 })) }));
+  assert.equal(lastLine(tool('judge', '--transcript', good).stdout).rejected, 0);
+  const made = tool('text', '--transcript', good, '--out', join(work, 'good.txt'));
+  assert.equal(made.status, 0, made.stderr);
+  const text = readFileSync(join(work, 'good.txt'), 'utf8').split('\n');
+  assert.deepEqual(text.slice(0, 4), ['# B007', 'Source: /recordings/B007.wav', 'Transcript: whisper, word timings in good.json', '']);
+  assert.ok(text[4].startsWith('[0:00] w0 w1') && text[4].includes('w59'), 'the first two segments are one paragraph');
+  assert.ok(text[5].startsWith('[0:40] w60'));
+});

@@ -1,6 +1,6 @@
 # tools/ask-a-small-model-for-a-verdict/
 
-Asks a small model one declared question about some text (yes or no, which of a list, or how much on a scale) and trusts the answer only if that model first got a set of already-answered cases right. A model that says yes to everything, or gets a case wrong, is refused however cheap it was; a rubric with no cases, or whose cases all expect one answer, is refused too. The same folder keeps what that calibration settled, picks which of a person's places holds an answer, shows which models can judge which question, measures where a confidence line belongs, turns a wrong verdict into a known case, recognises a repeat, and answers several typed questions about one state in one request.
+Asks a small model one declared question about some text (yes or no, which of a list, or how much on a scale) and trusts the answer only if that model first got a set of already-answered cases right. A model that says yes to everything, or gets a case wrong, is refused however cheap it was; a rubric with no cases, or whose cases all expect one answer, is refused too. The same folder keeps what that calibration settled, picks which of a person's places holds an answer, shows which models can judge which question, measures where a confidence line belongs, fits a pass line and a fail line from lines a person already ruled on, turns a wrong verdict into a known case, recognises a repeat, and answers several typed questions about one state in one request.
 
 Everything personal is the person's input: the question, the cases, the confidence bands, the owners, which models to ask and where, and the file holding a hosted classifier's key. The tool names no model, vendor or word list. Ported from the packages `ask-a-small-model-for-a-verdict` and `answer-state-questions`, with the core, adapters and correction steps as hardened since in the control plane's judges, which now import this folder.
 
@@ -18,6 +18,7 @@ Each of these is in the request and a request without it is refused with a sente
 | `endpoint`, `model`, `samples` | a `hosted-classifier` provider row | Where the classifier is, which model, and how many times one question is asked and averaged. |
 | `timeout_seconds` | `answer-state-questions` | How many seconds the model server may take. |
 | `accepts_characters` (optional) | either provider row | The most text that model reads. Content longer than it is refused, never cut; a row that declares none is sent the whole content, so declare one for any model with a smaller reading window. |
+| `fail_good_share_at_most`, `pass_bad_share_at_most`, `usable_when` | `fit-lines` | The share of good lines the fail line may fail, the share of bad lines the pass line may let through, and the bars a question must clear to be usable: `auc_at_least`, `bad_lines_at_least`, `recall_at_least`, `good_failed_or_uncertain_at_most`. |
 | `passes` (optional) | `ask`, `calibrate`, `scoreboard` | How many times each calibration case is asked. The request default is 2 for `ask` and `scoreboard` and 1 for `calibrate`, stated in each row. |
 
 ## What is fixed in code, and why
@@ -31,6 +32,8 @@ These are the tool's mechanism, not anyone's preference, and they are not settin
 - A kept calibration is bound to this tool's own source bytes (BLAKE3 of `do-work/` and what it imports), the models' builds (a served digest or `served_identity`) and every rubric field that can change an outcome, so a change to any of them is measured again, never inherited.
 - Kept calibration is written under a kernel open lock (macOS `O_EXLOCK`), one complete file replaced at a time, and read back before it counts. Elsewhere a `remember_file` is refused; asking without one still works.
 - The line measured by `find-lines` is searched in steps of 0.01 around the labelled confidences.
+- `fit-lines` takes the share quantiles by index, with no interpolation. It holds out each good line in turn (leave one out). It counts a line scored per sentence by its highest sentence.
+- A locally-served model, and `answer-state-questions`, are asked over a connection closed after each request (`fresh-local-classifier-fetch.mjs`). A slow pause between two questions then never lands on an idle pooled socket. This adds no retry and no model sample.
 
 ## What differs from the old packages
 
@@ -42,7 +45,7 @@ These are the tool's mechanism, not anyone's preference, and they are not settin
 
 | File | Purpose |
 |------|---------|
-| `do-work/ask-a-small-model.mjs` | The entry for every row: one JSON request on standard input, one action on the command line (`ask`, `route`, `scoreboard`, `calibrate`, `find-lines`, `record-wrong`, `note-repeat`, `answer-state-questions`), `{ result }` or `{ error }` on the last line. |
+| `do-work/ask-a-small-model.mjs` | The entry for every row: one JSON request on standard input, one action on the command line (`ask`, `route`, `scoreboard`, `calibrate`, `find-lines`, `fit-lines`, `record-wrong`, `note-repeat`, `answer-state-questions`), `{ result }` or `{ error }` on the last line. |
 | `do-work/ask-for-a-verdict.mjs` | The core: answer shapes as data, rubric checks, scoring a candidate, choosing one that passes (with the kept calibration), confidence bands, the verdict. |
 | `do-work/who-can-be-asked.mjs` | The one place that turns provider rows into candidates and a single `ask`. `ADAPTERS` is the one table of adapters; a caller with its own adapter adds a row. |
 | `do-work/ask-a-locally-served-model.mjs` | Adapter for a chat model served on the person's computer; asks for the answer in the rubric's schema where the server takes one, in words always. `KINDS` is its table of answer kinds and `PROTOCOLS` its table of server kinds (`ollama`, `openai-chat`); a caller adds a row for one of its own. |
@@ -51,13 +54,15 @@ These are the tool's mechanism, not anyone's preference, and they are not settin
 | `do-work/route-to-the-owner-that-answers.mjs` | Builds the "which owner holds this" rubric from the person's owners and asks it. |
 | `do-work/see-which-models-can-judge.mjs` | The scoreboard of every model against every rubric. |
 | `do-work/find-where-the-line-should-go.mjs` | Measures the confidence line from the labelled cases. |
+| `do-work/fit-pass-and-fail-lines.mjs` | `fitLines`: from the model's probability of the failing answer on lines a person ruled bad and good, the fail line, the pass line, AUC, recall, held-out shares, and usable or unseparable with reasons. It asks no model. |
+| `do-work/fresh-local-classifier-fetch.mjs` | `freshLocalClassifierFetch`: a fetch that closes the connection after each request, the default way a model on the person's computer is asked. |
 | `do-work/tell-it-when-it-was-wrong.mjs` | Adds a wrong verdict to a rubric as a labelled case, keeping the earlier label in `label_history`; a held-out case is never turned into calibration. |
 | `do-work/judge-log-frontier.mjs` | Bounded reads of a verdict log and the rubrics file: size and time limits, and a file that changes during the read is refused. |
 | `do-work/remember-what-was-already-said.mjs` | Files a flagged text under an earlier one (word overlap, then a closed choice) and counts it. |
 | `do-work/answer-state-questions.mjs` | Typed questions about a state in one request, every answer checked against its type. |
 | `part.json` | `do-work/ask-for-a-verdict.mjs` is public, so another tool may import the same core. |
-| `tool-rows.json` | The Workshop rows Trillion reads for this folder (eight tools). |
-| `test/*.test.mjs` | The core, shapes, bands, calibration memory and adapters (synthetic cases only), plus the tool run end to end against a stand-in model server and the typed-question checks. |
+| `tool-rows.json` | The Workshop rows Trillion reads for this folder (nine tools). |
+| `test/*.test.mjs` | The core, shapes, bands, calibration memory and adapters (synthetic cases only), plus the tool run end to end against a stand-in model server, the typed-question checks, `fit-lines` on made-up scores and the fresh connection. |
 
 ## Key Types / Functions
 

@@ -5,6 +5,7 @@
 //   scoreboard               score every model on offer against every rubric
 //   calibrate                score and keep the result so asking later is fast
 //   find-lines               measure where a rubric's confidence line belongs
+//   fit-lines                fit pass and fail lines from scored lines a person ruled on
 //   record-wrong             add a wrong verdict to a rubric as a known case
 //   note-repeat              file a flagged text under an earlier one, or as new
 //   answer-state-questions   answer typed questions about a state in one request
@@ -20,6 +21,7 @@ import {classifiersFrom, whoCanBeAsked} from './who-can-be-asked.mjs'
 import {readSettings as readRouteSettings, route} from './route-to-the-owner-that-answers.mjs'
 import {scoreboard} from './see-which-models-can-judge.mjs'
 import {findLines} from './find-where-the-line-should-go.mjs'
+import {fitLines} from './fit-pass-and-fail-lines.mjs'
 import {addCase, asExpected, lastVerdictFor} from './tell-it-when-it-was-wrong.mjs'
 import {noteIt, readCharacters, readMatching, readMemory, shapesFor, whichShape, writeMemory} from './remember-what-was-already-said.mjs'
 import {answerStateQuestions} from './answer-state-questions.mjs'
@@ -130,6 +132,10 @@ const ACTIONS = {
     if (candidates.length === 0) throw new VerdictRefused('nothing is available to ask, so no line can be measured')
     const wanted = file.rubrics.filter(one => request.rubric_id === undefined || one.id === request.rubric_id)
     return {lines: await findLines({rubrics: wanted, candidates, ask, band: request.band ?? null})}
+  },
+
+  async 'fit-lines'(request) {
+    return fitLines(request)
   },
 
   async 'record-wrong'(request) {

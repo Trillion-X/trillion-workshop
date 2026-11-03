@@ -34,12 +34,15 @@ test('the module replaces one occurrence and refuses none or several', () => {
   assert.throws(() => replaceExactlyOnce('abc', 'a', undefined), Refusal);
 });
 
-test('the row runs on the person\'s computer with the change-a-folder grant, with no internet', () => {
-  assert.equal(rows.length, 1);
-  assert.equal(rows[0].invoke.kind, 'computer');
-  assert.deepEqual(rows[0].invoke.capabilities, ['change-a-folder']);
-  assert.notEqual(rows[0].invoke.internet, true);
-  assert.deepEqual(rows[0].invoke.argv.at(-1), { fill: { from: 'task', field: 'grants.change-a-folder.folder' } });
+test('the rows run on the person\'s computer with the change-a-folder grant, with no internet', () => {
+  assert.deepEqual(rows.map(row => row.id), ['tool:replace-one-piece-of-text-in-a-file', 'tool:replace-several-pieces-of-text-in-files']);
+  for (const row of rows) {
+    assert.equal(row.invoke.kind, 'computer');
+    assert.deepEqual(row.invoke.capabilities, ['change-a-folder']);
+    assert.notEqual(row.invoke.internet, true);
+    assert.deepEqual(row.invoke.argv.at(-1), { fill: { from: 'task', field: 'grants.change-a-folder.folder' } });
+  }
+  assert.deepEqual(rows[1].input_schema.properties.edits.items, rows[0].input_schema, 'each edit is the one-piece request');
 });
 
 test('a run changes only the one run of text and reports the sizes', t => {
@@ -102,4 +105,51 @@ test('a request that is not JSON or lacks a file is refused with the shape to se
   const ran = spawnSync(process.execPath, [resolve(folder, 'do-work', 'replace-exact-text.mjs'), root], { input: 'not json', encoding: 'utf8' });
   assert.match(JSON.parse(ran.stdout).error, /\{ file, find, replace \}/);
   assert.match(run(root, { find: 'a', replace: 'b' }).answer.error, /file must be a path/);
+});
+
+function runFile(granted, editsFile) {
+  const ran = spawnSync(process.execPath, [resolve(folder, 'do-work', 'replace-exact-text.mjs'), granted, editsFile], { encoding: 'utf8' });
+  return { status: ran.status, answer: JSON.parse(ran.stdout.trim().split('\n').at(-1)) };
+}
+
+test('several edits from a JSON file apply in order, across files, and a later edit sees an earlier one', t => {
+  const root = bakery(t);
+  const edits = join(mkdtempSync(join(tmpdir(), 'edit-text-list-')), 'edits.json');
+  writeFileSync(edits, JSON.stringify({ edits: [
+    { file: 'menu/prices.txt', find: 'loaf 5', replace: 'loaf 6' },
+    { file: 'notes.md', find: 'first', replace: '1st' },
+    { file: 'menu/prices.txt', find: 'loaf 6\n', replace: 'loaf 6\nmuffin 2\n' },
+  ] }));
+  const { status, answer } = runFile(root, edits);
+  assert.equal(status, 0, JSON.stringify(answer));
+  assert.deepEqual(answer.result, { files: [
+    { file: 'menu/prices.txt', bytes_before: 41, bytes_after: 50, replaced: 2 },
+    { file: 'notes.md', bytes_before: 23, bytes_after: 21, replaced: 1 },
+  ], replaced: 3 });
+  assert.equal(readFileSync(join(root, 'menu', 'prices.txt'), 'utf8'), 'bagel 3\nloaf 6\nmuffin 2\ncroissant 4\nbagel 3 extra\n');
+  assert.equal(readFileSync(join(root, 'notes.md'), 'utf8'), '1st line\nsecond line\n');
+  assert.deepEqual(readdirSync(join(root, 'menu')), ['prices.txt'], 'no staging file is left behind');
+});
+
+test('one refused edit in a list writes no file at all and names the edit', t => {
+  const root = bakery(t);
+  const before = [readFileSync(join(root, 'menu', 'prices.txt'), 'utf8'), readFileSync(join(root, 'notes.md'), 'utf8')];
+  const edits = [{ file: 'notes.md', find: 'second', replace: '2nd' }, { file: 'menu/prices.txt', find: 'bagel 3', replace: 'bagel 4' }];
+  const { status, answer } = run(root, { edits });
+  assert.equal(status, 1);
+  assert.match(answer.error, /^edit 1 in menu\/prices\.txt: the text to find occurs more than once.*nothing was written$/);
+  const outside = run(root, { edits: [{ file: 'notes.md', find: 'second', replace: '2nd' }, { file: '../x', find: 'a', replace: 'b' }] });
+  assert.match(outside.answer.error, /^edit 1 in \.\.\/x: file leaves the granted folder/);
+  assert.deepEqual([readFileSync(join(root, 'menu', 'prices.txt'), 'utf8'), readFileSync(join(root, 'notes.md'), 'utf8')], before);
+  assert.deepEqual(readdirSync(root).sort(), ['menu', 'notes.md']);
+});
+
+test('a list given as a bare array on standard input works, and an empty list or a missing edits file is refused', t => {
+  const root = bakery(t);
+  const { status, answer } = run(root, [{ file: 'notes.md', find: 'second line', replace: 'last line' }]);
+  assert.equal(status, 0);
+  assert.equal(answer.result.replaced, 1);
+  assert.equal(readFileSync(join(root, 'notes.md'), 'utf8'), 'first line\nlast line\n');
+  assert.match(run(root, { edits: [] }).answer.error, /at least one/);
+  assert.match(runFile(root, join(root, 'no-such-edits.json')).answer.error, /cannot read the edits file/);
 });

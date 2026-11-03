@@ -15,6 +15,7 @@ import media  # noqa: E402
 import plans  # noqa: E402
 from fill import Refused, bind, fill  # noqa: E402
 from fixture_world import FIX, PY, make_world, pieces, request, run_tool  # noqa: E402
+import spans  # noqa: E402
 from plan_pieces import aspects_of, is_slides, pieces_of, span_key  # noqa: E402
 from timing import caption_chunks, shifted, times_of, word_times  # noqa: E402
 
@@ -37,6 +38,8 @@ class Pieces(unittest.TestCase):
             pieces_of(plan('format_c', ['reply']), TABLE)
         with self.assertRaisesRegex(Refused, 'segment kind page has no piece for format format_a'):
             pieces_of(plan('format_a', ['reply', 'page']), TABLE)
+        with self.assertRaisesRegex(Refused, 'format None is not renderable yet'):
+            pieces_of({'slug': 'made-up', 'segments': []}, TABLE)
 
     def test_a_piece_the_cutter_does_not_make_is_refused(self):
         odd = {**TABLE, 'formats': {'format_a': {'hook': {'piece': 'hologram'}}}}
@@ -144,6 +147,51 @@ class SpanSound(unittest.TestCase):
         with self.assertRaisesRegex(Refused, 'is missing'):
             self.p.span_audio(self.seg, {self.sid: {'treatment': 'fixed', 'audio': 'gone.wav', 'audio_from': 9.85}}, 'cam.mp4')
         self.assertEqual(self.p.span_audio(self.seg, None, 'cam.mp4'), ('cam.mp4', 0.0))
+        with self.assertRaisesRegex(Refused, f'span {self.sid} is graded remade .* is missing'):
+            self.p.span_audio(self.seg, {self.sid: {'grade': 'remade', 'treatment': 'needs-remake', 'audio_from': 9.85}}, 'cam.mp4')
+
+    def test_a_graded_file_named_otherwise_than_the_grader_names_it_stops_the_cut(self):
+        self.p.req['grades']['audio_name'] = {'join': ['audio/', {'fill': 'span'}, '.wav']}
+        (self.p.folder / 'audio').mkdir()
+        (self.p.folder / 'audio' / f'{self.sid}.wav').write_bytes(b'made-up')
+        (self.p.folder / 'audio' / 'other-name.wav').write_bytes(b'made-up')
+        got = self.p.span_audio(self.seg, {self.sid: {'treatment': 'fixed', 'audio': f'audio/{self.sid}.wav', 'audio_from': 9.85}}, 'cam.mp4')
+        self.assertEqual(got, (str(self.p.folder / 'audio' / f'{self.sid}.wav'), 9.85))
+        with self.assertRaisesRegex(Refused, f'span {self.sid} .* is named audio/other-name.wav in grades.json, not audio/{self.sid}.wav'):
+            self.p.span_audio(self.seg, {self.sid: {'treatment': 'fixed', 'audio': 'audio/other-name.wav', 'audio_from': 9.85}}, 'cam.mp4')
+
+
+class Spans(unittest.TestCase):
+    """the one lookup of a span's key, source and words that the cutter and the plan check share"""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.words, self.timed = Path(self.tmp.name) / 'words', Path(self.tmp.name) / 'timed'
+        self.words.mkdir()
+        self.timed.mkdir()
+        (self.words / 'take-one.words.json').write_text(json.dumps({'source': '/made/up/take-one.mp4', 'words': [
+            {'text': 'alpha', 'start': 1.0, 'end': 1.4}, {'text': 'bravo', 'start': 1.5, 'end': 1.9}, {'text': 'charlie', 'start': 3.0, 'end': 3.4}]}))
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_a_plan_source_wins_over_the_words_file(self):
+        self.assertEqual(spans.source_for('take-one', {'segments': []}, self.words), '/made/up/take-one.mp4')
+        self.assertEqual(spans.source_for('take-one', {'sources': {'take-one': '/elsewhere.mov'}}, self.words), '/elsewhere.mov')
+        with self.assertRaises(LookupError):
+            spans.source_for('take-two', {'segments': []}, None)
+
+    def test_a_word_timer_file_is_read_before_the_words_file(self):
+        self.assertEqual([w['text'] for w in spans.clip_words('take-one', self.words, self.timed)], ['alpha', 'bravo', 'charlie'])
+        (self.timed / 'take-one.json').write_text(json.dumps({'segments': [{'words': [{'word': ' delta', 'start': 1.02, 'end': 1.38}]}, {'words': []}]}))
+        self.assertEqual(spans.clip_words('take-one', self.words, self.timed), [{'text': 'delta', 'start': 1.02, 'end': 1.38}])
+
+    def test_span_words_are_the_words_inside_in_span_seconds(self):
+        words = spans.clip_words('take-one', self.words)
+        self.assertEqual(spans.span_words(words, {'from': 0.9, 'to': 1.9}), [{'text': 'alpha', 'start': 0.1, 'end': 0.5}, {'text': 'bravo', 'start': 0.6, 'end': 1.0}])
+        self.assertEqual(spans.span_words([], {'from': 0, 'to': 1}), [])
+        plan = {'segments': [{'kind': 'ask', 'clip': None}, {'kind': 'reply', 'clip': 'take-one', 'from': 1.0, 'to': 2.0}]}
+        self.assertEqual([s['kind'] for s in spans.plan_spans(plan)], ['reply'])
 
 
 class PlanSteps(unittest.TestCase):
@@ -181,6 +229,12 @@ class PlanSteps(unittest.TestCase):
     def test_outline_numbers_the_segments(self):
         out = plans.outline({'plan_files': [str(self.folder / 'p1.json')]})['plans'][0]
         self.assertEqual((out['recorded_seconds'], [r['i'] for r in out['segments']]), (5, [0, 1, 2]))
+        self.assertEqual((out['id'], out['title']), ('X1', 'Old Name'))
+
+    def test_a_titles_table_marks_the_untitled_and_keeps_its_columns(self):
+        titles = {'titles': [{'id': 'X1', 'title': 'New | Name', 'basis': 'given'}, {'id': 'X2', 'title': 'placeholder', 'basis': 'none'}]}
+        out = plans.titles_table({'titles': titles, 'untitled': ['placeholder'], 'columns': ['basis']})
+        self.assertEqual(out['table'].splitlines(), ['| ID | Title | basis |', '|---|---|---|', '| X1 | New / Name | given |', '| X2 | **placeholder** | none |'])
 
     def test_timelines_compare_field_by_field(self):
         a = [{'seg': 0, 'kind': 'k', 'text': 't', 'start': 0.0, 'dur': 1.0}]
@@ -321,6 +375,18 @@ class World(unittest.TestCase):
         spec = json.loads((Path(req['folders']['work']) / 'deck-fixture' / 'gfx' / 'specs' / 'slide02-t-1.json').read_text())
         self.assertEqual((spec['frame'], spec['events'][0]['fit_with']), ([400, 500], ['First made-up page.', 'Second made-up page.']))
 
+    def test_4b_a_cover_whose_plan_field_does_not_match_is_not_drawn(self):
+        req = request(self.world)
+        rules = cut.rules_of({}, (400, 500))
+        g = graphics.Graphics(req['devices'], graphics.Renderer(req['overlay_renderer'], rules), graphics.faces.FaceReader(req['face_reader']), rules)
+        deck = json.loads((self.world['plans'] / 'deck-fixture.json').read_text())
+        rows = pieces_of(deck, req['pieces'])
+        drawn = [spec['events'][0] for _, spec in g.slide_specs(deck, rows, ('4:5 400x500', 400, 500))]
+        self.assertEqual([(e['text'], e['cover']) for e in drawn], [('A made-up deck', True), ('First made-up page.', False), ('Second made-up page.', False)])
+        self.assertEqual([e['rot'] for e in drawn], [req['devices']['slide']['rotations'][i % len(req['devices']['slide']['rotations'])] for i in range(3)])
+        drawn = [spec['events'][0] for _, spec in g.slide_specs({**deck, 'basis': 'taken, withdrawn'}, rows, ('4:5 400x500', 400, 500))]
+        self.assertEqual([(e['text'], e['cover']) for e in drawn], [('First made-up page.', False), ('Second made-up page.', False)])
+
     def test_5_run_checks_each_plan_first_and_skips_formats_with_no_row(self):
         req = self.fresh('run')
         req['plan_checks'] = [{'id': 'plan-look', 'argv': [PY, str(FIX / 'fake_checker.py'), '2', 'unsure', {'fill': 'plan_file'}], 'advisory_exit_codes': [2]}]
@@ -328,6 +394,8 @@ class World(unittest.TestCase):
         self.assertEqual(code, 0, out)
         status = {p['slug']: p['status'] for p in out['result']['plans']}
         self.assertEqual(status, {'deck-fixture': 'slides', 'other-fixture': 'format not renderable'})
+        code, out = run_tool('run', {**req, 'advisory_stops': True}, 'deck-fixture')
+        self.assertEqual(out['result']['plans'][0]['status'], 'plan check stopped it')
         req['plan_checks'][0]['advisory_exit_codes'] = []
         code, out = run_tool('run', req, 'deck-fixture')
         self.assertEqual(out['result']['plans'][0]['status'], 'plan check stopped it')

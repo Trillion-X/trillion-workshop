@@ -1,0 +1,67 @@
+{
+  "kind": "package-set-records",
+  "record_set": "edit-a-copy-of-a-premiere-project-tool-rows",
+  "what_this_is": "The Workshop row for the edit-a-copy-of-a-premiere-project folder: a script the person's AI runs on the person's own computer that writes a new Premiere Pro project from one of theirs and a plan of inserts, cuts, moves and a reassembly, without opening Premiere and without touching the original.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:edit-a-copy-of-a-premiere-project",
+        "label": "Edit a copy of my Premiere project from a plan: insert, cut, move, reorder (runs on your computer)",
+        "job": "Make a new copy of my Premiere Pro project with these edits done on the timeline: put these files or placeholders in at these points, cut these stretches, move this part, or rebuild the sequence in a new order",
+        "description": "Reads a Premiere Pro project (.prproj, gzipped XML) and a JSON plan of ops, and writes a NEW project with the edits made in its XML. It never opens, launches or scripts Premiere, and never writes the input project. insert: at a timecode every track opens a gap of the insert length, then each piece (a file, probed with ffprobe, or a labelled black placeholder) goes on its track; the next video track can be created. cut: a range is deleted and the rest closes up. move: a range is taken out and put back elsewhere. assemble: the sequence is rebuilt from listed ranges in order. A range is sequence timecodes, a source range of a clip in seconds, or an insert made earlier in the plan. One remap engine razors every video and audio item at every boundary and carries picture, sound, links, captions and a full-length adjustment layer along. Before writing, the result must pass structural checks (unique ids, every reference resolves, nothing left unreferenced, tracks in order, no overlaps) and a gzip round trip. An existing output is replaced only when the person's written record (--written, kept with their film) shows this tool wrote exactly that file; anything else is refused. Refuses rather than guesses: another frame rate, mono audio, a video file carrying sound, a missing track, drop-frame timecode, a partial adjustment layer, a colour interpretation override. Companion commands in the folder: compile_edit_plan.py (an EDIT-PLAN new order plus word timings into a plan, with pause trims), validate.py, prdump.py (a timeline listing), proxy_render.py (an ungraded ffmpeg check render) and grade_check.py (pre-graded plates against a graded export).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["plan", "written"],
+          "properties": {
+            "plan": {
+              "type": "string",
+              "description": "The plan JSON file, put where {plan} is in the command: {project, output, sequence?, timecodes?, create_tracks?, ops: [{op: insert|cut|move|assemble, ...}]}. README.md: Plan."
+            },
+            "written": {
+              "type": "string",
+              "description": "The JSON record of outputs this tool wrote (path -> BLAKE3), put where {written} is. It lives with the person's film, not with the tool; it is created on the first run."
+            },
+            "project": {
+              "type": "string",
+              "description": "Optional: the input .prproj, overriding the plan's project (add --project PATH)."
+            },
+            "output": {
+              "type": "string",
+              "description": "Optional: the new .prproj to write, overriding the plan's output (add --output PATH). Never the input."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line printed: {\"result\": {\"output\", \"blake3\", \"written\", \"replaced\", \"length\", \"inserts\", \"log\"}} or {\"error\": \"what to change\"}. The new .prproj is the answer."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U blake3",
+            "brew install ffmpeg"
+          ],
+          "run": "python3 tools/edit-a-copy-of-a-premiere-project/do-work/premiere_insert.py {plan} --written {written}",
+          "needs": [
+            "python",
+            "blake3 (python module or b3sum)",
+            "ffmpeg and ffprobe (for inserted files and the check render)",
+            "the person's Premiere project and a plan"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the plan from what the person asks (README.md: Plan), naming their project and a NEW output file; for a reorder from an EDIT-PLAN, run compile_edit_plan.py first and show the person the ops it wrote. Keep the --written record in the person's film folder. Run `run`, read the last line: { result } names the new project and its length; { error } says what to change. Offer validate.py and prdump.py on the output, and proxy_render.py for an ungraded look at the joins. Tell the person to open the new project in Premiere; the original is untouched, and colour is checked only by grade_check.py or in Premiere."
+        },
+        "maker": "maker:edit-a-copy-of-a-premiere-project",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion-launch-video tools/premiere-insert at e1100bf; the project format is read from projects Premiere Pro itself wrote, and Premiere opened and saved a project this tool wrote"
+        }
+      }
+    }
+  ]
+}
