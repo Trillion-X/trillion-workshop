@@ -112,7 +112,7 @@
         "id": "tool:line-up-two-movements",
         "label": "Line up two movements by their phase, whatever their speed (runs on your computer)",
         "job": "Match each moment of one movement to the same part of another movement, even when one is slower, starts later or has more frames",
-        "description": "Takes two pose tracks (from tool:read-peoples-poses-from-a-video, or any file in the pose.keypoints.v1 shape) and writes the pairs of frames that show the same phase of the movement: dynamic time warping over each frame's posture, with the joints centred on the hips and scaled by the torso so camera framing and body size do not count. It uses the most confident person in each track. Gamma 0 is hard warping; above 0 is soft warping with a smoother path. The path is monotonic (time never runs backwards), starts at the first pair and ends at the last pair. An empty or torso-less track, or a joint that is not a number, is refused with the reason; nothing is written. The cost grows with the product of the two frame counts: a 10 second clip at 30 frames a second takes seconds, a 10 minute clip does not.",
+        "description": "Takes two pose tracks (from tool:read-peoples-poses-from-a-video, or any file in the pose.keypoints.v1 shape) and writes the pairs of frames that show the same phase of the movement: dynamic time warping over each frame's posture, with the joints centred on the hips and scaled by the torso so camera framing and body size do not count. It uses the most confident person in each track. Gamma 0 is hard warping; above 0 is soft warping with a smoother path. The path is monotonic (time never runs backwards), starts at the first pair and ends at the last pair. It also gives a distance (the posture cost along the path divided by both frame counts) so several references can be ranked against one clip. An empty or torso-less track, or a joint that is not a number, is refused with the reason; nothing is written. The cost grows with the product of the two frame counts: a 10 second clip at 30 frames a second takes seconds, a 10 minute clip does not.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -126,7 +126,7 @@
         },
         "output_schema": {
           "type": "object",
-          "description": "The last line the script prints: {\"result\": {out, clip_frames, reference_frames, path_length}} or {\"error\": \"what to change\"}. The file holds {kind: phase_alignment.v1, model, clip_frames, reference_frames, path: [[clip_index, reference_index], ...], provenance}. Indexes count the frames that showed a torso, in order."
+          "description": "The last line the script prints: {\"result\": {out, clip_frames, reference_frames, path_length, distance}} or {\"error\": \"what to change\"}. The file holds {kind: phase_alignment.v1, model, clip_frames, reference_frames, path: [[clip_index, reference_index], ...], distance, provenance}. distance is the posture cost summed along the path divided by both frame counts: 0 for the same postures, larger for more different ones, comparable across references of different lengths. Indexes count the frames that showed a torso, in order."
         },
         "invoke": {
           "kind": "on-your-computer",

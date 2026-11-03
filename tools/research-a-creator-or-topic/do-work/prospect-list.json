@@ -1,0 +1,36 @@
+{
+  "_what": "The prospect list as DATA: the record type each prospect row is kept as, the fields a row holds and who fills each, the statuses a prospect moves through, and the words a prospect profile is written from. do-work/prospects.mjs reads every rule from here: adding a field or a status, or changing what a profile looks for, is an edit to this file, never to code. `filled_by` is `finder` (the facts a lead finder hands over: its name, address, place, source, size, signals and score), `research` (what the person's AI writes from the gathered material) or `person` (kept by hand: status and notes change only through the mark action). `kind` is `text`, `number` or `entries` (a list of objects that each carry every key of `entry_keys`; `basis` is `stated` when the material says it, with `evidence` quoting the material, or `inferred` when it is a reading of the material, which says so). `entries_least` and `entries_most` bound an entries field. `instruction` is told to the writer before the material; {name}, {address}, {criteria} and {fields} are filled from the request.",
+  "records": {
+    "type": "record:prospects",
+    "id_start": "record:prospects:",
+    "writes_at_most": 64
+  },
+  "statuses": ["found", "researched", "drafted", "contacted", "replied", "booked", "won", "lost", "dropped"],
+  "bases": ["stated", "inferred"],
+  "fields": [
+    { "id": "name", "label": "Name", "kind": "text", "filled_by": "finder" },
+    { "id": "url", "label": "Address", "kind": "text", "filled_by": "finder" },
+    { "id": "place", "label": "Place", "kind": "text", "filled_by": "finder" },
+    { "id": "source", "label": "Found by", "kind": "text", "filled_by": "finder" },
+    { "id": "size", "label": "Size", "kind": "number", "filled_by": "finder" },
+    { "id": "signals", "label": "Signals of need", "kind": "entries", "entry_keys": ["id", "says"], "filled_by": "finder" },
+    { "id": "score", "label": "Score", "kind": "number", "filled_by": "finder" },
+    { "id": "profile", "label": "Profile", "kind": "text", "filled_by": "research", "says": "two or three sentences on who they are and whether they fit the criteria, and why" },
+    { "id": "problems", "label": "Biggest problems", "kind": "entries", "entry_keys": ["problem", "basis", "evidence"], "entries_least": 1, "entries_most": 3, "filled_by": "research", "says": "the biggest problems the material shows, each with its basis and the evidence" },
+    { "id": "triggers", "label": "Why now", "kind": "entries", "entry_keys": ["trigger", "basis", "evidence"], "entries_least": 0, "entries_most": 5, "filled_by": "research", "says": "events that make now the time (a launch, a leadership change, a long-open role), each with its basis and the evidence; an empty list when the material shows none" },
+    { "id": "case_study", "label": "Case study to cite", "kind": "text", "filled_by": "research", "says": "which of the person's own approved case studies fits, by its name, or an empty text when none does" },
+    { "id": "channels", "label": "Ways to reach them", "kind": "entries", "entry_keys": ["kind", "address", "basis", "evidence"], "entries_least": 0, "entries_most": 10, "filled_by": "research", "says": "addresses and profiles the material publishes, each with its basis and the evidence; never a guessed address" },
+    { "id": "researched_at", "label": "Researched", "kind": "text", "filled_by": "research", "says": "set by the keep action" },
+    { "id": "status", "label": "Status", "kind": "text", "filled_by": "person" },
+    { "id": "notes", "label": "Notes", "kind": "text", "filled_by": "person" }
+  ],
+  "instruction": [
+    "Write a research profile of the prospect {name} ({address}) from the material below.",
+    "The person's criteria for a good prospect: {criteria}",
+    "Answer with one JSON object holding these fields: {fields}.",
+    "Rules: judge fit against the criteria and say why. For problems and triggers name only what the material shows. An entry whose basis is \"stated\" quotes the material word for word in its evidence; an entry that is your reading of the material has basis \"inferred\" and says what it is read from. Never invent a customer, a figure, a quotation or an address; leave a field empty or its list empty when the material does not show it. Do not infer purchase intent from silence.",
+    "",
+    "Material:",
+    ""
+  ]
+}

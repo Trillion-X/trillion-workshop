@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:71ecba90e0083c2ef8b405ec47ebb8eed32e6e31fed6fd6e8f4b67416c441dff"
+  "blake3": "1f:cca701db6d2940a021f89ab5ba990a3238823acc02dd38e8cf3d39bd7c38617d"
  },
  "fields": [
   {
@@ -261,8 +261,8 @@
    "id": "tool:answer-a-decision-question",
    "values": {
     "title": "Answer a decision's question",
-    "job": "Answer the question my method is asking about a decision, with each of its checks; change an answer I gave before with its reason; confirm an answer that must be asked again; or bring in an answer from another of my decisions",
-    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. revise changes an answer already given: it names because (why, in a few words) and keeps the old version, and every later answer of the decision is marked to be asked again, so the next question is the earliest of them. confirm, alone, keeps a re-asked answer unchanged. from, instead of answer, brings in another of the person's decisions' answer to the same step as it stood (its version, or the current one), with the evidence it cites, and checks it as a typed answer. A decided decision's answers change only after a failed result. Keeps the answer as its own step record and returns the next question.",
+    "job": "Answer the question my method is asking about a decision, with each of its checks; change an answer I gave before with its reason, which reopens a decided decision; confirm an answer that must be asked again, or add the judge's verdicts to an answer I have; or bring in an answer from another of my decisions",
+    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. revise changes an answer already given: it names because (why, in a few words) and keeps the old version, and every later answer of the decision is marked to be asked again, so the next question is the earliest of them. On a decided decision, revise reopens it: the decision it had moves to decision_history, marked reopened with its reason and when, and the decision must be made again with tool:make-the-decision. confirm keeps a re-asked answer unchanged; with verdicts it adds them to an answered step, open or decided, as a new version with the same answer, each verdict kept with when it came in; a verdict already kept is never changed, and a decided decision stays decided. from, instead of answer, brings in another of the person's decisions' answer to the same step as it stood (its version, or the current one), with the evidence it cites, and checks it as a typed answer. After a failed result, revise changes the answer and the decision stands until a new one is made. Keeps the answer as its own step record and returns the next question.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -367,7 +367,7 @@
    "values": {
     "title": "Ask a web address, or give me the last answer it gave",
     "job": "Ask a web address for its answer and keep that answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing",
-    "description": "Give address (a web address that starts with http:// or https://) and key (a short name for this answer: lower-case letters, digits and hyphens, so the last answer can be found again); wait_seconds (1 to 120, default 20) is how long to wait for the address. The answer is JSON when the address says it is JSON and text otherwise, up to 256 KiB. When the address answers, the answer is kept in the person's own records under the key and returned with origin from-the-source. When it fails (an error status, no answer in time, an unreadable or too large body) or answers with nothing, the last answer kept under the key is returned with origin from-what-was-kept and when it was kept; an empty answer never replaces a good one. With nothing kept the origin is nothing-to-give and the answer is null. Failures are returned in words (source_failure, keep_failure, kept_failure), never raised: a failure to keep never costs the answer already in hand. The engine keeps this to public web addresses.",
+    "description": "Give address (a web address that starts with http:// or https://) and key (a short name for this answer: lower-case letters, digits and hyphens, so the last answer can be found again); wait_seconds (1 to 120, default 20) is how long to wait for the address. The answer is JSON when the address says it is JSON and text otherwise, up to 256 KiB. When the address answers, the answer is kept in the person's own records under the key and returned with origin from-the-source. When it fails (an error status, no answer in time, an unreadable or too large body) or answers with nothing, the last answer kept under the key is returned with origin from-what-was-kept and when it was kept; an empty answer never replaces a good one. With nothing kept the origin is nothing-to-give and the answer is null. Failures are returned in words (source_failure, keep_failure, kept_failure), never raised: a failure to keep never costs the answer already in hand. When the address answers 429 or 503 with a Retry-After header, retry_after_seconds says how long it asked to be left alone (seconds or a date, held to a day); the tool itself never waits or asks again. The engine keeps this to public web addresses.",
     "status": "active",
     "maker": "maker:keep-the-last-good-answer",
     "licence_class": "licence:maker-own",
@@ -469,6 +469,21 @@
      "placement:small-container"
     ],
     "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
+   "id": "tool:brief-a-prospect",
+   "values": {
+    "title": "Prepare the research request for a prospect",
+    "job": "Get the instruction my AI writes a research profile of a company or a prospect from: fit against my criteria, the biggest problems the material shows, why now, a case study to cite, ways to reach them",
+    "description": "Give key (one short name for the prospect, such as its website address, the same in every later action), criteria (what makes a good prospect for you), and the gathered material: material (one text) or evidence ([{ id, text }], such as a job post, a page of the company's site or its reviews, gathered with the other tools of this folder or tools/browse-public-page). Optional name, url and profile_ref (prospect:<key> when left out). Returns requests (as tool:write-a-profile-request does, with the prospect instruction before the material), row_id (where the profile is kept) and profile_shape (each field the profile must hold). The profile rules are DATA in do-work/prospect-list.json. It asks no model and keeps nothing: your AI writes the profile as one JSON object from instruction_text and hands it to tool:keep-a-prospect. Refuses a request with no criteria or no material.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "research-a-creator-or-topic"
    }
   },
   {
@@ -1938,6 +1953,21 @@
    }
   },
   {
+   "id": "tool:find-repeated-edits",
+   "values": {
+    "title": "Find the edits a writer keeps making",
+    "job": "Turn the changes a person keeps making to drafts into candidate style rules, only for changes that recur in several different drafts",
+    "description": "Give pairs of { id, original, edited }, the draft as written and as the person left it. Finds the words removed, added or replaced in each, counts the different drafts each change recurs in, and returns as candidates only those in at least min_distinct_drafts (3 when left out, never below 2). Each candidate has its example. Candidates are proposals for the person to approve; nothing is kept. Fewer different drafts than the minimum is refused.",
+    "status": "active",
+    "maker": "maker:how-someone-does-their-thing",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
    "id": "tool:find-scene-changes",
    "values": {
     "title": "Find scene changes in a video",
@@ -2936,6 +2966,21 @@
    }
   },
   {
+   "id": "tool:keep-a-prospect",
+   "values": {
+    "title": "Keep, read, mark or remove a prospect in my prospect list",
+    "job": "Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes",
+    "description": "One row per prospect, under the key you give; keeping it again writes over the same row and leaves the fields you keep by hand. action keep (default): found = the facts a finder gave (name, url, place, source, size, signals, score) and/or profile = the research (profile, problems 1 to 3, triggers, case_study, channels). Every problem, trigger and channel carries basis stated (the material says it; evidence quotes it word for word) or inferred (a reading of it, with what it is read from). Send material with a profile and a stated quotation that is not in it is refused. A new row starts at the first status (found, or researched once a profile is kept). action mark: status (found, researched, drafted, contacted, replied, booked, won, lost, dropped) and/or notes. action read: one row by key, or a page of rows (optionally only one status, limit 1 to 500). action remove: one row by key. The fields, statuses and rules are DATA in do-work/prospect-list.json. It contacts nobody.",
+    "status": "active",
+    "maker": "maker:research-a-creator-or-topic",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
    "id": "tool:keep-channels-latest-videos-and-captions",
    "values": {
     "title": "Keep the newest videos of channels and their captions",
@@ -3044,6 +3089,21 @@
    }
   },
   {
+   "id": "tool:layer-a-writing-style",
+   "values": {
+    "title": "Layer a writing style from base to person",
+    "job": "Build the writing style for one writer by layering a base, a niche, a company or group and the person's own diction and syntax",
+    "description": "Give the layers in order (the base is added for you when you give none): niche, then group, then person, each { level, id, fields }. A later layer overrides an earlier one field by field; lists add to the earlier ones unless the layer names the field in replace, and off drops an entry an earlier layer added. Returns the merged style, which layers set each value, the instruction an AI writes from, and items for tool:keep-a-profile so the layered style is kept as a profile and drafts are checked with tool:check-a-draft-against-a-profile. It asks no model and keeps nothing. Layers out of order, an unknown level or field, or a layer with no id are refused.",
+    "status": "active",
+    "maker": "maker:how-someone-does-their-thing",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
    "id": "tool:layer-pictures-over-video",
    "values": {
     "title": "Lay pictures over a video",
@@ -3066,7 +3126,7 @@
    "values": {
     "title": "Line up two movements by their phase, whatever their speed (runs on your computer)",
     "job": "Match each moment of one movement to the same part of another movement, even when one is slower, starts later or has more frames",
-    "description": "Takes two pose tracks (from tool:read-peoples-poses-from-a-video, or any file in the pose.keypoints.v1 shape) and writes the pairs of frames that show the same phase of the movement: dynamic time warping over each frame's posture, with the joints centred on the hips and scaled by the torso so camera framing and body size do not count. It uses the most confident person in each track. Gamma 0 is hard warping; above 0 is soft warping with a smoother path. The path is monotonic (time never runs backwards), starts at the first pair and ends at the last pair. An empty or torso-less track, or a joint that is not a number, is refused with the reason; nothing is written. The cost grows with the product of the two frame counts: a 10 second clip at 30 frames a second takes seconds, a 10 minute clip does not.",
+    "description": "Takes two pose tracks (from tool:read-peoples-poses-from-a-video, or any file in the pose.keypoints.v1 shape) and writes the pairs of frames that show the same phase of the movement: dynamic time warping over each frame's posture, with the joints centred on the hips and scaled by the torso so camera framing and body size do not count. It uses the most confident person in each track. Gamma 0 is hard warping; above 0 is soft warping with a smoother path. The path is monotonic (time never runs backwards), starts at the first pair and ends at the last pair. It also gives a distance (the posture cost along the path divided by both frame counts) so several references can be ranked against one clip. An empty or torso-less track, or a joint that is not a number, is refused with the reason; nothing is written. The cost grows with the product of the two frame counts: a 10 second clip at 30 frames a second takes seconds, a 10 minute clip does not.",
     "status": "active",
     "maker": "maker:track-and-compare-movement",
     "licence_class": "licence:maker-own",
@@ -3535,7 +3595,7 @@
    "values": {
     "title": "Make the decision",
     "job": "Record what my AI decided, why, what to do next and how we will know it worked",
-    "description": "Once every question is answered: decision is { option_id (one of the options), reason, next_action, success_measure, evidence_refs, move?, and every decision field the decision asks for }. verdicts are your judge's on the decision fields. A decided decision changes only after a failed result: the earlier decision moves to decision_history. Returns what to do now and how to say it.",
+    "description": "Once every question is answered: decision is { option_id (one of the options), reason, next_action, success_measure, evidence_refs, move?, and every decision field the decision asks for }. verdicts are your judge's on the decision fields. A decided decision changes when one of its answers is revised (which reopens it) or after a failed result: the decision it had moves to decision_history. Returns what to do now and how to say it.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -3952,7 +4012,7 @@
    "values": {
     "title": "Read a decision's next question",
     "job": "See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions",
-    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. A question that asks for a recheck says which step was revised and the version of its answer. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out. With versions_of (a step id) it returns that step's versions, oldest first, each with who gave it, when, why it was revised and its answer.",
+    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. A question that asks for a recheck says which step was revised and the version of its answer. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out. With versions_of (a step id) it returns that step's versions, oldest first, each with who gave it, when, why it was revised, when it was confirmed, and its answer.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -4020,6 +4080,21 @@
      "placement:your-computer"
     ],
     "folder": "browser-saved-items"
+   }
+  },
+  {
+   "id": "tool:pace-sends-from-an-inbox",
+   "values": {
+    "title": "Pace sends from an inbox",
+    "job": "Say when each address on a list may be emailed from one sending inbox, so a new inbox warms up slowly, sends only on chosen days and hours, and stops when its mail bounces",
+    "description": "Give time_zone (the inbox's), recipients and a pacing row (pacing: new-inbox-warmup or saturday-local from read-data/inbox-pacing.json, or your own pacing_row): a ramp of sends a day by the inbox's day number, the least gap between sends, weekdays, local hours, how many days to leave an address after it was sent to, and when to pause (a share of hard bounces or any complaint among the last sends). Add history (every send this inbox made), outcomes (from tool:sort-bounces-and-replies) and suppressed addresses. Returns due_now (send these now, through a send tool), schedule (a slot for every address that may be sent to, in local time with its ramp day), held (each address left out and why: suppressed, bounced, unsubscribed, replied, sent to recently, listed twice, not an address, or the inbox is paused) and paused. It sends nothing and keeps nothing; every number, day and hour is a row you can change.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "send-messages"
    }
   },
   {
@@ -4132,7 +4207,7 @@
    "values": {
     "title": "Place live orders from a trading policy",
     "job": "Place the orders of my trading policy at my broker's live (real money) account",
-    "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone), routes (how your broker takes an order, each route with mode \"live\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: false, has no live route, was already sent for this policy version, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held live-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
+    "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone; risk.allowed_symbols, when given, is the only symbols it may trade), routes (how your broker takes an order, each route with mode \"live\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: false, has no live route, was already sent for this policy version, names a symbol outside risk.allowed_symbols, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held live-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
     "status": "active",
     "maker": "maker:trading",
     "licence_class": "licence:maker-own",
@@ -4147,7 +4222,7 @@
    "values": {
     "title": "Place paper orders from a trading policy",
     "job": "Place the orders of my trading policy at my broker's paper account",
-    "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone), routes (how your broker takes an order, each route with mode \"paper\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: true, has no paper route, was already sent for this policy version, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held paper-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
+    "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone; risk.allowed_symbols, when given, is the only symbols it may trade), routes (how your broker takes an order, each route with mode \"paper\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: true, has no paper route, was already sent for this policy version, names a symbol outside risk.allowed_symbols, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held paper-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
     "status": "active",
     "maker": "maker:trading",
     "licence_class": "licence:maker-own",
@@ -6964,6 +7039,21 @@
    }
   },
   {
+   "id": "tool:sort-bounces-and-replies",
+   "values": {
+    "title": "Sort bounces and replies",
+    "job": "Sort the bounces, complaints, unsubscribes and replies that came back from emails I sent, and say which addresses never to send to again, which to retry and which people wrote back",
+    "description": "Give events as your provider or mailbox gave them and event_source (plain, resend-webhook, amazon-ses-notification or mailbox-message from read-data/inbox-pacing.json, or your own event_source_row naming where the recipient, type, status, subject, text and time sit). Each event is read into those fields and the first outcome row whose every condition holds (a field equals one of its values, contains one of its words, or matches its pattern) names its kind (hard-bounce, soft-bounce, complaint, unsubscribe, reply, auto-reply, delivered) and action (suppress, stop-sequence, retry-later, hand-to-person, none). Returns outcomes (hand them to tool:pace-sends-from-an-inbox), suppress, stop, retry (with when), replies and the unmatched events. It sends, deletes and keeps nothing; your own outcome_rows replace the shipped ones.",
+    "status": "active",
+    "maker": "maker:send-messages",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "send-messages"
+   }
+  },
+  {
    "id": "tool:sort-reservations-by-status",
    "values": {
     "title": "Sort reservations by status",
@@ -7385,6 +7475,21 @@
      "placement:caller-sandbox"
     ],
     "folder": "walk-through-an-app-like-its-users"
+   }
+  },
+  {
+   "id": "tool:watch-my-sources",
+   "values": {
+    "title": "Watch my sources",
+    "job": "Watch the places I follow (any site's feed, a YouTube channel, a blog, a changelog, a page, a best-seller or trending list) and keep each new item as a row, weighed against what I am pursuing; only what moves a pursuit is handed to my AIs",
+    "description": "Reads each source marked Yes in the person's list signal-sources (made with its fields when missing, with starter places turned off) and keeps every item it has not kept before as a row of their list signals; a ranked-list source keeps each item's rank in ranked-items and makes a signal of each entry, climb, fall or drop-out. A source's first read is a quiet baseline. A page is watched by whether its words changed; an X account needs a feed address; a YouTube channel is read from its feed or, when YouTube refuses that, its videos page; an address that answers 'not changed' costs nothing. Reads at most 25 sources and weighs at most 20 items a run; the rest wait. The run asks no model and hands nothing in itself: when new items wait it answers weigh_wanted, one question { purpose, identity, messages, max_tokens } for the oldest batch, the same until it is answered; answer it and run again with weighed { identity, reply }. Each item that moves a pursuit comes back in arrivals, each exactly what the person's arrival door takes (route watch-sources, from_person false); the door keeps one arrival per route and source_id. Sends nothing outward and never writes to a source. Run it on a schedule (hourly) or when the person asks what is new in the places they follow. When the answer names weigh_wanted, answer that question yourself as the person's AI (reply with the JSON it asks for, nothing else) and run the tool again with weighed { identity, reply }. Hand each of arrivals to the person's arrival door as it is. Tell the person the moves; the rest is in their Signals list.",
+    "status": "active",
+    "maker": "maker:watch-my-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "watch-my-sources"
    }
   },
   {
