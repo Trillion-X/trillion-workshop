@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:6a888223517507ae4f16ff2816c9d9b57a1cf19bad364a71906c75c2dbbf4ef9"
  },
  "fields": [
   {
@@ -653,6 +653,38 @@
    }
   },
   {
+   "id": "tool:capture-dedupe",
+   "values": {
+    "title": "Is this capture a repeat?",
+    "job": "Say whether a captured text (screen words, a transcript) is the same as, or nearly the same as, one already seen, before it is kept or uploaded, and forget what was seen in a span when that span is erased",
+    "description": "Give action seen with text (and at, an ISO time; now when left out), or action erase with from and to (ISO times). Give entries, the memory the last run answered (none on a first run). Answers duplicate (false, exact or near) and of (the exact hash of the earlier text), or forgotten (how many were erased), and always entries, the memory to give back next time. Exact means the same text after normalising; near means a 64-bit SimHash within near_bits; texts under least_words_for_near words are never near. Settings: read-data/capture-dedupe.json.",
+    "status": "active",
+    "maker": "maker:tell-a-repeated-capture-from-a-new-one",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "tell-a-repeated-capture-from-a-new-one"
+   }
+  },
+  {
+   "id": "tool:capture-exclusion",
+   "values": {
+    "title": "Places capture must not read",
+    "job": "Say which categories of places (banking, health, social, shopping, adult content, entertainment) a screen or browser capture must not read, whether one address is in them, turn a category on or off for the person, and take in more domains as a cursor diff",
+    "description": "action list (the default) answers each category, whether it is on and how many domains it holds, and the cursor. check with address answers its category among the ones on, or null; a subdomain counts, a look-alike does not. set with category and on answers the categories on and prefs, the person's choices to keep. diff with diff ({ from, to, add: [{ domain, category }], remove: [domain] }) is applied only when from is the state's cursor, and answers the cursor and state to keep; a removed domain stays removed over the seed. Give prefs and state from the last answers (defaults when left out). Settings and the seed: read-data/capture-exclusion.json.",
+    "status": "active",
+    "maker": "maker:keep-private-sites-out-of-capture",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "keep-private-sites-out-of-capture"
+   }
+  },
+  {
    "id": "tool:change-a-booking-status",
    "values": {
     "title": "Change a booking's status",
@@ -1259,6 +1291,22 @@
      "placement:your-computer"
     ],
     "folder": "trading"
+   }
+  },
+  {
+   "id": "tool:check-personal-data",
+   "values": {
+    "title": "Check words for personal data",
+    "job": "Before words go to a model that is not on the person's computer, check on the computer whether they hold personal data (email addresses, phone numbers, card numbers that pass the checksum, IBANs, national ids, and by a model on the computer a name with an address or health details), and offer the person the choice: send as it is, do it on this computer only, or keep it back",
+    "description": "Give text, and model ({ endpoint, model, timeout_seconds } of a model served on this computer) to also ask the model questions. Answers contains, kinds ([{ kind, how: rule | model, count or share }]), model_checked, choices (when something was found) and said. Only counts and kinds come back, never the matched text. With no model named, or one that does not answer, said says only the rules were checked. Shapes, questions, threshold and choices: read-data/personal-data.json.",
+    "status": "active",
+    "maker": "maker:check-words-for-personal-data",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "check-words-for-personal-data"
    }
   },
   {
@@ -4597,6 +4645,22 @@
    }
   },
   {
+   "id": "tool:parse-snapshot",
+   "values": {
+    "title": "Read fields out of a screen snapshot",
+    "job": "Turn the accessibility elements of one app's window ({ role, label }) into fields through that app's declarative parser row, with emails, card numbers and tokens removed before anything is returned",
+    "description": "Give app (its name) and elements ([{ role, label }], as the Mac app's reader takes them). The first parser row whose app_contains matches the app is used, else the generic one; it selects elements by role and label pattern and cuts fields out with regular expressions. Every field is redacted with the redact patterns. Answers rows: [{ field: value }]. Triggers, throttle, parsers and redaction: read-data/snapshot-triggers.json; the governor that decides when to take a snapshot is createGovernor in the same file, used by the Mac app's reader.",
+    "status": "active",
+    "maker": "maker:read-what-is-on-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "read-what-is-on-screen"
+   }
+  },
+  {
    "id": "tool:pay-someone-a-share-through-stripe",
    "values": {
     "title": "Pay someone a share through Stripe",
@@ -6199,6 +6263,22 @@
     "flags": [
      "keeps-records"
     ]
+   }
+  },
+  {
+   "id": "tool:record-a-demonstration",
+   "values": {
+    "title": "Show me once",
+    "job": "Record, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and give it back as a draft workflow in words an AI can keep after the person has looked at it",
+    "description": "Give seconds (1 to 300; 30 when left out). The recorder listens only: it posts, blocks and changes nothing, and the stop key (Escape) ends it early. Text typed in a secure field is never recorded; the draft says a secret was typed. Answers draft ({ id, label, job, steps: [{ id, title, do, submit }], dropped_steps }), events_seen, secrets_skipped, ended (time, stop_key, most_events) and said. Without the Mac's Input Monitoring for the recorder the run is refused in words. Bounds and every step's words: read-data/demonstration.json.",
+    "status": "active",
+    "maker": "maker:record-a-job-shown-once",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "record-a-job-shown-once"
    }
   },
   {
@@ -8049,6 +8129,22 @@
      "placement:small-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
+   }
+  },
+  {
+   "id": "tool:suggest-zooms",
+   "values": {
+    "title": "Suggest zooms for a screen recording",
+    "job": "Turn the pointer moves and clicks noted beside a screen recording into zoom suggestions (where the pointer settled, for how long, how strong), as plain rows the person can edit before the video is exported",
+    "description": "Give sidecar: { space: 'normalized-source', samples: [{ t (ms), type: move | click, x, y (0 to 1 of the captured source) }] }. Telemetry in another space or without one is refused. Answers zooms: [{ start_ms, end_ms, x, y, strength (light, medium, strong), zoom, clicks }], sorted, none overlapping, the same every time for the same samples. Thresholds: read-data/auto-zoom.json.",
+    "status": "active",
+    "maker": "maker:suggest-zooms-from-pointer-moves",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "suggest-zooms-from-pointer-moves"
    }
   },
   {

@@ -1,0 +1,146 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:suggest-zooms-from-pointer-moves",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:suggest-zooms",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "label": "Suggest zooms for a screen recording",
+        "job": "Turn the pointer moves and clicks noted beside a screen recording into zoom suggestions (where the pointer settled, for how long, how strong), as plain rows the person can edit before the video is exported",
+        "description": "Give sidecar: { space: 'normalized-source', samples: [{ t (ms), type: move | click, x, y (0 to 1 of the captured source) }] }. Telemetry in another space or without one is refused. Answers zooms: [{ start_ms, end_ms, x, y, strength (light, medium, strong), zoom, clicks }], sorted, none overlapping, the same every time for the same samples. Thresholds: read-data/auto-zoom.json.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sidecar"
+          ],
+          "properties": {
+            "sidecar": {
+              "type": "object",
+              "required": [
+                "space",
+                "samples"
+              ],
+              "properties": {
+                "space": {
+                  "type": "string"
+                },
+                "samples": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "zooms"
+          ],
+          "properties": {
+            "zooms": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "start_ms": {
+                    "type": "number"
+                  },
+                  "end_ms": {
+                    "type": "number"
+                  },
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  },
+                  "strength": {
+                    "type": "string"
+                  },
+                  "zoom": {
+                    "type": "number"
+                  },
+                  "clicks": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/suggest-zooms-from-pointer-moves",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/suggest-zooms-from-pointer-moves/read-data/auto-zoom.mjs",
+            "suggest"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "suggest-zooms-from-pointer-moves",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/suggest-zooms-from-pointer-moves"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion auto-zoom (computer/, deleted in dc79bb0a87)"
+        }
+      }
+    }
+  ]
+}

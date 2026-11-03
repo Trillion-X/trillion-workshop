@@ -1,7 +1,10 @@
 // Zoom suggestions from pointer telemetry (tools/suggest-zooms-from-pointer-moves/read-data/auto-zoom.mjs, thresholds in auto-zoom.json; moved from Trillion test/auto-zoom.test.mjs; F-0555).
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { exportFlags, suggestZooms, zoomSettings } from '../read-data/auto-zoom.mjs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { exportFlags, suggest, suggestZooms, zoomSettings, zoomTools } from '../read-data/auto-zoom.mjs';
 
 const settings = zoomSettings();
 const still = (from, to, x, y, every = 50) => Array.from({ length: Math.floor((to - from) / every) + 1 }, (_, i) => ({ t: from + i * every, type: 'move', x, y }));
@@ -32,4 +35,17 @@ test('telemetry that does not say its space is refused, a long stay is split at 
   assert.ok(long.length >= 2 && long.every(zoom => zoom.end_ms - zoom.start_ms <= settings.most_ms));
   assert.equal(suggestZooms({ space: 'normalized-source', samples: still(0, 700, 0.3, 0.3) }, { ...settings, least_ms: 800 }).length, 0);
   assert.deepEqual(exportFlags(settings, '/r/t.json', [{ start_ms: 1 }]), ['--zoom-telemetry', '/r/t.json', '--zoom-regions', '[{"start_ms":1}]']);
+});
+
+// Moved from Trillion test/capture-session.test.mjs (its zoom half; the capture session itself was deleted with it).
+test('a pointer note beside a recording gives zoom suggestions through the tool', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'zoom-'));
+  const recording = path.join(dir, 'recording.mov');
+  const samples = Array.from({ length: 60 }, (_, i) => ({ t: i * 20, type: 'move', x: 0.5, y: 0.5 }));
+  writeFileSync(`${recording}.pointer.json`, JSON.stringify({ space: 'normalized-source', samples }));
+  const answered = await zoomTools.suggest({ recording });
+  assert.deepEqual(answered.zooms, suggestZooms({ space: 'normalized-source', samples }));
+  assert.ok(answered.zooms.length >= 1);
+  await assert.rejects(zoomTools.suggest({ recording: path.join(dir, 'none.mov') }), { status: 404 });
+  assert.deepEqual(await suggest({ sidecar: { space: 'normalized-source', samples } }), answered, 'the named export the row runs is the same tool');
 });
