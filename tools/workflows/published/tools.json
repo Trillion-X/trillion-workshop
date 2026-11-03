@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:22f7263d34850438cbc145bcd77f3b5b1a82aa49e35b6776cc081a0a15457224"
+  "blake3": "1f:c9d7964faac2e0e5eb622680a546b15bc11242a202f4607d702cad5107c4aa4a"
  },
  "fields": [
   {
@@ -4822,6 +4822,21 @@
    }
   },
   {
+   "id": "tool:plan-a-schedule-around-events",
+   "values": {
+    "title": "Propose slots for tasks around calendar events",
+    "job": "Propose work-hour slots for my tasks around the events already on my calendar, saying for each task that does not fit exactly why, and writing nothing",
+    "description": "Give tasks ({ id, title, duration_minutes, due?, deadline_type hard|soft|none?, priority urgent|high|medium|low?, start_on?, blocked_by?, and for a task already placed starts_at, ends_at, auto_placed, pinned_until }), events (busy events: starts_at, ends_at, or all_day/day), options ({ start_day, horizon_days up to 60, working_hours { start_minute, end_minute, weekdays } or { days: [...] } of sorted intervals, slot_minutes, capacity per weekday, day_overrides, blockers }) and time_zone (the IANA zone working hours are in). Deadline type and priority are independent: the type says whether due binds and whether the task may be placed late; priority only ranks. A task an automatic placement put somewhere that a person then moved stays where they put it while its pin is live (kept) and goes back to the planner when the pin passes (released). Answers proposals (task_id, starts_at, ends_at, status scheduled|late), unscheduled (each with the one reason the fixed precedence chooses: previous-stage tasks that cannot fit, then the blocker chain with blocker_ids, else no free slot), kept, released, and days with each day's planned minutes against its capacity (ok, caution, over). Limits: 200 tasks, 3000 events, 60 days. Nothing is written.",
+    "status": "active",
+    "maker": "maker:plan-my-time",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "plan-my-time"
+   }
+  },
+  {
    "id": "tool:plan-a-side-by-side-movement-comparison",
    "values": {
     "title": "Plan a side-by-side video of two movements, each framed on its person (runs on your computer)",
@@ -8215,6 +8230,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:timebox-a-planned-task",
+   "values": {
+    "title": "Say how a planned task shows on my calendar",
+    "job": "Say whether and how a planned task becomes an event on my own calendar: not at all, as free time, as busy, or busy only when it is at risk or high priority",
+    "description": "Give policy (off, free, busy or busy_when_at_risk; off when left out), task (title, due, deadline_type, priority), proposal (the placement the planner proposed: starts_at, ends_at, late) and todo_privacy (private or visible). Answers event ({ title, start, end, transparency transparent|opaque, visibility }) exactly at the proposed placement, or null when the policy writes nothing, and policies (each choice with its label and whether it writes). A task is at risk when it was placed after its deadline, or its deadline binds and falls within 48 hours of the placed end. An unknown policy writes nothing. Nothing is written here: the caller puts the event on the calendar.",
+    "status": "active",
+    "maker": "maker:plan-my-time",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "plan-my-time"
    }
   },
   {
