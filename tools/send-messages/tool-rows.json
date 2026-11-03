@@ -212,7 +212,7 @@
             ]
           }
         },
-        "result_selector": "$.result.result",
+        "result_selector": "$.result",
         "needs": { "expected_seconds": 30, "network_egress": false },
         "maker": "maker:send-messages",
         "licence_class": "licence:maker-own",

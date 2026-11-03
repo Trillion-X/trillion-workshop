@@ -55,7 +55,7 @@
           "argv": ["python3", "do-work/enrol-a-print.py"],
           "stdin": {"fill": {"from": "input"}}
         },
-        "result_selector": "$.result",
+        "result_selector": "$",
         "needs": {"expected_seconds": 60, "network_egress": false, "memory_mb": 4096},
         "licence_class": "licence:permissive",
         "placements": ["placement:deployed-container"],
@@ -116,7 +116,7 @@
           "argv": ["python3", "do-work/who-is-in-this.py"],
           "stdin": {"fill": {"from": "input"}}
         },
-        "result_selector": "$.result",
+        "result_selector": "$",
         "needs": {"expected_seconds": 180, "network_egress": false, "memory_mb": 4096},
         "licence_class": "licence:permissive",
         "placements": ["placement:deployed-container"],
@@ -168,7 +168,7 @@
           "argv": ["python3", "do-work/find-faces.py"],
           "stdin": {"fill": {"from": "input"}}
         },
-        "result_selector": "$.result",
+        "result_selector": "$",
         "needs": {"expected_seconds": 120, "network_egress": false, "memory_mb": 4096},
         "licence_class": "licence:permissive",
         "placements": ["placement:deployed-container"],

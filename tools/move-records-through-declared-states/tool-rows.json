@@ -194,7 +194,7 @@
       }
      }
     },
-    "result_selector": "$.result",
+    "result_selector": "$",
     "needs": {
      "expected_seconds": 20,
      "network_egress": false,
@@ -422,7 +422,7 @@
       }
      }
     },
-    "result_selector": "$.result",
+    "result_selector": "$",
     "needs": {
      "expected_seconds": 20,
      "network_egress": false,

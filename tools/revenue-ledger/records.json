@@ -186,7 +186,7 @@
      "placement:deployed-container"
     ],
     "maker": "maker:revenue-ledger",
-    "result_selector": "$.result",
+    "result_selector": "$",
     "provenance": {
      "source": "bitfield-packages packages/revenue-ledger"
     },

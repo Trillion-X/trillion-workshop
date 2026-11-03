@@ -49,7 +49,7 @@
      "argv": ["node", "do-work/find-a-destination.mjs"],
      "stdin": { "fill": { "from": "input" } }
     },
-    "result_selector": "$.result",
+    "result_selector": "$",
     "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
     "licence_class": "licence:maker-own",
     "placements": ["placement:small-container"],
@@ -126,7 +126,7 @@
      "argv": ["node", "do-work/check-a-destination-is-honest.mjs"],
      "stdin": { "fill": { "from": "input" } }
     },
-    "result_selector": "$.result",
+    "result_selector": "$",
     "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
     "licence_class": "licence:maker-own",
     "placements": ["placement:small-container"],

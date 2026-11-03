@@ -167,7 +167,7 @@
       ]
      }
     },
-    "result_selector": "$.result.result",
+    "result_selector": "$.result",
     "provenance": {
      "source": "bitfield-packages packages/find-files-in-an-index"
     }

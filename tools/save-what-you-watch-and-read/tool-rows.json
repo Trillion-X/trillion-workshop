@@ -161,7 +161,7 @@
       }
      ]
     },
-    "result_selector": "$.result",
+    "result_selector": "$",
     "needs": {
      "expected_seconds": 60,
      "network_egress": true
