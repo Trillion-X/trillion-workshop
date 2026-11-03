@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:9454b06c222bcde81518b46030016acb9021b25fdb95759e936b49e31613b182"
+  "blake3": "1f:2d7e63cd57246f068fbfd21d3852e8eaad231e9a64ca224c46459af3ac41196f"
  },
  "fields": [
   {
@@ -4549,6 +4549,21 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:observe-live-usage",
+   "values": {
+    "title": "Observe my live usage",
+    "job": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
+    "description": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
    }
   },
   {
