@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:65871b401c4367d7830983982fd60e81d8d78a448e8bf4bbb6460bd85d77838e"
+  "blake3": "1f:1956da88e25f8e9e25301a71201f9c5d1b046cfadaebb82d2d9baeef74848dfd"
  },
  "fields": [
   {
@@ -210,6 +210,22 @@
      "placement:small-container"
     ],
     "folder": "training-and-workouts"
+   }
+  },
+  {
+   "id": "tool:add-to-notion",
+   "values": {
+    "title": "Add to Notion",
+    "job": "Add a page to a Notion database from a note, or anything picked",
+    "description": "Makes a page in the Notion database you name (database: its id, the 32 letters and numbers in its address), titled title (else the first thing's name), holding your note and a link to what was sent. Uses your Notion connection, so connect Notion first. Returns what Notion answered.",
+    "status": "active",
+    "maker": "maker:send-to-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-10-20T00:00:00Z",
+    "folder": "send-to-a-place"
    }
   },
   {
@@ -4734,6 +4750,22 @@
    }
   },
   {
+   "id": "tool:post-to-slack",
+   "values": {
+    "title": "Post to Slack",
+    "job": "Post a message to a Slack channel from a note, or anything picked",
+    "description": "Posts your note, and a link to what was sent, in the Slack channel you name (channel: its name like #general, or its id). Uses your Slack connection, so connect Slack first and invite the app to a private channel. Returns what Slack answered; Slack saying no (a channel it cannot find) is told in its words.",
+    "status": "active",
+    "maker": "maker:send-to-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-10-20T00:00:00Z",
+    "folder": "send-to-a-place"
+   }
+  },
+  {
    "id": "tool:practice",
    "values": {
     "title": "Keep cards to practise and bring them back on schedule",
@@ -7469,6 +7501,22 @@
     ],
     "listed_on": "2026-10-31T00:00:00Z",
     "folder": "notifications"
+   }
+  },
+  {
+   "id": "tool:send-to-a-webhook",
+   "values": {
+    "title": "Send to a webhook",
+    "job": "Send a note, or anything picked, to a web address as JSON",
+    "description": "Posts { title, link, words, things } as JSON to address, a public web address you give, and says what the address answered. Takes things (what is being sent), note (your own words, sent as words), title and address. It refuses an address that is not public, waits at most 10 seconds, and does not follow a redirect, so what was posted stays at the address you gave. A refusal says what the address answered.",
+    "status": "active",
+    "maker": "maker:send-to-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-10-20T00:00:00Z",
+    "folder": "send-to-a-place"
    }
   },
   {
