@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:1b48a1ec27f7c299b80bca3c4dc7591ab4e3a5991b783f6265770cb4a6dab750"
+  "blake3": "1f:d7b2177f573cdfdb7859bc1fe5a56a6facf34e8510ba6c33c67cd7b4700e8db3"
  },
  "fields": [
   {
@@ -301,6 +301,21 @@
      "placement:small-container"
     ],
     "folder": "form-groups-and-matches"
+   }
+  },
+  {
+   "id": "tool:allow-my-ai-command-line-tools-in-a-folder",
+   "values": {
+    "title": "Allow my AI command line some tools in one folder (runs on your computer)",
+    "job": "Keep, read or clear the tools I allow my own AI command line in one workspace folder, passed as that command line's own allow-list flag",
+    "description": "Keeps the person's list of allowed tools for one existing folder in this computer's settings file (`workspace_tools`), reads one folder's list or all of them, and clears one. Nothing widens permissions by default: a folder with no list runs with the command line's own permission rules, and a command line with no allow-list flag (its row has no `allowed_tools`) is answered as not applying.",
+    "status": "active",
+    "maker": "maker:follow-my-ai-command-line-runs",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "follow-my-ai-command-line-runs"
    }
   },
   {
@@ -5446,6 +5461,21 @@
      "placement:your-computer"
     ],
     "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
+   "id": "tool:read-an-ai-command-line-run-as-events",
+   "values": {
+    "title": "Read a run of my AI command line as live events (runs on your computer)",
+    "job": "Turn the JSON event stream of my own AI command line's run into the same text, thinking, tool started, tool done and reply events, whichever command line it is",
+    "description": "Reads one run's JSON event stream (Claude Code's stream-json, Codex's --json) on standard input and prints one normalised event per line: { kind: text | thinking | tool_start | tool_done | reply, text?, name?, id? }. Which line is which event is a row of read-data/ai-command-lines.json per command line; a line that is not JSON or matches no row is ignored. Nothing is started or changed: it only reads what the run wrote.",
+    "status": "active",
+    "maker": "maker:follow-my-ai-command-line-runs",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "follow-my-ai-command-line-runs"
    }
   },
   {
