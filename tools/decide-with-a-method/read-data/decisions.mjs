@@ -665,7 +665,9 @@ const ENDED_FIELDS = ['status', 'previous_status', 'ended_at', 'ended_by', 'ende
 // can be 70 KB) cannot fit beside itself in one 64 KiB message. So this path ends the decision the way sayWhatWasDone
 // keeps a change: read it with its lists, set the ending fields, and lay it apart so every write fits, its root last. It
 // checks for a change by reading the raw root a second time just before the write; the window between that read and
-// the write is not covered.
+// the write is not covered. A door that still refuses one of its writes as too large (413) leaves that decision as it
+// was (a part written before the refusal is never counted by its root) and answers it not ended, so it never fails the
+// call for the decisions beside it.
 async function endLaidApart(door, { id, root, value }, answers) {
   const record = await readDecision(door, id);
   if (!record) { answers.set(id, { decision_id: id, ended: false, reason: WORDS.not_found }); return; }
@@ -675,7 +677,12 @@ async function endLaidApart(door, { id, root, value }, answers) {
     answers.set(id, { decision_id: id, ended: false, conflict: true, reason: WORDS.end_changed });
     return;
   }
-  await writeDecision(door, recordsOf(record), `end-a-decision:${id}`);
+  try { await writeDecision(door, recordsOf(record), `end-a-decision:${id}`); }
+  catch (error) {
+    if (error?.code !== TOO_LARGE) throw error;
+    answers.set(id, { decision_id: id, ended: false, too_large: true, reason: WORDS.end_too_large });
+    return;
+  }
   answers.set(id, { decision_id: id, ended: true, previous_status: value.previous_status, ended_at: value.ended_at, laid_apart: true });
 }
 

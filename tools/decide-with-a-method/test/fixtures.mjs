@@ -1,13 +1,16 @@
 // A synthetic method and an in-memory records door for the decision tests. The method is made up for the tests; it
 // holds no one's own method. The door keeps records as the records door does: read by type and id, list by type
 // (newest created first for a declared order, else greatest id first) with `fields`, and write with null removing. Like
-// the real door it refuses a write whose message is over 64 KiB, and it notes each write's bytes and its largest record.
+// the real door it refuses a write whose message is over 64 KiB, and it notes each write's bytes and its largest record,
+// and `carried`: the bytes of that message when a door carries it with every character past ASCII as a \u escape and
+// quotes it once more as a JSON string, the most any re-encoding on the way can make of it.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
 export const DOOR_CAP = 64 * 1024;
 const bytes = value => Buffer.byteLength(JSON.stringify(value));
+const carried = value => JSON.stringify(JSON.stringify(value).replace(/[\u007f-\uffff]/g, c => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`)).length;
 
 export const today = () => new Date().toISOString().slice(0, 10);
 
@@ -63,7 +66,7 @@ export function memoryDoor() {
       // A record carrying `expected` is written only if it still holds exactly that ({ type, value }, or null when absent), as the engine checks: otherwise the whole write is refused and nothing changes.
       const sorted = value => JSON.stringify(value, (name, item) => (item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) : item));
       if (list.some(record => 'expected' in record && sorted(record.expected) !== sorted(records.get(record.id) ?? null))) throw Object.assign(new Error('changed'), { code: 'original_command_conflict' });
-      writes.push({ key, ids: list.map(record => record.id), bytes: size, largest: Math.max(...list.map(bytes)) });
+      writes.push({ key, ids: list.map(record => record.id), bytes: size, carried: carried({ records: list, key }), largest: Math.max(...list.map(bytes)) });
       for (const { id, type, value } of list) {
         assert.ok(typeof type === 'string' && type, `${id} carries its type`);
         if (value === null) records.delete(id); else records.set(id, { type, value: structuredClone(value) });

@@ -98,13 +98,32 @@ const MOVED = ['answered_steps', 'original_input', 'candidates', 'reports', 'car
 // What was read of each laid-apart list and the method, so a write keeps only what changed.
 const LOADED = new WeakMap();
 
-// A record larger than `record_bytes` is kept as its short fields with the count of its parts (`kept_in_parts`), and its
-// whole value as text in parts of `decision-part`, each under the bound; it reads back whole.
+// What a record can weigh in a door message, however the door carries it on the way: its JSON with every character past
+// ASCII written as a \u escape, quoted once more as a JSON string. A part's text is itself JSON, so a quote, backslash or
+// newline in it is already escaped once, and each further encoding doubles that escape again: a part sized by its plain
+// UTF-8 bytes (a 67 KB chat message full of quotes, newlines and emoji) left a write of 46 KB plain that grew to 74 KB
+// carried, and the door answered 413. Sizing parts and writes by this measure keeps every write under the cap.
+const PAST_ASCII = /[\u007f-\uffff]/g;
+const escaped = char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`;
+const carriedText = text => JSON.stringify(text.replace(PAST_ASCII, escaped));
+/** The most bytes `value` can take in a door message: its JSON, past-ASCII escaped, quoted once more. Never under its UTF-8. */
+export const carriedBytes = value => carriedText(JSON.stringify(value)).length;
+// What one character of a string adds to its record's carried bytes (each character's escapes are its own).
+const QUOTED = carriedBytes('');
+const charBytes = new Map();
+const carriedChar = char => {
+  let size = charBytes.get(char);
+  if (size === undefined) charBytes.set(char, size = carriedBytes(char) - QUOTED);
+  return size;
+};
+
+// A record larger than `record_bytes` (carried) is kept as its short fields with the count of its parts (`kept_in_parts`),
+// and its whole value as text in parts of `decision-part`, each under the bound as carried; it reads back whole.
 function cut(text, bound) {
   const parts = [];
   let part = '', held = 0;
   for (const char of text) {
-    const size = utf8.encode(JSON.stringify(char)).length - 2;
+    const size = carriedChar(char);
     if (held + size > bound && part) { parts.push(part); part = ''; held = 0; }
     part += char;
     held += size;
@@ -114,8 +133,10 @@ function cut(text, bound) {
 function fitted(records) {
   const out = [];
   for (const record of records) {
-    if (record.value === null || record.type === 'decision' || bytesOf(record) <= settings.record_bytes) { out.push(record); continue; }
-    const texts = cut(JSON.stringify(record.value), settings.record_bytes - 512);
+    if (record.value === null || record.type === 'decision' || carriedBytes(record) <= settings.record_bytes) { out.push(record); continue; }
+    // Room for the text is the bound less the part record around it, its key at the widest part number.
+    const shell = carriedBytes({ id: partKey(record.id, 10 ** NAMES.part.digits - 1), type: NAMES.part.type, value: { of: record.id, at: 10 ** NAMES.part.digits - 1, text: '' } });
+    const texts = cut(JSON.stringify(record.value), settings.record_bytes - shell);
     const short = Object.fromEntries(Object.entries(record.value).filter(([, item]) => ['string', 'number', 'boolean'].includes(typeof item) && JSON.stringify(item).length <= 200));
     for (const [n, text] of texts.entries()) out.push({ id: partKey(record.id, n), type: NAMES.part.type, value: { of: record.id, at: n, text } });
     out.push({ id: record.id, type: record.type, value: { ...short, kept_in_parts: texts.length } });
@@ -280,8 +301,9 @@ export function recordsOf(record, changed = [], archived = []) {
 
 // One write when it fits one door message (`writes` records, `write_bytes` bytes); otherwise every other record first
 // and the root last, so a root never counts a record that is not there yet. Each part keeps its own request key, so a
-// write sent again answers the receipt it already saved. A record too large for `record_bytes` goes in its parts.
-const writeBounds = { rows: settings.writes, bytes: settings.write_bytes };
+// write sent again answers the receipt it already saved. A record too large for `record_bytes` goes in its parts. Writes
+// are measured as carried (carriedBytes), so one fits the door's cap however the door encodes it on the way.
+const writeBounds = { rows: settings.writes, bytes: settings.write_bytes, measure: carriedBytes };
 export async function writeDecision(door, list, key) {
   const [root, ...rest] = list;
   const parts = fitted(rest);

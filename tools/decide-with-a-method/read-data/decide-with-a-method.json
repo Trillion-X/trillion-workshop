@@ -145,7 +145,8 @@
     "none_standing": "Every question is answered, but no candidate is still standing, so nothing can be chosen: a constraint eliminated every shape. Bring back the constraint that eliminated the last one and question it, or start a new decision with what you learned.",
     "end_shape": "Name 1 to {most} decisions to end, each { decision_id, because } with its own decision_id, and by: who ends them",
     "end_kept_open": "A decision with status {status} has a result or a correction to keep; it is not ended.",
-    "end_changed": "The decision changed after it was read; it is not ended. Read it again before ending it."
+    "end_changed": "The decision changed after it was read; it is not ended. Read it again before ending it.",
+    "end_too_large": "The records door refused this decision's write as too large; it is not ended and is as it was."
   },
   "share": {
     "never_publish_row": "never-publish",
