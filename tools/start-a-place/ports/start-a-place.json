@@ -1,0 +1,122 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-START-A-PLACE",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:5c305676799b8f3718501a1e67b64f3411c9dcbedc932c0083d78637f77a0b23",
+    "quote": "Build a new Workshop tool start-a-place: makes and starts one Trillion place on this computer."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Make a Trillion place on this computer and start it: its key, its config and the running place",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/start-a-place/do-work/start-a-place.mjs"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/start-a-place/",
+      "why": "This tool itself: its README, rows and tests name the engine commands it runs."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/main.rs",
+      "why": "The engine's command line: it parses `trillion-local serve PLACE_CONFIG` and runs one place from a config that already exists. It makes no key and writes no config; this tool makes both and then calls it."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/native_entry/place.rs",
+      "why": "The engine's place entry: it reads and checks a place config and serves it. It is what this tool's config is written for, and it creates nothing (no key, no folder, no config)."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/native_entry/place/join.rs",
+      "why": "Adds a place to an account (`place id`, `send-root`, `freeze`, `join`) at a place whose config and key already exist; this tool calls its `place id` once and makes the config and key it reads."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/native_entry/place/signup.rs",
+      "why": "A sign-up at a running place; it reads the config's place key file, it does not make a place."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/account/create.rs",
+      "why": "Makes an account at a place (`account create PLACE_CONFIG`), not the place."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/held_values/root.rs",
+      "why": "Reads a place key file (base64 on one line) into the vault root; it never makes one."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/held_values/root.json",
+      "why": "The place key's size and file limit, read by root.rs; this tool's settings name the same size."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/local_account/lease_recovery.rs",
+      "why": "Recovery of an account's lease under a process; it names `trillion-local serve` only as the process that holds the lease."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/records/process_identity.rs",
+      "why": "Which process owns a record store; it names `trillion-local serve` only as one such process."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "tests/place_router.rs",
+      "why": "The engine's own test place: a config and key written inside a Rust test for one process. Its values are this tool's defaults; it is not a tool a person runs."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "docs/placement-decision/",
+      "why": "Status notes of the placement work that describe `trillion-local serve` and `place id`; words, not a way to make a place."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "docs/sign-in-port/G-door-cut-status.md",
+      "why": "A status note that says a place runs with no hosting app; words, not a way to make one."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "Make a Trillion place on this computer and start it: its key, its config and the running place",
+        "start trillion-local serve with a place config",
+        "write a place config and a place key file",
+        "start a place and print its place id with trillion-local place id"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "trillion-local serve",
+        "trillion-local place id",
+        "start-a-place|startAPlace",
+        "place_key_file"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "02aa88a30db2f3bb1881b62b04dca782f2250f5c"
+        },
+        {
+          "repository": "trillion",
+          "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "69ca47ccb53cec6d82b8db5b6666fece6077e8e6"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/start-a-place/test/start-a-place.test.mjs"
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-RECEPTIONIST-BUILD",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:bbdb0fc9e8456ad452fa872690e88941656ae85f4b8e1deefde08ca36367c7b8",
+    "quote": "New home: a new tool in this repo (trillion-workshop) at tools/<plain-job-name>/. Reuse the SSH helper (administrationArguments) instead of copying it."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "path": "scripts/portable-receptionist-build.mjs",
+      "lines": [
+        1,
+        35
+      ],
+      "multihash": "1f:2050770410c0a7a9970835db114421b2d77f3c9881abac6fd73a9b9de8f9ccc8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:00:00Z",
+        "deleted_with": "the Trillion-X/trillion pull request that deletes scripts/portable-receptionist-build.mjs, its test and its callers, merged after this one"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/build-and-install-the-public-receptionist/do-work/receptionist-build.mjs"
+    }
+  ],
+  "preserve": [
+    "git archive of one verified commit is the only source that travels: no home folder, Git configuration, uncommitted file, credential or account database",
+    "the revision is checked by the same pattern and resolved to a full 40-character commit before anything reaches the host",
+    "the build is --locked and --release for the trillion-mcp-receptionist binary, then its bootstrap_consumes_and_closes_the_original_credential_descriptor test runs",
+    "the build unpacks under umask 077 into a folder named by the commit, and a failed build answers the last 120 lines of its log",
+    "the built file is refused unless it is the file built from that commit, then checked and made 0755",
+    "ssh reaches the host only through the administration arguments: one key file, the pinned host key, batch mode"
+  ],
+  "allowed_deltas": [
+    "every host path (source_root, cargo_home, rustup_home, swap path, install_path), port, user and the Rust toolchain version is a declared input instead of /opt/trillion/source, /root/.cargo and root",
+    "the build-machine lines of scripts/portable-service-host-setup.sh (2-4 and 26-35: packages, folders, swap, rustup) are the prepare operation, with the packages, swap and toolchain from the request; its service-user and sshd lines stay with the door tunnel",
+    "inspect reads the request's ports and service user instead of 18789, 9443, 443 and trillion-identity",
+    "the optional build cache outside the commit folder is dropped: the old check allowed only the commit folder's own target, so it was never used",
+    "install can also put a copy at install_path in one rename",
+    "the command line takes the Workshop request on stdin and the held key file in argv, prints { result } or { error }, and keeps no readback file between runs; dry_run answers what would run",
+    "the administration arguments come from tools/administer-a-rented-host, packed by the rows"
+  ],
+  "banned_substitutions": [
+    "a host, path, port, user or toolchain written into the code",
+    "sending a working tree instead of git archive of a commit",
+    "accepting a new host key",
+    "reading the administration key in this program"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:45:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:2050770410c0a7a9970835db114421b2d77f3c9881abac6fd73a9b9de8f9ccc8",
+    "target_multihash_at_baseline": "1f:2050770410c0a7a9970835db114421b2d77f3c9881abac6fd73a9b9de8f9ccc8",
+    "commit": "ab9ee27bc9ff03b444cb556353bbb3392b056269"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/build-and-install-the-public-receptionist/test/receptionist-build.test.mjs prepare (create): sends the build-machine setup on stdin, with the given packages, swap and pinned Rust version",
+      "tools/build-and-install-the-public-receptionist/test/receptionist-build.test.mjs inspect (read): reads the host with the given ports, service user and toolchain, and changes nothing",
+      "tools/build-and-install-the-public-receptionist/test/receptionist-build.test.mjs build (run): archives one committed tree with real git, sends it and builds that commit",
+      "tools/build-and-install-the-public-receptionist/test/receptionist-build.test.mjs install (run): checks the built file, makes it runnable and puts a copy at install_path in one rename",
+      "tools/build-and-install-the-public-receptionist/test/receptionist-build.test.mjs refusals name the field and how to fix it, before anything runs"
+    ]
+  }
+}
