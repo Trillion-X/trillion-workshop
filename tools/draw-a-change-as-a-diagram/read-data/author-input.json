@@ -1,0 +1,25 @@
+{
+  "_what": "What leaves the machine when a model is asked to write a graph document from a large input, such as the files of a change (author-input.mjs). `budget_bytes` is the most that is sent in all; `min_cut_bytes` the least worth sending of a file that no longer fits whole. `exclude` are paths that never leave, each with the reason it is told in; `classes` rank what is sent first: the first class a path matches decides its rank, a path matching none takes `default_rank`, and lower ranks are sent before higher ones, so churn cannot push real work out of the budget. A glob uses `*` for any run of characters. `words` are the lines of the list of what leaves.",
+  "budget_bytes": 400000,
+  "min_cut_bytes": 2000,
+  "default_rank": 2,
+  "wildcard": "*",
+  "exclude": [
+    { "id": "secret-file", "match": ["*.env", "*.env.*", "*.pem", "*.key", "*id_rsa*", "*credentials*", "*secrets*"], "reason": "may hold a secret" },
+    { "id": "lock-file", "match": ["*.lock", "*package-lock.json", "*pnpm-lock.yaml", "*yarn.lock", "*Cargo.lock"], "reason": "a lock file is churn, not design" },
+    { "id": "binary-or-minified", "match": ["*.min.js", "*.min.css", "*.map", "*.png", "*.jpg", "*.gif", "*.pdf", "*.wasm"], "reason": "not readable as text" }
+  ],
+  "classes": [
+    { "id": "source", "rank": 0, "match": ["*.mjs", "*.js", "*.ts", "*.tsx", "*.py", "*.rs", "*.swift", "*.go", "*.java", "*.rb"] },
+    { "id": "contract", "rank": 1, "match": ["*.json", "*.yaml", "*.yml", "*.toml", "*.proto", "*.sql"] },
+    { "id": "generated", "rank": 3, "match": ["*generated*", "*.snap", "*/dist/*", "*/build/*"] }
+  ],
+  "words": {
+    "intro": "Sent to the model ({sent_count} files, {sent_bytes} bytes of {budget_bytes}):",
+    "sent": "  {path} ({bytes} bytes{cut})",
+    "cut": ", cut to fit",
+    "left_out_intro": "Not sent ({left_out_count} files):",
+    "left_out": "  {path}: {reason}",
+    "budget": "over the budget"
+  }
+}
