@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:2d7e63cd57246f068fbfd21d3852e8eaad231e9a64ca224c46459af3ac41196f"
+  "blake3": "1f:b0c75e3d8afcffc7736aa166a7fe0b89f077dd5cb20a29807aa25ac8c32d2f25"
  },
  "fields": [
   {
@@ -1749,6 +1749,21 @@
      "placement:your-computer"
     ],
     "folder": "office-files"
+   }
+  },
+  {
+   "id": "tool:describe-a-tool",
+   "values": {
+    "title": "Describe a tool",
+    "job": "Show me one tool's whole row, so I can see how it is written and how to call it",
+    "description": "Give the tool's id and the rows the Workshop answered (tools:list) as shared. Reads your own saved row of that tool (record type tool, id tool:<tool id>), or takes it as saved. Your saved row, unless deleted, replaces the shared row of the same id. Answers the tool's descriptor, who made it (this account or shared), the sample rule of the place it runs (read-only or dry-run samples on a person's own computer, owed until a computer connects), the sample-run checks of your own runnable tool, and the next call to make: save_tool for your own, run_tool for a shared tool that runs, nothing for a screen. A tool there is nothing of to describe answers an error naming find_tool_for_job. It reads one row and changes nothing.",
+    "status": "active",
+    "maker": "maker:describe-the-workshop",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "describe-the-workshop"
    }
   },
   {
