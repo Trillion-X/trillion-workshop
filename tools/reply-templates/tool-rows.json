@@ -54,7 +54,25 @@
       "output_selector": "$.reply.line",
       "contains": "Fresh bread at nine"
      }
-    ]
+    ],
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "snippet",
+          "_read_by": "src/snippets.mjs: words the person sends again and again, with blanks",
+          "guard_properties": {
+            "set_at": "text",
+            "snippet_id": "text",
+            "tags": "texts",
+            "text": "text",
+            "title": "text",
+            "used_at": "text",
+            "uses": "number"
+          }
+        }
+      ]
+    }
    }
   }
  ]

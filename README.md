@@ -199,6 +199,21 @@ trillion-workshop/
 └── test/every-tool-row.test.mjs
 ```
 
+## The records a tool keeps
+
+A tool row may hold `record_model`: the record kinds, indexes and links that tool keeps, in the shape of a record
+model (`kinds`, `indexes`, `value_kinds`, `declared_by`, `field_kinds`, `links`, `relations`, `activities`). Trillion
+reads the rows of the tools installed for a person and joins every tool's `record_model` into the one model their
+records are kept by: a list one tool after another, an object by its keys. The engine itself names no kind but the
+few it writes itself. Two tools may not declare one kind, one index or one key (`test/every-record-model.test.mjs`).
+
+A kind row is `{ type, properties?, guard_properties?, parts?, erasable?, erasable_key?, erase_with?, erase_fields?,
+stays_on_this_device?, table? }`: `erasable` fields are sealed under a key of the record's own, so erasing the record
+erases their words; `stays_on_this_device: true` keeps every record of the kind off any road that leaves the
+person's computer. An index row is `{ type, name, paths, where?, carry?, backfill? }`.
+`tools/keep-a-record-library-valid` holds, unchanged, the kinds whose owning tool is not here yet; move a kind to the
+tool that writes it when you add that tool.
+
 ## Add a tool
 
 1. Make `tools/<your-tool>/` with a command in `do-work/` that reads one JSON request on standard input and prints one JSON answer as its last line (`{"result": ...}`). It may not reach the internet unless its row says `"internet": true`.
