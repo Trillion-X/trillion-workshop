@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:2b09cccc597345c71d638a72ffa481e1822060090d2c4804e9654fd87374388f"
+  "blake3": "1f:f41ae59641f4b1194d82602891ede8cafffb4f15b4ba24cee0173cbdf1dc2c17"
  },
  "fields": [
   {
@@ -2926,21 +2926,6 @@
     "title": "Keep, read, mark or remove a prospect in my prospect list",
     "job": "Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes",
     "description": "One row per prospect, under the key you give; keeping it again writes over the same row and leaves the fields you keep by hand. action keep (default): found = the facts a finder gave (name, url, place, source, size, signals, score) and/or profile = the research (profile, problems 1 to 3, triggers, case_study, channels). Every problem, trigger and channel carries basis stated (the material says it; evidence quotes it word for word) or inferred (a reading of it, with what it is read from). Send material with a profile and a stated quotation that is not in it is refused. A new row starts at the first status (found, or researched once a profile is kept). action mark: status (found, researched, drafted, contacted, replied, booked, won, lost, dropped) and/or notes. action read: one row by key, or a page of rows (optionally only one status, limit 1 to 500). action remove: one row by key. The fields, statuses and rules are DATA in do-work/prospect-list.json. It contacts nobody.",
-    "status": "active",
-    "maker": "maker:research-a-creator-or-topic",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "research-a-creator-or-topic"
-   }
-  },
-  {
-   "id": "tool:keep-a-reverse-engineered-thing",
-   "values": {
-    "title": "Submit, read, edit or delete a reverse-engineered thing in the REA hub",
-    "job": "Keep the things people reverse engineered in a hub: submit one with its notes, the addresses it was read from, the artifacts made from it and the licence it is shared under, then read, edit or delete it",
-    "description": "One row per submission in the REA hub (record:rea-hub:<key>). action fields: what a row holds, its kinds, licences and statuses. action create: fields = thing, kind, notes, urls (1 to 25 http or https addresses), licence and submitted_by are required; artifacts ([{ label, url }]), status (submitted when left out), tags, found_by (the launch source row it came from) and launched_at are optional; the key is made from thing unless you send key, and a key already held is refused. action read: one row by key, or a page of rows (limit 1 to 500) narrowed by where on kind, licence, status or found_by. action edit: key and the fields to change; null removes an optional field, and a required field can only be replaced. action delete: one row by key. action seed: writes the synthetic example rows of do-work/rea-hub-examples.json that are not held yet. submitted_at and updated_at are written by the hub (now, or today's time when left out). The fields, kinds, licences and statuses are DATA in do-work/rea-hub.json. It reads no address and contacts nobody.",
     "status": "active",
     "maker": "maker:research-a-creator-or-topic",
     "licence_class": "licence:maker-own",

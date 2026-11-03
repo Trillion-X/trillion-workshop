@@ -292,7 +292,7 @@ function readableTextFor(background) {
   // Pick whichever of black and white has the higher WCAG contrast ratio against the fill.
   // A plain `luminance > 0.5` cut puts white on mid-tones such as #22c55e (about 2.3:1) where
   // black reads at about 9:1; the two ratios cross near luminance 0.179, not 0.5.
-  // The idea is contrastingTextColor in the MIT-licensed bloxwap/chart (references/rea-intake-2026-11-01/bloxwap--chart.md);
+  // The idea is contrastingTextColor in the MIT-licensed bloxwap/chart (https://github.com/bloxwap/chart);
   // the code here is written fresh.
   const againstBlack = (luminance + 0.05) / 0.05;
   const againstWhite = 1.05 / (luminance + 0.05);
