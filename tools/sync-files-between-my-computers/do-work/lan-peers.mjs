@@ -1,13 +1,13 @@
-// computer/lan-peers.mjs
+// tools/sync-files-between-my-computers/do-work/lan-peers.mjs (moved from old trillion computer/lan-peers.mjs)
 //
 // PURPOSE
-//   Other Drives of the same account on the same network as a source of file bytes, before Trillion's servers: one Drive
-//   that already holds a whole file on disk serves it to another Drive that asks for it by content identity. This module is
-//   the pure part (request signing, the table of known peers, announcements, the verified fetch); computer/trillion-drive.mjs
-//   mounts it beside its other byte sources.
+//   Other computers of the same account on the same network as a source of file bytes, before Trillion's servers: one
+//   computer that already holds a whole file on disk serves it to another that asks for it by content identity. This module
+//   is the pure part (request signing, the table of known peers, announcements, the verified fetch); whoever keeps the
+//   files on a computer mounts it beside its other byte sources.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Off unless `peers.enabled` (trillion-drive.json). Nothing listens and nothing is announced otherwise.
+//   1. Off unless `peers.enabled` (sync-files.json). Nothing listens and nothing is announced otherwise.
 //   2. A peer proves it belongs to this account without sending the key: every request carries the sender's computer
 //      identity, the time and a BLAKE3 keyed MAC over method, target, identity and time, made with a key derived from the
 //      account's agent key (`peerKey`). A request outside `window_seconds`, with a bad MAC or from this computer itself is
@@ -16,7 +16,7 @@
 //      it is whole on disk. It decides nothing about who may read what; the other Drive reads it as the same account.
 //   4. A fetched file is accepted only when the BLAKE3 of all its bytes equals the identity the requester named. A peer
 //      that sends anything else is put on a cooldown (`bad_peer_seconds`) and the next source is tried.
-//   5. Every size, time, port and list here is DATA (`peers` in trillion-drive.json).
+//   5. Every size, time, port and list here is DATA (`peers` in sync-files.json).
 import { createWriteStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import { createSocket } from 'node:dgram';

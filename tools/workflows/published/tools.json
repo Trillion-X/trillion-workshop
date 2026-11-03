@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:31bed69540c87ad52483831aa829a2b6f5ecf88ac311808c37b49c6c1d9d6c67"
  },
  "fields": [
   {
@@ -6918,6 +6918,21 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:say-where-file-sync-stands",
+   "values": {
+    "title": "Say where file sync stands",
+    "job": "Say where the sync of a person's files on one computer stands: starting, synced, syncing, offline, conflict or error, why Trillion was not reached, and how many saves are still moving",
+    "description": "Gives one typed sync status record from what the computer's change feed and write journal observed. The state is the first DATA row (sync-files.json sync_status) whose every condition holds; a failed ask is filed under the cause its answer status names (no_network, signed_out, storage_full, busy, trillion_unavailable, else refused). A feed that was never answered is starting, never read as empty or synced. Names, file identities and keys never enter the record: only counts, a cause and a status.",
+    "status": "active",
+    "maker": "maker:sync-files-between-my-computers",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "sync-files-between-my-computers"
    }
   },
   {

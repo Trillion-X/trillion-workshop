@@ -1,8 +1,8 @@
-// computer/folder-bindings.mjs
+// tools/sync-files-between-my-computers/do-work/folder-bindings.mjs (moved from old trillion computer/folder-bindings.mjs)
 //
 // PURPOSE
-//   A folder on this computer bound to a folder in the person's Trillion files, kept by the Drive
-//   (computer/trillion-drive.mjs): the computer-backup feature. A binding is a small record (id, local folder, Trillion
+//   A folder on this computer bound to a folder in the person's Trillion files, kept by whoever keeps
+//   the person's files on this computer: the computer-backup feature. A binding is a small record (id, local folder, Trillion
 //   folder). `run` sends every changed file in the local folder up through the Drive's own keepFile, so each file passes the
 //   one compare-and-set gate (`expected_identity`) the Namespace owner enforces. Nothing here decides who may write what.
 //   `redirect` is the opt-in step that makes the bound folder live in Trillion: after every file is proven stored, the local
@@ -25,13 +25,13 @@
 //      copies and deletes), then the link is made; if the link cannot be made the folder is renamed back.
 //   5. `restore` only undoes our own redirect: the old path must still be exactly the link made, and the archive must
 //      still be there.
-//   Every size, count, time and rule here is DATA (`folder_bindings` in trillion-drive.json).
+//   Every size, count, time and rule here is DATA (`folder_bindings` in sync-files.json).
 import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { blake3 } from '../parts/live-namespace/do-work/blake3.mjs';
+import { blake3 } from '@noble/hashes/blake3.js';
 
 const typed = (status, code, message, extra = {}) => Object.assign(new Error(message), { status, code, ...extra });
 const contains = (outer, inner) => inner === outer || inner.startsWith(outer.endsWith(path.sep) || outer.endsWith('/') ? outer : `${outer}${outer === '/' ? '' : path.sep}`);
