@@ -1,0 +1,40 @@
+{
+  "_what": "How an installed macOS app is checked for the hardening it should have (read-data/app-hardening.mjs): the Electron fuses read from the framework binary, the code-signing flags and the entitlements read with the system's codesign, and the bundle's integrity hash against whether the fuse that enforces it is on. `fuse_tables` lists the fuse names in wire order for each wire version (the byte after the sentinel); `expect` says which fuse states and entitlements count as findings. A new fuse version, expectation or entitlement is a row here.",
+  "sentinel": "dL7pKGdnNz796PbbjQWNKmHXBZaB9tsX",
+  "states": { "48": "off", "49": "on", "114": "removed" },
+  "fuse_tables": {
+    "1": ["RunAsNode", "EnableCookieEncryption", "EnableNodeOptionsEnvironmentVariable", "EnableNodeCliInspectArguments", "EnableEmbeddedAsarIntegrityValidation", "OnlyLoadAppFromAsar", "LoadBrowserProcessSpecificV8Snapshot", "GrantFileProtocolExtraPrivileges"]
+  },
+  "framework_path": "Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework",
+  "info_plist": "Contents/Info.plist",
+  "integrity_key": "ElectronAsarIntegrity",
+  "expect": {
+    "fuses": [
+      { "name": "RunAsNode", "want": ["off", "removed"], "why": "While on, the app's own signed binary runs any script as Node." },
+      { "name": "EnableNodeOptionsEnvironmentVariable", "want": ["off", "removed"], "why": "While on, NODE_OPTIONS can load code into the signed app." },
+      { "name": "EnableNodeCliInspectArguments", "want": ["off", "removed"], "why": "While on, --inspect opens a debugger on the signed app." },
+      { "name": "EnableEmbeddedAsarIntegrityValidation", "want": ["on"], "why": "While off, the app's code archive can be edited and still run." },
+      { "name": "OnlyLoadAppFromAsar", "want": ["on"], "why": "While off, a folder beside the archive can replace the app's code." },
+      { "name": "EnableCookieEncryption", "want": ["on"], "why": "While off, session cookies sit on disk in the clear." }
+    ],
+    "forbidden_entitlements": [
+      { "name": "com.apple.security.cs.disable-library-validation", "why": "Any library may be loaded into the app, signed or not." },
+      { "name": "com.apple.security.cs.allow-dyld-environment-variables", "why": "DYLD variables can inject code into the app." },
+      { "name": "com.apple.security.get-task-allow", "why": "Another process may attach to and control the app." },
+      { "name": "com.apple.security.cs.debugger", "why": "The app may debug other apps." }
+    ],
+    "require_hardened_runtime": true
+  },
+  "words": {
+    "no_app": "{path} is not an app bundle.",
+    "no_electron": "{app} does not carry an Electron framework, so there are no fuses to read.",
+    "no_sentinel": "The Electron framework of {app} carries no fuse block; it is not read.",
+    "unknown_version": "The fuse block of {app} is version {version}, which this check has no table for.",
+    "fuse": "{name} is {state} in {app}. {why}",
+    "entitlement": "{app} holds {name}. {why}",
+    "not_hardened": "{app} is not signed with the hardened runtime.",
+    "unsigned": "{app} is not signed.",
+    "integrity_not_enforced": "{app} records an integrity hash for its code archive, but the fuse that enforces it is off, so the hash protects nothing.",
+    "clean": "{app} meets every expectation in the list."
+  }
+}
