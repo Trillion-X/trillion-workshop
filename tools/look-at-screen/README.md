@@ -10,7 +10,7 @@ Takes a picture of every display on the person's Mac when, and only when, the to
 | `read-data/rules.json` | The longest edge, the picture format, the most one answer may hold, how much smaller each retry is, and the words it says. |
 | `tool-rows.json` | The row `tool:look-at-screen`: a `computer` row with the `see-the-screen` capability. |
 | `test/look-at-screen.test.mjs` | The behaviour on stand-in commands (no real picture is taken): displays and order, the size cap, the pointer, cleanup, access refused, the answer-size limit; and the real preflight, which takes no picture. |
-| `part.json` | Nothing here is imported by other code. |
+| `part.json` | `do-work/look-at-screen.mjs` (with the `read-data/rules.json` it reads) is public: `tools/drive-the-screen` takes its picture with `systemCommands.capture`. |
 
 ## How a run goes
 
@@ -28,4 +28,4 @@ Takes a picture of every display on the person's Mac when, and only when, the to
 
 **Depends on:** `tools/records-door` (the command that runs a function), `tools/content-identity`; macOS `screencapture`, `sips` and `osascript`.
 
-**Depended on by:** nothing is imported from here.
+**Depended on by:** `tools/drive-the-screen` (`read-data/drive-the-screen.mjs` imports `systemCommands` for the picture its text reader reads, and its rows pack `do-work` and `read-data`).

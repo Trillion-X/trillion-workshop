@@ -1596,6 +1596,19 @@
       ]
     },
     {
+      "capability": "drive the person's Mac screen for their AIs: look at one app's controls and words with where each is, find a described thing, click, press, type, scroll, drag or use keys on it, and say afterwards what really changed",
+      "owner": ["tools/drive-the-screen/"],
+      "entry": "tools/drive-the-screen/tool-rows.json",
+      "evidence": "README.md:3 observe (the accessibility tree and the pixels read as text), locate a target by what it is called, dispatch an action from DATA, observe again and verify; every action, limit and word in read-data/drive-the-screen.json; moved from Trillion-X/trillion computer/drive-the-screen.mjs",
+      "distinct_from": [
+        {"job": "see what is on the person's Mac screen right now: a picture of every display, each with its size in pixels", "why": "tools/look-at-screen hands the AI a picture and acts on nothing; this one reads one app's controls and text with where each is, and acts on them (it takes its own picture through tools/look-at-screen)"},
+        {"job": "read what a person is doing on their Mac as text from the front window", "why": "tools/read-what-is-on-screen watches the front window's words over a short watch for continuity; this one reads one app per call, with each thing's position and actions, in order to act on it"},
+        {"job": "act on a computer's apps, windows and command lines within declared bounds", "why": "computer-interface-actions (not moved here yet) runs bounded actions against apps, windows and command lines; this one drives the screen itself, finds a target by what it is called and checks afterwards what changed"},
+        {"job": "record a web page as a demo video: play steps like a person would, with a drawn pointer and click ripples", "why": "tools/record-a-web-page plays steps in a headless browser it starts; this one acts on whatever app is on the person's own Mac screen"},
+        {"job": "keep distracting apps closed and Focus on, on the person's computer, until a set time", "why": "tools/hold-a-computer-quiet closes apps; this one operates the controls inside an app and closes nothing"}
+      ]
+    },
+    {
       "capability": "plan a person's tasks into their free time and judge their meetings against their pursuits: ASAP first, then hard deadlines, then what serves the pursuits that matter most, then due date; tasks wait for their blockers, long tasks split into pieces, fixed-time tasks stay put, each day's work is held to a cap, and meetings that serve no pursuit and keep more valuable work from its deadline are proposed for decline",
       "owner": ["tools/plan-my-time/"],
       "entry": "tools/plan-my-time/tool-rows.json",

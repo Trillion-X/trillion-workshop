@@ -1,5 +1,5 @@
 {
-  "_what": "The person's redaction of what the AI reads off this Mac's screen (computer/ask-payload.mjs redactor, used by computer/drive-the-screen.mjs). If the person turned `redact` on (their own file `prefs_file`; off until they choose), every screen read is redacted here on the Mac by `patterns` before it can leave: a pattern is a regular expression and what replaces a match.",
+  "_what": "The person's redaction of what the AI reads off this Mac's screen (tools/drive-the-screen/read-data/ask-payload.mjs redactor, used by drive-the-screen.mjs beside it). If the person turned `redact` on (their own file `prefs_file`; off until they choose), every screen read is redacted here on the Mac by `patterns` before it can leave: a pattern is a regular expression and what replaces a match.",
   "prefs_file": "~/.trillion/capture/ask-prefs.json",
   "defaults": { "redact": false },
   "patterns": [

@@ -1,16 +1,17 @@
-// computer/drive-the-screen.mjs
+// tools/drive-the-screen/read-data/drive-the-screen.mjs (moved from Trillion-X/trillion computer/drive-the-screen.mjs)
 //
 // PURPOSE
-//   Lets the person's AIs drive this Mac's screen through the one host that already takes their runs over the live
-//   socket (computer/mac-tools.mjs): observe (a screenshot read as text with bounds by computer/observe-visual.mjs, plus
-//   the accessibility tree of one running app), locate a target by DATA-described intent, dispatch an action, observe
-//   again and say what really changed. Four Workshop tools on placement:your-computer: look, find, drive and actions.
+//   Lets the person's AIs drive this Mac's screen as `computer` runs (tools/records-door/do-work/run-an-export.mjs calls
+//   lookAtTheScreen, findOnTheScreen, driveTheScreen or screenActions): observe (a screenshot taken by
+//   tools/look-at-screen and read as text with bounds by ./observe-visual.mjs, plus the accessibility tree of one running
+//   app), locate a target by DATA-described intent, dispatch an action, observe again and say what really changed.
+//   Four Workshop tools on placement:your-computer: look, find, drive and actions.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Blind: this file names no app, control, coordinate or flow. What an action is, how a screen element becomes
-//      comparable, how candidates rank, the limits, the key table and every word are computer/drive-the-screen.json.
+//      comparable, how candidates rank, the limits, the key table and every word are ./drive-the-screen.json.
 //      A new action is a new row there (its steps are the operating system's input primitives that
-//      computer/screen-driver.swift runs); nothing here is a list of actions.
+//      ./screen-driver.swift runs); nothing here is a list of actions.
 //   2. Out of the box the screen is driven with no grant: a limit we impose by default never stops the person's work.
 //      The grant gate is a flippable policy (`consent.require_grant` in the DATA, default false). When the person turns
 //      it on, it is a floor the call cannot move: reading the screen and each action need an unexpired grant for that
@@ -35,17 +36,19 @@
 //      process itself (never the global stream) and never brings it forward.
 //
 import { randomUUID } from 'node:crypto';
-import { mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { systemCommands } from '../../look-at-screen/do-work/look-at-screen.mjs';
 import { redactor } from './ask-payload.mjs';
 import { withShield } from './capture-shield.mjs';
 import { ocrPixels, run } from './observe-visual.mjs';
 import { observationVerdict } from './observation-rules.mjs';
 import { categorySettings, loadCategoryTable, withCategories } from './observation-categories.mjs';
 import { ParkedWrite, writeSettingsFile } from './settings-file.mjs';
+import { makePlaces } from './work-places.mjs';
 import { decisionSettings, refreshControls, requireAllowed, requireHooks, ruleTools } from './run-decision.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -99,12 +102,12 @@ export const covers = (grant, action, app, now) => Array.isArray(grant?.actions)
 
 function writeGrants(settings, home, grants) {
   const file = grantsPath(settings, home);
-  // A grants file that cannot be understood is never replaced by an empty one (computer/settings-file.mjs).
+  // A grants file that cannot be understood is never replaced by an empty one (./settings-file.mjs).
   try { writeSettingsFile(file, { grants }, { accept: value => Array.isArray(value?.grants) }); }
   catch (error) { throw error instanceof ParkedWrite ? refuse(settings, 'parked', { file, why: error.why }, 409) : error; }
 }
 
-// The decision table (computer/run-decision.json) a driver judges every action by, before any grant is looked at.
+// The decision table (./run-decision.json) a driver judges every action by, before any grant is looked at.
 let decisionTable = null;
 const decisionOf = settings => settings.decision ?? (decisionTable ??= decisionSettings());
 
@@ -376,12 +379,10 @@ export async function secretFromReference(settings, reference, context, call) {
   return value;
 }
 
-/** The account's tool, called with the key this Mac holds (the same door computer/mac-tools.mjs accountFilesDoor reads files through). */
-const callAccountTool = async (name, args, context) => {
-  if (typeof context?.origin !== 'string' || typeof context?.key !== 'string' || !context.key) throw new Error('this Mac holds no account key');
-  const { toolCaller } = await import('./keep-drive-files.mjs');
-  return toolCaller(context.origin, context.key)(name, args);
-};
+/** The account's tool. The Mac host called it with the account key it held (computer/keep-drive-files.mjs toolCaller); a
+ *  `computer` run holds no account key, so a saved login is refused in words until the engine hands runs a way to read
+ *  one (README.md, Not yet). A test hands in its own `readSecret`. */
+const callAccountTool = async () => { throw new Error('this run holds no account key to read a saved login with'); };
 
 /** `value` with every secret replaced by the mask, the longest first so one that holds another is masked whole. */
 export function masked(value, secrets, mask) {
@@ -404,8 +405,9 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
   capture = async () => {
     const folder = await mkdtemp(join(tmpdir(), 'trillion-screen-'));
     try {
-      const file = join(folder, 'screen.jpg');
-      await withShield(() => run(settings.capture.program, settings.capture.args.map(arg => arg.replace('{file}', file)), { timeout: settings.limits.program_timeout_ms }));
+      // One file: tools/look-at-screen's capture takes the main display only, with no sound and no pointer.
+      const file = join(folder, settings.capture.file);
+      await withShield(async () => systemCommands.capture([file], false));
       return await readFile(file);
     } finally { await rm(folder, { recursive: true, force: true }); }
   },
@@ -649,7 +651,7 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
       rejectCarriedConsent(settings, input);
       const observation = await observe({ facts: await factsOf(input.app), sources: sourcesOf(input), session: sessionOf(input) });
       const ordered = observation.elements.slice().sort((a, b) => (a.frame?.y ?? 1e9) - (b.frame?.y ?? 1e9) || (a.frame?.x ?? 1e9) - (b.frame?.x ?? 1e9));
-      // What the AI reads leaves this Mac: the person's redaction (computer/ask-payload.mjs, off until they turn it on) is applied here.
+      // What the AI reads leaves this Mac: the person's redaction (./ask-payload.mjs, off until they turn it on) is applied here.
       return redactor(undefined, home)({ ...summary(observation), elements: ordered.slice(0, limits.max_elements).map(brief), shown: Math.min(ordered.length, limits.max_elements) });
     },
 
@@ -686,17 +688,64 @@ export function makeScreenDriver({ settings = screenSettings(), home = homedir()
   return { ...driver, look: withRetry(driver.look), find: withRetry(driver.find), drive: withRetry(driver.drive) };
 }
 
+// ------------------------------------------------------------------------------------------- the Workshop functions
+
+// What the Mac host (Trillion-X/trillion computer/mac-tools.mjs runHere) did around these four rows, kept here because a
+// `computer` run has no host around it: the person's settings folder is the run's input (`settings_folder`, the folder
+// that holds their `.trillion` settings, granted as change-a-folder); a drive asks the place `place` first and is refused
+// while the person has taken it over or is using it, and the first drive after they hand it back carries `told`; and a
+// refusal answers its words with the reaction, retry and outcome it carries, never only a sentence.
+const PLACE = 'this-mac';
+const hostWords = settings => settings.host_words;
+
+/** A refusal or failure as the answer the AI reads: the words, and what it owes them. */
+export function answerOfError(settings, error) {
+  return { error: error?.status ? error.message : fill(hostWords(settings).failed, { error: error?.message ?? error }),
+    ...(typeof error?.retry === 'boolean' ? { retry: error.retry } : {}), ...(Number.isFinite(error?.retry_after_ms) ? { retry_after_ms: error.retry_after_ms } : {}),
+    ...(error?.reaction ? { reaction: error.reaction, reaction_said: error.reaction_said } : {}), ...(error?.outcome ? { outcome: error.outcome } : {}),
+    ...(error?.code ? { code: error.code } : {}), ...(error?.permission ? { permission: error.permission } : {}) };
+}
+
+/** The four functions over a driver and the places, both made for the run's settings folder (a test hands in its own). */
+export function makeScreenTools({ settings = screenSettings(), driver = home => makeScreenDriver({ settings, home }), places = home => makePlaces({ home }),
+  scratch = () => mkdtempSync(join(tmpdir(), 'drive-the-screen-home-')) } = {}) {
+  const opened = input => {
+    if (input !== undefined && (input === null || typeof input !== 'object' || Array.isArray(input))) throw Object.assign(new Error(hostWords(settings).not_an_object), { status: 400, retry: false });
+    const { settings_folder: folder, ...rest } = input ?? {};
+    if (folder !== undefined && (typeof folder !== 'string' || !folder.startsWith('/'))) throw refuse(settings, 'bad_input', { name: 'settings_folder', type: 'a full folder path' }, 400);
+    // No folder: a fresh empty one, so nothing the person has not written limits the run (invariant 2).
+    const home = folder ?? scratch();
+    return { home, rest };
+  };
+  const answered = work => async (input, context) => {
+    try { return await work(input, context); } catch (error) { return answerOfError(settings, error); }
+  };
+  return {
+    look: answered(async input => { const { home, rest } = opened(input); return driver(home).look(rest); }),
+    find: answered(async input => { const { home, rest } = opened(input); return driver(home).find(rest); }),
+    actions: answered(async input => { opened(input); return driver(scratch()).actions(); }),
+    drive: answered(async (input, context) => {
+      const { home, rest } = opened(input);
+      const place = places(home);
+      const told = await place.handsOn(PLACE);
+      let answer;
+      try { answer = (await driver(home).drive(rest, context)) ?? {}; } finally { place.acted(PLACE); }
+      return told && answer && typeof answer === 'object' && !Array.isArray(answer) ? { ...answer, told } : answer;
+    }),
+  };
+}
+
 let shared = null;
-const driverHere = () => (shared ??= makeScreenDriver());
+const toolsHere = () => (shared ??= makeScreenTools());
 
-export const screenTools = {
-  look: input => driverHere().look(input),
-  find: input => driverHere().find(input),
-  actions: () => driverHere().actions(),
-  drive: (input, account) => driverHere().drive(input, account),
-};
+// The functions tools/records-door/do-work/run-an-export.mjs calls, one per row of ../tool-rows.json.
+export const lookAtTheScreen = input => toolsHere().look(input);
+export const findOnTheScreen = input => toolsHere().find(input);
+export const screenActions = input => toolsHere().actions(input);
+export const driveTheScreen = (input, context) => toolsHere().drive(input, context);
 
-// The person's own command line: node computer/drive-the-screen.mjs grant --actions look,press --minutes 10 [--apps Safari]
+// The person's own command line, on their Mac (HOME set to their settings folder):
+//   HOME=<folder> node tools/drive-the-screen/read-data/drive-the-screen.mjs grant --actions look,press --minutes 10 [--apps Safari]
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [command, ...rest] = process.argv.slice(2);
   const flag = name => { const at = rest.indexOf(`--${name}`); return at >= 0 ? rest[at + 1] : undefined; };

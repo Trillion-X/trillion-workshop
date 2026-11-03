@@ -1,7 +1,7 @@
-// computer/observation-rules.mjs
+// tools/drive-the-screen/read-data/observation-rules.mjs (moved from Trillion-X/trillion computer/observation-rules.mjs)
 //
 // Purpose: the one test of whether this Mac's reader may observe an app, a website, or a private window. Rules are DATA
-// (the `observation` section of computer/drive-the-screen.json): a default per scope (application, website) and rows of
+// (the `observation` section of tools/drive-the-screen/read-data/drive-the-screen.json): a default per scope (application, website) and rows of
 // exceptions. It is pure; callers hand it what they know about the thing being observed.
 //
 // Non-negotiable invariants
