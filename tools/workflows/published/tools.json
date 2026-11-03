@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b1aa0748c4c7f79751bcb475ff51618e4b93f4c817f4cb9eab73efbe5936f9be"
+  "blake3": "1f:9454b06c222bcde81518b46030016acb9021b25fdb95759e936b49e31613b182"
  },
  "fields": [
   {
@@ -6951,6 +6951,21 @@
    }
   },
   {
+   "id": "tool:say-how-this-copy-stands",
+   "values": {
+    "title": "Say how this copy stands",
+    "job": "Keep what this device says of how it stands",
+    "description": "Keeps what one device says of itself in your device rows (setting:catch_up_devices): device_id (the id it keeps for itself), state, waiting (changes it still holds), at (when its writes last reached the store), title, kind and copy_id (the copy of your records it keeps). A report is written only when what you would see changed, or when its last catch-up moved by more than an hour; the newest 40 devices are kept. Answers { device, written }.",
+    "status": "active",
+    "maker": "maker:keep-copies-in-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-copies-in-step"
+   }
+  },
+  {
    "id": "tool:say-lines-in-a-candidate-voice-model",
    "values": {
     "title": "Say some lines in a voice model I am trying out, cloned from my reference recording (runs on your Mac)",
@@ -7244,6 +7259,21 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "git-changes"
+   }
+  },
+  {
+   "id": "tool:see-copies-in-step",
+   "values": {
+    "title": "See whether every copy is in step",
+    "job": "Show me each of my devices, how it stands, and every record of one kind two copies changed apart",
+    "description": "Reads your device rows (setting:catch_up_devices) and every record of the kind you name that two copies changed apart (kept-apart records): devices, each with its state (such as waiting, catching-up, caught-up or offline), how many changes it still holds and when its writes last reached your store (at); and versions, each record kept as two versions with its thing ({ kind, id, title }) and its sides ({ id, from, keep, value, current }, the record as it is now first). other_kinds counts the records kept apart of other kinds, so you can ask for them next. Send positions ({ copy, settled_at }) to show copies of your records that settle with the store. It changes nothing.",
+    "status": "active",
+    "maker": "maker:keep-copies-in-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-copies-in-step"
    }
   },
   {
@@ -7883,6 +7913,21 @@
      "placement:small-container"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:settle-two-versions",
+   "values": {
+    "title": "Settle a record kept as two versions",
+    "job": "Settle a record two of my copies changed apart, as I chose",
+    "description": "Settles a record kept as two versions (id from tool:see-copies-in-step, kind its thing's kind): keep \"one\" version (side: its id), keep \"both\" as separate records (each other version is written as a record named after it), or keep a \"merged\" value (value: the whole record as it should be). The choice is written and the kept versions are removed in one write, conditioned on what was read; a record changed meanwhile answers conflict and nothing is written. Settle only as the person chose. request_key makes the same settle safe to send again.",
+    "status": "active",
+    "maker": "maker:keep-copies-in-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-copies-in-step"
    }
   },
   {
