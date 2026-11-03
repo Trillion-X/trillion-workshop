@@ -667,7 +667,57 @@
       "contains": "draft"
      }
     ],
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "post",
+          "parts": [
+            {
+              "role": "file",
+              "path": [
+                "media"
+              ],
+              "each": [
+                "identity"
+              ]
+            }
+          ],
+          "_read_by": "src/social-posts.mjs: a post (a draft until sent) and its files",
+          "guard_properties": {
+            "abort_on_reply": "object",
+            "approved_at": "text",
+            "approved_by": "text",
+            "armed_at": "text",
+            "cancelled_because": "text",
+            "caption": "text",
+            "caption_by_platform": "object",
+            "caption_style_check": "text",
+            "created_at": "text",
+            "deliveries": "object",
+            "destinations": "list",
+            "drafted_by": "text",
+            "edited_by_person_at": "text",
+            "format_id": "text",
+            "grounded": "object",
+            "hold_seconds": "number",
+            "held_until": "text",
+            "link": "text",
+            "media": "object",
+            "post_id": "text",
+            "reaches": "objects",
+            "scheduled_for": "text",
+            "sent_at": "text",
+            "settings_by_platform": "object",
+            "source": "object",
+            "status": "text",
+            "time_zone": "text",
+            "updated_at": "text"
+          }
+        }
+      ]
+    }
    }
   },
   {
@@ -1289,6 +1339,7 @@
      "type": "object"
     },
     "invoke": {
+     "refresh": {"token_url": "https://graph.instagram.com/refresh_access_token", "asked": {"method": "GET", "grant_type": "ig_refresh_token", "token_param": "access_token"}, "client_auth": "none", "margin_ms": 864000000, "when_expiry_unknown": true, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "access_token", "token_paths": []}},
      "kind": "http",
      "url": "https://graph.instagram.com/v21.0/me",
      "method": "GET",
@@ -1482,6 +1533,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "container",
      "files": {
       "package_files": [
@@ -1822,6 +1874,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://graph.instagram.com/refresh_access_token", "asked": {"method": "GET", "grant_type": "ig_refresh_token", "token_param": "access_token"}, "client_auth": "none", "margin_ms": 864000000, "when_expiry_unknown": true, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "access_token", "token_paths": []}},
      "kind": "container",
      "files": {
       "package_files": [
@@ -2332,6 +2385,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://graph.threads.net/refresh_access_token", "asked": {"method": "GET", "grant_type": "th_refresh_token", "token_param": "access_token"}, "client_auth": "none", "margin_ms": 864000000, "when_expiry_unknown": true, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "access_token", "token_paths": []}},
      "kind": "container",
      "files": {
       "package_files": [
@@ -2842,6 +2896,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://api.x.com/2/oauth2/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "basic", "client": {"id": {"name": "x-sign-in-client-id"}, "secret": {"name": "x-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "container",
      "files": {
       "package_files": [
