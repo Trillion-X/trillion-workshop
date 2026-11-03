@@ -1,0 +1,54 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LENS-FROM-LISTS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:7774625d8372b26dd644d2cc908dc781ba5bd2b26f118db75876de7274031aec",
+    "quote": "move ONLY the logic that reads them into Workshop tools that read those rows through the records door"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "read a person's pursuit lens from their own lists through their records door",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/see-a-pursuit-through-the-lens/do-work/see-a-pursuit-through-the-lens.mjs"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/see-a-pursuit-through-the-lens/",
+      "why": "This tool itself: the module it runs is src/ here, moved byte for byte from Trillion (moved-from.json); this file only reads that module's rows through the records door."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "read a person's pursuit lens from their own lists through their records door",
+        "read the pursuit lens rows from the person's lists",
+        "the lens from lists"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "lensFromLists"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "d455df793f10fee2661ec7bea6279a69f2d4344c"
+        },
+        {
+          "repository": "trillion",
+          "commit": "8762e7a48738b1292f202872438533e0950600ee"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/see-a-pursuit-through-the-lens/test/see-a-pursuit-through-the-lens.test.mjs"
+    ]
+  }
+}

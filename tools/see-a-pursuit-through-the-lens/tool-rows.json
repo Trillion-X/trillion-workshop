@@ -1,0 +1,176 @@
+{
+  "kind": "tool-rows",
+  "record_set": "see-a-pursuit-through-the-lens-tool-rows",
+  "what_this_is": "The Workshop row of tools/see-a-pursuit-through-the-lens.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-a-pursuit-through-the-lens",
+        "label": "See a pursuit through my lens",
+        "status": "active",
+        "job": "Tell an AI how to look at what I am pursuing: where to look, the parts to read what it finds by, and what to look for and do, from my own pursuit lens",
+        "description": "Answers the paragraph every AI reads when it connects (the lens's opening, each part in one sentence, its closing) and the setup (every part with each of its rows whole: what to look for and what to ask or do, plus the joining interview: the rows marked joining_interview and where its answers are kept). The lens is the person's own: its rows are the rows of their pursuit lens list and its opening, parts and closing one row of their content settings (read-data/see-a-pursuit-through-the-lens.json names both), read through their records door; or hand it in as lens. It reads nothing else and writes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "paragraph",
+                "setup",
+                "both"
+              ],
+              "description": "paragraph: what every AI reads when it connects; setup: every part with each row whole; both (the default)"
+            },
+            "lens": {
+              "type": "object",
+              "description": "The lens itself ({ opening, parts: [{ id, name, about }], closing, rows: [{ part, look_for, ask_or_do, joining_interview? }] }); left out, it is read from the person's lists"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "paragraph": {
+              "type": "string"
+            },
+            "setup": {
+              "type": "object"
+            },
+            "joining_interview_file": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/see-a-pursuit-through-the-lens",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/see-a-pursuit-through-the-lens/do-work/see-a-pursuit-through-the-lens.mjs",
+            "seeAPursuitThroughTheLens"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "see-a-pursuit-through-the-lens",
+                "paths": [
+                  "do-work",
+                  "read-data",
+                  "src"
+                ],
+                "at": "/opt/see-a-pursuit-through-the-lens"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "list",
+                "id": "list:pursuit-lens",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:pursuit-lens",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:content-setting",
+                "id": "record:content-setting:pursuit-lens",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:see-a-pursuit-through-the-lens",
+        "provenance": {
+          "source": "Trillion-X/trillion src/pursuit-lens.mjs at 42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "answer": "paragraph",
+              "lens": {
+                "opening": "Look at what they pursue.",
+                "parts": [
+                  {
+                    "id": "inside",
+                    "name": "Inside",
+                    "about": "what goes on in them"
+                  }
+                ],
+                "closing": "Then act.",
+                "rows": [
+                  {
+                    "part": "inside",
+                    "look_for": "what they repeat",
+                    "ask_or_do": "ask why"
+                  }
+                ]
+              }
+            },
+            "output_selector": "$.paragraph",
+            "contains": "Inside: what goes on in them"
+          }
+        ]
+      }
+    }
+  ]
+}
