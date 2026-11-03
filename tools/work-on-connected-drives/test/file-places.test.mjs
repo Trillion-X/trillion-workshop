@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, realpath, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -9,7 +9,7 @@ import { createFilePlaces } from '../read-data/file-places.mjs';
 const identityOf = async file => `test:${await import('node:fs/promises').then(fs => fs.readFile(file, 'utf8'))}`;
 
 test('finds byte-identical drive paths and the names held by the Trillion space', async t => {
-  const root = await mkdtemp(path.join(os.tmpdir(), 'trillion-file-places-'));
+  const root = await realpath(await mkdtemp(path.join(os.tmpdir(), 'trillion-file-places-')));
   t.after(() => rm(root, { recursive: true, force: true }));
   const first = path.join(root, 'First'), second = path.join(root, 'Second');
   await mkdir(first); await mkdir(second);
