@@ -440,7 +440,7 @@
       "entry": "tools/work-on-connected-drives/tool-rows.json",
       "evidence": "README.md:3 list and pause/resume/stop the long file work on drives, copy or move between drives, and eject",
       "distinct_from": [
-        { "job": "see the drives connected to a person's computer: what is on one, its icon, and which programs are using it", "why": "connected-drives only reads, once per run; this writes, stops programs and ejects, from one long-lived host that keeps the work's state." }
+        { "job": "see the drives connected to a person's computer: what is on one, its icon, and which programs are using it", "why": "connected-drives only reads; this copies and moves onto a drive (change-a-folder), stops the work holding a drive and ejects it, and finds a file's duplicates on the drives and in the person's own files. Its device listing is connected-drives' own (imported)." }
       ]
     },
     {
