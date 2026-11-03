@@ -809,10 +809,10 @@
       "evidence": "README.md:3 tracked links with UTM fields, visitors, leads and sales broken down by where they came from, what ad spend brings back"
     },
     {
-      "capability": "transcribe recordings with a time for every word, and redo the places where the speech model looped",
+      "capability": "transcribe recordings with a time for every word, and redo the places where the speech model looped; hear a recording in the person's files, or a link's video, into words on their own computer",
       "owner": ["tools/audio-transcription/"],
       "entry": "tools/audio-transcription/tool-rows.json",
-      "evidence": "tools/audio-transcription/README.md:3 the package's local Whisper transcription with word times, plus finding where Whisper looped and hearing only those windows again"
+      "evidence": "tools/audio-transcription/README.md:3 the package's local Whisper transcription with word times, plus finding where Whisper looped and hearing only those windows again; read-data/hear-here.mjs is the old Mac runner's tool:hear-a-recording and tool:hear-a-link"
     },
     {
       "capability": "work out a business's unit economics (ARPU, gross margin, CAC, LTV, payback) from plain numbers",
@@ -1543,7 +1543,7 @@
       ]
     },
     {
-      "capability": "tell who is in a recording or a picture: keep a person's voice or face print only with the consent words that say who agreed and how, name the voices of a transcript against those prints, and find and name faces in a picture or video",
+      "capability": "tell who is in a recording or a picture: keep a person's voice or face print only with the consent words that say who agreed and how, name the voices of a transcript against those prints, find and name faces in a picture or video, and list the people the prints can name",
       "owner": ["tools/know-who-is-in-this/"],
       "entry": "tools/know-who-is-in-this/tool-rows.json",
       "evidence": "README.md:3 the old app's enrolment, people and who tools: a print is made only with consent words, a voice is named only when it is clearly one enrolled person (else the people it could be, else an unknown voice that keeps its number through the listening), and prints never leave the device they were made on",
@@ -1555,7 +1555,7 @@
       ]
     },
     {
-      "capability": "listen to the microphone for a while: record it in pieces until an end time, hear each piece, name who said each turn from the prints people enrolled, and write each turn as a heard row as it is said",
+      "capability": "listen to the microphone for a while: record it in pieces until an end time, hear each piece, name who said each turn from the prints people enrolled, and write each turn as a heard row as it is said; hear a recording another of the person's devices made the same way",
       "owner": ["tools/listen-for-a-while/"],
       "entry": "tools/listen-for-a-while/tool-rows.json",
       "evidence": "the old app's listener recorded the microphone in pieces, heard each, named each stretch and sent one message per speaker's turn as it was said; this is that one loop as a Workshop tool whose run lasts until the person's end time",

@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:dea17319debf7c356f65b08d2f4e7e3c4b412c95cb7d1925f50325d9db4640fc"
  },
  "fields": [
   {
@@ -3191,6 +3191,51 @@
    }
   },
   {
+   "id": "tool:hear-a-link",
+   "values": {
+    "title": "Hear the words of a video or recording at a link",
+    "job": "Get the words said in a video or recording at a link, from its captions or heard on my own computer",
+    "description": "Reads the page at `url` with the link reader the person has (read-data/hear-a-link.json fetchers, such as yt-dlp; `link_reader` names its program). The page's own captions win when it has them; otherwise its sound is fetched and heard with the whisper-cli and ggml model the person granted. The heard sound is kept in the person's files (/Heard links, named by the page's title) with its words beside it, unless keep_sound is false. A link with no words always fails with why. Nothing is kept on the computer after the run.",
+    "status": "active",
+    "maker": "maker:audio-transcription",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "audio-transcription"
+   }
+  },
+  {
+   "id": "tool:hear-a-recording",
+   "values": {
+    "title": "Hear a recording into timed words on my computer",
+    "job": "Turn a recording in my files into its words with times, heard free on my own computer",
+    "description": "Reads a recording from the person's files (`file`, its name or identity) through the run's door into the run's own folder, hears it with the whisper-cli and ggml model the person granted (do-work/audio_transcription.py transcribe), and answers text, timed segments and language. The copy is removed once heard; the person's file is never changed. Nothing is sent to a paid speech service.",
+    "status": "active",
+    "maker": "maker:audio-transcription",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "audio-transcription"
+   }
+  },
+  {
+   "id": "tool:hear-for-a-device",
+   "values": {
+    "title": "Hear a recording another of my devices made",
+    "job": "Hear a recording one of my other devices made and keep each person's turn in it as that device heard it",
+    "description": "Reads a recording one of the person's other devices made (`file`, its name or identity in the person's files) through the run's door into the run's own folder, hears it on this computer with the Whisper model the person names, names each turn from the voices people enrolled (tool:enrol-a-voice-or-face), and writes one heard row per turn as tool:listen-for-a-while does, with `device` as the device and times counted from `at` (when the device began recording; now when left out). The same `listening` name continues an earlier listening's unknown voices. The person's recording rules and the listening's listening-switch row are asked as for a live listening. The copy read for hearing is deleted once heard; the person's file is left where it is. Every answer lists what leaves this computer and what stays.",
+    "status": "active",
+    "maker": "maker:listen-for-a-while",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "listen-for-a-while"
+   }
+  },
+  {
    "id": "tool:hold-a-device-quiet",
    "values": {
     "title": "Keep a device quiet until a time",
@@ -4609,6 +4654,21 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:people-listening-can-name",
+   "values": {
+    "title": "People listening can name",
+    "job": "List the people my voice and face prints can name, without their voice or face numbers",
+    "description": "Reads the person's voice-print and face-print records on this computer and lists each person once: their name, whether they are the person, how many voice and face samples they have and the consent words they gave. A print's numbers are never in the answer. The voice-print and face-print kinds are stays_on_this_device: true, so this runs on the computer that holds them and asks for no capability.",
+    "status": "active",
+    "maker": "maker:know-who-is-in-this",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "know-who-is-in-this"
    }
   },
   {
@@ -6936,6 +6996,21 @@
    }
   },
   {
+   "id": "tool:say-with-a-voice-model",
+   "values": {
+    "title": "Say words in my chosen voice with a speech model on my computer",
+    "job": "Say words out loud in my own cloned voice or a natural neutral one, made on my own computer, and keep the sound in my files",
+    "description": "Makes a sound of `text` with a speech model on the person's computer (read-data/speak.json programs and engines: mlx-audio with Qwen3-TTS for a voice cloned from a reference recording, Kokoro for the neutral voice), in the voice asked for, else the voice chosen for `place` or the chosen voice, else the shared voices in order; a voice that cannot be made is passed over with why. The sound is made at its natural pace and kept in the person's files (/Voice/Said); the answer carries the place's speed for the player to apply with the pitch kept. The person's voices and places are rows of their Voices and Where Trillion speaks lists. Nothing is left on the computer and nothing is sent to a paid service; it never falls back to a system voice. It plays nothing: the sound is a file.",
+    "status": "active",
+    "maker": "maker:generate-speech",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-speech"
+   }
+  },
+  {
    "id": "tool:schedule-next-review",
    "values": {
     "title": "Schedule the next review of something being learned",
@@ -8421,6 +8496,21 @@
      "placement:your-computer"
     ],
     "folder": "assemble-a-plan-into-a-cut"
+   }
+  },
+  {
+   "id": "tool:voices",
+   "values": {
+    "title": "My voices",
+    "job": "List, make, choose or remove the voices Trillion speaks to me in",
+    "description": "With nothing, lists the person's voices and which one is chosen; with make: { recording, label?, choose? } makes their own voice from a recording of them in their files (a stretch that ends where a sentence ends, picked by the speech model on this computer) and keeps its reference in /Voice; with choose: id chooses the voice Trillion speaks in; with remove: id removes one of their own voices (its reference stays in their files). Every voice and which one is chosen is a row of their Voices list; the shared voices are kept as rows the first time, so the person can choose them and set their speed.",
+    "status": "active",
+    "maker": "maker:generate-speech",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-speech"
    }
   },
   {
