@@ -2030,6 +2030,152 @@
   {
    "payload": {
     "kind": "ai-tool-descriptor",
+    "id": "tool:end-a-decision",
+    "label": "End decisions no one will carry on",
+    "job": "Close decisions that will never be carried on, and keep why",
+    "description": "Sets each named decision's status to ended and keeps the status it had (previous_status), ended_at, ended_by and ended_because, with every other field unchanged and nothing deleted. Each write is conditioned on the value just read: a decision that changed meanwhile answers conflict. A decision in outcome_verified, correction_needed or verification is not ended. 1 to 256 decisions per call.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "decisions",
+      "by"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "decisions": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 256,
+       "items": {
+        "type": "object",
+        "required": [
+         "decision_id",
+         "because"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "decision_id": {
+          "type": "string",
+          "minLength": 1
+         },
+         "because": {
+          "type": "string",
+          "minLength": 1
+         }
+        }
+       }
+      },
+      "by": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "ended",
+      "not_ended",
+      "decisions"
+     ],
+     "properties": {
+      "ended": {
+       "type": "integer"
+      },
+      "not_ended": {
+       "type": "integer"
+      },
+      "decisions": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/decisions.mjs",
+      "endDecisions"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 120,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
     "id": "tool:share-a-decision",
     "label": "Make a decision safe to share",
     "job": "Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words",

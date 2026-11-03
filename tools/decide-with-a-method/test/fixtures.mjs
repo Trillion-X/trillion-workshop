@@ -60,6 +60,9 @@ export function memoryDoor() {
       assert.ok(list.length >= 1 && list.length <= 256, `a write carries 1 to 256 records, not ${list.length}`);
       const size = bytes({ records: list, key });
       assert.ok(size <= DOOR_CAP, `a write of ${size} bytes is over the door's 64 KiB cap (413)`);
+      // A record carrying `expected` is written only if it still holds exactly that ({ type, value }, or null when absent), as the engine checks: otherwise the whole write is refused and nothing changes.
+      const sorted = value => JSON.stringify(value, (name, item) => (item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) : item));
+      if (list.some(record => 'expected' in record && sorted(record.expected) !== sorted(records.get(record.id) ?? null))) throw Object.assign(new Error('changed'), { code: 'original_command_conflict' });
       writes.push({ key, ids: list.map(record => record.id), bytes: size, largest: Math.max(...list.map(bytes)) });
       for (const { id, type, value } of list) {
         assert.ok(typeof type === 'string' && type, `${id} carries its type`);
