@@ -15,10 +15,7 @@
 //   4. Only the same maker's earlier rows are kept: another account's row of the same id is never folded in.
 //   5. Nothing here reads or writes the Marketplace; the Workshop (src/workshop.mjs) calls it on what it read. A malformed
 //      minimum is refused by the one catalog decoder (parts/ai-tool-catalog/read-data, MINIMUM_HOST_VERSION) when saved.
-import listing from '../server.json' with { type: 'json' };
 import settings from './tool-releases.json' with { type: 'json' };
-
-export const HOST_VERSION = listing.version;
 
 /** Negative, zero or positive as version `a` is older than, the same as, or newer than `b` (missing parts are 0). */
 export function compareVersions(a, b) {
@@ -34,7 +31,7 @@ const runsOn = (release, hostVersion) => !release.minimum_host_version || compar
 const releaseOnly = ({ earlier_releases: _earlier, ...release }) => release;
 
 /** The release of a published row this host runs (invariant 2), without its earlier releases; null when none runs here. */
-export function compatibleRelease(row, hostVersion = HOST_VERSION) {
+export function compatibleRelease(row, hostVersion) {
   if (!row || typeof row !== 'object') return null;
   const found = [row, ...(Array.isArray(row.earlier_releases) ? row.earlier_releases : [])].find(release => release && runsOn(release, hostVersion));
   return found ? releaseOnly(found) : null;
