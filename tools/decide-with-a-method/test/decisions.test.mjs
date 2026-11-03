@@ -1060,6 +1060,67 @@ test('a decision whose laid-apart write the door still refuses as 413 is answere
   assert.equal(door.value(small).status, 'ended');
 });
 
+// The engine keeps each request key with the input it first carried and refuses the key used again with other input.
+function keyedDoor(door) {
+  const seen = new Map();
+  const write = door.write.bind(door);
+  door.keys = seen;
+  door.write = async (list, options = {}) => {
+    const input = JSON.stringify(list);
+    if (options.key && seen.has(options.key) && seen.get(options.key) !== input) throw Object.assign(new Error('The records changed while this tool was running.'), { code: 'original_command_conflict' });
+    const answer = await write(list, options);
+    if (options.key) seen.set(options.key, input);
+    return answer;
+  };
+  return door;
+}
+
+test('a large old-layout decision whose first end failed partway is ended by the next call, under fresh keys', async () => {
+  const door = keyedDoor(memoryDoor());
+  const id = 'source:old-history-retry';
+  door.put(id, 'decision', oldRootWithLargeField(id));
+  const keyed = door.write;
+  let refuseRoot = true;
+  door.write = async (list, options) => {
+    if (refuseRoot && list.length === 1 && list[0].id === id) throw Object.assign(new Error('The records door answered 413.'), { code: 'http_413' });
+    return keyed(list, options);
+  };
+  const first = await endDecisions({ decisions: [{ decision_id: id, because: 'No one will carry it on.' }], by: 'test-agent' }, { door });
+  assert.equal(first.decisions[0].ended, false);
+  assert.equal(first.decisions[0].too_large, true);
+  assert.equal(door.value(id).status, 'needs_outcome', 'the root is as it was');
+  const firstKeys = [...door.keys.keys()];
+  assert.ok(firstKeys.length > 0, 'the first call wrote some parts before the refusal');
+  refuseRoot = false;
+  await new Promise(resolve => setTimeout(resolve, 5));
+  const second = await endDecisions({ decisions: [{ decision_id: id, because: 'Ended on the second try.' }], by: 'test-agent' }, { door });
+  assert.equal(second.decisions[0].ended, true);
+  assert.equal(second.decisions[0].laid_apart, true);
+  assert.equal(door.value(id).status, 'ended');
+  assert.equal(door.value(id).ended_because, 'Ended on the second try.');
+  const secondKeys = [...door.keys.keys()].filter(key => !firstKeys.includes(key));
+  assert.ok(secondKeys.length > 0 && secondKeys.every(key => key.startsWith(`end-a-decision:${id}:`)), 'the second call used fresh keys');
+  assert.deepEqual((await readDecision(door, id)).method_history, oldRootWithLargeField(id).method_history);
+});
+
+test('a laid-apart end the engine refuses as a reused key answers that decision as a conflict, and the others still end', async () => {
+  const door = memoryDoor();
+  const big = 'source:old-history-conflict', small = 'source:camp-small-conflict';
+  door.put(big, 'decision', oldRootWithLargeField(big));
+  door.put(small, 'decision', { status: 'needs_outcome', goal: 'A made-up goal' });
+  const write = door.write.bind(door);
+  door.write = async (list, options) => {
+    if (options?.key?.startsWith(`end-a-decision:${big}`)) throw Object.assign(new Error('The records changed while this tool was running.'), { code: 'original_command_conflict' });
+    return write(list, options);
+  };
+  const answer = await endDecisions({ decisions: [{ decision_id: big, because: 'Done with it.' }, { decision_id: small, because: 'Done with it.' }], by: 'test-agent' }, { door });
+  assert.deepEqual(answer.decisions.map(item => item.ended), [false, true]);
+  assert.equal(answer.decisions[0].conflict, true);
+  assert.equal(answer.decisions[0].reason, settings.words.end_changed);
+  assert.equal(door.value(big).status, 'needs_outcome');
+  assert.equal(door.value(small).status, 'ended');
+});
+
 // A made-up old-layout root of the shape measured on a real account: one field, `method_history`, far larger than the
 // door's cap (here about 300 KB, with quotes and characters past ASCII), beside small fields of a few hundred bytes each.
 function oldRootWithLargeField(id) {
