@@ -1,0 +1,60 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-TLS-HOST-OWNER",
+  "status": "BASELINED",
+  "directive": {
+    "thread_id": "door-tls-port lane 2026-11-03: the public door's certificate owner moves into the Workshop",
+    "message_multihash": "1f:a8d28073d09ccea0c78f8434013ba3557da77d17203fcf04f5e3b7014110a9a0",
+    "quote": "Port both files and their tests one to one. Product facts come from tool input, or from list:service-connections rows read through the records door (invoke.records). Credentials come only as credential_mounts by vault name."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "path_multihash": "1f:8b94db99100afa31fefb9556966d16464fd75ad4fe495bb9f1010b517d73febe",
+      "multihash": "1f:f3d3714ffecca83027d8483d98ced8c002a2c07c39bb55c9cc92d894743b7fb1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T21:00:00Z",
+        "deleted_with": "the one deletion pull request of the service-rows-to-lists lane, with the certificate owner and both tests"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/renew-a-tls-certificate/do-work/tls-host-owner.py",
+      "baseline_commit_message": "renew-a-tls-certificate, step one: the older owner's certificate owner and host owner, copied byte for byte before they are adapted"
+    }
+  ],
+  "preserve": [
+    "the DNS credential lives only in an anonymous memory file handed to certbot as an inherited descriptor, never on disk, in argv or the environment",
+    "every pre-existing DNS record is read before and after certificate work, and any change fails the action",
+    "provider failures are classified; neither API responses nor raw plugin logs nor the token leave the host owner",
+    "a certificate is reported only after system trust, hostname, a day of validity and a 0600 private key are verified",
+    "a changed certificate restarts the receptionist (verified through public TLS) and reloads the public ingress",
+    "a candidate proxy configuration is tested by nginx before it replaces the live one",
+    "the receptionist starts as its own unprivileged account with its TLS identity and password on inherited descriptors 3 and 4 only",
+    "setup leaves no default HTTP and no tokenless renewal timer"
+  ],
+  "allowed_deltas": [
+    "every product fact (the state folder, the ingress and receptionist services, the receptionist's account, binary pattern, listen address and environment) is read from the layout file the Mac side installs beside this owner, not written into it",
+    "memory-file and temporary-folder names are plain, with no product name",
+    "certbot renew may run as a dry run against the CA's staging server, which changes no certificate"
+  ],
+  "banned_substitutions": [
+    "a DNS credential written to a file on disk",
+    "a certificate reported without verifying it",
+    "a product's names written into this owner"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T21:10:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:f3d3714ffecca83027d8483d98ced8c002a2c07c39bb55c9cc92d894743b7fb1",
+    "target_multihash_at_baseline": "1f:f3d3714ffecca83027d8483d98ced8c002a2c07c39bb55c9cc92d894743b7fb1"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": []
+  }
+}
