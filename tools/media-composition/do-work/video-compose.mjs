@@ -2088,7 +2088,8 @@ if (audio.music_bed) {
 // #99 NARRATION: mix each TTS/voiceover clip over the program at its own start time. Every entry
 // is DATA {artifact, start, in, out, volume, fade_in?, fade_out?, duck?}; the render trims to [in,out], fades, adelays to `start`, sets
 // volume, and amixes all narration streams over the spine audio. Placed AFTER the music bed so voice
-// rides over both spine and bed. Blind to the engine that produced the audio (macos-say/espeak/...).
+// rides over both spine and bed. Blind to the engine that produced the audio (say/espeak-ng/...); with no tts_producer,
+// tts-narrate uses the first speech program the computer has.
 if (Array.isArray(audio.narration) && audio.narration.length > 0) {
   const nar = audio.narration;
   const narrated = join(T, 'narrated.mp4');
@@ -2100,7 +2101,7 @@ if (Array.isArray(audio.narration) && audio.narration.length > 0) {
     if (n.artifact) return n.artifact;
     if (typeof n.tts_text === 'string' && n.tts_text.trim()) {
       const out = join(T, `narr-${k}.wav`);
-      const a = [ttsBin, n.tts_text, out, n.tts_producer || 'macos-say'];
+      const a = [ttsBin, n.tts_text, out, n.tts_producer || ''];
       if (n.tts_voice) a.push(n.tts_voice);
       execFileSync('node', a, { stdio: ['ignore', 'ignore', 'inherit'] });
       return out;

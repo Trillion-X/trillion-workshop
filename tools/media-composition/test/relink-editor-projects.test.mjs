@@ -8,7 +8,7 @@ import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import zlib from 'node:zlib';
-import { checkedMoves, relinkEditorProjects, relinkPremiereProjects, rewriteProjectXml } from '../do-work/relink-editor-projects.mjs';
+import { checkedMoves, relinkEditorProjects, relinkPremiereProjects, rewriteProjectXml, spotlightProjects } from '../do-work/relink-editor-projects.mjs';
 
 const SCRIPT = new URL('../do-work/relink-editor-projects.mjs', import.meta.url).pathname;
 const project = (paths) => `<?xml version="1.0"?><PremiereData Version="3"><Media ObjectUID="m1"><FilePath>${paths.absolute}</FilePath><ActualMediaFilePath>${paths.absolute}</ActualMediaFilePath><RelativePath>${paths.relative}</RelativePath><Title>A &amp; B</Title></Media><Media ObjectUID="m2"><FilePath>/work/sample/Other/keep.mp4</FilePath></Media></PremiereData>`;
@@ -57,4 +57,11 @@ test('Resolve\'s answer is folded into the summary, and moves must be full paths
   assert.throws(() => checkedMoves([]), /List the moved clips/);
   const windows = rewriteProjectXml('<PremiereData><FilePath>C:\\Card\\a.mp4</FilePath></PremiereData>', checkedMoves([{ from: 'C:\\Card', to: 'Z:\\Clips' }]), 'D:\\Projects\\Edit.prproj');
   assert.equal(windows.xml, '<PremiereData><FilePath>Z:\\Clips\\a.mp4</FilePath></PremiereData>');
+});
+
+test('projects are found by name only where the computer has a name index; anywhere else the person names them', async () => {
+  await assert.rejects(spotlightProjects({ has: () => false }), /Name the Premiere project files to check; this computer has no Spotlight name index/);
+  const report = await relinkEditorProjects({ moves: [{ from: '/a/clip.mp4', to: '/b/clip.mp4' }], projects: [],
+    findProjects: () => { throw new Error('not asked when projects are named'); }, resolve: async () => ({ state: 'not-running', relinked: [], failed: [] }) });
+  assert.deepEqual(report.projects, []);
 });

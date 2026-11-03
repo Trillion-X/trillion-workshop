@@ -30,7 +30,7 @@ The config is JSON. Nothing in the code names a list, view, record type, address
 
 | Key | Holds |
 |---|---|
-| `transport` | `{ url, credential: { keychain_item } }`: the door's MCP address, and the name of the keychain item that holds the person's key. The key is read with `security` and is sent only in the Authorization header. Any answer that contains the key is refused. |
+| `transport` | `{ url, credential: { keychain_item } \| { key_file } }`: the door's MCP address, and where the computer keeps the person's key: a keychain item (read with `security`) or a key file the person names (read on any place). The key is sent only in the Authorization header. Any answer that contains the key is refused. |
 | `records` | `{ address, read_method, list_method, write_method?, history_method? }`: where the door reads one record (`{ type, id }`), lists a page of one type (`{ type, limit, after, prefix? }`), for a refresh writes records and, for a list that is the original, reads a record's newest versions with their times (`{ id, limit }`, answering `{ versions: [{ value, deleted, at }] }`). |
 | `tools` | `{ address, run_method }`: where the door runs a tool (`{ tool, input }`), for a refresh's source tools. |
 | `local_tools` | `{ <tool id>: { module, export, input? } }`: tools a refresh runs on this computer instead of through the door. Each gives the module's path under the Workshop's `tools` folder, the function it exports, and the input every run gets (for the documents source, `{ root }`, the folder the documents are in). Its answer is read as a run's `result`. |

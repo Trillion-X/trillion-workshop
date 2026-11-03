@@ -38,6 +38,15 @@ import { tmpdir, userInfo } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+// The browser and every helper it started (on some places its zygote, storage and GPU processes outlive it and keep
+// writing the profile). Where the place has process groups, the browser leads its own, and the whole group is ended;
+// elsewhere the browser alone is. Asked of the place (POSIX user ids), never of what kind it is.
+const PROCESS_GROUPS = typeof process.getuid === 'function';
+const endBrowser = child => {
+  if (PROCESS_GROUPS && child?.pid) try { process.kill(-child.pid, 'SIGKILL'); return; } catch { /* group already ended */ }
+  try { child?.kill('SIGKILL'); } catch { /* already ended */ }
+};
+
 const quietSwitches = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'quiet-switches.json'), 'utf8')).switches;
 
 const places = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'browser-places.json'), 'utf8')).places;
@@ -110,9 +119,9 @@ export async function openBrowser(executable, { width, height, switches = [] } =
     ...quietSwitches, ...switches, ...(proxy ? [`--proxy-server=${proxy}`, '--proxy-bypass-list=<-loopback>'] : []), '--headless=new', '--remote-debugging-pipe', `--user-data-dir=${profile}`, '--no-first-run',
     '--no-default-browser-check', '--no-sandbox', '--disable-gpu', '--hide-scrollbars', '--mute-audio',
     '--disable-dev-shm-usage', '--force-color-profile=srgb', `--window-size=${width},${height}`, 'about:blank',
-  ], { stdio: ['ignore', 'ignore', 'pipe', 'pipe', 'pipe'] });
+  ], { stdio: ['ignore', 'ignore', 'pipe', 'pipe', 'pipe'], detached: PROCESS_GROUPS });
   // However this run ends, even before the browser answered, the browser ends with it.
-  killAtExit = () => { try { child.kill('SIGKILL'); } catch { /* process already exited */ } };
+  killAtExit = () => endBrowser(child);
   process.once('exit', killAtExit);
   child.once('exit', () => {
     if (killAtExit) process.removeListener('exit', killAtExit);
@@ -171,7 +180,7 @@ export async function openBrowser(executable, { width, height, switches = [] } =
     if (closed) return;
     closed = true;
     try { toBrowser.destroy(); fromBrowser.destroy(); } catch { /* already closed */ }
-    child.kill('SIGKILL');
+    endBrowser(child);
     removeProfile(profile);
   };
   return {
@@ -182,7 +191,7 @@ export async function openBrowser(executable, { width, height, switches = [] } =
   } catch (error) {
     if (killAtExit) process.removeListener('exit', killAtExit);
     if (child?.pid && child.exitCode === null && child.signalCode === null) {
-      try { child.kill('SIGKILL'); } catch { /* process already exited */ }
+      endBrowser(child);
     }
     if (profile) removeProfile(profile);
     throw error;

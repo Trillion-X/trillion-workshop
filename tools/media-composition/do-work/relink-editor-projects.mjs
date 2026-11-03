@@ -18,7 +18,8 @@
  *
  * Usage: node relink-editor-projects.mjs --moves JSON [--projects JSON]
  *   moves     [{ "from": "<old full path>", "to": "<new full path>" }]; a folder moves every file under it
- *   projects  the Premiere project files to check; left out on a Mac, Spotlight finds every .prproj
+ *   projects  the Premiere project files to check; left out where the computer has a Spotlight name index, it finds
+ *             every .prproj
  * Output (stdout, JSON): { projects: [{ file, state, paths_changed?, original_kept_at?, moves_waiting? }],
  *                          resolve: { state, project?, relinked, failed }, said }
  */
@@ -26,6 +27,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { execFile } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 // Each element Premiere reads a media location from, and how its value is written.
@@ -98,9 +100,11 @@ export function rewriteProjectXml(xml, moves, projectFile) {
 }
 
 // Spotlight's name search answers from its index at once; a leading-wildcard query scans every entry, so it is not used.
-async function spotlightProjects() {
-  if (process.platform !== 'darwin') throw new Error('Name the Premiere project files to check; only a Mac can find them all by itself.');
-  return (await run('/usr/bin/mdfind', ['-name', '.prproj'])).split('\n').filter(line => path.isAbsolute(line) && line.toLowerCase().endsWith('.prproj'));
+// Whether the computer has that index is asked of the computer (its mdfind), never assumed from what kind it is.
+const NAME_INDEX = '/usr/bin/mdfind';
+export async function spotlightProjects({ has = existsSync } = {}) {
+  if (!has(NAME_INDEX)) throw new Error('Name the Premiere project files to check; this computer has no Spotlight name index to find them all by itself.');
+  return (await run(NAME_INDEX, ['-name', '.prproj'])).split('\n').filter(line => path.isAbsolute(line) && line.toLowerCase().endsWith('.prproj'));
 }
 
 // lsof exits 1 with no output when nothing has the file open; a computer without lsof locks open files itself.

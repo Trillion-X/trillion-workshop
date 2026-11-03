@@ -550,6 +550,19 @@ class McpDoor(unittest.TestCase):
         self.assertEqual(handles, [{'keychain_item': 'made-up-item'}], 'the key comes from the handle the config names')
         return door
 
+    def test_the_key_comes_from_where_the_handle_says_and_a_key_file_works_on_any_place(self):
+        key_file = self.tmp / 'door-key'
+        key_file.write_text(f'{self.KEY}\n', encoding='utf-8')
+        self.config['transport']['credential'] = {'key_file': str(key_file)}
+        records = sender.Door(self.config, self.tmp / 'work').read_type('record:shelf')
+        self.assertEqual([r['id'] for r in records], sorted(self.records))
+        self.assertEqual(self.seen[0]['auth'], f'Bearer {self.KEY}')
+        with self.assertRaisesRegex(ValueError, 'No key is kept in the key file'):
+            sender.credential_key({'key_file': str(self.tmp / 'missing')})
+        for handle in ({}, {'key': self.KEY}, {'key_file': str(key_file), 'keychain_item': 'x'}):
+            with self.assertRaisesRegex(ValueError, 'names one of'):
+                sender.credential_key(handle)
+
     def test_pages_are_read_as_tools_call_with_the_handle_key_as_bearer_and_a_streamed_answer(self):
         records = self.door().read_type('record:shelf')
         self.assertEqual([r['id'] for r in records], sorted(self.records))
