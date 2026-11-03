@@ -1,0 +1,84 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PROGRESSION",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f2",
+      "path": "src/progression.mjs",
+      "multihash": "1f:d0a88184b2b2f65bd8c1c082b6aad9aed1fbe118669d88d1837cbcc2b10fbeeb",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the paired Trillion-X/trillion change that moves src/community.mjs (and src/workspace/community-screen.tsx), the old copy's callers; until then the old copy is a duplicate"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f2",
+      "path": "src/community-logic/board-habit.ts",
+      "multihash": "1f:a17b425aea3017980994a02bd67324294a0ae257101d2286a7a12131bdee0e99",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the paired Trillion-X/trillion change that moves src/community.mjs (and src/workspace/community-screen.tsx), the old copy's callers; until then the old copy is a duplicate"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f2",
+      "path": "src/community-logic/board-habit-cadence.ts",
+      "multihash": "1f:fba0898270b93c8588592b60ffa8e90b563ba73cebd6ec01c8543100c9f8becb",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the paired Trillion-X/trillion change that moves src/community.mjs (and src/workspace/community-screen.tsx), the old copy's callers; until then the old copy is a duplicate"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/evaluate-progress/read-data/progression.mjs"
+    },
+    {
+      "path": "tools/evaluate-progress/read-data/board-habit.ts"
+    },
+    {
+      "path": "tools/evaluate-progress/read-data/board-habit-cadence.ts"
+    }
+  ],
+  "preserve": [
+    "levels, rewards and streaks are worked out from facts by DATA rows; nothing names a kind of fact",
+    "capped_count bounds a measure by per-period, total and minimum limits so a reward cannot be gamed; none given counts everything",
+    "weighted_count weighs each input's count, and caps see each input apart",
+    "streaks follow the habit cadence (period and times)"
+  ],
+  "allowed_deltas": [
+    "the vendored measure engine is this folder's own (derive-measure.ts, measure-ops.ts, band-membership.ts, evaluate-progression.ts already here), imported as siblings instead of src/community-logic/"
+  ],
+  "banned_substitutions": [
+    "a cap counted after the reward is granted",
+    "a fact kind named in code"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:d0a88184b2b2f65bd8c1c082b6aad9aed1fbe118669d88d1837cbcc2b10fbeeb",
+    "target_multihash_at_baseline": "1f:d0a88184b2b2f65bd8c1c082b6aad9aed1fbe118669d88d1837cbcc2b10fbeeb",
+    "commit": "346dfef2708f664a02a6f4b90493b5f6b317b80c"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/evaluate-progress/test/progression-capped.test.mjs per-period, total and minimum limits bound a measure; none given counts everything",
+      "tools/evaluate-progress/test/progression-capped.test.mjs weights apply per input and caps see each input apart"
+    ]
+  }
+}

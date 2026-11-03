@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:fa5a93c4171edead402c9e3a123b0e03a236c8e986119774987bd977181d48da"
+  "blake3": "1f:e4568ee8b4b592205d9effd71d47ef8fa7663c02dd211d9d9201449b0487fa45"
  },
  "fields": [
   {
@@ -590,6 +590,21 @@
      "placement:your-computer"
     ],
     "folder": "export-records-as-list-rows"
+   }
+  },
+  {
+   "id": "tool:build-the-public-receptionist",
+   "values": {
+    "title": "Build the public receptionist",
+    "job": "Build the public receptionist on my rented Linux server from one committed version of its source",
+    "description": "Sends git archive of one commit of a local trillion-rust checkout (declared source only: no home folder, Git settings, credentials or local state) to the host, builds trillion-mcp-receptionist there with the given Rust toolchain, and runs its bootstrap-credential test. Answers the commit, its folder, the built file and the build's last lines.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
    }
   },
   {
@@ -3297,6 +3312,21 @@
    }
   },
   {
+   "id": "tool:install-the-built-receptionist",
+   "values": {
+    "title": "Install the built receptionist",
+    "job": "Install the receptionist I just built on my rented Linux server so it can run",
+    "description": "Checks that the receptionist built from the given commit is on the host, makes it runnable and, when install_path is given, puts a copy there in one rename. It starts and stops nothing.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
+   }
+  },
+  {
    "id": "tool:join-a-waitlist",
    "values": {
     "title": "Join a waitlist",
@@ -3824,7 +3854,7 @@
    "values": {
     "title": "Listen to the microphone until a time, and keep who said what",
     "job": "Listen in on a meeting or a room until a time I give, and keep each person's turn as it is said",
-    "description": "Records the microphone on this computer until `until`, hears each short piece of it on this computer with the Whisper model the person names, names each turn from the voices people enrolled (tool:enrol-a-voice-or-face; unknown voices keep the same number for the whole listening), and writes one heard row per turn as soon as its piece has been heard: the listening, the device, when it began and ended, the words, who said it, whether it is the person, the voice and how sure the match was. The sound never leaves this computer: pieces are kept in the run's own folder and deleted once heard, and only the words and the names are written. It stops at `until` by itself; the person's AI cancels the run to turn listening off, and what was heard before then is kept. The run lasts as long as `until` is from now, up to the row's longest run. The voice-print and listening-voices record kinds are stays_on_this_device: true.",
+    "description": "Records the microphone on this computer until `until`, hears each short piece of it on this computer with the Whisper model the person names, names each turn from the voices people enrolled (tool:enrol-a-voice-or-face; unknown voices keep the same number for the whole listening), and writes one heard row per turn as soon as its piece has been heard: the listening, the device, when it began and ended, the words, who said it, whether it is the person, the voice and how sure the match was. The sound never leaves this computer: pieces are kept in the run's own folder and deleted once heard, and only the words and the names are written. It stops at `until` by itself; the person's AI cancels the run to turn listening off, and what was heard before then is kept. Pause is real: while the listening's listening-switch row says { on: false, since }, nothing said after `since` is kept, however far behind the hearing is, and the run ends at the first piece recorded after it. The person's own recording rules (recording-rule rows and recording_rules) are asked again for every piece, over the facts in recording_facts and the listening's recording-facts row; a piece recorded while they say blocked is let go unheard. Every answer lists what leaves this computer and what stays. The run lasts as long as `until` is from now, up to the row's longest run. The voice-print and listening-voices record kinds are stays_on_this_device: true.",
     "status": "active",
     "maker": "maker:listen-for-a-while",
     "licence_class": "licence:permissive",
@@ -4522,6 +4552,21 @@
    }
   },
   {
+   "id": "tool:observe-live-usage",
+   "values": {
+    "title": "Observe my live usage",
+    "job": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
+    "description": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-payments"
+   }
+  },
+  {
    "id": "tool:observe-something-i-watched-or-read",
    "values": {
     "title": "Observe something I watched or read",
@@ -4913,6 +4958,21 @@
      "placement:small-container"
     ],
     "folder": "opponent-game-plan"
+   }
+  },
+  {
+   "id": "tool:prepare-a-receptionist-build-host",
+   "values": {
+    "title": "Prepare a receptionist build host",
+    "job": "Make my rented Linux server able to build the public receptionist",
+    "description": "Installs the build packages given, makes the source folder, adds a swap file if there is none and installs the exact Rust toolchain given, over SSH as the host's administrator with the held key. It sets up no service user, DNS, TLS or public route.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
    }
   },
   {
@@ -5395,6 +5455,21 @@
      "placement:small-container"
     ],
     "folder": "person-profile"
+   }
+  },
+  {
+   "id": "tool:read-a-receptionist-build-host",
+   "values": {
+    "title": "Read a receptionist build host",
+    "job": "See what my receptionist build server has now: its Rust version, builds running, built copies and listening ports",
+    "description": "Reads the host's kernel, Rust version, memory, running compilers, source folders and built receptionists, which of the given ports are listening, and the given service user's sign-in state. Changes nothing.",
+    "status": "active",
+    "maker": "maker:build-and-install-the-public-receptionist",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "build-and-install-the-public-receptionist"
    }
   },
   {
@@ -7247,6 +7322,21 @@
    }
   },
   {
+   "id": "tool:see-my-decisions",
+   "values": {
+    "title": "See my decisions",
+    "job": "Show my decisions, what I am working toward, my plans and what has helped me decide",
+    "description": "Reads your own rows and answers the Decisions screen: your newest decisions (at most 100) as summaries with the pursuits each cites, where each stands and how far it has got (decided, next action carried out, result checked); your current pursuits as the tree they nest into (from your record-scope choice rows); your newest plans; and what has helped you (which questions changed your answers and how those decisions turned out). With native_collection_page it answers one bounded page instead: the facts what helped is counted from (helped_items, your method check questions and your AIs' recorded work), collection_coverage saying whether more decisions, pursuits or plans exist, and next_before to send as before for the next page. access and allowance are what your place reports: when your access limits deciding and does not keep decisions, the answer is free with nothing listed; none reported is no limit. metadata_only answers only access, allowance and the words for no pursuits, and reads no row. It changes nothing.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
    "id": "tool:see-the-ink-marks-on-a-space",
    "values": {
     "title": "See the ink marks drawn on a page or picture",
@@ -7274,6 +7364,21 @@
      "placement:small-container"
     ],
     "folder": "hold-one-thing-until-done"
+   }
+  },
+  {
+   "id": "tool:see-what-is-left-to-set-up",
+   "values": {
+    "title": "See what is left to set up",
+    "job": "Show me what is left to set up in my account, who does each step and what to do next",
+    "description": "Draws the Get started screen from your setup facts: which setup steps apply to your account (picked by the setup show rules, yours and the operator's), which are done, which only you can do, whether your workspace is ready, and the steps for connecting your AI. A step whose facts were not sent is unknown, never done, and a rule set or setup context the request leaves out is unknown too, so the screen stays not ready rather than opening on a guess. It reads and changes nothing.",
+    "status": "active",
+    "maker": "maker:set-up-my-account",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "set-up-my-account"
    }
   },
   {
@@ -7974,6 +8079,22 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:start-a-place",
+   "values": {
+    "title": "Make and start a Trillion place on this computer (runs on your computer)",
+    "job": "Make a Trillion place on this computer and start it: its key, its config and the running place",
+    "description": "Makes one Trillion place in a folder the person names and starts it with the engine's own program (trillion-local, named in trillion_local or found on the PATH; it is never built here). It makes the place key once (32 random bytes, base64, readable only by the person; a key already there is kept and never read), writes the place config the engine reads (listen, accounts, place_key_file, public_origin, report, sign_in, sign_up, new_accounts, and router, access and default_places when given), asks the engine for the place's id (`trillion-local place id`), then starts `trillion-local serve` in the background with its output in place.log, and answers the place id, the files and the running place's pid. public_origin must be https and only the scheme and host. default_places are the places a new account that signs up here starts in: holders (one to 16), answering (among the holders) and voters, each a place id or the word this-place, no place twice in a list, and this place among both holders and answering. Report values left out are the engine test place's (reach is the public origin; takes_new_accounts false). start false makes the key and config and answers the id without starting. A refusal says what to change.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T00:00:00Z",
+    "folder": "start-a-place"
    }
   },
   {

@@ -1,18 +1,21 @@
 // Runs a Workshop row that runs a program the way the engine's container runner does, on this computer: the files its
 // invoke.files.package_files packs are laid at their `at` places under one folder that stands for `/`, its argv,
-// workdir and stdin are filled from the request (and a task no page started), and a row that reads records gets the
-// stand-in records door (tools/records-door/test/fake-door.mjs) with exactly its rights. Answers the exit code, the
-// output and the parsed last line of standard output that is JSON, which is what a row's result_selector picks from.
-// Read by test/every-process-row-selector.test.mjs. Nothing here names a tool.
+// workdir and stdin are filled from the request (and a task no page started), a row that reads records gets the
+// stand-in records door (tools/records-door/test/fake-door.mjs) with exactly its rights and the records the sample
+// seeds, a row with internet: true reaches only the stand-in egress (stand-in-egress.mjs) answering from the sample's
+// recorded replies, and each held value a row mounts is a made-up one. Answers the exit code, the output, the parsed
+// last line of standard output that is JSON (what a row's result_selector picks from), the records the door holds
+// afterwards and its calls, and any request the stand-in egress had no reply for. Read by
+// test/every-process-row-selector.test.mjs and by tool folders' own tests. Nothing here names a tool.
 //
-// A row the runner cannot run here answers `{ cannot: <why> }` and is not started: one that reaches the internet, one
-// that needs a key held for the person, one with a fill this runner does not read (a fetch), or one whose program is
-// not on this computer.
+// A row the runner cannot run here answers `{ cannot: <why> }` and is not started: one with a fill this runner does
+// not read (a fetch), or one whose program is not on this computer.
 import { spawn, spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, openSync, realpathSync, rmSync, statSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, openSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { root, tools } from './tool-rows.mjs';
+import { settings as egress, startStandInEgress } from './stand-in-egress.mjs';
 import { startFakeDoor } from '../tools/records-door/test/fake-door.mjs';
 
 // The fact at a dotted path ("a.b", "list.0") of a value.
@@ -26,11 +29,12 @@ export const lastJsonLine = text => {
   return undefined;
 };
 
-// "$", "$.a.b" or "$.a[0].b": the value at that path of `value`, or undefined (the engine's select, with list places).
+// "$" or "$.a.b": the value at that path of `value`, or undefined; the engine's select (workshop.rs `select`): each
+// key is a field of an object, and nothing else is a selector.
 export const select = (value, selector) => {
-  if (typeof selector !== 'string' || !/^\$(\.|\[|$)/.test(selector)) return undefined;
-  return selector.slice(1).split(/\.|\[(\d+)\]/).filter(part => part !== undefined && part !== '')
-    .reduce((node, key) => (node !== null && typeof node === 'object' && key in node ? node[key] : undefined), value);
+  if (typeof selector !== 'string' || !/^\$(\.|$)/.test(selector)) return undefined;
+  return selector.split('.').slice(1)
+    .reduce((node, key) => (node !== null && typeof node === 'object' && !Array.isArray(node) && Object.hasOwn(node, key) ? node[key] : undefined), value);
 };
 
 class Unfillable extends Error {}
@@ -86,15 +90,20 @@ function placed(word, specs, there) {
 export function cannotRun(row) {
   const invoke = row.invoke ?? {};
   if (!Array.isArray(invoke.argv) || !invoke.argv.length) return 'it runs no program';
-  if (invoke.internet === true) return 'it reaches the internet';
-  if (invoke.credential_mounts?.length || invoke.connection) return 'it needs a key held for the person';
   const command = invoke.argv[0];
   if (typeof command === 'string' && !/(^|\/)node$/.test(command) && spawnSync('which', [command]).status !== 0) return `${command} is not on this computer`;
   return null;
 }
 
-// Run `row` on the sample `input`: { code, stdout, stderr, last } or { cannot }.
-export async function runRow(row, input) {
+// The made-up value of one credential_mounts item: the sample's `held` by its secret_name or field_id, else the canary.
+const heldValue = (item, held) => {
+  const name = item.secret_name ?? item.vault_key ?? item.field_id ?? 'held';
+  return held[name] ?? egress.canary_value.replace('{name}', name);
+};
+
+// Run `row` on the sample `input`, with the sample's seeded `records`, recorded `replies` and made-up `held` values:
+// { code, stdout, stderr, last, kept, calls, unanswered } or { cannot }. `doorOptions` reach the stand-in records door.
+export async function runRow(row, input, { records = [], replies = [], held = {}, doorOptions = {} } = {}) {
   const why = cannotRun(row);
   if (why) return { cannot: why };
   const { invoke } = row;
@@ -102,38 +111,65 @@ export async function runRow(row, input) {
   // The real path of the temp folder: on macOS it is reached through the /var link, and a program that runs only when
   // it is the started script (argv[1] equal to its own module path) would otherwise do nothing and print nothing.
   const there = mkdtempSync(join(realpathSync(tmpdir()), 'workshop-row-'));
-  const fake = invoke.records ? await startFakeDoor({ rights: invoke.records.rights ?? [], mostWrites: invoke.records.most_writes }) : null;
+  let fake = null, outside = null, heldFolder = null;
   try {
     lay(specs, there);
     // A task no page started; a capability the row asks for is granted on a folder of its own.
     const grants = Object.fromEntries((invoke.capabilities ?? []).map(name => [name, { folder: mkdtempSync(join(there, 'granted-')) }]));
     const task = { task_id: 'task-sample', request_key: 'sample', cause: { kind: 'sample-run' }, started_at: new Date().toISOString(), grants };
-    let argv, stdin;
+    let argv, stdin, rights;
     try {
       argv = fill(invoke.argv, { input, task }).map(word => placed(word, specs, there));
       stdin = invoke.stdin === undefined ? undefined : fill(invoke.stdin, { input, task });
+      rights = fill(invoke.records?.rights ?? [], { input, task });
     } catch (error) {
       if (error instanceof Unfillable) return { cannot: error.message };
       throw error;
+    }
+    if (invoke.records) fake = await startFakeDoor({ ...doorOptions, rights, mostWrites: invoke.records.most_writes ?? doorOptions.mostWrites, records });
+    if (invoke.internet === true) outside = await startStandInEgress(replies);
+    // Each held value the row mounts, made up: on its own descriptor, in its environment, or as a private file.
+    const mounts = invoke.credential_mounts ?? [];
+    const environment = { ...process.env, HOME: there, ...(outside?.environment ?? {}) };
+    const piped = [];
+    for (const item of mounts) {
+      const value = heldValue(item, held);
+      if (item.env) environment[item.env] = value;
+      if (item.mount_path) {
+        heldFolder ??= mkdtempSync(join(realpathSync(tmpdir()), 'workshop-held-'));
+        const file = join(heldFolder, `value-${mounts.indexOf(item)}`);
+        writeFileSync(file, value, { mode: 0o600 });
+        argv = argv.map(word => (word === item.mount_path ? file : word));
+      }
+      if (Number.isInteger(item.fd)) piped.push([item.fd, value]);
     }
     const workdir = invoke.workdir ? join(there, invoke.workdir) : there;
     mkdirSync(workdir, { recursive: true });
     for (const output of invoke.outputs ?? []) mkdirSync(dirname(join(there, output.path)), { recursive: true });
     const stdio = ['pipe', 'pipe', 'pipe'];
     if (fake) stdio[invoke.records.fd ?? 3] = openSync(fake.descriptor, 'r');
+    for (const [fd] of piped) stdio[fd] = 'pipe';
+    // A descriptor no one is given is closed in the program, as the engine leaves it.
+    for (let fd = 0; fd < stdio.length; fd++) stdio[fd] ??= 'ignore';
     return await new Promise((done, fail) => {
-      const child = spawn(argv[0], argv.slice(1), { cwd: workdir, stdio, env: { ...process.env, HOME: there } });
+      const child = spawn(argv[0], argv.slice(1), { cwd: workdir, stdio, env: environment });
+      for (const [fd, value] of piped) { child.stdio[fd].on('error', () => {}); child.stdio[fd].end(value); }
       let stdout = '', stderr = '';
       const timer = setTimeout(() => child.kill('SIGKILL'), invoke.max_run_ms ?? 60_000);
       child.stdout.on('data', chunk => { stdout += chunk; });
       child.stderr.on('data', chunk => { stderr += chunk; });
       child.on('error', fail);
-      child.on('close', code => { clearTimeout(timer); done({ code, stdout, stderr, last: lastJsonLine(stdout) }); });
+      child.on('close', code => {
+        clearTimeout(timer);
+        done({ code, stdout, stderr, last: lastJsonLine(stdout), kept: fake ? [...fake.kept.values()] : [], calls: fake?.calls ?? [], unanswered: outside?.unanswered ?? [] });
+      });
       child.stdin.on('error', () => {});
       child.stdin.end(stdin === undefined ? '' : typeof stdin === 'string' ? stdin : JSON.stringify(stdin));
     });
   } finally {
     await fake?.close();
+    await outside?.close();
     rmSync(there, { recursive: true, force: true });
+    if (heldFolder) rmSync(heldFolder, { recursive: true, force: true });
   }
 }

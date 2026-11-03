@@ -1,0 +1,18 @@
+{
+  "_what": "How a sample of a row with internet: true runs here without the internet (test-helpers/stand-in-egress.mjs, read by test-helpers/run-a-row.mjs). The engine starts such a row with only a loopback proxy named in the standard proxy settings (the engine's public-egress.json); here the same settings name a stand-in proxy that answers each request from a reply the sample recorded, and the standard trust settings name a certificate authority made for the test run, so a program reaches its service's address and reads the recorded reply over TLS. `environment` is set on the program, `{proxy}` replaced by the stand-in's address and `{authority}` by the authority's certificate file. A recorded reply is the shape of a service's answer, read by the row's maker on the sample's `shape_read_at` date; after `reply_good_for_days` the sample is not proved until the shape is read again and the date renewed. A held value the row mounts (invoke.credential_mounts) is a made-up value: the sample's `held` names one by its secret_name or field_id, else `canary_value` with `{name}` replaced.",
+  "environment": {
+    "HTTPS_PROXY": "{proxy}",
+    "HTTP_PROXY": "{proxy}",
+    "https_proxy": "{proxy}",
+    "http_proxy": "{proxy}",
+    "NO_PROXY": "127.0.0.1,localhost,::1",
+    "no_proxy": "127.0.0.1,localhost,::1",
+    "NODE_USE_ENV_PROXY": "1",
+    "NODE_EXTRA_CA_CERTS": "{authority}",
+    "SSL_CERT_FILE": "{authority}",
+    "REQUESTS_CA_BUNDLE": "{authority}",
+    "CURL_CA_BUNDLE": "{authority}"
+  },
+  "reply_good_for_days": 180,
+  "canary_value": "made-up-held-value-for-{name}"
+}

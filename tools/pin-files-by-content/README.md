@@ -83,7 +83,7 @@ The profile (`writing-profile-v1`) is the person's own DATA:
 
 | Key | Holds |
 |---|---|
-| `rejections`, `superseded_terms` | `{ id, text, authority: author_confirmed \| source_confirmed, scope?: document \| heading }`. Matching ignores case, width, punctuation, soft hyphens and inline emphasis, and it matches whole words only. |
+| `rejections`, `superseded_terms` | `{ id, text, authority: any non-empty provenance label, scope?: document \| heading }`. Matching ignores case, width, punctuation, soft hyphens and inline emphasis, and it matches whole words only. A refused row is reported as `invalid_rule` with its `list`, `rule_index` and `field` (`row`, `id`, `text`, `authority` or `scope`), never its words. |
 | `protected_literals` | Text that must appear unchanged in the visible prose. HTML comments are not visible. |
 | `required_section_order` | ATX headings that must each occur exactly once, in this order. |
 | `required_components`, `component_coverage_mode`, `component_coverage_components`, `component_requirements` | Source components a review must tie to literal source and destination quotes. With `explicit_disposition_v1`, each named component needs a `represented`, `partial` or `not_represented` disposition. Anything other than `represented` is a failure. |
