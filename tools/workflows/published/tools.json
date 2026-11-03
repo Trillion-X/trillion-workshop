@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:57d8d07dcde9f4682b4db7d069b58192b21b26ded3555c632a6ad1f6330a6306"
+  "blake3": "1f:9ebbcf0e923a8b5d842dc49fb76b788f1f264a83b2383c5a7478590e7a303979"
  },
  "fields": [
   {
@@ -7304,6 +7304,21 @@
      "placement:small-container"
     ],
     "folder": "hold-one-thing-until-done"
+   }
+  },
+  {
+   "id": "tool:see-what-is-left-to-set-up",
+   "values": {
+    "title": "See what is left to set up",
+    "job": "Show me what is left to set up in my account, who does each step and what to do next",
+    "description": "Draws the Get started screen from your setup facts: which setup steps apply to your account (picked by the setup show rules, yours and the operator's), which are done, which only you can do, whether your workspace is ready, and the steps for connecting your AI. A step whose facts were not sent is unknown, never done, and a rule set or setup context the request leaves out is unknown too, so the screen stays not ready rather than opening on a guess. It reads and changes nothing.",
+    "status": "active",
+    "maker": "maker:set-up-my-account",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "set-up-my-account"
    }
   },
   {
