@@ -4,15 +4,15 @@
 // existing surface. Unknown reads fail closed, so a service failure can never look like completed setup.
 import settings from './setup-steps.json' with { type: 'json' };
 import capabilityPolicy from './setup-policy.json' with { type: 'json' };
-import computerRows from '../computer/computer-sources.json' with { type: 'json' };
-import showRules from './workspace/show-rules.json' with { type: 'json' };
-import { ruleProblem, rulesInForce, showDecision, withChanges } from './workspace/show-rules.mjs';
-import { workspaceValueIdentity } from './workspace/conflicts.mjs';
-import { rulesIn } from './workspace/sidebar-rules.mjs';
+import computerRows from './computer-sources.json' with { type: 'json' };
+import showRules from './show-rules.json' with { type: 'json' };
+import { ruleProblem, rulesInForce, showDecision, withChanges } from './show-rules.mjs';
+import { workspaceValueIdentity } from './conflicts.mjs';
+import { rulesIn } from './sidebar-rules.mjs';
 import { evaluateChecks, plainWords } from './setup-checks.mjs';
 import { harnessWithin } from './harnesses.mjs';
 import { failureOf } from './failure.mjs';
-import { observerBucket } from '../parts/choose-per-observer/read-data/score-candidates.ts';
+import { observerBucket } from '../../run-experiments/read-data/score-candidates.ts';
 
 export { personalHoldApplies } from './personal-hold.mjs';
 

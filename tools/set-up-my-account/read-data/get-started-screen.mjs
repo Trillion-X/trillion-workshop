@@ -1,3 +1,11 @@
+// tools/set-up-my-account/read-data/get-started-screen.mjs
+//
+// Moved from trillion src/account-screens.mjs (setupAccessSteps and getStartedFacts), unchanged but for these imports.
+import { aiAppGuides } from './ai-app-guides.mjs';
+import setupSettings from './setup-steps.json' with { type: 'json' };
+import setupAccess from './setup-access.json' with { type: 'json' };
+import { askChoices, CHOSEN_AI } from './ask-your-ai.mjs';
+
 /**
  * What only the person can do about app access, as steps: confirming their own email, and agreeing to the emailed
  * invitation. Everything else about access (what the provider recorded, who at Trillion configures it) is Trillion's
@@ -49,7 +57,7 @@ export function getStartedFacts(facts) {
   const ready = requirementsKnown && !facts.policy?.problems?.some(problem => problem.blocking)
     && (typeof facts.workspace_ready === 'boolean' ? facts.workspace_ready : complete);
   const freeReady = ready && !complete && facts.workspace_mode === 'free';
-  const guides = aiAppGuides(facts.origin ?? 'https://app.gettrillion.ai');
+  const guides = aiAppGuides(facts.origin ?? 'https://app.gettrillion.ai', facts.installs);
   const said = setupSettings.words;
   const connectedAis = Array.isArray(facts.ai_apps) ? facts.ai_apps : [];
   const aiSignedIn = connectedAis.length > 0 || facts.ai_signed_in === true;

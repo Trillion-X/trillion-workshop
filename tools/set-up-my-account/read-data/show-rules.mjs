@@ -37,9 +37,9 @@
 //      and is not silenced, so an AI or a person can show one thing, for a while, that a broader rule hides.
 //
 
-import { decideRuleEffects } from '../rule-decisions.mjs';
+import { decideRuleEffects } from './rule-decisions.mjs';
 import { factsOf, nextTurn, rulesIn } from './sidebar-rules.mjs';
-import { timeZoneName } from '../../parts/timed-action/do-work/wall-time.ts';
+import { timeZoneName } from '../../wall-time/read-data/wall-time.mjs';
 
 const HOUR_MS = 3_600_000;
 // A path never walks into an object's prototype.
