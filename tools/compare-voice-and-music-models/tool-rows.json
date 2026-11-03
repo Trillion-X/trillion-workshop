@@ -1,0 +1,192 @@
+{
+  "kind": "package-set-records",
+  "record_set": "compare-voice-and-music-models-tool-rows",
+  "what_this_is": "The Workshop rows for the compare-voice-and-music-models folder: scripts the person's AI runs on the person's own computer to try candidate voice and music models before adopting one: say lines in a candidate cloned voice, score how alike lines sound to the real speaker, and play back a music model's note transcription as a test WAV.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:say-lines-in-a-candidate-voice-model",
+        "label": "Say some lines in a voice model I am trying out, cloned from my reference recording (runs on your Mac)",
+        "job": "Try a new text-to-speech model: say these lines in my cloned voice so I can compare it with the voice I use now",
+        "description": "Evaluation only. Loads a voice-cloning text-to-speech model with mlx-audio on Apple silicon (for example a Fish Speech S2 Pro conversion), clones the voice from a reference recording and its transcript, and says each line given as <line id>=<text>, writing <line id>.wav (24-bit, the model's sample rate) per line into a folder, with how long each took. The same line ids said by the voice already in use can then be scored side by side (tool:score-how-alike-lines-sound-to-a-reference-voice) or played blind. Some models allow non-commercial evaluation only (the Fish Audio Research License among them): read the model's licence before using what it says.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "model",
+            "out_dir",
+            "reference",
+            "reference_text",
+            "lines"
+          ],
+          "properties": {
+            "model": {
+              "type": "string",
+              "description": "The model's Hugging Face id, put where {model} is in the command."
+            },
+            "out_dir": {
+              "type": "string",
+              "description": "The folder for the line recordings, put where {out_dir} is in the command."
+            },
+            "reference": {
+              "type": "string",
+              "description": "The reference recording the voice is cloned from, put where {reference} is in the command; the person must own the voice or have the speaker's consent."
+            },
+            "reference_text": {
+              "type": "string",
+              "description": "The words said in the reference recording, put where {reference_text} is in the command."
+            },
+            "lines": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "One <line id>=<text> per line, each one word after {reference_text}."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Timing lines, then a last line {\"result\": {\"model\", \"sample_rate\", \"lines\": [{\"line\", \"wav\", \"seconds\", \"took\"}]}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx-audio numpy soundfile"
+          ],
+          "run": "python3 -I tools/compare-voice-and-music-models/do-work/say_lines.py {model} {out_dir} {reference} {reference_text} {lines}",
+          "needs": [
+            "a Mac with Apple silicon",
+            "python",
+            "mlx-audio, numpy and soundfile",
+            "a reference recording of a voice the person may clone"
+          ],
+          "say": "This runs on the person's own Mac, from the root of the Workshop checkout. Check the voice is the person's own or one they have consent to clone. Read the model's licence and tell the person if it allows evaluation only. Install the packages with get_it if they are missing, then run `run` with the same line ids the current voice's recordings use, each <line id>=<text> quoted as one word. The first run downloads the model. Read the last line: { result } lists each line's file; { error } says what to change. Then score the folder against the current voice's folder with tool:score-how-alike-lines-sound-to-a-reference-voice, or make loudness-matched blind pairs for the person to listen to."
+        },
+        "maker": "maker:compare-voice-and-music-models",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "mlx-audio's text-to-speech loader; the model's own licence applies to what it says"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:score-how-alike-lines-sound-to-a-reference-voice",
+        "label": "Score how much each line sounds like the voice it was cloned from (runs on your computer)",
+        "job": "Check which voice model sounds most like the real speaker: score each line against the reference recording",
+        "description": "For one or more folders of line recordings (one folder per voice model), scores how alike each line sounds to a reference recording of the speaker: the cosine of WeSpeaker ResNet34 voice embeddings (256 numbers), where same-speaker pairs typically score well above 0.5. Prints each line's score and the folder's mean, so two models saying the same lines can be compared. A score says how alike the voices are, not how good the lines sound.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "reference",
+            "dirs"
+          ],
+          "properties": {
+            "reference": {
+              "type": "string",
+              "description": "The speaker's reference recording, put where {reference} is in the command."
+            },
+            "dirs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The folders of line recordings, one per voice model, each one word after {reference}."
+            },
+            "pattern": {
+              "type": "string",
+              "description": "--pattern: which files in each folder are lines (default *.wav)."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "One line per folder, then a last line {\"result\": {\"reference\", \"model\", \"folders\": [{\"dir\", \"lines\": {file: score}, \"mean\"}]}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U torch pyannote.audio"
+          ],
+          "run": "python3 -I tools/compare-voice-and-music-models/do-work/speaker_similarity.py {reference} {dirs}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "torch and pyannote.audio",
+            "the WeSpeaker model in the local Hugging Face cache"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Install the packages with get_it if they are missing. The speaker model is read from the local Hugging Face cache; on the first run set HF_HUB_OFFLINE=0 so it downloads. Run `run` with the reference recording and each model's folder of lines, adding --pattern when the folders hold other files. Read the last line: { result } has every line's score and each folder's mean; { error } says what to change. Tell the person which folder is closest to the speaker, and that this measures likeness only: they should still listen."
+        },
+        "maker": "maker:compare-voice-and-music-models",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "The WeSpeaker ResNet34 speaker-embedding model as pyannote.audio serves it"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:render-music-note-events-to-a-test-wav",
+        "label": "Play back a music model's note transcription as a plain test WAV (runs on your computer)",
+        "job": "Hear what a music transcription model wrote down: turn its notes into a test audio file I can measure",
+        "description": "Test-only. Renders a music transcription's JSON note events (start events with a MIDI pitch, end events, drum hits) to a plain 48 kHz 24-bit stereo WAV: three sine partials per note with a short attack and slow decay, a noise burst per drum hit, peaking at half scale and lasting one second past the last note. The same events always give the same file. An audio meter such as earshot can then measure the playback beside the original, to compare transcription models. Code-made audio for comparing models, never a sound for a finished piece.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "events",
+            "output"
+          ],
+          "properties": {
+            "events": {
+              "type": "string",
+              "description": "The transcription's JSON list of note events, put where {events} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The WAV to write, put where {output} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "A summary line, then a last line {\"result\": {\"wav\", \"seconds\", \"events\", \"sample_rate\"}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U numpy soundfile"
+          ],
+          "run": "python3 -I tools/compare-voice-and-music-models/do-work/render_note_events.py {events} {output}",
+          "needs": [
+            "python",
+            "numpy and soundfile"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Install the packages with get_it if they are missing. Run `run` with the model's note events (a list of {type: start, pitch, start_time, index?}, {type: end, start_event_index, end_time} and {type: drum, start_time}). Read the last line: { result } names the WAV, its length and how many events it played; { error } says what is wrong with the events. Measure the WAV beside the original music with the person's audio meter, and tell the person it is a test rendering, not music to use."
+        },
+        "maker": "maker:compare-voice-and-music-models",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Written for comparing music transcription models; MIDI pitch to frequency is 440 * 2 ^ ((pitch - 69) / 12)"
+        }
+      }
+    }
+  ]
+}

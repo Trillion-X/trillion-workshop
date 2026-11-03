@@ -16,7 +16,7 @@
         "label": "Check a rendered video's frames, joins and audio (runs on your computer)",
         "status": "active",
         "job": "Check my finished video for mistakes a viewer would notice: a stray frame at a cut, a cut inside a word, graphics off the frame or over a face, text too small, sound effects too quiet or harsh",
-        "description": "Reads a rendered video (and, for the checks that need it, a JSON spec of its cuts, held frames and the graphics laid over it, plus the overlay render with alpha) and runs checks on its frames, joins and audio: in-frame, joins, word-clip, jitter, text, face, exits, dwell, type-sync, backing, movement, sound-balance, sound-harsh, sound-loops, sound-sync, settle, tempo, zoom, camera, motion-blur, internal-text, text-size, info-added, math-shown, cue, broll, placement and filler-words-cut. Which checks run and every number and word list they use are the person's own limits, a JSON file the person gives (their AI reads the rows from the person's own records); the tool has no defaults, and a check with no limits row says so instead of passing. Each check prints PASS, WARN or FAIL with the seconds it happens at; a check that cannot run says why. It runs on the person's own computer, never on a server, and changes nothing it reads.",
+        "description": "Reads a rendered video (and, for the checks that need it, a JSON spec of its cuts, held frames and the graphics laid over it, plus the overlay render with alpha) and runs checks on its frames, joins and audio: in-frame, joins, word-clip, jitter, text, face, exits, dwell, type-sync, backing, movement, sound-balance, sound-harsh, sound-loops, sound-sync, settle, tempo, zoom, camera, motion-blur, internal-text, text-size, info-added, math-shown, cue, broll, placement, filler-words-cut, cutout-bottom, bridge (a local ollama model), held-face (Apple Vision), and, for a film made as several options per moment with a technique ledger, variety, devices, reused-footage and label-time. Its other commands make a fresh-viewer review pack (contact sheets, transcript, rules) and keep the technique ledger (variety, declare, map-add). Which checks run and every number and word list they use are the person's own limits, a JSON file the person gives (their AI reads the rows from the person's own records); the tool has no defaults, and a check with no limits row says so instead of passing. Each check prints PASS, WARN or FAIL with the seconds it happens at; a check that cannot run says why. It runs on the person's own computer, never on a server, and changes nothing it reads.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -69,6 +69,184 @@
         "maker": "maker:check-a-rendered-video",
         "provenance": {
           "source": "Checks for the edit mistakes viewers notice, each with one passing and one failing synthetic case, on ffmpeg, numpy and OpenCV"
+        }
+      }
+    },
+    {
+      "id": "package::check-a-rendered-video::tool::check-each-cut-of-my-plans-by-ear",
+      "address": "package::check-a-rendered-video::tool::check-each-cut-of-my-plans-by-ear",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-each-cut-of-my-plans-by-ear",
+        "label": "Hear every recorded stretch my video plans cut, before anything is rendered (runs on your computer)",
+        "status": "active",
+        "job": "Before I render, listen to every stretch of recording my video plans cut and tell me which ones start or end in the wrong place, and what in the plans themselves is wrong",
+        "description": "Reads a folder of cut plans (tool:assemble-a-plan-into-a-cut's plans) and, for each segment that cuts a recording, cuts that stretch from its source through the cutter's own lookup (so it hears what the render will cut), reads it with a speech reader (mlx-whisper, or any command the person gives) and compares the first and last words heard with the plan's text: a stretch that catches a neighbouring word or loses one is listed to check. Before that it checks each plan against the person's settings: a line drawn from the person's question library must name a question that is there and whose evidence the person allows, and a card that points at another plan must point at one that exists (or at a plan title). It changes nothing it reads. Exit 1 on a plan failure, 2 when only stretches are to check, so it can stand as a plan check of the cutter.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The folder of <slug>.json plans, put where {input} is."
+            },
+            "words_folder": {
+              "type": "string",
+              "description": "The folder of <clip>.words.json ({source, words}) that names each recording's media file, put where {words_folder} is."
+            },
+            "output": {
+              "type": "string",
+              "description": "Where the JSON report goes, put where {output} is."
+            },
+            "settings": {
+              "type": "string",
+              "description": "Optional: the person's settings file for the plan problems (question_key, questions_file, question_id_pattern, refused_evidence, card_kind, next_prefix, slug_key, title_keys, gate_fields, end_words), put where {settings} is; leave `--settings {settings}` out for none."
+            }
+          },
+          "required": [
+            "input",
+            "words_folder",
+            "output"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line printed: {\"result\": {\"report\", \"plans\", \"plan_failures\", \"segments\", \"to_check\": [\"<slug>#<segment>\"]}}; the report holds a row per plan (failures, notes) and per stretch (start_ok, end_ok, heard_start, heard_end)."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U numpy soundfile",
+            "brew install ffmpeg",
+            "python3 -m pip install -U mlx-whisper   # Apple silicon only; or give --reader, a command that prints the words of a wav"
+          ],
+          "run": "python3 tools/check-a-rendered-video/do-work/check_plan_cuts.py --plans {input} --words-folder {words_folder} --report {output} --settings {settings}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "a speech reader: mlx-whisper on Apple silicon, or a command given with --reader"
+          ],
+          "files": {
+            "package_files": [
+              {
+                "package": "check-a-rendered-video",
+                "paths": [
+                  "do-work/check_plan_cuts.py",
+                  "do-work/speech_reading.py"
+                ],
+                "at": "tools/check-a-rendered-video"
+              },
+              {
+                "package": "assemble-a-plan-into-a-cut",
+                "paths": [
+                  "read-data/spans.py"
+                ],
+                "at": "tools/assemble-a-plan-into-a-cut"
+              }
+            ]
+          },
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Build the settings from the person's own records, or leave them out. Tell the person each plan failure, then each stretch to check with what was heard at its start and end, and offer to change the plan's from or to; change nothing yourself. A stretch to check is not wrong until the person listens."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:check-a-rendered-video",
+        "provenance": {
+          "source": "The cutter's plan check, tested on made-up recordings whose words are tones"
+        }
+      }
+    },
+    {
+      "id": "package::check-a-rendered-video::tool::check-a-cuts-speech-against-its-plan",
+      "address": "package::check-a-rendered-video::tool::check-a-cuts-speech-against-its-plan",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-cuts-speech-against-its-plan",
+        "label": "Hear a made cut against its plan: loudness, long silences and every spoken line (runs on your computer)",
+        "status": "active",
+        "job": "Listen to the cut you made from my plan: how loud it is, where it goes silent too long, whether every line I planned is heard and starts and ends where it should, and show me a few frames",
+        "description": "Reads a made cut and its timeline (the one tool:assemble-a-plan-into-a-cut writes: each segment's kind, text, start and length). Measures its integrated loudness and every silence longer than the person's limit, reads each spoken segment with a speech reader (mlx-whisper, or any command the person gives) and compares it with the plan's line: the share of the words heard, the words missing, and whether it starts and ends on the plan's words. Takes the frames the person names (the first, middle or last segment of a kind) and lays them side by side. The report keeps listened_by, who listened to the cut end to end, which only a person sets. Exit 2 when a segment is to check, so it can stand as a check row of the cutter.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The made cut, put where {input} is."
+            },
+            "timeline": {
+              "type": "string",
+              "description": "Its timeline.json, put where {timeline} is."
+            },
+            "output": {
+              "type": "string",
+              "description": "The folder the frames and the report (verify.json) go to, put where {output} is."
+            },
+            "kinds": {
+              "type": "string",
+              "description": "Comma list of the spoken segment kinds to read, put where {kinds} is."
+            },
+            "frames": {
+              "type": "string",
+              "description": "Comma list of frames to take, each kind:first, kind:middle or kind:last, put where {frames} is."
+            }
+          },
+          "required": [
+            "input",
+            "timeline",
+            "output",
+            "kinds"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line printed: {\"result\": {\"report\", \"lufs\", \"silences\", \"to_check\": [segment index], \"frames\", \"listened_by\"}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U numpy soundfile",
+            "brew install ffmpeg",
+            "python3 -m pip install -U mlx-whisper   # Apple silicon only; or give --reader, a command that prints the words of a wav"
+          ],
+          "run": "python3 tools/check-a-rendered-video/do-work/check_cut_speech.py --cut {input} --timeline {timeline} --work {output} --kinds {kinds} --frames {frames}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "a speech reader: mlx-whisper on Apple silicon, or a command given with --reader"
+          ],
+          "files": {
+            "package_files": [
+              {
+                "package": "check-a-rendered-video",
+                "paths": [
+                  "do-work/check_cut_speech.py",
+                  "do-work/speech_reading.py"
+                ],
+                "at": "tools/check-a-rendered-video"
+              }
+            ]
+          },
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Tell the person the loudness, each long silence with its length, and each segment to check with the words missing or heard at its ends; show them the frames. Say plainly when listened_by is null: nobody has listened to this cut yet. Never set listened_by yourself."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:check-a-rendered-video",
+        "provenance": {
+          "source": "The cutter's check by ear, tested on made-up recordings whose words are tones"
         }
       }
     }

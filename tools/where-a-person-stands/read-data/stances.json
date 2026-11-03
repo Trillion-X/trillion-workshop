@@ -1,5 +1,5 @@
 {
- "what_this_is": "The stands a person can take on something made for them, read by do-work/where-a-person-stands.mjs. `kind` is the type of the record a stand is kept as, one record per kind of thing and identity (`id_prefix`<thing kind>:<identity>), so every change of stand is a new version of that one record. `stances` are the stands, one row each: `label` on its button, `said` what a reader shows once it is taken. A new stand is one row here.",
+ "what_this_is": "The stands a person can take on something made for them, read by do-work/where-a-person-stands.mjs. `kind` is the type of the record a stand is kept as, one record per kind of thing and identity (`id_prefix`<thing kind>:<identity>), so every change of stand is a new version of that one record. `stances` are the stands, one row each: `label` on its button, `said` what a reader shows once it is taken. A new stand is one row here. `rule_infix` joins a waiver stand's rule to its record id, so a stand that names one rule is its own record.",
  "kind": "stance",
  "id_prefix": "stance:",
  "stances": [
@@ -26,6 +26,13 @@
   "refused_kind": "kind is the kind of thing the stand is on (a title, a take, a plan), one word without '/'.",
   "refused_thing": "The thing could not be identified:",
   "refused_why": "why is the person's own words, as text.",
-  "refused_history": "Pass the record's history as records:history gives it: { versions: [{ version (1 or more), value, deleted, at }], next }, the versions of every page you read together and next from the last page."
- }
+  "refused_history": "Pass the record's history as records:history gives it: { versions: [{ version (1 or more), value, deleted, at }], next }, the versions of every page you read together and next from the last page.",
+  "refused_rule": "rule is the id of one of the person's rules (letters, digits, '.', '_' or '-'), or left out for a stand on the whole thing.",
+  "refused_unverified": "Not kept: the words are not where they were said.",
+  "unverified_missing": "the person's words (why) and the whole text of the source they came from (source_text) are both needed.",
+  "unverified_short": "the source has fewer than {after_line} lines.",
+  "unverified_after": "these words do not appear literally in the source at or after line {after_line}.",
+  "unverified_absent": "these words do not appear literally in the source."
+ },
+ "rule_infix": ":rule:"
 }

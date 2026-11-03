@@ -28,12 +28,14 @@
 //   pictures[{ path, blake3 }] with readings{ <blake3>: { text } }, kind_aliases{ kind: [kinds] }, not_for_kinds{ row id: [kinds] },
 //   required{ locked_lines[{ id, alternatives }], entries[{ id, name, lines, port_gap }], baseline_ids[], approvals[{ id, words, source_text }] },
 //   audience{ rows[{ id, audience }], allowed[] }, offers{ offers[], list_field, id_field },
+//   sections[{ text, where, profile }], cue_narration[{ text, where, profile }], json_roles[{ json, where, owner }] (the declared
+//   readers of read-words.mjs: each reader issue is a problem),
 //   counts[{ label, document }] with counts_schema, verdict_rules, stands, stage, answers.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { wordsIn } from '../../judge-words/do-work/judge-words.mjs';
 import { check, compileVerdictRules, linesOf } from './rules-and-verdicts.mjs';
-import { distinctUnits, proseIn, wordsOfDeck, wordsOfHtml, wordsOfMarkdown } from './read-words.mjs';
+import { distinctUnits, proseIn, wordsOfCueNarration, wordsOfDeck, wordsOfHtml, wordsOfJsonRoles, wordsOfMarkdown, wordsOfSections } from './read-words.mjs';
 import GRAMMAR from '../read-data/copy-grammar-rules.json' with { type: 'json' };
 import WORDS from '../read-data/copy-words.json' with { type: 'json' };
 
@@ -75,6 +77,15 @@ function gather(input, coverageProblems = []) {
     });
     found.push(...read.units);
     coverageProblems.push(...read.issues.map(issue => `${document.where ?? 'markdown'}${issue.line ? `:${issue.line}` : ''}: ${issue.kind}`));
+  }
+  const declared = [
+    ...(input.sections ?? []).map(document => [document.where ?? 'sections', wordsOfSections(document.text, document.where ?? 'sections', document.profile)]),
+    ...(input.cue_narration ?? []).map(document => [document.where ?? 'narration', wordsOfCueNarration(document.text, document.where ?? 'narration', document.profile)]),
+    ...(input.json_roles ?? []).map(source => [source.where ?? 'json', wordsOfJsonRoles(source.json, source.where ?? 'json', source.owner)]),
+  ];
+  for (const [where, read] of declared) {
+    found.push(...read.units);
+    coverageProblems.push(...read.issues.map(issue => `${where}${issue.line ? `:${issue.line}` : ''}: ${issue.kind}`));
   }
   return found;
 }

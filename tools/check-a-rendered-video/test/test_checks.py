@@ -709,17 +709,17 @@ class Cli(Base):
         self.assertIn('no spec, not measured', buf.getvalue())
         self.assertNotIn('PASS', buf.getvalue())
 
-    def test_a_spec_with_no_element_of_a_kind_reports_an_empty_set_pass_for_type_sync(self):
+    def test_a_spec_with_no_element_of_a_kind_reports_an_empty_set_pass_for_type_sync_and_cutout(self):
         from rendercheck import cli
         write_video(self.path('p.mp4'), moving(24))
         write_overlay(self.path('o.mov'), [np.zeros((90, 160, 4), np.uint8)] * 24)
         jsonio.write(self.path('s.json'), {'duration_s': 3.0, 'edit': {'preview': [0, 1]}, 'events': [{'type': 'box_b', 'id': 'p', 'at': 0.0}]})
         with contextlib.redirect_stdout(io.StringIO()):
             rc = cli.main(['check', self.path('p.mp4'), '--limits', LIMITS, '--spec', self.path('s.json'), '--overlay', self.path('o.mov'),
-                           '--only', 'type-sync', '--json', self.path('out.json')])
+                           '--only', 'type-sync,cutout-bottom', '--json', self.path('out.json')])
         self.assertEqual(rc, 0)
         report = jsonio.read(self.path('out.json'))[self.path('p.mp4')]
-        for name in ('type-sync',):
+        for name in ('type-sync', 'cutout-bottom'):
             self.assertTrue(report[name][0]['data']['empty_set'], name)
 
     def test_a_check_with_no_limits_row_is_not_run_and_says_so_and_the_limits_file_is_required(self):
@@ -770,8 +770,18 @@ class PinScope(Base):
         from rendercheck import pins
         for name, (module, sections, *_) in pins.CHECK_SECTIONS.items():
             src = pins._read(f'checks/{module}.py')
-            read = set(re.findall(r"cfg\[['\"]([a-z_]+)['\"]\]", src)) & set(limits())
-            self.assertLessEqual(read, set(sections) | set(pins.SHARED_SECTIONS), f'{name} reads a config section its pin does not cover')
+            read = set(re.findall(r"cfg(?:\[|\.get\()['\"]([a-z_]+)['\"]", src)) & set(limits())
+            self.assertLessEqual(read, set(sections) | set(pins.SHARED_SECTIONS) | set(pins.OPTIONAL_SECTIONS.get(name, ())), f'{name} reads a config section its pin does not cover')
+
+    def test_an_optional_section_is_in_the_pin_but_not_required_to_run(self):
+        from rendercheck import cli, pins
+        cfg = limits()
+        before = pins.check_pins(cfg)['placement']
+        cfg['variety']['max_moments_per_technique'] += 1
+        self.assertNotEqual(pins.check_pins(cfg)['placement'], before)
+        del cfg['variety'], cfg['reused_footage']
+        self.assertEqual(cli._without_limits('placement', cfg), [])
+        self.assertEqual(cli._without_limits('devices', cfg), ['variety'])
 
     def test_a_dwell_only_config_change_leaves_every_other_check_pin_alone(self):
         from rendercheck import pins

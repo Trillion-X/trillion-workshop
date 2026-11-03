@@ -1,3 +1,7 @@
 {
-  "public": ["do-work/where-a-person-stands.mjs", "do-work/artifact-ref.mjs"]
+  "public": [
+    "do-work/where-a-person-stands.mjs",
+    "do-work/artifact-ref.mjs",
+    "do-work/rulings.mjs"
+  ]
 }

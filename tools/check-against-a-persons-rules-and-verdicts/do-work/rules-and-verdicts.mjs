@@ -27,7 +27,12 @@
 //      until its own calibration status is "usable". A row's `held_when` (the same selection as `when`, over the
 //      unit's `facts`) names the units on which its finding only holds.
 //   6. A model's answer is the caller's: `check` returns the questions it needs ({ id, rule, question, options, fail,
-//      text, context? }) and takes answers by question id. With no answer a question is unknown, never a pass.
+//      text, context?, adapter?, model?, examples? }) and takes answers by question id. With no answer a question is
+//      unknown, never a pass. A row's `ask.adapter`, `ask.model` and `ask.examples` go with its questions, and a finding
+//      from a row with an adapter names the adapter's `blake3`, so an answer is always tied to what gave it.
+//   7. Only the person's own agree on one exact line, naming one rule (a stand with `rule`), waives that rule on that line
+//      (`waived`). Nothing else waives anything: not a stand by anyone else, not disagree or partly, not a stand without
+//      a rule, not another line, however close. A stand that names a rule is never a verdict on the whole thing.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { CHECK_NAMES, makeJudge, ruleApplies, valuesAt } from '../../judge-words/do-work/judge-words.mjs';
@@ -37,6 +42,8 @@ import WORDS from '../read-data/words.json' with { type: 'json' };
 const fill = (template, values) => String(template).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 const IDS = WORDS.rule_ids;
 const STAGES = ['review', 'final'];
+// What a model row's `ask` carries into each of its questions besides the question itself.
+const ASK_CARRIES = ['adapter', 'model', 'examples'];
 
 export class CheckRefusal extends Error {}
 
@@ -72,7 +79,7 @@ const textOf = unit => (unit.view !== undefined ? JSON.stringify(unit.view) : un
 export function governing(stands, unit, compiled) {
   const text = textOf(unit), key = compiled.fold(text);
   const ref = unit.view !== undefined ? artifactRef({ view: unit.view }) : artifactRef({ text }, compiled.fold);
-  const named = stands.filter(stand => stand.stance && (stand.kind == null || stand.kind === unit.kind)
+  const named = stands.filter(stand => stand.stance && !stand.rule && (stand.kind == null || stand.kind === unit.kind)
     && (stand.text !== undefined || stand.view !== undefined ? stand.artifact === ref
       : typeof stand.contains === 'string' && key.includes(compiled.fold(stand.contains))));
   const exact = named.filter(stand => stand.contains === undefined);
@@ -162,6 +169,18 @@ export function verdictFindings(unit, { compiled, stands = [], stage = compiled.
   return { decided: null, findings, reading };
 }
 
+// A waiver names one exact line: its text with curly apostrophes made straight and the ends trimmed, and nothing looser.
+const exactLine = text => String(text).replace(/[’‘]/g, "'").trim();
+
+/**
+ * The (line, rule) pairs the person's own stands waive: an agree by one of `by` (the person, by default) that names a
+ * rule id and the exact text of the line. Returns a Set of JSON [line, rule] keys.
+ */
+export function waivers(stands, { by = ['person'] } = {}) {
+  return new Set(stands.filter(stand => stand.stance === 'agree' && typeof stand.rule === 'string' && typeof stand.text === 'string'
+    && by.includes(stand.by ?? 'person')).map(stand => JSON.stringify([exactLine(stand.text), stand.rule])));
+}
+
 const sentencesOf = text => text.match(/[^.!?]+(?:[.!?]+["'”)]*|$)/g)?.map(sentence => sentence.trim()).filter(Boolean) ?? [text];
 
 /** The facts of a text unit that a rule's `when` and `held_when` read (any JSON the caller gives, such as where its words came from). */
@@ -175,7 +194,7 @@ const bounded = value => probability(value) !== null;
  * unit ({ ...unit, verdict, breaks, uncertain, advisory, qualification, applicable_rule_ids }) and every question a model
  * may answer ({ id, rule, question, options, fail, text, context? }); pass `answers` ({ [id]: { option: p } }) to use them.
  */
-export function check(units, rules, { answers = {}, stands = [], verdictRules = null, stage, fieldsByKind = {}, asOf = null } = {}) {
+export function check(units, rules, { answers = {}, stands = [], verdictRules = null, stage, fieldsByKind = {}, asOf = null, waivedBy = ['person'] } = {}) {
   if (!Array.isArray(rules) || !rules.length) throw new CheckRefusal(WORDS.refused.rules);
   const reviewListsValid = unit => ['context_requires_review_rules', 'context_requires_review_checks'].every(key => unit[key] === undefined
     || (Array.isArray(unit[key]) && unit[key].every(value => typeof value === 'string')));
@@ -232,7 +251,8 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
     for (const rule of [...asking.filter(rule => ruleApplies(rule, itemOf(result))), ...readingOf.get(at)]) {
       sentencesOf(textOf(result)).forEach((sentence, index) => {
         questions.push({ id: `${at}:${rule.id}:${index}`, rule: rule.id, question: rule.ask.question, options: rule.ask.options, fail: rule.ask.fail,
-          text: sentence, ...(result.context ? { context: result.context } : {}) });
+          text: sentence, ...Object.fromEntries(ASK_CARRIES.filter(key => rule.ask[key] !== undefined).map(key => [key, rule.ask[key]])),
+          ...(result.context ? { context: result.context } : {}) });
         refs.push({ at, rule, sentence });
       });
     }
@@ -247,7 +267,8 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
     const cal = rule.ask.calibration ?? {};
     const known = scores.filter(score => score.p !== null);
     const worst = known.reduce((best, score) => (score.p > (best?.p ?? -1) ? score : best), null);
-    const entry = { rule: rule.id, says: rule.says, found: worst?.sentence ?? scores[0].sentence, p_fail: worst?.p ?? null };
+    const entry = { rule: rule.id, says: rule.says, found: worst?.sentence ?? scores[0].sentence, p_fail: worst?.p ?? null,
+      ...(rule.ask.adapter?.blake3 ? { adapter: rule.ask.adapter.blake3 } : {}) };
     if ((rule.ask.at_most ?? rule.at_most) === 'uncertain') {
       if (cal.status !== WORDS.usable) result.uncertain.push({ ...entry, why: fill(WORDS.ask_unqualified, { status: cal.status ?? WORDS.no_status }), qualified: false });
       else if (known.length < scores.length) result.uncertain.push({ ...entry, why: WORDS.ask_no_answer });
@@ -258,12 +279,17 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
     else if (known.length < scores.length) result.uncertain.push({ ...entry, why: WORDS.ask_no_answer });
     else if (worst.p >= cal.t_pass) result.uncertain.push({ ...entry, why: fill(WORDS.ask_between, { p: worst.p.toFixed(2), t_pass: cal.t_pass, t_fail: cal.t_fail }) });
   }
+  const waived = waivers(stands, { by: waivedBy });
   for (const [at, result] of results.entries()) {
     const applicable = result.view !== undefined ? [] : rules.filter(rule => ruleApplies(rule, itemOf(result)));
     if (applicable.length && applicable.every(rule => rule.ask?.at_most === 'uncertain')
         && !result.uncertain.some(finding => finding.rule === IDS.uncertain_only)) {
       result.uncertain.push({ rule: IDS.uncertain_only, says: WORDS.uncertain_only.says, found: textOf(result), why: WORDS.uncertain_only.why });
     }
+    const waive = finding => result.view === undefined && waived.has(JSON.stringify([exactLine(result.text), finding.rule]));
+    result.waived = [...result.breaks, ...result.uncertain].filter(finding => finding.rule !== IDS.no_applicable_rule && waive(finding));
+    result.breaks = result.breaks.filter(finding => !waive(finding));
+    result.uncertain = result.uncertain.filter(finding => finding.rule === IDS.no_applicable_rule || !waive(finding));
     const reviewChecks = new Set(result.context_requires_review_checks ?? []);
     const reviewRules = new Set(result.context_requires_review_rules ?? []);
     const reviewInContext = finding => {
@@ -295,6 +321,10 @@ export const statusOf = results => (results.some(result => result.qualification 
 export function linesOf(results) {
   const count = verdict => results.filter(result => result.verdict === verdict).length;
   const lines = [fill(WORDS.lines_head, { units: results.length, fail: count('fail'), uncertain: count('uncertain'), pass: count('pass') })];
+  for (const result of results.filter(result => result.waived?.length)) {
+    lines.push(fill(WORDS.lines_waived, { kind: result.kind, where: result.where ?? '' }).trimEnd());
+    for (const finding of result.waived) lines.push(fill(WORDS.lines_waived_finding, { rule: finding.rule }));
+  }
   for (const result of results.filter(result => result.verdict !== 'pass')) {
     lines.push(fill(WORDS.lines_unit, { verdict: result.verdict.toUpperCase(), kind: result.kind, where: result.where ?? '' }).trimEnd());
     for (const finding of [...result.breaks, ...result.uncertain]) lines.push(fill(WORDS.lines_finding, { rule: finding.rule, found: finding.found,

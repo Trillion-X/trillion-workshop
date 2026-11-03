@@ -2,6 +2,7 @@
 the effects alone when the video has a voice, else the stem as mixed) and the `sounds` list of the timeline (kind, seconds from the overlay's first frame). Shared by the
 sound checks (sound-balance, sound-harsh, sound-loops)."""
 import os
+import re
 
 import numpy as np
 
@@ -77,20 +78,34 @@ def audio_range(path, ss, t):
 
 
 def base_audio(ctx):
-    """(audio at SR of the same range without the added sounds, label) or None: the video named by the spec's `sound_base` (a path, absolute or beside the video) when it
-    exists and has the same duration."""
+    """(audio at SR of the same range without the added sounds, label) or None. The first that is known, of:
+      - the video named by the spec's `sound_base` (a path, absolute or beside the video), when it has the same duration;
+      - a plain sibling: the file name the limits' sound_mix.plain_sibling ([regex, replacement] on the video's file name) gives, beside the video, when it exists
+        and has the same duration (for example `-0.mp4` for the option of a moment with nothing added);
+      - a base export (sound_mix.bases: {regex on the video's path: {file (beside the video), t0 (the source second the file starts at)}}), read over the
+        video's edit.preview range, only for a video with no hold, cut or stitched opening (its audio is then that range as is)."""
     cfg = ctx.cfg['sound_mix']
+    d, name = os.path.split(ctx.preview)
+    same = lambda f: os.path.isfile(f) and abs(media.probe(f)['duration'] - ctx.info['duration']) <= cfg['duration_tolerance_s']
     given = ctx.spec.get('sound_base')
-    if not given:
-        return None
-    cand = given if os.path.isabs(given) else os.path.join(os.path.dirname(ctx.preview), given)
-    if os.path.isfile(cand) and abs(media.probe(cand)['duration'] - ctx.info['duration']) <= cfg['duration_tolerance_s']:
-        return media.audio(cand, SR)[0], f'sound base {os.path.basename(cand)}'
+    if given:
+        cand = given if os.path.isabs(given) else os.path.join(d, given)
+        return (media.audio(cand, SR)[0], f'sound base {os.path.basename(cand)}') if same(cand) else None
+    if cfg.get('plain_sibling'):
+        plain = re.sub(cfg['plain_sibling'][0], cfg['plain_sibling'][1], name)
+        if plain != name and same(os.path.join(d, plain)):
+            return media.audio(os.path.join(d, plain), SR)[0], f'plain sibling {plain}'
+    for pattern, base in (cfg.get('bases') or {}).items():
+        if re.search(pattern, ctx.preview):
+            f = os.path.normpath(os.path.join(d, base['file']))
+            a, _ = ctx.edit.get('preview', [None, None])
+            if os.path.isfile(f) and a is not None and not ctx.edit.get('hold') and not ctx.edit.get('cuts') and not ctx.edit.get('prepend'):
+                return audio_range(f, a - base['t0'], ctx.info['duration']), f'base export {os.path.basename(f)}'
     return None
 
 
 def effects(ctx):
-    """(samples, SR, label): the effects as they are in the DELIVERED video, in the overlay's own seconds, when the same range without the added sounds is known (spec `sound_base`): the
+    """(samples, SR, label): the effects as they are in the DELIVERED video, in the overlay's own seconds, when the same range without the added sounds is known (see base_audio): the
     video's audio minus the base fitted by least squares in short windows (loudnorm moves the gain through a video). Otherwise the effect stem, labelled as such: the stem
     is right by construction, so a level or roughness read from it says nothing about what the viewer hears (sound-sync checks the stem is in the delivered file at its time)."""
     if 'sfx_mix' in ctx._cache:

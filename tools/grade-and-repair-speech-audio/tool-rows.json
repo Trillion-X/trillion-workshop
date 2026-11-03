@@ -64,6 +64,56 @@
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "id": "tool:measure-speech-in-my-recordings",
+        "label": "Measure the speech in my recordings, without grading or changing it (runs on your computer)",
+        "job": "Show me how loud, noisy, hummy, windy, echoey or clipped the speech in each part of my recordings is, before I choose what counts as good",
+        "description": "Takes the same spans file as tool:grade-and-repair-speech-audio and, for each unique span, cuts it exactly from its start to its end and measures it: loudness and true peak, noise floor read from the pauses between words (or the quietest frames when there are no word times), signal to noise, clipping, mains hum and its frequency, wind rumble and room tail. It needs no settings and grades nothing: it is for seeing what a set of recordings is like before the person chooses the settings the grade is judged against. Writes probe.json (per span: the measures and how many words it has) and the cuts; show_probe.py prints probe.json one line per span. The source recordings are only read. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The spans file on the person's computer, put where {input} is in the command (the same shape tool:grade-and-repair-speech-audio takes)."
+            },
+            "output": {
+              "type": "string",
+              "description": "A new folder to write the cuts and probe.json into, put where {output} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"probe\": \"<output>/probe.json\", \"spans\": <count>}}. probe.json maps each span id to its measures and n_words."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "brew install ffmpeg",
+            "python3 -m pip install -U numpy scipy soundfile"
+          ],
+          "run": "python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/probe_speech.py --spans {input} --out {output} && python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/show_probe.py {output}/probe.json",
+          "needs": [
+            "python",
+            "ffmpeg"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, write the spans file for the recordings they name, run `run` with it in place of {input} and a new folder for {output}, then tell the person, span by span, the loudness, signal to noise, hum, rumble, room tail and clipping, and which spans stand out. Nothing is graded or changed; use these numbers with the person to choose their settings for tool:grade-and-repair-speech-audio. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ffmpeg ebur128/loudnorm and numpy/scipy measures, the same read-data/measure.py the grade uses"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
         "id": "tool:clone-speech-that-repair-could-not-fix",
         "label": "Re-voice the spans that are still bad, in the speaker's own voice (runs on your computer)",
         "job": "Where the speech in a recording is still unusable after cleaning, say the same words again in the speaker's own voice, with the same timing",

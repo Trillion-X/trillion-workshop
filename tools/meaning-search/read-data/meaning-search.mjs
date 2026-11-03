@@ -23,6 +23,11 @@
 //      one is embedded from its text by the package's embedder, as the package's batch plan does.
 //   4. The index the package's scripts build from that plan (embedding facts and ANN state) lives only for the run:
 //      the vector set is read every run, so the index is ready by construction where the package checked readiness.
+//   5. An optional `spread: { per_file, seconds_apart }` in the input keeps the answer from being many neighbouring
+//      frames of one recording: the package ranks up to the descriptor's result_limit, then, best first, an item is
+//      set aside when its file already has per_file items in the answer, or one less than seconds_apart from it (an
+//      item with no start counts once per file); the rest is cut to the asked limit. The package's scores and order
+//      are kept; `result.spread` says how many were set aside.
 //
 // Invariants
 //   - Every ranking decision is the package's: preparation, ANN candidates, exact cosine, min_score, limits and order.
@@ -136,9 +141,40 @@ async function descriptorReply(door, indexId) {
   return { items };
 }
 
+function checkSpread(spread, limit) {
+  if (spread === undefined) return;
+  if (limit !== undefined && !(Number.isInteger(limit) && limit >= 1)) throw new Error('limit must be a whole number of at least 1.');
+  const ok = spread && typeof spread === 'object' && Number.isInteger(spread.per_file) && spread.per_file >= 1
+    && (spread.seconds_apart === undefined || (typeof spread.seconds_apart === 'number' && spread.seconds_apart >= 0));
+  if (!ok) throw new Error('spread must be { per_file: a whole number of at least 1, seconds_apart?: a number of at least 0 }.');
+}
+
+// Best first, keep an item only while its file has room and it is far enough from the items of that file already kept.
+export function spreadItems(items, pointsTo, { per_file: perFile, seconds_apart: apart = 0 }, limit) {
+  const kept = [];
+  const byFile = new Map();
+  let setAside = 0;
+  for (const item of items) {
+    if (kept.length >= limit) break;
+    const { file = null, start = null } = pointsTo.get(item.address) ?? {};
+    const mine = byFile.get(file) ?? [];
+    const timed = typeof start === 'number';
+    const full = mine.length >= (timed ? perFile : 1) || mine.some(other => !timed || typeof other !== 'number');
+    if (full || (timed && mine.some(other => Math.abs(other - start) < apart))) {
+      setAside += 1;
+      continue;
+    }
+    mine.push(start);
+    byFile.set(file, mine);
+    kept.push(item);
+  }
+  return { kept, setAside };
+}
+
 // action:index-content-vector and the batch plan for the whole set, then the find actions' preparation, ANN query,
 // facts and rank. `query(work, descriptor)` writes embedding.json and vector.json the way each find action did.
 async function run(input, door, query) {
+  checkSpread(input.spread, input.limit);
   const work = mkdtempSync(join(tmpdir(), 'meaning-search-'));
   try {
     const index = input.index_id;
@@ -170,9 +206,17 @@ async function run(input, door, query) {
     const facts = take(work, 'facts.out.json').map(row => row.payload)
       .filter(fact => fact.table === settings.attribute_table && fact.property_id === property && candidates.has(fact.subject_id));
     put(work, 'facts.json', facts);
-    put(work, 'input.json', input);
+    const { spread, ...asked } = input;
+    // With a spread the package ranks as many as the descriptor allows, so there is something left after setting aside.
+    put(work, 'input.json', spread ? { ...asked, limit: prepared.result_limit } : asked);
     await step('node', 'nearest-embedding-facts.mjs', ['--embedding-json', join(work, 'embedding.json'), '--input-json', join(work, 'input.json'), '--descriptor-json', join(work, 'descriptor.json'), '--facts-json', join(work, 'facts.json'), '--output-json', join(work, 'nearest.json')], work);
     const result = take(work, 'nearest.json');
+    if (spread) {
+      const limit = Math.min(Number.isInteger(input.limit) ? input.limit : prepared.result_limit, prepared.result_limit);
+      const { kept, setAside } = spreadItems(result.items, pointsTo, spread, limit);
+      result.items = kept;
+      result.spread = { per_file: spread.per_file, seconds_apart: spread.seconds_apart ?? 0, set_aside: setAside };
+    }
     return {
       index_id: index, result, model_id: prepared.model_id, model_version: prepared.model_version,
       points_to: Object.fromEntries(result.items.map(item => [item.address, pointsTo.get(item.address)])),

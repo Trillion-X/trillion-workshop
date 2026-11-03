@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "pin-files-by-content-tool-rows",
-  "what_this_is": "The Workshop row for the tool in tools/pin-files-by-content: check or write the pin file that records each DATA file's byte count and BLAKE3.",
+  "what_this_is": "The Workshop rows for the tools in tools/pin-files-by-content: check or write the pin file that records each DATA file's byte count and BLAKE3, check quoted spans against the exact bytes of their sources, and check prose against its caller-owned writing rules and review evidence.",
   "records": [
     {
       "payload": {
@@ -10,30 +10,177 @@
         "status": "active",
         "licence_class": "licence:maker-own",
         "maker": "maker:pin-files-by-content",
-        "placements": ["placement:your-computer"],
+        "placements": [
+          "placement:your-computer"
+        ],
         "label": "Check or update the pins of a folder of DATA files",
         "job": "Check that a pin file records each DATA file's exact byte count and BLAKE3, or bring the pins up to the files, so a program that reads them can refuse a file that changed after it was pinned",
         "description": "Reads every file under a folder (skipping folders whose names start with a dot, and the files named as never pinned), hashes each with BLAKE3 and compares it with its entry in the pin file. check answers which pins are added, changed or gone; write rewrites only the entries, keeping every other key of the pin file and the order of the entries it keeps. The pin file's shape is DATA (read-data/pin-shape.json or the caller's own).",
         "input_schema": {
           "type": "object",
-          "required": ["action", "root", "pin_file", "folder"],
+          "required": [
+            "action",
+            "root",
+            "pin_file",
+            "folder"
+          ],
           "properties": {
-            "action": {"type": "string", "enum": ["check", "write"], "description": "check reports, write brings the pins up to the files."},
-            "root": {"type": "string", "description": "The repository or granted folder; the other paths are under it."},
-            "pin_file": {"type": "string", "description": "The pin file, under root."},
-            "folder": {"type": "string", "description": "The folder of pinned files, under root."},
-            "unpinned_ok": {"type": "string", "description": "A file under the folder that is never pinned; pass --unpinned-ok once per file."}
+            "action": {
+              "type": "string",
+              "enum": [
+                "check",
+                "write"
+              ],
+              "description": "check reports, write brings the pins up to the files."
+            },
+            "root": {
+              "type": "string",
+              "description": "The repository or granted folder; the other paths are under it."
+            },
+            "pin_file": {
+              "type": "string",
+              "description": "The pin file, under root."
+            },
+            "folder": {
+              "type": "string",
+              "description": "The folder of pinned files, under root."
+            },
+            "unpinned_ok": {
+              "type": "string",
+              "description": "A file under the folder that is never pinned; pass --unpinned-ok once per file."
+            }
           }
         },
-        "output_schema": {"type": "object", "description": "{ ok, pinned, added, changed, gone, unchanged, written } as JSON; exit 1 when check found a difference, 2 with the reason on standard error."},
+        "output_schema": {
+          "type": "object",
+          "description": "{ ok, pinned, added, changed, gone, unchanged, written } as JSON; exit 1 when check found a difference, 2 with the reason on standard error."
+        },
         "invoke": {
           "kind": "on-your-computer",
-          "get_it": ["clone the Workshop repository (package.json repository.url)", "npm install   # for @noble/hashes"],
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "npm install   # for @noble/hashes"
+          ],
           "run": "node tools/pin-files-by-content/do-work/pin-files.mjs {action} --root {root} --pin-file {pin_file} --folder {folder} --unpinned-ok {unpinned_ok}",
-          "needs": ["node"],
+          "needs": [
+            "node"
+          ],
           "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run check first and show the person which pins differ. Run write only when they mean the files to be the new truth, and commit the pin file in the same change as the files."
         },
-        "provenance": {"source": "Written for the Workshop: a content-addressed pin manifest of the kind a build checks before it trusts its inputs"}
+        "provenance": {
+          "source": "Written for the Workshop: a content-addressed pin manifest of the kind a build checks before it trusts its inputs"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:pin-files-by-content",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "id": "tool:check-quotes-against-their-source-bytes",
+        "label": "Check that quoted words are the exact bytes of their source files",
+        "job": "Check that every quote I took from a source file is still the exact text at the byte range I recorded, in a file whose BLAKE3 is the one I pinned, and find which words of a text are the source's own literal words",
+        "description": "Reads a bindings manifest (schema synthetic-d245bc86d584) naming each source file by absolute path and BLAKE3 and each quote by its source, text and UTF-8 byte range. Hashes the bytes read, refuses a source whose hash changed or that is not valid UTF-8, and compares each quote with the literal slice, with no normalisation and no automatic offset repair; a mismatch says whether the text occurs elsewhere in the source. The readback names sources and quotes by their zero-based positions only, never their paths, ids or bodies, binds itself to the manifest's BLAKE3, and is created new (an existing report is never replaced). The module also exports literalPieces, which finds the longest runs of a text's words that occur in a source in order and lists the words that do not. Literal evidence only: it does not authenticate a speaker or judge meaning.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "bindings",
+            "report"
+          ],
+          "properties": {
+            "bindings": {
+              "type": "string",
+              "description": "The bindings manifest: {schema: 'synthetic-d245bc86d584', sources: [{id, path (absolute), blake3}], quotes: [{id, source_id, text, byte_start, byte_end}]}."
+            },
+            "report": {
+              "type": "string",
+              "description": "A new file for the readback; the command refuses to replace one that exists."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Prints {status, sources, quotes, failures}; the report holds {schema: 'source-span-readback-v1', status: passed | failed | invalid, passed, sources, quotes, failures: [{kind, source_index | quote_index}], input_blake3, scope}. Exit 0 passed, 1 failed, 2 invalid or unreadable."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "npm install   # for @noble/hashes"
+          ],
+          "run": "node tools/pin-files-by-content/do-work/verify-source-spans.mjs --data {bindings} --out {report}",
+          "needs": [
+            "node"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the bindings manifest from the person's own sources and quotes (absolute paths, the BLAKE3 each source had when it was quoted, UTF-8 byte ranges), run it, and tell the person which quote positions failed and why. A pass says only that the bytes match: it is not evidence of who said it or what it means."
+        },
+        "provenance": {
+          "source": "Written for the Trillion film tools: literal byte evidence that a quote is the source's own text, before it is used"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:pin-files-by-content",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "id": "tool:check-prose-against-its-writing-rules",
+        "label": "Check prose against its writing rules and its review evidence",
+        "job": "Check a piece of prose against the wording I rejected, the text that must stay as it is, the sections it must have in order, and the reviews and source evidence it needs, before I call it current",
+        "description": "Reads a prose document, a writing profile (schema writing-profile-v1: rejected wordings and superseded terms with their authority, protected literals, required sections in order, required source components, allowed original sources by BLAKE3) and, optionally, a review manifest (schema writing-review-v1) bound to the document's BLAKE3 and each paragraph's BLAKE3. Finds rejected wording through case, width, punctuation, soft-hyphen and inline-emphasis variants, in the document or (when a rule says heading) only in headings; a protected literal changed or missing from the visible text; a required section missing, repeated or out of order; a paragraph no current review covers; a required source component without literal source and destination evidence (checked with the span verifier in this folder). Answers checks_satisfied, review_required or known_failure, or invalid with the kind of input fault. The report omits bodies and caller names and is created new. Zero findings is not proof of meaning, voice or approval.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "document",
+            "profile",
+            "report"
+          ],
+          "properties": {
+            "document": {
+              "type": "string",
+              "description": "The prose file (UTF-8 Markdown or text)."
+            },
+            "profile": {
+              "type": "string",
+              "description": "The writing profile JSON (schema writing-profile-v1), the person's own rules."
+            },
+            "reviews": {
+              "type": "string",
+              "description": "Optional review manifest JSON (schema writing-review-v1) bound to the document's current bytes; pass --reviews only when there is one."
+            },
+            "report": {
+              "type": "string",
+              "description": "A new file for the report; an existing one is never replaced."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Prints {status, findings}; the report holds {schema: 'writing-profile-readback-v1', status: checks_satisfied | review_required | known_failure | invalid, document_blake3, blocks, findings: [{kind, ..._index}], profile_blake3, review_manifest_blake3?, assurance}. Exit 0 checks_satisfied, 1 review_required or known_failure, 2 invalid or unreadable."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "npm install   # for @noble/hashes"
+          ],
+          "run": "node tools/pin-files-by-content/do-work/verify-writing-profile.mjs --document {document} --profile {profile} --reviews {reviews} --out {report}",
+          "needs": [
+            "node"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. The profile is the person's own: their rejected wordings, protected text and required sections; never invent rules for them. Leave out --reviews when there is no review manifest. Tell the person each finding by kind and position. checks_satisfied means only that these literal checks found nothing: it is not approval of the writing."
+        },
+        "provenance": {
+          "source": "Written for the Trillion film tools: caller-owned writing rules and review evidence checked against current bytes"
+        }
       }
     }
   ]

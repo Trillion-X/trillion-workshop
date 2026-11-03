@@ -1,0 +1,310 @@
+{
+  "kind": "package-set-records",
+  "record_set": "keep-a-video-packaging-ledger-tool-rows",
+  "what_this_is": "The Workshop rows for the keep-a-video-packaging-ledger folder: four scripts the person's AI runs on the person's own computer to keep a ledger of how videos are packaged (titles, thumbnails, thumbnail words, descriptions, opening and internal hooks), each value pinned to the file it came from, project one channel of it into source DATA a word template reads, and check both steps.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:add-reviewed-videos-to-a-packaging-ledger",
+        "label": "Add or update reviewed videos in my video-packaging ledger without touching any other row (runs on your computer)",
+        "job": "Record the titles, thumbnails, thumbnail words and opening hooks of a channel's videos I reviewed in one ledger, keeping every earlier row exactly as it was",
+        "description": "Writes rows into a video-packaging ledger (JSON Lines, one row per video) from what the person explicitly admitted: an intake manifest (which videos, each with its metadata and caption file), the channel's catalog and a review record (thumbnail words, composition, how the title and thumbnail relate, caption event locators for the opening and internal hooks). A video counts only when it is in all three. Every file it relies on is pinned by BLAKE3 identity and size, and caption text is never copied: a hook is a caption file, an event index and its time span. Modes: a new source key; --append-new for a later batch under an existing key (only bytes are added at the end); --update-existing for reviewing rows that were unreviewed; --direct-review-batch, --identity-only-update, --hook-enrichment and --source-reconciliation each take a pinned contract file and check the ledger matches --expected-ledger-blake3 first; the identity-only, hook and source modes write a preimage of every line they change, and the hook and source modes stage a --prospective-ledger until --apply. Every other line stays byte for byte. It also updates the coverage and source-coverage summaries and writes a read-back.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "root",
+            "ledger",
+            "source_key",
+            "intake",
+            "channel_catalog",
+            "review",
+            "coverage",
+            "source_coverage",
+            "readback"
+          ],
+          "properties": {
+            "root": {
+              "type": "string",
+              "description": "The folder every other path is relative to (the person's own working folder that holds the ledger, captions, metadata, thumbnails and review notes), put where {root} is in the command."
+            },
+            "ledger": {
+              "type": "string",
+              "description": "The packaging ledger: a JSON Lines file, one row per video (video_id, source_key, channel, titles, thumbnail identity and review, caption file references, hook evidence locators), put where {ledger} is in the command."
+            },
+            "source_key": {
+              "type": "string",
+              "description": "The source key: the name the person gives one channel or playlist batch in the ledger, put where {source_key} is in the command."
+            },
+            "intake": {
+              "type": "string",
+              "description": "The intake manifest JSON ({videos: [{video_id, title, metadata_path, transcript_path}]}), put where {intake} is in the command."
+            },
+            "channel_catalog": {
+              "type": "string",
+              "description": "The channel catalog JSON ({channel_id, channel_name, entries: [{video_id, title, url, duration_seconds}]}), put where {channel_catalog} is in the command."
+            },
+            "review": {
+              "type": "string",
+              "description": "The review record JSON ({items: [{video_id, image_path, image_bytes, image_blake3, thumbnail_words, composition, title_thumbnail_relation, opening_evidence, internal_hook_evidence}]}), put where {review} is in the command."
+            },
+            "coverage": {
+              "type": "string",
+              "description": "The coverage summary JSON this ledger keeps beside it, put where {coverage} is in the command."
+            },
+            "source_coverage": {
+              "type": "string",
+              "description": "The per-source coverage list JSON, put where {source_coverage} is in the command."
+            },
+            "readback": {
+              "type": "string",
+              "description": "Where to write the read-back JSON of what changed, put where {readback} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line printed is a JSON summary: {videos, rows_before, rows_after, all_old_non_target_rows_preserved, source_key, operation} (or, for a contract mode, {status: prospective|applied, source_key, target_count, ledger_after, exact_inverse_verified}). On a refusal it exits non-zero and says which video or identity did not match."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U blake3"
+          ],
+          "run": "python3 -I tools/keep-a-video-packaging-ledger/do-work/ingest_channel_intake.py --root {root} --ledger {ledger} --source-key {source_key} --intake {intake} --channel-catalog {channel_catalog} --review {review} --coverage {coverage} --source-coverage {source_coverage} --readback {readback}",
+          "needs": [
+            "python",
+            "blake3"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, on files in the person's own folder. Check blake3 is installed (python3 -c 'import blake3'), install it with get_it if not. For a later batch under a key that already has rows add --append-new; to fill in rows that are still unreviewed add --update-existing. For a pinned contract (a direct review batch, an identity-only fix, hook enrichment or a source/status reconciliation) run the same script with --root, --ledger, the contract flag, --readback, --preimage and --expected-ledger-blake3 (the ledger's current BLAKE3), first with --prospective-ledger to stage, and add --apply only after the person agrees. Tell the person how many rows were added or changed and that every other row is unchanged. If it refuses, read the message: it names the video and what did not match; never edit the ledger by hand to get past it."
+        },
+        "maker": "maker:keep-a-video-packaging-ledger",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "A source-pinned ledger method: every admitted value carries the identity of the file it came from, captions are referenced by event, never copied, and every change keeps the lines it does not target byte for byte"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:project-a-packaging-ledger-into-template-source",
+        "label": "Turn one channel's rows of my packaging ledger into source DATA a word template can read (runs on your computer)",
+        "job": "Make one channel's titles, thumbnail words, descriptions and hooks from my packaging ledger into a source I can build a word-for-word template from",
+        "description": "Reads the ledger rows of one source key and writes an HTML file holding one inert application/json script block (id packaging) of records: a unit per video, then its title, description, each thumbnail word, the thumbnail analysis, caption source references (file identity, event range and time span, no caption text) and the opening and internal hook evidence and analysis. It also writes a spec (schema word-template-spec@1) whose html_json_records source points at that block, so tool:make-a-word-template can measure it. With --previous-html and --replace-video-id it refreshes only the named videos: every other record stays exactly as it was, the named videos' record ids and order are kept, records it does not own are kept, and an existing spec's lines, slots and custom fields are kept.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "root",
+            "ledger",
+            "source_key",
+            "output_html",
+            "output_spec"
+          ],
+          "properties": {
+            "root": {
+              "type": "string",
+              "description": "The folder every other path is relative to (the person's own working folder that holds the ledger, captions, metadata, thumbnails and review notes), put where {root} is in the command."
+            },
+            "ledger": {
+              "type": "string",
+              "description": "The packaging ledger: a JSON Lines file, one row per video (video_id, source_key, channel, titles, thumbnail identity and review, caption file references, hook evidence locators), put where {ledger} is in the command."
+            },
+            "source_key": {
+              "type": "string",
+              "description": "The source key: the name the person gives one channel or playlist batch in the ledger, put where {source_key} is in the command."
+            },
+            "output_html": {
+              "type": "string",
+              "description": "Where to write the HTML source DATA, put where {output_html} is in the command."
+            },
+            "output_spec": {
+              "type": "string",
+              "description": "Where to write the word-template spec, put where {output_spec} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line printed is {source_key, videos, records, output_html, output_spec}. On a refusal it exits non-zero and says what is missing (a caption file, a source key with no rows, a replacement that would drop a prior record)."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U blake3"
+          ],
+          "run": "python3 -I tools/keep-a-video-packaging-ledger/do-work/project_packaging_ledger.py --root {root} --ledger {ledger} --source-key {source_key} --output-html {output_html} --output-spec {output_spec}",
+          "needs": [
+            "python",
+            "blake3"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Check blake3 is installed, install it with get_it if not, and run `run`. To refresh only some videos in a source you made before, add --previous-html <the earlier HTML> and one --replace-video-id <id> per video; the spec at --output-spec is then kept and only its generated identity refreshed. Then build the template with tool:make-a-word-template on the spec. Tell the person how many videos and records were written and where."
+        },
+        "maker": "maker:keep-a-video-packaging-ledger",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "A source-pinned ledger method; the html_json_records reader of fill-a-template-without-changing-its-words"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-packaging-intake-against-the-ledger",
+        "label": "Check that an intake batch landed in my packaging ledger exactly, changing nothing (runs on your computer)",
+        "job": "Check that the videos I admitted are in my packaging ledger with the right titles, thumbnails and caption evidence, and that nothing else changed",
+        "description": "Reads an intake manifest, channel catalog and review record and the ledger before and after, and checks without writing anything but its report: every reviewed video has a row under the source key and channel; its title matches the catalog and intake; its metadata file, thumbnail image and every caption evidence file match the BLAKE3 identities in the row; each hook locator points at a real caption event with the same times and carries no caption text; every provenance file exists; and every other row of the before ledger is unchanged (and, without --update-existing, the ledger grew by exactly the batch).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "root",
+            "ledger",
+            "source_key",
+            "intake",
+            "channel_catalog",
+            "review",
+            "before_ledger",
+            "output"
+          ],
+          "properties": {
+            "root": {
+              "type": "string",
+              "description": "The folder every other path is relative to (the person's own working folder that holds the ledger, captions, metadata, thumbnails and review notes), put where {root} is in the command."
+            },
+            "ledger": {
+              "type": "string",
+              "description": "The packaging ledger: a JSON Lines file, one row per video (video_id, source_key, channel, titles, thumbnail identity and review, caption file references, hook evidence locators), put where {ledger} is in the command."
+            },
+            "source_key": {
+              "type": "string",
+              "description": "The source key: the name the person gives one channel or playlist batch in the ledger, put where {source_key} is in the command."
+            },
+            "intake": {
+              "type": "string",
+              "description": "The intake manifest JSON, put where {intake} is in the command."
+            },
+            "channel_catalog": {
+              "type": "string",
+              "description": "The channel catalog JSON, put where {channel_catalog} is in the command."
+            },
+            "review": {
+              "type": "string",
+              "description": "The review record JSON, put where {review} is in the command."
+            },
+            "before_ledger": {
+              "type": "string",
+              "description": "A copy of the ledger from before the batch was added, put where {before_ledger} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "Where to write the read-back report JSON, put where {output} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line printed is {rows, evidence_references_resolved, output}; the report at {output} lists each video's resolved identities. A failed check stops with an assertion naming the check."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U blake3"
+          ],
+          "run": "python3 -I tools/keep-a-video-packaging-ledger/do-work/readback_packaging_intake.py --root {root} --intake {intake} --channel-catalog {channel_catalog} --review {review} --source-key {source_key} --ledger {ledger} --before-ledger {before_ledger} --output {output}",
+          "needs": [
+            "python",
+            "blake3"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, after tool:add-reviewed-videos-to-a-packaging-ledger. Add --update-existing when the batch updated rows that were unreviewed. Check blake3 is installed, run `run`, and tell the person whether every video resolved and whether the other rows are unchanged; if a check fails, say which."
+        },
+        "maker": "maker:keep-a-video-packaging-ledger",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "A source-pinned ledger method: a read-back that re-derives every identity from the files rather than trusting the writer"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-compiled-packaging-template-against-the-ledger",
+        "label": "Check that a template built from my packaging ledger still matches the ledger and lost nothing (runs on your computer)",
+        "job": "Check that the template made from my packaging ledger joins back to the right videos, files and caption events, and that nothing from the earlier version was lost",
+        "description": "Reads the ledger and a compiled template (the TEMPLATE.json that tool:make-a-word-template made from the projected source) for one source key and checks, record by record, that every video's title, description, thumbnail words, thumbnail analysis, caption references and hook evidence join back to its ledger row and to the BLAKE3 identities of the metadata, image and caption files, with no caption text copied. With --before-compiled and --before-ledger it also checks that every record of the earlier compiled template is still there with the same fields (older inline caption excerpts may only become event locators) and that the ledger kept its earlier bytes as an exact prefix, adding only the --expected-new-video-id rows under the source key.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "root",
+            "ledger",
+            "source_key",
+            "compiled",
+            "output"
+          ],
+          "properties": {
+            "root": {
+              "type": "string",
+              "description": "The folder every other path is relative to (the person's own working folder that holds the ledger, captions, metadata, thumbnails and review notes), put where {root} is in the command."
+            },
+            "ledger": {
+              "type": "string",
+              "description": "The packaging ledger: a JSON Lines file, one row per video (video_id, source_key, channel, titles, thumbnail identity and review, caption file references, hook evidence locators), put where {ledger} is in the command."
+            },
+            "source_key": {
+              "type": "string",
+              "description": "The source key: the name the person gives one channel or playlist batch in the ledger, put where {source_key} is in the command."
+            },
+            "compiled": {
+              "type": "string",
+              "description": "The compiled template JSON, put where {compiled} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "Where to write the read-back report JSON, put where {output} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line printed is {status: pass, videos, compiled_records, legacy_preservation, ledger_prefix, output}; on a failure it prints {status: rejected, reason} on standard error and exits 1."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U blake3"
+          ],
+          "run": "python3 -I tools/keep-a-video-packaging-ledger/do-work/readback_compiled_packaging.py --root {root} --source-key {source_key} --ledger {ledger} --compiled {compiled} --output {output}",
+          "needs": [
+            "python",
+            "blake3"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Check blake3 is installed and run `run`. Add --video-id <id> to check only some videos, and, after adding videos to a source that already had a template, --before-compiled <earlier TEMPLATE.json> --before-ledger <earlier ledger> with one --expected-new-video-id per added video. Tell the person pass or the reason it was rejected."
+        },
+        "maker": "maker:keep-a-video-packaging-ledger",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "A source-pinned ledger method: a read-back that re-derives every join from the files rather than trusting the compiler"
+        }
+      }
+    }
+  ]
+}

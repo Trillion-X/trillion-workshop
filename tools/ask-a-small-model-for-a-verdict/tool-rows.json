@@ -225,6 +225,137 @@
       }
     },
     {
+      "id": "package::ask-a-small-model-for-a-verdict::tool::fit-pass-and-fail-lines",
+      "address": "package::ask-a-small-model-for-a-verdict::tool::fit-pass-and-fail-lines",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:fit-pass-and-fail-lines",
+        "label": "Fit a pass line and a fail line for a model's yes or no, from lines I already ruled on (runs on your computer)",
+        "status": "active",
+        "job": "From a model's scores on lines I already ruled good or bad, work out where it should pass a line, where it should fail one, and whether its question can tell my good lines from my bad ones at all",
+        "description": "Give bad and good: for each line the person ruled bad or good, the model's probability of the failing answer (a number, a list with one per sentence whose highest counts, or null for no answer). t_fail is set so at most fail_good_share_at_most of good lines fail; t_pass so at most pass_bad_share_at_most of bad lines pass, never above t_fail; scores between are uncertain. The answer gives AUC, recall at t_fail and the share of good lines failed, or failed or left uncertain, each held out (leave one out), and says usable only when every bar in usable_when holds (auc_at_least, bad_lines_at_least, recall_at_least, good_failed_or_uncertain_at_most); otherwise unseparable with the reasons. It asks no model: the scores come from the caller, on lines the model was never trained on.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "bad",
+            "good",
+            "fail_good_share_at_most",
+            "pass_bad_share_at_most",
+            "usable_when"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "bad": {
+              "type": "array",
+              "items": {
+                "type": [
+                  "number",
+                  "array",
+                  "null"
+                ]
+              }
+            },
+            "good": {
+              "type": "array",
+              "items": {
+                "type": [
+                  "number",
+                  "array",
+                  "null"
+                ]
+              }
+            },
+            "fail_good_share_at_most": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "pass_bad_share_at_most": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "usable_when": {
+              "type": "object",
+              "required": [
+                "auc_at_least",
+                "bad_lines_at_least",
+                "recall_at_least",
+                "good_failed_or_uncertain_at_most"
+              ],
+              "properties": {
+                "auc_at_least": {
+                  "type": "number"
+                },
+                "bad_lines_at_least": {
+                  "type": "integer",
+                  "minimum": 2
+                },
+                "recall_at_least": {
+                  "type": "number"
+                },
+                "good_failed_or_uncertain_at_most": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "usable",
+                "unseparable"
+              ]
+            },
+            "t_pass": {
+              "type": "number"
+            },
+            "t_fail": {
+              "type": "number"
+            },
+            "auc": {
+              "type": "number"
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "run npm install in the checkout (BLAKE3, which the shared core imports)"
+          ],
+          "run": "node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs fit-lines < {input}",
+          "needs": [
+            "node",
+            "the model's probability of the failing answer on lines the person ruled good or bad"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. The bars are the person's: ask them, never invent them. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } or { error } saying what to change. Tell the person the two lines, the held-out shares and, when it is unseparable, each reason; an unseparable question needs better lines or a better question, not looser bars."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:ask-a-small-model-for-a-verdict",
+        "provenance": {
+          "source": "Written for the Trillion film tools: a decider's two thresholds and usability fitted from a person's ruled lines"
+        }
+      }
+    },
+    {
       "id": "package::ask-a-small-model-for-a-verdict::tool::tell-it-when-it-was-wrong",
       "address": "package::ask-a-small-model-for-a-verdict::tool::tell-it-when-it-was-wrong",
       "path": ["current-item", "published-record"],
