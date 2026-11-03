@@ -1,0 +1,49 @@
+{
+  "_what": "DATA for tool:see-my-decisions (read-data/work-screen.mjs), the Decisions/Home screen read. `records` names the person's own rows it reads (each one the row's rights name). `limit` is the decisions, pursuits and plans on one page (the old screen's 100); `most_*` bound every whole-history read, past which the read refuses and names native_collection_page. `scope` is the part of the old app's src/record-scope.json and src/record-sharing.json the pursuit tree reads: its one dimension, the refs it names and the links whose `from` is a pursuit (none today, so a pursuit's parents come only from the person's own record-scope choice rows). `pursuits` is the screen's words for a person with no pursuits (src/screen-words.json pursuits). Moved from trillion-rust product/record-scope.json, product/record-sharing.json and product/screen-words.json, which leave the engine with their reader.",
+  "records": {
+    "decision": "decision",
+    "decision_order": "decision/created_at",
+    "pursuit": "pursuit",
+    "plan": "plan",
+    "plan_order": "plan/updated_at",
+    "stance": "record-stance",
+    "method_checks": "record:method-check",
+    "agent_work": { "type": "setting", "prefix": "setting:agent-work:" }
+  },
+  "limit": 100,
+  "page_rows": 256,
+  "most_decisions": 4096,
+  "most_checks": 4096,
+  "most_agent_work": 4096,
+  "most_before": 4096,
+  "decision_access": "access:decision-method",
+  "kept_access": "access:decision-kept",
+  "scope": {
+    "choice_type": "record-scope",
+    "refs": {},
+    "links": [],
+    "dimensions": [
+      {
+        "id": "pursuit",
+        "param": "pursuits",
+        "through_links": true,
+        "values_from": "pursuits",
+        "room": { "field": "space_id", "target_kind": "space", "param": "spaces" }
+      }
+    ]
+  },
+  "pursuits": {
+    "none": "Every decision is weighed against what you are working toward and what it changes beyond you. Tell your AI, and it adds it for you.",
+    "measured": "Decisions made while Trillion knew what the person was working toward worked {with} of the time, against {without} for the rest (at least {people} people in each group). Tell your AI what you are working toward, and it adds it for you."
+  },
+  "words": {
+    "input": "Send an object: { metadata_only?, native_collection_page?, before?, access?, allowance?, space_pursuits? }.",
+    "flag": "{name} is true or false.",
+    "before": "before is the created_at the last page answered as next_before: a string of at most {most} characters.",
+    "access": "access is what your place reports: { capabilities: [names], limits?: { [access]: [{ count, per }] } }.",
+    "allowance": "allowance is what your place reports: { count, per, used }, whole numbers and a period word.",
+    "allowance_needed": "Your access limits deciding, so send the allowance your place reports: { count, per, used }.",
+    "space_pursuits": "space_pursuits is a list of the pursuits your spaces share.",
+    "too_many": "More than {most} {what} rows: ask for one bounded page instead (native_collection_page: true)."
+  }
+}
