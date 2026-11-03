@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:be4a0f1e4d474e9e452ddafb27868385f8d7c7df5a0c3f28b32755b86e2df2f2"
+  "blake3": "1f:63ddced2fe40657327fdfc1134fc938e27f5a405ba321f5faa38df695bf6cd4c"
  },
  "fields": [
   {
@@ -876,6 +876,22 @@
     ],
     "listed_on": "2026-11-03T16:00:00Z",
     "folder": "keep-an-ai-loop-from-spinning"
+   }
+  },
+  {
+   "id": "tool:check-a-packages-declared-permissions",
+   "values": {
+    "title": "Check a package's declared permissions",
+    "job": "Say whether a package's manifest names only permissions the host has a row for, and what each permission it names lets it do",
+    "description": "Give manifest ({ permissions: [ids] }) and, if wanted, permissions (the host's own rows, each { id, says, calls }; the shipped rows otherwise: network_egress, read_files, write_files, run_programs, use_microphone, read_screen). A permission with no row is refused, never ignored. Answers ok, unknown (the ids with no row), needs (the rows of the ids it named) and why when one is unknown.",
+    "status": "active",
+    "maker": "maker:check-a-packages-declared-permissions",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "check-a-packages-declared-permissions"
    }
   },
   {
