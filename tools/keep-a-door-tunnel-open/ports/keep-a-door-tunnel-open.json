@@ -1,0 +1,29 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-KEEP-A-DOOR-TUNNEL-OPEN",
+  "status": "BASELINED",
+  "directive": {
+    "message_multihash": "1f:83559ed50a7d11cc377a04f7892cb73729b5ca1268d342b009dad81f62dd68a1",
+    "quote": "Port the correct parts one to one. Drop only the hard-coded hosts, labels and paths; those become input DATA."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    { "repository": "trillion", "commit": "9b5614150bf2ff506cb296337b79af328ffc7381", "path": "scripts/portable-service-connection.mjs", "multihash": "1f:c50da0dbc4ae4abefa0281d08beb1718210c603e83242a824b01816231c3d95e", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T20:00:00Z", "deleted_with": "the one deletion pull request of the old door files, with scripts/portable-service-host-setup.sh and test/portable-service-connection.test.mjs" } }
+  ],
+  "targets": [
+    { "path": "tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs" }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [],
+  "baseline": {
+    "recorded_at": "2026-11-03T20:59:14Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:c50da0dbc4ae4abefa0281d08beb1718210c603e83242a824b01816231c3d95e",
+    "target_multihash_at_baseline": "1f:c50da0dbc4ae4abefa0281d08beb1718210c603e83242a824b01816231c3d95e"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": []
+  }
+}
