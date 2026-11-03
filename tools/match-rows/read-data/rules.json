@@ -1,0 +1,15 @@
+{
+  "_what": "Defaults for tool:match-rows. fields: what to compare when a request names none, each { left, right, kind: number | date | words | same, compare: same | opposite | absolute (numbers), tolerance (number apart, days apart, or the least share of words), weight, required }. confirm_at: least confidence to count as matched. suggest_at: least confidence to offer at all. clear_lead: how far ahead of the next best a pair must be to be confirmed rather than suggested. alternatives: how many other candidates a suggestion lists. ignore_words: words that never count as shared. id_field: where each row keeps its id.",
+  "id_field": "id",
+  "mode": "one_to_one",
+  "confirm_at": 0.9,
+  "suggest_at": 0.5,
+  "clear_lead": 0.05,
+  "alternatives": 3,
+  "fields": [
+    { "left": "amount", "kind": "number", "compare": "absolute", "tolerance": 0, "weight": 3, "required": true },
+    { "left": "date", "kind": "date", "tolerance": 5, "weight": 2 },
+    { "left": "description", "kind": "words", "weight": 1 }
+  ],
+  "ignore_words": ["the", "and", "inc", "llc", "ltd", "co", "com", "www", "payment", "purchase", "pos", "debit", "credit", "card", "online", "transfer", "to", "from", "for", "of"]
+}

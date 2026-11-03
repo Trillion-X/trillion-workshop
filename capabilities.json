@@ -1500,6 +1500,21 @@
         {"job": "transcribe recordings with a time for every word", "why": "tools/audio-transcription times words in a recording; this one times a person's tasks in their week"},
         {"job": "plan tasks and to-do lists on a calendar: keep named task lists with counts, group and sort them, schedule a task onto a day or time, and turn an email into a task", "why": "the task tray keeps the person's lists and puts a task where the person drops it; this one chooses where every task goes by length, deadline, blockers and value, keeps no list and changes no task"}
       ]
+    },
+    {
+      "capability": "pair rows of two lists that describe one thing (a card line and its receipt, both sides of a transfer) by caller-named fields, tolerances and weights, confirming only a clear winner and offering the rest with alternatives and reasons",
+      "owner": ["tools/match-rows/"],
+      "entry": "tools/match-rows/tool-rows.json",
+      "evidence": "README.md:3 scores every left row against every right row field by field, confirms a pair above confirm_at with a clear lead, suggests pairs between suggest_at and confirm_at with alternatives, lists what is left on each side and changes no row; learned from transaction-matching in two finance apps",
+      "distinct_from": [
+        {"job": "match people in a community, club, cohort or mentoring program into pairs or small groups who can actually help each other", "why": "tools/form-groups-and-matches pairs people by what they offer and need and waits for consent; this one pairs any two lists of rows by the fields the caller names"},
+        {"job": "assign mentors, volunteers or helpers to the people who asked for help when each helper can only take so many", "why": "tools/form-groups-and-matches assigns under a capacity limit by expected value; this one scores row-to-row agreement on amounts, dates and words and has no capacity"},
+        {"job": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends", "why": "tools/person-list searches and merges people records by a person's own fields; this one pairs rows of any two lists the caller hands in and merges nothing"},
+        {"job": "find things by meaning, picture or words across a person's files", "why": "tools/meaning-search ranks files against one phrase or picture; this one pairs rows of two lists against each other"},
+        {"job": "take payments with Stripe", "why": "tools/take-payments takes and records payments; this one only pairs a payment row already kept elsewhere with the invoice or receipt rows it paid, and moves no money"},
+        {"job": "show a person's time blocks on a calendar", "why": "tools/calendar shows time blocks; this one pairs a calendar event row with a row from another list and shows nothing"},
+        {"job": "reconcile generic execution receipts with source, meter and provider-price revisions so missing evidence makes forecast coverage visibly incomplete or stale", "why": "tools/keep-measurements-current reconciles measurement receipts against their sources for coverage; this one pairs any two lists of rows by caller-named fields and knows no receipts or meters"}
+      ]
     }
   ]
 }
