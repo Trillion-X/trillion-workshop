@@ -145,7 +145,10 @@ export function planMove(row, source, destination) {
           changes.push({ start: item.start, end: item.end, specifier: requestFor(to, there, there, there), was: item.specifier });
         } else if (!isRelative(item.specifier) && !item.specifier.startsWith('#') && !item.specifier.startsWith('node:') && !builtinModules.includes(item.specifier) && item.how !== 'url') {
           const name = packageOf(item.specifier);
-          if (!declared[name] && name !== packageName) packagesToAdd.set(name, sourceVersions[name] ?? null);
+          if (!declared[name] && name !== packageName) {
+            packagesToAdd.set(name, sourceVersions[name] ?? null);
+            plan.packages = [...new Set([...(plan.packages ?? []), name])];
+          }
         }
       }
       plan.import_changes = changes;
