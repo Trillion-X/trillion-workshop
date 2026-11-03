@@ -25,6 +25,16 @@
       "why": "This tool itself: its README, rows and tests name the engine commands it runs."
     },
     {
+      "repository": "trillion-workshop",
+      "path": "capabilities.json",
+      "why": "This tool's own capability row: its evidence names the `trillion-local serve` command this tool runs. It is the registry entry for this tool, not another owner of the job."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/published/tools.json",
+      "why": "The generated tool catalog (publish-tool-catalog.mjs): it carries this tool's own row, whose description names `trillion-local serve`. A generated listing of this tool, not another owner of the job."
+    },
+    {
       "repository": "trillion-rust",
       "path": "src/main.rs",
       "why": "The engine's command line: it parses `trillion-local serve PLACE_CONFIG` and runs one place from a config that already exists. It makes no key and writes no config; this tool makes both and then calls it."
