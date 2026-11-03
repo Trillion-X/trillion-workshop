@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:ac2c308f874234f5c1408ea1c866aa94c315583c6e590dea238208550ed541ff"
  },
  "fields": [
   {
@@ -271,6 +271,21 @@
      "placement:deployed-container"
     ],
     "folder": "work-breakdown"
+   }
+  },
+  {
+   "id": "tool:admit-attachments-to-a-message",
+   "values": {
+    "title": "Admit the files sent with a message",
+    "job": "Decide how many of the files sent with a message are accepted, and which limit stopped the rest, in words to show the person",
+    "description": "Give files ([{ name, size }] in the order offered), and when wanted limits ({ per_turn_cap, absolute_bytes, max_bytes, binding_words }; defaults from src/attachment-admission.json), daily ({ remaining, resets_at } when the plan keeps a daily count) and now (milliseconds). A file over the size ceiling is left out; the first files that fit min(per-turn cap, remaining daily count) are accepted in order. Returns accepted (indexes), left_out ([{ index, because }]), binding (size, per_turn, daily or null), banner (the words naming the limit) and blocked. A null limit does not bind. Pure: reads no clock, plan or network.",
+    "status": "active",
+    "maker": "maker:admit-attachments-to-a-message",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "admit-attachments-to-a-message"
    }
   },
   {
