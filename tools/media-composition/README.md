@@ -16,6 +16,8 @@ The colour grade files (`read-data/luts/*.cube`) are supplied by the account and
 | `do-work/match-shots.mjs` | The shot match: an edit in, the same edit out with each clip that names `shot_match: {group}` graded toward its group's one look (Reinhard L*a*b* transfer, measured through the clip's own grade, written as one `.cube` per clip and appended to its `grade` as `lut3d`); `shot_match: {like: <segment id>}` takes that segment's LUT. Used before render-an-edit. |
 | `read-data/` | DATA and pure helpers the scripts read: caption styles and lines, looks, layers, the reframe camera, the event detectors and their streams (`detect-events.json`). |
 | `read-data/stored-bytes.json` | The grade files a render reads by address (`package::media-composition::stored-bytes::<name>` -> `read-data/luts/<file>`). |
+| `do-work/range-edits.mjs` | An edit as KEPT RANGES over the original, never new content: `keptRanges` (only start and end, sorted, disjoint, touching ranges joined, anything else refused in words), `removedRanges`, `keptTotal`, `applyKept` (only original items, in order), `checkOutputLength` (the produced length against the kept total within the caller's tolerance) and `coverage` / `refuseUntilReady` (an export waits until pieces in the caller's `ready_states` cover every kept second). Moved byte for byte from the older owner (`ports/range-edits.json`); its cutters (cut-the-action, cut-by-events) are still there and move next. |
+| `ports/range-edits.json` | The SOURCE_FIRST_PORT contract for `do-work/range-edits.mjs`. |
 | `test/` | `node --test` proofs; the render tests need ffmpeg and ffprobe on PATH. |
 
 ## Edit fields a frame-exact cut uses
