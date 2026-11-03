@@ -55,7 +55,8 @@ A row asks for the door in its invoke, with one rights item per record kind:
   `{ byte_page: { total, blake3, offset, length, base64, next_after_byte } }`. The same call with `after_byte` set to
   `next_after_byte` answers the next page, until it is null. The client joins the pages, checks their length and
   BLAKE3, and answers what the call would have answered (`read-data/byte-pages.mjs` `wholeAnswer`, which other doors
-  use too).
+  use too). Every later page is asked for with the first call's request key, since the engine serves later pages only
+  to that key; both this door and the stdio MCP door build their `call` from `pagedCall(once)` there.
 - `invoke.records` holds only `fd`, `rights` and `most_writes`; any other key refuses the row.
 - A refusal is `{ isError: true, structuredContent: { code, outcome: "not_started" | "unknown", request_key? } }`,
   with no words. The client gives each code its words:
@@ -77,7 +78,7 @@ A row asks for the door in its invoke, with one rights item per record kind:
 |------|---------|
 | `read-data/records-door.mjs` | `openRecordsDoor()`: `readRecord(type, id)` returns the exact `{ type, value }` snapshot or `null`; `read(type, id)` remains value-only; `readWorkspace(labels)` reads only exact workspace labels; `list(query)` (every page, as an async iterator), `write(records, { key })`, `files(operation, input)`; `RecordsDoorError` with the door's code. |
 | `do-work/run-an-export.mjs` | `node run-an-export.mjs <module file> <export>`: calls `fn(input, { door })` with the run's input and prints `{ result }` or `{ error }`. The door opens on first use, so a function that reads no records needs none. |
-| `read-data/byte-pages.mjs` | `wholeAnswer(answer, again)`: an answer that came as byte pages, read on with `again(after_byte)`, joined, checked and parsed. Pure, so a page bundles it too. |
+| `read-data/byte-pages.mjs` | `wholeAnswer(answer, again)`: an answer that came as byte pages, read on with `again(after_byte)`, joined, checked and parsed; `pagedCall(once)`: a `call(method, input, key, ...rest)` that reads on through byte pages with the same `key`, which `records-door.mjs` and `stdio-mcp-door.mjs` both use. Pure, so a page bundles it too. |
 | `read-data/lists-door.mjs` | `listsOverDoor(door)`: a person's lists over this door, as a Trillion list keeps them (the list `list:<id>` of type `list`, each row `record:<row type>:<row id>` of type `record:<row type>`): find, ensure, save, read, and putRows, which merges each row over what it holds and writes conditionally on what was read. |
 | `read-data/write-batches.mjs` | `writeBatches(records, { rows, bytes })`: records in order as writes that each fit one door message (at most `rows` records and `bytes` bytes of JSON, counted by `measure` when given; a larger record alone), since a write over the 64 KiB message is refused whole. Pure, so a page bundles it too. |
 | `test/fake-door.mjs` | A stand-in door on loopback: records in memory, bearer and rights checks, cut pages, byte pages, busy answers, event-stream answers, saved write receipts. |

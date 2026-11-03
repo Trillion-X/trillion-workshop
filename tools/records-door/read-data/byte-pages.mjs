@@ -12,7 +12,12 @@
 //      does not, or joined bytes whose length or BLAKE3 differ (the value changed between calls), is refused.
 //   2. An answer with no byte_page is the whole answer and is returned as it is.
 //
+//   3. Every later page is asked for with the first call's request key: the engine serves later pages only to the key
+//      that made the answer, and a new key can run the operation again.
+//
 //   wholeAnswer(answer, again) → the whole answer, where again(after_byte) → the next page's answer.
+//   pagedCall(once) → call(method, input, key, ...rest): once(method, input, key, ...rest), read on through its byte
+//   pages with once(method, { ...input, after_byte }, key, ...rest).
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const say = (code, words) => Object.assign(new Error(words), { code });
@@ -45,4 +50,9 @@ export async function wholeAnswer(answer, again) {
     throw say('byte_pages_changed', 'The joined byte pages are not the answer the door hashed; the value changed between calls.');
   }
   return JSON.parse(new TextDecoder().decode(whole));
+}
+
+export function pagedCall(once) {
+  return async (method, input, key, ...rest) =>
+    wholeAnswer(await once(method, input, key, ...rest), after => once(method, { ...input, after_byte: after }, key, ...rest));
 }
