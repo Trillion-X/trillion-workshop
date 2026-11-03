@@ -1,14 +1,15 @@
 // tools/decide-with-a-method/read-data/decision-records.mjs
 //
 // How a decision is laid out in the person's records, so that a decision of any size fits under the records door's
-// write cap (64 KiB a message). The root `decision` record holds only fields each set by one call (the goal, the current
-// decision, a share, a plan) and counts and pointers: nothing in it grows as the decision grows. Everything that grows is
+// write cap (64 KiB a message). The root `decision` record holds only fields each set by one call (the goal, the options,
+// bounded at start by `options` in the settings, the current decision, a share, a plan) and counts and pointers: nothing
+// in it grows as the decision grows. Everything that grows is
 // a record of its own, linked to the decision's id, named in `records` of read-data/decide-with-a-method.json:
 //
 //   decision-evidence:<id>:<nnnn>        one evidence row { ref, claim, added_at?, from?, retracted_at? }
 //   decision-answered-step:<id>:<nnn>    one answered step's summary (counts, version, needs_recheck)
 //   decision-step:<id>:<nnn>[:v<vvv>]    one answered step whole: its answer, checks and verdicts (and each old version)
-//   decision-option:<id>:<nnn>           one option the caller gave; decision-candidate:<id>:<nnn> one still standing
+//   decision-candidate:<id>:<nnn>        one candidate a step left standing
 //   decision-report:<id>:<nnnn>          one result the person reported; decision-carried-out:<id>:<nnnn> one receipt
 //   decision-history:<id>:<nnn>          one earlier decision; decision-cited-pursuit:<id>:<nnnn> one cited pursuit
 //   decision-call:<id>:<nnnnnn>          one logged call of a decision once kept whole
@@ -18,7 +19,9 @@
 // The root names each list's length (`counts`), its method's id and identity, and the identity of the input it was
 // started with, so the same source with the same input is still that decision. A root written before this layout
 // (evidence, options, reports and the rest inside it, the method snapshot inline, `answered_steps` on it, or the whole
-// guidance in it) reads as it is and is laid apart at its next change. A change too large for one door message goes in
+// guidance in it) reads as it is and is laid apart at its next change. A root written while options were laid apart too
+// (`decision-option:<id>:<nnn>`, counted in `counts.options`) reads them back, and its next change folds them into the
+// root's input again and removes those records. A change too large for one door message goes in
 // parts with the root last, so a reader never meets a root that counts records not written yet; a reader takes only the
 // first `counts` items of each list, so a part written before a write that failed is never read.
 import { readFileSync } from 'node:fs';
@@ -73,7 +76,6 @@ const lostStep = stub => ({ step_id: stub?.step_id ?? null, answer: {}, answered
 // `answered_steps` is the decision's guidance as summaries, kept by recordsOf and readDecision themselves.
 const LISTS = {
   evidence: { from: record => record.input?.evidence, into: (record, items) => { record.input = { ...record.input, evidence: items }; } },
-  options: { from: record => record.input?.options, into: (record, items) => { if (items.length) record.input = { ...record.input, options: items }; } },
   candidates: { from: record => record.candidates, into: (record, items) => { if (items.length) record.candidates = items; } },
   reports: { from: record => record.reports, into: (record, items) => { if (items.length) record.reports = items; } },
   carried_out: { from: record => record.carried_out, into: (record, items) => { if (items.length) record.carried_out = items; } },
@@ -85,6 +87,8 @@ const LISTS = {
   },
 };
 const LIST_NAMES = Object.keys(LISTS);
+// Options were laid apart for a while; such a root's options are read back and folded into its input at its next change.
+const FOLDED = 'options';
 // Fields of a root written before this layout that this layout keeps elsewhere.
 const MOVED = ['answered_steps', 'original_input', 'candidates', 'reports', 'carried_out', 'decision_history', 'cited_pursuits'];
 
@@ -151,13 +155,17 @@ export async function laidTogether(door, id, root, lists = LIST_NAMES, { method 
   const loaded = {};
   const record = { ...root, input: { ...root.input } };
   const counts = object(root.counts) ? root.counts : null;
+  if (counts?.[FOLDED]) {
+    const items = await itemsOf(door, id, FOLDED, counts[FOLDED]);
+    loaded[FOLDED] = items.map(canonical);
+    record.input.options = items;
+  }
   for (const list of lists) {
-    if (!counts) continue;
+    if (!counts || !LISTS[list]) continue;
     const items = await itemsOf(door, id, list, counts[list] ?? 0);
     loaded[list] = items.map(canonical);
     LISTS[list].into(record, items);
   }
-  if (counts && !counts.options) delete record.input.options;
   if (method && root.method_identity) {
     const kept = await readWhole(door, NAMES.method, methodKey(root.method_identity));
     if (kept?.method) { record.method = kept.method; loaded.method_identity = root.method_identity; }
@@ -221,7 +229,8 @@ export function recordsOf(record, changed = [], archived = []) {
   counts.answered_steps = stubs.length;
   items.push(...changedItems(id, 'answered_steps', stubs, loaded.answered_steps));
   const methodIdentity = method ? identityOf(method) : undefined;
-  const { evidence: _evidence, options: _options, ...shortInput } = input;
+  items.push(...changedItems(id, FOLDED, [], loaded[FOLDED]));
+  const { evidence: _evidence, ...shortInput } = input;
   // The method's id beside its identity, so a list that weighs decisions by method reads one short field.
   const root = {
     ...own, id, input: shortInput, ...(method?.id ? { method_id: method.id } : {}), ...(methodIdentity ? { method_identity: methodIdentity } : {}),
