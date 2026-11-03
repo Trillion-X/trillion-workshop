@@ -35,9 +35,11 @@ import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCu
 import { similarDecisions } from './similar-decisions.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { canonical, inputIdentity, laidTogether, readDecision, readStep, recordsOf, versionKey, writeDecision } from './decision-records.mjs';
+import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
 const { records: NAMES, words: WORDS, precedence, candidates: CANDIDATES, revision: REVISION, evidence: EVIDENCE, history: HISTORY, options: OPTIONS } = settings;
+const writeBounds = { rows: settings.writes, bytes: settings.write_bytes };
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -646,4 +648,50 @@ export async function sayWhatWasDone(input, { door }) {
   (record.carried_out ??= []).push(entry);
   await writeDecision(door, recordsOf(record), `say-what-was-done:${id}:${record.carried_out.length}`);
   return { case_id: id, carried_out: entry, status: record.status };
+}
+
+// A decision no one will carry on is ended, never deleted: its status becomes `ending.status` and the status it had,
+// when, who and why stay on the record beside every field it already had. Each write is conditioned on the value just
+// read (`expected`), so a decision that changed in between is left as it is and answered as a conflict.
+const CHANGED = 'original_command_conflict';
+const contentKey = (prefix, list) => `${prefix}:${makeHashCodeHexFromBytes(new TextEncoder().encode(canonical(list)))}`;
+async function writeEnded(door, batch, answers) {
+  try {
+    await door.write(batch, { key: contentKey('end-a-decision', batch) });
+    for (const { id, value } of batch) answers.set(id, { decision_id: id, ended: true, previous_status: value.previous_status, ended_at: value.ended_at });
+  } catch (error) {
+    if (error?.code !== CHANGED) throw error;
+    // A refused write changed nothing; each of its decisions is tried alone, so one that changed holds back only itself.
+    if (batch.length > 1) for (const record of batch) await writeEnded(door, [record], answers);
+    else answers.set(batch[0].id, { decision_id: batch[0].id, ended: false, conflict: true, reason: WORDS.end_changed });
+  }
+}
+
+/** tool:end-a-decision. input { decisions: [{ decision_id, because }] (1 to ending.most, each id once), by }: answers
+ * { ended, not_ended, decisions: [{ decision_id, ended, ... }] } in the order asked. A decision already ended answers
+ * ended with already; one whose status is in ending.keeps_open, or that is not there, is not ended. */
+export async function endDecisions(input, { door }) {
+  const { ending } = settings;
+  const asked = input?.decisions;
+  if (!Array.isArray(asked) || asked.length < 1 || asked.length > ending.most || !nonempty(input.by)
+    || asked.some(item => !object(item) || !nonempty(item.decision_id) || !nonempty(item.because))
+    || new Set(asked.map(item => item.decision_id)).size !== asked.length) refuse('end_shape', { most: ending.most });
+  const at = new Date().toISOString();
+  const by = String(input.by).slice(0, settings.revision.by_max_chars);
+  const answers = new Map();
+  const records = [];
+  for (const { decision_id: id, because } of asked) {
+    const root = await door.read('decision', id);
+    if (!root) answers.set(id, { decision_id: id, ended: false, reason: WORDS.not_found });
+    else if (root.status === ending.status) answers.set(id, { decision_id: id, ended: true, already: true, previous_status: root.previous_status ?? null, ended_at: root.ended_at ?? null });
+    else if (ending.keeps_open.includes(root.status)) answers.set(id, { decision_id: id, ended: false, status: root.status, reason: say('end_kept_open', { status: root.status }) });
+    else {
+      const value = { ...root, status: ending.status, previous_status: root.status ?? null, ended_at: at, ended_by: by, ended_because: String(because).slice(0, ending.because_max_chars) };
+      records.push({ id, type: 'decision', value, expected: { type: 'decision', value: root } });
+    }
+  }
+  for (const batch of writeBatches(records, writeBounds)) await writeEnded(door, batch, answers);
+  const decisions = asked.map(({ decision_id: id }) => answers.get(id));
+  const ended = decisions.filter(item => item.ended).length;
+  return { ended, not_ended: decisions.length - ended, decisions };
 }
