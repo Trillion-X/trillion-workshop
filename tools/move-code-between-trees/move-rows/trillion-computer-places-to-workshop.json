@@ -1,0 +1,63 @@
+{
+  "id": "move:trillion-computer-places-to-workshop",
+  "about": "The computer's own places (every folder, sqlite store, notes store and recordings folder a row of computer-sources.json describes), the two carried conversations (iMessage, WhatsApp) and Mac Contacts move from Trillion-X/trillion's computer/ into one Workshop tool, and every connected service's descriptors with the connect, rename, disconnect and grant code move into tools/pull-from-connected-accounts, so the Connections list reads computer places and connected services from one tool tree. Byte for byte: the next commits adapt them. The helper's main loop (computer/read-this-computer.mjs), always-on listening (computer/listen.mjs, another lane) and every other computer/ file stay and import what moved from the trillion-workshop package.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "b92aa549f2",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [
+    "src/",
+    "scripts/",
+    "harness/",
+    "parts/ui/",
+    "parts/live-namespace/",
+    "computer/read-this-computer.mjs",
+    "computer/listen.mjs",
+    "computer/carry-connections.mjs",
+    "computer/carry-connections.json",
+    "computer/observe-visual.mjs",
+    "computer/keep-drive-files.mjs"
+  ],
+  "provider_calls": [
+    {
+      "id": "durable-object",
+      "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+    },
+    {
+      "id": "kv",
+      "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+    }
+  ],
+  "calls": [],
+  "groups": [
+    {
+      "id": "bring-in-new-items-from-this-computer",
+      "owner": [
+        "computer/read-new-items.mjs",
+        "computer/read-new-items.json",
+        "computer/computer-sources.json",
+        "computer/connections/**",
+        "computer/sync-contacts.*"
+      ],
+      "to": "tools/bring-in-new-items-from-this-computer",
+      "capability": "bring in what is new in each place on this computer (folders, sqlite stores, notes, recordings, pictures, carried conversations, contacts), each place a row"
+    },
+    {
+      "id": "service-connections",
+      "owner": [
+        "parts/service-connections/**"
+      ],
+      "to": "tools/pull-from-connected-accounts",
+      "capability": "connect, rename and disconnect a service account and say what each operation's grants need, every service a descriptor row",
+      "joins_tool": "tools/pull-from-connected-accounts pulls from accounts already connected; it has no way to connect, rename or disconnect an account, no service descriptors and no grant check. This group brings those, so one tool lists and manages every connection."
+    }
+  ]
+}

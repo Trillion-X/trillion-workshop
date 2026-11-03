@@ -198,3 +198,20 @@ test('a lane adds only the packages the files it moves import; a group that wait
     assert.deepEqual(JSON.parse(readFileSync(join(destination, 'package.json'), 'utf8')).dependencies, { 'tiny-thing': '1.2.3' });
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
+
+test('a destination tool folder holds a group, unless its row says in joins_tool what it brings; its files land inside that tool', () => {
+  const source = repository(sourceFiles());
+  const destination = repository({ ...destinationFiles(), 'tools/count-beans/tool-rows.json': json({ records: [] }), 'tools/count-beans/README.md': '# count-beans\n' });
+  try {
+    const held = moveCode({ step: 'plan', row, source_folder: source, destination_folder: destination });
+    assert.match(held.groups.find(item => item.id === 'count-beans').held.join(' '), /tools\/count-beans is already a tool in the destination.*joins_tool/);
+    const joining = { ...row, groups_from: undefined, groups: [{ id: 'count-beans', owner: ['src/beans.mjs'], to: 'tools/count-beans', joins_tool: 'The tool counts kept beans; this brings the bean reader it does not have.' }] };
+    const plan = moveCode({ step: 'plan', row: joining, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups.find(item => item.id === 'count-beans').held, []);
+    assert.equal(plan.files.find(file => file.from === 'src/beans.mjs').to, 'tools/count-beans/src/beans.mjs');
+    moveCode({ step: 'apply', row: joining, source_folder: source, destination_folder: destination });
+    assert.equal(readFileSync(join(destination, 'tools/count-beans/README.md'), 'utf8'), '# count-beans\n', 'the tool keeps its own README');
+    assert.equal(existsSync(join(destination, 'tools/count-beans/part.json')), false, 'a tool is not made a part');
+    assert.ok(existsSync(join(destination, 'tools/count-beans/moved-from.json')));
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});

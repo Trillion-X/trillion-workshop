@@ -72,8 +72,11 @@ export function planMove(row, source, destination) {
     const held = [];
     if (!roots.length) held.push(`its owner rows name no file at ${source.commit.slice(0, 10)}: it has moved already or its rows are stale`);
     const closure = closureOf(roots);
-    // A destination folder that is already a tool holds this feature in its own shape: a second copy is not made.
-    if (destination.exists(posix.join(group.to, 'tool-rows.json'))) held.push(`${group.to} is already a tool in the destination; delete the source's copy where that tool replaces it, instead of moving a second copy`);
+    // A destination folder that is already a tool holds this feature in its own shape: a second copy is not made. A
+    // group whose row says joins_tool (with why) brings that tool code it does not have yet; its files still land under
+    // their own source path inside the tool folder, and any path the tool already holds is still refused at apply.
+    const joins = typeof group.joins_tool === 'string' && group.joins_tool.trim();
+    if (destination.exists(posix.join(group.to, 'tool-rows.json')) && !joins) held.push(`${group.to} is already a tool in the destination; delete the source's copy where that tool replaces it, instead of moving a second copy, or say in joins_tool what this group brings that the tool does not have`);
     for (const path of closure) {
       const glob = kept(path);
       if (glob) held.push(`${roots.includes(path) ? 'it owns' : 'it imports'} ${path}, which stays in the source (keep row ${glob})`);
@@ -200,7 +203,7 @@ export function planMove(row, source, destination) {
   // A group held after placement (a collision, a provider call left, a staying reader) gives back its files: planning
   // again without it settles which files the shared folder still needs. Each pass holds at least one more group.
   if (result.files.some(file => file.groups.some(id => byId.get(id).held.length))) {
-    const narrowed = { ...row, groups: groups.filter(group => !group.held.length).map(({ id, owner, to, capability }) => ({ id, owner, to, capability })), groups_from: undefined, only: undefined };
+    const narrowed = { ...row, groups: groups.filter(group => !group.held.length).map(({ id, owner, to, capability, joins_tool }) => ({ id, owner, to, capability, ...(joins_tool ? { joins_tool } : {}) })), groups_from: undefined, only: undefined };
     const again = planMove(narrowed, source, destination);
     again.groups.push(...groups.filter(group => group.held.length).map(summary));
     return again;
