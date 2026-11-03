@@ -7,8 +7,9 @@ Purpose
     The dispatcher asks `switched_off(state)` which guard ids are marked Off before it runs the chosen guards. The rows
     are read from a local snapshot so a tool call never waits for the door; `refresh(state)` rewrites the snapshot from
     the door and runs detached (`python3 check_switches.py refresh <state folder> <settings file>`), started by
-    `start_refresh_if_stale`. The snapshot also keeps every row's value (`rows`), which run_the_check_list.py reads to
-    run the checks in a session that has no other copy of them.
+    `start_refresh_if_stale`. The snapshot also keeps every row's value (`rows`), so a session that has no other copy
+    of the rows can run them: `python3 check_switches.py run <settings file> < hook event`, which a repository's own
+    hook settings start for every tool call (`run_the_check_list`).
 
     The settings (the door's address, how its key is read, the list types) are the caller's DATA: `configure(rules)`
     from a process that already holds them, else the JSON file named by CHECK_LIST_SETTINGS. On one computer the door
@@ -23,7 +24,8 @@ Non-negotiable invariants
        still runs and the dispatcher reports the mark, because any agent key can write "Off" until the engine
        requires the person's passkey for it.
     5. The door key is read at refresh time, from where the settings say (`door.key_from`: {"keychain": item} or
-       {"env": name}), and sent only in the Authorization header.
+       {"env": name}), and sent only in the Authorization header. The door's address is `door.url`, or the environment
+       variable `door.url_from` names ({"env": name}), so a repository's files need not name anyone's door.
 """
 from __future__ import annotations
 
@@ -80,6 +82,11 @@ def door_key(rules: dict):
     return answer.stdout.strip() or None
 
 
+def door_url(rules: dict):
+    door = rules["door"]
+    return door.get("url") or os.environ.get((door.get("url_from") or {}).get("env") or "") or None
+
+
 def list_page(rules: dict, key: str, kind: dict, after) -> dict:
     door = rules["door"]
     payload = {"type": kind["type"], "limit": door["page"]}
@@ -88,7 +95,7 @@ def list_page(rules: dict, key: str, kind: dict, after) -> dict:
     body = {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "run_resource_operation", "arguments": {
         "address": door["address"], "method": door["method"],
         "request_key": "check-switches:%s:%s:%d" % (kind["type"], after or "", int(time.time())), "input": payload}}}
-    request = urllib.request.Request(door["url"], data=json.dumps(body).encode(), method="POST", headers={
+    request = urllib.request.Request(door_url(rules), data=json.dumps(body).encode(), method="POST", headers={
         "content-type": "application/json", "accept": "application/json, text/event-stream", "authorization": f"Bearer {key}"})
     with urllib.request.urlopen(request, timeout=door["timeout_seconds"]) as response:
         answer = json.loads(response.read().decode() or "null")
@@ -127,6 +134,8 @@ def refresh(state) -> str | None:
     path = snapshot_path(state, rules)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     try:
+        if not door_url(rules):
+            raise RuntimeError("no door (%s)" % json.dumps(rules["door"].get("url_from")))
         key = door_key(rules)
         if not key:
             raise RuntimeError("no key (%s)" % json.dumps(rules["door"]["key_from"]))
@@ -213,7 +222,91 @@ def apply(guards: list, state) -> tuple[list, list[str]]:
     return keep, notes
 
 
+def state_folder(settings_file: str) -> str:
+    """Where `run` keeps its snapshot: CHECK_LIST_STATE, else a folder named for the settings file."""
+    import hashlib
+    tag = hashlib.blake2b(os.path.abspath(settings_file).encode(), digest_size=8).hexdigest()
+    return os.environ.get("CHECK_LIST_STATE") or os.path.join(os.path.expanduser("~"), ".cache",
+                                                               "check-every-tool-call", tag)
+
+
+def run_the_check_list(event: dict, settings_file: str) -> tuple[int, str, str]:
+    """(exit code, stdout, stderr) for one hook event: every row that names `workshop_run`, in the settings' one scope,
+    picked and answered by guard_rows.py as the dispatcher picks and answers its own rows. Placeholders in
+    `workshop_run`: {tools} the Workshop's tools folder, {repository} the session's project folder,
+    {tool_input.<field>} one field of the call.
+
+    A list that cannot be read is said on every call ("check list unreachable: <why>") and refuses nothing. A tool call
+    waits for the door only while there is no snapshot at all (the first call of a session)."""
+    import re
+    import guard_rows
+    os.environ["CHECK_LIST_SETTINGS"] = settings_file
+    rules = settings()
+    state = state_folder(settings_file)
+    path = snapshot_path(state, rules)
+    failed = path + ".unreachable"
+    if not os.path.exists(path) and not (os.path.exists(failed) and time.time() - os.path.getmtime(failed)
+                                         < rules["snapshot"]["refresh_seconds"]):
+        refresh(state)  # the first call waits once; a door that just failed is asked again in the background
+    why = None
+    try:
+        with open(failed, encoding="utf-8") as handle:
+            why = handle.read()
+    except OSError:
+        pass
+    try:
+        with open(path, encoding="utf-8") as handle:
+            taken = json.load(handle)
+    except (OSError, ValueError):
+        taken = {}
+    guards = []
+    for guard, value in sorted((taken.get("rows") or {}).items()):
+        try:
+            definition = json.loads(value.get("full_definition") or "{}")
+        except ValueError:
+            continue
+        if isinstance(definition, dict) and definition.get("workshop_run"):
+            guards.append({**definition, "id": definition.get("id") or guard})
+    project = os.environ.get("CLAUDE_PROJECT_DIR") or event.get("cwd") or os.getcwd()
+    tools = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    tool_input = event.get("tool_input") if isinstance(event.get("tool_input"), dict) else {}
+    event_name = event.get("hook_event_name", "")
+    guards = guard_rows.chosen({"guards": guards, "scopes": {rules["scope"]: "/"}}, rules["harness"], event_name, event,
+                               {"CLAUDE_PROJECT_DIR": project})
+    guards, notes = apply(guards, state)
+
+    def filled(argument: str) -> str:
+        out = argument.replace("{tools}", tools).replace("{repository}", project)
+        return re.sub(r"\{tool_input\.([A-Za-z_]+)\}", lambda match: str(tool_input.get(match.group(1), "")), out)
+
+    results = []
+    for guard in guards:
+        try:
+            done = subprocess.run([filled(one) for one in guard["workshop_run"]], capture_output=True, text=True,
+                                  timeout=guard.get("timeout_s", 60), cwd=project, stdin=subprocess.DEVNULL)
+            results.append((guard, done.returncode, done.stdout, done.stderr))
+        except subprocess.TimeoutExpired:
+            results.append((guard, 1, "", "%s timed out after %s s\n" % (guard["id"], guard.get("timeout_s", 60))))
+        except OSError as error:
+            results.append((guard, 1, "", "%s could not start: %s\n" % (guard["id"], error)))
+    said = (["check list unreachable: %s" % why] if why else []) + [note.strip() for note in notes]
+    if said:
+        results.insert(0, ({"id": "check-list"}, 0, json.dumps({"systemMessage": "\n".join(said)}), ""))
+    code, out, err = guard_rows.merge(event_name, results)
+    return code, out, ("\n".join(said) + "\n" + err) if code == 2 and said else err
+
+
 if __name__ == "__main__":
+    if len(sys.argv) == 3 and sys.argv[1] == "run":
+        try:
+            event = json.load(sys.stdin)
+            code, out, err = run_the_check_list(event if isinstance(event, dict) else {}, sys.argv[2])
+        except Exception as error:  # a runner that cannot run says so; it never refuses every call
+            code, out, err = 0, json.dumps({"systemMessage": "check list unreachable: the runner failed: %s: %s"
+                                                             % (type(error).__name__, error)}) + "\n", ""
+        sys.stdout.write(out)
+        sys.stderr.write(err)
+        sys.exit(code)
     if len(sys.argv) == 3 and sys.argv[1] == "refresh":
         try:
             why = refresh(sys.argv[2])
@@ -223,5 +316,6 @@ if __name__ == "__main__":
             except Exception:
                 pass
         sys.exit(0 if why is None else 1)
-    sys.stderr.write("usage: CHECK_LIST_SETTINGS=<settings file> check_switches.py refresh <state folder>\n")
+    sys.stderr.write("usage: check_switches.py run <settings file> < hook event\n"
+                     "       CHECK_LIST_SETTINGS=<settings file> check_switches.py refresh <state folder>\n")
     sys.exit(2)

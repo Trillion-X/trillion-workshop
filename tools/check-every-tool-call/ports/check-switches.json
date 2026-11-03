@@ -1,0 +1,69 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-SWITCHES-FROM-THE-HOOK-DISPATCHER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "port-contract gate lane 2026-11-03: the runner a cloud session loads",
+  "message_multihash": "1f:6185cb2493a28497fe55acc4a5d4f92133583408de78cb3e75c4dbe35d788139",
+  "quote": "Move the list-reading part of ai-command-center's hook-dispatch.py, and the judge start, into a Workshop tool. Move it byte for byte. Change only the address it reads from: make that a DATA value instead of the hardcoded 127.0.0.1:8788."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "ai-command-center",
+   "commit": "81151798b4c874ff1dd475b1abc850d1808beb38",
+   "path_multihash": "1f:5154217ac46e949bcbc25b43fb2e1fa255c48242a83bbd59c896a33d0adfe585",
+   "multihash": "1f:b0292f75dbf66af953e6aff4cdbebf2c10764e55e447268fcdf950b647fb01fd",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-05T10:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-every-tool-call/do-work/check_switches.py",
+   "baseline_commit_message": "check-every-tool-call: the hook dispatcher's check-list reader and its choosing and answering, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "Off only on an exact \"Off\"; a missing row, an unreadable list, a failed refresh or a missing snapshot all mean on",
+  "a failed refresh keeps the previous snapshot and says why beside it; the snapshot is replaced whole",
+  "the tool call never waits for the door once a snapshot exists: refreshing is a detached process",
+  "a row marked Off still runs while honour_off is false, and the mark is said",
+  "the door's address and how its key is read are the caller's settings; the key is read at refresh time and sent only in the Authorization header"
+ ],
+ "allowed_deltas": [
+  "a run verb (run_the_check_list): a session with no other copy of the rows reads them from the snapshot and runs the rows that name workshop_run, picked and answered by guard_rows.py",
+  "the door's address may come from the environment variable door.url_from names, so a repository's files need not name anyone's door"
+ ],
+ "banned_substitutions": [
+  "a second reader of the check rows",
+  "a door address written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:b0292f75dbf66af953e6aff4cdbebf2c10764e55e447268fcdf950b647fb01fd",
+  "target_multihash_at_baseline": "1f:b0292f75dbf66af953e6aff4cdbebf2c10764e55e447268fcdf950b647fb01fd",
+  "commit": "f64b87fea674379b4cabd09f3f587e92284f1966",
+  "recorded_at": "2026-11-03T10:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def configure",
+   "def switched_off",
+   "def list_page",
+   "def refresh",
+   "def start_refresh_if_stale",
+   "def apply",
+   "def run_the_check_list"
+  ],
+  "test_refs": [
+   "tools/check-every-tool-call/test/run-the-check-list.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}

@@ -255,3 +255,36 @@ test('a move into a public repository may lose private words in its first commit
   const errors = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE }).judged[0].errors.join('\n');
   assert.match(errors, /exactly baseline\.redactions applied/);
 });
+
+test('a source in a private repository may be named by its path\'s identity, and is read and followed the same way', (t) => {
+  const { tools, since, oldCommit } = checkouts(t);
+  const hidden = (contract) => {
+    const { path, ...source } = contract.sources[0];
+    return { ...contract, sources: [{ ...source, path_multihash: identity(path) }] };
+  };
+  const copy = commit(tools, { 'tools/order-rows/do-work/order-rows.mjs': OLD_SOURCE });
+  commit(tools, { 'tools/order-rows/ports/order-rows.json': hidden(portContract({ oldCommit, baselineCommit: copy })) });
+  const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
+  assert.equal(result.valid, true, JSON.stringify(result, null, 2));
+  const late = judgeRepository({ root: tools, span: range(since), now: '2026-02-01T00:00:00Z' });
+  assert.match(late.judged[0].errors.join('\n'), /still lives after its deleted_by/);
+  assert.doesNotMatch(late.judged[0].errors.join('\n'), /src\/order-rows/);
+  commit(tools, { 'tools/order-rows/ports/order-rows.json': hidden({ ...portContract({ oldCommit, baselineCommit: copy }), sources: [{ ...portContract({ oldCommit }).sources[0], path: 'src/elsewhere.mjs' }] }) });
+  const wrong = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
+  assert.match(wrong.judged[0].errors.join('\n'), /is not in that commit/);
+});
+
+test('--for-command judges what a commit or a push would publish, and nothing for any other command', (t) => {
+  const { tools } = checkouts(t);
+  git(tools, 'add', '-A');
+  git(tools, '-c', 'user.name=t', '-c', 'user.email=t@example.test', 'commit', '-q', '-m', 'rules');
+  write(tools, { 'tools/order-rows/do-work/order-rows.mjs': 'export const x = 1;\n' });
+  git(tools, 'add', '-A');
+  const judge = (command) => spawnSync(process.execPath, [JUDGE, '--root', tools, '--for-command', command], { encoding: 'utf8' });
+  const commitCall = judge('git add -A && git commit -m "add order rows"');
+  assert.equal(commitCall.status, 1, commitCall.stdout);
+  assert.match(commitCall.stdout, /tools\/order-rows\/do-work\/order-rows\.mjs/);
+  const other = judge('ls -la');
+  assert.equal(other.status, 0);
+  assert.match(other.stdout, /commits and pushes nothing/);
+});

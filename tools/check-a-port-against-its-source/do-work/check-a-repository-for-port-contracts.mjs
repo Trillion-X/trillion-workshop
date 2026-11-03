@@ -20,9 +20,13 @@
 // A tree that does not hold the rules predates them and is reported unjudged; its commits are judged when they reach
 // a tree that does (the pull request, the push to main).
 //
-//   node check-a-repository-for-port-contracts.mjs --root <checkout> (--staged | --range <from>..<to> | --since-rules)
+//   node check-a-repository-for-port-contracts.mjs --root <checkout> (--staged | --range <from>..<to> | --since-rules
+//     | --for-command <a shell command an AI is about to run>)
 //     [--rules <path in the tree> | --rules-json <json>] [--search-repositories a,b,...] [--repositories <json>]
 //     [--capability-search <json argv; the phrase is appended>] [--now <ISO time>]
+//
+// --for-command judges what that command would publish: a `git commit` the staged index, a `git push` the commits
+// from where HEAD left origin/main; any other command nothing.
 //
 // Prints { valid, judged: [{ path, change, lines_added, contracts, errors, deferred }], errors } and exits 0 when
 // valid, 1 when not, 2 when it could not judge. Deferred findings (a repository with no checkout here, a capability
@@ -161,6 +165,17 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
   return { valid: !errors.length && judged.every((one) => !one.errors.length), judged, errors };
 }
 
+// The span a shell command would publish, or null when it publishes nothing a port contract judges.
+export function spanForCommand(root, command) {
+  const git = String(command).split(/&&|\|\||;|\n/).map((part) => part.trim()).filter((part) => /^git(\s+-C\s+\S+)?\s/.test(part));
+  if (git.some((part) => /\scommit(\s|$)/.test(part))) return { staged: true };
+  if (git.some((part) => /\spush(\s|$)/.test(part))) {
+    const base = spawnSync('git', ['-C', root, 'merge-base', 'HEAD', 'refs/remotes/origin/main'], { encoding: 'utf8' });
+    return { from: base.status === 0 ? base.stdout.trim() : EMPTY_TREE, to: 'HEAD' };
+  }
+  return null;
+}
+
 function option(args, name) {
   const at = args.indexOf(name);
   return at >= 0 ? args[at + 1] : undefined;
@@ -171,10 +186,15 @@ if (process.argv[1] && import.meta.url === `file://${realpathSync(process.argv[1
   try {
     const root = option(args, '--root') ?? process.cwd();
     const range = option(args, '--range');
-    const span = args.includes('--staged') ? { staged: true }
+    const command = option(args, '--for-command');
+    if (command !== undefined && !spanForCommand(root, command)) {
+      console.log(JSON.stringify({ valid: true, judged: [], errors: [], unjudged: 'the command commits and pushes nothing' }));
+      process.exit(0);
+    }
+    const span = command !== undefined ? spanForCommand(root, command) : args.includes('--staged') ? { staged: true }
       : range ? { from: range.split('..')[0], to: range.split('..')[1] }
         : args.includes('--since-rules') ? { since: true, to: 'HEAD' } : null;
-    if (!span) throw new Error('give --staged, --range <from>..<to> or --since-rules');
+    if (!span) throw new Error('give --staged, --range <from>..<to>, --since-rules or --for-command <command>');
     const rulesJson = option(args, '--rules-json');
     const result = judgeRepository({
       root,

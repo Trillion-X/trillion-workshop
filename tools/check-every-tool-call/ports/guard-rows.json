@@ -1,0 +1,61 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-GUARD-ROWS-FROM-THE-HOOK-DISPATCHER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "port-contract gate lane 2026-11-03: the runner a cloud session loads",
+  "message_multihash": "1f:6185cb2493a28497fe55acc4a5d4f92133583408de78cb3e75c4dbe35d788139",
+  "quote": "Move the list-reading part of ai-command-center's hook-dispatch.py, and the judge start, into a Workshop tool. Move it byte for byte. Change only the address it reads from: make that a DATA value instead of the hardcoded 127.0.0.1:8788."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "ai-command-center",
+   "commit": "81151798b4c874ff1dd475b1abc850d1808beb38",
+   "path_multihash": "1f:a547a74c60e4db2b87f53d0d3b7c1fc5db928bcc97860db9aaf78c236bc068ca",
+   "multihash": "1f:b33686af6395ffed6bf5d4a84f8b07085d60eb8fcdbb556af0b95cfebaadccee",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-05T10:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-every-tool-call/do-work/guard_rows.py",
+   "baseline_commit_message": "check-every-tool-call: the hook dispatcher's check-list reader and its choosing and answering, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "a row runs for the harness, event, scope and tool its on entries name, and acts_on only skips",
+  "a deny from any row is the answer's deny, with that row's reason unchanged",
+  "exit 2 refuses; another failure refuses only under failure_policy deny"
+ ],
+ "allowed_deltas": [],
+ "banned_substitutions": [
+  "a second way of choosing rows or merging answers"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:b33686af6395ffed6bf5d4a84f8b07085d60eb8fcdbb556af0b95cfebaadccee",
+  "target_multihash_at_baseline": "1f:b33686af6395ffed6bf5d4a84f8b07085d60eb8fcdbb556af0b95cfebaadccee",
+  "commit": "f64b87fea674379b4cabd09f3f587e92284f1966",
+  "recorded_at": "2026-11-03T10:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def tool_matches",
+   "def scope_matches",
+   "def acts",
+   "def chosen",
+   "def merge"
+  ],
+  "test_refs": [
+   "tools/check-every-tool-call/test/run-the-check-list.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}
