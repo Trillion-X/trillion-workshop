@@ -896,3 +896,91 @@ test('ending refuses a call that is not 1 to 256 decisions, each named once with
   for (const input of bad) await assert.rejects(endDecisions(input, { door }), /Name 1 to 256 decisions/);
   assert.equal(door.writes.length, 0);
 });
+
+// A made-up decision in the old layout: its evidence rows, its method snapshot and its answered steps inline on a root of
+// about 70 KB, so the root and its `expected` cannot fit one 64 KiB door message together.
+function oldLargeRoot(id) {
+  const evidence = Array.from({ length: 300 }, (_, n) => ({ ref: `e${n + 1}`, claim: `Made-up fact ${n}: a synthetic detail about the camp venue, its cost and its timing, written out so the root grows.` }));
+  const method = { ...plainMethod(), about: 'A made-up method with a long description, kept inline as roots once were. '.repeat(340) };
+  const answered_steps = [
+    { step_id: 'scope', answered_at: '2026-01-02T03:04:05.000Z', version: 1, needs_recheck: false },
+    { step_id: 'outcome', answered_at: '2026-01-02T03:05:05.000Z', checks: 1, graded: 1, graded_by: 'second-judge-test', version: 1, needs_recheck: false },
+  ];
+  return { id, source_id: 'chat:old-large', status: 'needs_outcome', created_at: '2026-01-02T03:00:00.000Z', input: { source_id: 'chat:old-large', goal: 'Pick the made-up camp venue', options: opened.options, evidence }, method, answered_steps, decision: { option_id: 'raise', reason: 'A made-up reason' } };
+}
+
+test('a decision whose root is too large for one conditioned write is ended through its layout, beside a small one', async () => {
+  const door = memoryDoor();
+  const big = 'source:old-large', small = 'source:camp-small';
+  const root = oldLargeRoot(big);
+  const size = Buffer.byteLength(JSON.stringify(root));
+  assert.ok(size > 65000 && size < 80000, `the root is about 70 KB (${size})`);
+  door.put(big, 'decision', root);
+  door.put(small, 'decision', { status: 'needs_outcome', goal: 'A made-up goal' });
+  const answer = await endDecisions({ decisions: [{ decision_id: big, because: 'No one will carry it on.' }, { decision_id: small, because: 'Done with it.' }], by: 'test-agent' }, { door });
+  assert.equal(answer.ended, 2);
+  assert.deepEqual(answer.decisions.map(item => [item.ended, item.laid_apart ?? false]), [[true, true], [true, false]]);
+  assert.equal(answer.decisions[0].previous_status, 'needs_outcome');
+  assert.ok(door.writes.every(write => write.bytes <= 64 * 1024), 'no write is over the cap');
+  assert.equal(door.writes.filter(write => write.ids.includes(big)).at(-1), door.writes.findLast(write => write.ids.some(key => key === big || key.includes(`:${big}:`))), 'the root is written last');
+  const view = caseView(door, big);
+  assert.equal(view.status, 'ended');
+  assert.equal(view.previous_status, 'needs_outcome');
+  assert.equal(view.ended_by, 'test-agent');
+  assert.equal(view.ended_because, 'No one will carry it on.');
+  assert.equal(view.input.goal, root.input.goal);
+  assert.deepEqual(view.input.evidence.map(row => row.claim), root.input.evidence.map(row => row.claim));
+  assert.deepEqual(view.answered_steps.map(step => step.step_id), root.answered_steps.map(step => step.step_id));
+  assert.ok(Buffer.byteLength(JSON.stringify(door.value(big))) < 4096, 'the root is laid apart');
+  assert.equal(door.value(small).status, 'ended');
+});
+
+test('a large decision that changed between its two reads is not ended and nothing of it is written', async () => {
+  const door = memoryDoor();
+  const big = 'source:old-large';
+  door.put(big, 'decision', oldLargeRoot(big));
+  const read = door.read.bind(door);
+  let raw = 0;
+  door.read = async (type, id) => {
+    if (type === 'decision' && id === big && ++raw === 3) door.put(big, 'decision', { ...oldLargeRoot(big), status: 'decided' });
+    return read(type, id);
+  };
+  const before = door.records.size;
+  const answer = await endDecisions({ decisions: [{ decision_id: big, because: 'Done with it.' }], by: 'test-agent' }, { door });
+  assert.deepEqual({ ended: answer.decisions[0].ended, conflict: answer.decisions[0].conflict }, { ended: false, conflict: true });
+  assert.equal(answer.decisions[0].reason, settings.words.end_changed);
+  assert.equal(door.writes.length, 0, 'nothing was written');
+  assert.equal(door.records.size, before);
+  assert.equal(door.value(big).status, 'decided', 'the other writer\'s value is kept');
+});
+
+test('a door that answers 413 for a batch of several records still ends every decision', async () => {
+  const door = memoryDoor();
+  const ids = ['source:camp-a', 'source:camp-b', 'source:camp-c'];
+  for (const id of ids) door.put(id, 'decision', { status: 'needs_outcome', goal: `A made-up goal for ${id}` });
+  const write = door.write.bind(door);
+  let refused = 0;
+  door.write = async (list, options) => {
+    if (list.length > 1) { refused += 1; throw Object.assign(new Error('413'), { code: 'http_413' }); }
+    return write(list, options);
+  };
+  const answer = await endDecisions({ decisions: ids.map(decision_id => ({ decision_id, because: 'Done with it.' })), by: 'test-agent' }, { door });
+  assert.equal(refused, 1);
+  assert.equal(answer.ended, 3);
+  for (const id of ids) assert.equal(door.value(id).status, 'ended');
+});
+
+test('a single conditioned record the door still refuses as 413 is ended through its layout', async () => {
+  const door = memoryDoor();
+  const id = 'source:camp-a';
+  door.put(id, 'decision', { status: 'needs_outcome', goal: 'A made-up goal', input: { goal: 'A made-up goal', evidence: [{ ref: 'e1', claim: 'A made-up fact' }] } });
+  const write = door.write.bind(door);
+  door.write = async (list, options) => {
+    if (list.some(record => 'expected' in record)) throw Object.assign(new Error('413'), { code: 'http_413' });
+    return write(list, options);
+  };
+  const answer = await endDecisions({ decisions: [{ decision_id: id, because: 'Done with it.' }], by: 'test-agent' }, { door });
+  assert.deepEqual([answer.decisions[0].ended, answer.decisions[0].laid_apart], [true, true]);
+  assert.equal(caseView(door, id).status, 'ended');
+  assert.deepEqual(caseView(door, id).input.evidence, [{ ref: 'e1', claim: 'A made-up fact' }]);
+});
