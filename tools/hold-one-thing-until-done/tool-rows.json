@@ -1,0 +1,461 @@
+{
+  "kind": "tool-rows",
+  "record_set": "hold-one-thing-until-done-tool-rows",
+  "what_this_is": "The Workshop rows for tools/hold-one-thing-until-done: whether the required-setup cover stands and the one must-do row the hold shows, from the person's own rows, and each change of their hold setting, written only while it is still what was read.",
+  "records": [
+    {
+      "id": "package::hold-one-thing-until-done::tool::see-what-holds-me",
+      "address": "package::hold-one-thing-until-done::tool::see-what-holds-me",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-what-holds-me",
+        "label": "See what holds me",
+        "status": "active",
+        "job": "Tell me whether my setup still has to be finished before anything else opens, and which one thing I must do now",
+        "description": "Reads your setup steps (record:setup-steps rows, or the Get started answer you send as setup), your must-do list (record:waiting-on-you rows) and your hold setting, and answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. It reads and changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "setup": {
+              "type": "object",
+              "description": "The Get started answer (ready, policy and requirements, or progress) to use instead of your setup step rows"
+            },
+            "gate": {
+              "type": "object",
+              "description": "Your gate row ({ key }) to use instead of setting:required_setup_gate"
+            },
+            "rules": {
+              "type": "object",
+              "description": "The hold rules (after_minutes, every_seconds, rank, aside, hand_back, off, words), to use instead of the person's setting:needs_you_hold_rules row"
+            },
+            "things": {
+              "type": "object",
+              "description": "{ sections: [{ id, hold?, batch?, cards: [...] }], finishes? } to use instead of your must-do rows"
+            },
+            "section": {
+              "type": "object",
+              "description": "The section your must-do rows are cards of ({ id, title, finish, ... })"
+            },
+            "state": {
+              "type": "object",
+              "description": "Your hold setting to use instead of setting:needs_you_hold"
+            },
+            "opens_screens": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Address starts that open one of your screens; a row done in a place outside them holds only with another control"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "cover",
+            "hold"
+          ],
+          "properties": {
+            "cover": {
+              "type": "object",
+              "required": [
+                "covered",
+                "key"
+              ],
+              "properties": {
+                "covered": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "key": {
+                  "type": "string"
+                }
+              }
+            },
+            "hold": {
+              "type": "object",
+              "required": [
+                "on",
+                "held",
+                "ranked",
+                "asides_left",
+                "hand_back",
+                "stakes"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "hold-one-thing-until-done",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/hold-one-thing-until-done"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/hold-one-thing-until-done",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hold-one-thing-until-done/do-work/hold.mjs",
+            "seeWhatHoldsMe"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "setting",
+                "id": "setting:needs_you_hold",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "setting",
+                "id": "setting:needs_you_hold_rules",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "setting",
+                "id": "setting:required_setup_gate",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:waiting-on-you",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:setup-steps",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:hold-one-thing-until-done",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/needs-you-hold.mjs (the hold, 41cf91c8d) and src/setup-steps.mjs setupScreenComplete (the full-window Get started cover, 631b932a1 and 7631a1733), moved here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "setup": {
+                "ready": true
+              },
+              "gate": {
+                "key": "required-setup"
+              },
+              "rules": {
+                "after_minutes": 0,
+                "rank": [
+                  {
+                    "by": "waited_on",
+                    "field": "waits_on"
+                  }
+                ],
+                "aside": {
+                  "min_words": 3,
+                  "minutes": 60,
+                  "most_per_day": 2
+                },
+                "hand_back": {
+                  "ways": [
+                    {
+                      "id": "done",
+                      "label": "I did my part"
+                    }
+                  ]
+                },
+                "off": {
+                  "default_stake": "wait",
+                  "stakes": [
+                    {
+                      "id": "wait",
+                      "label": "Wait an hour",
+                      "delay_minutes": 60
+                    }
+                  ]
+                }
+              },
+              "state": {},
+              "things": {
+                "sections": [
+                  {
+                    "id": "asks",
+                    "cards": [
+                      {
+                        "id": "record:waiting-on-you:sample-sign-in",
+                        "title": "Sign in to the sample service",
+                        "does_in": "/sample"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "now": "2026-01-01T00:00:00.000Z"
+            },
+            "output_selector": "$.hold.held.key",
+            "contains": "sample-sign-in"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::hold-one-thing-until-done::tool::change-what-holds-me",
+      "address": "package::hold-one-thing-until-done::tool::change-what-holds-me",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:change-what-holds-me",
+        "label": "Change what holds me",
+        "status": "active",
+        "job": "Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on",
+        "description": "Changes your hold setting (setting:needs_you_hold) by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. One write of the whole setting, only while it is still what was read: a setting changed meanwhile answers conflict and changes nothing, and the same request_key sent again changes nothing twice. Answers the jobs to hand to your AIs (it sends nothing) and the setting as written.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "change",
+            "request_key"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "change": {
+              "type": "string",
+              "enum": [
+                "set-aside",
+                "hand-back",
+                "choose-stake",
+                "turn-off",
+                "turn-on"
+              ]
+            },
+            "request_key": {
+              "type": "string",
+              "description": "Names this one change"
+            },
+            "key": {
+              "type": "string",
+              "description": "The held thing's key (set-aside, hand-back)"
+            },
+            "title": {
+              "type": "string",
+              "description": "The held thing's title, for the AIs' job"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Why, in your words (set-aside, hand-back)"
+            },
+            "way": {
+              "type": "string",
+              "description": "One of the rules' hand-back ways (hand-back)"
+            },
+            "stake": {
+              "type": "string",
+              "description": "One of the rules' stakes (choose-stake)"
+            },
+            "values": {
+              "type": "object",
+              "description": "The values the stake's fields ask for (choose-stake)"
+            },
+            "rules": {
+              "type": "object",
+              "description": "The hold rules (after_minutes, every_seconds, rank, aside, hand_back, off, words), to use instead of the person's setting:needs_you_hold_rules row"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to change at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "changed",
+            "jobs"
+          ],
+          "properties": {
+            "changed": {
+              "type": "boolean"
+            },
+            "conflict": {
+              "type": "boolean"
+            },
+            "jobs": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "state": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "hold-one-thing-until-done",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/hold-one-thing-until-done"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/hold-one-thing-until-done",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hold-one-thing-until-done/do-work/hold.mjs",
+            "changeWhatHoldsMe"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "setting",
+                "id": "setting:needs_you_hold",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "setting",
+                "id": "setting:needs_you_hold_rules",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:hold-one-thing-until-done",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/needs-you-hold.mjs setAside, handBack, chooseStake, askOff and turnOn, moved here; the write path the Rust engine dropped (trillion-rust d77e5f6)"
+        }
+      }
+    }
+  ]
+}
