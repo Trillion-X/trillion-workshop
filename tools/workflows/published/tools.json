@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:3bf4ea0882f29d6790d9e46aa431a2ed7d8be5f10a1aaf740bed65a0dfe1b1cd"
+  "blake3": "1f:793551a143cc83604934feee80a929d83a06b48c814d510759b6c2ba0abdbda0"
  },
  "fields": [
   {
@@ -1787,7 +1787,7 @@
    "values": {
     "title": "End decisions no one will carry on",
     "job": "Close decisions that will never be carried on, and keep why",
-    "description": "Sets each named decision's status to ended and keeps the status it had (previous_status), ended_at, ended_by and ended_because, with every other field unchanged and nothing deleted. Each write is conditioned on the value just read: a decision that changed meanwhile answers conflict. A decision in outcome_verified, correction_needed or verification is not ended. 1 to 256 decisions per call.",
+    "description": "Sets each named decision's status to ended and keeps the status it had (previous_status), ended_at, ended_by and ended_because, with every other field unchanged and nothing deleted. Each write is conditioned on the value just read: a decision that changed meanwhile answers conflict. A decision whose root is too large to send with its condition in one 64 KiB message is ended through its record layout instead, checked by a second read just before the write, and answers laid_apart. A decision in outcome_verified, correction_needed or verification is not ended. 1 to 256 decisions per call.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
