@@ -15,6 +15,7 @@ Branch: `claude/task-9zielx`. Every fix is its own commit on that branch, and al
 | A door's key could be read only from the macOS keychain (`security find-generic-password`) | `tools/read-a-list-view/read-data/door.mjs:37`, `tools/export-records-as-list-rows/read-data/record_write_send.py:84` | A credential handle names one key store: `{ keychain_item }` (moved unchanged) or `{ key_file }`, a file the person names, which works on any place. This is the same way `ask-a-hosted-classifier` already reads its key. A handle that names no store, two stores, or a key itself is refused. | `f34b818` | done |
 | Finding Premiere projects refused every computer but a Mac (`process.platform !== 'darwin'`) | `tools/media-composition/do-work/relink-editor-projects.mjs:104` | The computer is asked whether it has the Spotlight name index (`/usr/bin/mdfind`). Anywhere else the person names the project files, which already worked on any place. | `c05983c` | done |
 | Narration with no producer named fell back to macOS `say` | `tools/media-composition/do-work/tts-narrate.mjs:51`, `video-compose.mjs:2104` | With no producer named, the first producer whose program is on this computer is used. A computer with none is told what to install. | `58cf50b` | done |
+| Ending a browser assumed it stops writing its profile once its main process is killed. On Linux its helper processes keep writing, so removing the profile failed with ENOTEMPTY and the run ended in that error. That made 3 tests flaky. | `tools/headless-browser/devtools.mjs:26`, `tools/walk-through-an-app-like-its-users/do-work/browser.mjs:22` | Where the place has process groups (it reports POSIX user ids), the browser leads its own group and the whole group is ended. Elsewhere the browser alone is ended, as before. | `30da9ef` | done; walk-through, record-a-web-page and headless-browser tests passed 3 of 3 runs |
 
 ## Ties still open
 
@@ -45,4 +46,11 @@ Branch: `claude/task-9zielx`. Every fix is its own commit on that branch, and al
 
 ## Test run on Linux
 
-Before this branch: 3455 tests, 17 failing, 26 skipped. Five of the failures were the calibration lock above. See the pull request for the run after this branch and for what the other failures were.
+Before this branch: 3455 tests, 17 failing, 26 skipped. Five of the failures were the calibration lock above.
+
+After this branch (with Python's blake3, numpy, scipy and soundfile installed, which un-skipped some tests): 3465 tests, 11 failing, 17 skipped, plus 3 browser tests that fail only now and then. None of the 11 is a tie to one machine:
+
+- `media-composition` image-sequence duration (3 tests): this box's ffmpeg (6.1) is too old, and a current ffmpeg passes them.
+- `assemble-a-plan-into-a-cut` (1 test): ffmpeg fails while rendering a clip. It fails the same way with `video-compose.mjs` as it is on main. Before this branch it was skipped, because the Python modules it needs were missing. It has not been checked against a newer ffmpeg.
+- `page-critic` (3 tests) and `record-a-web-page` (3 tests): this box's agent proxy listens on loopback. `headless-browser/devtools.mjs` sends even loopback pages through `HTTPS_PROXY`, so the tests' local pages never load. They pass with the proxy unset.
+- `walk-through-an-app-like-its-users`, "a broken shop" (1 test): it fails for the same proxy reason.
