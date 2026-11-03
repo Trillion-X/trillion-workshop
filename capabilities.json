@@ -6,6 +6,7 @@
     { "path": "CONTRIBUTING.md", "holds": "how to contribute a tool" },
     { "path": "LICENSE", "holds": "the Workshop's licence" },
     { "path": ".gitignore", "holds": "the paths git leaves out" },
+    { "path": "ports", "holds": "the port-contract rules: which files are feature files, where their contracts live and which modes count (tools/check-a-port-against-its-source)" },
     { "path": "licence-classes.json", "holds": "the licence classes a tool row may declare" },
     { "path": "package.json", "holds": "the Workshop's package manifest and test command" },
     { "path": "package-lock.json", "holds": "the locked package versions" },
@@ -1310,6 +1311,58 @@
       "moves_to": "tools/receive-files-over-ftp/",
       "entry": "bitfield-packages/packages/receive-files-over-file-transfer-protocol/",
       "evidence": "receive-files-over-file-transfer-protocol README.md:1 a resident receiver that speaks RFC 959"
+    },
+    {
+      "capability": "read which of the person's checks apply to an AI's tool call from their check lists, wherever the session runs, and run them",
+      "owner": ["tools/check-every-tool-call/"],
+      "entry": "tools/check-every-tool-call/README.md",
+      "evidence": "README.md: check_switches.py (the one reader of the check rows, and its run verb) and guard_rows.py (choosing rows and answering) moved from the hook dispatcher on the person's computer, which imports these copies; a repository's own hook settings start check_switches.py run",
+      "distinct_from": [
+        {
+          "job": "give each typed tool request one stable identity from its sorted input, whatever carries it or wherever it runs",
+          "why": "That names a typed request by its input; this reads the person's check rows and runs the ones that apply to a tool call before it runs."
+        },
+        {
+          "job": "run a coordination session: its purpose, mode, who may join and its offers",
+          "why": "That runs a session where people and AIs coordinate; this checks one AI's tool calls against the person's checks."
+        },
+        {
+          "job": "check every agent tool call, commit and push against the declared rules, and refuse the ones that break them",
+          "why": "That is the dispatcher on the person's own computer: it runs that computer's guard files from its own DATA, in its own process. This runs the rows the person's check list marks for every repository, in any session that has only a repository (a cloud session included), and holds the row reader and the row choosing and answering that dispatcher imports from here, so both share one copy."
+        },
+        {
+          "job": "narrow an AI's tool list to only the tools one job needs, so a coding agent started for that job can reach nothing else",
+          "why": "That decides which tools an agent is given; this judges a call an agent makes with the tools it has, against the person's check rows."
+        },
+        {
+          "job": "refuse a tool call that is not on the caller's current tool list, saying why and whether asking again can help",
+          "why": "That refuses a call to a tool the caller was not given, inside the service; this runs the person's own check rows on a call a session's harness is about to make."
+        },
+        {
+          "job": "feed the answer engine and correct it through the person's lists, with tools an AI calls to add, change and read what it answers from",
+          "why": "That keeps what the answer engine answers from; this reads the person's check list only to run its checks on a tool call."
+        },
+        {
+          "job": "check every list of tools shown to an AI app against the directory rules for names, hints and wording before it is offered",
+          "why": "That reviews the tool list an app is offered, against directory rules, before it is offered; this runs the person's own check rows on each call a session makes."
+        },
+        {
+          "job": "keep the output of a session-only run for the live return only, never in accounting or recovery records",
+          "why": "That decides where a run's output is kept; this keeps no output, it answers a hook with allow, refuse or a note."
+        },
+        {
+          "job": "group my AIs by the app they connected, Claude Code, Codex, ChatGPT or Claude, with each session and agent under it",
+          "why": "That shows which AIs and sessions are connected; this checks what one session's tool calls do."
+        },
+        {
+          "job": "sign in and keep a browser login session for an account (returning login, verified session start)",
+          "why": "That keeps a browser login; this reads the check list with a key the session already has and signs nobody in."
+        },
+        {
+          "job": "work out who pays for a tool call, the person's own account or Trillion credit, and keep the person's tool charges",
+          "why": "That charges for a tool call; this checks a call before it runs and charges nothing."
+        }
+      ]
     },
     {
       "capability": "check a port or replica against the source it copies",
