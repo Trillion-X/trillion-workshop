@@ -1,0 +1,58 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-APP-RELEASE-SETUP-ACCESS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "Avery, 2026-11-03: move code, never rewrite it: port the correct parts one to one, carry the original tests."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "path": "computer/setup-access.mjs",
+      "multihash": "1f:099750a004b728f74f0d6de5ff0182b22852404e612faf4d9f922b3b5ff07a79",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:00:00Z",
+        "deleted_with": "the Mac session that merges this move deletes computer/setup-access.mjs and the tool:fulfill-setup-access row of computer/mac-tools.json"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/app-release-access/read-data/setup-access.mjs"
+    }
+  ],
+  "preserve": [
+    "the input names an account request only; the recipient comes from the operator's claim",
+    "a checkpoint precedes each provider mutation and an uncertain mutation is read back, never resent",
+    "a usable public route replaces an invitation",
+    "the invitation endpoint is called only for a first send when every candidate disables automatic notification",
+    "no answer carries the verified email"
+  ],
+  "allowed_deltas": [
+    "the claim, checkpoint and finish are an injected operator; with none at the records door yet the tool refuses before any provider call",
+    "the app's bundle identifier and groups are the input, not a repository listing file",
+    "the key is the held value, not a Keychain read"
+  ],
+  "banned_substitutions": [
+    "a recipient taken from the input",
+    "a second invitation after an uncertain send",
+    "a Keychain read"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:38:26Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:099750a004b728f74f0d6de5ff0182b22852404e612faf4d9f922b3b5ff07a79",
+    "target_multihash_at_baseline": "1f:099750a004b728f74f0d6de5ff0182b22852404e612faf4d9f922b3b5ff07a79",
+    "commit": "eca35b0f85bb047ce954cc1518953537294ba313"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/app-release-access/test/setup-access.test.mjs (moved from old trillion test/setup-access.test.mjs, its provider adapter and native tool tests)"
+    ]
+  }
+}

@@ -1,0 +1,316 @@
+{
+ "kind": "tool-rows",
+ "record_set": "app-release-access-tool-rows",
+ "what_this_is": "The Workshop rows for tools/app-release-access: reading an app's TestFlight and App Store availability, and arranging a person's beta access, with the release owner's App Store Connect key handed on a private pipe (credential_mounts fd 4). Both are container rows with internet to api.appstoreconnect.apple.com only (the client refuses any other origin).",
+ "records": [
+  {
+   "id": "package::app-release-access::tool::read-app-distribution",
+   "address": "package::app-release-access::tool::read-app-distribution",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-app-distribution",
+    "label": "Read an app's TestFlight availability",
+    "status": "active",
+    "job": "Check with Apple which TestFlight and App Store routes a released app can be installed from right now, without changing anything",
+    "description": "Give source_id (a configured release source, such as native-ios), the app's bundle_identifier and its testflight_groups. Reads App Store Connect with the release owner's held team key (app-store-connect-key: {key_id, issuer_id, private_key}) and answers the short-lived public observation: source_id, checked_at, expires_at and routes (each with its state, distribution_state, eligibility_state, reason, check and, when ready, action links on testflight.apple.com or apps.apple.com only). It never answers a tester email, the key or Apple's raw reply, and changes nothing at Apple. publish true is refused until the engine lets a tool save the release owner's device-distribution record.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "source_id",
+      "bundle_identifier"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "source_id": {
+       "type": "string",
+       "description": "A release source of read-data/distribution.json, such as native-ios."
+      },
+      "bundle_identifier": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The app's bundle identifier in App Store Connect, such as com.example.sample."
+      },
+      "testflight_groups": {
+       "type": "array",
+       "maxItems": 20,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       },
+       "description": "The TestFlight group names whose routes count (the release owner's own groups)."
+      },
+      "publish": {
+       "type": "boolean",
+       "description": "Save the observation to the release owner's device-distribution:<source> record. Refused for now (README Not yet)."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "source_id",
+      "observation"
+     ],
+     "properties": {
+      "source_id": {
+       "type": "string"
+      },
+      "observation": {
+       "type": "object",
+       "required": [
+        "source_id",
+        "checked_at",
+        "expires_at",
+        "routes"
+       ],
+       "properties": {
+        "routes": {
+         "type": "array"
+        }
+       }
+      },
+      "published": {
+       "type": [
+        "object",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/opt/app-release-access",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/app-release-access/read-data/app-distribution.mjs",
+      "read"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "app-release-access",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/app-release-access"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "credential_mounts": [
+      {
+       "secret_name": "app-store-connect-key",
+       "fd": 4
+      }
+     ]
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": true,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:app-release-access",
+    "provenance": {
+     "source": "Trillion-X/trillion computer/app-distribution.mjs, scripts/app-store-connect.mjs, scripts/testflight-readiness.mjs, src/device-distribution.mjs"
+    }
+   }
+  },
+  {
+   "id": "package::app-release-access::tool::fulfill-setup-access",
+   "address": "package::app-release-access::tool::fulfill-setup-access",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:fulfill-setup-access",
+    "label": "Arrange a person's beta app access",
+    "status": "active",
+    "job": "Arrange the TestFlight access a person's setup requires, through the release owner's Apple account, without sending a second invitation",
+    "description": "Give account_id, source_id and request_id (the person's setup-access request), and the app's bundle_identifier and testflight_groups. The release owner's claim resolves consent, setup, policy and the verified email; the tool never takes a recipient. It answers a public route when one is usable, otherwise enrolls the person in the policy's external group and, only when Apple will not notify on its own, sends one first invitation, each change after a checkpoint, and an uncertain change is read back, never sent again. Answers state (available, invited, accepted, installed, awaiting-invitation, blocked, indeterminate, revoked) and reason, never the email. Refused for now: the claim, checkpoint and finish are not operations a tool run can reach at the records door yet (README Not yet).",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "account_id",
+      "source_id",
+      "request_id",
+      "bundle_identifier",
+      "testflight_groups"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "account_id": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200
+      },
+      "source_id": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200
+      },
+      "request_id": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200
+      },
+      "bundle_identifier": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The app's bundle identifier in App Store Connect, such as com.example.sample."
+      },
+      "testflight_groups": {
+       "type": "array",
+       "maxItems": 20,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       },
+       "description": "The TestFlight group names whose routes count (the release owner's own groups)."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "state"
+     ],
+     "properties": {
+      "state": {
+       "type": "string"
+      },
+      "reason": {
+       "type": "string"
+      },
+      "request_id": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/opt/app-release-access",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/app-release-access/read-data/setup-access.mjs",
+      "fulfill"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "app-release-access",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/app-release-access"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "credential_mounts": [
+      {
+       "secret_name": "app-store-connect-key",
+       "fd": 4
+      }
+     ]
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:app-release-access",
+    "provenance": {
+     "source": "Trillion-X/trillion computer/setup-access.mjs, scripts/app-store-connect.mjs, scripts/testflight-readiness.mjs, src/device-distribution.mjs"
+    }
+   }
+  }
+ ]
+}

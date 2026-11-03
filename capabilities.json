@@ -483,6 +483,16 @@
       "evidence": "README.md:3 which domains a person's email-sending account may send from, how each stands, and how many there are"
     },
     {
+      "capability": "read how a released app can be installed from TestFlight or the App Store right now, and arrange the beta access a person's setup requires, with the release owner's App Store Connect key",
+      "owner": ["tools/app-release-access/"],
+      "entry": "tools/app-release-access/tool-rows.json",
+      "evidence": "README.md:3 checks with Apple how a released app can be installed right now; it also arranges the beta access a person's setup requires",
+      "distinct_from": [
+        { "job": "find the destination screen an owner has published among saved records", "why": "published-destinations reads destination descriptors already saved in records; this asks App Store Connect for an app's live install routes and a person's tester access." },
+        { "job": "run the command line an installed app keeps inside itself", "why": "run-an-installed-apps-command-line runs an app already on the person's computer; this reads and changes an app's release at Apple, in a container." }
+      ]
+    },
+    {
       "capability": "turn records on disk (JSON, tab-separated files, markdown tables) into rows of a person's lists",
       "owner": ["tools/export-records-as-list-rows/"],
       "entry": "tools/export-records-as-list-rows/tool-rows.json",
