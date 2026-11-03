@@ -22,6 +22,10 @@ Moved here from `Trillion-X/trillion` `computer/harness-instructions.mjs` (tool:
 | `keepInstructions` | `({ action, harness, folder, text? }) => report` | `status` absent, present, outdated, blocked or use-host-control; `changed`; `path`. |
 | `change` | `(content, action, block?) => { state, next }` | The new file text; every byte outside the block is untouched. |
 
+## Not yet
+
+- `tool:manage-harness` (old trillion `computer/harness-setup.mjs` over `harness/setup.mjs`), the installer that writes Trillion's hooks into the same harness folder (`settings.json`, `hooks.json`), is not moved here. Writing the folder needs no new capability (`change-a-folder`, as above). What is missing is something for the hooks to run: every hook it writes runs a script from the old Mac app's payload (`/Applications/Trillion.app/Contents/Resources/harness`: `register-session.mjs`, `record-every-message.mjs`, `decisions-since.mjs`, `wake-sessions.mjs`), which talks to the old account. The engine has no harness hook receiver to point a hook at (trillion-rust `src/`: no SessionStart, UserPromptSubmit or Stop handler; `product/harnesses.json` names the `transcript-hook` road but nothing in `src/` reads it). Moving the installer before its payload would install hooks into the retiring app: a bridge.
+
 ## Dependencies
 
 **Depends on:** Node's standard library; `tools/records-door` (`run-an-export.mjs`) for a `computer` run.
