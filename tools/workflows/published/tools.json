@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:9345e4a68e7c399280899b92469e55f9c6d257091c05e7eba5908ebc3d3c8793"
+  "blake3": "1f:b3a5add852b8f0e6ab7ea4a10428cd765a899f5a2cc617f913cff0374f140145"
  },
  "fields": [
   {
@@ -611,7 +611,7 @@
    "values": {
     "title": "Change a booking's status",
     "job": "Confirm, cancel, complete or mark a booking as a no-show, only in the ways a booking may move",
-    "description": "Moves one booking record to a new status: waiting bookings can be confirmed or cancelled, a confirmed one can be completed, marked no-show or cancelled, and a finished one never moves. A cancel keeps its time and reason. Asking for the status it already has changes nothing. A move that is not allowed is refused with the moves that are.",
+    "description": "Moves one booking record to a new status: waiting bookings can be confirmed or cancelled, a confirmed one can be completed, marked no-show or cancelled, and a finished one never moves. A cancel keeps its time and reason. Asking for the status it already has changes nothing. A move that is not allowed is refused with the moves that are. Only one answer lands on a waiting booking: two answers at once are kept one after the other, and the second meets the booking as the first left it. A waiting booking whose time has passed can be cancelled but not confirmed, and one that did not hold its time is confirmed only if the time is still open.",
     "status": "active",
     "maker": "maker:book-time",
     "licence_class": "licence:maker-own",
@@ -1969,7 +1969,7 @@
    "values": {
     "title": "Find open times",
     "job": "Find the times someone can book with me, from my weekly hours, minus what is already booked and what my calendar shows busy",
-    "description": "Gives the open start times over one or more days, in the person's time zone. A time is open when it fits wholly inside a weekly window on that weekday, is not the start of a booking, does not overlap a busy interval (widened by the buffers before and after), and starts after the minimum notice. Bookings come from the list given and, when use_my_bookings is true, from the person's own booking records (a cancelled booking frees its time). Windows, lengths, buffers and notice are the person's own: nothing is assumed.",
+    "description": "Gives the open start times over one or more days, in the person's time zone. A time is open when it fits wholly inside a weekly window on that weekday, is not a start in the taken list, does not overlap a busy interval (widened by the buffers before and after), and starts after the minimum notice. With use_my_bookings, the person's own booking records count too: a booking fills a seat of the time it starts at and blocks every other time it overlaps (a cancelled booking frees its time); a day closes once per_day_max bookings start on it, and nothing past horizon_days is offered. Windows, lengths, buffers, seats and limits are the person's own: nothing is assumed.",
     "status": "active",
     "maker": "maker:book-time",
     "licence_class": "licence:maker-own",
@@ -6079,7 +6079,7 @@
    "values": {
     "title": "Request a booking",
     "job": "Book someone into one of my open times and keep the booking",
-    "description": "Checks that the start asked for is an open time (same rules as tool:find-open-times, with the person's own booking records as taken), then keeps one booking record. It starts waiting for payment, waiting for the host to confirm, or booked, as the request says. The same idempotency_key answers the booking already kept and books nothing twice. A time that is not open is refused with the open times that day.",
+    "description": "Checks that the start asked for is an open time (same rules as tool:find-open-times, with the person's own booking records counted), then keeps one booking record. The check and the write are one step, so two people asking for the last seat at once cannot both get it. It starts waiting for payment, waiting for the host to confirm, or booked, as the request says. The same idempotency_key answers the booking already kept and books nothing twice. A time that is not open is refused with the open times that day; a person who already holds a seat at that time is refused a second one.",
     "status": "active",
     "maker": "maker:book-time",
     "licence_class": "licence:maker-own",

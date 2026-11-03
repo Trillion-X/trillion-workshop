@@ -13,7 +13,7 @@
         "label": "Find open times",
         "status": "active",
         "job": "Find the times someone can book with me, from my weekly hours, minus what is already booked and what my calendar shows busy",
-        "description": "Gives the open start times over one or more days, in the person's time zone. A time is open when it fits wholly inside a weekly window on that weekday, is not the start of a booking, does not overlap a busy interval (widened by the buffers before and after), and starts after the minimum notice. Bookings come from the list given and, when use_my_bookings is true, from the person's own booking records (a cancelled booking frees its time). Windows, lengths, buffers and notice are the person's own: nothing is assumed.",
+        "description": "Gives the open start times over one or more days, in the person's time zone. A time is open when it fits wholly inside a weekly window on that weekday, is not a start in the taken list, does not overlap a busy interval (widened by the buffers before and after), and starts after the minimum notice. With use_my_bookings, the person's own booking records count too: a booking fills a seat of the time it starts at and blocks every other time it overlaps (a cancelled booking frees its time); a day closes once per_day_max bookings start on it, and nothing past horizon_days is offered. Windows, lengths, buffers, seats and limits are the person's own: nothing is assumed.",
         "input_schema": {
           "type": "object",
           "required": ["timezone", "windows", "from_date", "duration_minutes"],
@@ -32,7 +32,11 @@
             "busy": { "type": "array", "items": { "type": "object", "required": ["start", "end"], "properties": { "start": { "type": "string" }, "end": { "type": "string" } } }, "description": "Busy intervals (instants), like those tool:check-when-i-am-busy gives" },
             "use_my_bookings": { "type": "boolean", "description": "Also treat the person's booking records as taken" },
             "host_ref": { "type": "string", "description": "With use_my_bookings: only this host's bookings" },
-            "free_statuses": { "type": "array", "items": { "type": "string" }, "description": "Booking statuses that free their time (\"cancelled\" when left out)" }
+            "free_statuses": { "type": "array", "items": { "type": "string" }, "description": "Booking statuses that free their time (\"cancelled\" when left out)" },
+            "seats_per_slot": { "type": "integer", "minimum": 1, "description": "How many people may book the same time (1 when left out); each time shows the seats left" },
+            "per_day_max": { "type": "integer", "minimum": 1, "description": "Once this many bookings start on a day, the rest of that day is not offered" },
+            "horizon_days": { "type": "integer", "minimum": 1, "description": "Nothing is offered more than this many days from now" },
+            "pending_blocks_slot": { "type": "boolean", "description": "Whether a booking waiting for the host to confirm holds its time (true when left out)" }
           }
         },
         "output_schema": {
@@ -41,7 +45,7 @@
           "properties": {
             "timezone": { "type": "string" },
             "count": { "type": "integer" },
-            "slots": { "type": "array", "items": { "type": "object", "required": ["start", "end", "date", "time"], "properties": { "start": { "type": "string" }, "end": { "type": "string" }, "date": { "type": "string" }, "time": { "type": "string" } } } }
+            "slots": { "type": "array", "items": { "type": "object", "required": ["start", "end", "date", "time"], "properties": { "start": { "type": "string" }, "end": { "type": "string" }, "date": { "type": "string" }, "time": { "type": "string" }, "seats_left": { "type": "integer" } } } }
           }
         },
         "invoke": {
@@ -84,7 +88,7 @@
         "label": "Request a booking",
         "status": "active",
         "job": "Book someone into one of my open times and keep the booking",
-        "description": "Checks that the start asked for is an open time (same rules as tool:find-open-times, with the person's own booking records as taken), then keeps one booking record. It starts waiting for payment, waiting for the host to confirm, or booked, as the request says. The same idempotency_key answers the booking already kept and books nothing twice. A time that is not open is refused with the open times that day.",
+        "description": "Checks that the start asked for is an open time (same rules as tool:find-open-times, with the person's own booking records counted), then keeps one booking record. The check and the write are one step, so two people asking for the last seat at once cannot both get it. It starts waiting for payment, waiting for the host to confirm, or booked, as the request says. The same idempotency_key answers the booking already kept and books nothing twice. A time that is not open is refused with the open times that day; a person who already holds a seat at that time is refused a second one.",
         "input_schema": {
           "type": "object",
           "required": ["idempotency_key", "start", "timezone", "windows", "duration_minutes"],
@@ -106,7 +110,11 @@
             "attendees": { "type": "array", "items": { "type": "object" }, "description": "Who is booked, like { name, email }" },
             "needs_payment": { "type": "boolean", "description": "Start as waiting for payment" },
             "needs_confirmation": { "type": "boolean", "description": "Start as waiting for the host to confirm" },
-            "free_statuses": { "type": "array", "items": { "type": "string" } }
+            "free_statuses": { "type": "array", "items": { "type": "string" } },
+            "seats_per_slot": { "type": "integer", "minimum": 1, "description": "How many people may book the same time (1 when left out); one person holds one seat of a time" },
+            "per_day_max": { "type": "integer", "minimum": 1, "description": "At most this many bookings start on one day" },
+            "horizon_days": { "type": "integer", "minimum": 1, "description": "A time more than this many days from now is not open" },
+            "pending_blocks_slot": { "type": "boolean", "description": "Whether a booking waiting for the host to confirm holds its time (true when left out); when false the time is checked again when the host confirms" }
           }
         },
         "output_schema": {
@@ -131,7 +139,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/book-time/do-work/book-time.mjs", "requestABooking"],
           "stdin": { "fill": { "from": "input" } },
-          "records": { "fd": 3, "rights": [{ "kind": "booking", "operations": ["records:read", "records:list", "records:write"] }] }
+          "records": { "fd": 3, "rights": [{ "kind": "booking", "operations": ["records:read", "records:list", "records:write"] }, { "kind": "booking-book", "operations": ["records:read", "records:write"] }] }
         },
         "needs": { "expected_seconds": 3, "network_egress": false },
         "licence_class": "licence:maker-own",
@@ -152,7 +160,7 @@
         "label": "Change a booking's status",
         "status": "active",
         "job": "Confirm, cancel, complete or mark a booking as a no-show, only in the ways a booking may move",
-        "description": "Moves one booking record to a new status: waiting bookings can be confirmed or cancelled, a confirmed one can be completed, marked no-show or cancelled, and a finished one never moves. A cancel keeps its time and reason. Asking for the status it already has changes nothing. A move that is not allowed is refused with the moves that are.",
+        "description": "Moves one booking record to a new status: waiting bookings can be confirmed or cancelled, a confirmed one can be completed, marked no-show or cancelled, and a finished one never moves. A cancel keeps its time and reason. Asking for the status it already has changes nothing. A move that is not allowed is refused with the moves that are. Only one answer lands on a waiting booking: two answers at once are kept one after the other, and the second meets the booking as the first left it. A waiting booking whose time has passed can be cancelled but not confirmed, and one that did not hold its time is confirmed only if the time is still open.",
         "input_schema": {
           "type": "object",
           "required": ["booking_id", "to"],
@@ -185,7 +193,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/book-time/do-work/book-time.mjs", "changeABookingStatus"],
           "stdin": { "fill": { "from": "input" } },
-          "records": { "fd": 3, "rights": [{ "kind": "booking", "operations": ["records:read", "records:write"] }] }
+          "records": { "fd": 3, "rights": [{ "kind": "booking", "operations": ["records:read", "records:list", "records:write"] }, { "kind": "booking-book", "operations": ["records:read", "records:write"] }] }
         },
         "needs": { "expected_seconds": 2, "network_egress": false },
         "licence_class": "licence:maker-own",

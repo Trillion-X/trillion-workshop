@@ -3,10 +3,11 @@
 Booking time with a person: the times they can be booked, booking one, moving a booking through its lifecycle, and putting, moving or cancelling the event on their own Google calendar, or making the invitation file any mail client understands. Ported from bitfield-packages `packages/calendar-booker`: the open-time derivation, the calendar account's calls and the invitation file are the package's; the booking record, its lifecycle and the rows are written for the records door.
 
 - **Nothing is assumed.** Weekly windows, lengths, buffers, notice and the time zone are the person's own and arrive in the request. A booking type, a host and a title are the person's words.
-- **Open means open now.** A time is open when it fits a window, is not a booking's start, does not touch a busy interval widened by the buffers, and starts after the notice. A request to book re-checks that against the person's own booking records, so a stale list cannot book a taken time.
+- **Open means open now.** A time is open when it fits a window, does not touch a busy interval widened by the buffers, and starts after the notice. A held booking fills a seat of the time it starts at (`seats_per_slot`, 1 when left out) and blocks every other time it overlaps; once `per_day_max` bookings start on a day the rest of it closes; nothing past `horizon_days` is offered. A request to book re-checks that against the person's own booking records, so a stale list cannot book a taken time.
+- **The check and the write are one step.** Each request and each status change is written together with the host's `booking-book` record, conditioned on the book as it was read. Two people asking for the last seat at once cannot both get it, and two answers to one waiting booking cannot both land: the loser reads again and checks again.
+- **A waiting booking holds its time unless told not to.** With `pending_blocks_slot: false` a booking waiting for the host leaves its time open to others, and confirming it checks the time again; a waiting booking whose time has passed can be cancelled but not confirmed. The rules a booking was made under are kept on it as `time_rules`.
 - **The calendar account is the person's own.** Calendar rows take one held value, `calendar-account`, a JSON object `{ provider, client_id, client_secret, refresh_token, calendar_id? }`, on descriptor 4. It is never printed, logged or returned, and provider text in an answer is scrubbed of its parts. Only `google` is read today; a new provider is one adapter entry.
 - **A calendar that cannot be read is unknown, never free.**
-- **The records door has no compare-and-swap.** Two requests for one time in the same instant can both pass the open check, so a busy host should book through one writer.
 
 ## The booking lifecycle
 
@@ -27,14 +28,16 @@ Booking time with a person: the times they can be booked, booking one, moving a 
 | `test/derive-open-slots.test.mjs`, `test/external-calendar.test.mjs` | The package's cases, plus busy, move and cancel. |
 | `test/calendar-invite-file.test.mjs`, `test/booking-lifecycle.test.mjs` | The file's shape; the lifecycle's soundness. |
 | `test/book-time-rows.test.mjs` | Rows run as the container runs them against the fake records door; calendar rows with a stand-in account and transport. |
+| `test/seats-limits-and-answers.test.mjs` | Seats, the day limit, the horizon, overlap, a waiting booking's time and the host's one answer, with two bookers or two answers at once against an in-memory door. |
 
 ## Key Types / Functions
 
 | Type / Function | Signature / Shape | Role |
 |---|---|---|
-| `booking` record | `{ id, host_ref?, booking_type?, title?, status, scheduled_start, scheduled_end, timezone, attendees, idempotency_key, created_at, updated_at, external_calendar_event_id?, meeting_url?, cancelled_at?, cancellation_reason? }` | One booking, id `booking:<idempotency_key>`. |
-| `tool:find-open-times` | `{ timezone, windows, from_date, days?, duration_minutes, step_minutes?, buffers?, min_notice_minutes?, taken?, busy?, use_my_bookings? } -> { slots }` | The open times. |
-| `tool:request-a-booking` | `{ idempotency_key, start, timezone, windows, duration_minutes, needs_payment?, needs_confirmation?, attendees? } -> { already_requested, booking }` | Keeps one booking. |
+| `booking` record | `{ id, host_ref?, booking_type?, title?, status, scheduled_start, scheduled_end, timezone, attendees, time_rules, idempotency_key, created_at, updated_at, external_calendar_event_id?, meeting_url?, cancelled_at?, cancellation_reason? }` | One booking, id `booking:<idempotency_key>`. |
+| `booking-book` record | `{ revision, updated_at }`, id `booking-book:<host_ref or default>` | Moved on by every write that takes or frees a host's time; the condition that makes the check and the write one step. |
+| `tool:find-open-times` | `{ timezone, windows, from_date, days?, duration_minutes, step_minutes?, buffers?, min_notice_minutes?, taken?, busy?, use_my_bookings?, seats_per_slot?, per_day_max?, horizon_days?, pending_blocks_slot? } -> { slots: [{ ..., seats_left? }] }` | The open times. |
+| `tool:request-a-booking` | `{ idempotency_key, start, timezone, windows, duration_minutes, needs_payment?, needs_confirmation?, attendees?, seats_per_slot?, per_day_max?, horizon_days?, pending_blocks_slot? } -> { already_requested, booking }` | Keeps one booking. |
 | `tool:change-a-booking-status` | `{ booking_id, to, reason? } -> { changed, booking }` | Only lifecycle moves. |
 | `tool:check-when-i-am-busy` | `{ from, to } -> { status: read \| unknown, busy }` | Needs `calendar-account`. |
 | `tool:put-a-booking-on-my-calendar` | `{ title, start_local, end_local, timezone, attendees?, video_call_request_id?, booking_id? } -> { status, external_event_id?, html_link?, video_link? }` | Needs `calendar-account`. |
