@@ -30,6 +30,7 @@ import { extname, join } from 'node:path';
 import { promisify } from 'node:util';
 import { evaluate } from './recording-rules.mjs';
 import leaves from './leaves.json' with { type: 'json' };
+import { readWholeFile } from '../../records-door/read-data/whole-file.mjs';
 
 const run = promisify(execFile);
 const MOST_PIECE_SECONDS = 120;
@@ -271,9 +272,8 @@ export async function hearForADevice(input, { door }, steps = {}) {
   const listening = String(input.listening ?? `${device}-${new Date(startMs).toISOString().replace(/[:.]/g, '-')}`);
   const folder = input.folder ?? join(process.env.TMPDIR ?? '.', `heard-${listening}`);
   mkdirSync(folder, { recursive: true, mode: 0o700 });
-  const read = steps.read ?? (name => readWhole((method, request) => door.files(method, request), name));
-  const { title, bytes } = await read(input.file);
-  if (!bytes) throw new Error(`${input.file} is larger than ${MOST_RECORDING_BYTES} bytes, the most one run reads.`);
+  const { title, size, bytes } = await readWholeFile(door, input.file);
+  if (!bytes) throw new Error(`${input.file} is ${size} bytes, more than one run reads.`);
   const file = join(folder, `0${extname(title) || '.wav'}`);
   writeFileSync(file, bytes, { mode: 0o600 });
   async function* one() { yield { file, startMs, endMs: startMs }; }
@@ -281,22 +281,5 @@ export async function hearForADevice(input, { door }, steps = {}) {
     return await hearPieces(input, door, steps, { listening, device, pieces: one() });
   } finally {
     rmSync(folder, { recursive: true, force: true });
-  }
-}
-
-const READ_BYTES = 4 * 1024 * 1024;
-const MOST_RECORDING_BYTES = 512 * 1024 * 1024;
-/** One of the person's files read whole through the door's find_file and read_file: { title, bytes } (bytes null when too large). */
-export async function readWhole(call, name) {
-  const found = await call('find_file', { name_or_identity: name });
-  const title = String(found.names?.[0] ?? found.name ?? name).split('/').pop();
-  const parts = [];
-  let offset = 0;
-  for (;;) {
-    const piece = await call('read_file', { name_or_identity: name, offset, length: READ_BYTES });
-    if (piece.byte_length > MOST_RECORDING_BYTES) return { title, bytes: null };
-    parts.push(Buffer.from(piece.content ?? '', piece.encoding === 'base64' ? 'base64' : 'utf8'));
-    offset += piece.bytes_returned;
-    if (!piece.bytes_returned || offset >= piece.byte_length) return { title, bytes: Buffer.concat(parts) };
   }
 }

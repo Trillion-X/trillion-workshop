@@ -197,7 +197,8 @@ test('a listener that stops early closes the microphone', async () => {
 });
 
 test('a recording another device made is read through the door, heard as that device from `at`, and deleted here', async () => {
-  const { hearForADevice, readWhole } = await import('../read-data/listen-for-a-while.mjs');
+  const { hearForADevice } = await import('../read-data/listen-for-a-while.mjs');
+  const { readWholeFile } = await import('../../records-door/read-data/whole-file.mjs');
   const door = fakeDoor();
   const asked = [];
   door.files = async (method, request) => {
@@ -207,7 +208,8 @@ test('a recording another device made is read through the door, heard as that de
     const part = bytes.subarray(request.offset, request.offset + 4);
     return { byte_length: bytes.length, bytes_returned: part.length, content: part.toString('base64'), encoding: 'base64' };
   };
-  assert.deepEqual(await readWhole(door.files, 'x'), { title: 'phone-piece.m4a', bytes: Buffer.from('abcdef') });
+  assert.deepEqual(await readWholeFile(door, 'x', { readBytes: 4 }), { title: 'phone-piece.m4a', size: 6, bytes: Buffer.from('abcdef') });
+  assert.equal((await readWholeFile(door, 'x', { readBytes: 4, mostBytes: 5 })).bytes, null);
   let heardFile = null;
   const hear = async file => { heardFile = file; assert.equal(existsSync(file), true); return [{ start: 1, end: 2, text: 'from the phone' }]; };
   const name = async request => ({ speakers: [turn(1, 2, 'Someone (voice-1)', request.segments[0].text)], records: [] });

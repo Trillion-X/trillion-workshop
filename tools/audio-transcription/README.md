@@ -15,10 +15,15 @@ The audio-transcription package's local Whisper transcription with word times, a
 | `do-work/audio_transcription.py` | The seam: `transcribe` (runs the package's script and adds the recording's length, path and when it was made), `transcribe-many`, `find-loops`, `repair`, `repair-many`, `judge`, `index` and `text`. |
 | `read-data/transcript_reports.py` | Pure: when a recording was made (camera sidecar XML or file time), the index line and totals, the judge of a whole answer, and timed paragraphs. |
 | `read-data/whisper_loops.py` | Pure: what a loop is, the windows to hear again, moving a heard window into place, and the splice. |
-| `tool-rows.json` | The row `tool:transcribe-audio-and-repair-whisper-loops`: `on-your-computer`. |
+| `read-data/hear-here.mjs` | `hearARecording` (`tool:hear-a-recording`) and `hearALink` (`tool:hear-a-link`), run as functions by `tools/records-door`: a recording read through the run's door, or a link's captions or sound, heard with `transcribe` on the person's computer; a heard link's sound is kept in their files with its words beside it. Moved from the product repo's `computer/listen.mjs` (`listeningTools.transcribe`) and `computer/hear-a-link.mjs`. |
+| `read-data/hear-a-link.json` | The link readers (the yt-dlp row: `info`, `captions`, `sound`, `search_path`, `update_hint`), the caption languages, where a heard sound is kept, the longest fetch and every word the AI reads. |
+| `tool-rows.json` | `tool:hear-a-recording` and `tool:hear-a-link`: `computer` rows with `start-a-program` (the person grants the `record-and-hear` programs: ffmpeg, whisper-cli and the models folder); and `tool:transcribe-audio-and-repair-whisper-loops`: `on-your-computer`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/audio-transcription-seam.test.mjs` | Runs the seam on a tone made with ffmpeg and a stand-in `whisper-cli` that loops the way Whisper does. |
 | `test/test_whisper_loops.py`, `test/test_transcript_reports.py`, `test/fake_whisper_cli.py` | The pure readers, and the stand-in recognizer. |
+| `test/test_probe_duration.py` | A recording's length read from the granted ffmpeg when ffprobe cannot start. |
+| `test/hear-a-recording.test.mjs` | A recording read through a fake door, heard in the run's folder and removed; the seam's answer; a heard sound kept in pieces with its words. |
+| `test/hear-a-link.test.mjs` | Captions win, no captions is heard, and every road with no words says why (the product repo's `test/hear-a-link.test.mjs`, its assertions kept). |
 
 ## How to run it
 
@@ -51,6 +56,12 @@ Options: `--whisper-cli PATH`, `--ffmpeg PATH`, `--out FILE` (for `repair`; defa
 - `judge` rejects a whole answer when one segment's text is a quarter or more of all segments and said three or more times, one run of four words comes back at least max(6, half the minutes) times, under 18% of more than 40 words are different words, there are under 30 words a minute, or more than half the segments carry a no-speech probability over 0.6 (when the recognizer gives one). It names each reason.
 - `text` writes `# title`, the source, a blank line, then `[m:ss] paragraph` lines, a new paragraph at the first segment 30 seconds (`--paragraph-seconds`) after the last began. It refuses a transcript `judge` rejects, unless `--even-if-rejected`.
 
+## Not yet
+
+- `tool:hear-a-link` cannot run on the engine yet. Its link reader is a program no capability starts: `start-a-program` holds `record-and-hear` (ffmpeg, whisper-cli), and a run may also start only `/bin` and `/usr/bin`. It needs a program row in trillion-rust `src/runtime/workshop/computer-capabilities.json` `programs` such as `{"id": "read-a-link", "parameters": {"program": "program"}, "sandbox": ["(allow process-exec* file-read* (literal \"{program}\"))", "(allow network-outbound (remote tcp \"*:443\") (remote tcp \"*:80\"))", "(allow mach-lookup (global-name \"com.apple.dnssd.service\"))"]}`, and it needs record-and-hear in the same run for a page with no captions, which one `program_by` capability cannot give (computer.rs:139 counts one program-picking capability per row). The engine's computer runs have no network rule at all (`base`), so the fetch is refused today.
+- The programs are passed as input (`whisper_cli`, `ffmpeg`, `link_reader`) as well as granted: `tools/records-door/do-work/run-an-export.mjs` hands the function only `input`, and the grant's paths reach a run only through argv fills of `grants.start-a-program.*` (computer.rs:244).
+- `python3` is `/usr/bin/python3`; on a Mac without the Command Line Tools' Python under `/usr/bin` the seam cannot start, and the shim's real program under `/Library/Developer/CommandLineTools` is outside the base sandbox's reads. Unproved on a Mac.
+
 ## Not ported
 
 - `built-stored-bytes/` and `.bitfield-entry-scope/`: the package's build outputs.
@@ -58,6 +69,6 @@ Options: `--whisper-cli PATH`, `--ffmpeg PATH`, `--out FILE` (for `repair`; defa
 
 ## Dependencies
 
-**Depends on:** Python 3.10 or later, ffmpeg and ffprobe, `whisper-cli` (whisper.cpp) and a ggml model file. The package's own tests need Node.
+**Depends on:** `tools/records-door` (`read-data/whole-file.mjs`, `do-work/run-an-export.mjs`) for the computer rows; Python 3.10 or later, ffmpeg (ffprobe when it can start), `whisper-cli` (whisper.cpp) and a ggml model file. The package's own tests need Node.
 
-**Depended on by:** `tool-rows.json` (`tool:transcribe-audio-and-repair-whisper-loops`).
+**Depended on by:** `tool-rows.json` (`tool:hear-a-recording`, `tool:hear-a-link`, `tool:transcribe-audio-and-repair-whisper-loops`); `tools/listen-for-a-while` runs `do-work/audio_transcription.py transcribe` on each piece.
