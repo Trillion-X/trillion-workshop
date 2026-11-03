@@ -3440,6 +3440,1156 @@
     ],
     "result_selector": "$.result"
    }
+  },
+  {
+   "id": "package::social-posts::tool::save-a-snippet",
+   "address": "package::social-posts::tool::save-a-snippet",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:save-a-snippet",
+    "label": "Save a snippet",
+    "job": "Save words I send again and again as a snippet, with blanks like {name} to fill each time, or change one I saved",
+    "description": "Give title (what you call it) and text (the words, with {name} where something changes each time; a blank is a lowercase name in braces), and tags (short words) if you like. Without snippet_id it makes a new snippet; with snippet_id (from tool:find-snippets) it changes that one, keeping the fields left out. Give expected_set_at (the set_at tool:find-snippets showed) to refuse the change when it was saved again since. Returns snippet: snippet_id, title, text, tags, blanks, set_at, uses. Refuses a snippet with no title or no words, an unknown snippet_id, and a 501st snippet. A snippet is the person's own snippet record; saving sends nothing anywhere.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [],
+     "properties": {
+      "snippet_id": {
+       "type": "string",
+       "description": "A snippet_id from tool:find-snippets, to change that snippet"
+      },
+      "title": {
+       "type": "string",
+       "description": "What the snippet is called, at most 120 characters"
+      },
+      "text": {
+       "type": "string",
+       "description": "Its words, like Thanks {name}, see you {day}."
+      },
+      "tags": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Short words to find it by"
+      },
+      "expected_set_at": {
+       "type": "string",
+       "description": "The set_at last read; the change is refused when it was saved since"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "snippet"
+     ],
+     "properties": {
+      "snippet": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "saveASnippet"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "snippet",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/snippets.mjs (makeSnippets, the posts owner's snippets in src/social-posts.mjs and the AI tools list_snippets, save_snippet, use_snippet and remove_snippet), moved unchanged; its record store is the person's own snippet records through the records door (read-data/drafts-over-door.mjs)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "title": "Thanks",
+       "text": "Thanks {name}!"
+      },
+      "output_selector": "$.result.snippet.title",
+      "contains": "Thanks"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::find-snippets",
+   "address": "package::social-posts::tool::find-snippets",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:find-snippets",
+    "label": "Find snippets",
+    "job": "Find the snippets I saved, by a word in them or a tag, so I can put one into what I am writing",
+    "description": "Give query (every word must be in the title, words or tags) and tag, both optional, and limit (at most 100). Returns snippets, most recently used or saved first, each with snippet_id, title, text, tags, blanks (the {name} blanks in it), set_at, uses and used_at; and more, how many matched beyond limit. Changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [],
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "Words to look for"
+      },
+      "tag": {
+       "type": "string",
+       "description": "One tag the snippet carries"
+      },
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 100
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "snippets"
+     ],
+     "properties": {
+      "snippets": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "more": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "findSnippets"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "snippet",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/snippets.mjs (makeSnippets, the posts owner's snippets in src/social-posts.mjs and the AI tools list_snippets, save_snippet, use_snippet and remove_snippet), moved unchanged; its record store is the person's own snippet records through the records door (read-data/drafts-over-door.mjs)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "query": "thanks"
+      },
+      "output_selector": "$.result.snippets[0].title",
+      "contains": "Thanks",
+      "records": [
+       {
+        "id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+        "type": "snippet",
+        "value": {
+         "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+         "title": "Thanks",
+         "text": "Thanks {name}!",
+         "tags": [
+          "replies"
+         ],
+         "set_at": "2026-10-01T09:00:00.000Z",
+         "uses": 0
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::use-a-snippet",
+   "address": "package::social-posts::tool::use-a-snippet",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:use-a-snippet",
+    "label": "Use a snippet",
+    "job": "Fill in one of my snippets with this time's names and give me its words to put in what I am writing",
+    "description": "Give snippet_id (from tool:find-snippets) and values: { name: words } for each {name} blank. Returns snippet_id, title, text (the words with every given blank filled wherever it appears), left_blank (the blanks given no value, left exactly as written) and said naming them, so nothing is sent with a hole unseen. It counts the use (uses, used_at) and never changes the snippet's words. It sends nothing. Refuses an unknown snippet_id.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "snippet_id"
+     ],
+     "properties": {
+      "snippet_id": {
+       "type": "string",
+       "description": "A snippet_id from tool:find-snippets"
+      },
+      "values": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "string"
+       },
+       "description": "The words for each blank, like { \"name\": \"Ana\" }"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "snippet_id",
+      "text",
+      "left_blank"
+     ],
+     "properties": {
+      "snippet_id": {
+       "type": "string"
+      },
+      "title": {
+       "type": "string"
+      },
+      "text": {
+       "type": "string"
+      },
+      "left_blank": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "useASnippet"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "snippet",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/snippets.mjs (makeSnippets, the posts owner's snippets in src/social-posts.mjs and the AI tools list_snippets, save_snippet, use_snippet and remove_snippet), moved unchanged; its record store is the person's own snippet records through the records door (read-data/drafts-over-door.mjs)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+       "values": {
+        "name": "Ana"
+       }
+      },
+      "output_selector": "$.result.text",
+      "contains": "Thanks Ana!",
+      "records": [
+       {
+        "id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+        "type": "snippet",
+        "value": {
+         "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+         "title": "Thanks",
+         "text": "Thanks {name}!",
+         "tags": [
+          "replies"
+         ],
+         "set_at": "2026-10-01T09:00:00.000Z",
+         "uses": 0
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::remove-a-snippet",
+   "address": "package::social-posts::tool::remove-a-snippet",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:remove-a-snippet",
+    "label": "Remove a snippet",
+    "job": "Remove one of my saved snippets",
+    "description": "Give snippet_id (from tool:find-snippets). The snippet record is removed; words already sent are not touched. Returns removed, snippet_id and said. Refuses an unknown snippet_id.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "snippet_id"
+     ],
+     "properties": {
+      "snippet_id": {
+       "type": "string",
+       "description": "A snippet_id from tool:find-snippets"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "removed",
+      "said"
+     ],
+     "properties": {
+      "removed": {
+       "type": "boolean"
+      },
+      "snippet_id": {
+       "type": "string"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "removeASnippet"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "snippet",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/snippets.mjs (makeSnippets, the posts owner's snippets in src/social-posts.mjs and the AI tools list_snippets, save_snippet, use_snippet and remove_snippet), moved unchanged; its record store is the person's own snippet records through the records door (read-data/drafts-over-door.mjs)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5"
+      },
+      "output_selector": "$.result.said",
+      "contains": "Removed the snippet",
+      "records": [
+       {
+        "id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+        "type": "snippet",
+        "value": {
+         "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+         "title": "Thanks",
+         "text": "Thanks {name}!",
+         "tags": [
+          "replies"
+         ],
+         "set_at": "2026-10-01T09:00:00.000Z",
+         "uses": 0
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::keep-a-thread-summary",
+   "address": "package::social-posts::tool::keep-a-thread-summary",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:keep-a-thread-summary",
+    "label": "Keep a conversation summary",
+    "job": "Keep a short summary of this conversation, so the next AI that opens it reads a few lines instead of every message",
+    "description": "Give conversation_id (and app), summary (at most 4000 characters) and latest: { id, at } of the conversation's newest message now, as the messages owner shows it (its newest message from reading the conversation). The summary covers through that message; keeping again replaces it. Returns summary (summary_id, app, conversation_id, summary, through_message_id, through_at, set_at) and said. Refuses a missing conversation_id, an empty summary, and a conversation with no latest message. The messages themselves are not touched; the words it says name trillion's read_messages and save_thread_summary tools.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "conversation_id",
+      "summary",
+      "latest"
+     ],
+     "properties": {
+      "conversation_id": {
+       "type": "string",
+       "description": "The conversation's id, as the messages it is in show it"
+      },
+      "app": {
+       "type": "string",
+       "description": "The app the conversation is in, like Email (optional)"
+      },
+      "summary": {
+       "type": "string",
+       "description": "The summary, in a few lines"
+      },
+      "latest": {
+       "type": "object",
+       "required": [
+        "id",
+        "at"
+       ],
+       "properties": {
+        "id": {
+         "type": "string"
+        },
+        "at": {
+         "type": "string",
+         "format": "date-time"
+        }
+       },
+       "description": "The conversation's newest message now: its id and time"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "summary",
+      "said"
+     ],
+     "properties": {
+      "summary": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "keepAThreadSummary"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "thread-summary",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/thread-summaries.mjs (makeThreadSummaries, the posts owner's summaries in src/social-posts.mjs and the AI tools save_thread_summary, read_thread_summary and remove_thread_summary), moved unchanged; its record store is the person's own thread-summary records through the records door (read-data/drafts-over-door.mjs), and the thread's ends, which trillion read from its messages owner, are handed in"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "app": "Email",
+       "conversation_id": "Email:t1",
+       "summary": "They ask for the Friday deck; I said yes.",
+       "latest": {
+        "id": "message:2",
+        "at": "2026-10-19T10:05:00Z"
+       }
+      },
+      "output_selector": "$.result.summary.through_message_id",
+      "contains": "message:2"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::read-a-thread-summary",
+   "address": "package::social-posts::tool::read-a-thread-summary",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:read-a-thread-summary",
+    "label": "Read a conversation summary",
+    "job": "Read the summary kept of this conversation and whether newer messages have come since it was written",
+    "description": "Give conversation_id (and app) and message_times: the times of the conversation's newest messages as the messages owner shows them (its newest page, like the last 100, is enough). Returns summary (null when none is kept yet), newer_messages (how many of message_times come after the message the summary covers through), stale (newer_messages above 0) and said, so a stale summary is never taken for the conversation's present. Changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "conversation_id",
+      "message_times"
+     ],
+     "properties": {
+      "conversation_id": {
+       "type": "string",
+       "description": "The conversation's id, as the messages it is in show it"
+      },
+      "app": {
+       "type": "string",
+       "description": "The app the conversation is in, like Email (optional)"
+      },
+      "message_times": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "format": "date-time"
+       },
+       "description": "The times of the conversation's newest messages"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "summary",
+      "said"
+     ],
+     "properties": {
+      "summary": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "newer_messages": {
+       "type": "integer"
+      },
+      "stale": {
+       "type": "boolean"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "readAThreadSummary"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "thread-summary",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/thread-summaries.mjs (makeThreadSummaries, the posts owner's summaries in src/social-posts.mjs and the AI tools save_thread_summary, read_thread_summary and remove_thread_summary), moved unchanged; its record store is the person's own thread-summary records through the records door (read-data/drafts-over-door.mjs), and the thread's ends, which trillion read from its messages owner, are handed in"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "app": "Email",
+       "conversation_id": "Email:t1",
+       "message_times": [
+        "2026-10-19T10:00:00Z",
+        "2026-10-19T10:05:00Z",
+        "2026-10-19T11:00:00Z"
+       ]
+      },
+      "output_selector": "$.result.said",
+      "contains": "1 newer message",
+      "records": [
+       {
+        "id": "thread-summary:Email:Email:t1",
+        "type": "thread-summary",
+        "value": {
+         "summary_id": "thread-summary:Email:Email:t1",
+         "app": "Email",
+         "conversation_id": "Email:t1",
+         "summary": "They ask for the Friday deck; I said yes.",
+         "through_message_id": "message:2",
+         "through_at": "2026-10-19T10:05:00Z",
+         "set_at": "2026-10-19T10:06:00.000Z"
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::remove-a-thread-summary",
+   "address": "package::social-posts::tool::remove-a-thread-summary",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:remove-a-thread-summary",
+    "label": "Remove a conversation summary",
+    "job": "Remove the summary kept of this conversation",
+    "description": "Give conversation_id (and app). Only the summary record is removed; the messages are not touched. Returns removed and said. Refuses a conversation with no summary kept.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "conversation_id"
+     ],
+     "properties": {
+      "conversation_id": {
+       "type": "string",
+       "description": "The conversation's id, as the messages it is in show it"
+      },
+      "app": {
+       "type": "string",
+       "description": "The app the conversation is in, like Email (optional)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "removed",
+      "said"
+     ],
+     "properties": {
+      "removed": {
+       "type": "boolean"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "removeAThreadSummary"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "thread-summary",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/thread-summaries.mjs (makeThreadSummaries, the posts owner's summaries in src/social-posts.mjs and the AI tools save_thread_summary, read_thread_summary and remove_thread_summary), moved unchanged; its record store is the person's own thread-summary records through the records door (read-data/drafts-over-door.mjs), and the thread's ends, which trillion read from its messages owner, are handed in"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "app": "Email",
+       "conversation_id": "Email:t1"
+      },
+      "output_selector": "$.result.said",
+      "contains": "Removed the summary",
+      "records": [
+       {
+        "id": "thread-summary:Email:Email:t1",
+        "type": "thread-summary",
+        "value": {
+         "summary_id": "thread-summary:Email:Email:t1",
+         "app": "Email",
+         "conversation_id": "Email:t1",
+         "summary": "They ask for the Friday deck; I said yes.",
+         "through_message_id": "message:2",
+         "through_at": "2026-10-19T10:05:00Z",
+         "set_at": "2026-10-19T10:06:00.000Z"
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
   }
  ]
 }
