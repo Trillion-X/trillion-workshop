@@ -843,6 +843,17 @@
       "evidence": "README.md:3 search scoped to File pages and metadata lookup of one exact File: title"
     },
     {
+      "capability": "post a note, or anything picked, to a public web address as JSON, as a page in a Notion database, or as a message in a Slack channel",
+      "owner": ["tools/send-to-a-place/"],
+      "entry": "tools/send-to-a-place/tool-rows.json",
+      "evidence": "README.md:3 three http rows post a note or anything picked to a webhook address, a Notion database or a Slack channel, the Notion and Slack rows through the person's own connection",
+      "distinct_from": [
+        {"job": "read a public web page: its title, words, links and the card it describes itself with; read a link into a preview card", "why": "that job reads a page; this one writes: it posts a note and its link to an address, a Notion database or a Slack channel"},
+        {"job": "send a message or email to people through a chosen provider (email service, text message, Messages)", "why": "that job reaches people at their addresses through a messaging provider; this one posts a note's words and link into a place the person names: a web address, a Notion database or a Slack channel"},
+        {"job": "choose where shares from the phone, browser and Android go, which AI action each site starts, and look back at what was shared before", "why": "that job is the product's delivery road that picks a place and hands it the share; these rows are three of the places it hands a share to"}
+      ]
+    },
+    {
       "capability": "call any endpoint of treg's paid catalog by its id under a cost ceiling, after finding it and reading its price, and read the balance it spends",
       "owner": ["tools/treg/"],
       "entry": "tools/treg/tool-rows.json",

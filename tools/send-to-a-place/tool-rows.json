@@ -1,0 +1,496 @@
+{
+  "kind": "tool-rows",
+  "record_set": "send-to-a-place-tool-rows",
+  "what_this_is": "The Workshop rows for tools/send-to-a-place: send a note, or anything picked, to a web address as JSON, to a Notion database or to a Slack channel. Each is an http row the engine runs; the Notion and Slack rows use the person's own connection.",
+  "records": [
+    {
+      "id": "package::send-to-a-place::tool::send-to-a-webhook",
+      "address": "package::send-to-a-place::tool::send-to-a-webhook",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:send-to-a-place",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "id": "tool:send-to-a-webhook",
+        "listed_on": "2026-10-20T00:00:00Z",
+        "label": "Send to a webhook",
+        "job": "Send a note, or anything picked, to a web address as JSON",
+        "description": "Posts { title, link, words, things } as JSON to address, a public web address you give, and says what the address answered. Takes things (what is being sent), note (your own words, sent as words), title and address. It refuses an address that is not public, waits at most 10 seconds, and does not follow a redirect, so what was posted stays at the address you gave. A refusal says what the address answered.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "things"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "things": {
+              "type": "array",
+              "maxItems": 50,
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "label"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "What is being sent: each { kind, label, address?, id? }. The first one's address is its link."
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 8000,
+              "description": "In your own words"
+            },
+            "address": {
+              "type": "string",
+              "format": "uri",
+              "description": "The public web address to post to, like https://example.com/hook"
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "A title for what is sent"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "said"
+          ],
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "said": {
+              "type": "string"
+            },
+            "answer": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "method": "POST",
+          "url": {
+            "from": "address"
+          },
+          "timeout_ms": 10000,
+          "follow_redirects": false,
+          "report_answer": true,
+          "body": {
+            "title": {
+              "from": "title",
+              "otherwise": {
+                "from": "things.0.label",
+                "optional": true
+              }
+            },
+            "link": {
+              "from": "things.0.address",
+              "optional": true
+            },
+            "words": {
+              "from": "note",
+              "optional": true
+            },
+            "things": {
+              "from": "things"
+            }
+          }
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.said",
+            "text": "answered"
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "things": [
+                {
+                  "kind": "note",
+                  "label": "Sample note",
+                  "address": "https://example.com/share/sample"
+                }
+              ],
+              "note": "A sample post from the publish check",
+              "title": "Sample",
+              "address": "https://httpbin.org/post"
+            },
+            "output_selector": "$.said",
+            "contains": "httpbin.org answered 200"
+          }
+        ],
+        "provenance": {
+          "source": "REA finding F-0984: the share-place rows, moved from the product repo test fixture where they were kept unpublished"
+        }
+      }
+    },
+    {
+      "id": "package::send-to-a-place::tool::add-to-notion",
+      "address": "package::send-to-a-place::tool::add-to-notion",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:send-to-a-place",
+        "needs": {
+          "expected_seconds": 15,
+          "network_egress": true
+        },
+        "id": "tool:add-to-notion",
+        "listed_on": "2026-10-20T00:00:00Z",
+        "label": "Add to Notion",
+        "job": "Add a page to a Notion database from a note, or anything picked",
+        "description": "Makes a page in the Notion database you name (database: its id, the 32 letters and numbers in its address), titled title (else the first thing's name), holding your note and a link to what was sent. Uses your Notion connection, so connect Notion first. Returns what Notion answered.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "things"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "things": {
+              "type": "array",
+              "maxItems": 50,
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "label"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "What is being sent: each { kind, label, address?, id? }. The first one's address is its link."
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 8000,
+              "description": "In your own words"
+            },
+            "database": {
+              "type": "string",
+              "minLength": 32,
+              "maxLength": 36,
+              "description": "The id of the Notion database to add the page to: the 32 letters and numbers in its address."
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "The page title; the first thing's name when left out."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "said"
+          ],
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "said": {
+              "type": "string"
+            },
+            "answer": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "connection_id": "service_connection:notion",
+          "method": "POST",
+          "url": "https://api.notion.com/v1/pages",
+          "timeout_ms": 15000,
+          "report_answer": true,
+          "headers": {
+            "Notion-Version": "2022-06-28"
+          },
+          "credential_injections": [
+            {
+              "field_id": "integration_token",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ],
+          "body": {
+            "parent": {
+              "database_id": {
+                "from": "database"
+              }
+            },
+            "properties": {
+              "title": {
+                "title": [
+                  {
+                    "text": {
+                      "content": {
+                        "from": "title",
+                        "otherwise": {
+                          "from": "things.0.label"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "children": [
+              {
+                "$when": "note",
+                "value": {
+                  "object": "block",
+                  "type": "paragraph",
+                  "paragraph": {
+                    "rich_text": [
+                      {
+                        "text": {
+                          "content": {
+                            "from": "note"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "$when": "things.0.address",
+                "value": {
+                  "object": "block",
+                  "type": "paragraph",
+                  "paragraph": {
+                    "rich_text": [
+                      {
+                        "text": {
+                          "content": {
+                            "from": "things.0.label"
+                          },
+                          "link": {
+                            "url": {
+                              "from": "things.0.address"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.said",
+            "text": "answered"
+          }
+        ],
+        "provenance": {
+          "source": "REA finding F-0984: the share-place rows, moved from the product repo test fixture where they were kept unpublished"
+        }
+      }
+    },
+    {
+      "id": "package::send-to-a-place::tool::post-to-slack",
+      "address": "package::send-to-a-place::tool::post-to-slack",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:send-to-a-place",
+        "needs": {
+          "expected_seconds": 15,
+          "network_egress": true
+        },
+        "id": "tool:post-to-slack",
+        "listed_on": "2026-10-20T00:00:00Z",
+        "label": "Post to Slack",
+        "job": "Post a message to a Slack channel from a note, or anything picked",
+        "description": "Posts your note, and a link to what was sent, in the Slack channel you name (channel: its name like #general, or its id). Uses your Slack connection, so connect Slack first and invite the app to a private channel. Returns what Slack answered; Slack saying no (a channel it cannot find) is told in its words.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "things"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "things": {
+              "type": "array",
+              "maxItems": 50,
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "label"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "What is being sent: each { kind, label, address?, id? }. The first one's address is its link."
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 8000,
+              "description": "In your own words"
+            },
+            "channel": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "The channel to post in: its name like #general, or its id."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "said"
+          ],
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "said": {
+              "type": "string"
+            },
+            "answer": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "connection_id": "service_connection:slack",
+          "method": "POST",
+          "url": "https://slack.com/api/chat.postMessage",
+          "timeout_ms": 15000,
+          "report_answer": true,
+          "answer_ok_field": "ok",
+          "credential_injections": [
+            {
+              "field_id": "bot_token",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ],
+          "body": {
+            "channel": {
+              "from": "channel"
+            },
+            "text": {
+              "from": "note",
+              "otherwise": {
+                "from": "things.0.label"
+              }
+            },
+            "unfurl_links": true,
+            "attachments": [
+              {
+                "$when": "things.0.address",
+                "value": {
+                  "title": {
+                    "from": "things.0.label"
+                  },
+                  "title_link": {
+                    "from": "things.0.address"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.said",
+            "text": "answered"
+          }
+        ],
+        "provenance": {
+          "source": "REA finding F-0984: the share-place rows, moved from the product repo test fixture where they were kept unpublished"
+        }
+      }
+    }
+  ]
+}
