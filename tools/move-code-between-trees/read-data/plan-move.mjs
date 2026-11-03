@@ -77,6 +77,8 @@ export function planMove(row, source, destination) {
     // their own source path inside the tool folder, and any path the tool already holds is still refused at apply.
     const joins = typeof group.joins_tool === 'string' && group.joins_tool.trim();
     if (destination.exists(posix.join(group.to, 'tool-rows.json')) && !joins) held.push(`${group.to} is already a tool in the destination; delete the source's copy where that tool replaces it, instead of moving a second copy, or say in joins_tool what this group brings that the tool does not have`);
+    // A row may hold its own group in words (held_until): what must be true before the group can move.
+    if (typeof group.held_until === 'string' && group.held_until.trim()) held.push(`its row holds it: ${group.held_until.trim()}`);
     for (const path of closure) {
       const glob = kept(path);
       if (glob) held.push(`${roots.includes(path) ? 'it owns' : 'it imports'} ${path}, which stays in the source (keep row ${glob})`);
@@ -203,7 +205,7 @@ export function planMove(row, source, destination) {
   // A group held after placement (a collision, a provider call left, a staying reader) gives back its files: planning
   // again without it settles which files the shared folder still needs. Each pass holds at least one more group.
   if (result.files.some(file => file.groups.some(id => byId.get(id).held.length))) {
-    const narrowed = { ...row, groups: groups.filter(group => !group.held.length).map(({ id, owner, to, capability, joins_tool }) => ({ id, owner, to, capability, ...(joins_tool ? { joins_tool } : {}) })), groups_from: undefined, only: undefined };
+    const narrowed = { ...row, groups: groups.filter(group => !group.held.length).map(({ id, owner, to, capability, joins_tool, held_until }) => ({ id, owner, to, capability, ...(joins_tool ? { joins_tool } : {}), ...(held_until ? { held_until } : {}) })), groups_from: undefined, only: undefined };
     const again = planMove(narrowed, source, destination);
     again.groups.push(...groups.filter(group => group.held.length).map(summary));
     return again;
