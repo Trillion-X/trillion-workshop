@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:acbe76e678274053277fed3f9f679cf6240ba6ec83db25e53ed10e2cf1e44cf0"
+  "blake3": "1f:7cb16a337c1f6bdb1576b4414b1959f461556880881197bfb0a2e0701fe479a3"
  },
  "fields": [
   {
@@ -506,7 +506,7 @@
    "values": {
     "title": "Prepare records for my lists with their sources and basis (runs on your computer)",
     "job": "Take records I keep in files and prepare everything to put them into my lists as records, each value with where it came from and how sure we are, in batches I can send",
-    "description": "Reads the mapping and source files from the one folder the person granted this tool. A declared records source reads only its type and id prefix through this run's scoped records capability; its sender config and Keychain credential are not used. Maps each source by the person's rules, then returns counts, pending or diverted items and the records:write commands as result data. It writes no local file and sends no records. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
+    "description": "Reads the mapping and source files from the one folder the person granted this tool. A declared records source reads only its type and id prefix through this run's scoped records capability; its sender config and credential handle are not used. Maps each source by the person's rules, then returns counts, pending or diverted items and the records:write commands as result data. It writes no local file and sends no records. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
