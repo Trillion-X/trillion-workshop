@@ -9,7 +9,8 @@
 //   1. A verdict is taken only for a check of this step, with meets true or false, resting on an evidence ref of the
 //      case or on at least eight characters of this answer, and naming who judged it.
 //   2. A refusal holds only when the words it says are missing are words of its check (or of what the check refuses).
-//   3. A check with no verdict taken is not refused for it: the caller is never refused because no judge spoke.
+//   3. Taking verdicts refuses nothing itself: the checks with no verdict taken come back as `rest`, and the step's owner
+//      (./decisions.mjs) keeps an answer only when `rest` is empty.
 
 // The words of a refusal and of the check are compared as plain lowercase words, so quotes, dashes and spacing the
 // judge changes while copying do not matter.

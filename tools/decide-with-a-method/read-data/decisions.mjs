@@ -28,8 +28,11 @@
 //      its answers can be revised only after that failed result.
 //   5. A result is the person's: answered_by must be "person"; nothing here can mark it verified by a trusted source.
 //   6. A decision is kept as shared only by ./share-a-decision.mjs, after its privacy checks.
+//   7. Every check a step asks is graded by a second judge: an answer is kept only with a verdict taken for each of its
+//      checks, an answer kept before this rule is asked again until its verdicts are added, and a decision is made only
+//      when every step is graded.
 import { readFileSync } from 'node:fs';
-import { AnswerProblems, judgedProblems, methodCatalogue, refusalWords } from './method.mjs';
+import { AnswerProblems, judgedProblems, methodCatalogue, refusalWords, ungradedOf } from './method.mjs';
 import { takeCallerVerdicts } from './verdicts.mjs';
 import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCurrent } from './decision-outcome.mjs';
 import { similarDecisions } from './similar-decisions.mjs';
@@ -195,7 +198,8 @@ async function guideReply(door, cat, record) {
   // At the moment of choice, what happened in similar earlier decisions.
   const similar = !question && !record.decision ? (await similarDecisions({ decision_id: record.id, limit: 5 }, { door })).similar_decisions : undefined;
   return {
-    case_id: record.id, source_id: record.source_id, question, ...(question?.checklist ? { explain: WORDS.explain_note } : {}), ...(question?.recheck ? { recheck_note: say('recheck_note', { step: question.recheck.revised_step }) } : {}), ...(await pursuitsFor(door, question)),
+    case_id: record.id, source_id: record.source_id, question, ...(question?.checklist ? { explain: WORDS.explain_note } : {}), ...(question?.recheck ? { recheck_note: say('recheck_note', { step: question.recheck.revised_step }) } : {}),
+    ...(question?.ungraded ? { ungraded_note: say('ungraded_note', { step: question.step_id, graded: question.ungraded.graded, checks: question.ungraded.checks }) } : {}), ...(await pursuitsFor(door, question)),
     method_coverage: cat.methodCoverage(record), decision: record.decision ?? null,
     ...(record.workflow_plan ? { workflow_plan: record.workflow_plan } : {}),
     ...(similar ? { similar_decisions: similar } : {}),
@@ -480,9 +484,11 @@ export async function answerADecisionQuestion(input, { door }) {
   cat.validateMethodAnswer(record, step, answer, cited.refs);
   noRunIds(answer?.workflow_runs, 'workflow_runs');
   const toJudge = cat.checkAnswersToJudge(record, step, answer);
-  const { verdicts } = takeCallerVerdicts(toJudge, input.verdicts, { answer, refs: [...cited.refs] });
+  const { verdicts, rest } = takeCallerVerdicts(toJudge, input.verdicts, { answer, refs: [...cited.refs] });
   const problems = judgedProblems(verdicts);
   if (problems.length) throw new AnswerProblems(problems);
+  // A check with no verdict taken leaves the step unanswered: nothing is kept until the judge has spoken on every check.
+  if (rest.length) refuse('verdicts_missing', { missing: rest.length, checks: toJudge.length, ids: rest.map(row => row.id).join(', ') });
   keepCited(record, cited.pursuits, refs);
   // The checks this step asked are kept with the answer, each as its id, its question and the content identity of its
   // whole row as asked, so the record shows what was weighed after the rows change without holding every row again.
@@ -492,8 +498,7 @@ export async function answerADecisionQuestion(input, { door }) {
     record.workflow_plan = { version: 1, step_id: step.id, items: structuredClone(answer.workflow_runs) };
   }
   if (!record.input.options && Array.isArray(answer?.[CANDIDATES.field])) record.candidates = candidatesFrom(answer[CANDIDATES.field]);
-  // The verdicts taken, each with who graded it, and how many checks were handed to the judge: a step answered with no
-  // verdict for a check it asked shows as answered, not judged.
+  // The verdicts taken, one for every check, each with who graded it, and how many checks were handed to the judge.
   const version = (entry?.version ?? 0) + 1;
   const fresh = {
     step_id: step.id, answer, ...(checklist.length ? { checklist } : {}), verdicts, judged_checks: toJudge.length, ...(usage ? { usage } : {}),
@@ -535,7 +540,13 @@ export async function makeTheDecision(input, { door }) {
   const record = await decisionOrRefuse(door, id, ['proof']);
   const decidedBefore = Boolean(record.decision);
   // Every question is answered and none of them stands to be asked again.
-  if (!record.guidance.length || cat.nextStepOf(record)) refuse('complete_first');
+  // Every step is graded: an answer kept before every check had a verdict waits for the rest of them.
+  const waiting = cat.nextStepOf(record);
+  const kept = waiting && record.guidance.find(item => item.step_id === waiting.id);
+  if (kept && !kept.needs_recheck && ungradedOf(kept).missing > 0) {
+    refuse('ungraded_first', { step: waiting.id, graded: ungradedOf(kept).graded, checks: ungradedOf(kept).checks });
+  }
+  if (!record.guidance.length || waiting) refuse('complete_first');
   if (!decidedBefore && object(decision) && cat.decisionFieldsFor(record).every(field => nonempty(decision[field.name]))) {
     const refs = record.input.evidence.filter(item => !item.retracted_at).map(item => item.ref);
     const { verdicts } = takeCallerVerdicts(cat.decisionFieldsToJudge(record, decision), input.verdicts, { answer: decision, refs });
