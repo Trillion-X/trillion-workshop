@@ -33,7 +33,8 @@
     "fit a tool list in a character budget",
     "say a tool's hints in its description",
     "tell if a tool changes anything",
-    "pick the release a host version runs"
+    "pick the release a host version runs",
+    "write class row: tell if a tool changes anything"
    ],
    "capability_rows": [],
    "code_patterns": [
