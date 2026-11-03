@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "listen-for-a-while-tool-rows",
-  "what_this_is": "The Workshop row for tools/listen-for-a-while: a run that listens to the microphone until the person's end time and writes each turn as a heard row as it is said.",
+  "what_this_is": "The Workshop rows for tools/listen-for-a-while: a run that listens to the microphone until the person's end time and writes each turn as a heard row as it is said, and a run that hears a recording another of the person's devices made the same way.",
   "records": [
     {
       "id": "package::listen-for-a-while::tool::listen-for-a-while",
@@ -21,6 +21,8 @@
           "properties": {
             "until": {"type": "string", "maxLength": 40, "description": "When to stop listening, as a time (for example 2026-10-31T15:30:00-06:00)"},
             "model_path": {"type": "string", "maxLength": 400, "description": "The ggml Whisper model file on this computer", "x-free-text-because": "A file path on this computer."},
+            "whisper_cli": {"type": "string", "maxLength": 400, "description": "The whisper-cli program the person granted (default: the one on PATH)", "x-free-text-because": "A file path on this computer."},
+            "ffmpeg": {"type": "string", "maxLength": 400, "description": "The ffmpeg program the person granted (default: the one on PATH)", "x-free-text-because": "A file path on this computer."},
             "listening": {"type": "string", "maxLength": 120, "description": "Name this listening; the same name continues an earlier one so unknown voices keep their numbers", "x-free-text-because": "The name of this listening, kept on every row it writes."},
             "device": {"type": "string", "maxLength": 80, "description": "What to call this computer on the rows", "x-free-text-because": "The device name written on the rows."},
             "device_index": {"type": "string", "maxLength": 12, "description": "The microphone's number in ffmpeg's list (default: the system default)"},
@@ -56,7 +58,7 @@
         },
         "invoke": {
           "kind": "computer",
-          "capabilities": ["use-the-microphone"],
+          "capabilities": ["use-the-microphone", "start-a-program"],
           "max_run_ms": 14400000,
           "workdir": "/opt/listen-for-a-while",
           "stdout": "json",
@@ -93,6 +95,91 @@
         "provenance": {
           "source": "listen-for-a-while/read-data/listen-for-a-while.mjs"
         }
+      }
+    },
+    {
+      "id": "package::listen-for-a-while::tool::hear-for-a-device",
+      "address": "package::listen-for-a-while::tool::hear-for-a-device",
+      "path": ["current-item","published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:hear-for-a-device",
+        "status": "active",
+        "label": "Hear a recording another of my devices made",
+        "job": "Hear a recording one of my other devices made and keep each person's turn in it as that device heard it",
+        "description": "Reads a recording one of the person's other devices made (`file`, its name or identity in the person's files) through the run's door into the run's own folder, hears it on this computer with the Whisper model the person names, names each turn from the voices people enrolled (tool:enrol-a-voice-or-face), and writes one heard row per turn as tool:listen-for-a-while does, with `device` as the device and times counted from `at` (when the device began recording; now when left out). The same `listening` name continues an earlier listening's unknown voices. The person's recording rules and the listening's listening-switch row are asked as for a live listening. The copy read for hearing is deleted once heard; the person's file is left where it is. Every answer lists what leaves this computer and what stays.",
+        "input_schema": {
+          "type": "object",
+          "required": ["file","device","model_path"],
+          "additionalProperties": false,
+          "properties": {
+            "file": {"type":"string","minLength":1,"maxLength":400,"description":"The recording's name or identity in the person's files (for example /Recordings/phone-2026-10-31.m4a)","x-free-text-because":"A file name in the person's files."},
+            "device": {"type":"string","minLength":1,"maxLength":80,"description":"The device that recorded it, written on the rows","x-free-text-because":"The device name written on the rows."},
+            "at": {"type":"string","maxLength":40,"description":"When the device began recording, as a time (default now)"},
+            "model_path": {"type":"string","maxLength":400,"description":"The ggml Whisper model file on this computer","x-free-text-because":"A file path on this computer."},
+            "whisper_cli": {"type":"string","maxLength":400,"description":"The whisper-cli program the person granted (default: the one on PATH)","x-free-text-because":"A file path on this computer."},
+            "ffmpeg": {"type":"string","maxLength":400,"description":"The ffmpeg program the person granted (default: the one on PATH)","x-free-text-because":"A file path on this computer."},
+            "listening": {"type":"string","maxLength":120,"description":"Name this listening; the same name continues an earlier one so unknown voices keep their numbers","x-free-text-because":"The name of this listening, kept on every row it writes."},
+            "rules": {"type":"object","description":"Naming thresholds; see tool:who-is-in-this"},
+            "words": {"type":"object","description":"Wording of the speaker labels; see tool:who-is-in-this"},
+            "join_within_seconds": {"type":"number","minimum":0,"maximum":30,"description":"Turns of one voice this close are joined (default 2)"},
+            "recording_rules": {"type":"array","maxItems":100,"description":"Recording rules asked besides the person's recording-rule rows; see tool:listen-for-a-while","items":{"type":"object"}},
+            "recording_facts": {"type":"object","description":"Facts the rules ask about; see tool:listen-for-a-while"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["listening", "pieces", "turns", "rows_written", "leaves", "stays"],
+          "properties": {
+            "listening": {"type": "string"},
+            "pieces": {"type": "integer", "minimum": 0},
+            "turns": {"type": "integer", "minimum": 0},
+            "rows_written": {"type": "integer", "minimum": 0},
+            "left_out": {"type": "integer", "minimum": 0},
+            "let_go": {"type": "integer", "minimum": 0, "description": "Pieces let go unheard: recorded while a rule said no, or after the person paused"},
+            "blocked": {"type": ["string", "null"], "description": "Why the last piece was let go by a rule, or null"},
+            "paused": {"type": ["string", "null"], "description": "When the person turned listening off, or null"},
+            "leaves": {"type": "array", "description": "What leaves this computer: { id, what, to }"},
+            "stays": {"type": "array", "description": "What stays on this computer: { id, what, to }"}
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["start-a-program"],
+          "workdir": "/opt/listen-for-a-while",
+          "stdout": "json",
+          "argv": ["node","/opt/records-door/do-work/run-an-export.mjs","/opt/listen-for-a-while/read-data/listen-for-a-while.mjs","hearForADevice"],
+          "stdin": {"fill":{"from":"input"}},
+          "records": {
+            "fd": 3,
+            "rights": [
+              {"files":"/","operations":["find_file","read_file"]},
+              {"kind":"heard","operations":["records:write"]},
+              {"kind":"listening-voices","operations":["records:list","records:write"]},
+              {"kind":"voice-print","operations":["records:list"]},
+              {"kind":"recording-rule","operations":["records:list"]},
+              {"kind":"recording-facts","operations":["records:read"]},
+              {"kind":"listening-switch","operations":["records:read"]}
+            ]
+          },
+          "files": {
+            "package_files": [
+              {"package":"listen-for-a-while","paths":["read-data"],"at":"/opt/listen-for-a-while"},
+              {"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},
+              {"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},
+              {"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"},
+              {"package":"audio-transcription","paths":["do-work","read-data"],"at":"/opt/audio-transcription"},
+              {"package":"know-who-is-in-this","paths":["do-work","read-data"],"at":"/opt/know-who-is-in-this"},
+              {"package":"media-composition","paths":["do-work"],"at":"/opt/media-composition"}
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {"expected_seconds":600,"network_egress":false,"memory_mb":4096},
+        "licence_class": "licence:permissive",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:listen-for-a-while",
+        "provenance": {"source":"listen-for-a-while/read-data/listen-for-a-while.mjs"}
       }
     }
   ]

@@ -25,8 +25,8 @@
 //      is let go unheard. With none, nothing is ever blocked.
 //   8. What listening sends off this computer is told from DATA (read-data/leaves.json, leavesOf), in every answer.
 import { spawn, execFile } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { extname, join } from 'node:path';
 import { promisify } from 'node:util';
 import { evaluate } from './recording-rules.mjs';
 import leaves from './leaves.json' with { type: 'json' };
@@ -152,9 +152,10 @@ export async function* recordPieces({ device, seconds, folder, end, now = () => 
 }
 
 /** Hears one piece with audio-transcription's `transcribe`: its timed stretches in seconds. */
-export async function hearPiece(file, { transcribeScript, modelPath, python = 'python3' }) {
+export async function hearPiece(file, { transcribeScript, modelPath, whisperCli = null, ffmpeg = null, python = 'python3' }) {
   const out = `${file}.json`;
-  await run(python, [transcribeScript, 'transcribe', '--audio', file, '--out', out, '--model-path', modelPath], { maxBuffer: 64 * 1024 * 1024 });
+  const programs = [...(whisperCli ? ['--whisper-cli', whisperCli] : []), ...(ffmpeg ? ['--ffmpeg', ffmpeg] : [])];
+  await run(python, [transcribeScript, 'transcribe', '--audio', file, '--out', out, '--model-path', modelPath, ...programs], { maxBuffer: 64 * 1024 * 1024 });
   const heard = JSON.parse(readFileSync(out, 'utf8'));
   rmSync(out, { force: true });
   return (heard.segments ?? []).map(({ start, end, text }) => ({ start, end, text }));
@@ -187,10 +188,21 @@ export async function listenForAWhile(input, { door }, steps = {}) {
   const device = String(input.device ?? 'this-device');
   const seconds = pieceSeconds(input.piece_seconds);
   const folder = input.folder ?? join(process.env.TMPDIR ?? '.', `listening-${listening}`);
-  const work = { transcribeScript: input.transcribe_script ?? '/opt/audio-transcription/do-work/audio_transcription.py', modelPath: input.model_path,
-    nameScript: input.name_script ?? '/opt/know-who-is-in-this/do-work/who-is-in-this.py' };
+  const record = steps.record ?? (() => recordPieces({ device: input.device_index ?? 'default', seconds, folder, end, now, program: input.ffmpeg ?? 'ffmpeg' }));
+  return hearPieces(input, door, steps, { listening, device, pieces: record({ end }) });
+}
+
+/** The programs one run hears and names with: the scripts of the two owners, the model and the programs the person chose. */
+const workOf = input => ({ transcribeScript: input.transcribe_script ?? '/opt/audio-transcription/do-work/audio_transcription.py', modelPath: input.model_path,
+  whisperCli: input.whisper_cli ?? null, ffmpeg: input.ffmpeg ?? null, nameScript: input.name_script ?? '/opt/know-who-is-in-this/do-work/who-is-in-this.py' });
+
+/**
+ * Hears, names and writes every piece `pieces` yields, one after another, each deleted once heard: the one loop both a
+ * live listening and a recording another device made go through, so their rows are the same. Returns the tally.
+ */
+export async function hearPieces(input, door, steps, { listening, device, pieces }) {
+  const work = workOf(input);
   if (!steps.hear && !work.modelPath) throw new Error('Give model_path: the ggml Whisper model file on this computer.');
-  const record = steps.record ?? (() => recordPieces({ device: input.device_index ?? 'default', seconds, folder, end, now }));
   const hear = steps.hear ?? (file => hearPiece(file, work));
   const name = steps.name ?? (request => namePiece(request, work));
   const tally = { listening, pieces: 0, turns: 0, rows_written: 0, left_out: 0, let_go: 0, blocked: null, paused: null, ...leavesOf(leaves) };
@@ -224,7 +236,7 @@ export async function listenForAWhile(input, { door }, steps = {}) {
     if (kept.length) { await door.write(kept, { key: `listen:${listening}:${piece.startMs}` }); tally.rows_written += rows.length; }
     return false;
   };
-  for await (const piece of record({ end })) {
+  for await (const piece of pieces) {
     let stop;
     try {
       stop = await listenTo(piece);
@@ -241,4 +253,50 @@ export function finishMs(asked) {
   const seconds = Number(asked ?? 60);
   if (!Number.isFinite(seconds) || seconds < 0 || seconds > 600) throw new Error('finish_seconds is between 0 and 600.');
   return Math.round(seconds * 1000);
+}
+
+/**
+ * `tool:hear-for-a-device`: hears a recording another of the person's devices made ({ file, at, device }) exactly as this
+ * computer's own listening hears its pieces: every turn in it is named against the voices people enrolled and written as
+ * a `heard` row of that device, dated from `at` (when the device began recording; now when left out). The recording is
+ * read once through the run's door into the run's own folder and deleted there once heard; the person's file is left
+ * where it is (moved from the product repo's computer/listen.mjs listeningTools.hear).
+ */
+export async function hearForADevice(input, { door }, steps = {}) {
+  const device = String(input.device ?? '').trim();
+  if (!device) throw Object.assign(new Error('Say which device recorded this: `device` is its name.'), { status: 400 });
+  if (!String(input.file ?? '').trim()) throw Object.assign(new Error('Give `file`: the recording\'s name or identity in the person\'s files.'), { status: 400 });
+  const now = steps.now ?? (() => Date.now());
+  const startMs = input.at == null ? now() : endOf(input.at);
+  const listening = String(input.listening ?? `${device}-${new Date(startMs).toISOString().replace(/[:.]/g, '-')}`);
+  const folder = input.folder ?? join(process.env.TMPDIR ?? '.', `heard-${listening}`);
+  mkdirSync(folder, { recursive: true, mode: 0o700 });
+  const read = steps.read ?? (name => readWhole((method, request) => door.files(method, request), name));
+  const { title, bytes } = await read(input.file);
+  if (!bytes) throw new Error(`${input.file} is larger than ${MOST_RECORDING_BYTES} bytes, the most one run reads.`);
+  const file = join(folder, `0${extname(title) || '.wav'}`);
+  writeFileSync(file, bytes, { mode: 0o600 });
+  async function* one() { yield { file, startMs, endMs: startMs }; }
+  try {
+    return await hearPieces(input, door, steps, { listening, device, pieces: one() });
+  } finally {
+    rmSync(folder, { recursive: true, force: true });
+  }
+}
+
+const READ_BYTES = 4 * 1024 * 1024;
+const MOST_RECORDING_BYTES = 512 * 1024 * 1024;
+/** One of the person's files read whole through the door's find_file and read_file: { title, bytes } (bytes null when too large). */
+export async function readWhole(call, name) {
+  const found = await call('find_file', { name_or_identity: name });
+  const title = String(found.names?.[0] ?? found.name ?? name).split('/').pop();
+  const parts = [];
+  let offset = 0;
+  for (;;) {
+    const piece = await call('read_file', { name_or_identity: name, offset, length: READ_BYTES });
+    if (piece.byte_length > MOST_RECORDING_BYTES) return { title, bytes: null };
+    parts.push(Buffer.from(piece.content ?? '', piece.encoding === 'base64' ? 'base64' : 'utf8'));
+    offset += piece.bytes_returned;
+    if (!piece.bytes_returned || offset >= piece.byte_length) return { title, bytes: Buffer.concat(parts) };
+  }
 }
