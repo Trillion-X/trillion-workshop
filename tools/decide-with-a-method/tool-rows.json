@@ -340,7 +340,7 @@
     "id": "tool:next-decision-question",
     "label": "Read a decision's next question",
     "job": "See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions",
-    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. A question that asks for a recheck says which step was revised and the version of its answer. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out. With versions_of (a step id) it returns that step's versions, oldest first, each with who gave it, when, why it was revised and its answer.",
+    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. A question that asks for a recheck says which step was revised and the version of its answer. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out. With versions_of (a step id) it returns that step's versions, oldest first, each with who gave it, when, why it was revised, when it was confirmed, and its answer.",
     "status": "active",
     "result_selector": "$.result",
     "input_schema": {
@@ -494,8 +494,8 @@
     "kind": "ai-tool-descriptor",
     "id": "tool:answer-a-decision-question",
     "label": "Answer a decision's question",
-    "job": "Answer the question my method is asking about a decision, with each of its checks; change an answer I gave before with its reason; confirm an answer that must be asked again; or bring in an answer from another of my decisions",
-    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. revise changes an answer already given: it names because (why, in a few words) and keeps the old version, and every later answer of the decision is marked to be asked again, so the next question is the earliest of them. confirm, alone, keeps a re-asked answer unchanged. from, instead of answer, brings in another of the person's decisions' answer to the same step as it stood (its version, or the current one), with the evidence it cites, and checks it as a typed answer. A decided decision's answers change only after a failed result. Keeps the answer as its own step record and returns the next question.",
+    "job": "Answer the question my method is asking about a decision, with each of its checks; change an answer I gave before with its reason, which reopens a decided decision; confirm an answer that must be asked again, or add the judge's verdicts to an answer I have; or bring in an answer from another of my decisions",
+    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer: a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. revise changes an answer already given: it names because (why, in a few words) and keeps the old version, and every later answer of the decision is marked to be asked again, so the next question is the earliest of them. On a decided decision, revise reopens it: the decision it had moves to decision_history, marked reopened with its reason and when, and the decision must be made again with tool:make-the-decision. confirm keeps a re-asked answer unchanged; with verdicts it adds them to an answered step, open or decided, as a new version with the same answer, each verdict kept with when it came in; a verdict already kept is never changed, and a decided decision stays decided. from, instead of answer, brings in another of the person's decisions' answer to the same step as it stood (its version, or the current one), with the evidence it cites, and checks it as a typed answer. After a failed result, revise changes the answer and the decision stands until a new one is made. Keeps the answer as its own step record and returns the next question.",
     "status": "active",
     "result_selector": "$.result",
     "input_schema": {
@@ -520,7 +520,7 @@
       },
       "verdicts": {
        "type": "array",
-       "description": "Your judge's verdicts on this step's checks, as the question's `verdicts` words say: each { check, meets, rests_on, missing?, graded_by }",
+       "description": "Your judge's verdicts on this step's checks, as the question's `verdicts` words say: each { check, meets, rests_on, missing?, graded_by }; with confirm, only the checks the step has no verdict for yet are added",
        "items": {
         "type": "object",
         "required": [
@@ -582,12 +582,12 @@
         "because"
        ],
        "additionalProperties": false,
-       "description": "Changes an answer already given: why it changes, in a few words; by names who changed it",
+       "description": "Changes an answer already given: why it changes, in a few words; by names who changed it. On a decided decision it reopens the decision",
        "properties": {
         "because": {
          "type": "string",
          "minLength": 1,
-         "description": "Why the answer changes, in words"
+         "description": "Why the answer changes, in words; kept on the reopened decision too"
         },
         "by": {
          "type": "string",
@@ -599,7 +599,7 @@
       "confirm": {
        "type": "boolean",
        "const": true,
-       "description": "Confirms a re-asked answer unchanged; sent alone"
+       "description": "Confirms a re-asked answer unchanged, or, with verdicts, adds them to an answered step as a new version of the same answer; sent alone or with verdicts (no answer, from or revise)"
       }
      }
     },
@@ -906,7 +906,7 @@
     "id": "tool:make-the-decision",
     "label": "Make the decision",
     "job": "Record what my AI decided, why, what to do next and how we will know it worked",
-    "description": "Once every question is answered: decision is { option_id (one of the options), reason, next_action, success_measure, evidence_refs, move?, and every decision field the decision asks for }. verdicts are your judge's on the decision fields. A decided decision changes only after a failed result: the earlier decision moves to decision_history. Returns what to do now and how to say it.",
+    "description": "Once every question is answered: decision is { option_id (one of the options), reason, next_action, success_measure, evidence_refs, move?, and every decision field the decision asks for }. verdicts are your judge's on the decision fields. A decided decision changes when one of its answers is revised (which reopens it) or after a failed result: the decision it had moves to decision_history. Returns what to do now and how to say it.",
     "status": "active",
     "result_selector": "$.result",
     "input_schema": {
