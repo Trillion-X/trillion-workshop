@@ -11,8 +11,11 @@ The content gate (bitfield-packages `packages/content-gate`) is merged in, so th
 | `do-work/judge-words.mjs` | The judge: compiles rule rows once, walks any JSON for the words a person reads or the values a path names, judges rows per item or `across` every item, returns machine-readable findings, a weighted score and plain-word lines. `judge` is the tool's whole answer. |
 | `do-work/evidence-checks.mjs` | The evidence checks a row names with `evidence`: exact UTF-8 source and destination spans, complete per-block review, a captured answer set against its pinned identities and thresholds. Ported from the content gate's provenance evaluators. |
 | `do-work/judge-against-rules.mjs` | `tool:judge-against-rules`: one JSON request on standard input, `{ result }` on the last line; a request that is not JSON or a row it cannot compile is refused with `{ error }`. |
-| `part.json` | `do-work/judge-words.mjs` is public, so a check may import the same judge. |
-| `tool-rows.json` | The Workshop row Trillion reads for this folder: `tool:judge-against-rules`. |
+| `do-work/plain-work-title.mjs` | A short plain title from a job's own words (`workTitle`, `titleOf`): the first sentence a person reads, links, addresses, paths, ids and markdown taken out, first letter in capitals, at most 80 UTF-16 units. Moved from the Trillion engine's `src/work_title.rs`; the fallback words are the caller's. |
+| `do-work/make-a-plain-work-title.mjs` | `tool:make-a-plain-work-title`: `{ job, said?, fallback? }` on standard input, `{ result: { title, from } }` on the last line; a request without job text is refused with `{ error }`. |
+| `part.json` | `do-work/judge-words.mjs` and `do-work/plain-work-title.mjs` are public, so a check may import the same judge and a caller the same titles. |
+| `tool-rows.json` | The Workshop rows Trillion reads for this folder: `tool:judge-against-rules`, `tool:make-a-plain-work-title`. |
+| `test/plain-work-title.test.mjs` | The engine's work-title tests carried with their assertions, the row's command and its refusals. |
 | `test/judge-words.test.mjs` | Kinds, path rows, every test, capped findings, owner paths. |
 | `test/judge-against-rules-row.test.mjs` | The row's samples, run as the container runs them; refusals; evidence missing fails closed. |
 | `test/scored-rows.test.mjs` | Weights, the score, `min_score`, capped rows (the content gate's engine tests). |
