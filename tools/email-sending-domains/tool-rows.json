@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "email-sending-domains-tool-rows",
-  "what_this_is": "The Workshop row for the email-sending-domains folder: which domains the person's email-sending account (Resend) may send from. The person's held key reaches the one process on a private pipe (credential_mounts fd 3); the tool reads only and sends no email.",
+  "what_this_is": "The Workshop rows for the email-sending-domains folder: which domains the person's email-sending account (Resend) may send from, adding one, reading one and asking the account to check its DNS records again, and a sending-only key kept in the vault. The person's held key reaches the list's one process on a private pipe (credential_mounts fd 3) and the http rows' Authorization header only; none sends email or changes DNS.",
   "records": [
     {
       "payload": {
@@ -89,6 +89,137 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
         "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/api-keys/create-api-key" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:add-an-email-sending-domain",
+        "label": "Add an email sending domain",
+        "job": "Add a domain my email-sending account should send from, and see the DNS records it needs",
+        "description": "Asks the person's email-sending account (Resend), with the key they connected, to add a domain to send from, and answers the domain's id, status and the DNS records its owner must add (each record's kind, name, type, value and priority). Nothing is added to DNS here; tool:check-an-email-sending-domain asks the account to look again once the records are in.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name"],
+          "properties": {
+            "name": { "type": "string", "minLength": 3, "maxLength": 253 },
+            "region": { "type": "string", "enum": ["us-east-1", "eu-west-1", "sa-east-1", "ap-northeast-1"] }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["id", "name", "status"],
+          "properties": {
+            "id": { "type": "string" }, "name": { "type": "string" }, "status": { "type": "string" },
+            "records": { "type": "array", "items": {
+                "type": "object",
+                "properties": {
+                  "record": { "type": "string" }, "name": { "type": "string" }, "type": { "type": "string" },
+                  "value": { "type": "string" }, "ttl": { "type": "string" }, "priority": { "type": "integer" },
+                  "status": { "type": "string" }
+                }
+              } }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/domains",
+          "method": "POST",
+          "timeout_seconds": 30,
+          "body_template": {
+            "name": { "from": "name" },
+            "region": { "from": "region", "optional": true }
+          },
+          "credential_injections": [
+            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/domains/create-domain" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-an-email-sending-domain",
+        "label": "Read an email sending domain",
+        "job": "See whether a domain of my email-sending account is verified, and the state of each DNS record it needs",
+        "description": "Reads one domain of the person's email-sending account (Resend), by its id, with the key they connected: its name, status and each DNS record it needs with that record's own status. It only reads.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["domain_id"],
+          "properties": { "domain_id": { "type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$" } }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["id", "name", "status"],
+          "properties": {
+            "id": { "type": "string" }, "name": { "type": "string" }, "status": { "type": "string" },
+            "records": { "type": "array", "items": {
+                "type": "object",
+                "properties": {
+                  "record": { "type": "string" }, "name": { "type": "string" }, "type": { "type": "string" },
+                  "value": { "type": "string" }, "ttl": { "type": "string" }, "priority": { "type": "integer" },
+                  "status": { "type": "string" }
+                }
+              } }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/domains/{domain_id}",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/domains/get-domain" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-an-email-sending-domain",
+        "label": "Check an email sending domain",
+        "job": "Ask my email-sending account to check a domain's DNS records again so it can be verified",
+        "description": "Asks the person's email-sending account (Resend), with the key they connected, to check one domain's DNS records again, by the domain's id. The check runs on the account's side; tool:read-an-email-sending-domain shows the result.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["domain_id"],
+          "properties": { "domain_id": { "type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$" } }
+        },
+        "output_schema": { "type": "object", "properties": { "id": { "type": "string" } } },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/domains/{domain_id}/verify",
+          "method": "POST",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/domains/verify-domain" }
       }
     }
   ]
