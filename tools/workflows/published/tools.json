@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:63ddced2fe40657327fdfc1134fc938e27f5a405ba321f5faa38df695bf6cd4c"
+  "blake3": "1f:9353089a6ccfa7faf393009689146299b1e825fb4b8227342acae4c17f92a99b"
  },
  "fields": [
   {
@@ -4887,6 +4887,22 @@
    }
   },
   {
+   "id": "tool:post-balanced-entries",
+   "values": {
+    "title": "Post entries whose lines add to zero",
+    "job": "Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero",
+    "description": "action post takes lines { amount_field, group_field }, entry_id and rows [{ values }] (two or more); lines that do not add to zero are refused and nothing is written; the same entry_id posts once. reverse takes entry_id and reverse_id and posts the negated lines; the original lines stay. balance reads every line and answers the entries that do not add to zero and the lines with no amount or no entry (unplaced, never counted as zero). It reads only.",
+    "status": "active",
+    "maker": "maker:settle-amounts-and-reconcile",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "settle-amounts-and-reconcile"
+   }
+  },
+  {
    "id": "tool:post-to-slack",
    "values": {
     "title": "Post to Slack",
@@ -6201,6 +6217,22 @@
    }
   },
   {
+   "id": "tool:reconcile-lines-against-a-statement",
+   "values": {
+    "title": "Reconcile lines against a statement",
+    "job": "Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close",
+    "description": "action close takes lines { amount_field, closed_in_field? }, row_ids, period, opening_balance, statement_balance, request_key and residual_reason when the lines do not add up to the statement; it marks each line closed in the receipt and keeps the receipt in \"<lines>-reconciliations\". The same request_key returns the same receipt; a line already closed elsewhere is refused. check lists every line that changed or was removed after its close (record: true keeps each as a discrepancy row once). undo reopens the lines of the latest close and marks its receipt undone; the receipt stays.",
+    "status": "active",
+    "maker": "maker:settle-amounts-and-reconcile",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "settle-amounts-and-reconcile"
+   }
+  },
+  {
    "id": "tool:reconcile-resource-usage-report",
    "values": {
     "title": "Reconcile resource usage report",
@@ -6665,6 +6697,22 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:report-on-accrual-or-cash",
+   "values": {
+    "title": "Report on an accrual or a cash basis",
+    "job": "Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it",
+    "description": "action basis takes targets { amount_field, date_field }, allocations { list_id }, from, to and basis (accrual, cash or both; the list's saved report_basis, else both, when left out). Answers each basis asked with its total, count and the rows behind it (capped, with truncated said). It reads only.",
+    "status": "active",
+    "maker": "maker:settle-amounts-and-reconcile",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "settle-amounts-and-reconcile"
    }
   },
   {
@@ -7798,6 +7846,22 @@
    }
   },
   {
+   "id": "tool:settle-amounts-between-lists",
+   "values": {
+    "title": "Apply an amount across rows of another list",
+    "job": "Apply the amount one row holds (a payment, a credit, a grant) across the open amounts of rows of another list (invoices, bills, budgets) as allocation rows, propose it first, take an allocation back, or read what is applied and open on a row",
+    "description": "action propose works out, writing nothing, how the source row's amount would go across the targets in an order (oldest_first by default, or as read-data/list-settlements.json orders say) and what is left unapplied as a credit. apply keeps one allocation row per target (source, target, amount, date, request) in the allocations list \"<source>-to-<target>-allocations\"; give items [{ target_id, amount }] or leave them out to apply the proposal; request_key makes it apply once. Every item is answered done, already_done or refused with why, and the outcome says all, some or none. remove takes allocation_ids back, reopening exactly those targets. position reads one row ({ row: { row_id, amount_field }, role, allocations: { list_id } }): its amount, applied, open and the allocations behind it. A row with no amount is refused: empty is not zero. Body: source { row_id, amount_field }, targets { list_id, amount_field, order_field?, row_ids? }, order, allocations { list_id?, *_field? }.",
+    "status": "active",
+    "maker": "maker:settle-amounts-and-reconcile",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "settle-amounts-and-reconcile"
+   }
+  },
+  {
    "id": "tool:settle-field-values",
    "values": {
     "title": "Say who set each value and which source wins",
@@ -8187,6 +8251,22 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:total-quote-lines",
+   "values": {
+    "title": "Total the lines of a quote or invoice",
+    "job": "Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base",
+    "description": "action totals takes lines { kind_field?, value_field?, base_field?, order_field? } and row_ids or every row. A line's kind is a row of read-data/list-settlements.json line_totals.kinds (amount, percent, subtotal); a percent line must name its base. Answers each line with its amount, the base it used and the running total, and the total. It reads only.",
+    "status": "active",
+    "maker": "maker:settle-amounts-and-reconcile",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "settle-amounts-and-reconcile"
    }
   },
   {
