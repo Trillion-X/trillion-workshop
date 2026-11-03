@@ -3,7 +3,6 @@
 import clients from './ai-clients.json' with { type: 'json' };
 import setupPrompt from './ai-setup-prompt.json' with { type: 'json' };
 import setupPolicy from './setup-policy.json' with { type: 'json' };
-import { setupInstalls } from './setup-installs.mjs';
 import { logoOf } from './site-icon-url.mjs';
 import { askChoices, CHOSEN_AI } from './ask-your-ai.mjs';
 
@@ -27,9 +26,9 @@ function stageSteps(stage, client) {
 
 export const appSteps = client => clients.stages.flatMap(stage => stageSteps(stage, client));
 
-export function aiAppGuides(origin) {
+export function aiAppGuides(origin, installs = {}) {
   const mcp = `${origin}/mcp`;
-  const values = { mcp, setup_continuation: setupPolicy.words.continuation, cursor_config: encodeURIComponent(btoa(JSON.stringify({ url: mcp }))), ...setupInstalls(origin) };
+  const values = { mcp, setup_continuation: setupPolicy.words.continuation, cursor_config: encodeURIComponent(btoa(JSON.stringify({ url: mcp }))), ...installs };
   const filled = text => (text === undefined ? undefined : fill(text, values));
   const filledStep = step => Object.fromEntries(Object.entries(step).map(([field, value]) => [field, typeof value === 'string' ? filled(value) : field === 'link' ? { ...value, href: filled(value.href) } : value]));
   const notes = step => clients.step_notes.filter(note => step[note.key]).map(note => ({ label: note.label, text: step[note.key] }));
