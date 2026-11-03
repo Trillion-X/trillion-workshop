@@ -171,6 +171,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `work-breakdown` | A body of work as a tree: how much is really finished, new items, proof of finished work, tasks and what blocks them | `tool:roll-up-work-completion`, `tool:add-work-item`, `tool:check-proof-of-finished-work`, `tool:list-tasks-and-what-blocks-them` |
 | `write-message-models-for-every-app` | Writes the Swift and TypeScript message models a Mac app, an iPhone app and the web read, from one models file, and checks they are current (runs on the person's computer) | `tool:write-message-models-for-every-app` |
 | `write-from-a-recipe` | Builds the exact instruction a person's AI writes from, from a writing recipe and the person's material, checks what it wrote against the same recipe (only the sources given, the recipe's rules and reviews) and shapes it for the next tool; keeps ready recipes and instruction blocks | `tool:compose-a-writing-instruction`, `tool:check-writing-against-its-recipe`, `tool:list-writing-recipes` |
+| `tell-ais-how-to-act` | What every AI is told when it first connects, as rows the door serves; and the same standing instructions kept as one marked block in an AI harness's own instruction file on the person's computer | `tool:read-how-ais-are-told`, `tool:keep-trillion-in-your-instructions` |
 | `tools-from-github` | 20 open-source repositories (captions, transcription, background removal, 3D and video rendering and more) that run on the person's own computer | `tool:github:*` |
 
 ## Key Types / Functions

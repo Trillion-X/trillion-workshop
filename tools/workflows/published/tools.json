@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:d7b2177f573cdfdb7859bc1fe5a56a6facf34e8510ba6c33c67cd7b4700e8db3"
+  "blake3": "1f:d8cb7a156894ee20bf91ea08370a955f458dd0fd4f0ed0fbaa5cd87babbe1a35"
  },
  "fields": [
   {
@@ -3447,6 +3447,21 @@
      "placement:small-container"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:keep-trillion-in-your-instructions",
+   "values": {
+    "title": "Keep Trillion's standing instructions in my AI's own instruction file (runs on your computer)",
+    "job": "Put, check or take out Trillion's standing instructions as one marked block in my AI harness's own global instruction file, leaving every other line of it as it was",
+    "description": "Reads, writes or removes one marked block in a harness's own global instruction file (Claude Code's CLAUDE.md, Codex's AGENTS.md, Gemini CLI's GEMINI.md; where each is, and its home variable, is a row of read-data/harness-instruction-files.json). inspect answers absent, present, outdated or blocked (markers that are not one start followed by one end) and writes nothing; apply writes or replaces only the block and twice changes nothing; remove takes out only the block. Every byte outside the block is kept, a symbolic link is written through to its target, and the file keeps its mode. A hosted app with no file is answered with the control it has, never written. `text` is the current words; without it the copy in read-data/standing-instructions.json is used.",
+    "status": "active",
+    "maker": "maker:tell-ais-how-to-act",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "tell-ais-how-to-act"
    }
   },
   {
