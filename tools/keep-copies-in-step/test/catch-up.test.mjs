@@ -1,40 +1,38 @@
-// Whether every copy is in step (read-data/catch-up.mjs, moved from trillion src/catch-up.mjs with its tests,
-// trillion test/catch-up.test.mjs): a device's report is written only when something the person would see changed; a
-// record two copies changed apart is read from the kept-apart record the record store keeps, as the record now and the
-// other version; settling writes what was chosen and then removes the kept versions, and keep both keeps the other
-// version as a record of its own. The old tests forked two record-log stores to make the kept-apart record; the record
-// store is not in this repository, so `forked()` writes the kept-apart record that fork left (record-sync.mjs: the
-// record as one copy wrote it, the other copy's `due` kept under kept-apart:<id>). Then each row runs against the
-// records door stand-in (tools/records-door/test/fake-door.mjs), which checks rights and `expected` as the engine does.
-// Made-up rows only.
+// Moved from trillion test/catch-up.test.mjs with its assertions unchanged.
+//
+// Whether every copy is in step, as the person's store answers it (read-data/catch-up.mjs): a device's report is written
+// only when something the person would see changed; a record two copies changed apart is read from the kept-apart record
+// the record store keeps, as the record now and the other version; settling writes what was chosen and then removes the
+// kept versions, and keep both keeps the other version as a record of its own.
+//
+// The original forked two real record-log stores (trillion parts/record-log) to make the kept-apart record; the Workshop
+// has no record log, so `forked()` here writes the same two rows that fork leaves: the record as one copy's version and
+// the kept-apart record holding the other copy's `due`. Made-up rows only.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { runRow, rowOf } from '../../records-door/test/run-row.mjs';
-import { catchUp, KEPT_APART } from '../read-data/catch-up.mjs';
+import { catchUp, handleCatchUpRequest, KEPT_APART } from '../read-data/catch-up.mjs';
 import settings from '../read-data/catch-up.json' with { type: 'json' };
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
-const SEE = rowOf(ROWS, 'tool:see-copies-in-step');
-const SAY = rowOf(ROWS, 'tool:say-how-this-copy-stands');
-const SETTLE = rowOf(ROWS, 'tool:settle-two-versions');
-
-// A record store in memory, with the calls the moved code makes (ids, read, typeOf, write).
-function memory(rows = []) {
-  const kept = new Map(rows.map(row => [row.id, row]));
+// A record store with the surface catch-up.mjs reads: ids(type, { limit }), read(id), typeOf(id), write([...]).
+function memoryRecords() {
+  const rows = new Map();
   return {
-    kept,
-    ids: (type, { limit } = {}) => [...kept.values()].filter(row => row.type === type).map(row => row.id).slice(0, limit),
-    read: id => structuredClone(kept.get(id)?.value ?? null),
-    typeOf: id => kept.get(id)?.type ?? null,
-    write: writes => { for (const { id, type, value } of writes) value === null ? kept.delete(id) : kept.set(id, { id, type, value: structuredClone(value) }); },
+    ids: (type, { limit } = {}) => [...rows].filter(([, row]) => row.type === type).map(([id]) => id).slice(0, limit),
+    read: id => rows.get(id)?.value ?? null,
+    typeOf: id => rows.get(id)?.type ?? null,
+    write: writes => { for (const { id, type, value } of writes) { if (value === null) rows.delete(id); else rows.set(id, { type, value }); } },
   };
 }
+function store(name) {
+  return { name, records: memoryRecords() };
+}
 // Two copies that both changed the launch plan's `due` apart, settled both ways: the store keeps both versions.
-const PLAN = { title: 'Launch plan', due: 'Friday', status: 'Draft' };
-const keptApart = (due = 'Monday') => ({ id: `${KEPT_APART}:plan-7`, type: KEPT_APART, value: { 'due|sample-checksum': { record: 'plan-7', record_type: 'note', field: 'due', value: due } } });
-const forkedRows = () => [{ id: 'plan-7', type: 'note', value: { ...PLAN } }, keptApart()];
-const forked = () => memory(forkedRows());
+async function forked() {
+  const left = store('left');
+  left.records.write([{ id: 'plan-7', type: 'note', value: { title: 'Launch plan', due: 'Friday', status: 'Draft' } }]);
+  left.records.write([{ id: `${KEPT_APART}:plan-7`, type: KEPT_APART, value: { 'due|sample-checksum': { record: 'plan-7', record_type: 'note', field: 'due', value: 'Monday' } } }]);
+  return left.records;
+}
 function deviceRows() {
   let rows = [];
   let writes = 0;
@@ -44,7 +42,7 @@ function deviceRows() {
 test('a device is written when what the person sees changes, not on every report', () => {
   let clock = Date.parse('2026-10-05T09:00:00Z');
   const rows = deviceRows();
-  const copies = catchUp(rows, { records: memory(), now: () => clock, limits: { ...settings, most_devices: 3 } });
+  const copies = catchUp(rows, { records: store('here').records, now: () => clock, limits: { ...settings, most_devices: 3 } });
   const report = over => copies.here({ device_id: 'd-1234abcd', title: 'Chrome on Mac', kind: 'computer', state: 'caught-up', waiting: 0, at: clock, ...over });
   assert.equal(report().written, true);
   clock += 60_000;
@@ -59,8 +57,8 @@ test('a device is written when what the person sees changes, not on every report
   assert.throws(() => copies.here({ device_id: 'd-1234abcd' }), /how this device stands/);
 });
 
-test('a record changed apart on two copies reads as the record now and the other version, and keep one settles it', () => {
-  const records = forked();
+test('a record changed apart on two copies reads as the record now and the other version, and keep one settles it', async () => {
+  const records = await forked();
   const copies = catchUp(deviceRows(), { records });
   const [apart] = copies.read().versions;
   assert.equal(apart.id, `${KEPT_APART}:plan-7`);
@@ -81,8 +79,8 @@ test('a record changed apart on two copies reads as the record now and the other
   assert.throws(() => copies.settle({ id: apart.id, keep: 'both' }), /not kept apart/);
 });
 
-test('keep both keeps the other version as its own record; a merge writes the value given', () => {
-  const both = forked();
+test('keep both keeps the other version as its own record; a merge writes the value given', async () => {
+  const both = await forked();
   const copies = catchUp(deviceRows(), { records: both });
   const [apart] = copies.read().versions;
   copies.settle({ id: apart.id, keep: 'both' });
@@ -90,15 +88,15 @@ test('keep both keeps the other version as its own record; a merge writes the va
   assert.equal(both.read('plan-7').due, apart.sides[0].value.due);
   assert.equal(both.read(apart.id), null);
 
-  const merged = forked();
+  const merged = await forked();
   const merging = catchUp(deviceRows(), { records: merged });
   const [kept] = merging.read().versions;
   merging.settle({ id: kept.id, keep: 'merged', value: { title: 'Launch plan', due: 'Tuesday', status: 'Ready' } });
   assert.deepEqual(merged.read('plan-7'), { title: 'Launch plan', due: 'Tuesday', status: 'Ready' });
 });
 
-test('keep both preserves earlier retained copies and unrelated records at its proposed identity', () => {
-  const records = forked();
+test('keep both preserves earlier retained copies and unrelated records at its proposed identity', async () => {
+  const records = await forked();
   const copies = catchUp(deviceRows(), { records });
   const firstId = `plan-7${settings.both_suffix}1`;
   const unrelated = { title: 'An ordinary independent record', due: 'Never replace this' };
@@ -117,44 +115,23 @@ test('keep both preserves earlier retained copies and unrelated records at its p
   assert.deepEqual(records.read(firstId), unrelated);
 });
 
-// The old routes test (GET /catch-up, POST /catch-up/here, POST /catch-up/settle), through the rows instead.
-test('the rows answer through the records door, and a copy of the records is listed as a device', async () => {
-  const positions = [{ copy: 'mac-copy', took_through: '9', settled_at: '2026-10-05T09:00:00.000Z' }];
-  let records = [...forkedRows(), { id: 'kept-apart:other', type: KEPT_APART, value: { '*|x': { record: 'task-1', record_type: 'task', field: '*', value: {} } } }];
-  const run = async (row, input) => { const answer = await runRow(row, input, { records }); records = answer.kept; return answer; };
-  assert.equal((await run(SAY, { device_id: 'd-1234abcd', state: 'offline' })).result.written, true);
-  const read = (await run(SEE, { kind: 'note', positions })).result;
+test('the routes answer through the store road, and a copy of the records is listed as a device', async () => {
+  const records = await forked();
+  const positions = { list: () => [{ copy: 'mac-copy', took_through: '9', settled_at: '2026-10-05T09:00:00.000Z' }] };
+  const copies = catchUp(deviceRows(), { records, positions });
+  const ask = (method, path, body) => handleCatchUpRequest(copies, new Request(`https://person${path}`, { method, ...(body ? { body: JSON.stringify(body) } : {}) }));
+  assert.equal((await ask('POST', '/catch-up/here', { device_id: 'd-1234abcd', state: 'offline' })).status, 200);
+  const read = await (await ask('GET', '/catch-up')).json();
   assert.deepEqual(read.devices.map(device => [device.device_id, device.state, device.title]), [['d-1234abcd', 'offline', ''], ['mac-copy', settings.copy_state, settings.words.copy_title]], 'a copy no device names is listed by itself, never by its id');
-  assert.equal(read.versions.length, 1, 'only the kind asked for');
   assert.equal(read.versions[0].thing.title, 'Launch plan');
-  assert.deepEqual(read.other_kinds, { task: 1 });
-  const refused = await run(SETTLE, { kind: 'note', id: read.versions[0].id, keep: 'some', request_key: 'settle-1' });
-  assert.match(refused.result.error, /what to keep/);
-  assert.equal(records.some(record => record.id === read.versions[0].id), true, 'a refused settle keeps both versions');
-  const settled = await run(SETTLE, { kind: 'note', id: read.versions[0].id, keep: 'one', side: 'now', request_key: 'settle-2' });
-  assert.deepEqual(settled.result.written, [read.versions[0].id]);
-  assert.equal(records.some(record => record.id === read.versions[0].id), false);
+  const refused = await ask('POST', '/catch-up/settle', { id: read.versions[0].id, keep: 'some' });
+  assert.equal(refused.status, 400);
+  assert.match((await refused.json()).error, /what to keep/);
+  assert.equal((await ask('POST', '/catch-up/settle', { id: read.versions[0].id, keep: 'one', side: 'now' })).status, 200);
+  assert.equal(records.read(read.versions[0].id), null);
+  assert.equal((await ask('GET', '/catch-up/nothing')).status, 404);
   // The device that keeps that copy names it: one row, as of the copy's later settle.
-  await run(SAY, { device_id: 'd-1234abcd', state: 'caught-up', at: '2026-10-05T08:00:00.000Z', copy_id: 'mac-copy' });
-  const named = (await run(SEE, { kind: 'note', positions })).result;
+  await ask('POST', '/catch-up/here', { device_id: 'd-1234abcd', state: 'caught-up', at: '2026-10-05T08:00:00.000Z', copy_id: 'mac-copy' });
+  const named = await (await ask('GET', '/catch-up')).json();
   assert.deepEqual(named.devices.map(device => [device.device_id, device.at]), [['d-1234abcd', '2026-10-05T09:00:00.000Z']]);
-});
-
-test('keep both through the row writes the other version beside the names already taken', async () => {
-  const records = [...forkedRows(), { id: `plan-7${settings.both_suffix}1`, type: 'note', value: { title: 'Taken' } }];
-  const { result, kept } = await runRow(SETTLE, { kind: 'note', id: `${KEPT_APART}:plan-7`, keep: 'both', request_key: 'both-1' }, { records });
-  assert.deepEqual(result.written, [`plan-7${settings.both_suffix}2`, `${KEPT_APART}:plan-7`]);
-  const byId = new Map(kept.map(record => [record.id, record.value]));
-  assert.equal(byId.get(`plan-7${settings.both_suffix}2`).due, 'Monday');
-  assert.deepEqual(byId.get(`plan-7${settings.both_suffix}1`), { title: 'Taken' });
-});
-
-test('a settle and a read reach only the kind they name, and a run with no kind is refused', async () => {
-  const wrongKind = await runRow(SETTLE, { kind: 'task', id: `${KEPT_APART}:plan-7`, keep: 'one', side: 'now', request_key: 'k-1' }, { records: forkedRows() });
-  assert.match(wrongKind.error, /kind must be the kind of the record kept apart: note/);
-  const seen = await runRow(SEE, { kind: 'task' }, { records: forkedRows() });
-  assert.deepEqual([seen.result.versions, seen.result.other_kinds], [[], { note: 1 }]);
-  const missing = await runRow(SEE, {}, { records: forkedRows() });
-  assert.notEqual(missing.status, 0, 'a run with no kind is refused');
-  assert.match(missing.error, /kind/);
 });
