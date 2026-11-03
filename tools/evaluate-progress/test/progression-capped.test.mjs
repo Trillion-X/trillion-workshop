@@ -1,7 +1,7 @@
-// A measure may bound what counts so a reward cannot be gamed (src/progression.mjs `capped_count`), all of it DATA.
+// A measure may bound what counts so a reward cannot be gamed (read-data/progression.mjs `capped_count`), all of it DATA.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { measuresOf } from '../src/progression.mjs';
+import { measuresOf } from '../read-data/progression.mjs';
 
 const at = (hour, minute = 0) => new Date(Date.UTC(2026, 9, 19, hour, minute)).toISOString();
 const spam = [...Array.from({ length: 30 }, (_, i) => ({ kind: 'switch', at: at(9, i) })), ...Array.from({ length: 5 }, (_, i) => ({ kind: 'switch', at: at(10, i) }))];

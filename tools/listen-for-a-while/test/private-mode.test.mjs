@@ -1,7 +1,7 @@
-// An opt-in private mode: unknown features are off in it, everything is on without it, one sentence per feature, a comparable security code (src/private-mode.mjs).
+// An opt-in private mode: unknown features are off in it, everything is on without it, one sentence per feature, a comparable security code (read-data/private-mode.mjs).
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { available, explain, securityCode } from '../src/private-mode.mjs';
+import { available, explain, securityCode } from '../read-data/private-mode.mjs';
 
 test('off means everything is available; on keeps only what the table says and anything unlisted is off', () => {
   assert.equal(available({ on: false }, 'sound'), true);
