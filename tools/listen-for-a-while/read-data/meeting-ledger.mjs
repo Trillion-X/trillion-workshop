@@ -1,7 +1,7 @@
-// computer/meeting-ledger.mjs
+// tools/listen-for-a-while/read-data/meeting-ledger.mjs
 //
 // Purpose
-//   What the listener on this Mac (computer/listen.mjs) says about a listening: a listening whose heartbeat is old reads as
+//   What the listener (read-data/listen-for-a-while.mjs) says about a listening: a listening whose heartbeat is old reads as
 //   finished without any sweep, a line that is only text a hearing model makes up out of silence is told apart, and the typed
 //   state of the notes job is told in plain words. All numbers, names and words are meeting-ledger.json.
 //

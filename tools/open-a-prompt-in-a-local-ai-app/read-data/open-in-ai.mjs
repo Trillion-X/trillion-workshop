@@ -1,8 +1,9 @@
-// computer/open-in-ai.mjs
+// tools/open-a-prompt-in-a-local-ai-app/read-data/open-in-ai.mjs
 //
 // PURPOSE
 //   Hands one prompt to a local AI app the person already has (Claude Code, Codex, any app with a row), opened through
-//   a launcher the DATA allowlists. Run by computer/mac-tools.mjs as tool:open-in-ai; the apps are computer/open-in-ai.json.
+//   a launcher the DATA allowlists. Run by tools/records-door's run-an-export.mjs as tool:open-in-ai; the apps are
+//   read-data/open-in-ai.json.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. This file names no app, scheme or executable: they are the DATA rows, and the rows are the allowlist. An app
