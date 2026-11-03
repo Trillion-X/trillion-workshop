@@ -10,6 +10,7 @@ A person's sales funnels, read from their own records: the offers in order, the 
 | `read-data/funnel-definition.mjs` | The stage_address contract: `readFunnelDefinition`, `resolveFunnelDefinition` (the blind `$ref` join), `liveVariantMapFromDecisions`, and the drafting builders `buildNewFunnelDefinition`, `appendStage`, `slugify`. |
 | `read-data/stage-measures.mjs` | `reduceStageMeasures`: per-stage visits, conversions, rate and revenue from facts, for any group-by field and amount field. |
 | `read-data/read-offers.ts` | `readCheckoutOffers`, `discoveredPriceCents`: the one reader of a person's offers, the rows of their offers list (`record:commercial-offer` records whose value is a `commercial-offer`; price options, trials, per-unit prices and curves, charge dimensions, a buyer-chosen amount and the price-discovery rule that moves its floor, a quantity the buyer picks, the note beside the pay button, and `for_sale: false` keeping a retired offer out of what is sold). `tools/take-payments` prices, checks and sells from what it reads; any page that shows a price reads offers here. Its cases run in `tools/take-payments/test` (`read-offers-voluntary-policy`, `price-discovery`). |
+| `read-data/plan-comparison.json` | What each plan includes, as one list every plan card reads: the plan rungs (offers sold today), the feature rows and how an offer is judged by each (`access`, `without_allowance`, `allowance_of`, `usage_of`, `every_account`), the requests that are a feature (`paths`) and the words a card and a refusal say. Moved from the Trillion engine's `product/plan-comparison.json`, which no engine code read. Rungs naming a plan that does not exist yet are not carried (their names are kept out of anything public). |
 | `do-work/walk-a-funnel.mjs` | The command of `tool:walk-a-funnel`. |
 | `do-work/read-a-funnel-definition.mjs` | The command of `tool:read-a-funnel-definition`. |
 | `do-work/measure-funnel-stages.mjs` | The command of `tool:measure-funnel-stages`. |
@@ -24,6 +25,7 @@ A person's sales funnels, read from their own records: the offers in order, the 
 | `test/stage-measures.test.mjs` | The reducer. |
 | `test/draft-a-funnel.test.mjs` | The builders and the command. |
 | `test/emergent-funnels.test.mjs` | Forty funnels from forty domains resolve as data with no change to the resolver. |
+| `test/plan-comparison.test.mjs` | Every plan rung names a sold offer and no name-only rung is published; every feature row has one id, a label and a rule an offer is judged by. |
 | `test/funnels-and-offers-tools.test.mjs` | Each tool run the way its row runs it, the verify samples, refusals listing every problem. |
 
 ## Key Types / Functions
@@ -39,6 +41,7 @@ A person's sales funnels, read from their own records: the offers in order, the 
 
 ## Invariants
 
+- The plan comparison names no unreleased plan: every rung names an offer sold today (`test/plan-comparison.test.mjs`).
 - No offer, price, outcome, stage or funnel type is built in; all come from the person's records. A hiring pipeline resolves through the same code as a bakery's offers.
 - A stage with several price options shows the option it names; with none named it shows no price. A position in a list is never a price.
 - A winner of a price experiment decides a price only through a variant record that carries `amount_cents`. The package also read a bare winner key such as "47" as dollars; that guess is not carried.
