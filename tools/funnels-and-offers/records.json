@@ -119,7 +119,44 @@
       "output_selector": "$.stages.front.conversion_rate",
       "contains": "50"
      }
-    ]
+    ],
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "commercial-event",
+          "guard_properties": {
+            "funnel_id": "text",
+            "stage": "text",
+            "converted": "boolean",
+            "amount_cents": "number",
+            "currency": "text",
+            "buyer_ref": "text",
+            "checkout_session_id": "text",
+            "contract_id": "text",
+            "event": "text",
+            "event_id": "text",
+            "kind": "text",
+            "occurred_at": "text",
+            "subject_id": "text",
+            "subject_kind": "text"
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "type": "commercial-event",
+          "name": "by-funnel",
+          "backfill": "commercial-event-funnel",
+          "paths": [
+            [
+              "funnel_id"
+            ]
+          ],
+          "_read_by": "src/commercial-events.mjs commercialEventsFor: exact-funnel event pages, without enumerating unrelated account history; old records join through bounded background index work"
+        }
+      ]
+    }
    }
   },
   {
