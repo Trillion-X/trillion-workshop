@@ -1,7 +1,13 @@
 // A synthetic method and an in-memory records door for the decision tests. The method is made up for the tests; it
 // holds no one's own method. The door keeps records as the records door does: read by type and id, list by type
-// (newest created first for a declared order, else greatest id first) with `fields`, and write with null removing.
+// (newest created first for a declared order, else greatest id first) with `fields`, and write with null removing. Like
+// the real door it refuses a write whose message is over 64 KiB, and it notes each write's bytes and its largest record.
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
+export const DOOR_CAP = 64 * 1024;
+const bytes = value => Buffer.byteLength(JSON.stringify(value));
 
 export const today = () => new Date().toISOString().slice(0, 10);
 
@@ -52,7 +58,9 @@ export function memoryDoor() {
     },
     async write(list, { key } = {}) {
       assert.ok(list.length >= 1 && list.length <= 256, `a write carries 1 to 256 records, not ${list.length}`);
-      writes.push({ key, ids: list.map(record => record.id) });
+      const size = bytes({ records: list, key });
+      assert.ok(size <= DOOR_CAP, `a write of ${size} bytes is over the door's 64 KiB cap (413)`);
+      writes.push({ key, ids: list.map(record => record.id), bytes: size, largest: Math.max(...list.map(bytes)) });
       for (const { id, type, value } of list) {
         assert.ok(typeof type === 'string' && type, `${id} carries its type`);
         if (value === null) records.delete(id); else records.set(id, { type, value: structuredClone(value) });
@@ -60,4 +68,29 @@ export function memoryDoor() {
       return { changed: true, write_count: list.length };
     },
   };
+}
+
+// A decision as the tools see it, put together from its records the way read-data/decision-records.mjs lays them out:
+// the root with its lists back inside it (`input.evidence`, `answered_steps`, `decision_history`, ...) and its method
+// snapshot, so a test can say what a decision holds without naming every record.
+export function caseView(door, id) {
+  const root = door.value(id);
+  if (!root?.counts) return root;
+  const whole = key => {
+    const value = door.value(key);
+    if (!Number.isInteger(value?.kept_in_parts)) return value;
+    const { part } = settings.records;
+    return JSON.parse(Array.from({ length: value.kept_in_parts }, (_, n) => door.value(`${key}${part.suffix}${String(n).padStart(part.digits, '0')}`).text).join(''));
+  };
+  const items = list => {
+    const { type, digits } = settings.records.laid_apart[list];
+    return Array.from({ length: root.counts[list] ?? 0 }, (_, n) => whole(`${type}:${id}:${String(n).padStart(digits, '0')}`));
+  };
+  const view = { ...root, input: { ...root.input, evidence: items('evidence') }, answered_steps: items('answered_steps') };
+  if (root.counts.options) view.input.options = items('options');
+  for (const list of ['candidates', 'reports', 'carried_out', 'decision_history']) if (root.counts[list]) view[list] = items(list);
+  if (root.counts.cited_pursuits) view.cited_pursuits = Object.fromEntries(items('cited_pursuits').map(item => [item.ref, item.said]));
+  if (root.method_identity) view.method = whole(`${settings.records.method}:${root.method_identity}`)?.method;
+  delete view.counts;
+  return view;
 }
