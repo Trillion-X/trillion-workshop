@@ -3,7 +3,7 @@
 // identity of the whole at every split; anything but bytes is refused.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { makeHashCodeHexFromBytes, makeHashCodeHexFromChunks } from '../read-data/identity.mjs';
+import { canonicalJson, makeHashCodeHexFromBytes, makeHashCodeHexFromChunks, makeHashCodeHexFromJson } from '../read-data/identity.mjs';
 
 test('the identity is 1f: and BLAKE3-256 of the bytes', () => {
   assert.equal(makeHashCodeHexFromBytes(new Uint8Array()), '1f:af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262');
@@ -19,4 +19,16 @@ test('ordered chunk identities equal the canonical byte identity across empty an
   }
   assert.throws(() => makeHashCodeHexFromChunks(['not bytes']), /byte chunks/);
   assert.notEqual(makeHashCodeHexFromChunks([new Uint8Array([1]), new Uint8Array([2])]), makeHashCodeHexFromChunks([new Uint8Array([2]), new Uint8Array([1])]));
+});
+
+test('a JSON value has one identity whatever order its keys were written in, and it is the identity of its canonical text', () => {
+  const one = { b: [1, { y: 'x', x: null }], a: 'text' };
+  const other = { a: 'text', b: [1, { x: null, y: 'x' }] };
+  assert.equal(canonicalJson(one), '{"a":"text","b":[1,{"x":null,"y":"x"}]}');
+  assert.equal(makeHashCodeHexFromJson(one), makeHashCodeHexFromJson(other));
+  assert.equal(makeHashCodeHexFromJson(one), makeHashCodeHexFromBytes(new TextEncoder().encode(canonicalJson(one))));
+  assert.notEqual(makeHashCodeHexFromJson([1, 2]), makeHashCodeHexFromJson([2, 1]));
+  assert.equal(canonicalJson({ kept: 1, dropped: undefined }), '{"kept":1}');
+  assert.throws(() => canonicalJson(Number.NaN), /NaN or Infinity/);
+  assert.throws(() => canonicalJson(undefined), /JSON values only/);
 });

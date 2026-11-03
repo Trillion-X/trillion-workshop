@@ -1,0 +1,270 @@
+{
+  "kind": "tool-rows",
+  "record_set": "decide-agent-actions-tool-rows",
+  "what_this_is": "The Workshop rows for tools/decide-agent-actions: decide whether an action an AI is about to take may run, must be asked of the person first, or is refused, from the person's action policy, the grants they gave and what they declined; and check an action policy before it is relied on. Each row runs one function of do-work/requests.mjs on the request given; the policy rows, grants, actions and the clock are the person's, none is built in.",
+  "records": [
+    {
+      "id": "package::decide-agent-actions::tool::decide-an-agent-action",
+      "address": "package::decide-agent-actions::tool::decide-an-agent-action",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:decide-an-agent-action",
+        "label": "Decide whether my AI may take this action",
+        "status": "active",
+        "job": "Decide whether an action my AI is about to take may run, must ask me first, or is refused, from my action policy, the grants I gave and what I declined",
+        "description": "Takes the action (for example a tool, a target and arguments), the fields the policy rules may read from it, the person's policy (rules in order, each with an id, its words, an optional `when` rule tree and a `then`, plus an optional `otherwise` and `paused`), the grants given, the actions declined with when, the time of the person's last message, the actions the person asked for, the thread, whether anyone can be asked now, and the time now. Answers allow, ask or refuse, the rule, grant or earlier decline that decided, its words, what to do about retrying, the action's identity, the grant to mark used (for a once grant) and the rules it could not evaluate. Order: a paused policy refuses; refusing rules come next, and a refusing rule it cannot evaluate refuses too; an action declined earlier stays refused until the person has spoken since; then a matching grant allows; then the other rules in order (a rule it cannot evaluate is skipped, never allows); then the policy's `otherwise`, else ask. An ask no one can be asked becomes a refusal that says to continue without it. With dry_run the same decision is answered with enforced false, so the caller lets the action run and keeps the record of what would have been decided. A request that cannot be run is refused with a sentence that says what to send.",
+        "input_schema": {
+          "type": "object",
+          "required": ["action", "fields", "policy", "now"],
+          "properties": {
+            "action": { "type": "object", "description": "The action about to be taken, for example { tool, target, arguments }" },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "kind"],
+                "properties": {
+                  "id": { "type": "string", "description": "The name rules use for this field of the action" },
+                  "kind": { "type": "string", "description": "Which comparisons the field offers (see list-comparisons of the rule filter)" },
+                  "path": { "type": "array", "items": {}, "description": "Keys and positions into the action; the id by default" }
+                }
+              }
+            },
+            "policy": {
+              "type": "object",
+              "required": ["rules"],
+              "properties": {
+                "rules": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "then"],
+                    "properties": {
+                      "id": { "type": "string" },
+                      "says": { "type": "string", "description": "The words given when this rule decides" },
+                      "when": { "type": "object", "description": "A rule tree over the fields; left out means always" },
+                      "then": { "type": "string", "description": "refuse, ask, allow or allow-when-asked-for" }
+                    }
+                  }
+                },
+                "otherwise": { "type": "string", "description": "The verdict when no rule holds; ask by default" },
+                "paused": { "type": "boolean", "description": "True refuses every action until resumed" }
+              }
+            },
+            "operators": { "type": "object", "description": "Comparisons and combinators as rows of data, replacing the built-in ones" },
+            "identity_fields": { "type": "array", "items": { "type": "string" }, "description": "The fields of the action that make up its identity; tool, target and arguments by default" },
+            "grants": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "identity", "scope"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "identity": { "type": "string", "description": "The identity of the action the grant is for" },
+                  "scope": { "type": "string", "description": "once, thread or always" },
+                  "thread": { "type": "string" },
+                  "used": { "type": "boolean" },
+                  "expires_at": { "type": "string", "description": "ISO time" }
+                }
+              }
+            },
+            "declined": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["identity", "at"],
+                "properties": { "identity": { "type": "string" }, "at": { "type": "string", "description": "ISO time" } }
+              }
+            },
+            "last_person_message_at": { "type": "string", "description": "ISO time of the person's last message; an earlier decline holds until the person speaks after it" },
+            "asked_for": { "type": "array", "items": { "type": "string" }, "description": "Identities of actions the person asked for" },
+            "thread": { "type": "string", "description": "The thread this action is in, for thread grants" },
+            "can_ask": { "type": "boolean", "description": "False when no one can be asked now; default true" },
+            "dry_run": { "type": "boolean", "description": "True decides and records without blocking" },
+            "now": { "type": "string", "description": "ISO time now, with a zone; the tool has no clock" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["verdict", "enforced", "decided_by", "says", "retry", "identity", "grant_used", "unevaluated", "checked_rules"],
+          "properties": {
+            "verdict": { "type": "string", "description": "refuse, ask or allow" },
+            "enforced": { "type": "boolean" },
+            "decided_by": {
+              "type": "object",
+              "required": ["kind"],
+              "properties": { "kind": { "type": "string", "description": "rule, grant, declined, paused or default" }, "id": { "type": "string" } }
+            },
+            "says": { "type": "string" },
+            "retry": { "type": ["string", "null"], "description": "What to do about retrying, when the action was refused" },
+            "identity": { "type": "string" },
+            "grant_used": { "type": ["string", "null"], "description": "The id of a once grant the caller marks used" },
+            "unevaluated": { "type": "array", "items": { "type": "string" }, "description": "Ids of rules whose `when` could not be evaluated" },
+            "checked_rules": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "decide-agent-actions", "paths": ["do-work", "read-data"], "at": "/opt/decide-agent-actions" },
+              { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              {
+                "module": "@noble/hashes",
+                "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/decide-agent-actions",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-request.mjs", "decideAnAgentAction"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:decide-agent-actions",
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": { "tool": "send-an-email", "target": "contact:ada", "arguments": { "subject": "Hello" } },
+              "fields": [{ "id": "tool", "kind": "choice" }, { "id": "target", "kind": "text" }],
+              "policy": {
+                "rules": [
+                  { "id": "no-deletes", "says": "Deleting is not allowed.", "when": { "kind": "rule", "field": "tool", "operator": "is_any_of", "params": { "values": ["delete-a-file"] } }, "then": "refuse" },
+                  { "id": "ask-emails", "says": "Emails need a yes.", "when": { "kind": "rule", "field": "tool", "operator": "is_any_of", "params": { "values": ["send-an-email"] } }, "then": "ask" }
+                ]
+              },
+              "now": "2030-05-06T07:08:09Z"
+            },
+            "output_selector": "$.says",
+            "contains": "Emails need a yes."
+          }
+        ],
+        "provenance": {
+          "source": "written for the Workshop from public reverse-engineering findings on agent approval gates (no third-party code)"
+        }
+      }
+    },
+    {
+      "id": "package::decide-agent-actions::tool::check-an-action-policy",
+      "address": "package::decide-agent-actions::tool::check-an-action-policy",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-an-action-policy",
+        "label": "Check my AI action policy",
+        "status": "active",
+        "job": "Check my AI action policy before I rely on it: rules it cannot evaluate, unknown behaviours, repeated ids and rules that can never decide because an earlier rule always does",
+        "description": "Takes the fields the policy rules may read from an action and the policy (rules in order, each with an id, an optional `when` rule tree and a `then`). Answers ok and a list of problems, each with the rule id, a problem name (unknown-behaviour, incomplete-when, repeated-id or never-decides) and a sentence saying what is wrong. A rule never decides when another rule with the same `when` always holds first: any rule with the same `when` as a refusing rule, or an earlier rule with the same `when` as it. Nothing is changed; a request that cannot be run is refused with a sentence that says what to send.",
+        "input_schema": {
+          "type": "object",
+          "required": ["fields", "policy"],
+          "properties": {
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "kind"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "kind": { "type": "string" },
+                  "path": { "type": "array", "items": {} }
+                }
+              }
+            },
+            "policy": {
+              "type": "object",
+              "required": ["rules"],
+              "properties": {
+                "rules": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "then"],
+                    "properties": {
+                      "id": { "type": "string" },
+                      "says": { "type": "string" },
+                      "when": { "type": "object" },
+                      "then": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            },
+            "operators": { "type": "object", "description": "Comparisons and combinators as rows of data, replacing the built-in ones" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["ok", "problems"],
+          "properties": {
+            "ok": { "type": "boolean" },
+            "problems": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["rule", "problem", "says"],
+                "properties": {
+                  "rule": { "type": "string" },
+                  "problem": { "type": "string", "description": "unknown-behaviour, incomplete-when, repeated-id or never-decides" },
+                  "says": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "decide-agent-actions", "paths": ["do-work", "read-data"], "at": "/opt/decide-agent-actions" },
+              { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              {
+                "module": "@noble/hashes",
+                "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/decide-agent-actions",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-request.mjs", "checkAnActionPolicy"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:decide-agent-actions",
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "fields": [{ "id": "tool", "kind": "choice" }],
+              "policy": {
+                "rules": [
+                  { "id": "allow-reads", "when": { "kind": "rule", "field": "tool", "operator": "is_any_of", "params": { "values": ["read-a-file"] } }, "then": "allow" },
+                  { "id": "ask-reads", "when": { "kind": "rule", "field": "tool", "operator": "is_any_of", "params": { "values": ["read-a-file"] } }, "then": "ask" }
+                ]
+              }
+            },
+            "output_selector": "$.problems[0].problem",
+            "contains": "never-decides"
+          }
+        ],
+        "provenance": {
+          "source": "written for the Workshop from public reverse-engineering findings on agent approval gates (no third-party code)"
+        }
+      }
+    }
+  ]
+}

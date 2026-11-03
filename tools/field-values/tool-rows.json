@@ -1,0 +1,221 @@
+{
+ "kind": "tool-rows",
+ "record_set": "field-values-tool-rows",
+ "what_this_is": "The Workshop rows for tools/field-values: set the fields of the rows a person's rules match, fill a column by asking their sources in order, and settle which offered value each field keeps by their precedence. Each row runs one function of do-work/requests.mjs on the request given; the rows, fields, rules, sources and precedence are the person's, none is built in.",
+ "records": [
+  {
+   "id": "package::field-values::tool::set-fields-by-rules",
+   "address": "package::field-values::tool::set-fields-by-rules",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:set-fields-by-rules",
+    "label": "Set fields on the rows my rules match",
+    "status": "active",
+    "job": "Set fields on the rows my rules match, like coding transactions by merchant and amount: my rule groups in order, the first matching rule sets each field, never over a value I set myself, with a preview of what each rule would change",
+    "description": "Takes rows, the fields (an id, a kind and a path into each row), and groups of rules in the order they are tried. A rule is a tools/formulas rule tree (when; left out matches every row) and the fields it sets, each to a value or to another field of the row. For every row the first rule that matches and sets a field decides that field; rules that set different fields all apply, and a later rule setting the same field is listed as shadowed. A field already holding a value from a stronger source (a person, or a source the rows do not record when the precedence says unknown sources hold) is not changed and is answered as held, naming who holds it. When the rows keep who wrote each field (provenance: where, and the keys for the kind and the writer), each change carries the rule as its writer, and a field a rule set that no rule sets now goes back to empty. Nothing is written: the answer holds the changes, each changed row as it would be, and per rule the rows it matches and how many it changes, finds already set, cannot change and shadows. An unfinished rule sets nothing and is named in incomplete.",
+    "input_schema": {
+     "type": "object",
+     "required": ["records", "fields", "groups"],
+     "properties": {
+      "records": { "type": "array", "items": { "type": "object" }, "description": "The rows" },
+      "fields": { "type": "array", "items": { "type": "object", "required": ["id", "kind"], "properties": { "id": { "type": "string" }, "kind": { "type": "string", "description": "Which comparisons the field offers (tools/formulas list-comparisons)" }, "path": { "type": "array", "description": "Keys and positions into a row; the id by default" } } } },
+      "groups": { "type": "array", "description": "Rule groups in the order they are tried", "items": { "type": "object", "required": ["id", "rules"], "properties": { "id": { "type": "string" }, "rules": { "type": "array", "items": { "type": "object", "required": ["id", "set"], "properties": { "id": { "type": "string" }, "says": { "type": "string" }, "when": { "type": "object", "description": "A tools/formulas rule tree; left out means every row" }, "set": { "type": "array", "items": { "type": "object", "required": ["field"], "properties": { "field": { "type": "string" }, "value": {}, "from": { "type": "array", "description": "A path in the row to copy the value from" } } } } } } } } } },
+      "provenance": { "type": "object", "required": ["path", "kind_key", "by_key"], "description": "Where each row keeps who wrote each field: path to an object keyed by field id, and the keys of the writer's kind and name", "properties": { "path": { "type": "array" }, "kind_key": { "type": "string" }, "by_key": { "type": "string" } } },
+      "rule_kind": { "type": "string", "description": "The source kind a rule writes as; rule by default" },
+      "precedence": { "type": "object", "description": "Source kinds strongest first and how ties break, the shape of read-data/value-sources.json" },
+      "id_path": { "type": "array", "description": "Where each row's id is, to name rows in the answer" },
+      "operators": { "type": "object", "description": "Comparisons as rows of data, replacing tools/formulas' built-in ones" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["total", "changes", "held", "shadowed", "rows", "rules", "incomplete"],
+     "properties": {
+      "total": { "type": "integer" },
+      "changes": { "type": "array", "items": { "type": "object", "required": ["row", "field", "from", "to", "rule", "reason"] } },
+      "held": { "type": "array", "items": { "type": "object", "required": ["row", "field", "value", "held_by", "rule", "would_set"] } },
+      "shadowed": { "type": "array", "items": { "type": "object" } },
+      "rows": { "type": "array", "items": { "type": "object", "required": ["row", "fields", "record"] } },
+      "rules": { "type": "array", "items": { "type": "object", "required": ["group", "rule", "matches", "changes", "held", "already", "shadowed"] } },
+      "incomplete": { "type": "array" }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": [
+      { "package": "field-values", "paths": ["do-work", "read-data"], "at": "/opt/field-values" },
+      { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
+      { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+      { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+     ] },
+     "workdir": "/opt/field-values",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/run-request.mjs", "setFields"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:field-values",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "records": [{ "id": "t1", "merchant": "North Flour Mill", "amount": 120 }, { "id": "t2", "merchant": "Oven Parts Co", "amount": 80, "category": "Repairs" }],
+       "fields": [{ "id": "merchant", "kind": "text" }, { "id": "category", "kind": "choice" }],
+       "groups": [{ "id": "ingredients", "rules": [{ "id": "flour", "when": { "kind": "rule", "field": "merchant", "operator": "contains", "params": { "text": "flour" } }, "set": [{ "field": "category", "value": "Ingredients" }] }] }],
+       "id_path": ["id"]
+      },
+      "output_selector": "$.changes[0].to",
+      "contains": "Ingredients"
+     }
+    ],
+    "provenance": { "source": "written for the Workshop from public reverse-engineering findings on bookkeeping and spend-table rule engines (no third-party code)" }
+   }
+  },
+  {
+   "id": "package::field-values::tool::settle-field-values",
+   "address": "package::field-values::tool::settle-field-values",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:settle-field-values",
+    "label": "Say who set each value and which source wins",
+    "status": "active",
+    "job": "Say which value each field of my rows keeps when several sources offered one, who set it, and why the others lost: what I typed beats my rules, my rules beat imported sources, and those beat an AI's guess, with the AI's reasons and confidence kept beside its value",
+    "description": "Takes offers, each a value for one field of one row with its source (kind, by, at, confidence) and optionally its basis (reasoning, citations). Each field keeps the offer the precedence puts first: source kinds strongest first (person, rule, source, ai by default, or the person's own precedence), then inside one kind the newest, then the most confident, then the order handed in. An offer below its kind's confidence floor never wins and is set aside with the reason. An offer with withdraws: true takes back what that same source offered earlier, so the field falls back to the next offer. as_of answers the value a field held at that time. Every other offer is kept beside the winner with why it lost, and a field whose two best offers tie with different values says contested.",
+    "input_schema": {
+     "type": "object",
+     "required": ["offers"],
+     "properties": {
+      "offers": { "type": "array", "items": { "type": "object", "required": ["row", "field", "source"], "properties": { "row": { "type": ["string", "integer"] }, "field": { "type": "string" }, "value": {}, "withdraws": { "type": "boolean" }, "basis": { "type": "object", "description": "Why the source gave this value: reasoning, citations" }, "source": { "type": "object", "required": ["kind"], "properties": { "kind": { "type": "string" }, "by": { "type": "string" }, "at": { "type": "string", "format": "date-time" }, "confidence": { "type": ["number", "string"] } } } } } },
+      "precedence": { "type": "object", "description": "Source kinds strongest first and how ties break, the shape of read-data/value-sources.json" },
+      "as_of": { "type": "string", "format": "date-time", "description": "Answer the values as they stood at this time" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["cells", "counts"],
+     "properties": {
+      "cells": { "type": "array", "items": { "type": "object", "required": ["row", "field", "value", "set_by", "contested", "outranked", "set_aside"] } },
+      "counts": { "type": "object", "required": ["offers", "cells", "settled", "contested", "set_aside", "withdrawals"] }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": [
+      { "package": "field-values", "paths": ["do-work", "read-data"], "at": "/opt/field-values" },
+      { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
+      { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+      { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+     ] },
+     "workdir": "/opt/field-values",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/run-request.mjs", "settleValues"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:field-values",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "offers": [
+        { "row": "c1", "field": "size", "value": "51-200", "source": { "kind": "ai", "by": "guesser", "confidence": "high" } },
+        { "row": "c1", "field": "size", "value": "1-10", "source": { "kind": "person", "by": "owner" } }
+       ]
+      },
+      "output_selector": "$.cells[0].value",
+      "contains": "1-10"
+     }
+    ],
+    "provenance": { "source": "written for the Workshop from public reverse-engineering findings on per-value provenance in CRM and spend tables (no third-party code)" }
+   }
+  },
+  {
+   "id": "package::field-values::tool::plan-a-column-fill",
+   "address": "package::field-values::tool::plan-a-column-fill",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:plan-a-column-fill",
+    "label": "Fill a column by asking my sources in order",
+    "status": "active",
+    "job": "Fill one column of my list row by row by asking my sources in my order until one gives an answer that passes my check, paying only for the sources each row needs: tell me the next calls to run, and turn what they answered into values",
+    "description": "Takes rows, where each row's id is, the column (field), the sources in the order to ask them (each a Workshop tool, its input built from the row's fields or fixed values, where the value is in its answer, its cost and its source kind), an accept check (a tools/formulas rule tree over the answer as field value), an optional run_if rule tree over the rows, and the attempts already made with what each answered. Answers the next calls to make, one source at a time per row, each with a request key (the content identity of row, source, tool and input, so a retry is never paid twice); the values found, each as an offer settle-field-values reads; the rows skipped (run_if does not hold, already has a value while keep_existing holds) and the rows out of sources with what each source did. Run it again with the new attempts until done. stop_after_same_failure stops a row whose sources keep giving the same rejected answer; most_calls bounds one run.",
+    "input_schema": {
+     "type": "object",
+     "required": ["records", "id_path", "field", "sources"],
+     "properties": {
+      "records": { "type": "array", "items": { "type": "object" } },
+      "id_path": { "type": "array", "description": "Where each row's id is" },
+      "field": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string" }, "path": { "type": "array" } } },
+      "sources": { "type": "array", "items": { "type": "object", "required": ["id", "tool"], "properties": { "id": { "type": "string" }, "tool": { "type": "string", "description": "The Workshop tool id to run" }, "input": { "type": "object", "description": "Each input name to { from: [path in the row] } or { value }" }, "answer_path": { "type": "array", "description": "Where the value is in the tool's answer" }, "kind": { "type": "string", "description": "The source kind its values carry; source by default" }, "cost": { "type": "number" } } } },
+      "accept": { "type": "object", "required": ["kind", "tree"], "description": "A check the answer must pass: a tools/formulas rule tree over the field value of this kind" },
+      "run_if": { "type": "object", "description": "A tools/formulas rule tree over fields: only the rows it keeps are filled" },
+      "fields": { "type": "array", "description": "The fields run_if reads: { id, kind, path? }" },
+      "keep_existing": { "type": "boolean", "description": "Leave rows that already have a value; true by default" },
+      "attempts": { "type": "array", "items": { "type": "object", "required": ["row", "source"], "properties": { "row": { "type": ["string", "integer"] }, "source": { "type": "string" }, "answer": {}, "error": { "type": "string" }, "cost": { "type": "number" } } } },
+      "stop_after_same_failure": { "type": "integer", "minimum": 1 },
+      "most_calls": { "type": "integer", "minimum": 1 },
+      "operators": { "type": "object" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["calls", "filled", "skipped", "exhausted", "waiting", "done", "cost"],
+     "properties": {
+      "calls": { "type": "array", "items": { "type": "object", "required": ["row", "source", "tool", "input", "request_key"] } },
+      "filled": { "type": "array", "items": { "type": "object", "required": ["row", "field", "value", "answered_by", "offer"] } },
+      "skipped": { "type": "array" },
+      "exhausted": { "type": "array" },
+      "waiting": { "type": "integer" },
+      "done": { "type": "boolean" },
+      "cost": { "type": "object", "required": ["spent", "next"] }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": { "package_files": [
+      { "package": "field-values", "paths": ["do-work", "read-data"], "at": "/opt/field-values" },
+      { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
+      { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+      { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+     ] },
+     "workdir": "/opt/field-values",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "do-work/run-request.mjs", "planColumnFill"],
+     "stdin": { "fill": { "from": "input" } }
+    },
+    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:field-values",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "records": [{ "id": "p1", "name": "Rye Bakery", "city": "Eastham" }],
+       "id_path": ["id"],
+       "field": { "id": "website" },
+       "sources": [{ "id": "guess", "tool": "tool:guess-a-website", "input": { "name": { "from": ["name"] }, "city": { "from": ["city"] } }, "answer_path": ["site"] }],
+       "attempts": [{ "row": "p1", "source": "guess", "answer": { "site": "https://rye.example" } }]
+      },
+      "output_selector": "$.filled[0].value",
+      "contains": "https://rye.example"
+     }
+    ],
+    "provenance": { "source": "written for the Workshop from public reverse-engineering findings on enrichment waterfalls (no third-party code)" }
+   }
+  }
+ ]
+}
