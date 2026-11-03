@@ -14,6 +14,15 @@ import { existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+// The browser and every helper it started (on some places its zygote, storage and GPU processes outlive it and keep
+// writing the profile). Where the place has process groups, the browser leads its own, and the whole group is ended;
+// elsewhere the browser alone is. Asked of the place (POSIX user ids), never of what kind it is.
+const PROCESS_GROUPS = typeof process.getuid === 'function';
+const endBrowser = child => {
+  if (PROCESS_GROUPS && child?.pid) try { process.kill(-child.pid, 'SIGKILL'); return; } catch { /* group already ended */ }
+  try { child?.kill('SIGKILL'); } catch { /* already ended */ }
+};
+
 /** Where a browser is on this computer: the request's own path, then the named environment variables, then the usual places. */
 export function findBrowser(conventions, asked) {
   if (asked) {
@@ -64,9 +73,9 @@ async function startBrowser(executable, conventions, window) {
   const profile = mkdtempSync(join(tmpdir(), 'walk-through-an-app-browser-'));
   const child = spawn(executable, [
     ...conventions.switches, '--remote-debugging-port=0', `--user-data-dir=${profile}`, `--window-size=${window.width},${window.height}`, 'about:blank',
-  ], { stdio: ['ignore', 'ignore', 'pipe'] });
+  ], { stdio: ['ignore', 'ignore', 'pipe'], detached: PROCESS_GROUPS });
   const end = () => {
-    try { child.kill('SIGKILL'); } catch { /* already ended */ }
+    endBrowser(child);
     rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
   };
   process.once('exit', end);

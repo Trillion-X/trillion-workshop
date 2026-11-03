@@ -91,7 +91,7 @@ A transform is a one-key object, used in `compute` and in `map`.
 python3 -I do-work/build_record_write.py --mapping FILE --out FILE [--root NAME=DIR ...]
 ```
 
-When the mapping reads `kind: records`, `--records-url ADDRESS` can point those reads at another MCP endpoint, such as an isolated clone. It changes only the read destination; the configured credential remains a keychain handle.
+When the mapping reads `kind: records`, `--records-url ADDRESS` can point those reads at another MCP endpoint, such as an isolated clone. It changes only the read destination; the configured credential remains a handle (a keychain item or a key file), never a key.
 
 When `tool:build-records-to-write` runs through Workshop, it is a `computer` row. The person grants it one read folder for the mapping and local sources. Its `records:list` right is filled from the caller's exact `source_type` and `source_prefix` input fields; for the shared feeder those are `shared` and `shared:`. The row runner binds those values before intersecting the run with the person's grant. The managed wrapper ignores `records.config` and never reads a Keychain item; it returns the payload as result data and writes only in the run's private temporary folder. The separate `--mapping ... --out ...` command above remains the standalone CLI and uses its configured sender door for a `kind: records` source.
 
@@ -120,7 +120,7 @@ python3 -I do-work/send_record_write.py --config FILE --work DIR send --payload 
 python3 -I do-work/send_record_write.py --config FILE --work DIR export --type TYPE [--prefix ID_START] --out DIR
 ```
 
-The config names how to reach the person's door: `transport` `mcp` (the door's MCP address and a credential handle such as `{ "keychain_item": "<name>" }`; the key is read from the keychain into memory and sent only as the Bearer token, never written or printed) or `call` (a program that plays a plan file); `--url` points the same config at another address, such as a copy of the account, and `--key-prefix` gives a load request keys of its own, so one config serves several loads. It also names the resource, the list and write operations, the page size, the command limits, the request-key prefix, and which refusals mean "send the halves" (the door took no effect, the command was too big for its time) or "send again under the same key" (the effect may have happened) (see the top of `read-data/record_write_send.py`). Exit 0 done, 1 refused or a readback differs, 2 unreadable config, payload or door.
+The config names how to reach the person's door: `transport` `mcp` (the door's MCP address and a credential handle, `{ "keychain_item": "<name>" }` where the computer has a keychain or `{ "key_file": "<path>" }` on any place; the key is read into memory and sent only as the Bearer token, never written or printed) or `call` (a program that plays a plan file); `--url` points the same config at another address, such as a copy of the account, and `--key-prefix` gives a load request keys of its own, so one config serves several loads. It also names the resource, the list and write operations, the page size, the command limits, the request-key prefix, and which refusals mean "send the halves" (the door took no effect, the command was too big for its time) or "send again under the same key" (the effect may have happened) (see the top of `read-data/record_write_send.py`). Exit 0 done, 1 refused or a readback differs, 2 unreadable config, payload or door.
 
 ## Sending the batches
 

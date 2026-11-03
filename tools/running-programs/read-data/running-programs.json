@@ -1,4 +1,18 @@
 {
-  "_what": "Bounds of tool:list-running-programs (read-data/running-programs.mjs). `most`: how many programs one answer names, the largest memory first, when none is asked (`default`) and at most (`largest`); a list cut short says complete: false and its total.",
-  "most": { "default": 50, "largest": 2000 }
+  "_what": "Bounds of tool:list-running-programs (read-data/running-programs.mjs). `most`: how many programs one answer names, the largest memory first, when none is asked (`default`) and at most (`largest`); a list cut short says complete: false and its total. `readers`: the ways a place can report its programs, tried in order; the first whose `at` exists on this place is used. `process-table-folder` reads one folder per process (`<pid>/comm` and `<pid>/status`) and starts no program; `libproc-through-osascript` starts read-programs.js through the JavaScript bridge at `at`. `kib` is the unit a process table states memory in.",
+  "most": {
+    "default": 50,
+    "largest": 2000
+  },
+  "readers": [
+    {
+      "reads": "process-table-folder",
+      "at": "/proc"
+    },
+    {
+      "reads": "libproc-through-osascript",
+      "at": "/usr/bin/osascript"
+    }
+  ],
+  "kib": 1024
 }
