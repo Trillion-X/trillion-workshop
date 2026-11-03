@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/limits.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/explain-every-cap/src/limits.json",
+      "source_identity": "1f:02792e777abc154bac6ef88277820e0db36e19bef52c170d739448540675d4df",
+      "identity": "1f:02792e777abc154bac6ef88277820e0db36e19bef52c170d739448540675d4df"
+    },
+    {
+      "from": "src/limits.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/explain-every-cap/src/limits.mjs",
+      "source_identity": "1f:40f66741ba061f91dae68af1066a90666ef0ab3926fbaba24d05ff614683ac2f",
+      "identity": "1f:40f66741ba061f91dae68af1066a90666ef0ab3926fbaba24d05ff614683ac2f"
+    }
+  ]
+}
