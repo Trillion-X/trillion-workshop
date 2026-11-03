@@ -213,5 +213,7 @@ test('a destination tool folder holds a group, unless its row says in joins_tool
     assert.equal(readFileSync(join(destination, 'tools/count-beans/README.md'), 'utf8'), '# count-beans\n', 'the tool keeps its own README');
     assert.equal(existsSync(join(destination, 'tools/count-beans/part.json')), false, 'a tool is not made a part');
     assert.ok(existsSync(join(destination, 'tools/count-beans/moved-from.json')));
+    const waiting = { ...joining, groups: [{ ...joining.groups[0], held_until: 'the beans are counted by a build first' }] };
+    assert.deepEqual(moveCode({ step: 'plan', row: waiting, source_folder: source, destination_folder: destination }).groups[0].held, ['its row holds it: the beans are counted by a build first']);
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
