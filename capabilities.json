@@ -17,6 +17,7 @@
     { "path": "retired-paths.json", "holds": "the paths something else replaced here, which the commit gates refuse to see rebuilt" }
   ],
   "capabilities": [
+    {"capability": "keep a browser screen's records in step with the person's store across tabs: one tab leads shared work, unacknowledged changes are laid over reads in layers, and requests wait by class", "owner": ["tools/keep-screen-records-in-sync/"], "entry": "tools/keep-screen-records-in-sync/README.md", "evidence": "tools/keep-screen-records-in-sync/README.md: moved byte for byte from Trillion-X/trillion src/workspace (tab-leader.ts, pending-changes.ts, request-classes.ts) with their tests", "distinct_from": [{"job": "ask a live source and fall back to its last good answer", "why": "That owner keeps a tool's last good answer for when a source fails; this owner is the web client's live record layer: tab leadership, optimistic overlays, request classes and the client entity store."}, {"job": "turn a look's colour, size and font tokens into concrete values and the stylesheet a document carries, with its font faces", "why": "Screen looks resolve tokens; this owner never draws, it keeps a screen's data in step."}]},
     {
       "capability": "reconcile generic execution receipts with source, meter and provider-price revisions so missing evidence makes forecast coverage visibly incomplete or stale",
       "owner": [

@@ -1,0 +1,9 @@
+{
+  "_what": "How the page's requests wait for each other, read by src/workspace/request-classes.ts. A request is in the first class whose `match` holds (methods; path prefixes), else the `default` class. `concurrency` is the most requests of that class in flight at once (null: no limit). `yield_to` lists classes in flight that a request of this class waits for, so a stop, send or approval is never queued behind catalogue and list reads. Out of the box background reads wait only for writes in flight and for their own limit.",
+  "default": "interactive",
+  "classes": [
+    { "id": "critical", "match": { "methods": ["POST", "PUT", "PATCH", "DELETE"] }, "concurrency": null, "yield_to": [] },
+    { "id": "background", "match": { "methods": ["GET"], "path_prefixes": ["/work/api/screens", "/work/api/pursuits", "/work/api/recent-files", "/work/api/shared-with-me"] }, "concurrency": 2, "yield_to": ["critical"] },
+    { "id": "interactive", "match": {}, "concurrency": null, "yield_to": [] }
+  ]
+}
