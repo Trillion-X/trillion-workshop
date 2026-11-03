@@ -1,0 +1,53 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-an-ai-loop-from-spinning",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:check-a-model-loops-calls",
+        "placements": ["placement:small-container"],
+        "needs": { "expected_seconds": 2, "network_egress": false, "memory_mb": 64 },
+        "label": "Check a model loop's calls for spinning",
+        "job": "Say, from the tool calls a model loop made in order, when it should be nudged for repeating itself and when the job should be given back because it keeps repeating or its tools keep failing",
+        "description": "Give calls (each { name, args, failed, malformed }) in the order they were made and, if wanted, rules ({ repeat_nudge_after, repeat_give_back_after, error_budget, words }; the shipped ones in read-data/loop-guards.json otherwise). A call is the same call when its name and its arguments match, whatever their key order. A malformed call (arguments that were not JSON, a tool the loop may not call) never counts. Failures count only in a row; one success clears them. Answers steps (each { at, nudge } or { at, give_back }) and, when the job should go back, give_back and the call index at.",
+        "input_schema": {
+          "type": "object",
+          "required": ["calls"],
+          "additionalProperties": false,
+          "properties": {
+            "calls": { "type": "array", "items": { "type": "object" } },
+            "rules": { "type": "object" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["steps"],
+          "properties": {
+            "steps": { "type": "array" },
+            "give_back": { "type": "string" },
+            "at": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/keep-an-ai-loop-from-spinning",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/keep-an-ai-loop-from-spinning/do-work/check-a-run-of-calls.mjs", "checkRunOfCalls"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "keep-an-ai-loop-from-spinning", "paths": ["do-work", "read-data"], "at": "/opt/keep-an-ai-loop-from-spinning" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}

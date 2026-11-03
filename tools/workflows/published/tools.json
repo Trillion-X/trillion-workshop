@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:be4a0f1e4d474e9e452ddafb27868385f8d7c7df5a0c3f28b32755b86e2df2f2"
  },
  "fields": [
   {
@@ -860,6 +860,22 @@
      "placement:your-computer"
     ],
     "folder": "check-a-folder-against-my-rules"
+   }
+  },
+  {
+   "id": "tool:check-a-model-loops-calls",
+   "values": {
+    "title": "Check a model loop's calls for spinning",
+    "job": "Say, from the tool calls a model loop made in order, when it should be nudged for repeating itself and when the job should be given back because it keeps repeating or its tools keep failing",
+    "description": "Give calls (each { name, args, failed, malformed }) in the order they were made and, if wanted, rules ({ repeat_nudge_after, repeat_give_back_after, error_budget, words }; the shipped ones in read-data/loop-guards.json otherwise). A call is the same call when its name and its arguments match, whatever their key order. A malformed call (arguments that were not JSON, a tool the loop may not call) never counts. Failures count only in a row; one success clears them. Answers steps (each { at, nudge } or { at, give_back }) and, when the job should go back, give_back and the call index at.",
+    "status": "active",
+    "maker": "maker:keep-an-ai-loop-from-spinning",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "keep-an-ai-loop-from-spinning"
    }
   },
   {
