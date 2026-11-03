@@ -1,19 +1,19 @@
-// src/catch-up.mjs
+// tools/keep-copies-in-step/read-data/catch-up.mjs (moved from trillion src/catch-up.mjs)
 //
 // Purpose
 //   Whether every copy of a person's things is in step, as their own store knows it: each device says how it stands
 //   (its state, the changes it still holds, when its writes last reached the store), each copy of their records that
 //   settles with the store says how far it took (parts/record-log record-sync.mjs copyPositions), and every record two
 //   copies changed apart is read from where the record store keeps the versions a conflict met (`kept-apart` records,
-//   record-sync.mjs KEPT_APART). The workspace reads it at GET /work/api/catch-up (src/workspace/catch-up.tsx, drawn by
-//   parts/ui/show/catch-up), and an AI reads and settles it through the MCP tools copies_in_step and
-//   settle_two_versions (src/tools.mjs).
+//   record-sync.mjs KEPT_APART). The rows of tools/keep-copies-in-step run it over the person's own records
+//   (do-work/copies.mjs): a page or an AI reads it with tool:see-if-my-copies-are-in-step, a device reports with
+//   tool:say-how-this-device-stands, and two versions are settled with tool:settle-two-versions.
 //
 // Non-negotiable invariants
 //   1. Blind: a state is the open key the device sent; a record kept apart is any record of any type. Nothing here
 //      names a kind of device, a state or a kind of record.
 //   2. A device row is written only when its state, its waiting count, its kind or its title changed, or when the time
-//      it last caught up moved by more than `rewrite_after_ms` (records/catch-up.json).
+//      it last caught up moved by more than `rewrite_after_ms` (read-data/catch-up.json).
 //   3. One home for versions: the record store's kept-apart records. Settling is ordinary writes there (the chosen
 //      value to the record, a second record for keep both, then the kept-apart record removed), so it is undoable and
 //      every copy takes it like any change. Nothing is removed before what was chosen is written.
@@ -33,8 +33,10 @@
 //   Rows live in this person's own store and leave it only to this person's own pages and AIs.
 //
 
-import settings from '../records/catch-up.json' with { type: 'json' };
-import { KEPT_APART } from '../parts/record-log/do-work/record-sync.mjs';
+import settings from './catch-up.json' with { type: 'json' };
+
+/** The record type conflicts are kept in (trillion parts/record-log/do-work/record-sync.mjs KEPT_APART). */
+export const KEPT_APART = 'kept-apart';
 
 export class CatchUpError extends Error {}
 
