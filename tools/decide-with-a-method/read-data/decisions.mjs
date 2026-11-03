@@ -677,8 +677,17 @@ async function endLaidApart(door, { id, root, value }, answers) {
     answers.set(id, { decision_id: id, ended: false, conflict: true, reason: WORDS.end_changed });
     return;
   }
-  try { await writeDecision(door, recordsOf(record), `end-a-decision:${id}`); }
+  // Each end has its own request keys: an earlier end of this decision that wrote some parts and then failed used
+  // `end-a-decision:${id}` with other content, and the engine refuses a key reused with different input. The same call
+  // retried (same ended_at) still replays under the same keys.
+  const ending = { id, ended_at: value.ended_at, ended_because: value.ended_because, ended_by: value.ended_by };
+  const key = `end-a-decision:${id}:${makeHashCodeHexFromBytes(utf8.encode(canonical(ending)))}`;
+  try { await writeDecision(door, recordsOf(record), key); }
   catch (error) {
+    if (error?.code === CHANGED) {
+      answers.set(id, { decision_id: id, ended: false, conflict: true, reason: WORDS.end_changed });
+      return;
+    }
     if (error?.code !== TOO_LARGE) throw error;
     answers.set(id, { decision_id: id, ended: false, too_large: true, reason: WORDS.end_too_large });
     return;
