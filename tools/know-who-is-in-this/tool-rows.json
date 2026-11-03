@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "know-who-is-in-this-tool-rows",
-  "what_this_is": "The Workshop rows for tools/know-who-is-in-this: keep a person's voice or face print only with consent words, name who said each stretch of a transcript, and find and name the faces in a picture or video.",
+  "what_this_is": "The Workshop rows for tools/know-who-is-in-this: keep a person's voice or face print only with consent words, name who said each stretch of a transcript, find and name the faces in a picture or video, and list the people the prints can name.",
   "records": [
     {
       "id": "package::know-who-is-in-this::tool::enrol-a-voice-or-face",
@@ -177,6 +177,28 @@
           "model": "YuNet face detection 2023mar (MIT) and SFace face recognition 2021dec (Apache 2.0), OpenCV Zoo, the models tools/media-composition holds",
           "source": "know-who-is-in-this/do-work/find-faces.py"
         }
+      }
+    },
+    {
+      "id": "package::know-who-is-in-this::tool::people-listening-can-name",
+      "address": "package::know-who-is-in-this::tool::people-listening-can-name",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:people-listening-can-name",
+        "status": "active",
+        "label": "People listening can name",
+        "job": "List the people my voice and face prints can name, without their voice or face numbers",
+        "description": "Reads the person's voice-print and face-print records on this computer and lists each person once: their name, whether they are the person, how many voice and face samples they have and the consent words they gave. A print's numbers are never in the answer. The voice-print and face-print kinds are stays_on_this_device: true, so this runs on the computer that holds them and asks for no capability.",
+        "input_schema": {"type":"object","additionalProperties":false,"properties":{}},
+        "output_schema": {"type":"object","required":["people"],"properties":{"people":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"me":{"type":"boolean"},"voice_samples":{"type":"integer"},"face_samples":{"type":"integer"},"consent":{"type":"array"}}}}}},
+        "invoke": {"kind":"computer","capabilities":[],"workdir":"/opt/know-who-is-in-this","stdout":"json","argv":["node","/opt/records-door/do-work/run-an-export.mjs","/opt/know-who-is-in-this/read-data/people.mjs","people"],"stdin":{"fill":{"from":"input"}},"records":{"fd":3,"rights":[{"kind":"voice-print","operations":["records:list"]},{"kind":"face-print","operations":["records:list"]}]},"files":{"package_files":[{"package":"know-who-is-in-this","paths":["read-data"],"at":"/opt/know-who-is-in-this"},{"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},{"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},{"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"}]}},
+        "result_selector": "$.result",
+        "needs": {"expected_seconds":2,"network_egress":false},
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "maker": "maker:know-who-is-in-this",
+        "provenance": {"source":"know-who-is-in-this/read-data/people.mjs, moved from the product repo's computer/know-who.py people"}
       }
     }
   ]
