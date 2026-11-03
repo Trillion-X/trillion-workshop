@@ -6,20 +6,22 @@
 // record_write_send.py). A tool the config lists in `local_tools` runs here, on the person's computer, instead.
 //
 // Non-Negotiable Invariants:
-//   1. The config names the key's keychain item, never the key. The key is read with the computer's `security`
-//      program when the door is opened, kept in memory, sent only in the Authorization header to the configured
+//   1. The config names where the computer keeps the key, never the key: a keychain item, read with the computer's
+//      `security` program, or a key file the person names, read on any place. The key is read when the door is
+//      opened, kept in memory, sent only in the Authorization header to the configured
 //      address, and never written, logged or printed. An answer that holds it is refused and nothing of it is kept.
 //   2. No address, operation or record kind is named here: the config's `records` ({ address, read_method,
 //      list_method, write_method? }), `tools` ({ address, run_method }) and `local_tools` are.
 //   3. A refusal comes back as an Error with the door's code; a run whose tool failed is an Error with the tool's words.
 //   4. A call is sent again only with its own request key (the records door's contract, tools/records-door README).
 //
-//   openDoor({ transport: { url, credential: { keychain_item } }, records, tools, local_tools? }, { keyOf? })
+//   openDoor({ transport: { url, credential: { keychain_item } | { key_file } }, records, tools, local_tools? }, { keyOf? })
 //     → { read, list, run, write }
 //   local_tools: { <tool id>: { module, export, input? } }: the module's path under the Workshop's tools folder, the
 //   function it exports, and the input every run of it gets; its answer comes back as a run's `result`.
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { readFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { wholeAnswer } from '../../records-door/read-data/byte-pages.mjs';
 
@@ -41,6 +43,26 @@ export async function keychainKey(handle) {
   return key;
 }
 
+/** The key a credential handle names: { key_file } is the one file the person names, read on any place. */
+export async function keyFileKey(handle) {
+  const file = handle?.key_file;
+  if (typeof file !== 'string' || !file) throw say('bad_config', 'The credential handle is { "key_file": "<path>" }.');
+  const key = (await readFile(file, 'utf8').catch(() => '')).trim();
+  if (!key) throw say('bad_config', `No key is kept in the key file ${file}.`);
+  return key;
+}
+
+// Where a computer may keep the key, by the one name the handle holds; a place without a keychain names a key file.
+const KEY_READERS = { keychain_item: keychainKey, key_file: keyFileKey };
+
+/** The key the credential handle names, from the one key store it names. */
+export async function credentialKey(handle) {
+  const named = Object.keys(handle ?? {}).filter(name => Object.hasOwn(KEY_READERS, name));
+  if (named.length !== 1 || Object.keys(handle).length !== 1)
+    throw say('bad_config', `The credential handle names one of ${Object.keys(KEY_READERS).map(name => `{ "${name}" }`).join(' or ')}.`);
+  return KEY_READERS[named[0]](handle);
+}
+
 // The JSON-RPC reply in a door's answer: the body, or the last `data:` line of a streamed answer.
 function replyOf(text, contentType) {
   if (!contentType.includes('text/event-stream')) return JSON.parse(text);
@@ -48,7 +70,7 @@ function replyOf(text, contentType) {
   return JSON.parse(line ? line.slice(5).trim() : '');
 }
 
-export async function openDoor(config, { keyOf = keychainKey } = {}) {
+export async function openDoor(config, { keyOf = credentialKey } = {}) {
   const { transport, records, tools, local_tools: localTools = {} } = config ?? {};
   if (!transport?.url?.startsWith('http') || !records?.address || !records.read_method || !records.list_method || !tools?.address || !tools.run_method) {
     throw say('bad_config', 'The door config is { transport: { url, credential }, records: { address, read_method, list_method }, tools: { address, run_method } }.');

@@ -5,10 +5,11 @@ Nothing about any account, list or record kind is known here. The person's confi
 operation names:
 
   transport         how each operation reaches the door:
-                    { "kind": "mcp", "url": "<the door's MCP address>", "credential": { "keychain_item": "<name>" } }: one JSON-RPC
-                      `tools/call` of `run_resource_operation` per operation, POSTed to the door, with the key the credential handle
-                      names as the Bearer token. The config names the handle, never the key: the key is read from the computer's
-                      keychain (the `security` program) when the door is opened, held in memory, sent only in the Authorization
+                    { "kind": "mcp", "url": "<the door's MCP address>", "credential": { "keychain_item": "<name>" } | { "key_file": "<path>" } }:
+                      one JSON-RPC `tools/call` of `run_resource_operation` per operation, POSTed to the door, with the key the
+                      credential handle names as the Bearer token. The config names the handle, never the key: the key is read
+                      from the computer's keychain (the `security` program) or from the key file the person names (any place)
+                      when the door is opened, held in memory, sent only in the Authorization
                       header to that address and never written, logged or printed; an answer holding it is refused.
                     { "kind": "call", "argv": [...] }: a program that plays a plan at the door; "{plan}" and "{result}" are replaced
                       by two file paths, and a part starting with ./ or ../ is a path relative to the config file. The plan is
@@ -93,6 +94,32 @@ def keychain_key(handle: dict) -> str:
     return key
 
 
+def key_file_key(handle: dict) -> str:
+    """The key a credential handle names: { key_file } is the one file the person names, read on any place."""
+    file = handle.get('key_file') if isinstance(handle, dict) else None
+    if not isinstance(file, str) or not file:
+        raise ValueError('The credential handle is { "key_file": "<path>" }.')
+    try:
+        key = Path(file).read_text(encoding='utf-8').strip()
+    except OSError:
+        key = ''
+    if not key:
+        raise ValueError(f'No key is kept in the key file {file}.')
+    return key
+
+
+# Where a computer may keep the key, by the one name the handle holds; a place without a keychain names a key file.
+KEY_READERS = {'keychain_item': keychain_key, 'key_file': key_file_key}
+
+
+def credential_key(handle: dict) -> str:
+    """The key the credential handle names, from the one key store it names."""
+    named = [name for name in (handle if isinstance(handle, dict) else {}) if name in KEY_READERS]
+    if len(named) != 1 or len(handle) != 1:
+        raise ValueError('The credential handle names one of ' + ' or '.join(f'{{ "{name}" }}' for name in KEY_READERS) + '.')
+    return KEY_READERS[named[0]](handle)
+
+
 def checked(config: dict) -> dict:
     missing = [key for key in CONFIG_KEYS if key not in config]
     if missing:
@@ -126,7 +153,7 @@ def answer_of(body: bytes, content_type: str) -> dict:
 class Door:
     """Operations at the person's door, through the transport the config names; a call program's files are kept in `work`."""
 
-    def __init__(self, config: dict, work: Path, base: Path | None = None, key_of: Callable[[dict], str] = keychain_key):
+    def __init__(self, config: dict, work: Path, base: Path | None = None, key_of: Callable[[dict], str] = credential_key):
         self.config = checked(config)
         self.transport = self.config['transport']
         # A part of a call argv starting with ./ or ../ names a file relative to the config file (`base`).

@@ -10,7 +10,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readListView, refreshRowSources } from '../read-data/list-view.mjs';
-import { openDoor } from '../read-data/door.mjs';
+import { openDoor, credentialKey } from '../read-data/door.mjs';
 import { readDocumentRows } from '../../documents-as-list-rows/read-data/rows.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import data from '../read-data/list-view.json' with { type: 'json' };
@@ -439,5 +439,16 @@ test('a tool the config lists in local_tools runs on the computer, with its fixe
   assert.deepEqual(answer.result.rows.map(row => [row.id, row.values['note.minutes']]), [['/bread.md', 40], ['/buns.md', 25]]);
   await assert.rejects(openDoor({ transport: { url: 'http://127.0.0.1:9/mcp', credential: {} }, records: { address: 'a', read_method: 'r', list_method: 'l' }, tools: { address: 't', run_method: 'run' },
     local_tools: { 'tool:x': { module: 'documents-as-list-rows/read-data/rows.mjs', export: 'nothingLikeThis' } } }, { keyOf: async () => 'k' }).then(one => one.run('tool:x', {})), /exports no nothingLikeThis/);
+  await rm(folder, { recursive: true });
+});
+
+test('the key comes from where the handle says the computer keeps it: a key file works on any place', async () => {
+  const folder = await mkdtemp(join(tmpdir(), 'key-file-'));
+  await writeFile(join(folder, 'door-key'), 'made-up-key\n', { mode: 0o600 });
+  assert.equal(await credentialKey({ key_file: join(folder, 'door-key') }), 'made-up-key');
+  await assert.rejects(credentialKey({ key_file: join(folder, 'missing') }), /No key is kept in the key file/);
+  await assert.rejects(credentialKey({}), /names one of \{ "keychain_item" \} or \{ "key_file" \}/);
+  await assert.rejects(credentialKey({ key_file: join(folder, 'door-key'), keychain_item: 'x' }), /names one of/);
+  await assert.rejects(credentialKey({ key: 'a key in the config' }), /names one of/, 'a key itself is never a handle');
   await rm(folder, { recursive: true });
 });
