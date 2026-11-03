@@ -1,0 +1,12 @@
+{
+  "blocked": "Recording is not allowed here: {rule}.",
+  "unmet": "Recording needs {fact}, which is not so.",
+  "pending": "Recording waits until {fact} is known.",
+  "busy": "A recording is already running.",
+  "notice_sent": "The recording notice has been given.",
+  "notice_type": "This device types the recording notice into the empty chat field.",
+  "notice_frame": "The field is in use, so the notice goes on the camera picture.",
+  "notice_other": "Another device sends the notice.",
+  "notice_wait": "Waiting for a way to give the recording notice.",
+  "notice_stop": "No way to give the notice was found in time, so recording stops."
+}
