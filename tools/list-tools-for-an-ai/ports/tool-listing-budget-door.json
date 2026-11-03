@@ -1,0 +1,61 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-LIST-TOOLS-FOR-AN-AI-LISTING-BUDGET-FROM-TRILLION-DOOR",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "Every job of old trillion ends as a Workshop tool; a Workshop tool reaches the person's records through the records door."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "fit a tool list in a budget, say a tool's hints in its description, tell if a tool changes anything and pick the release a host version runs, for an AI reading a list of tools",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/list-tools-for-an-ai/read-data/listing-tools.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/list-tools-for-an-ai/",
+   "why": "This tool itself: the work is the four modules moved from trillion src/tool-listing-budget.mjs, src/tool-behavior-notes.mjs, src/tool-write-class.mjs and src/tool-releases.mjs; this file only hands each row's input to one of them."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "fit a tool list in a budget, say a tool's hints in its description, tell if a tool changes anything and pick the release a host version runs, for an AI reading a list of tools",
+    "fit a tool list in a character budget",
+    "say a tool's hints in its description",
+    "tell if a tool changes anything",
+    "pick the release a host version runs"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "fitToolList",
+    "notedTool",
+    "writeClassRow",
+    "releaseForHost"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "02aa88a30db2f3bb1881b62b04dca782f2250f5c"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/list-tools-for-an-ai/test/tool-listing-budget.test.mjs",
+   "tools/list-tools-for-an-ai/test/listing-tools.test.mjs"
+  ]
+ }
+}
