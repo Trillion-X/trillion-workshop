@@ -1,0 +1,145 @@
+{
+  "_what": "Dictation on this Mac (read-data/dictation.mjs): the words a person speaks into any app become clean text and are put where their cursor is. Every step, command, style, command line and word here is DATA the person can change without a new build. `pipeline` is the order the steps run in (a step id is a key of `steps` in dictation.mjs; an id that is not there is skipped and said); `spoken_commands`, `styles` and `learn` are rows; the person's own dictionary and snippets live in the rows file in the folder the person granted (`state` is that folder, filled in by the run) and are changed through the dictate tool. `history` is what is kept about each dictation (an entry id carried through cleaning, inserting and learning, when, the app, the outcome and, while keep_text is true, the cleaned text): at most `most` entries for `keep_days` days, then they are erased; the person can list and erase them.",
+  "state": null,
+  "rows_file": "rows.json",
+  "pipeline": [
+    "spoken-commands",
+    "style",
+    "dictionary",
+    "snippets",
+    "trim"
+  ],
+  "spoken_commands": [
+    {
+      "id": "new-paragraph",
+      "says": [
+        "new paragraph"
+      ],
+      "insert": "\n\n"
+    },
+    {
+      "id": "new-line",
+      "says": [
+        "new line",
+        "newline"
+      ],
+      "insert": "\n"
+    },
+    {
+      "id": "scratch-that",
+      "says": [
+        "scratch that"
+      ],
+      "does": "drop-previous-sentence"
+    }
+  ],
+  "styles": [
+    {
+      "id": "chat-lowercase",
+      "when": {
+        "app_contains": [
+          "messages",
+          "slack",
+          "discord",
+          "whatsapp",
+          "telegram"
+        ]
+      },
+      "case": "lower",
+      "end_period": "strip"
+    },
+    {
+      "id": "default",
+      "case": "keep",
+      "end_period": "keep"
+    }
+  ],
+  "learn": {
+    "most_words": 4,
+    "promote_after": 2,
+    "most_rows": 500
+  },
+  "bias": {
+    "most_characters": 220,
+    "most_words": 40,
+    "template": "Words that may come up: {words}."
+  },
+  "insert": {
+    "text_kinds": [
+      "string",
+      "utf8",
+      "styled text",
+      "unicode text"
+    ],
+    "settle_ms": 150,
+    "clipboard_kinds": [
+      "/usr/bin/osascript",
+      "-e",
+      "clipboard info"
+    ],
+    "save": [
+      "/usr/bin/pbpaste"
+    ],
+    "write": [
+      "/usr/bin/pbcopy"
+    ],
+    "paste": [
+      "/usr/bin/osascript",
+      "-e",
+      "tell application \"System Events\" to keystroke \"v\" using command down"
+    ],
+    "restore": [
+      "/usr/bin/pbcopy"
+    ],
+    "verify": [
+      "/usr/bin/osascript",
+      "-e",
+      "tell application \"System Events\" to get value of attribute \"AXValue\" of (first UI element of (first application process whose frontmost is true) whose focused is true)"
+    ]
+  },
+  "keys": {
+    "push-to-talk": {
+      "mode": "hold"
+    },
+    "hands-free": {
+      "mode": "toggle"
+    },
+    "most_seconds": 300
+  },
+  "words": {
+    "no_text": "Say what to clean: text.",
+    "unknown_action": "Unknown action {action}. Actions: {actions}.",
+    "needs_phrase": "Give a phrase to replace (from) and what to put instead (to).",
+    "needs_says": "Give the words to say (says) and what they expand to (expands_to).",
+    "no_row": "No dictation row {id}.",
+    "step_missing": "Dictation step {step} is not known; it was skipped.",
+    "non_text_clipboard": "The clipboard holds {kinds}, which cannot be put back as text; nothing was pasted so it is not lost.",
+    "learned": "Learned {count} word changes from your edit.",
+    "no_entry": "No dictation entry {id}.",
+    "unknown_step": "Dictation has no model step called {step}.",
+    "model_silent": "No model answered, so the text was left as it was.",
+    "needs_folder": "Grant a folder to keep your dictionary, snippets and dictation history in (change-a-folder).",
+    "insert_elsewhere": "Putting text at the cursor is tool:type-dictated-text."
+  },
+  "history": {
+    "file": "history.json",
+    "keep_days": 30,
+    "most": 500,
+    "keep_text": true
+  },
+  "polish": {
+    "_what": "The two text steps that need a language model (read-data/dictation.mjs modelStep): the local-model job that answers them (a Marketplace job row, published separately; without it the text is returned unchanged), the most tokens, and each step's words. The Mac app's local model is not carried here; until a model is handed in, both steps leave the text unchanged.",
+    "job": "dictation-polish",
+    "most_tokens": 400,
+    "words": {
+      "polish": {
+        "system": "You tidy dictated text: fix punctuation and obvious recognition slips, keep every meaning and every name, add nothing. Answer with one JSON object {\"text\": ...} and nothing else.",
+        "ask": "Tidy this dictated text:\n{text}"
+      },
+      "command": {
+        "system": "You change a text as the person says. Keep everything the instruction does not touch. Answer with one JSON object {\"text\": ...} and nothing else.",
+        "ask": "Instruction: {instruction}\nText:\n{text}"
+      }
+    }
+  }
+}

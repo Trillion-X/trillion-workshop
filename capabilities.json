@@ -1780,6 +1780,64 @@
           "why": "tools/hold-one-thing-until-done chooses which task a person is held to; this stores a running job's output pieces and its state"
         }
       ]
+    },
+    {
+      "capability": "read a meeting link through declared meeting-app routes, host checked first and secrets hidden, and open an allowed one in the app that owns it",
+      "owner": [
+        "tools/open-a-meeting-link/"
+      ],
+      "entry": "tools/open-a-meeting-link/tool-rows.json",
+      "evidence": "README.md:3 reads a meeting link through declared routes: which meeting app it is for, what it asks and its parameters, with the host checked first",
+      "distinct_from": [
+        {
+          "job": "open the screen a waiting card needs",
+          "why": "tools/take-me-there opens a screen inside the person's Trillion; this reads a meeting app's link and hands an allowed one to the computer to open"
+        },
+        {
+          "job": "hold a group to its agreed meetings",
+          "why": "tools/hold-to-it works out when a group meets and who came; this only reads or opens one meeting link"
+        }
+      ]
+    },
+    {
+      "capability": "name the unnamed voices of a recorded call from who the call app showed as speaking on screen, only on enough evidence, one name to one voice",
+      "owner": [
+        "tools/name-voices-from-the-call/"
+      ],
+      "entry": "tools/name-voices-from-the-call/tool-rows.json",
+      "evidence": "README.md:3 reads which name the app showed as speaking in each sample and lays the intervals over the unnamed voices of the recording",
+      "distinct_from": [
+        {
+          "job": "tell who is in a recording or a picture from enrolled voice and face prints",
+          "why": "tools/know-who-is-in-this names voices against prints people enrolled with consent; this names only the voices that stayed unnamed, from the call app's own screen, and enrols nothing"
+        },
+        {
+          "job": "read the text on the person's screen",
+          "why": "tools/read-what-is-on-screen reads the screen; this is handed those readings and works out which voice is whom"
+        }
+      ]
+    },
+    {
+      "capability": "turn dictated words into clean text for the app the person is in, by their own dictionary and snippets, put it at the cursor as one clipboard transaction and learn from their edits",
+      "owner": [
+        "tools/type-what-i-say/"
+      ],
+      "entry": "tools/type-what-i-say/tool-rows.json",
+      "evidence": "README.md:3 the words a hearing program returns for a spoken sentence become clean text for the app the person is in",
+      "distinct_from": [
+        {
+          "job": "turn a recording into words with word times",
+          "why": "tools/audio-transcription hears sound; this takes the words already heard, cleans them for an app and types them at the cursor"
+        },
+        {
+          "job": "listen to the microphone for a while and write each turn as a heard row",
+          "why": "tools/listen-for-a-while keeps what was said in a meeting as rows; this types one dictated sentence into the app the person is in"
+        },
+        {
+          "job": "edit text and code in a granted folder by exact replacement",
+          "why": "tools/edit-text-and-code changes files; this cleans dictation and pastes it where the cursor is"
+        }
+      ]
     }
   ]
 }
