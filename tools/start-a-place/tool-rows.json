@@ -1,0 +1,196 @@
+{
+  "kind": "tool-rows",
+  "record_set": "start-a-place-tool-rows",
+  "what_this_is": "The Workshop row for tools/start-a-place: make one Trillion place on the person's computer (its key, its config) and start it with the engine's own program.",
+  "records": [
+    {
+      "id": "package::start-a-place::tool::start-a-place",
+      "address": "package::start-a-place::tool::start-a-place",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:start-a-place",
+        "label": "Make and start a Trillion place on this computer (runs on your computer)",
+        "status": "active",
+        "job": "Make a Trillion place on this computer and start it: its key, its config and the running place",
+        "description": "Makes one Trillion place in a folder the person names and starts it with the engine's own program (trillion-local, named in trillion_local or found on the PATH; it is never built here). It makes the place key once (32 random bytes, base64, readable only by the person; a key already there is kept and never read), writes the place config the engine reads (listen, accounts, place_key_file, public_origin, report, sign_in, sign_up, new_accounts, and router, access and default_places when given), asks the engine for the place's id (`trillion-local place id`), then starts `trillion-local serve` in the background with its output in place.log, and answers the place id, the files and the running place's pid. public_origin must be https and only the scheme and host. default_places are the places a new account that signs up here starts in: holders (one to 16), answering (among the holders) and voters, each a place id or the word this-place, no place twice in a list, and this place among both holders and answering. Report values left out are the engine test place's (reach is the public origin; takes_new_accounts false). start false makes the key and config and answers the id without starting. A refusal says what to change.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "folder",
+            "accounts",
+            "listen",
+            "public_origin"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "folder": {
+              "type": "string",
+              "description": "The absolute folder the place's key, config and log are kept in, like /srv/place-one. Made when it is not there."
+            },
+            "accounts": {
+              "type": "string",
+              "description": "The absolute folder the place's accounts live in, one folder each. Made when it is not there; a place with none serves sign-up."
+            },
+            "listen": {
+              "type": "string",
+              "description": "The IP address and port the place listens on, like 0.0.0.0:7199."
+            },
+            "public_origin": {
+              "type": "string",
+              "description": "The https origin the place is reached at, scheme and host only, like https://place.example.test."
+            },
+            "router": {
+              "type": "string",
+              "description": "host:port of the router the place opens its accounts' sessions to, like router.example.test:7443."
+            },
+            "report": {
+              "type": "object",
+              "description": "What the place reports about itself: storage ({keep_free_bytes} or {bytes}), reach, cost_per_month_cents, contained_tools, always_on, model_pool, program_folders, takes_new_accounts, store_size. Each one left out is the default."
+            },
+            "default_places": {
+              "type": "object",
+              "required": [
+                "holders",
+                "answering"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "holders": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Place ids: 64 lowercase hex each (what `trillion-local place id` prints), or the word this-place for the place being started."
+                },
+                "answering": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Place ids: 64 lowercase hex each (what `trillion-local place id` prints), or the word this-place for the place being started."
+                },
+                "voters": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Place ids: 64 lowercase hex each (what `trillion-local place id` prints), or the word this-place for the place being started."
+                }
+              },
+              "description": "The places a new account that signs up here starts in."
+            },
+            "access": {
+              "type": "object",
+              "description": "The access of the plan or contract the place runs under: its limits rows by name."
+            },
+            "sign_in": {
+              "type": "object",
+              "description": "The place's own sign-in values, when not the default."
+            },
+            "sign_up": {
+              "type": "object",
+              "description": "The place's sign-up limits, when not the default."
+            },
+            "new_accounts": {
+              "type": "object",
+              "description": "The starting rows of an account the place makes ({ sign_in, sign_in_ways }), when not the product's own."
+            },
+            "trillion_local": {
+              "type": "string",
+              "description": "The absolute path of the engine's trillion-local program; found on the PATH when left out."
+            },
+            "start": {
+              "type": "boolean",
+              "description": "false makes the key and config and answers the id without starting the place (true when left out)."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "place_id",
+            "folder",
+            "config_file",
+            "key_file",
+            "key_made",
+            "accounts",
+            "listen",
+            "public_origin",
+            "started"
+          ],
+          "properties": {
+            "place_id": {
+              "type": "string"
+            },
+            "folder": {
+              "type": "string"
+            },
+            "config_file": {
+              "type": "string"
+            },
+            "key_file": {
+              "type": "string"
+            },
+            "key_made": {
+              "type": "boolean"
+            },
+            "accounts": {
+              "type": "string"
+            },
+            "listen": {
+              "type": "string"
+            },
+            "public_origin": {
+              "type": "string"
+            },
+            "router": {
+              "type": "string"
+            },
+            "default_places": {
+              "type": "object"
+            },
+            "started": {
+              "type": "boolean"
+            },
+            "pid": {
+              "type": "integer"
+            },
+            "log_file": {
+              "type": "string"
+            },
+            "stop": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "build or install the Trillion engine's trillion-local program"
+          ],
+          "run": "node tools/start-a-place/do-work/start-a-place.mjs < {input}",
+          "needs": [
+            "node",
+            "the engine's trillion-local program, on the PATH or named in trillion_local"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Ask for the folder to keep the place in, its accounts folder, the address and port it listens on, the https origin it is reached at, and the router and default places when it has them. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } or { error } saying what to change. Tell the person the place id (what other places and rows name it by), where its config, key and log are, and how to stop it (`stop`). Never show or copy the key file's contents."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:start-a-place",
+        "listed_on": "2026-11-03T00:00:00Z",
+        "provenance": {
+          "source": "Written for the Workshop: the engine's place config (trillion-rust src/native_entry/place.rs), `place id` (src/native_entry/place/join.rs) and `serve` (src/main.rs) made one step"
+        }
+      }
+    }
+  ]
+}
