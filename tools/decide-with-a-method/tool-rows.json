@@ -2506,6 +2506,311 @@
     ],
     "maker": "maker:decide-with-a-method"
    }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:see-my-decisions",
+    "label": "See my decisions",
+    "job": "Show my decisions, what I am working toward, my plans and what has helped me decide",
+    "description": "Reads your own rows and answers the Decisions screen: your newest decisions (at most 100) as summaries with the pursuits each cites, where each stands and how far it has got (decided, next action carried out, result checked); your current pursuits as the tree they nest into (from your record-scope choice rows); your newest plans; and what has helped you (which questions changed your answers and how those decisions turned out). With native_collection_page it answers one bounded page instead: the facts what helped is counted from (helped_items, your method check questions and your AIs' recorded work), collection_coverage saying whether more decisions, pursuits or plans exist, and next_before to send as before for the next page. access and allowance are what your place reports: when your access limits deciding and does not keep decisions, the answer is free with nothing listed; none reported is no limit. metadata_only answers only access, allowance and the words for no pursuits, and reads no row. It changes nothing.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "metadata_only": {
+       "type": "boolean",
+       "description": "Answer only access, allowance and the no-pursuits words; read no row"
+      },
+      "native_collection_page": {
+       "type": "boolean",
+       "description": "One bounded page with its coverage, instead of the whole what-helped view"
+      },
+      "before": {
+       "type": "string",
+       "maxLength": 4096,
+       "description": "The next_before an earlier page answered: the page starts below this created_at"
+      },
+      "access": {
+       "type": "object",
+       "description": "What your place reports: { capabilities: [names], limits?: { [access]: [{ count, per }] } }"
+      },
+      "allowance": {
+       "type": "object",
+       "description": "What your place reports of your decision allowance: { count, per, used }"
+      },
+      "space_pursuits": {
+       "type": "array",
+       "description": "The pursuits your spaces share, shown beside your own"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "free",
+      "access"
+     ],
+     "properties": {
+      "free": {
+       "type": "boolean"
+      },
+      "summaries": {
+       "type": "array"
+      },
+      "pursuits": {
+       "type": "array"
+      },
+      "space_pursuits": {
+       "type": "array"
+      },
+      "plans": {
+       "type": "array"
+      },
+      "access": {
+       "type": "object"
+      },
+      "allowance": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "pursuits_words": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "helped": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "helped_items": {
+       "type": "array"
+      },
+      "helped_check_text": {
+       "type": "object"
+      },
+      "agent_work": {
+       "type": "array"
+      },
+      "collection_coverage": {
+       "type": "object"
+      },
+      "next_before": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/work-screen.mjs",
+      "seeMyDecisions"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-evidence",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-answered-step",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-option",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-candidate",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-report",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-carried-out",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-history",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-method",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-part",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record-scope",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "record-stance",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "plan",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:method-check",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "setting",
+        "prefix": "setting:agent-work:",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method",
+    "provenance": {
+     "source": "trillion src/native-work-screen.mjs (d273ef3) with the parts it called (src/check-uses.mjs, src/decision-store.mjs, src/work-progress.mjs, src/record-scope.mjs, src/allowance.mjs, src/plan-records.mjs), moved here; trillion-rust src/local_account/decision_screen_source.rs (the engine's copy) deleted with it"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "metadata_only": true,
+       "access": {
+        "capabilities": [],
+        "limits": {}
+       }
+      },
+      "output_selector": "$.pursuits_words.text",
+      "contains": "working toward"
+     }
+    ]
+   }
   }
  ]
 }

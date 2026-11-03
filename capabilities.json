@@ -731,12 +731,6 @@
       "evidence": "README.md:3 how a Workshop tool reaches the person's own records: the client for the records door the run was handed"
     },
     {
-      "capability": "keep one outbound SSH tunnel open from a server's loopback port to a door on this computer, with a pinned host key and the key handed in from the vault, and set up the server side of it",
-      "owner": ["tools/keep-a-door-tunnel-open/"],
-      "entry": "tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs",
-      "evidence": "README.md:3 one SSH reverse forward from a server's 127.0.0.1 port to a door on this computer, reconnected when it ends, the key held only by a private ssh-agent"
-    },
-    {
       "capability": "relate any of a person's records with the role as data and keep what happened between them, then read the graph around a record and find how records connect",
       "owner": [
         "tools/record-graph/"
@@ -1769,6 +1763,11 @@
     },
     {"capability": "place a person's pursuits on a map of a full life, what they serve and which parts of life they touch, with their own map as a list", "owner": ["tools/place-pursuits-on-a-life-map/"], "entry": "tools/place-pursuits-on-a-life-map/tool-rows.json", "evidence": "tools/place-pursuits-on-a-life-map/README.md: moved from Trillion-X/trillion src/life-map.mjs (42aff4e9dc); its content is read as rows of the person's lists through their records door, or handed in by Trillion's in-account run"},
     {"capability": "tell an AI how to look at what a person is pursuing: where to look and what to do about it", "owner": ["tools/see-a-pursuit-through-the-lens/"], "entry": "tools/see-a-pursuit-through-the-lens/tool-rows.json", "evidence": "tools/see-a-pursuit-through-the-lens/README.md: moved from Trillion-X/trillion src/pursuit-lens.mjs (42aff4e9dc); its content is read as rows of the person's lists through their records door, or handed in by Trillion's in-account run"},
-    {"capability": "get and renew a public secure certificate for the portable server's address, with the DNS credentials passing only through the vault", "owner": ["tools/renew-a-tls-certificate/"], "entry": "tools/renew-a-tls-certificate/tool-rows.json", "evidence": "tools/renew-a-tls-certificate/README.md: moved from the older owner's scripts/portable-tls.mjs and scripts/portable-tls-host.py, with the host administration arguments of scripts/portable-service-connection.mjs; every fact about one server (its name, address, host key, folders, services and accounts) is the run's input, and its renewal is a wake the person declares"}
+    {"capability": "choose which pages of a site AI tools and the AI page listing may show, from the site's own files", "owner": ["tools/choose-which-site-pages-ai-may-show/src/public-app-ai-pages.mjs"], "entry": "tools/choose-which-site-pages-ai-may-show/src/public-app-ai-pages.mjs", "evidence": "tools/choose-which-site-pages-ai-may-show/src/public-app-ai-pages.mjs:1"},
+    {"capability": "declare which actions a site's visitors can take so visitor input never picks where it is stored", "owner": ["tools/edit-a-site-visually/src/public-app-definition.mjs"], "entry": "tools/edit-a-site-visually/src/public-app-definition.mjs", "evidence": "tools/edit-a-site-visually/src/public-app-definition.mjs:1"},
+    {"capability": "edit a site's pages in a visual editor and save the result back as the site's own page files", "owner": ["tools/edit-a-site-visually/src/public-app-editor-model.mjs"], "entry": "tools/edit-a-site-visually/src/public-app-editor-model.mjs", "evidence": "tools/edit-a-site-visually/src/public-app-editor-model.mjs:1"},
+    {"capability": "give every element on a site page an address that stays with it through edits and saves", "owner": ["tools/shared-code/src/public-app-element-addresses.mjs"], "entry": "tools/shared-code/src/public-app-element-addresses.mjs", "evidence": "tools/shared-code/src/public-app-element-addresses.mjs:4"},
+    {"capability": "show what changed between two versions of a site, which pages were added, removed or reworded", "owner": ["tools/show-what-changed-between-site-versions/src/public-app-version-changes.mjs"], "entry": "tools/show-what-changed-between-site-versions/src/public-app-version-changes.mjs", "evidence": "tools/show-what-changed-between-site-versions/src/public-app-version-changes.mjs:4"},
+    {"capability": "make a Trillion place on the person's computer and start it: its place key, its place config (listen, accounts, https origin, report, router, default places) and the running engine", "owner": ["tools/start-a-place/"], "entry": "tools/start-a-place/tool-rows.json", "evidence": "tools/start-a-place/README.md:5 makes the place key once, writes the engine's place config, asks `trillion-local place id` and starts `trillion-local serve` with the engine program the person has", "distinct_from": [{"job": "run the command line an installed app keeps inside its own bundle, with the app and entry passed in", "why": "that launcher runs any app's bundled command line as given; this writes a place's key and config and starts the Trillion engine's own place commands in order"}]}
   ]
 }
