@@ -6,6 +6,7 @@
     { "path": "CONTRIBUTING.md", "holds": "how to contribute a tool" },
     { "path": "LICENSE", "holds": "the Workshop's licence" },
     { "path": ".gitignore", "holds": "the paths git leaves out" },
+    { "path": ".claude", "holds": "the Claude settings a session here loads: its hooks run the person's checks on every tool call through tools/check-every-tool-call" },
     { "path": "ports", "holds": "the port-contract rules: which files are feature files, where their contracts live and which modes count (tools/check-a-port-against-its-source)" },
     { "path": "licence-classes.json", "holds": "the licence classes a tool row may declare" },
     { "path": "package.json", "holds": "the Workshop's package manifest and test command" },

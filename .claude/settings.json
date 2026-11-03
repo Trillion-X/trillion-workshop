@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 180,
+            "command": "t=\"${CHECK_EVERY_TOOL_CALL:-}\"; case \"$t\" in *://*) d=\"$HOME/.cache/check-every-tool-call/workshop\"; [ -d \"$d/.git\" ] || git clone -q --depth 1 \"$t\" \"$d\" >/dev/null 2>&1; t=\"$d/tools/check-every-tool-call\";; esac; if [ -z \"$t\" ]; then for c in \"$CLAUDE_PROJECT_DIR\" \"$CLAUDE_PROJECT_DIR\"/../*; do if [ -f \"$c/tools/check-every-tool-call/do-work/check_switches.py\" ]; then t=\"$c/tools/check-every-tool-call\"; break; fi; done; fi; if [ -f \"$t/do-work/check_switches.py\" ]; then exec python3 \"$t/do-work/check_switches.py\" run \"${CHECK_LIST_SETTINGS:-$t/read-data/settings.json}\"; fi; echo '{\"systemMessage\": \"check list unreachable: no Workshop (CHECK_EVERY_TOOL_CALL names none and none is beside this repository)\"}'"
+          }
+        ]
+      }
+    ]
+  }
+}
