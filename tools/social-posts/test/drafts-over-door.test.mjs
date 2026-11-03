@@ -75,7 +75,7 @@ test('the thread-summary rows cover through the latest message handed in and cou
   assert.match((await runRow(row('remove-a-thread-summary'), thread, { records: removed.kept })).error, /No summary is kept/);
 });
 
-test('a write is refused whole when the record changed after it was read', async () => {
+test('a write carries each record as it was read (expected), so the door refuses it whole when that record changed since', async () => {
   const { passesOverDoor } = await import('../read-data/drafts-over-door.mjs');
   const held = new Map([['snippet:a', { id: 'snippet:a', type: 'snippet', value: { n: 1 } }]]);
   const sent = [];
