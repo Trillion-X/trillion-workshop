@@ -1,0 +1,21 @@
+{
+  "kind": "value-source-precedence",
+  "what_this_is": "Which source's value a field keeps when more than one offered one. `kinds` is strongest first: a value from an earlier kind is never replaced by a value from a later kind. Between offers of one kind, `same_kind_order` decides in its order. A value whose source is not known (a row with no record of who wrote it, or a kind not listed) `holds` (counts as stronger than every listed kind, so nothing replaces it) or `yields` (weaker than every listed kind). A kind may set `confidence_at_least`: an offer of that kind below it is set aside and never wins. Words a source may give instead of a number for its confidence are read through `confidence_words`. A request may send its own `precedence` of this shape instead.",
+  "kinds": [
+    { "id": "person", "says": "typed, picked or confirmed by a person" },
+    { "id": "rule", "says": "set by one of the person's rules" },
+    { "id": "source", "says": "answered by a source the person chose: a provider, an import, an enrichment or a sync" },
+    { "id": "ai", "says": "worked out by an AI", "confidence_at_least": 0.5 }
+  ],
+  "same_kind_order": ["newest", "most_confident"],
+  "same_kind_orders": [
+    { "id": "newest", "says": "the offer made latest wins; an offer with no time counts as the oldest" },
+    { "id": "most_confident", "says": "the offer with the highest confidence wins; an offer with no confidence counts as the lowest" }
+  ],
+  "unknown_source": "holds",
+  "unknown_source_choices": [
+    { "id": "holds", "says": "a value whose source is not known is never replaced" },
+    { "id": "yields", "says": "a value whose source is not known gives way to any listed source" }
+  ],
+  "confidence_words": { "low": 0.25, "medium": 0.5, "high": 0.9 }
+}
