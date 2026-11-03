@@ -433,7 +433,241 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "pursuit",
+          "properties": {
+            "parents": "ids",
+            "children": "ids",
+            "space_id": "id"
+          },
+          "parts": [
+            {
+              "role": "parent",
+              "path": [
+                "parents"
+              ]
+            },
+            {
+              "role": "child",
+              "path": [
+                "children"
+              ]
+            },
+            {
+              "role": "space",
+              "path": [
+                "space_id"
+              ]
+            }
+          ],
+          "_read_by": "src/engine.mjs, src/pursuit-consolidate.mjs, src/pursuit-rooms.mjs",
+          "guard_properties": {
+            "after": "text",
+            "archived_at": "text",
+            "areas": "texts",
+            "changed_at": "text",
+            "drive_evidence": "text",
+            "ended_at": "text",
+            "evidence": "objects",
+            "from_room": "boolean",
+            "id": "text",
+            "kind": "text",
+            "last_seen": "text",
+            "merged_into": "text",
+            "needle_mover": "boolean",
+            "notes": "text",
+            "now": "text",
+            "open_url": "text",
+            "recorded_at": "text",
+            "room_left": "text",
+            "status": "text",
+            "title": "text",
+            "why_it_matters": "text"
+          }
+        },
+        {
+          "type": "decision",
+          "guard_properties": {
+            "actions": "list",
+            "answered_steps": "list",
+            "call_count": "number",
+            "calls": "objects",
+            "calls_with_submission": "list",
+            "carried_out": "objects",
+            "checks": "list",
+            "cited_pursuits": "object",
+            "corrected_at": "text",
+            "created_at": "text",
+            "decided_at": "text",
+            "decision": "object",
+            "decision_generation": "number",
+            "decision_history": "objects",
+            "decision_usage": "object",
+            "evidence_history": "objects",
+            "guidance": "objects",
+            "id": "text",
+            "input": "object",
+            "method": "object",
+            "method_history": "objects",
+            "original_input": "object",
+            "outcome_checks": "objects",
+            "outcome_question": "object",
+            "outcome_revision": "number",
+            "pursuits_known": "boolean",
+            "recheck_on": "text",
+            "reopened": "objects",
+            "reports": "objects",
+            "scratchpad": "list",
+            "source_id": "text",
+            "source_provenance": "object",
+            "status": "text",
+            "summary": "text",
+            "workflow_plan": "object"
+          }
+        },
+        {
+          "type": "decision-call",
+          "guard_properties": {
+            "accepted": "boolean",
+            "app": "text",
+            "at": "text",
+            "bytes": "number",
+            "problems": "texts",
+            "reason": "text",
+            "route": "text",
+            "step_id": "text",
+            "submission": "object"
+          }
+        },
+        {
+          "type": "decision-step",
+          "guard_properties": {
+            "answer": "object",
+            "answered_at": "text",
+            "checklist": "any",
+            "step_id": "text",
+            "usage": "object"
+          }
+        },
+        {
+          "type": "decision-step/checklist",
+          "guard_properties": {
+            "checks": "objects"
+          }
+        },
+        {
+          "type": "decision/method",
+          "guard_properties": {
+            "about": "text",
+            "answer_rules": "object",
+            "backbone": "objects",
+            "checks": "list",
+            "decision_fields": "list",
+            "id": "text",
+            "name": "text",
+            "observers": "objects",
+            "preset": "object",
+            "steps": "objects",
+            "workflows": "list"
+          }
+        },
+        {
+          "type": "decision/method_history/guidance/checklist",
+          "guard_properties": {
+            "checks": "objects"
+          }
+        },
+        {
+          "type": "message-case",
+          "guard_properties": {
+            "case_id": "text",
+            "joined": "boolean",
+            "message_id": "text"
+          }
+        }
+      ],
+      "indexes": [
+        {
+          "type": "decision",
+          "name": "created_at",
+          "paths": [
+            [
+              "created_at"
+            ]
+          ],
+          "_read_by": "src/decision-store.mjs summaries, countSince, newestIds, createdPage (DecisionEngine.undecidedMessages), goals"
+        },
+        {
+          "type": "decision",
+          "name": "decided_at",
+          "paths": [
+            [
+              "decided_at"
+            ]
+          ],
+          "_read_by": "src/decision-store.mjs decidedBetween, decidedIds"
+        },
+        {
+          "type": "decision",
+          "name": "goal",
+          "paths": [
+            [
+              "input",
+              "goal"
+            ]
+          ],
+          "_read_by": "src/decision-store.mjs goals, src/message-decision.mjs carryEarlierMessageGoals"
+        },
+        {
+          "type": "decision",
+          "name": "method",
+          "paths": [
+            [
+              "method",
+              "id"
+            ]
+          ],
+          "_read_by": "src/decision-store.mjs goals"
+        },
+        {
+          "type": "decision-call",
+          "name": "step_id",
+          "paths": [
+            [
+              "step_id"
+            ]
+          ],
+          "_read_by": "src/decision-store.mjs callsAt"
+        }
+      ],
+      "links": [
+        {
+          "from": "decision",
+          "field": [
+            "cited_pursuits"
+          ],
+          "to": "pursuit"
+        },
+        {
+          "from": "plan",
+          "field": [
+            "pursuit_ids"
+          ],
+          "to": "pursuit"
+        },
+        {
+          "from": "plan",
+          "field": [
+            "decision_case_id"
+          ],
+          "to": "decision"
+        }
+      ]
+    }
    }
   },
   {
@@ -1519,7 +1753,22 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "decision-made",
+          "guard_properties": {
+            "app": "text",
+            "at": "text",
+            "case_id": "text",
+            "from_reader": "text",
+            "generation": "number"
+          }
+        }
+      ]
+    }
    }
   },
   {

@@ -65,7 +65,127 @@
         "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
-        "maker": "maker:hand-work-to-ais"
+        "maker": "maker:hand-work-to-ais",
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "ai",
+              "table": true,
+              "properties": {
+                "label": "text",
+                "kind": "text",
+                "runs_on": "object",
+                "agent_id": "text",
+                "can": "texts",
+                "order": "number",
+                "order_set_by_person": "boolean",
+                "live": "object",
+                "sign_ins": "texts",
+                "tool_id": "text",
+                "model": "text",
+                "ceiling": "object"
+              },
+              "parts": [
+                {
+                  "role": "agent",
+                  "path": [
+                    "agent_id"
+                  ]
+                },
+                {
+                  "role": "runs on",
+                  "path": [
+                    "runs_on",
+                    "device"
+                  ]
+                }
+              ],
+              "_read_by": "src/ais.mjs: one of the person's AIs (a chat, a CLI on a computer, a model on a device, a connected account); setup, routing, find_agents and the AI screens read only these"
+            },
+            {
+              "type": "device",
+              "table": true,
+              "properties": {
+                "label": "text",
+                "first_seen_at": "text"
+              },
+              "_read_by": "src/ais.mjs: a computer or phone of the person's an AI runs on; what holds it under runs on is what runs there"
+            },
+            {
+              "type": "agent-card",
+              "guard_properties": {
+                "activation_binding": "object",
+                "agent_id": "text",
+                "capacity_claim": "object",
+                "delivered": "number",
+                "delivery": "object",
+                "description": "text",
+                "finished": "number",
+                "first_published_at": "text",
+                "found_by": "object",
+                "harness": "text",
+                "kind": "text",
+                "last_delivered_at": "text",
+                "last_seen_at": "text",
+                "last_undelivered_at": "text",
+                "model": "text",
+                "name": "text",
+                "published_at": "text",
+                "reader": "text",
+                "runs": "list",
+                "skills": "list",
+                "source_id": "text",
+                "takes_any_by_name": "boolean",
+                "takes_work": "boolean",
+                "where": "text"
+              }
+            }
+          ],
+          "indexes": [
+            {
+              "type": "agent-card",
+              "name": "reader",
+              "paths": [
+                [
+                  "found_by",
+                  "reader"
+                ],
+                [
+                  "found_by",
+                  "takes_work"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs cardIdsOf"
+            },
+            {
+              "type": "agent-card",
+              "name": "taker",
+              "paths": [
+                [
+                  "found_by",
+                  "takes_work"
+                ],
+                [
+                  "found_by",
+                  "source_id"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs takerIds, cardsForSource, anyTaker"
+            },
+            {
+              "type": "agent-card",
+              "name": "reaches",
+              "paths": [
+                [
+                  "found_by",
+                  "reaches"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs reachableCards"
+            }
+          ]
+        }
       }
     },
     {
@@ -128,7 +248,1106 @@
         "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
-        "maker": "maker:hand-work-to-ais"
+        "maker": "maker:hand-work-to-ais",
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "agent-delivery",
+              "guard_properties": {
+                "agent_id": "text",
+                "attempts": "number",
+                "created_at": "text",
+                "delivered_at": "text",
+                "event": "object",
+                "event_id": "text",
+                "found_by": "object",
+                "last_attempt_at": "text",
+                "last_error": "text",
+                "next_at": "text",
+                "said": "text",
+                "state": "text"
+              }
+            },
+            {
+              "type": "agent-delivery-secret",
+              "guard_properties": {
+                "found_by": "object",
+                "secret": "text"
+              }
+            },
+            {
+              "type": "agent-handoff",
+              "erasable": [
+                "job",
+                "said",
+                "asked",
+                [
+                  "input",
+                  "said"
+                ]
+              ],
+              "erasable_key": [
+                "input",
+                "arrived",
+                "message_id"
+              ],
+              "erase_with": [
+                {
+                  "field": "result_record",
+                  "type": "agent-handoff-result"
+                },
+                {
+                  "field": "corrections_record",
+                  "type": "agent-handoff-result"
+                },
+                {
+                  "type": "notice-list",
+                  "index": "handoff",
+                  "equal": "{key}"
+                },
+                {
+                  "field": [
+                    "input",
+                    "arrived",
+                    "message_id"
+                  ],
+                  "type": "message"
+                }
+              ],
+              "guard_properties": {
+                "asked": "object",
+                "attempts": "list",
+                "blocked_kind": "text",
+                "case_id": "text",
+                "closing": "object",
+                "corrections": "objects",
+                "corrections_record": "text",
+                "depends_on": "texts",
+                "done_when_rule": "object",
+                "effects": "object",
+                "finished_at": "text",
+                "found_by": "object",
+                "from_agent": "text",
+                "generation": "number",
+                "handed_at": "text",
+                "handed_by_reader": "text",
+                "handoff_id": "text",
+                "hold_minutes": "number",
+                "hold_until": "text",
+                "in_the_way": "text",
+                "in_the_way_at": "text",
+                "in_the_way_by": "text",
+                "input": "object",
+                "job": "text",
+                "max_attempts": "number",
+                "time_budget_seconds": "number",
+                "notice": "text",
+                "once_per": "text",
+                "outcome": "text",
+                "parent_handoff_id": "text",
+                "preferred_agent": "text",
+                "priority": "number",
+                "recovery": "text",
+                "released_because": "text",
+                "result": "any",
+                "result_record": "text",
+                "result_shape": "object",
+                "result_source_receipt": "object",
+                "review_at": "text",
+                "revision": "number",
+                "said": "text",
+                "schedule": "text",
+                "source_active_at": "text",
+                "source_return": "object",
+                "state": "text",
+                "success_condition": "text",
+                "summary": "text",
+                "take_by": "text",
+                "taken_at": "text",
+                "taken_by": "text",
+                "target": "object",
+                "to_agent": "text",
+                "waits_open": "number",
+                "wakes": "number",
+                "withdrawal": "object"
+              }
+            },
+            {
+              "type": "agent-handoff-result",
+              "erasable": [
+                "json"
+              ],
+              "guard_properties": {
+                "json": "text",
+                "json_encoding": "text",
+                "json_byte_length": "number"
+              },
+              "_read_by": "src/agent-records.mjs: complete answers and attributed correction history as sealed scalar JSON, referenced by their small handoff; result reopen removes the result payload, correction history persists, and handoff erasure erases both payloads"
+            },
+            {
+              "type": "agent-held-work",
+              "guard_properties": {
+                "found_by": "object",
+                "holds": "object",
+                "ids": "list"
+              }
+            },
+            {
+              "type": "agent-held-work-state",
+              "guard_properties": {
+                "enabled": "boolean",
+                "found_by": "object"
+              }
+            },
+            {
+              "type": "agent-review-mark",
+              "guard_properties": {
+                "after": "text",
+                "bestAt": "text",
+                "bestId": "text",
+                "cursor": "object",
+                "dirty": "boolean",
+                "done": "boolean",
+                "found_by": "object",
+                "index": "text",
+                "revision": "number",
+                "through": "text"
+              }
+            },
+            {
+              "type": "agent-schedule-state",
+              "guard_properties": {
+                "found_by": "object",
+                "revision": "number"
+              }
+            },
+            {
+              "type": "asked",
+              "parts": [
+                {
+                  "role": "moment",
+                  "path": [
+                    "moment"
+                  ]
+                }
+              ],
+              "_read_by": "src/queued-work.mjs",
+              "guard_properties": {
+                "at": "text",
+                "context": "object",
+                "item": "text",
+                "job": "text",
+                "job_id": "text",
+                "label": "text",
+                "moment": "text",
+                "priority": "number",
+                "said": "text",
+                "steps": "objects"
+              }
+            }
+          ],
+          "indexes": [
+            {
+              "type": "asked",
+              "name": "at",
+              "paths": [
+                [
+                  "at"
+                ]
+              ],
+              "_read_by": "src/moments.mjs gatherMoment (the recordings asked about in a range)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "time",
+              "backfill": "handoff-time-projection-v1",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "carry": [
+                [
+                  "handoff_id"
+                ],
+                [
+                  "handed_at"
+                ],
+                [
+                  "state"
+                ],
+                [
+                  "from_agent"
+                ],
+                [
+                  "to_agent"
+                ],
+                [
+                  "taken_by"
+                ],
+                [
+                  "preferred_agent"
+                ],
+                [
+                  "in_the_way_by"
+                ],
+                [
+                  "finished_at"
+                ],
+                [
+                  "result_record"
+                ]
+              ],
+              "carry_presence": [
+                [
+                  "result",
+                  "withdrawn_by"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs openHandoffs, newestOpen, finishedHandoffs (exact scalar and withdrawal-presence projections from descriptor-attested index payloads; legacy and unsupported requests retain record projection)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "newest",
+              "backfill": "handoff-newest-task-map-v1",
+              "paths": [
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "carry": [
+                [
+                  "parent_handoff_id"
+                ],
+                [
+                  "case_id"
+                ],
+                [
+                  "state"
+                ],
+                [
+                  "input",
+                  "arrived",
+                  "message_id"
+                ],
+                [
+                  "input",
+                  "arrived",
+                  "asked_id"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs newestHandoffs ({ taskMap: true } answers what the task map draws of each job from the entries alone: a job's words and results are never read)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "notice_waiting",
+              "backfill": "work-notifications-v1",
+              "paths": [
+                [
+                  "state"
+                ],
+                [
+                  "handed_at"
+                ],
+                [
+                  "from_agent"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs notificationWork (eligible waiting work by its notification time)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "notice_waiting_origin",
+              "backfill": "work-notifications-origin-v1",
+              "paths": [
+                [
+                  "state"
+                ],
+                [
+                  "from_agent"
+                ],
+                [
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs notificationWork: newest entries per non-excluded sender group, skipping sender history by prefix"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "notice_taken",
+              "backfill": "work-notifications-v1",
+              "paths": [
+                [
+                  "state"
+                ],
+                [
+                  "taken_at"
+                ],
+                [
+                  "from_agent"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs notificationWork (eligible taken work by its notification time)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "notice_taken_origin",
+              "backfill": "work-notifications-origin-v1",
+              "paths": [
+                [
+                  "state"
+                ],
+                [
+                  "from_agent"
+                ],
+                [
+                  "taken_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs notificationWork: newest entries per non-excluded sender group, skipping sender history by prefix"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "notice_finished",
+              "backfill": "work-notifications-v1",
+              "paths": [
+                [
+                  "state"
+                ],
+                [
+                  "finished_at"
+                ],
+                [
+                  "from_agent"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs notificationWork (eligible finished work by its notification time)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "notice_finished_origin",
+              "backfill": "work-notifications-origin-v1",
+              "paths": [
+                [
+                  "state"
+                ],
+                [
+                  "from_agent"
+                ],
+                [
+                  "finished_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs notificationWork: newest entries per non-excluded sender group, skipping sender history by prefix"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "queue",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "to_agent"
+                ],
+                [
+                  "found_by",
+                  "rank"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs openQueue"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "pending",
+              "paths": [
+                [
+                  "state"
+                ],
+                [
+                  "found_by",
+                  "to_agent"
+                ],
+                [
+                  "found_by",
+                  "rank"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs pendingAddressedTo, waitingCount"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "pending_reader",
+              "paths": [
+                [
+                  "found_by",
+                  "to_reader"
+                ],
+                [
+                  "found_by",
+                  "rank"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs pendingForReader (waiting work addressed to any card of one reader, in the order it is taken)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "open_rank",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "rank"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs ownWorkWaiting (the oldest open work at or above a priority, without walking every open job)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "dependents",
+              "where": [
+                {
+                  "path": [
+                    "found_by",
+                    "dep_ids"
+                  ],
+                  "not": [
+                    null,
+                    ""
+                  ]
+                }
+              ],
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "dep_ids"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs dependentsOf (the open jobs waiting on other work, with the ids they wait on, so the ones waiting on one job are the only ones read)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "addressed",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "to_agent"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs openAddressedTo"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "held",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "taken_by"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs heldBy"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "source",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "source_id"
+                ],
+                [
+                  "found_by",
+                  "to_agent"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs unaddressedForSource"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "preferred",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "prefer_until"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs openQueue (work only preferred for an agent)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "takeable",
+              "paths": [
+                [
+                  "found_by",
+                  "take_from"
+                ],
+                [
+                  "found_by",
+                  "rank"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs takeableEntries (the work addressed to nobody that an agent may take: ready for anyone from the start under '', the rest by the time it becomes ready, each in the order it is taken; work stuck, waiting on other work, named to an agent or closing has no entry)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "takeable_source",
+              "paths": [
+                [
+                  "found_by",
+                  "take_source"
+                ],
+                [
+                  "found_by",
+                  "own_from"
+                ],
+                [
+                  "found_by",
+                  "rank"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs takeableEntries (the same work for an owner of the chat it came from, who may take it before its silence window ends)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "lapsing",
+              "paths": [
+                [
+                  "found_by",
+                  "to_agent"
+                ],
+                [
+                  "found_by",
+                  "take_by"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs takeable.lapsed (open work whose asker stops waiting at take_by, per addressee, oldest first)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "lapse_at",
+              "paths": [
+                [
+                  "found_by",
+                  "take_by"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs takeable.earliest (the earliest take_by of any open work, the first entry: one key read whatever the index holds)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "depends",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "depends"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs dependentsOf"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "parent",
+              "paths": [
+                [
+                  "parent_handoff_id"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs handedOnFrom, handedOnFromMany"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "message",
+              "paths": [
+                [
+                  "input",
+                  "arrived",
+                  "message_id"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs fromMessage"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "asked",
+              "paths": [
+                [
+                  "input",
+                  "arrived",
+                  "asked_id"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs fromMessage"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "blocked-open",
+              "backfill": "handoff-blocked-open",
+              "where": [
+                {
+                  "path": [
+                    "in_the_way"
+                  ],
+                  "not": [
+                    null,
+                    ""
+                  ]
+                },
+                {
+                  "path": [
+                    "state"
+                  ],
+                  "not": [
+                    "finished"
+                  ]
+                }
+              ],
+              "paths": [
+                [
+                  "handed_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs blockedOpen (work something stands in the way of, by the time handed; only unfinished jobs with blocking words have entries)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "home-origin",
+              "retired": true,
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "handed_at"
+                ],
+                [
+                  "state"
+                ],
+                [
+                  "in_the_way"
+                ],
+                [
+                  "parent_handoff_id"
+                ],
+                [
+                  "said"
+                ],
+                [
+                  "from_agent"
+                ]
+              ],
+              "_read_by": "nothing: kept no more since `said` is erasable (a key's text would hold its words); named only so erasing a job takes out the key it built before (record-log-store retiredKeysOf)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "home-open",
+              "backfill": "handoff-home-open",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "handed_at"
+                ],
+                [
+                  "state"
+                ],
+                [
+                  "in_the_way"
+                ],
+                [
+                  "parent_handoff_id"
+                ],
+                [
+                  "from_agent"
+                ]
+              ],
+              "carry": [
+                [
+                  "said"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs homeOpen (the open work as Home's workstreams card draws it, from the entries alone: every row from its key, its words (`said`, erasable) carried sealed in the entry's value and opened as read; no job is read to draw a row)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "review",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "review_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs nextReviewAt, dueReviews"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "review_next",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "review_depends"
+                ],
+                [
+                  "found_by",
+                  "review_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs nextReviewAt once every open job carries review_depends (review_ready's twin without the jobs that wait on work still open, which are woken by the write that finishes that work, so the earliest review is never found by walking them)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "review_ready",
+              "backfill": "review-ready-v1",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "depends"
+                ],
+                [
+                  "found_by",
+                  "review_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs nextReviewAt (the earliest review of work waiting on nothing, and of the few jobs that wait on other work)"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "wake_timing",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "wake_to"
+                ],
+                [
+                  "found_by",
+                  "rank"
+                ],
+                [
+                  "found_by",
+                  "wake_from"
+                ],
+                [
+                  "handoff_id"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ],
+                [
+                  "found_by",
+                  "state"
+                ],
+                [
+                  "found_by",
+                  "taken_by"
+                ],
+                [
+                  "found_by",
+                  "generation"
+                ],
+                [
+                  "found_by",
+                  "hold_until"
+                ],
+                [
+                  "found_by",
+                  "in_the_way"
+                ],
+                [
+                  "found_by",
+                  "in_the_way_by"
+                ],
+                [
+                  "found_by",
+                  "in_the_way_at"
+                ],
+                [
+                  "found_by",
+                  "blocked_kind"
+                ],
+                [
+                  "found_by",
+                  "depth"
+                ],
+                [
+                  "found_by",
+                  "source_id"
+                ],
+                [
+                  "found_by",
+                  "active_at"
+                ],
+                [
+                  "found_by",
+                  "silence"
+                ],
+                [
+                  "found_by",
+                  "from_person"
+                ],
+                [
+                  "found_by",
+                  "prefer_until"
+                ],
+                [
+                  "found_by",
+                  "needs"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs scheduledWake, openScheduledHandoffs (an open job's timing facts in due-time order, per addressee and priority, for the own AI's clock)",
+              "backfill": "handoff-wake-origin"
+            },
+            {
+              "type": "agent-handoff",
+              "name": "wake_person",
+              "paths": [
+                [
+                  "found_by",
+                  "open"
+                ],
+                [
+                  "found_by",
+                  "wake_to"
+                ],
+                [
+                  "found_by",
+                  "rank"
+                ],
+                [
+                  "found_by",
+                  "wake_from"
+                ],
+                [
+                  "handoff_id"
+                ],
+                [
+                  "found_by",
+                  "handed_at"
+                ],
+                [
+                  "found_by",
+                  "state"
+                ],
+                [
+                  "found_by",
+                  "taken_by"
+                ],
+                [
+                  "found_by",
+                  "generation"
+                ],
+                [
+                  "found_by",
+                  "hold_until"
+                ],
+                [
+                  "found_by",
+                  "in_the_way"
+                ],
+                [
+                  "found_by",
+                  "in_the_way_by"
+                ],
+                [
+                  "found_by",
+                  "in_the_way_at"
+                ],
+                [
+                  "found_by",
+                  "blocked_kind"
+                ],
+                [
+                  "found_by",
+                  "depth"
+                ],
+                [
+                  "found_by",
+                  "source_id"
+                ],
+                [
+                  "found_by",
+                  "active_at"
+                ],
+                [
+                  "found_by",
+                  "silence"
+                ],
+                [
+                  "found_by",
+                  "from_person"
+                ],
+                [
+                  "found_by",
+                  "prefer_until"
+                ],
+                [
+                  "found_by",
+                  "needs"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs scheduledWake (person-origin jobs exempt from the daily cap at any priority, in due-time order; background backfill builds older checkpoint keys before readiness)",
+              "backfill": "handoff-wake-origin",
+              "where": [
+                {
+                  "path": [
+                    "found_by",
+                    "from_person"
+                  ],
+                  "not": [
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "agent-delivery",
+              "name": "due",
+              "paths": [
+                [
+                  "found_by",
+                  "state"
+                ],
+                [
+                  "found_by",
+                  "next_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs dueDeliveries, nextDeliveryAt"
+            },
+            {
+              "type": "agent-delivery",
+              "name": "subject",
+              "paths": [
+                [
+                  "found_by",
+                  "subject_id"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs deliveriesFor"
+            },
+            {
+              "type": "agent-delivery",
+              "name": "agent",
+              "paths": [
+                [
+                  "found_by",
+                  "agent_id"
+                ],
+                [
+                  "found_by",
+                  "state"
+                ],
+                [
+                  "found_by",
+                  "created_at"
+                ]
+              ],
+              "_read_by": "src/agent-records.mjs deadDeliveries, waitingFor, streamWaiting"
+            }
+          ]
+        }
       }
     },
     {

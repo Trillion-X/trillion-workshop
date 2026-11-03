@@ -421,6 +421,152 @@
         "result_selector": "$.result",
         "provenance": {
           "source": "Trillion src/record-model-tools.mjs (relate, orderedRelations, contactHistory, the relate_records and read_model tools) over src/record-model.json, ported to the records door; the graph walks are new"
+        },
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "group",
+              "table": true,
+              "properties": {
+                "name": "text"
+              },
+              "_read_by": "src/record-model-tools.mjs relate: a group of people a relation names"
+            },
+            {
+              "type": "organisation",
+              "table": true,
+              "properties": {
+                "name": "text"
+              },
+              "_read_by": "src/record-model-tools.mjs relate: a company, club, school or team a relation names, made once by its name"
+            },
+            {
+              "type": "place",
+              "table": true,
+              "properties": {
+                "name": "text"
+              },
+              "_read_by": "src/record-model-tools.mjs relate: a place a relation names"
+            },
+            {
+              "type": "record:person",
+              "properties": {
+                "heard_as": "texts",
+                "same_as": "id"
+              },
+              "parts": [
+                {
+                  "role": "same_as",
+                  "path": [
+                    "same_as"
+                  ]
+                }
+              ],
+              "_read_by": "src/inbound.mjs nameHeardSpeaker: a heard voice belongs to a person (a row of their lists they chose, or the person record made from the name), so what holds a person row under same_as is every voice that is theirs",
+              "guard_properties": {
+                "first_heard_at": "text",
+                "name": "text",
+                "named_from": "text",
+                "voice": "text",
+                "named_at": "text",
+                "naming_window": "text",
+                "same_as_is_generated": "boolean",
+                "_generated_voice_link": "boolean",
+                "note": "text"
+              }
+            },
+            {
+              "type": "activity",
+              "table": true,
+              "properties": {
+                "kind": "text",
+                "at": "text",
+                "summary": "text",
+                "direction": "text",
+                "source": "text",
+                "said": "text",
+                "participants": "objects"
+              },
+              "parts": [
+                {
+                  "role": "participant",
+                  "path": [
+                    "participants"
+                  ],
+                  "each": [
+                    "record"
+                  ]
+                }
+              ],
+              "_read_by": "src/record-model-tools.mjs relate (activities) and readRecordModel (history): what happened, when, and who took part; what holds a person under `participant` answers their history"
+            },
+            {
+              "type": "relation",
+              "table": true,
+              "properties": {
+                "subject": "id",
+                "role": "text",
+                "object": "id",
+                "said": "text",
+                "subject_order": "text",
+                "object_order": "text",
+                "alive": "boolean"
+              },
+              "parts": [
+                {
+                  "role": "subject",
+                  "path": [
+                    "subject"
+                  ]
+                },
+                {
+                  "role": "is",
+                  "path": [
+                    "object"
+                  ],
+                  "role_from": [
+                    "role"
+                  ]
+                }
+              ],
+              "_read_by": "src/record-model-tools.mjs relate: subject is the role of object (\"Pat\" is the \"dad\" of me), so what holds the object answers under that role and what holds the subject under subject"
+            }
+          ],
+          "relations": {
+            "self": "record:person:me",
+            "entity_kinds": [
+              "organisation",
+              "group",
+              "place"
+            ],
+            "side_most": 1000,
+            "_what": "Relations (src/record-model-tools.mjs relate, the relate_records tool): participation between any two things with the role as data. `self` is the record id `me` names (the person whose store it is); a subject or object `<entity kind>:<name>` is an entity record of that kind, made once by its name. Each relation keeps a fractional order key per side (subject_order among the subject's relations of that role, object_order among the object's), so each end orders its links on its own, and `alive` (false: ended, kept with its places so relating it again puts it back where it was). `side_most` is how many relations of one end and role are read to place a new one."
+          },
+          "activities": {
+            "_what": "Activities (src/record-model-tools.mjs relate, the relate_records tool's `activities`; read with read_model `history`): one record per thing that happened between people (an email, a call, a meeting, a message, an introduction, a note), with when it was (`at`, ISO), a few words, and every record that took part, each under a role of its own (a sender, a caller, an attendee). It is named by what it is (kind, time, source and who took part), so saying it again changes nothing. A person's history, a pair's shared history and when they were last in touch are filters over these records through the one `participant` part, never notes kept on the person. `kinds` and `participant_roles` are every word allowed; `participants_most` is how many may take part in one; `history_most` is how many an ordered history read goes through; `summary_most` is the longest summary.",
+            "kinds": [
+              "email",
+              "call",
+              "meeting",
+              "message",
+              "introduction",
+              "note"
+            ],
+            "participant_roles": [
+              "participant",
+              "sender",
+              "recipient",
+              "caller",
+              "attendee",
+              "organiser",
+              "introducer",
+              "introduced"
+            ],
+            "participants_most": 50,
+            "history_most": 1000,
+            "summary_most": 2000
+          }
         }
       }
     },
