@@ -56,9 +56,11 @@ const bareCall = call => (object(call) ? Object.fromEntries(Object.entries(call)
 // callers read and write the lists.
 const PACKED = { checklist: 'checks', verdicts: 'given' };
 const packStep = entry => (object(entry) ? Object.fromEntries(Object.entries(entry).map(([field, item]) => [field, PACKED[field] && Array.isArray(item) ? { [PACKED[field]]: item } : item])) : entry);
-const unpackStep = entry => (object(entry) ? Object.fromEntries(Object.entries(entry).map(([field, item]) => [field, PACKED[field] && object(item) && Array.isArray(item[PACKED[field]]) ? item[PACKED[field]] : item])) : entry);
+export const unpackStep = entry => (object(entry) ? Object.fromEntries(Object.entries(entry).map(([field, item]) => [field, PACKED[field] && object(item) && Array.isArray(item[PACKED[field]]) ? item[PACKED[field]] : item])) : entry);
 // Whether a step needs a recheck is kept on its summary only, so flagging later steps never rewrites their records.
 const FLAGS = ['needs_recheck', 'recheck_of', 'rechecked_at'];
+/** The fields an answered step's summary carries that its own record does not (a flag is set on the summary only). */
+export const STEP_FLAGS = ['version', ...FLAGS];
 const stepRecordOf = entry => Object.fromEntries(Object.entries(entry).filter(([field]) => !FLAGS.includes(field)));
 // A step read whole carries its verdicts; a step read as its summary carries the counts already made from them.
 const gradingOf = entry => (Array.isArray(entry.verdicts)
@@ -119,85 +121,112 @@ function fitted(records) {
   }
   return out;
 }
+// Reading is one pure, synchronous join over records already read, so a reader that reads synchronously (the old engine's store)
+// and one that reads through the door call the same code. `get(type, key)` answers the record a reader already holds: its
+// value, null when it is known not to exist, undefined when it was not read yet. The join asks for what it needs through
+// `get`; `settled` runs it again over the records read for the ones it asked about, until it asks about no more.
 /** A record's value whole: as kept, or put back together from its parts; null when a part is missing. */
-async function wholeOf(door, key, value) {
+export function wholeValue(key, value, get) {
   if (!object(value) || !Number.isInteger(value.kept_in_parts)) return value;
   let text = '';
   for (let n = 0; n < value.kept_in_parts; n += 1) {
-    const part = await door.read(NAMES.part.type, partKey(key, n));
+    const part = get(NAMES.part.type, partKey(key, n));
     if (typeof part?.text !== 'string') return null;
     text += part.text;
   }
-  return JSON.parse(text);
+  return unpackStep(JSON.parse(text));
 }
-const readWhole = async (door, type, key) => wholeOf(door, key, await door.read(type, key));
+/** The join run over what `door` holds: every record it asked about is read together, until it asks about no more. */
+export async function settled(door, join) {
+  const held = new Map();
+  for (;;) {
+    const asked = new Map();
+    const get = (type, key) => {
+      if (held.has(key)) return held.get(key);
+      asked.set(key, type);
+      return undefined;
+    };
+    const joined = join(get);
+    if (!asked.size) return joined;
+    await Promise.all([...asked].map(async ([key, type]) => held.set(key, (await door.read(type, key)) ?? null)));
+  }
+}
 /** One answered step, or one of its versions, whole: its checks and verdicts as lists; null when it cannot be read. */
-export const readStep = async (door, key) => unpackStep(await readWhole(door, 'decision-step', key));
+export const stepIn = (get, key) => {
+  const kept = wholeValue(key, get('decision-step', key), get);
+  return kept === undefined ? undefined : unpackStep(kept);
+};
+export const readStep = (door, key) => settled(door, get => stepIn(get, key));
 
-// The items of one list laid apart: the first `count` of them, in order; one that cannot be read is named as lost.
-async function itemsOf(door, id, list, count) {
+/** The first `count` items of one list laid apart, in order; one that cannot be read is named as lost. */
+export function itemsIn(get, id, list, count) {
   if (!count) return [];
   const { type } = LAID[list];
-  const prefix = `${type}:${id}:`;
-  const found = new Map();
-  for await (const row of door.list({ type, prefix })) {
-    const tail = row.id.slice(prefix.length);
-    if (row.id.startsWith(prefix) && /^\d+$/.test(tail) && Number(tail) < count) found.set(Number(tail), await wholeOf(door, row.id, row.value));
-  }
-  return Array.from({ length: count }, (_, n) => found.get(n) ?? { lost: true });
+  return Array.from({ length: count }, (_, n) => {
+    const key = itemKey(list, id, n);
+    const kept = wholeValue(key, get(type, key), get);
+    return kept ?? { lost: true };
+  });
 }
+
+/** Whether a root was written by this layout: it names the length of each list laid apart and the input it began with. */
+export const isLaid = root => object(root?.counts) && typeof root.input_identity === 'string';
 
 /**
  * The root with the lists named in `lists` put back where the tools read them (`input.evidence`, `reports`, ...), and the
  * method snapshot when `method` is true. A root written before this layout already holds them.
  */
-export async function laidTogether(door, id, root, lists = LIST_NAMES, { method = false } = {}) {
+export function joinLaid(id, root, get, lists = LIST_NAMES, { method = false } = {}) {
   const loaded = {};
   const record = { ...root, input: { ...root.input } };
   const counts = object(root.counts) ? root.counts : null;
   if (counts?.[FOLDED]) {
-    const items = await itemsOf(door, id, FOLDED, counts[FOLDED]);
+    const items = itemsIn(get, id, FOLDED, counts[FOLDED]);
     loaded[FOLDED] = items.map(canonical);
     record.input.options = items;
   }
   for (const list of lists) {
     if (!counts || !LISTS[list]) continue;
-    const items = await itemsOf(door, id, list, counts[list] ?? 0);
+    const items = itemsIn(get, id, list, counts[list] ?? 0);
     loaded[list] = items.map(canonical);
     LISTS[list].into(record, items);
   }
   if (method && root.method_identity) {
-    const kept = await readWhole(door, NAMES.method, methodKey(root.method_identity));
+    const key = methodKey(root.method_identity);
+    const kept = wholeValue(key, get(NAMES.method, key), get);
     if (kept?.method) { record.method = kept.method; loaded.method_identity = root.method_identity; }
   }
   delete record.counts;
   return { record, loaded };
 }
+export const laidTogether = (door, id, root, lists, options) => settled(door, get => joinLaid(id, root, get, lists, options));
 
 // A decision kept apart (its root names its answered steps) or kept whole (its root holds its guidance itself).
 const keptWhole = root => Array.isArray(root.guidance) && !Array.isArray(root.answered_steps) && !object(root.counts);
 
 /** The decision with its scope answer whole and every later step as its summary; `steps` names others to read whole. */
-export async function readDecision(door, id, steps = []) {
-  const root = await door.read('decision', id);
-  if (!root) return null;
+export function joinDecision(id, root, get, steps = []) {
   if (keptWhole(root)) return { ...root, id, whole: true };
-  const { record, loaded } = await laidTogether(door, id, root, LIST_NAMES, { method: true });
+  const { record, loaded } = joinLaid(id, root, get, LIST_NAMES, { method: true });
   let stubs = Array.isArray(root.answered_steps) ? root.answered_steps : [];
   if (object(root.counts)) {
-    stubs = await itemsOf(door, id, 'answered_steps', root.counts.answered_steps ?? 0);
+    stubs = itemsIn(get, id, 'answered_steps', root.counts.answered_steps ?? 0);
     loaded.answered_steps = stubs.map(canonical);
   }
   const wanted = new Set([0, ...stubs.flatMap((stub, n) => (steps.includes(stub.step_id) ? [n] : []))]);
   const guidance = [];
   for (const [n, stub] of stubs.entries()) {
-    if (wanted.has(n)) guidance.push({ ...((await readStep(door, stepKey(id, n))) ?? lostStep(stub)), ...flagsOf(stub) });
+    if (wanted.has(n)) guidance.push({ ...(stepIn(get, stepKey(id, n)) ?? lostStep(stub)), ...flagsOf(stub) });
     else guidance.push({ ...stub, ...flagsOf(stub) });
   }
   const { answered_steps: _stubs, ...own } = record;
   const decision = { ...own, id, guidance };
   LOADED.set(decision, loaded);
   return decision;
+}
+export async function readDecision(door, id, steps = []) {
+  const root = await door.read('decision', id);
+  return root ? settled(door, get => joinDecision(id, root, get, steps)) : null;
 }
 
 // Each item of a list that is new or changed since it was read, and a removal for each item past its new end.

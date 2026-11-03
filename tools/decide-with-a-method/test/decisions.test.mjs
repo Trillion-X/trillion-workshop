@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { addDecisionEvidence, answerADecisionQuestion, caseIdFor, endDecisions, makeTheDecision, nextDecisionQuestion, reportADecisionResult, sayWhatWasDone, startADecision } from '../read-data/decisions.mjs';
 import { shareADecision } from '../read-data/share-a-decision.mjs';
-import { readStep } from '../read-data/decision-records.mjs';
+import { joinDecision, readDecision, readStep } from '../read-data/decision-records.mjs';
 import { similarDecisions } from '../read-data/similar-decisions.mjs';
 import { methodCatalogue } from '../read-data/method.mjs';
 import { caseView, memoryDoor, plainChecks, plainMethod, today } from './fixtures.mjs';
@@ -763,6 +763,18 @@ test('a decision of any size fits: every record and every door write stays under
   for (const [type, size] of Object.entries(largest)) assert.ok(size <= (type === 'decision' ? 4096 : settings.record_bytes), `${type} records stay small (${size})`);
   const roots = door.writes.filter(write => write.ids.includes(id)).length;
   assert.ok(roots > 50, 'the root was written at every change');
+
+  // A reader that reads synchronously joins the same records with the same pure function: `joinDecision` over what the door
+  // holds, never the door, is the decision `readDecision` returns.
+  const get = (type, key) => (door.records.get(key)?.type === type ? structuredClone(door.records.get(key).value) : null);
+  const stepIds = door.value(id).counts.answered_steps;
+  const every = (await readDecision(door, id, extra.map(item => item.id))).guidance.map(entry => entry.step_id);
+  assert.equal(every.length, stepIds);
+  const synchronous = joinDecision(id, door.value(id), get, every);
+  assert.deepEqual(synchronous, await readDecision(door, id, every));
+  assert.equal(synchronous.input.evidence.length, 500);
+  assert.equal(synchronous.guidance.every(entry => !entry.lost && entry.answer !== undefined), true);
+  assert.equal(synchronous.method.id, 'big');
   t.diagnostic(`case ${total} bytes; largest write ${largestWrite}; largest record by type ${JSON.stringify(largest)}`);
 });
 
