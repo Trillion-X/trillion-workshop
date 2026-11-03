@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:c157a0eed85cfdb055d7497ea2eca1844462cd9bb194601bcdea991975d4074c"
+  "blake3": "1f:cca701db6d2940a021f89ab5ba990a3238823acc02dd38e8cf3d39bd7c38617d"
  },
  "fields": [
   {
@@ -3498,6 +3498,21 @@
      "placement:your-computer"
     ],
     "folder": "make-a-lut-for-log-footage"
+   }
+  },
+  {
+   "id": "tool:make-a-plain-work-title",
+   "values": {
+    "title": "Give a job a short plain title",
+    "job": "Give a piece of work a short plain title from its own words, so a person sees what it is at a glance",
+    "description": "Give the job's words (job), and optionally the title someone already said (said) and the words to show when the job holds no sentence a person reads (fallback). A nonblank said is kept, trimmed. Otherwise the first sentence a person would read becomes the title: links keep their words, web addresses, folder paths, record ids, long hex ids and markdown marks are taken out, a leading 'Label:' is dropped, a sentence holding a program word (like list_items) or a short heading is skipped, the first letter is put in capitals and the title is cut at a word to at most 80 UTF-16 units with an ellipsis. Returns title and from (said, job or fallback).",
+    "status": "active",
+    "maker": "maker:judge-words",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "judge-words"
    }
   },
   {
