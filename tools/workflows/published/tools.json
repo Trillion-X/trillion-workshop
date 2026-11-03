@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b3a5add852b8f0e6ab7ea4a10428cd765a899f5a2cc617f913cff0374f140145"
+  "blake3": "1f:1c922daf21f43252bbbb58faf1baa56a6db7c03e6c24f37e2db07ecc4663db81"
  },
  "fields": [
   {
@@ -1917,6 +1917,21 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "find-files-in-an-index"
+   }
+  },
+  {
+   "id": "tool:find-how-records-connect",
+   "values": {
+    "title": "Find how records connect",
+    "job": "Find how two of the person's records connect through relations and things that happened, or what several records all relate to and who else shares it",
+    "description": "With from and to: the paths between them, shortest first, each at most max_length steps (default 4, at most 6), each step one relation or one record to an activity it took part in, with the relation or activity it goes through and the role. With of (or from alone): the hubs every one of them relates to (a group, an organisation, a meeting, a person) with how each holds it, and the members: every other record related to those hubs, most hubs shared first. roles, kinds, activities and ended narrow what is walked. It reads the graph once, bounded (at most 20000 records of each kind, 10 paths); complete false says a bound cut it.",
+    "status": "active",
+    "maker": "maker:record-graph",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "record-graph"
    }
   },
   {
@@ -5515,6 +5530,21 @@
    }
   },
   {
+   "id": "tool:read-the-graph-around-a-record",
+   "values": {
+    "title": "Read everything one record is connected to",
+    "job": "Read everything one of the person's records is connected to: its relations by side and role in order, everything that happened with it and when they were last in touch, and the records a few steps away",
+    "description": "Give any record id (or me). relations groups what it is related to by side (subject: the relations it is the subject of; object: the ones naming it as the role) and role, each group in that end's own order with its order keys; side and role narrow it, ended adds ended relations. history is everything that happened with it, newest first, each saying the roles it took (as), with last_contact; history { with, kinds, role, since, until, limit } narrows it, false leaves it out. hops (1 to 4) adds every record within that many steps through relations and activities, nearest first, each with the step that reached it. complete false means a bound cut a part, so what is not shown is not known yet.",
+    "status": "active",
+    "maker": "maker:record-graph",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "record-graph"
+   }
+  },
+  {
    "id": "tool:read-time-blocks",
    "values": {
     "title": "Read records as time blocks",
@@ -5917,6 +5947,21 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:relate-records",
+   "values": {
+    "title": "Say how things in your records are related",
+    "job": "Keep how things in the person's records are related, with the role as data, and what happened between them, as relation and activity records",
+    "description": "Each relation says subject is the role of object (\"record:crm:pat\" is the \"dad\" of \"me\"; a contact is a \"member\" of \"organisation:Example Club\"); subject and object are record ids, me, or <kind>:<name> for an organisation, group or place, made once by its name. said keeps the words it was read from. Each end keeps its own order of its relations of one role: a new one goes last on both ends, and order { subject: { after }, object: { after } } places it after another relation of that end (null: first). alive false ends a relation and keeps its places, so relating it again puts it back there. activities are things that happened (kind, at, participants each with a role, optional summary, direction, source, said). Saying the same thing again writes nothing. Returns every relation as kept (id, both order keys, alive), the entities made, and the activities.",
+    "status": "active",
+    "maker": "maker:record-graph",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "record-graph"
    }
   },
   {

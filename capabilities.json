@@ -711,6 +711,36 @@
       "evidence": "README.md:3 how a Workshop tool reaches the person's own records: the client for the records door the run was handed"
     },
     {
+      "capability": "relate any of a person's records with the role as data and keep what happened between them, then read the graph around a record and find how records connect",
+      "owner": [
+        "tools/record-graph/"
+      ],
+      "entry": "tools/record-graph/tool-rows.json",
+      "evidence": "README.md:3 relations, entities and activities written and read through records:read, records:list and records:write only, as the engine's record model DATA, with every walk bounded by read-data/record-graph.json",
+      "distinct_from": [
+        {
+          "job": "reach a person's own records from a tool run: the records door client every records tool uses",
+          "why": "That owner is the door client and run driver; this owner is one record model (relation, entity and activity records) and its traversals, which it reaches through that client."
+        },
+        {
+          "job": "follow each customer's steps (outreach, replies, calls, purchases, onboarding, feedback) and each product's progress toward its customer target",
+          "why": "That owner keeps its own customer-step records for one domain; this owner relates any records under any role and reads a record's activities and connections, with no customer, product or target in it."
+        },
+        {
+          "job": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends",
+          "why": "That owner searches, scores and merges people rows; this owner keeps and walks the links between any records and never scores or merges them."
+        },
+        {
+          "job": "form groups, tribes and matches among people",
+          "why": "That owner decides who belongs together and changes group membership by its rules; this owner records any relation it is told and answers how records already connect."
+        },
+        {
+          "job": "lay out one person's or record's profile from a description of what to show",
+          "why": "That owner lays out a profile screen; this owner answers the relations, history and neighbours a profile may show."
+        }
+      ]
+    },
+    {
       "capability": "add up revenue, refunds, net revenue and recurring revenue from any provider's payment events",
       "owner": ["tools/revenue-ledger/"],
       "entry": "tools/revenue-ledger/tool-rows.json",
