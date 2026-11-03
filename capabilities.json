@@ -576,6 +576,22 @@
       "evidence": "README.md:3 the meaning-search package's find-similar-vector and find-similar actions as Workshop tools; ported from bitfield-packages/packages/meaning-search, whose indexing and convergence actions are this job too and not ported yet"
     },
     {
+      "capability": "ask a model served on the person's own computer a conversation or a yes-or-no question, and see which free models fit that computer and get them onto its model server",
+      "owner": ["tools/models-on-this-computer/"],
+      "entry": "tools/models-on-this-computer/tool-rows.json",
+      "evidence": "README.md:3 asks the first model served on this computer that answers, a conversation in the chat-completions shape or a yes-or-no question as probabilities, and says which free models fit this computer's memory and free space and has its model server download them; moved from old trillion computer/local-models.mjs (tool:ask-a-model, tool:get-free-models)",
+      "distinct_from": [
+        {
+          "job": "ask a small model for a yes or no verdict and remember its answers",
+          "why": "tools/ask-a-small-model-for-a-verdict trusts a model only after it gets the person's known cases right, and keeps that calibration; this owner answers a plain conversation (messages, tools, job rows) or the classifier's { state, questions } from the computer's shipped model rows, first server that answers, with no rubric or calibration, and lists and downloads the models that fit the computer."
+        },
+        {
+          "job": "find things by meaning, picture or words across a person's files",
+          "why": "tools/meaning-search embeds text with a local model server to search a person's index; this owner chats and classifies, and never embeds or searches."
+        }
+      ]
+    },
+    {
       "capability": "edit video: find action, scene changes, silence and beats; reframe; change speed; caption; grade colour; lay sounds and pictures over it; arrange and render an edit; measure loudness",
       "owner": ["tools/media-composition/"],
       "entry": "tools/media-composition/tool-rows.json",
