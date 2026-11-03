@@ -19,7 +19,7 @@
 //   input: { sources_list_id?, items_list_id?, most_per_source?, history?, formats?: [{ id, label, description? }],
 //            weighed?: { identity, reply } }
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { listsOverDoor } from '../read-data/lists-door.mjs';
+import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
 import { watchSources } from '../read-data/watch-sources.mjs';
 
 const PURSUIT_FIELDS = ['title', 'after', 'status'];

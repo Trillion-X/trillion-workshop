@@ -70,7 +70,7 @@
   "the signals list is read once a run, its own values only, and each list is written once a run"
  ],
  "allowed_deltas": [
-  "lists are reached through any lists object the caller hands in, each call awaited, so the person's records door can serve them (read-data/lists-door.mjs)",
+  "lists are reached through any lists object the caller hands in, each call awaited, so the person's records door can serve them (tools/records-door/read-data/lists-door.mjs)",
   "a page's readable text comes from tools/browse-public-page extractPage, the function Trillion's readLinkCard built its card from",
   "the store binding (watchSourcesActions) stays with the host that has a store; the Workshop run is do-work/watch-my-sources.mjs",
   "paths in comments and data name this folder; one comment's account figure is left out",

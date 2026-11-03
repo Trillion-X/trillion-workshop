@@ -1,6 +1,6 @@
 // tools/watch-my-sources/test/memory-door.mjs
 //
-// The person's records door kept in memory, as watch-sources reaches it through read-data/lists-door.mjs: read one
+// The person's records door kept in memory, as watch-sources reaches it through tools/records-door/read-data/lists-door.mjs: read one
 // record, list a kind (greatest id first, `fields` narrowing each value), and write records with the door's conditions
 // (`expected` null for absent, { type, value } for the exact current record; a mismatch refuses the whole write) and
 // receipts by key. `writes` counts every write that reached it.
