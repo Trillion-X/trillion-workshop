@@ -3,13 +3,15 @@
 // Purpose: the map of a person's life every reader in Trillion places their pursuits on. What a pursuit serves (the
 // greater good: finding what is true, testing it where it is hardest, changing things based on it) and which parts
 // of a full life it lives along the way (inside you: body, mind, feelings, spirit if they want it; around you: people
-// and living things, things, places and money). The starter map is DATA (src/life-map.json); a person's own map is a
+// and living things, things, places and money). The starter map is DATA, handed in by whoever calls this
+// (useLifeMapSettings: Trillion's own in-account run hands in its rows; the Workshop row reads them from the person's
+// lists through their records door, do-work/place-pursuits-on-a-life-map.mjs); a person's own map is a
 // list of their own (src/lists.mjs), made from the starter rows only when they choose it (or saved by them as any list
 // with the map's id) and changed by them or any of their AIs like any list; an account that never chose one has none, so someone else's map (a coach's wheel, a faith's parts of life) runs the same readers.
 //
 // Non-Negotiable Invariants:
 //   1. Nothing here names an area. Every area, its parent, label, meaning, sides and whether it is optional is a row:
-//      a starter row of src/life-map.json, or a row of the person's own map list (the list wins once it exists).
+//      a starter row of the handed-in map, or a row of the person's own map list (the list wins once it exists).
 //   2. A row with shown: false shapes the judgement only: it is never written to a person's list, never offered to the
 //      reading and never placed or reported.
 //   3. Placing is pure and exact: an area's pursuits are the pursuits whose `areas` name it; an area is missing when it
@@ -20,7 +22,13 @@
 // Shape placed (machine-readable, ids from the map):
 //   { list_id, areas: [{ id, label, part_of, means, sides?, optional, pursuits: [title] }], missing: [{ id, label, part_of }] }
 //
-import lifeMapSettings from './life-map.json' with { type: 'json' };
+let lifeMapSettings = null;
+
+/** Hand in the starter map ({ areas, list, reading, words, ... }) every function reads when it is given none. */
+export function useLifeMapSettings(settings) {
+  lifeMapSettings = settings;
+  return lifeMapSettings;
+}
 
 export { lifeMapSettings };
 

@@ -1,0 +1,207 @@
+{
+  "kind": "tool-rows",
+  "record_set": "place-pursuits-on-a-life-map-tool-rows",
+  "what_this_is": "The Workshop row of tools/place-pursuits-on-a-life-map.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:place-pursuits-on-a-life-map",
+        "label": "Place my pursuits on my life map",
+        "status": "active",
+        "job": "Place what I am pursuing on my own map of a full life and say which parts of my life none of my pursuits touch",
+        "description": "Reads the person's own map (their map list, whose rows are its areas, each with what it is part of and what it means) and places each pursuit on the areas it names; answers every area with its pursuits, the leaf areas no pursuit names that are not optional, one line for each, and with section true the Progress section. A person who never made a map gets offered: true and nothing placed; the starter map is never read in its place. The starter map (its areas list and its settings row, named in read-data/place-pursuits-on-a-life-map.json) is read through the records door or handed in as settings; pursuits are handed in or read from the person's pursuit records (title and areas). It writes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "pursuits": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The pursuits to place, each { title, areas: [area id] }; left out, the person's pursuit records are read"
+            },
+            "settings": {
+              "type": "object",
+              "description": "The starter map ({ areas, list, reading, words }); left out, it is read from the person's lists"
+            },
+            "section": {
+              "type": "boolean",
+              "description": "true also answers the Progress section for the map"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "list_id": {
+              "type": "string"
+            },
+            "offered": {
+              "type": "boolean"
+            },
+            "areas": {
+              "type": "array"
+            },
+            "missing": {
+              "type": "array"
+            },
+            "missing_lines": {
+              "type": "array"
+            },
+            "section": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/place-pursuits-on-a-life-map",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/place-pursuits-on-a-life-map/do-work/place-pursuits-on-a-life-map.mjs",
+            "placePursuitsOnALifeMap"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "place-pursuits-on-a-life-map",
+                "paths": [
+                  "do-work",
+                  "read-data",
+                  "src"
+                ],
+                "at": "/opt/place-pursuits-on-a-life-map"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "list",
+                "id": "list:life-map-areas",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:life-map-area",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:content-setting",
+                "id": "record:content-setting:life-map",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "list",
+                "id": "list:your-map",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:your-map",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "pursuit",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:place-pursuits-on-a-life-map",
+        "provenance": {
+          "source": "Trillion-X/trillion src/life-map.mjs at 42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f, moved (moved-from.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "pursuits": [],
+              "settings": {
+                "areas": [
+                  {
+                    "id": "body",
+                    "label": "Body",
+                    "means": "how you feel"
+                  }
+                ],
+                "list": {
+                  "id": "your-map",
+                  "label": "Your map",
+                  "title_field": "area",
+                  "fields": []
+                },
+                "words": {
+                  "missing_one": "Nothing touches your {label}.",
+                  "nothing_missing": "Every part is touched."
+                }
+              }
+            },
+            "output_selector": "$.list_id",
+            "contains": "your-map"
+          }
+        ]
+      }
+    }
+  ]
+}

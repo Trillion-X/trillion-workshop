@@ -1,0 +1,13 @@
+{
+  "about": "DATA for tools/place-pursuits-on-a-life-map: where the starter map and the person's own map are kept in their lists. `starter_areas`: the list whose rows are the starter map's areas (each { part_of, label, means, sides?, optional?, shown? }, the row id is the area id), with its row type. `settings_row`: the one row holding the rest of the starter map (list: the person's own map list's id, label, icon, about, title_field and fields; reading; words), by row type and row id. `own_map`: the person's own map list, as the starter map's own `list.id` names it and Trillion's lists keep it (row type = list id). The starter ids are the import's that keeps the account owner's content as list rows, which lives outside this repository: they are named here, not in code, and corrected here if that import keeps them elsewhere (and in tool-rows.json rights, which must name the same lists). `pursuits`: the record kind and fields a person's pursuits are read from when none are handed in.",
+  "starter_areas": { "list": "life-map-areas", "row_type": "life-map-area" },
+  "settings_row": { "row_type": "content-setting", "row": "life-map" },
+  "own_map": { "list": "your-map", "row_type": "your-map" },
+  "pursuits": { "type": "pursuit", "fields": ["title", "areas"] },
+  "words": {
+    "no_starter": "There is no starter map in your lists yet: the list {list} holds no areas. Hand in settings (the starter map) or keep its areas in that list first.",
+    "no_settings": "The starter map's areas are kept, but its row {row} (the map list, the reading and the words) is missing. Hand in settings, or keep that row first.",
+    "bad_pursuits": "pursuits is a list of { title, areas: [area id] }.",
+    "bad_settings": "settings is the starter map: { areas: [...], list: { id, label, title_field, fields }, words: { ... } }."
+  }
+}
