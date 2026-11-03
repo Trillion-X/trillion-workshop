@@ -1,6 +1,14 @@
+// tools/app-release-access/read-data/distribution.mjs (moved from old trillion src/device-distribution.mjs)
+//
+// Installation availability is an observation of a release owner, not a property of a URL. This keeps only the safe
+// public projection of a provider report: private tester details and arbitrary provider payloads never escape.
+// The engine reads the same shape back from the release owner's `device-distribution:<source>` record
+// (trillion-rust src/local_account/setup_distribution/value.rs).
+import settings from './distribution.json' with { type: 'json' };
+
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const text = value => typeof value === 'string' ? value : '';
-const config = () => settings.distribution;
+const config = () => settings;
 export const distributionSource = id => config()?.sources?.find(source => source.id === id) ?? null;
 export const distributionRecordLabel = id => `${config().record_prefix}${id}`;
 const state = value => ['ready', 'blocked', 'unknown'].includes(value) ? value : 'unknown';
@@ -13,14 +21,6 @@ function destination(href, source) {
 }
 
 const version = value => typeof value === 'string' && /^\d+(?:\.\d+){0,3}$/.test(value) && value.split('.').every(part => Number.isSafeInteger(Number(part))) ? value : null;
-function compareVersion(left, right) {
-  const a = left.split('.').map(Number), b = right.split('.').map(Number);
-  for (let i = 0; i < Math.max(a.length, b.length); i++) {
-    const delta = (a[i] ?? 0) - (b[i] ?? 0);
-    if (delta) return Math.sign(delta);
-  }
-  return 0;
-}
 
 function eligibilityRequirements(value) {
   if (!object(value) || value.known !== true || !Array.isArray(value.alternatives) || !value.alternatives.length || value.alternatives.length > 30) return { known: false, alternatives: [] };
@@ -29,24 +29,6 @@ function eligibilityRequirements(value) {
     return { device_family: row.device_family ?? null, minimum_os: row.minimum_os ?? null, maximum_os: row.maximum_os ?? null };
   });
   return { known: true, scope: 'minimum_os_and_public_recruitment', alternatives };
-}
-
-/** A server-observed device may resolve public recruitment requirements; account preferences cannot. */
-export function routeEligibility(source, route, observer = null) {
-  const requirements = route.eligibility_requirements;
-  if (!requirements?.known) return route.eligibility_state === 'blocked' ? 'blocked' : 'unknown';
-  const family = observer?.device_family;
-  const os = version(observer?.os_version);
-  if (!family || !source.product_families?.includes(family)) return 'unknown';
-  let unknown = false;
-  for (const alternative of requirements.alternatives) {
-    if (alternative.device_family && alternative.device_family !== family) continue;
-    if ((alternative.minimum_os || alternative.maximum_os) && !os) { unknown = true; continue; }
-    if (alternative.minimum_os && compareVersion(os, alternative.minimum_os) < 0) continue;
-    if (alternative.maximum_os && compareVersion(os, alternative.maximum_os) > 0) continue;
-    return 'ready';
-  }
-  return unknown ? 'unknown' : 'blocked';
 }
 
 /** Only the safe public projection is kept; private tester details and arbitrary provider payloads never escape. */

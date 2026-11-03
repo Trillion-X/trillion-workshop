@@ -1,18 +1,24 @@
-// Fulfil a server-authorized setup request with the existing Apple client and Mac tool host.
-// Input names an account request only. The operator API resolves consent, current setup, policy and verified email.
-// A durable checkpoint precedes each provider mutation; ambiguous attempts are read back, never blindly resent.
+// tools/app-release-access/read-data/setup-access.mjs (moved from old trillion computer/setup-access.mjs)
+//
+// The container tool `tool:fulfill-setup-access`: fulfil a server-authorized setup request with the release owner's
+// held App Store Connect key. Input names an account request (and the app it is for), never a recipient. The
+// operator's claim resolves consent, current setup, policy and verified email; a durable checkpoint precedes each
+// provider mutation; ambiguous attempts are read back, never blindly resent.
+//
+// The claim, checkpoint and finish are the release owner's setup-access operations. The old host called them at the
+// account's /mcp/api/setup-access route; the engine has no such operation at the records door yet (README "Not yet"),
+// so the default operator refuses before any provider call. fulfillAppleSetupAccess is the provider adapter itself.
+//
 // Apple primary protocol references (checked 2026-10-08):
 // https://developer.apple.com/documentation/appstoreconnectapi/get-v1-betatesters
 // https://developer.apple.com/documentation/appstoreconnectapi/post-v1-betatesters
 // https://developer.apple.com/documentation/appstoreconnectapi/post-v1-betagroups-_id_-relationships-betatesters
 // https://developer.apple.com/documentation/appstoreconnectapi/beta-tester-invitations
 // https://developer.apple.com/documentation/appstoreconnectapi/betatesterinvitationcreaterequest
-import { readFile } from 'node:fs/promises';
-import sources from './app-distribution.json' with { type: 'json' };
-import settings from '../src/setup-access.json' with { type: 'json' };
-import { distributionSource } from '../src/device-distribution.mjs';
-import { appStoreConnect } from '../scripts/app-store-connect.mjs';
-import { readTestFlightAvailability } from '../scripts/testflight-readiness.mjs';
+import settings from './setup-access.json' with { type: 'json' };
+import { distributionSource } from './distribution.mjs';
+import { appStoreConnect, readHeldKey } from './app-store-connect.mjs';
+import { readTestFlightAvailability } from './testflight-readiness.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const id = value => typeof value === 'string' && value.length > 0 && value.length <= 200 && value === value.trim();
@@ -173,34 +179,32 @@ export async function fulfillAppleSetupAccess({ asc, dispatch, listing, source, 
   } catch (error) { return { ...readFailure(error), ...details, ...(Object.keys(outcomes).length ? { mutation_outcomes: outcomes } : {}) }; }
 }
 
-export function makeSetupAccessTools({ connect = appStoreConnect, readAvailability = readTestFlightAvailability,
-  readListing = path => readFile(new URL(path, import.meta.url), 'utf8').then(JSON.parse), fetchImpl = fetch, now = Date.now } = {}) {
-  return { async fulfill(input = {}, { origin, key } = {}) {
-    if (!object(input) || Object.keys(input).some(name => !['account_id', 'source_id', 'request_id'].includes(name)) || !['account_id', 'source_id', 'request_id'].every(name => id(input[name]))) throw new Error('Name only the current account, source and access request. Recipients and provider destinations are resolved by the server.');
-    const configured = sources.sources.find(row => row.id === input.source_id), source = distributionSource(input.source_id);
-    if (!configured || !source || !origin || !key) throw new Error('The signed-in release owner and configured source are required.');
-    const url = new URL(`/mcp/api${settings.api_path}`, origin);
-    if (url.protocol !== 'https:' || url.username || url.password) throw new Error('Use the signed-in service over HTTPS.');
-    async function api(operation, extra = {}) {
-      let response;
-      try { response = await fetchImpl(url, { method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify({ ...input, operation, ...extra }), redirect: 'error', signal: AbortSignal.timeout(20000) }); }
-      catch { throw new Error('The operator access request could not be confirmed. No further provider action is permitted.'); }
-      if (!response.ok) throw new Error(`The operator access request refused ${operation} (${response.status}). Read its status before retrying.`);
-      return response.json();
-    }
+const NAMES = ['account_id', 'source_id', 'request_id'];
+const noOperator = async () => {
+  throw new Error('The release owner\'s setup-access claim, checkpoint and finish are not operations a tool run can reach at the records door yet. No provider action was taken.');
+};
+
+export function makeSetupAccessTools({ connect = appStoreConnect, readKey = readHeldKey, readAvailability = readTestFlightAvailability, operator = noOperator, now = Date.now } = {}) {
+  return { async fulfill(input = {}) {
+    if (!object(input) || Object.keys(input).some(name => ![...NAMES, 'bundle_identifier', 'testflight_groups'].includes(name)) || !NAMES.every(name => id(input[name]))) throw new Error('Name only the current account, source and access request. Recipients and provider destinations are resolved by the server.');
+    const source = distributionSource(input.source_id);
+    if (!source) throw new Error('The signed-in release owner and configured source are required.');
+    if (!id(input.bundle_identifier) || !Array.isArray(input.testflight_groups) || !input.testflight_groups.every(id)) throw new Error('Name the app by its bundle identifier and its TestFlight groups.');
+    const request = Object.fromEntries(NAMES.map(name => [name, input[name]]));
+    const api = (operation, extra = {}) => operator(operation, { ...request, operation, ...extra });
     const dispatch = await api('claim');
     if (dispatch.authorized !== true) return { state: dispatch.state ?? 'blocked', reason: dispatch.reason ?? 'The current account request does not permit an invitation.', request_id: input.request_id };
-    if (!['account_id', 'source_id', 'request_id'].every(name => dispatch[name] === input[name]) || !id(dispatch.lease?.id) || Date.parse(dispatch.lease?.expires_at) <= now() || dispatch.mandate?.account_id !== input.account_id || dispatch.mandate?.by !== input.account_id || dispatch.mandate?.revoked === true) throw new Error('The operator claim did not resolve a current account mandate.');
+    if (!NAMES.every(name => dispatch[name] === input[name]) || !id(dispatch.lease?.id) || Date.parse(dispatch.lease?.expires_at) <= now() || dispatch.mandate?.account_id !== input.account_id || dispatch.mandate?.by !== input.account_id || dispatch.mandate?.revoked === true) throw new Error('The operator claim did not resolve a current account mandate.');
     const checkpoint = async mutation => {
       if (Date.parse(dispatch.lease.expires_at) <= now()) throw new Error('The provider-action lease expired before a change.');
       return api('checkpoint', { lease_id: dispatch.lease.id, mutation });
     };
     let outcome;
     try {
-      const listing = await readListing(configured.listing);
-      if (dispatch.policy?.provider !== 'apple-testflight' || !listing?.testflight?.groups?.includes(dispatch.policy.group_name)) outcome = problem('This request names no configured provider group.', 'policy-group-unconfigured');
+      const listing = { app: { bundle_identifier: input.bundle_identifier }, testflight: { groups: input.testflight_groups } };
+      if (dispatch.policy?.provider !== 'apple-testflight' || !listing.testflight.groups.includes(dispatch.policy.group_name)) outcome = problem('This request names no configured provider group.', 'policy-group-unconfigured');
       else {
-        const asc = connect({ keychainService: listing.app_store_connect.key_keychain_service, issuerId: listing.app_store_connect.issuer_id });
+        const asc = connect({ apiKey: readKey() });
         outcome = await fulfillAppleSetupAccess({ asc, dispatch, listing, source, checkpoint, readAvailability, now });
       }
     } catch { outcome = problem('The configured provider credential or local release configuration is unavailable.', 'provider-configuration-unavailable'); }
@@ -208,4 +212,5 @@ export function makeSetupAccessTools({ connect = appStoreConnect, readAvailabili
   } };
 }
 
-export const setupAccessTools = makeSetupAccessTools();
+const tools = makeSetupAccessTools();
+export const fulfill = input => tools.fulfill(input);

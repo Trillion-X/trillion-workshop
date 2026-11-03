@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:a62f364588cf7853c67c8783b21e018b29190386a097709e89576f1d21dd6ddd"
  },
  "fields": [
   {
@@ -2481,6 +2481,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:fulfill-setup-access",
+   "values": {
+    "title": "Arrange a person's beta app access",
+    "job": "Arrange the TestFlight access a person's setup requires, through the release owner's Apple account, without sending a second invitation",
+    "description": "Give account_id, source_id and request_id (the person's setup-access request), and the app's bundle_identifier and testflight_groups. The release owner's claim resolves consent, setup, policy and the verified email; the tool never takes a recipient. It answers a public route when one is usable, otherwise enrolls the person in the policy's external group and, only when Apple will not notify on its own, sends one first invitation, each change after a checkpoint, and an uncertain change is read back, never sent again. Answers state (available, invited, accepted, installed, awaiting-invitation, blocked, indeterminate, revoked) and reason, never the email. Refused for now: the claim, checkpoint and finish are not operations a tool run can reach at the records door yet (README Not yet).",
+    "status": "active",
+    "maker": "maker:app-release-access",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "app-release-access"
    }
   },
   {
@@ -5506,6 +5521,21 @@
      "placement:small-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
+   }
+  },
+  {
+   "id": "tool:read-app-distribution",
+   "values": {
+    "title": "Read an app's TestFlight availability",
+    "job": "Check with Apple which TestFlight and App Store routes a released app can be installed from right now, without changing anything",
+    "description": "Give source_id (a configured release source, such as native-ios), the app's bundle_identifier and its testflight_groups. Reads App Store Connect with the release owner's held team key (app-store-connect-key: {key_id, issuer_id, private_key}) and answers the short-lived public observation: source_id, checked_at, expires_at and routes (each with its state, distribution_state, eligibility_state, reason, check and, when ready, action links on testflight.apple.com or apps.apple.com only). It never answers a tester email, the key or Apple's raw reply, and changes nothing at Apple. publish true is refused until the engine lets a tool save the release owner's device-distribution record.",
+    "status": "active",
+    "maker": "maker:app-release-access",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "app-release-access"
    }
   },
   {

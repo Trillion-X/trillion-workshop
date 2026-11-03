@@ -1,0 +1,76 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-APP-RELEASE-APP-DISTRIBUTION",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "Jibran, 2026-11-03: move code, never rewrite it: port the correct parts one to one, carry the original tests."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "path": "computer/app-distribution.mjs",
+      "lines": [
+        13,
+        27
+      ],
+      "multihash": "1f:84d355cad3fafdf1425603e75837321722c33b39060f6a4a6ff598cc7856da2d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:00:00Z",
+        "deleted_with": "the Mac session that merges this move deletes computer/app-distribution.mjs, computer/app-distribution.json and the tool:read-app-distribution row of computer/mac-tools.json"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "path": "computer/app-distribution.mjs",
+      "lines": [
+        42,
+        44
+      ],
+      "multihash": "1f:9de8013f19e315c02d163292407e03eff764670b748ccf6487d2fc89a16c4371",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:00:00Z",
+        "deleted_with": "the same deletion"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/app-release-access/read-data/app-distribution.mjs"
+    }
+  ],
+  "preserve": [
+    "only a configured source is read",
+    "private tester input is refused",
+    "the bundle identifier must resolve to exactly one complete Apple app record",
+    "the answer is the bounded public observation, never a tester email or Apple's raw reply"
+  ],
+  "allowed_deltas": [
+    "the app's bundle identifier and TestFlight groups are the input, not a repository listing file",
+    "the key is the held value, not the listing's Keychain service",
+    "publish true is refused: the old /mcp/api/device-distribution route is gone and a tool run cannot be granted workspace:write yet"
+  ],
+  "banned_substitutions": [
+    "a Keychain read",
+    "a write through an old account route"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:38:26Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:84d355cad3fafdf1425603e75837321722c33b39060f6a4a6ff598cc7856da2d",
+    "target_multihash_at_baseline": "1f:84d355cad3fafdf1425603e75837321722c33b39060f6a4a6ff598cc7856da2d",
+    "commit": "b657df564849916a920e9eb7d9d756b107ab7c6a"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/app-release-access/test/app-distribution.test.mjs the read answers the safe observation of the one app named and never publishes",
+      "tools/app-release-access/test/app-distribution.test.mjs the read refuses an unconfigured source, tester input, a missing app and publishing before reaching Apple"
+    ]
+  }
+}

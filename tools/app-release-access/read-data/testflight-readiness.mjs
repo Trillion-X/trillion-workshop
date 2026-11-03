@@ -1,3 +1,5 @@
+// tools/app-release-access/read-data/testflight-readiness.mjs (moved from old trillion scripts/testflight-readiness.mjs)
+//
 // Read Apple's current distribution facts without changing an app, group, build or tester.
 // A processed upload or beta review submission is never evidence that external testing is active.
 // Selected/latest upload readiness is separate from group availability: an older active build remains a valid route.
