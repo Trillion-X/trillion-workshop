@@ -1,0 +1,168 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:move-code-between-trees",
+        "id": "tool:move-code-between-trees",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 600,
+          "network_egress": false
+        },
+        "label": "Move a group of files from one code tree to another, with everything they import",
+        "job": "Move groups of code files from one repository to another byte for byte, with every file they import and their tests, delete the originals so one copy remains, and prove the moved files are the same bytes and still load and pass their tests",
+        "description": "Give step (plan, apply or check), the move row (row, or row_file such as move-rows/trillion-to-workshop.json), source_folder and destination_folder (git working copies on this computer). The row is data: the two trees, which owner rows go to which folder (its groups, or groups_from an owner index whose rows name a destination), keep (paths that must stay; a group importing one is held), provider_calls (calls that must not be left in a moved file) and calls (find/replace rows that swap a provider call for a records door call). plan changes nothing and answers each group with its owner files, import closure, tests and why it is held; every file with where it lands (its group folder, or shared_folder when more than one group imports it) and how its imports change; and the files that stay and import a moved file from the destination package. apply carries the plan out on both working copies (apply_groups carries out some groups only, placing shared files as the whole plan would), moves owner-index rows whose files all moved, and writes moved-from.json in each destination folder. check proves a move from those receipts on a clean checkout: each file is its source commit bytes but for import paths and swapped calls, every import reaches the same file, the source no longer holds it, every module loads, and its own tests pass.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "step",
+            "source_folder",
+            "destination_folder"
+          ],
+          "properties": {
+            "step": {
+              "type": "string",
+              "enum": [
+                "plan",
+                "apply",
+                "check"
+              ]
+            },
+            "row": {
+              "type": "object",
+              "description": "The move row itself"
+            },
+            "row_file": {
+              "type": "string",
+              "description": "Or a move row file, relative to this tool folder"
+            },
+            "source_folder": {
+              "type": "string",
+              "description": "The git working copy files move from"
+            },
+            "destination_folder": {
+              "type": "string",
+              "description": "The git working copy files move into"
+            },
+            "source_commit": {
+              "type": "string",
+              "description": "The source commit to move from: the row commit, or HEAD"
+            },
+            "only": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Plan only these groups, by id or destination folder"
+            },
+            "apply_groups": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Carry out only these planned groups"
+            },
+            "source_after_folder": {
+              "type": "string",
+              "description": "check: the source working copy after the move, to prove one copy remains"
+            },
+            "folders": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "check: only these destination folders"
+            },
+            "run": {
+              "type": "boolean",
+              "description": "check: false skips loading and tests"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "groups": {
+              "type": "array"
+            },
+            "files": {
+              "type": "array"
+            },
+            "importers": {
+              "type": "array"
+            },
+            "applied": {
+              "type": "object"
+            },
+            "ok": {
+              "type": "boolean"
+            },
+            "folders": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "use-git-in-a-folder",
+            "change-a-folder"
+          ],
+          "workdir": "/opt/move-code-between-trees",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/move-code-between-trees/do-work/move-code.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "move-code-between-trees",
+                "paths": [
+                  "do-work",
+                  "read-data",
+                  "move-rows"
+                ],
+                "at": "/opt/move-code-between-trees"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
