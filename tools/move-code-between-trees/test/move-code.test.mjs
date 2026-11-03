@@ -146,3 +146,37 @@ test('refusals say what to do', () => {
   assert.throws(() => moveCode({ step: 'plan', source_folder: '/x', destination_folder: '/y' }), /Name the move row/);
   assert.throws(() => moveCode({ step: 'plan', row: { ...row, destination: {} }, source_folder: '.', destination_folder: '.' }), /shared_folder/);
 });
+
+test('content read as rows holds nothing: it stays, is not moved, and the plan and receipt name it', () => {
+  const source = repository({ ...sourceFiles(), 'notes/bean-lens.json': json({ rows: [{ id: 'size', look_for: 'big beans' }] }), 'src/lens.mjs': "import lens from '../notes/bean-lens.json' with { type: 'json' };\nimport { word } from './words.mjs';\nexport const rows = (data = lens) => [data.rows, word];\n" });
+  const destination = repository(destinationFiles());
+  try {
+    const lensRow = { ...row, groups_from: undefined, groups: [{ id: 'bean-lens', owner: ['src/lens.mjs'], to: 'tools/bean-lens' }], keep: [...row.keep, 'notes/'] };
+    const held = moveCode({ step: 'plan', row: lensRow, source_folder: source, destination_folder: destination });
+    assert.match(held.groups[0].held[0], /imports notes\/bean-lens\.json, which stays in the source \(keep row notes\/\)/);
+    const asRows = { ...lensRow, read_as_rows: ['notes/'] };
+    const plan = moveCode({ step: 'plan', row: asRows, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups[0].held, []);
+    assert.deepEqual(plan.groups[0].reads_rows, [{ file: 'notes/bean-lens.json', by: 'src/lens.mjs' }]);
+    assert.deepEqual(plan.files.map(file => file.from), ['src/lens.mjs', 'src/words.mjs']);
+    moveCode({ step: 'apply', row: asRows, source_folder: source, destination_folder: destination });
+    assert.ok(existsSync(join(source, 'notes/bean-lens.json')), 'the content stays');
+    assert.ok(!existsSync(join(destination, 'tools/bean-lens/notes/bean-lens.json')), 'and is not moved');
+    const receipt = JSON.parse(readFileSync(join(destination, 'tools/bean-lens/moved-from.json'), 'utf8'));
+    assert.deepEqual(receipt.files.find(file => file.from === 'src/lens.mjs').reads_rows, ['notes/bean-lens.json']);
+    git(destination, 'add', '-A'); git(destination, 'commit', '-q', '-m', 'moved');
+    const proof = moveCode({ step: 'check', row: asRows, source_folder: source, destination_folder: destination, source_after_folder: source, run: false });
+    assert.equal(proof.ok, true, JSON.stringify(proof.folders.map(item => item.problems)));
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
+
+test('an owner index keeps its own layout: staying rows keep their text, moved rows come and go as lines', () => {
+  const source = repository(sourceFiles());
+  const own = '{\n  "about": "made up",\n  "capabilities": [\n    {\n      "capability": "sort the jars",\n      "owner": ["tools/jars/"]\n    },\n    {"capability": "label the jars", "owner": ["tools/labels/"]}\n  ]\n}\n';
+  const destination = repository({ ...destinationFiles(), 'capabilities.json': own });
+  try {
+    moveCode({ step: 'apply', row, source_folder: source, destination_folder: destination, apply_groups: ['weigh-beans'] });
+    const after = readFileSync(join(destination, 'capabilities.json'), 'utf8');
+    assert.equal(after, own.replace('"owner": ["tools/labels/"]}\n', '"owner": ["tools/labels/"]},\n    {"capability": "weigh the beans", "owner": ["tools/weigh-beans/src/weigh.mjs"], "entry": "tools/weigh-beans/src/weigh.mjs", "evidence": "The weighing reads the shared scale and answers grams."}\n'));
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});

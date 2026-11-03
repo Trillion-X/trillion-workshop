@@ -55,7 +55,7 @@ export function applyMove(plan, row, source, destination, { sourceFolder, destin
     } else file.identity = file.source_identity;
     const folder = receiptFolder(file.to, plan, row);
     if (!receipts.has(folder)) receipts.set(folder, []);
-    receipts.get(folder).push({ from: file.from, commit: source.commit, to: file.to, source_identity: file.source_identity, identity: file.identity, ...(file.reused ? { reused: true } : {}), ...(file.swaps?.length ? { calls: file.swaps.map(hit => hit.id) } : {}) });
+    receipts.get(folder).push({ from: file.from, commit: source.commit, to: file.to, source_identity: file.source_identity, identity: file.identity, ...(file.reused ? { reused: true } : {}), ...(file.swaps?.length ? { calls: file.swaps.map(hit => hit.id) } : {}), ...(file.reads_rows ? { reads_rows: file.reads_rows } : {}) });
   }
   for (const [folder, entries] of receipts) {
     const path = join(destinationFolder, folder, 'moved-from.json');
@@ -153,7 +153,7 @@ function moveOwnerRows(row, source, landing, { sourceFolder, destinationFolder }
   }
   if (!leaving.length && staying.every((item, at) => item === index[from.rows][at])) return 0;
   index[from.rows] = staying;
-  writeJson(sourcePath, index);
+  writeIndex(sourcePath, index, from.rows);
   if (to && leaving.length) {
     const destinationPath = join(destinationFolder, to.file);
     const target = json(destinationPath);
@@ -165,7 +165,7 @@ function moveOwnerRows(row, source, landing, { sourceFolder, destinationFolder }
       for (const field of from.drop_fields ?? []) delete moved[field];
       target[to.rows].push(allowed ? Object.fromEntries(Object.entries(moved).filter(([key]) => allowed.includes(key))) : moved);
     }
-    writeJson(destinationPath, target);
+    writeIndex(destinationPath, target, to.rows);
   }
   return leaving.length;
 }
@@ -176,3 +176,65 @@ function evidenceAfter(evidence, landing, row, here = false) {
   if (!match || !landing.has(match[1])) return evidence;
   return here ? `${landing.get(match[1])}:${match[2]}` : `It moved to ${row.destination?.package ?? 'the destination'} at ${landing.get(match[1])} line ${match[2]}.`;
 }
+
+// An owner index is written back in its own layout: each row that stays keeps its own text, rows that left go, a
+// changed row and a new row are written on one line the way its one-line rows are, and every byte outside the rows
+// stays. If its text cannot be read that way it is written as plain indented JSON.
+function writeIndex(path, value, rowsKey) {
+  const before = existsSync(path) ? readFileSync(path, 'utf8') : null;
+  const spans = before ? rowSpans(before, rowsKey) : null;
+  if (!spans) return writeJson(path, value);
+  const { open, close, items, indent } = spans;
+  const oneLine = items.filter(item => !item.text.includes('\n')).at(-1);
+  const style = { pad: oneLine && /^\{ /.test(oneLine.text) ? ' ' : '' };
+  const unused = new Map();
+  for (const item of items) { const key = JSON.stringify(item.row); unused.set(key, [...(unused.get(key) ?? []), item]); }
+  const out = value[rowsKey].map(row => {
+    const same = unused.get(JSON.stringify(row))?.shift();
+    return same ? same.text : inline(row, style);
+  });
+  const text = `${before.slice(0, open + 1)}${out.length ? `\n${out.map(item => `${indent}${item}`).join(',\n')}` : ''}${before.slice(close)}`;
+  let check;
+  try { check = JSON.parse(text); } catch { return writeJson(path, value); }
+  if (JSON.stringify(check) !== JSON.stringify(value)) return writeJson(path, value);
+  writeFileSync(path, text);
+}
+
+// Where the rows of `key` sit in the text: the array's [ and the whitespace before its ], and each row's own text.
+function rowSpans(text, key) {
+  const found = new RegExp(`^\\s*${JSON.stringify(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:\\s*\\[`, 'm').exec(text);
+  if (!found) return null;
+  const open = found.index + found[0].length - 1;
+  const items = [];
+  let at = open + 1;
+  const space = () => { while (/\s/.test(text[at] ?? '')) at += 1; };
+  for (;;) {
+    space();
+    if (text[at] === ']') break;
+    const start = at;
+    let depth = 0;
+    for (; at < text.length; at += 1) {
+      const ch = text[at];
+      if (ch === '"') { for (at += 1; text[at] !== '"'; at += 1) if (text[at] === '\\') at += 1; continue; }
+      if (ch === '{' || ch === '[') depth += 1;
+      else if (ch === '}' || ch === ']') { depth -= 1; if (depth === 0) { at += 1; break; } }
+    }
+    const piece = text.slice(start, at);
+    let row;
+    try { row = JSON.parse(piece); } catch { return null; }
+    const lineStart = text.lastIndexOf('\n', start) + 1;
+    items.push({ row, text: piece, indent: text.slice(lineStart, start), end: at });
+    space();
+    if (text[at] === ',') { at += 1; continue; }
+    if (text[at] !== ']') return null;
+    break;
+  }
+  if (!items.length) return null;
+  return { open, close: items.at(-1).end, items, indent: /^\s*$/.test(items[0].indent) ? items[0].indent : '    ' };
+}
+
+const inline = (value, style) => {
+  if (Array.isArray(value)) return `[${value.map(item => inline(item, style)).join(', ')}]`;
+  if (value && typeof value === 'object') return `{${style.pad}${Object.entries(value).map(([key, item]) => `${JSON.stringify(key)}: ${inline(item, style)}`).join(', ')}${style.pad}}`;
+  return JSON.stringify(value);
+};
