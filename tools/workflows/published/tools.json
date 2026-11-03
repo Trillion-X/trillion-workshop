@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:f818d80a55a334f0b57b4e72fe71adefbac49820fbae71f8aee963d48533eaef"
  },
  "fields": [
   {
@@ -7929,6 +7929,22 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:start-a-place",
+   "values": {
+    "title": "Make and start a Trillion place on this computer (runs on your computer)",
+    "job": "Make a Trillion place on this computer and start it: its key, its config and the running place",
+    "description": "Makes one Trillion place in a folder the person names and starts it with the engine's own program (trillion-local, named in trillion_local or found on the PATH; it is never built here). It makes the place key once (32 random bytes, base64, readable only by the person; a key already there is kept and never read), writes the place config the engine reads (listen, accounts, place_key_file, public_origin, report, sign_in, sign_up, new_accounts, and router, access and default_places when given), asks the engine for the place's id (`trillion-local place id`), then starts `trillion-local serve` in the background with its output in place.log, and answers the place id, the files and the running place's pid. public_origin must be https and only the scheme and host. default_places are the places a new account that signs up here starts in: holders (one to 16), answering (among the holders) and voters, each a place id or the word this-place, no place twice in a list, and this place among both holders and answering. Report values left out are the engine test place's (reach is the public origin; takes_new_accounts false). start false makes the key and config and answers the id without starting. A refusal says what to change.",
+    "status": "active",
+    "maker": "maker:start-a-place",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-03T00:00:00Z",
+    "folder": "start-a-place"
    }
   },
   {
