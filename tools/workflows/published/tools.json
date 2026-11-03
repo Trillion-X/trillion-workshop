@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:7866c2e776961253d797781c3db2988048c4d530c35658ee7d84cb0615a236eb"
  },
  "fields": [
   {
@@ -4747,6 +4747,21 @@
    }
   },
   {
+   "id": "tool:places-left-out-of-screen-capture",
+   "values": {
+    "title": "Places left out of screen capture",
+    "job": "List, check and turn on or off the categories of places (banking, health, social and more) the person's screen capture must leave out, and take new coverage as a cursor diff",
+    "description": "Runs on the person's own Mac. action list gives each category, whether it is on and how many domains it holds; check says which category on an address is in, or null; set turns one category on or off in the person's own file; diff applies a cursor diff of added domains and tombstones only when it starts at this Mac's cursor. A subdomain belongs to its domain's category, a look-alike does not, and a removed domain stays gone after a seed reload.",
+    "status": "active",
+    "maker": "maker:record-the-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "record-the-screen"
+   }
+  },
+  {
    "id": "tool:plan-a-column-fill",
    "values": {
     "title": "Fill a column by asking my sources in order",
@@ -6292,6 +6307,21 @@
     ],
     "listed_on": "2026-10-30T20:00:00Z",
     "folder": "take-requests"
+   }
+  },
+  {
+   "id": "tool:record-the-screen",
+   "values": {
+    "title": "Record my screen",
+    "job": "Record one display or one window of the person's Mac as a movie the person chose, pause, resume and stop it, note the pointer (positions and presses, never keys) beside it, and save it only to a place the person's allow-list names",
+    "description": "Runs on the person's own Mac. action start needs a source ({ kind: display | window, id }) that is there now; the first capturer row that this Mac has, that can take that kind of source and that can leave out the apps and window titles the person listed records it (a ScreenCaptureKit helper, then the system's screencapture). pause and resume reach it as its row says, or are refused in words. The recording ends by itself, saying so, when its source goes away. It is written as a 0600 file in a fresh 0700 folder; save moves it, and the pointer sidecar, to a path under the allow-list, never through a link and never over a file. prefs and exclude edit the person's own settings and leave-out list. status says what is recording.",
+    "status": "active",
+    "maker": "maker:record-the-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "record-the-screen"
    }
   },
   {

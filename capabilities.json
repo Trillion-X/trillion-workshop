@@ -1596,6 +1596,17 @@
       ]
     },
     {
+      "capability": "record one chosen display or window of the person's Mac as a movie with pause, resume and stop, note the pointer beside it (positions and presses, never keys), leave out the apps, window titles and categories of places the person listed, and save it only under the person's allow-list",
+      "owner": ["tools/record-the-screen/"],
+      "entry": "tools/record-the-screen/tool-rows.json",
+      "evidence": "tools/record-the-screen/README.md:3 a capturer ladder (a ScreenCaptureKit helper, then screencapture) over one source, verbs by DATA, a 0600 recording in a 0700 folder, a pointer sidecar normalised to the source, and an allow-listed save; moved from Trillion's computer/capture-session.mjs and its Swift helpers",
+      "distinct_from": [
+        {"job": "see what is on the person's Mac screen right now: a picture of every display, each with its size in pixels", "why": "tools/look-at-screen takes one still picture of every display and keeps nothing; this one records a movie of one chosen source over time and keeps it until it is saved"},
+        {"job": "record a web page as a demo video: play steps like a person would, with a drawn pointer and click ripples", "why": "tools/record-a-web-page records a page address in a headless browser; this one records the person's own display or window in any app"},
+        {"job": "read what a person is doing on their Mac as text from the front window", "why": "tools/read-what-is-on-screen returns words from the front window; this one returns a movie file and no words"}
+      ]
+    },
+    {
       "capability": "plan a person's tasks into their free time and judge their meetings against their pursuits: ASAP first, then hard deadlines, then what serves the pursuits that matter most, then due date; tasks wait for their blockers, long tasks split into pieces, fixed-time tasks stay put, each day's work is held to a cap, and meetings that serve no pursuit and keep more valuable work from its deadline are proposed for decline",
       "owner": ["tools/plan-my-time/"],
       "entry": "tools/plan-my-time/tool-rows.json",
