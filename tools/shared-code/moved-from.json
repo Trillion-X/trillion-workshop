@@ -6,14 +6,14 @@
   "files": [
     {
       "from": "src/public-app-element-addresses.mjs",
-      "commit": "ac89260b32e2081d3ae6c59877f1bdb40e41876e",
+      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
       "to": "tools/shared-code/src/public-app-element-addresses.mjs",
       "source_identity": "1f:8953aa82477664d25381cfe7f80fb5c66b79926d53367ed3f8641d8efddc296d",
       "identity": "1f:8953aa82477664d25381cfe7f80fb5c66b79926d53367ed3f8641d8efddc296d"
     },
     {
       "from": "src/public-app-files.mjs",
-      "commit": "ac89260b32e2081d3ae6c59877f1bdb40e41876e",
+      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
       "to": "tools/shared-code/src/public-app-files.mjs",
       "source_identity": "1f:0e56adbe64d317888f08543afefc15bbb0e59458fda4d307a822eaa91c6cacf4",
       "identity": "1f:0e56adbe64d317888f08543afefc15bbb0e59458fda4d307a822eaa91c6cacf4"
