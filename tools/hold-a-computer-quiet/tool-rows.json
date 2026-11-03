@@ -1,0 +1,395 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:hold-a-computer-quiet",
+        "needs": {
+          "expected_seconds": 3,
+          "priority": 5,
+          "network_egress": false
+        },
+        "id": "tool:hold-a-device-quiet",
+        "listed_on": "2026-10-05T20:00:00Z",
+        "label": "Keep a device quiet until a time",
+        "job": "Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime",
+        "description": "Give until (a date and time) or minutes. apps names the apps to keep closed (a short default list of messaging and video apps when left out); only instead names the apps that stay open, and every other app is closed whenever it opens, for a session where the one thing is all that is left; Finder, Trillion, terminals and Shortcuts are never closed. focus false leaves Focus as it is. The hold ends by itself at its time (at most 12 hours away), so the person is never kept out of their own computer. The first time, the computer opens a Shortcuts window and the person presses Add Shortcut once.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "apps": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "only": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "focus": {
+              "type": "boolean"
+            },
+            "until": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "minutes": {
+              "type": "number",
+              "minimum": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "close-apps-and-switch-focus"
+          ],
+          "workdir": "/opt/hold-a-computer-quiet",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+            "holdADeviceQuiet"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "hold-a-computer-quiet",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/hold-a-computer-quiet"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:hold-a-computer-quiet",
+        "needs": {
+          "expected_seconds": 3,
+          "priority": 5,
+          "network_egress": false
+        },
+        "id": "tool:release-a-device",
+        "listed_on": "2026-10-05T20:00:00Z",
+        "label": "Free a held device again",
+        "job": "End a hold on the person's computer now: apps can open again and Focus turns off",
+        "description": "Give id to end one hold, or nothing to end every hold.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "close-apps-and-switch-focus"
+          ],
+          "workdir": "/opt/hold-a-computer-quiet",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+            "releaseADevice"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "hold-a-computer-quiet",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/hold-a-computer-quiet"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:hold-a-computer-quiet",
+        "needs": {
+          "expected_seconds": 3,
+          "priority": 5,
+          "network_egress": false
+        },
+        "id": "tool:device-holds",
+        "listed_on": "2026-10-05T20:00:00Z",
+        "label": "What holds a device",
+        "job": "See which holds are keeping apps closed on the person's computer and when each ends",
+        "description": "Answers every hold still lasting.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "close-apps-and-switch-focus"
+          ],
+          "workdir": "/opt/hold-a-computer-quiet",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+            "deviceHolds"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "hold-a-computer-quiet",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/hold-a-computer-quiet"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:hold-a-computer-quiet",
+        "needs": {
+          "expected_seconds": 3,
+          "priority": 5,
+          "network_egress": false
+        },
+        "id": "tool:focus",
+        "listed_on": "2026-10-05T20:00:00Z",
+        "label": "Turn Focus on or off",
+        "job": "Switch Do Not Disturb on the person's computer on or off",
+        "description": "on true turns Focus on, false turns it off.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "on": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "close-apps-and-switch-focus"
+          ],
+          "workdir": "/opt/hold-a-computer-quiet",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
+            "focus"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "hold-a-computer-quiet",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/hold-a-computer-quiet"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}

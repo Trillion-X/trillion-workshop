@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:e3d058f3ec385f5c30470580182e2902d3c6d11d6502fbe10ddee005230c05ba"
+  "blake3": "1f:9feb436624479ba6fea099c71a2752c220aba474a7595c6fcb91ab5e521f6be2"
  },
  "fields": [
   {
@@ -1586,6 +1586,22 @@
    }
   },
   {
+   "id": "tool:device-holds",
+   "values": {
+    "title": "What holds a device",
+    "job": "See which holds are keeping apps closed on the person's computer and when each ends",
+    "description": "Answers every hold still lasting.",
+    "status": "active",
+    "maker": "maker:hold-a-computer-quiet",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T20:00:00Z",
+    "folder": "hold-a-computer-quiet"
+   }
+  },
+  {
    "id": "tool:draft-a-funnel",
    "values": {
     "title": "Draft a funnel",
@@ -2175,6 +2191,22 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:focus",
+   "values": {
+    "title": "Turn Focus on or off",
+    "job": "Switch Do Not Disturb on the person's computer on or off",
+    "description": "on true turns Focus on, false turns it off.",
+    "status": "active",
+    "maker": "maker:hold-a-computer-quiet",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T20:00:00Z",
+    "folder": "hold-a-computer-quiet"
    }
   },
   {
@@ -2930,6 +2962,22 @@
     ],
     "listed_on": "2026-10-30T20:00:00Z",
     "folder": "take-requests"
+   }
+  },
+  {
+   "id": "tool:hold-a-device-quiet",
+   "values": {
+    "title": "Keep a device quiet until a time",
+    "job": "Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime",
+    "description": "Give until (a date and time) or minutes. apps names the apps to keep closed (a short default list of messaging and video apps when left out); only instead names the apps that stay open, and every other app is closed whenever it opens, for a session where the one thing is all that is left; Finder, Trillion, terminals and Shortcuts are never closed. focus false leaves Focus as it is. The hold ends by itself at its time (at most 12 hours away), so the person is never kept out of their own computer. The first time, the computer opens a Shortcuts window and the person presses Add Shortcut once.",
+    "status": "active",
+    "maker": "maker:hold-a-computer-quiet",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T20:00:00Z",
+    "folder": "hold-a-computer-quiet"
    }
   },
   {
@@ -6010,6 +6058,22 @@
    }
   },
   {
+   "id": "tool:release-a-device",
+   "values": {
+    "title": "Free a held device again",
+    "job": "End a hold on the person's computer now: apps can open again and Focus turns off",
+    "description": "Give id to end one hold, or nothing to end every hold.",
+    "status": "active",
+    "maker": "maker:hold-a-computer-quiet",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-05T20:00:00Z",
+    "folder": "hold-a-computer-quiet"
+   }
+  },
+  {
    "id": "tool:release-a-place",
    "values": {
     "title": "Release a place",
@@ -7623,6 +7687,166 @@
      "placement:your-computer"
     ],
     "folder": "audio-transcription"
+   }
+  },
+  {
+   "id": "tool:trillion-media-drive-folder",
+   "values": {
+    "title": "Look inside a folder on a drive",
+    "job": "List the files and folders in one folder on a drive connected to this person's computer, a page at a time",
+    "description": "Runs on the person's computer. hidden \"1\" includes hidden files; offset and limit page through a long folder.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:trillion-media-drive-holders",
+   "values": {
+    "title": "What is using a drive",
+    "job": "Name the programs on this person's computer that are using one drive right now, which would stop it from ejecting",
+    "description": "Runs on the person's computer. Returns mount and processes (each pid and name).",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:trillion-media-drive-icon",
+   "values": {
+    "title": "A drive's icon",
+    "job": "Get the icon Finder shows for one drive connected to this person's computer, as a PNG picture",
+    "description": "Runs on the person's computer. Returns mount, media_type and base64 (the PNG).",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:trillion-media-drive-kinds",
+   "values": {
+    "title": "What is on a drive",
+    "job": "Tell what is on one drive connected to this person's computer by kind of file (videos, pictures, sound, documents), with how many of each and how much space they take",
+    "description": "Runs on the person's computer; the first read of a drive runs in the background, and a kept read is used for 6 hours.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:trillion-media-drives",
+   "values": {
+    "title": "Drives on my computers",
+    "job": "List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected",
+    "description": "Runs on the person's computer while the Trillion app is open there. Returns devices: each with name, mount, size_bytes, free_bytes, kind, internal, ejectable and state.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:trillion-media-eject",
+   "values": {
+    "title": "Eject a drive",
+    "job": "Eject one drive connected to this person's computer safely, so it can be unplugged",
+    "description": "Runs on the person's computer. check true only names anything still using the drive and ejects nothing.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:trillion-media-file-places",
+   "values": {
+    "title": "Where else a file is",
+    "job": "Find every other place one file on this person's computer also is (a duplicate): on their other connected drives and in their Trillion space",
+    "description": "Runs on the person's computer. path is the file on a connected drive.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:trillion-media-transfer",
+   "values": {
+    "title": "Copy or move files between drives",
+    "job": "Copy or move files and folders to one or more folders on drives connected to this person's computer, as a long job that can be paused and stopped",
+    "description": "Runs on the person's computer. sources are full paths; destinations are folders on connected drives; mode is copy or move. check true previews what would be copied and changes nothing.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:trillion-media-work",
+   "values": {
+    "title": "Drive work in progress",
+    "job": "List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now",
+    "description": "Runs on the person's computer. Returns work: each job with its id, what it is doing and the controls it takes now.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:trillion-media-work-control",
+   "values": {
+    "title": "Pause, resume or stop drive work",
+    "job": "Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time",
+    "description": "Runs on the person's computer. id is the job from tool:trillion-media-work; action is one of the controls it lists; check true only says whether that control is ready.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
    }
   },
   {

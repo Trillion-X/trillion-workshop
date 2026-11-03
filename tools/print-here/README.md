@@ -16,11 +16,15 @@ Prints a file from the person's files on a printer their Mac already has, and sa
 
 | Name | Signature / Shape | Role |
 |------|-------------------|------|
-| `makePrintTools` | `({ settings?, list?, send? }) => { printers(), print(input, read) }` | Lists printers, checks the printer named, reads the file, sends one job. Each refusal says what to do. With no printer named and no default, it asks which printer instead of guessing. |
+| `makePrintTools` | `({ settings?, list?, send? }) => { printers(), print(input, read, effects?) }` | Lists printers, checks the printer named, reads the file, sends one job. Each refusal says what to do. With no printer named and no default, it asks which printer instead of guessing. With `effects` (`handoff_id`, `recordEffect`), the job is journaled before it is sent: a finished one answers its receipt, one that may have started is refused and never sent again. |
 | `readWhole` | `(call, settings, file) => Promise<{ title, size, bytes }>` | Finds the file and reads every byte through the door in `read_bytes` steps. A file over `most_bytes` is not read. |
+
+## Merged from Trillion
+
+Trillion's Mac kept its own copy of these two tools (`computer/print-here.mjs`, same ids). This folder's code was kept: it calls the print commands by absolute path, asks which printer when there is no default, and reads the file in capped steps. Trillion's copy alone journaled each job by its hand-off (`recordEffect`), so that was folded in here, with its two tests.
 
 ## Dependencies
 
 **Depends on:** `tools/records-door` (`run-an-export.mjs` and `door.files`), Node's standard library, and the Mac's `lpstat` and `lp`.
 
-**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) after the person grants `use-the-print-system`.
+**Depended on by:** `tool-rows.json`; the Trillion Mac app's tool host (`computer/mac-tools.json` in Trillion-X/trillion), which runs `printers` and `print` on placement:your-computer and hands `print` a door over the account's own files and its effect journal. The local engine runs the rows on the person's computer (`computer` kind) after the person grants `use-the-print-system`.

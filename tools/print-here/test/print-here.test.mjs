@@ -66,3 +66,48 @@ test('reads a file in steps through the door until every byte is in', async () =
   assert.equal(file.bytes.toString(), bytes.toString());
   assert.deepEqual(calls.map(row => [row.method, row.offset]), [['find_file', undefined], ['read_file', 0], ['read_file', 4], ['read_file', 8]]);
 });
+
+// Brought from Trillion-X/trillion test/who-does-it.test.mjs, where the Mac's own copy of these tools was tested.
+test('the Mac prints a file from the person\'s files on a printer it has, and refuses one it does not', async () => {
+  const listed = 'printer EPSON_XP_6100_Series is idle.  enabled since Thu\nsystem default destination: EPSON_XP_6100_Series\n';
+  assert.deepEqual(printersFrom(listed).printers, [{ name: 'EPSON_XP_6100_Series', state: 'idle', default: true }]);
+  const sent = [];
+  const tools = makePrintTools({ settings: printSettings(), list: async () => listed, send: async job => { sent.push(job); return { job: 'EPSON-12' }; } });
+  const read = async () => ({ bytes: Buffer.from('%PDF-1.4'), title: 'card.pdf', size: 8 });
+  const done = await tools.print({ file: '/Popcorn/card.pdf', copies: 2, paper: 'Letter', fit: true }, read);
+  assert.equal(done.printed, true);
+  assert.equal(done.job, 'EPSON-12');
+  assert.deepEqual(sent[0].args, ['-d', 'EPSON_XP_6100_Series', '-n', '2', '-t', 'card.pdf', '-o', 'media=Letter', '-o', 'fit-to-page']);
+  assert.equal(String(sent[0].bytes), '%PDF-1.4');
+  const refused = await tools.print({ file: '/x.pdf', printer: 'Nope' }, read);
+  assert.equal(refused.printed, false);
+  assert.match(refused.said, /EPSON_XP_6100_Series/);
+});
+
+test('native print work records a stable effect and refuses to replay an unresolved submission', async () => {
+  const listed = 'printer EPSON_XP_6100_Series is idle.  enabled since Thu\nsystem default destination: EPSON_XP_6100_Series\n';
+  let started = 0, sent = 0;
+  const tools = makePrintTools({ settings: printSettings(), list: async () => listed,
+    send: async () => { sent += 1; return { job: 'EPSON-13' }; } });
+  const read = async () => ({ bytes: Buffer.from('%PDF-1.4'), title: 'card.pdf', size: 8 });
+  const effects = { handoff_id: 'h_print_1', recordEffect: async effect => {
+    if (effect.state === 'starting') { started += 1; return { proceed: true, repeated: started > 1 }; }
+    return { effect: { state: 'done', receipt: { printed: true, printer: 'EPSON_XP_6100_Series', job: 'EPSON-13', copies: 1 } } };
+  } };
+  const result = await tools.print({ file: '/Popcorn/card.pdf' }, read, effects);
+  assert.equal(result.printed, true);
+  assert.equal(sent, 1);
+  await assert.rejects(tools.print({ file: '/Popcorn/card.pdf' }, read, effects), /may already have started/);
+  assert.equal(sent, 1, 'a repeated starting effect never sends to the printer again');
+});
+
+test('a job the journal already finished answers its receipt without printing again', async () => {
+  const listed = 'printer SAMPLE_OFFICE is idle.\nsystem default destination: SAMPLE_OFFICE\n';
+  let sent = 0;
+  const receipt = { printed: true, printer: 'SAMPLE_OFFICE', job: 'SAMPLE_OFFICE-1', copies: 1, said: 'Sent card.pdf to SAMPLE_OFFICE (1 copy).' };
+  const tools = makePrintTools({ list: async () => listed, send: async () => { sent += 1; return { job: 'x' }; } });
+  const answer = await tools.print({ file: '/card.pdf' }, async () => ({ bytes: Buffer.from('pdf'), title: 'card.pdf', size: 3 }),
+    { handoff_id: 'h_done', recordEffect: async () => ({ proceed: false, effect: { state: 'done', receipt } }) });
+  assert.deepEqual(answer, receipt);
+  assert.equal(sent, 0);
+});

@@ -12,7 +12,10 @@
 //      folder, so no copy is left behind.
 //   3. A printer the Mac does not have is refused in words with the printers it does have; nothing is guessed: with
 //      no printer named and no default, a Mac with more than one printer asks which.
-//   4. One run prints once: the engine keeps each run by its request key, so a retry answers the first run.
+//   4. One run prints once: the engine keeps each run by its request key, so a retry answers the first run. A host that
+//      hands runs over by id (the Trillion Mac app's tool host: context.handoff_id and context.recordEffect) has the
+//      job journaled before it is sent: a job already done answers its receipt, and one that may have started is
+//      refused in words, never sent to the printer again.
 //
 // SECURITY
 //   The print command is run with an argument list, never through a shell, so no file name or title can run anything.
@@ -65,7 +68,8 @@ export async function readWhole(call, settings, file) {
 }
 
 /**
- * deps { settings?, list?: () → lpstat text, send?: ({ command, args, bytes }) → { job }, read?: (file) → { bytes, title, size } }
+ * deps { settings?, list?: () → lpstat text, send?: ({ command, args, bytes }) → { job } }
+ * print(input, read: (file) → { bytes, title, size }, effects?: { handoff_id?, recordEffect? })
  */
 export function makePrintTools(deps = {}) {
   const settings = deps.settings ?? printSettings();
@@ -82,7 +86,7 @@ export function makePrintTools(deps = {}) {
   const w = settings.words;
   return {
     async printers() { return printersFrom(await list()); },
-    async print(input, read) {
+    async print(input, read, effects = {}) {
       if (!input?.file) return { printed: false, said: w.no_file };
       const { printers, default: fallback } = printersFrom(await list());
       if (!printers.length) return { printed: false, said: w.no_printer };
@@ -95,8 +99,19 @@ export function makePrintTools(deps = {}) {
       if (!file.bytes) return { printed: false, said: fill(w.too_big, { title, mb: Math.round(file.size / 1e6), most: Math.round(settings.most_bytes / 1e6) }) };
       const copies = Math.max(1, Math.min(Number(input.copies) || 1, 100));
       const { command, args } = printArguments(settings, { ...input, printer, copies, title });
+      const effect_id = effects.handoff_id && effects.recordEffect ? `print:${effects.handoff_id}` : null;
+      if (effect_id) {
+        const starting = await effects.recordEffect({ effect_id, state: 'starting', target: `${printer}: ${title}` });
+        if (!starting.proceed) {
+          if (starting.effect?.state === 'done' && starting.effect.receipt?.printed === true) return starting.effect.receipt;
+          throw new Error(starting.note ?? w.may_have_started);
+        }
+        if (starting.repeated) throw new Error(w.may_have_started);
+      }
       const { job } = await send({ command, args, bytes: file.bytes });
-      return { printed: true, printer, job, copies, said: fill(w.printed, { title, printer, copies }) };
+      const result = { printed: true, printer, job, copies, said: fill(w.printed, { title, printer, copies }) };
+      if (effect_id) await effects.recordEffect({ effect_id, state: 'done', receipt: result });
+      return result;
     },
   };
 }
@@ -107,9 +122,9 @@ export async function printers() {
 }
 
 /** `tool:print`: one file of the person's files on one printer, read through the run's door. */
-export async function print(input, { door }) {
+export async function print(input, { door, handoff_id, recordEffect } = {}) {
   const settings = printSettings();
   // Reads change nothing, so each door call keeps the client's own request key.
   const call = (method, request) => door.files(method, request);
-  return makePrintTools({ settings }).print(input, file => readWhole(call, settings, file));
+  return makePrintTools({ settings }).print(input, file => readWhole(call, settings, file), { handoff_id, recordEffect });
 }
