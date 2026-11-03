@@ -1,0 +1,32 @@
+{
+  "_what": "The facts kept about a file (the namespace result of `result_kind`), as the fields Files and Media show, sort, group and filter by. Read by src/workspace/file-facts.mjs. A new fact is one row in `fields`: `id` is its name in the facts value, `kind` one of `kinds` (which picks its filter comparisons through `rule_kind` and how it is written through `show`), `else` the values read when the fact is absent (`fact`: another fact, `row`: a field the screen's own row carries), `editable` lets the person change it in the list. A fact that has no row here (one an AI or the person added) still shows, as a field of the kind its value reads as, hidden until chosen. `quiet` names facts used by the readers rather than displayed as editable fields: `read_from_file` is when the file's own bytes were last read, and `media_tracks` records actual WebM sound/picture TrackType entries. `person_kinds` are the kinds a person picks from when adding a field of their own; `person_fields_preference` is where those fields are kept for them across devices.",
+  "result_kind": "facts",
+  "read_mark": "read_from_file",
+  "quiet": ["read_from_file", "media_tracks"],
+  "person_fields_preference": "file-fact-fields",
+  "fields": [
+    { "id": "captured_at", "label": "Captured", "icon": "CalendarClock", "kind": "date", "width": 150, "groupable": true, "editable": true, "else": [{ "row": "captured_ms" }] },
+    { "id": "place", "label": "Place", "icon": "MapPin", "kind": "place", "width": 190, "groupable": true, "editable": true, "else": [{ "fact": "location" }] },
+    { "id": "duration", "label": "Length", "icon": "Timer", "kind": "duration", "width": 90 },
+    { "id": "camera", "label": "Camera", "icon": "Camera", "kind": "choice", "width": 160, "groupable": true, "editable": true, "hiddenByDefault": true },
+    { "id": "resolution", "label": "Picture size", "icon": "Ratio", "kind": "choice", "width": 120, "groupable": true, "hiddenByDefault": true },
+    { "id": "location", "label": "Coordinates", "icon": "LocateFixed", "kind": "place", "width": 190, "hiddenByDefault": true },
+    { "id": "palette", "label": "Colours", "icon": "Palette", "kind": "tags", "width": 200, "hiddenByDefault": true }
+  ],
+  "kinds": {
+    "text": { "rule_kind": "text", "show": "text" },
+    "choice": { "rule_kind": "choice", "show": "text" },
+    "number": { "rule_kind": "number", "show": "number" },
+    "duration": { "rule_kind": "duration", "show": "clock" },
+    "date": { "rule_kind": "date", "show": "day", "field_kind": "date" },
+    "tags": { "rule_kind": "tags", "show": "list", "field_kind": "tag" },
+    "place": { "rule_kind": "choice", "show": "place" }
+  },
+  "person_kinds": [
+    { "id": "text", "label": "Text" },
+    { "id": "choice", "label": "Choice" },
+    { "id": "number", "label": "Number" },
+    { "id": "date", "label": "Date" },
+    { "id": "tags", "label": "Tags" }
+  ]
+}

@@ -186,6 +186,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `show-what-a-tool-would-give-members` | Tells a space owner, before adding a tool for members, what it would give each member beyond their grants, what it reaches or could cost, and whether they must decide it | `tool:show-what-a-tool-would-give-members` |
 | `describe-connected-accounts` | Says for each connected account which is primary, what its sign-in allowed, what is copied, what stays live and what Trillion may do | `tool:describe-connected-accounts` |
 | `suggest-connections-from-links` | Names the services links in some words point at that are not connected yet, to offer connecting them | `tool:suggest-connections-from-links` |
+| `find-pictures-by-colour-and-likeness` | Finds pictures by a typed or named colour (CIE-LAB) or like one picture (embedding, else palette) | `tool:find-pictures-by-colour-and-likeness` |
 
 ## Folder layout
 

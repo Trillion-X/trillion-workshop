@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:db729937a1e0203395462dbf898143a89e3888ae08cdb6d8db23f3f3d2902f68"
+  "blake3": "1f:8e8f1f5a3cc3b2242954f2371530ea500c6c1ddbe48b8d349b9c8ea08f2c66ce"
  },
  "fields": [
   {
@@ -2294,6 +2294,21 @@
      "placement:small-container"
     ],
     "folder": "person-list"
+   }
+  },
+  {
+   "id": "tool:find-pictures-by-colour-and-likeness",
+   "values": {
+    "title": "Find pictures by colour or likeness",
+    "job": "Find my pictures by a colour I type or name, or find pictures like one I pick",
+    "description": "Give rows (the pictures' facts: [{ id, palette: ['#rrggbb', ...], embedding? }]) and one of question (words with typed #rrggbb colours or colour words), colour (one #rrggbb) or like (the id of a picture). Colour is compared in CIE-LAB (delta-E 1976): a typed hex within 22 of any palette colour, a colour word within 16 of the top three. like ranks by embedding cosine (floor 0.30) and falls back to palette distance when embeddings are missing or weak; the picture itself is never its own result. Returns ids, by (colour, embedding or palette) and the colours asked.",
+    "status": "active",
+    "maker": "maker:find-pictures-by-colour-and-likeness",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "find-pictures-by-colour-and-likeness"
    }
   },
   {
