@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-HOST-ADMINISTRATION",
-  "status": "BASELINED",
+  "status": "ADAPTED",
   "directive": {
     "thread_id": "door-tls-port lane 2026-11-03: the public door's certificate owner moves into the Workshop",
     "message_multihash": "1f:a8d28073d09ccea0c78f8434013ba3557da77d17203fcf04f5e3b7014110a9a0",
@@ -43,10 +43,11 @@
     "recorded_at": "2026-11-03T21:10:00Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:e35d90a317e7c55bc43a617c6aea7cf618612500086955c81d87e11de744e7c7",
-    "target_multihash_at_baseline": "1f:e35d90a317e7c55bc43a617c6aea7cf618612500086955c81d87e11de744e7c7"
+    "target_multihash_at_baseline": "1f:e35d90a317e7c55bc43a617c6aea7cf618612500086955c81d87e11de744e7c7",
+    "commit": "4a56725363a4db0df01c54c62b4af1c8b393850a"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
-    "test_refs": []
+    "test_refs": ["tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs the host is reached as root with one identity and its pinned key, through the run's proxy when it has one"]
   }
 }

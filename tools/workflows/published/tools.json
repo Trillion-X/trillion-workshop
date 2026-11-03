@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:a86d7efb3a2c227881492809fc9894bd399cfa2cee6aa2fa5bd572f4d30ece45"
  },
  "fields": [
   {
@@ -965,6 +965,21 @@
      "placement:your-computer"
     ],
     "folder": "check-a-rendered-video"
+   }
+  },
+  {
+   "id": "tool:check-a-servers-tls-owner-on-the-server",
+   "values": {
+    "title": "Check a server's TLS owner on the server",
+    "job": "Run the certificate program's own tests on my Linux server, where its private-credential checks can run",
+    "description": "Puts this folder's test/tls-host-owner.test.py beside the server's certificate owner (host.owner with .test.py) and runs it there with the server's Python: the Linux-only checks (the DNS key lives only in an anonymous memory file a child reads by an inherited descriptor; a failed provider never returns the key; a dry run asks the staging server) run on the server, as nowhere else. Answers the test output, or `passed`.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
    }
   },
   {
@@ -3297,6 +3312,21 @@
    }
   },
   {
+   "id": "tool:issue-a-tls-certificate",
+   "values": {
+    "title": "Issue a server's TLS certificate",
+    "job": "Get a certificate for my server's public address for the first time, by a DNS-01 check with my DNS key",
+    "description": "Asks the server's certificate owner (tool:set-up-a-servers-tls-owner first) for a certificate for `hostname` by DNS-01 with the person's DNS key; one that is still valid is kept (certbot --keep-until-expiring). Every DNS record is read before and after and any change fails the run. Answers the certificate as the server verified it. The DNS key reaches the server only on the SSH process's private input.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
+   }
+  },
+  {
    "id": "tool:join-a-waitlist",
    "values": {
     "title": "Join a waitlist",
@@ -5398,6 +5428,21 @@
    }
   },
   {
+   "id": "tool:read-a-servers-tls-certificate",
+   "values": {
+    "title": "Read a server's TLS certificate",
+    "job": "See whether my server's certificate is present and trusted, and when it runs out",
+    "description": "Asks the server's certificate owner how the certificate for `hostname` stands, as the server itself verifies it: present, trusted by the system for that name with at least a day left, valid from and until (in local time), issuer, serial and a 0600 private key. It changes nothing and needs no DNS key.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
+   }
+  },
+  {
    "id": "tool:read-a-treg-call",
    "values": {
     "title": "Read one treg call by its id",
@@ -6591,6 +6636,21 @@
    }
   },
   {
+   "id": "tool:renew-a-tls-certificate",
+   "values": {
+    "title": "Renew a server's TLS certificate",
+    "job": "Renew the certificate of my server's public address before it runs out, and check every DNS record stayed as it was",
+    "description": "Asks the server's certificate owner (installed by tool:set-up-a-servers-tls-owner) to renew the certificate of `hostname` by DNS-01 with the person's DNS key: certbot renews only when the certificate is due, every DNS record is read before and after and any change fails the run, and a changed certificate restarts the receptionist (checked through public TLS) and reloads the public host. `dryRun: true` renews against the certificate authority's staging server and changes no certificate. Answers the certificate as the server verified it (present, trusted for the name, valid from and until in local time, issuer, serial, key mode), whether it changed and whether this was a dry run. Declare a wake for this row (every 6 hours) with the server's facts as its input to keep the address renewed. The DNS key reaches the server only on the SSH process's private input; no error carries it.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
+   }
+  },
+  {
    "id": "tool:replace-one-piece-of-text-in-a-file",
    "values": {
     "title": "Change one piece of text in a file",
@@ -7718,6 +7778,21 @@
    }
   },
   {
+   "id": "tool:set-up-a-servers-tls-owner",
+   "values": {
+    "title": "Set up a server's TLS owner",
+    "job": "Prepare my rented server to hold a certificate: install what it needs and the program that looks after its certificate",
+    "description": "Installs the server's certificate owner at host.owner with its layout beside it (host.owner with .json: the state folder, the ingress and receptionist services, the receptionist's account, build pattern, listen address and environment), then prepares the server: certbot with its Cloudflare DNS plugin, nginx and the CA list, installed with no default HTTP and no tokenless renewal timer switched on, the state folder and the receptionist's own account. Nothing about DNS or traffic changes. tool:update-a-servers-tls-owner replaces only the owner and its layout.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
+   }
+  },
+  {
    "id": "tool:set-up-someone-i-pay-in-stripe",
    "values": {
     "title": "Set up someone I pay in Stripe",
@@ -8049,6 +8124,21 @@
      "placement:small-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
+   }
+  },
+  {
+   "id": "tool:switch-on-a-servers-receptionist",
+   "values": {
+    "title": "Switch on a server's receptionist",
+    "job": "Start the receptionist on my public server and check it answers through its certificate",
+    "description": "Enables and restarts the receptionist service tool:write-a-public-hosts-paths wrote (host.receptionist.service), which runs the build as its own account with the certificate handed on private descriptors, then checks through verified public TLS on the server itself that it serves its protected-resource description for https://<hostname>/mcp. No DNS or traffic cut-over happens here.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
    }
   },
   {
@@ -8394,6 +8484,21 @@
    }
   },
   {
+   "id": "tool:update-a-servers-tls-owner",
+   "values": {
+    "title": "Update a server's TLS owner",
+    "job": "Put the newest certificate program and my server's layout on my server, changing nothing else",
+    "description": "Replaces the server's certificate owner at host.owner with this folder's, and its layout beside it (the layout first, each written whole and then moved into place), with nothing installed, restarted or reconfigured. Run it after this tool changes or after the server's layout changes.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
+   }
+  },
+  {
    "id": "tool:view-a-poker-table-for-a-player",
    "values": {
     "title": "See a poker table as one player may see it",
@@ -8710,6 +8815,21 @@
      "placement:small-container"
     ],
     "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
+   "id": "tool:write-a-public-hosts-paths",
+   "values": {
+    "title": "Write a public host's paths",
+    "job": "Set which addresses my public server answers itself and send everything else to my engine",
+    "description": "Writes the server's public ingress (nginx) for `hostname` with its certificate: /healthz, the downloads folder by GET and HEAD, the receptionist's paths (host.receptionist.paths, to host.receptionist.listen over verified TLS) and the site's pages (host.site.paths, handed to host.site.hostname by GET and HEAD), and every other path to the engine's connection on 127.0.0.1:remotePort. With `connectionDiagnostics` it logs only time, path and statuses of host.ingress.diagnostics_paths. The candidate is tested by nginx before it replaces the live one; with `receptionistBinary` (matching host.receptionist.binary_pattern, readable and executable by others) the receptionist's service is written too, and a build that cannot start is refused before anything is switched. No DNS or traffic cut-over happens here.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
    }
   },
   {

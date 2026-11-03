@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-TLS-HOST-OWNER",
-  "status": "BASELINED",
+  "status": "ADAPTED",
   "directive": {
     "thread_id": "door-tls-port lane 2026-11-03: the public door's certificate owner moves into the Workshop",
     "message_multihash": "1f:a8d28073d09ccea0c78f8434013ba3557da77d17203fcf04f5e3b7014110a9a0",
@@ -51,10 +51,11 @@
     "recorded_at": "2026-11-03T21:10:00Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:f3d3714ffecca83027d8483d98ced8c002a2c07c39bb55c9cc92d894743b7fb1",
-    "target_multihash_at_baseline": "1f:f3d3714ffecca83027d8483d98ced8c002a2c07c39bb55c9cc92d894743b7fb1"
+    "target_multihash_at_baseline": "1f:f3d3714ffecca83027d8483d98ced8c002a2c07c39bb55c9cc92d894743b7fb1",
+    "commit": "4a56725363a4db0df01c54c62b4af1c8b393850a"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
-    "test_refs": []
+    "test_refs": ["tools/renew-a-tls-certificate/test/tls-host-owner.test.py test_failed_provider_diagnostic_cannot_return_the_token", "tools/renew-a-tls-certificate/test/tls-host-owner.test.py test_private_credential_is_regular_anonymous_file_and_inherited_child_reads_it", "tools/renew-a-tls-certificate/test/tls-host-owner.test.py test_every_product_fact_is_read_from_the_layout_beside_the_owner", "tools/renew-a-tls-certificate/test/tls-host-owner.test.py test_a_dry_run_renewal_asks_the_staging_server_and_changes_no_certificate"]
   }
 }

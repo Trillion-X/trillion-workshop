@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-RENEW-A-TLS-CERTIFICATE",
-  "status": "BASELINED",
+  "status": "ADAPTED",
   "directive": {
     "thread_id": "door-tls-port lane 2026-11-03: the public door's certificate owner moves into the Workshop",
     "message_multihash": "1f:a8d28073d09ccea0c78f8434013ba3557da77d17203fcf04f5e3b7014110a9a0",
@@ -54,10 +54,11 @@
     "recorded_at": "2026-11-03T21:10:00Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:86bbe2c637aede3c8f478913fde22a2c1c5c9669e38a328d52550e92db1e2cc8",
-    "target_multihash_at_baseline": "1f:86bbe2c637aede3c8f478913fde22a2c1c5c9669e38a328d52550e92db1e2cc8"
+    "target_multihash_at_baseline": "1f:86bbe2c637aede3c8f478913fde22a2c1c5c9669e38a328d52550e92db1e2cc8",
+    "commit": "4a56725363a4db0df01c54c62b4af1c8b393850a"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
-    "test_refs": []
+    "test_refs": ["tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs TLS command pins host and passes DNS token on private stdin, never argv or environment", "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs public ingress keeps its own paths and forwards every other path to the engine, with normal upstream TLS verification", "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs publishing keeps a file once under its own name and moves only the pointer; bad names never reach the host", "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs the host owner is installed with its layout beside it, the layout first, holding only the facts the owner reads"]
   }
 }
