@@ -5,7 +5,7 @@
 // write([{ id, type, value | null }]). The records door is reached by waiting, so each run here works in passes: a pass
 // runs the moved code over the records held so far; a record it read that is not held yet (or a whole kind it listed)
 // is fetched through the door and the pass runs again. Only a pass that missed nothing keeps its writes, sent as one
-// door write that each record is still as it was read (`expected`), with a key made from the writes themselves.
+// door write that each record read is still as it was read (`expected`), with a key made from the writes themselves.
 import { createHash, randomUUID } from 'node:crypto';
 import { makeSnippets } from './snippets.mjs';
 import { makeThreadSummaries } from './thread-summaries.mjs';
@@ -67,7 +67,8 @@ export async function passesOverDoor(door, type, work) {
     if (changed.size) {
       const writes = [...changed.values()].map(item => {
         if (item.type !== type) throw new Error(`This run writes only ${type} records, not ${item.type}.`);
-        const before = known.get(item.id)?.value ?? null;
+        if (!known.has(item.id)) return item; // never read (keeping a summary again replaces it): written as it is
+        const before = known.get(item.id).value;
         return { ...item, expected: before === null ? null : { type, value: before } };
       });
       await door.write(writes, { key: `${type}:${createHash('sha256').update(JSON.stringify(writes)).digest('hex')}` });
