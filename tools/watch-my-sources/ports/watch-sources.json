@@ -1,0 +1,132 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-WATCH-MY-SOURCES-FROM-TRILLION",
+ "status": "VERIFIED",
+ "_paths": "Each path is under the folder holding both checkouts, each by its repository's own name: trillion/ (Trillion-X/trillion at the commit each source names) and trillion-workshop/. Validate from that folder: node trillion-workshop/tools/check-a-port-against-its-source/do-work/validate-reference-adaptation-contract.mjs validate trillion-workshop/tools/watch-my-sources/ports/watch-sources.json --stage completion. The validator measures sources[0] against targets[0]; every other row names its pair the same way.",
+ "directive": {
+  "thread_id": "cloud job 2026-11-02: move Watch my sources into the Workshop and delete its rewrite",
+  "message_multihash": "1f:37dc40e1cff7a39c6b8483830b29aa4142f0679ab5c6a640a622f2f5b0acd926",
+  "quote": "Rule L100/L101: MOVE the original, never rewrite. One copy remains. Code shrinks or stays flat."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "Trillion-X/trillion",
+   "commit": "2e57d9a49ba0eb2ff3a44fa711be1ff054e32b18",
+   "path": "trillion/src/watch-sources.mjs",
+   "multihash": "1f:32a31d990318b72846a238a2c5d73718de00e119475c2e019670db82cd27644d",
+   "ownership": "repository-owned"
+  },
+  {
+   "repository": "Trillion-X/trillion",
+   "commit": "2e57d9a49ba0eb2ff3a44fa711be1ff054e32b18",
+   "path": "trillion/src/watch-sources.json",
+   "multihash": "1f:45b2076eec2cb03f1bbf7e5c1ef13af61b5ef38244b527a3eaf040ed35e3c382",
+   "ownership": "repository-owned"
+  },
+  {
+   "repository": "Trillion-X/trillion",
+   "commit": "2e57d9a49ba0eb2ff3a44fa711be1ff054e32b18",
+   "path": "trillion/src/ranked-lists.mjs",
+   "multihash": "1f:4931131af205790159b63a9de3ad17b8d9da9e806b6240288f4d99d1a64ee242",
+   "ownership": "repository-owned"
+  },
+  {
+   "repository": "Trillion-X/trillion",
+   "commit": "2e57d9a49ba0eb2ff3a44fa711be1ff054e32b18",
+   "path": "trillion/src/feed-items.mjs",
+   "multihash": "1f:3314536b9ec29c336fb5204662e89d2b3c9e78e20d6895ed71d302800f18b238",
+   "ownership": "repository-owned"
+  }
+ ],
+ "targets": [
+  {
+   "path": "trillion-workshop/tools/watch-my-sources/read-data/watch-sources.mjs",
+   "baseline_commit_message": "Move Watch my sources from Trillion-X/trillion, byte for byte"
+  },
+  {
+   "path": "trillion-workshop/tools/watch-my-sources/read-data/watch-sources.json",
+   "baseline_commit_message": "Move Watch my sources from Trillion-X/trillion, byte for byte"
+  },
+  {
+   "path": "trillion-workshop/tools/watch-my-sources/read-data/ranked-lists.mjs",
+   "baseline_commit_message": "Move Watch my sources from Trillion-X/trillion, byte for byte"
+  },
+  {
+   "path": "trillion-workshop/tools/watch-my-sources/read-data/feed-items.mjs",
+   "baseline_commit_message": "Move Watch my sources from Trillion-X/trillion, byte for byte"
+  }
+ ],
+ "preserve": [
+  "a source is a row of the person's list; a new kind of source or ranked-list reader is a row of watch-sources.json",
+  "only public addresses are read and nothing is sent outward",
+  "a source's first read is a quiet baseline; an item is kept once by its id or link",
+  "a run reads at most sources_per_run sources and weighs at most weighed_per_run items, the oldest open batch, in one question that is byte-identical until answered",
+  "an item not weighed stays New and is never dropped; a verdict naming another item's link is not applied",
+  "only what moves a pursuit is handed in, as an outside arrival on route watch-sources",
+  "a conditional read that answers 304 reads as nothing new and asks no model",
+  "a ranked list is read whole by its reader row; entries, climbs, falls and drop-outs are signals once per item and day",
+  "a whole history is named under history_wanted and kept once as From the history",
+  "the signals list is read once a run, its own values only, and each list is written once a run"
+ ],
+ "allowed_deltas": [
+  "lists are reached through any lists object the caller hands in, each call awaited, so the person's records door can serve them (read-data/lists-door.mjs)",
+  "a page's readable text comes from tools/browse-public-page extractPage, the function Trillion's readLinkCard built its card from",
+  "the store binding (watchSourcesActions) stays with the host that has a store; the Workshop run is do-work/watch-my-sources.mjs",
+  "paths in comments and data name this folder; one comment's account figure is left out",
+  "an item's short hash comes from tools/content-identity makeHashCodeHexFromBytes, the Workshop's one BLAKE3 owner, the same 24 hex characters the primitive gave",
+  "the sources list starts with three starter places, Show HN, Product Hunt and Launch YC, each turned off (folded in from tools/find-signals-of-need)"
+ ],
+ "banned_substitutions": [
+  "a second rule or measure language (thresholds use tools/formulas classify-by-rules over rule-operators.json)",
+  "a rewritten feed reader or ranked-list reader",
+  "a copy of this code left in Trillion-X/trillion"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:32a31d990318b72846a238a2c5d73718de00e119475c2e019670db82cd27644d",
+  "target_multihash_at_baseline": "1f:32a31d990318b72846a238a2c5d73718de00e119475c2e019670db82cd27644d",
+  "recorded_at": "2026-11-02T00:00:00Z",
+  "rows": [
+   {
+    "path": "trillion-workshop/tools/watch-my-sources/read-data/watch-sources.mjs",
+    "source_multihash": "1f:32a31d990318b72846a238a2c5d73718de00e119475c2e019670db82cd27644d",
+    "target_multihash_at_baseline": "1f:32a31d990318b72846a238a2c5d73718de00e119475c2e019670db82cd27644d"
+   },
+   {
+    "path": "trillion-workshop/tools/watch-my-sources/read-data/watch-sources.json",
+    "source_multihash": "1f:45b2076eec2cb03f1bbf7e5c1ef13af61b5ef38244b527a3eaf040ed35e3c382",
+    "target_multihash_at_baseline": "1f:45b2076eec2cb03f1bbf7e5c1ef13af61b5ef38244b527a3eaf040ed35e3c382"
+   },
+   {
+    "path": "trillion-workshop/tools/watch-my-sources/read-data/ranked-lists.mjs",
+    "source_multihash": "1f:4931131af205790159b63a9de3ad17b8d9da9e806b6240288f4d99d1a64ee242",
+    "target_multihash_at_baseline": "1f:4931131af205790159b63a9de3ad17b8d9da9e806b6240288f4d99d1a64ee242"
+   },
+   {
+    "path": "trillion-workshop/tools/watch-my-sources/read-data/feed-items.mjs",
+    "source_multihash": "1f:3314536b9ec29c336fb5204662e89d2b3c9e78e20d6895ed71d302800f18b238",
+    "target_multihash_at_baseline": "1f:3314536b9ec29c336fb5204662e89d2b3c9e78e20d6895ed71d302800f18b238"
+   }
+  ]
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.8,
+  "required_mechanisms": [
+   "export async function watchSources",
+   "async function readRanks",
+   "function candidatesOf",
+   "async function readOne",
+   "async function keepRanks",
+   "async function takeHistory",
+   "async function weigh",
+   "function replyObject"
+  ],
+  "test_refs": [
+   "trillion-workshop/tools/watch-my-sources/test/watch-sources.test.mjs",
+   "trillion-workshop/tools/watch-my-sources/test/watch-my-sources.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

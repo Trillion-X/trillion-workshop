@@ -9,14 +9,14 @@
         "id": "tool:place-paper-orders-from-a-trading-policy",
         "label": "Place paper orders from a trading policy",
         "job": "Place the orders of my trading policy at my broker's paper account",
-        "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone), routes (how your broker takes an order, each route with mode \"paper\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: true, has no paper route, was already sent for this policy version, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held paper-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
+        "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone; risk.allowed_symbols, when given, is the only symbols it may trade), routes (how your broker takes an order, each route with mode \"paper\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: true, has no paper route, was already sent for this policy version, names a symbol outside risk.allowed_symbols, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held paper-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
             "policy": {
               "type": "object",
-              "description": "The trading policy: { policy_version, decided_at?, orders: [{ instrument: { symbol, kind?, contract_multiplier? }, side, qty, order_type, limit_price?, time_in_force?, live: false, route_ref }], risk: { max_order_notional, max_daily_notional, day_time_zone } }"
+              "description": "The trading policy: { policy_version, decided_at?, orders: [{ instrument: { symbol, kind?, contract_multiplier? }, side, qty, order_type, limit_price?, time_in_force?, live: false, route_ref }], risk: { max_order_notional, max_daily_notional, day_time_zone, allowed_symbols? } }"
             },
             "routes": {
               "type": "object",
@@ -471,14 +471,14 @@
         "id": "tool:place-live-orders-from-a-trading-policy",
         "label": "Place live orders from a trading policy",
         "job": "Place the orders of my trading policy at my broker's live (real money) account",
-        "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone), routes (how your broker takes an order, each route with mode \"live\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: false, has no live route, was already sent for this policy version, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held live-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
+        "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone; risk.allowed_symbols, when given, is the only symbols it may trade), routes (how your broker takes an order, each route with mode \"live\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: false, has no live route, was already sent for this policy version, names a symbol outside risk.allowed_symbols, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held live-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
             "policy": {
               "type": "object",
-              "description": "The trading policy: { policy_version, decided_at?, orders: [{ instrument: { symbol, kind?, contract_multiplier? }, side, qty, order_type, limit_price?, time_in_force?, live: true, route_ref }], risk: { max_order_notional, max_daily_notional, day_time_zone } }"
+              "description": "The trading policy: { policy_version, decided_at?, orders: [{ instrument: { symbol, kind?, contract_multiplier? }, side, qty, order_type, limit_price?, time_in_force?, live: true, route_ref }], risk: { max_order_notional, max_daily_notional, day_time_zone, allowed_symbols? } }"
             },
             "routes": {
               "type": "object",
