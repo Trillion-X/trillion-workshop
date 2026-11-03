@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:bf74a60c1fab7b80a6a737583b4bb2bcc2c73037530474c21f8211cf9bf30705"
+  "blake3": "1f:9345e4a68e7c399280899b92469e55f9c6d257091c05e7eba5908ebc3d3c8793"
  },
  "fields": [
   {
@@ -1864,6 +1864,21 @@
     "title": "Find the beats in music",
     "job": "Find the beat times in a song or in a video's soundtrack, to cut on the beat",
     "description": "Returns the time of each beat (seconds) and the tempo in beats per minute.",
+    "status": "active",
+    "maker": "maker:media-composition",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:find-events-against-a-running-baseline",
+   "values": {
+    "title": "Find events in a video against what it has been like so far",
+    "job": "Find the moments in a video that stand out from what the video has been like up to then, such as each stroke in a rally, and give each one's time and how certain it is",
+    "description": "Walks the video as frames of loudness rise and picture change and keeps a running baseline of each. A frame well above the baseline from before it is an event, so a loud or busy video is judged against itself. Each kind of event is a head row with its own weights, thresholds and quiet time after a hit, so a head can be retuned without touching the rest. The detector is a row too: `adaptive` walks the running baseline, `sound-and-motion` ranks the sharpest sound with movement. Search the whole video or only a stretch of it.",
     "status": "active",
     "maker": "maker:media-composition",
     "licence_class": "licence:maker-own",

@@ -199,6 +199,197 @@
   },
   {
    "type": "record",
+   "id": "package::media-composition::tool::find-events-against-a-running-baseline",
+   "address": "package::media-composition::tool::find-events-against-a-running-baseline",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-events-against-a-running-baseline",
+    "label": "Find events in a video against what it has been like so far",
+    "status": "active",
+    "job": "Find the moments in a video that stand out from what the video has been like up to then, such as each stroke in a rally, and give each one's time and how certain it is",
+    "description": "Walks the video as frames of loudness rise and picture change and keeps a running baseline of each. A frame well above the baseline from before it is an event, so a loud or busy video is judged against itself. Each kind of event is a head row with its own weights, thresholds and quiet time after a hit, so a head can be retuned without touching the rest. The detector is a row too: `adaptive` walks the running baseline, `sound-and-motion` ranks the sharpest sound with movement. Search the whole video or only a stretch of it.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "detector": {
+       "type": "string",
+       "enum": [
+        "adaptive",
+        "sound-and-motion"
+       ],
+       "description": "Which detector row to run (default adaptive)"
+      },
+      "from": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Start of the stretch to search (default 0)"
+      },
+      "to": {
+       "type": "number",
+       "minimum": 0,
+       "description": "End of the stretch to search (default the end)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "detector",
+        "from",
+        "events"
+       ],
+       "properties": {
+        "detector": {
+         "type": "string"
+        },
+        "from": {
+         "type": "number"
+        },
+        "to": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "events": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "required": [
+           "kind",
+           "time",
+           "confidence"
+          ],
+          "properties": {
+           "kind": {
+            "type": "string"
+           },
+           "time": {
+            "type": "number"
+           },
+           "confidence": {
+            "type": "number"
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/media-composition",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/detect-events.mjs",
+      {
+       "from": "video"
+      },
+      "--detector",
+      {
+       "from": "detector",
+       "otherwise": {
+        "const": "adaptive"
+       }
+      },
+      "--from",
+      {
+       "from": "from",
+       "otherwise": {
+        "const": 0
+       }
+      },
+      "--to",
+      {
+       "from": "to",
+       "otherwise": {
+        "const": ""
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 180,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "REA finding F-0565: the stream detector (stream-core, stream-features, detect-events) moved from the product repo"
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.from",
+      "at_least": 0
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
    "id": "package::media-composition::tool::find-scene-changes",
    "address": "package::media-composition::tool::find-scene-changes",
    "path": [
