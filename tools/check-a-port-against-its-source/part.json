@@ -1,3 +1,7 @@
 {
-  "public": ["do-work/validate-reference-adaptation-contract.mjs"]
+  "public": [
+    "do-work/validate-reference-adaptation-contract.mjs",
+    "do-work/check-a-repository-for-port-contracts.mjs",
+    "do-work/read-from-repositories.mjs"
+  ]
 }
