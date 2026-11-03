@@ -1,0 +1,60 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-RANGE-EDITS",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b92aa549f2",
+      "path": "src/range-edits.mjs",
+      "multihash": "1f:c2e0a5c3e40999b531e0b84a16b6925b59891090fea8ecc6ac60457a6b7040c1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the paired Trillion-X/trillion change that moves parts/media-composition/do-work/cut-the-action.mjs and cut-by-events.mjs, the old copy's only callers; until then the old copy is a duplicate"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/media-composition/do-work/range-edits.mjs"
+    }
+  ],
+  "preserve": [
+    "a range has exactly start and end, 0 <= start < end <= length; any other field, overlap or out-of-bounds range is refused in words, never repaired",
+    "touching ranges are one range and the answer is sorted and disjoint",
+    "applying an edit returns only items of the original, in original order",
+    "after an export the produced length equals the kept total within the caller's tolerance",
+    "readiness is judged by the ready_states the caller passes"
+  ],
+  "allowed_deltas": [
+    "the header names this folder's path"
+  ],
+  "banned_substitutions": [
+    "an edit that carries new text or content",
+    "an overlap merged by guessing"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:c2e0a5c3e40999b531e0b84a16b6925b59891090fea8ecc6ac60457a6b7040c1",
+    "target_multihash_at_baseline": "1f:c2e0a5c3e40999b531e0b84a16b6925b59891090fea8ecc6ac60457a6b7040c1",
+    "commit": "18cfc3c44e2244973866e7d573c1166290b12c29"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/media-composition/test/range-edits.test.mjs kept ranges are sorted, merged when touching, and the removed ranges are the rest",
+      "tools/media-composition/test/range-edits.test.mjs the type forbids invention: extra fields, text, overlaps, out-of-bounds and empty ranges are refused",
+      "tools/media-composition/test/range-edits.test.mjs applying an edit returns only original items, in order, that sit wholly inside a kept range",
+      "tools/media-composition/test/range-edits.test.mjs the produced length must match the promise within the caller's tolerance",
+      "tools/media-composition/test/range-edits.test.mjs export waits until pieces in a ready state cover every kept second, and says where it is missing"
+    ]
+  }
+}
