@@ -1772,8 +1772,22 @@
       "evidence": "tools/walk-nested-input-within-limits/README.md: moved from Trillion-X/trillion parts/bounded-walk.mjs with its tests; an iterative walk refusing beyond depth 100 or 100,000 nodes",
       "distinct_from": [
         {
-          "job": "keep a record library valid",
+          "job": "keep a library of record files valid and work one piece through a bank of questions with evidence",
           "why": "That owner checks a library's records against their declared shapes; this one only bounds the depth, size and cycles of any nested value, whatever its shape."
+        }
+      ]
+    },
+    {
+      "capability": "decide what a paste becomes: a normal insert, a named text file for a long paste, attached images, or markdown that keeps the structure of the editor it came from",
+      "owner": [
+        "tools/what-a-paste-becomes/"
+      ],
+      "entry": "tools/what-a-paste-becomes/tool-rows.json",
+      "evidence": "tools/what-a-paste-becomes/README.md: moved from Trillion-X/trillion parts/chat/read-data/paste-policy.mjs and parts/documents/read-data/paste-sources.ts with their tests",
+      "distinct_from": [
+        {
+          "job": "import Markdown into the maintained editable composition-document scene tree, preserving headings, nested lists, tables, code fences, source-byte provenance and strict semantic round trips",
+          "why": "That owner turns Markdown into the document scene tree; this one decides what a clipboard paste is (insert, attachment, or markdown from another editor's HTML) before any document takes it."
         }
       ]
     }
