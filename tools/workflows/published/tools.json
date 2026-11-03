@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b373477d3772cea0044e781f65f959269da298e1c65b4629ddc2bbd06a2eb757"
+  "blake3": "1f:8029c3b170d5c6d66f806ec3d910a8645eed970d6a3cbd5310ba4e74ecba43a0"
  },
  "fields": [
   {
@@ -1734,6 +1734,21 @@
      "placement:small-container"
     ],
     "folder": "decide-agent-actions"
+   }
+  },
+  {
+   "id": "tool:decide-what-a-paste-becomes",
+   "values": {
+    "title": "Decide what a paste becomes",
+    "job": "Decide what a paste into a message or note becomes: a normal insert for short text, a named text file for a long paste, or attached images when the clipboard's markup has no words of its own, with the words the person reads beside the attachment",
+    "description": "Give clipboard ({ text, html, files: [{ type, name }] }) and, optionally, now (an ISO time for the attachment's name). Returns action insert, attach_text (name, text, media_type, said) or attach_images (files, said). Text over 5,000 characters becomes a file; an image attaches only when the markup carries no text of its own (style and script bodies are not words).",
+    "status": "active",
+    "maker": "maker:what-a-paste-becomes",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "what-a-paste-becomes"
    }
   },
   {
