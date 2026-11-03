@@ -55,6 +55,14 @@ function recipientsOf(request) {
   return clean;
 }
 
+// The copies an email also goes to and where replies go (mail-sender.mjs gives them for a written email): addresses only.
+function copiesOf(request) {
+  const bcc = Array.isArray(request.bcc) ? request.bcc.map(item => String(item).trim()).filter(Boolean) : [];
+  const replyTo = typeof request.reply_to === 'string' ? request.reply_to.trim() : '';
+  if ([...bcc, replyTo].some(item => /[\s<>,;]/.test(item))) throw new MessageRejectedError('bcc and reply_to are plain email addresses.');
+  return { ...(bcc.length ? { bcc } : {}), ...(replyTo ? { reply_to: replyTo } : {}) };
+}
+
 function variablesOf(value) {
   if (value === undefined || value === null) return {};
   if (typeof value !== 'object' || Array.isArray(value)) throw new MessageRejectedError('variables must be an object.');
@@ -162,7 +170,7 @@ export async function sendMessage(request, { providerId, credentials = {}, rows 
   const sent = provider.kind === 'process'
     ? await sendOverProcess(provider, recipients, message.text ?? message.subject ?? '', runCommand)
     : await sendOverAdapter(provider, {
-      recipients, subject: message.subject, html: message.html, text: message.text, headers,
+      recipients, subject: message.subject, html: message.html, text: message.text, headers, ...copiesOf(request),
       ...(typeof request.idempotencyKey === 'string' ? { idempotencyKey: request.idempotencyKey } : {}),
     }, { ...settings, ...secrets }, run);
   const failed = sent.filter(item => item.error);

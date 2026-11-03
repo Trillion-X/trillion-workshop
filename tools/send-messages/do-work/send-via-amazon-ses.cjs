@@ -37,12 +37,14 @@ function signV4({ method, path, query = "", headers, body, region, service, acce
 }
 
 // The SendEmail query parameters for one recipient.
-function sendEmailForm({ fromAddress, recipient, subject, html, text }) {
+function sendEmailForm({ fromAddress, recipient, subject, html, text, bcc = [], replyTo = "" }) {
   const form = new URLSearchParams();
   form.set("Action", "SendEmail");
   form.set("Version", "2010-12-01");
   form.set("Source", fromAddress);
   form.set("Destination.ToAddresses.member.1", recipient);
+  bcc.forEach((address, index) => form.set(`Destination.BccAddresses.member.${index + 1}`, address));
+  if (replyTo) form.set("ReplyToAddresses.member.1", replyTo);
   form.set("Message.Subject.Data", subject);
   form.set("Message.Subject.Charset", "UTF-8");
   form.set("Message.Body.Html.Data", html);
@@ -70,7 +72,7 @@ async function sendViaSES(input) {
   const results = [];
   for (const recipient of input.recipients) {
     try {
-      const body = sendEmailForm({ fromAddress, recipient, subject: input.subject, html: input.html, text: input.text });
+      const body = sendEmailForm({ fromAddress, recipient, subject: input.subject, html: input.html, text: input.text, bcc: input.bcc ?? [], replyTo: input.reply_to ?? "" });
       const amzDate = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
       const headers = { "content-type": "application/x-www-form-urlencoded; charset=utf-8", host, "x-amz-date": amzDate };
       const authorization = signV4({ method: "POST", path: "/", headers, body, region, service: "ses", accessKeyId, secretAccessKey, amzDate });
@@ -82,7 +84,8 @@ async function sendViaSES(input) {
       const responseBody = await response.text();
       if (!response.ok) {
         const message = responseBody.match(/<Message>([^<]*)<\/Message>/)?.[1] || response.statusText;
-        throw new Error(`SES ${response.status}: ${message}`);
+        const code = responseBody.match(/<Code>([^<]*)<\/Code>/)?.[1] || "unknown";
+        throw new Error(`SES ${response.status} ${code}: ${message}`);
       }
       results.push({ recipient, messageId: responseBody.match(/<MessageId>([^<]*)<\/MessageId>/)?.[1] });
     } catch (error) {
