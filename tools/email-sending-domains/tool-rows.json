@@ -44,6 +44,52 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"]
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-sending-key-with-resend",
+        "label": "Make a sending key with Resend",
+        "job": "Make a new key that can only send email from my email-sending account, kept under its own name",
+        "description": "Asks the person's email-sending account (Resend), with the key they connected, for a new key that may only send email (from one domain when domain_id names one), and keeps the new key in the person's vault under keep_as. The new key is never shown: the answer holds its id and the held word in its place. A keep_as already held is never replaced, and then nothing is asked. Give the new key's name as Resend should show it.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "keep_as"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1, "maxLength": 50 },
+            "keep_as": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" },
+            "domain_id": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["id", "token"],
+          "properties": { "id": { "type": "string" }, "token": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/api-keys",
+          "method": "POST",
+          "timeout_seconds": 30,
+          "body_template": {
+            "name": { "from": "name" },
+            "permission": { "const": "sending_access" },
+            "domain_id": { "from": "domain_id", "optional": true }
+          },
+          "credential_injections": [
+            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ],
+          "reply_holds_values": [{ "from": "token", "secret_name_from_input": "keep_as" }]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/api-keys/create-api-key" }
+      }
     }
   ]
 }
