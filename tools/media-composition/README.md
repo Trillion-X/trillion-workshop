@@ -16,6 +16,7 @@ The colour grade files (`read-data/luts/*.cube`) are supplied by the account and
 | `do-work/match-shots.mjs` | The shot match: an edit in, the same edit out with each clip that names `shot_match: {group}` graded toward its group's one look (Reinhard L*a*b* transfer, measured through the clip's own grade, written as one `.cube` per clip and appended to its `grade` as `lut3d`); `shot_match: {like: <segment id>}` takes that segment's LUT. Used before render-an-edit. |
 | `read-data/` | DATA and pure helpers the scripts read: caption styles and lines, looks, layers, the reframe camera, the event detectors and their streams (`detect-events.json`). |
 | `read-data/stored-bytes.json` | The grade files a render reads by address (`package::media-composition::stored-bytes::<name>` -> `read-data/luts/<file>`). |
+| `read-data/edit-command-log.mjs` | `openEditLog({ session, store, reduce, initial })`: an edit session as a log of typed commands, each appended to the caller's store before the new state is shown, a snapshot (state, undo and redo history) every `snapshot_every` commands, undo and redo as entries, and groups kept or discarded whole; `memoryEditLogStore()` for tests and sessions that need no reload. Numbers and mark names are DATA in `edit-command-log.json`. Moved from old trillion `parts/media-composition/read-data/`. |
 | `test/` | `node --test` proofs; the render tests need ffmpeg and ffprobe on PATH. |
 
 ## Edit fields a frame-exact cut uses

@@ -1,0 +1,68 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-EDIT-COMMAND-LOG-FROM-OLD-TRILLION",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "rea pm/ws move 2026-11-03: not-yet-moved product modules and workshop tool parts",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+      "path_multihash": "1f:17bd785943e07853675816eb07a62bcf032902a129001ea53dbca15ccb516373",
+      "multihash": "1f:358c2e3f767dde5daac8f80209e8e4e91bc7d8cb46a813a50a4d2116ea586e2e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T12:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/media-composition/read-data/edit-command-log.mjs",
+      "baseline_commit_message": "media-composition: move the edit command log (typed commands, snapshots, undo as entries) from old trillion"
+    }
+  ],
+  "preserve": [
+    "a command is appended to the store before the new state is returned; a failed append leaves the state as it was",
+    "undo and redo are log entries, so replay reproduces them; a new command clears what could be redone",
+    "a snapshot every snapshot_every commands holds state, past and future, so a reopen is exact",
+    "the reducer and the store are handed in; no command type, state shape or storage is named"
+  ],
+  "allowed_deltas": [
+    "the file header and the import and comment paths name the file's new place (baseline.redactions)"
+  ],
+  "banned_substitutions": [
+    "a second edit log or undo stack",
+    "a storage named in this file"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:358c2e3f767dde5daac8f80209e8e4e91bc7d8cb46a813a50a4d2116ea586e2e",
+    "target_multihash_at_baseline": "1f:6b379f5a59ff104e5f7d3c0a57efe8f739cf98bff6e3511c80728ed6fdea20e8",
+    "redactions": [
+      {
+        "from": "// parts/media-composition/read-data/edit-command-log.mjs",
+        "to": "// tools/media-composition/read-data/edit-command-log.mjs"
+      }
+    ],
+    "commit": "8112d58ccbba164383c82a8962d2ddb4db6e7b8f",
+    "recorded_at": "2026-11-03T12:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export async function openEditLog",
+      "export function memoryEditLogStore",
+      "function step("
+    ],
+    "test_refs": [
+      "tools/media-composition/test/edit-command-log.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}
