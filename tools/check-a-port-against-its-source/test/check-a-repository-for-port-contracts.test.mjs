@@ -256,6 +256,28 @@ test('a move into a public repository may lose private words in its first commit
   assert.match(errors, /exactly baseline\.redactions applied/);
 });
 
+test('a source that is part of a file is followed by its lines: kept after its date is refused, removed passes while the rest stays', (t) => {
+  const { tools, old, since } = checkouts(t);
+  const before = 'export const engineStart = 1;\n'.repeat(3);
+  const after = 'export const engineEnd = 2;\n'.repeat(2);
+  const oldCommit = commit(old, { 'src/engine.mjs': before + OLD_SOURCE + after });
+  const part = (contract, status = 'ADAPTED') => ({ ...contract, status,
+    sources: [{ ...contract.sources[0], path: 'src/engine.mjs', lines: [4, 15] }] });
+  const copy = commit(tools, { 'tools/order-rows/do-work/order-rows.mjs': OLD_SOURCE });
+  commit(tools, { 'tools/order-rows/ports/order-rows.json': part(portContract({ oldCommit, baselineCommit: copy })) });
+  assert.equal(judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE }).valid, true);
+  commit(old, { 'src/engine.mjs': before + OLD_SOURCE.replaceAll('{ return', '{\n    return') + after });
+  const late = judgeRepository({ root: tools, span: range(since), now: '2026-02-01T00:00:00Z' });
+  assert.match(late.judged[0].errors.join('\n'), /engine\.mjs lines 4-15 still lives after its deleted_by/, 'a re-indented copy is the same copy');
+  commit(old, { 'src/engine.mjs': before + after });
+  commit(tools, { 'tools/order-rows/ports/order-rows.json': part(portContract({ oldCommit, baselineCommit: copy }), 'VERIFIED') });
+  const moved = judgeRepository({ root: tools, span: range(since), now: '2026-02-01T00:00:00Z' });
+  assert.equal(moved.valid, true, JSON.stringify(moved, null, 2));
+  commit(tools, { 'tools/order-rows/ports/order-rows.json': { ...part(portContract({ oldCommit, baselineCommit: copy })),
+    sources: [{ ...part(portContract({ oldCommit })).sources[0], lines: [4, 99] }] } });
+  assert.match(judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE }).judged[0].errors.join('\n'), /lines must be \[first, last\] within its 18 lines/);
+});
+
 test('a source in a private repository may be named by its path\'s identity, and is read and followed the same way', (t) => {
   const { tools, since, oldCommit } = checkouts(t);
   const hidden = (contract) => {

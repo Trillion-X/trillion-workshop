@@ -34,7 +34,8 @@ function redacted(text, redactions) {
   return redactions.reduce((out, one) => (typeof one?.from === 'string' && one.from && typeof one?.to === 'string' ? out.split(one.from).join(one.to) : out), text);
 }
 function named(source) {
-  return `${source.repository}@${String(source.commit).slice(0, 12)}:${source.path ?? `path ${source.path_multihash}`}`;
+  const lines = Array.isArray(source.lines) ? ` lines ${source.lines.join('-')}` : '';
+  return `${source.repository}@${String(source.commit).slice(0, 12)}:${source.path ?? `path ${source.path_multihash}`}${lines}`;
 }
 
 function readPngDimensions(path) {
@@ -311,7 +312,27 @@ function validateVisualPixelLock(contract, stage, errors) {
 // owner. One copy: the old one goes. `old_copy` is "same-file" when the source is the target's own earlier bytes (a
 // change in place), else `{ deleted_by }`, a date by which the old path leaves its repository's main line, at most
 // options.oldCopyDaysAtMost days after the baseline. Whether it is gone is read through options.readers.
-function checkOldCopy(source, contract, options, errors, deferred) {
+// A source that is part of a file names it as `lines: [first, last]` (1-based, inclusive, at its commit): its bytes,
+// its multihash and its line retention are those lines only, and its old copy is gone when their whitespace-folded
+// text no longer appears in the file on its repository's main line, while the rest of the file stays.
+const folded = (text) => text.replace(/\s+/g, ' ').trim();
+function sourceLines(source, bytes, errors) {
+  if (source.lines === undefined) return bytes;
+  const [first, last] = Array.isArray(source.lines) ? source.lines : [];
+  const all = bytes.toString('utf8').split('\n');
+  if (!Number.isInteger(first) || !Number.isInteger(last) || first < 1 || last < first || last > all.length) {
+    errors.push(`source ${named(source)}: lines must be [first, last] within its ${all.length} lines at its commit`);
+    return null;
+  }
+  return Buffer.from(`${all.slice(first - 1, last).join('\n')}\n`);
+}
+function partLives(source, part, options) {
+  const main = options.readers?.mainOf?.(source.repository), path = main ? options.readers.pathOf?.(source) ?? source.path : null;
+  if (!path || !options.readers.lives?.(source.repository, path)) return path ? false : null;
+  const now = options.readers.readSource({ ...source, path, commit: main });
+  return now === null ? null : folded(now.toString('utf8')).includes(folded(part.toString('utf8')));
+}
+function checkOldCopy(source, contract, options, errors, deferred, part) {
   const old = source.old_copy;
   const sameFile = source.repository === options.repository && (contract.targets ?? []).some((target) => target?.path === source.path);
   if (old === 'same-file' || (old === undefined && sameFile)) {
@@ -329,7 +350,8 @@ function checkOldCopy(source, contract, options, errors, deferred) {
     else if (due - recorded > options.oldCopyDaysAtMost * DAY_MS) errors.push(`source ${named(source)}: old_copy.deleted_by is more than ${options.oldCopyDaysAtMost} days after baseline.recorded_at`);
   }
   const path = options.readers?.pathOf?.(source) ?? source.path;
-  const lives = path ? options.readers?.lives?.(source.repository, path) ?? null : null;
+  const lives = part ? partLives(source, part, options)
+    : path ? options.readers?.lives?.(source.repository, path) ?? null : null;
   if (lives === null) {
     deferred.push(`whether the old copy ${named(source)} has left its main line is not readable here`);
     return;
@@ -476,14 +498,15 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
         errors.push('a source named by repository needs repository, commit (a commit identity) and path, or path_multihash for a private repository');
         continue;
       }
-      const bytes = options.readers?.readSource?.(one) ?? null;
-      if (bytes === null && options.readers?.checkout?.(one.repository)) errors.push(`source ${named(one)} is not in that commit`);
-      else if (bytes === null) deferred.push(`source ${named(one)} is not readable here`);
-      else {
+      const file = options.readers?.readSource?.(one) ?? null;
+      const bytes = file && sourceLines(one, file, errors);
+      if (file === null && options.readers?.checkout?.(one.repository)) errors.push(`source ${named(one)} is not in that commit`);
+      else if (file === null) deferred.push(`source ${named(one)} is not readable here`);
+      else if (bytes) {
         sourceTexts.push(one === source ? redacted(bytes.toString('utf8'), redactions) : bytes.toString('utf8'));
         if (multihash(bytes) !== one.multihash) errors.push(`source multihash drift: ${named(one)}`);
       }
-      checkOldCopy(one, contract, options, errors, deferred);
+      if (one.lines === undefined || bytes) checkOldCopy(one, contract, options, errors, deferred, one.lines === undefined ? null : bytes);
     } else if (options.requireRepositorySources) {
       errors.push(`source ${one?.path ?? '(no path)'} must be named by repository, commit and path, so every checkout reads the same bytes`);
     } else {
