@@ -6,7 +6,7 @@
 // lines as the person's tool, and the AI app bridge hands the growing arguments of a call to the view.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { boundPath, checkElement, checkSpec, conditionHolds, declaredParts, partsGuide, resolveValue, specFromText, specStream } from '../read-data/screen-spec.mjs';
+import { boundPath, checkElement, checkSpec, conditionHolds, resolveValue, specFromText, specStream } from '../read-data/screen-spec.mjs';
 import { applyPatch } from '../read-data/view-patch.mjs';
 
 const line = value => JSON.stringify(value);
