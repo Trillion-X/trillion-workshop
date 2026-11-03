@@ -1132,7 +1132,7 @@
       "lives_at": ["bitfield-packages/packages/research-workspace/", "bitfield-packages/packages/profile-a-creator-or-topic/"],
       "moves_to": "tools/research-a-creator-or-topic/",
       "entry": "bitfield-packages/packages/research-workspace/",
-      "evidence": "research-workspace README.md:1 paste a source, gather its latest items, extract transcripts, synthesize a creator profile; tools/research-a-creator-or-topic/README.md: the same profile hand-off researches a prospect (a company or business to sell to) and tool:keep-a-prospect keeps its profile as one row of the prospect list, whose fields and statuses are data in do-work/prospect-list.json; tool:keep-a-reverse-engineered-thing keeps the REA hub, the list of what people reverse engineered (thing, notes, addresses, artifacts, licence) with create, read, edit, delete and synthetic seed rows, whose fields, kinds and licences are data in do-work/rea-hub.json"
+      "evidence": "research-workspace README.md:1 paste a source, gather its latest items, extract transcripts, synthesize a creator profile; tools/research-a-creator-or-topic/README.md: the same profile hand-off researches a prospect (a company or business to sell to) and tool:keep-a-prospect keeps its profile as one row of the prospect list, whose fields and statuses are data in do-work/prospect-list.json"
     },
     {
       "capability": "evaluate measures over a person's facts to band and gate their progress",

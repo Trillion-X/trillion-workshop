@@ -35,7 +35,7 @@ their broker takes an order. With no policy, no limits or no route, nothing is s
 
 - `live` is required on every order, and must be `false` in a paper run and `true` in a live run.
 - Both limits and the time zone are required; the daily limit counts the day in that zone, across runs.
-- `allowed_symbols` is optional. When given, an order for any other symbol is skipped with its reason, and an empty list trades nothing. The idea is the allowed-markets limit of the MIT-licensed `bloxwap/agent-cli` (see `references/rea-intake-2026-11-01/bloxwap--agent-cli.md`); the code here is written fresh.
+- `allowed_symbols` is optional. When given, an order for any other symbol is skipped with its reason, and an empty list trades nothing. The idea is the allowed-markets limit of the MIT-licensed `bloxwap/agent-cli` (https://github.com/bloxwap/agent-cli); the code here is written fresh.
 - The same order in the same `policy_version` is sent once, ever. A new set of decisions takes a new version.
 - A market order (no `limit_price`) needs a price for its symbol in `prices`, to check it against the limits.
 

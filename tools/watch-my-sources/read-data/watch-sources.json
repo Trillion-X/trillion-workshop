@@ -5,7 +5,9 @@
     "label": "Sources I watch",
     "title_field": "name",
     "starters": [
-      { "id": "show-hn", "values": { "name": "Show HN (Hacker News launches)", "address": "https://news.ycombinator.com/show", "feed": "https://hnrss.org/show", "kind": "feed", "watching": "No" } }
+      { "id": "show-hn", "values": { "name": "Show HN (Hacker News launches)", "address": "https://news.ycombinator.com/show", "feed": "https://hnrss.org/show", "kind": "feed", "watching": "No" } },
+      { "id": "product-hunt", "values": { "name": "Product Hunt (today's launches)", "address": "https://www.producthunt.com", "feed": "https://www.producthunt.com/feed", "kind": "feed", "watching": "No" } },
+      { "id": "yc-launches", "values": { "name": "Launch YC (Y Combinator company launches)", "address": "https://www.ycombinator.com/launches", "kind": "page", "watching": "No" } }
     ],
     "fields": [
       { "id": "name", "label": "Name", "kind": "text" },
@@ -26,7 +28,7 @@
       { "id": "list_dated", "label": "Date the site gave its list", "kind": "text" }
     ]
   },
-  "_sources_starters": "sources.starters are the rows the list of places starts with when it is made, each off (Watching No) until the person turns it on, so following a place is their choice. Show HN came from the launch sources of tools/find-signals-of-need (2026-11-01), read here from its public feed like any other place.",
+  "_sources_starters": "sources.starters are the rows the list of places starts with when it is made, each off (Watching No) until the person turns it on, so following a place is their choice. Show HN, Product Hunt and Launch YC came from the launch sources of tools/find-signals-of-need (2026-11-01): Show HN and Product Hunt are read from their public feeds, Launch YC as a page, like any other place. Its X and GitHub launch rows are not starters: X is read only through a feed the person names, and the GitHub row searched an address that changes every day.",
   "items": {
     "id": "signals",
     "label": "Signals",

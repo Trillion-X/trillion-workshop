@@ -74,7 +74,7 @@
   "a page's readable text comes from tools/browse-public-page extractPage, the function Trillion's readLinkCard built its card from",
   "the store binding (watchSourcesActions) stays with the host that has a store; the Workshop run is do-work/watch-my-sources.mjs",
   "paths in comments and data name this folder; one comment's account figure is left out",
-  "the sources list starts with one starter place, Show HN, turned off (folded in from tools/find-signals-of-need)"
+  "the sources list starts with three starter places, Show HN, Product Hunt and Launch YC, each turned off (folded in from tools/find-signals-of-need)"
  ],
  "banned_substitutions": [
   "a second rule or measure language (thresholds use tools/formulas classify-by-rules over rule-operators.json)",
