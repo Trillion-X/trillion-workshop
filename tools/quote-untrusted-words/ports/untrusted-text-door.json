@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-QUOTE-UNTRUSTED-WORDS-FROM-TRILLION-DOOR",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "Every job of old trillion ends as a Workshop tool; a Workshop tool reaches the person's records through the records door."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "quote a stranger's words safely into a turn an AI reads, as a pure container row with no records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/quote-untrusted-words/read-data/quote-tools.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/quote-untrusted-words/",
+   "why": "This tool itself: the quote is read-data/untrusted-text.mjs, moved byte for byte from trillion src/untrusted-text.mjs; this file only offers it as a row and counts the code points of the answer."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "quote a stranger's words safely into a turn an AI reads, as a pure container row with no records door",
+    "quote untrusted words for a turn",
+    "make a stranger's words safe to quote for an AI turn"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "quoteForTurn"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "886da97848b8ec1b26c3c06938f23557529ea4c8"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/quote-untrusted-words/test/untrusted-text.test.mjs"
+  ]
+ }
+}

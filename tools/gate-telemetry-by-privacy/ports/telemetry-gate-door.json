@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-GATE-TELEMETRY-BY-PRIVACY-FROM-TRILLION-DOOR",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea not-yet-moved product modules of old trillion src/, part 5 of 5",
+  "message_multihash": "1f:bd2323d37e897313f3ff8e78e335abdf10ffc043ec733d921e47983abef1aa18",
+  "quote": "Every job of old trillion ends as a Workshop tool; a Workshop tool reaches the person's records through the records door."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "gate telemetry by privacy: say whether a telemetry sink may send about a served page from its privacy class, as a pure container row with no records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/gate-telemetry-by-privacy/read-data/gate-tools.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/gate-telemetry-by-privacy/",
+   "why": "This tool itself: the gate is read-data/telemetry-gate.mjs, moved byte for byte from trillion src/telemetry-gate.mjs; this file only offers it as a row, listing the sinks a class may feed."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "gate telemetry by privacy: say whether a telemetry sink may send about a served page from its privacy class, as a pure container row with no records door",
+    "gate telemetry by the privacy class of a page",
+    "may this telemetry sink send about the page"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "gateTelemetryRow"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "886da97848b8ec1b26c3c06938f23557529ea4c8"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/gate-telemetry-by-privacy/test/telemetry-privacy-gate.test.mjs"
+  ]
+ }
+}
