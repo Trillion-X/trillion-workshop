@@ -1,5 +1,1 @@
-{
-  "imported_by": [
-    "Trillion-X/trillion"
-  ]
-}
+{"public": ["do-work/make-a-video-playable-at-ingest.mjs", "src/ingest-normalization.mjs"]}

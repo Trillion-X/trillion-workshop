@@ -1,5 +1,1 @@
-{
-  "imported_by": [
-    "Trillion-X/trillion"
-  ]
-}
+{"public": ["do-work/calibrate-a-camera-frame.mjs", "src/frame-calibration.mjs"]}

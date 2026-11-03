@@ -170,6 +170,11 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `work-breakdown` | A body of work as a tree: how much is really finished, new items, proof of finished work, tasks and what blocks them | `tool:roll-up-work-completion`, `tool:add-work-item`, `tool:check-proof-of-finished-work`, `tool:list-tasks-and-what-blocks-them` |
 | `write-from-a-recipe` | Builds the exact instruction a person's AI writes from, from a writing recipe and the person's material, checks what it wrote against the same recipe (only the sources given, the recipe's rules and reviews) and shapes it for the next tool; keeps ready recipes and instruction blocks | `tool:compose-a-writing-instruction`, `tool:check-writing-against-its-recipe`, `tool:list-writing-recipes` |
 | `tools-from-github` | 20 open-source repositories (captions, transcription, background removal, 3D and video rendering and more) that run on the person's own computer | `tool:github:*` |
+| `calibrate-a-camera-frame` | Calibrates a camera's view once from four corners (detected, or guided manual corners when the detector is unsure) and maps every later point into that frame; each failed automatic attempt is handed back for training data | `tool:calibrate-a-camera-frame` |
+| `make-a-video-playable-at-ingest` | Decides whether an uploaded video is kept as it came, converted to MP4 (with the ffmpeg arguments a runner fills), or kept with the reason in words; runs nothing | `tool:decide-a-video-at-ingest` |
+| `stream-an-answer-in-keyed-parts` | Merges a streamed answer's events into keyed parts (text, sources, related questions, patches), keeps a patch that does not apply as drift, ignores replays and answers the token a re-attach continues from | `tool:merge-a-streamed-answer` |
+| `pick-a-screen-as-you-type` | Picks, as a person types, the screen that already does what their words ask (offered screens, made interfaces, kept screens), keeps the shown one calm, and fills its inputs from the words, with no model | `tool:pick-a-screen-for-typed-words`, `tool:fill-screen-inputs-from-words` |
+| `credit-kept-lines-to-their-writer` | Credits each line of a text's newest version to whoever first wrote it, an AI or a person, from its versions; counts kept work, not generated work; keeps nothing | `tool:credit-kept-lines-to-their-writer` |
 
 ## Key Types / Functions
 

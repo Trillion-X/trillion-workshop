@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:19be69cc0ed5e81f36d24fc1a9f73219ca3c8d5fa161ee2e07c3efb7386b2f38"
  },
  "fields": [
   {
@@ -590,6 +590,22 @@
      "placement:your-computer"
     ],
     "folder": "export-records-as-list-rows"
+   }
+  },
+  {
+   "id": "tool:calibrate-a-camera-frame",
+   "values": {
+    "title": "Calibrate a camera frame",
+    "job": "Calibrate a camera's view of a court, table or screen once from four corners, so every later point is measured in that frame",
+    "description": "Give min_confidence (the floor an automatic result must reach) and detected ({ corners: four [x, y] in the order top-left, top-right, bottom-right, bottom-left, confidence }) as a corner detector gave it, or null; manual_corners (four [x, y] from a guided manual adjustment) are used when the automatic result is missing, too unsure or unusable. points ([[x, y]]) are mapped into the frame. Answers state (calibrated or needs_manual), source (auto or manual), the confidence seen, h (the projective map to the unit square) and failures: each failed automatic attempt with its reason, for the caller to keep as training data. Corners that are repeated or in a line are refused in words. It runs no detector and keeps nothing.",
+    "status": "active",
+    "maker": "maker:calibrate-a-camera-frame",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "calibrate-a-camera-frame"
    }
   },
   {
@@ -1631,6 +1647,22 @@
    }
   },
   {
+   "id": "tool:credit-kept-lines-to-their-writer",
+   "values": {
+    "title": "Credit the kept lines to who wrote them",
+    "job": "Credit each line of a text's newest version to whoever first wrote it, an AI or a person, from its versions, and count how many kept lines are each writer's",
+    "description": "Give versions, oldest first, each { by, text } (by is the writer: ai, person, or any name). Answers by ({ writer: lines }), kept (lines in the newest version) and versions. It counts kept work, not generated work: a line edited away is not counted, a line a person rewrote is the person's, and spacing alone is not a rewrite (lines compare by the BLAKE3 identity of their normalized text, src/kept-work.json). It keeps nothing.",
+    "status": "active",
+    "maker": "maker:credit-kept-lines-to-their-writer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "credit-kept-lines-to-their-writer"
+   }
+  },
+  {
    "id": "tool:credit-outcomes-to-candidates",
    "values": {
     "title": "Credit what visitors did to the version they saw",
@@ -1704,6 +1736,22 @@
      "placement:small-container"
     ],
     "folder": "evaluate-progress"
+   }
+  },
+  {
+   "id": "tool:decide-a-video-at-ingest",
+   "values": {
+    "title": "Decide what happens to a video at ingest",
+    "job": "Decide whether an uploaded video is kept as it came, converted to the one playable format (MP4), or kept with the reason it could not be converted, and give the conversion's arguments",
+    "description": "Give name (the file's name), media_type and byte_length. Answers action (keep or convert), said (the plain sentence for the person or the AI, null for a file that is not a video) and, for a conversion, plan: from, to, output_name and the ffmpeg args (with {input} and {output} for the runner to fill). converts lists the types it converts. An upload is never refused: a type with no conversion row, or a file over the size one conversion takes, is kept and said says why. It runs nothing: a computer's ffmpeg or a container does the work.",
+    "status": "active",
+    "maker": "maker:make-a-video-playable-at-ingest",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "make-a-video-playable-at-ingest"
    }
   },
   {
@@ -2023,6 +2071,22 @@
      "placement:your-computer"
     ],
     "folder": "fill-a-template-without-changing-its-words"
+   }
+  },
+  {
+   "id": "tool:fill-screen-inputs-from-words",
+   "values": {
+    "title": "Fill a screen's inputs from my words",
+    "job": "Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model",
+    "description": "Give schema (the screen's input schema, { properties }), words, and now (the device's time, ISO) for words like tomorrow or in 20 minutes; used ([[start, end]]) are the spans of the words that picked the screen, which are not values; choices names labels for enum values. Answers values (only what the words give and the schema accepts; anything uncertain is left for the person) with how each was read. Parsers and their words are src/input-parsers.json.",
+    "status": "active",
+    "maker": "maker:pick-a-screen-as-you-type",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "pick-a-screen-as-you-type"
    }
   },
   {
@@ -4293,6 +4357,22 @@
    }
   },
   {
+   "id": "tool:merge-a-streamed-answer",
+   "values": {
+    "title": "Merge a streamed answer's parts",
+    "job": "Merge the events of a streamed answer into keyed parts: text that appends, sources and related questions as parts of their own, patches to parts already sent, and a snapshot to pick up an interrupted stream",
+    "description": "Give events, each { seq, type, key?, ... } as the stream sent it (types and how each merges are src/keyed-parts.json), and entry when continuing one an earlier call answered. Answers entry (seq, order, parts, drift, stalls) and resume ({ seq, identity }), the token a re-attach continues from. An event at or below the entry's seq is already held and adds nothing; a patch that does not apply is kept under drift and as a part of its own, never losing the answer.",
+    "status": "active",
+    "maker": "maker:stream-an-answer-in-keyed-parts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "stream-an-answer-in-keyed-parts"
+   }
+  },
+  {
    "id": "tool:mix-sound-layers",
    "values": {
     "title": "Mix sounds under a video",
@@ -4609,6 +4689,22 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:pick-a-screen-for-typed-words",
+   "values": {
+    "title": "Pick the screen for what I am typing",
+    "job": "Pick, as a person types, the screen that already does what their words ask from the screens they are offered, the interfaces made for them and the screens they kept, with no model, and keep the shown screen calm",
+    "description": "Give words (what is typed so far) and the catalog: rows (offered screens, each { id, label, description?, asked?, source? }), made (interfaces, each { interface_id, title, intent }) and asks (kept screens, each { id, words, screen, input? }). memory is the last call's memory (omit it the first time). Answers picks (ranked, each with its entry and score) and memory: shown is the screen to show, which a challenger replaces only after winning twice in a row or with a certain score. Weights, thresholds and bounds are src/instant-screens.json; it names no screen.",
+    "status": "active",
+    "maker": "maker:pick-a-screen-as-you-type",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T16:00:00Z",
+    "folder": "pick-a-screen-as-you-type"
    }
   },
   {
