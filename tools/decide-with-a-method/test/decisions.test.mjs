@@ -56,9 +56,9 @@ test('one source opens one decision: the same input is that decision, different 
   assert.equal(root.method_id, 'plain', 'and its id beside it, for lists that weigh decisions by method');
   const kept = door.value(first.case_id);
   assert.equal(kept.input.evidence, undefined, 'the root holds no evidence itself');
-  assert.equal(kept.input.options, undefined);
+  assert.deepEqual(kept.input.options, opened.options, 'its options stay on the root');
   assert.equal(kept.method, undefined, 'nor its method snapshot');
-  assert.deepEqual(kept.counts, { evidence: 2, options: 2, candidates: 0, reports: 0, carried_out: 0, decision_history: 0, cited_pursuits: 0, answered_steps: 0 });
+  assert.deepEqual(kept.counts, { evidence: 2, candidates: 0, reports: 0, carried_out: 0, decision_history: 0, cited_pursuits: 0, answered_steps: 0 });
   assert.deepEqual(door.value(`decision-evidence:${first.case_id}:0001`), opened.evidence[1], 'each evidence row is a record of its own');
   assert.deepEqual(door.value(`decision-method:${kept.method_identity}`).method, root.method, 'the snapshot is kept once by its identity');
   assert.equal(root.status, 'needs_decision');
@@ -760,6 +760,8 @@ test('a decision of any size fits: every record and every door write stays under
     largest[type] = Math.max(largest[type] ?? 0, bytes({ id: key, type: kept.type, value: kept.value }));
   }
   for (const [type, size] of Object.entries(largest)) assert.ok(size <= (type === 'decision' ? 4096 : settings.record_bytes), `${type} records stay small (${size})`);
+  const roots = door.writes.filter(write => write.ids.includes(id)).length;
+  assert.ok(roots > 50, 'the root was written at every change');
   t.diagnostic(`case ${total} bytes; largest write ${largestWrite}; largest record by type ${JSON.stringify(largest)}`);
 });
 
@@ -771,4 +773,31 @@ test('an earlier decision laid apart comes back as similar with its chosen optio
   const { case_id: second } = await startADecision({ ...opened, source_id: 'chat:pottery-again' }, { door });
   const { similar_decisions: found } = await similarDecisions({ decision_id: second }, { door });
   assert.deepEqual(found.map(item => [item.case_id, item.decision, item.status, item.reported.length]), [[first, 'Raise the price', 'correction_needed', 1]]);
+});
+
+test('options stay on the root, bounded at start: too many or too long is refused with the limit', async () => {
+  const door = account();
+  const many = Array.from({ length: settings.options.most + 1 }, (_, n) => ({ id: `o${n}`, label: `Option ${n}` }));
+  await assert.rejects(startADecision({ ...opened, source_id: 'chat:many', options: many }, { door }), new RegExp(`at most ${settings.options.most} options, ${settings.options.most_bytes} bytes.*group similar options`));
+  const long = [{ id: 'a', label: 'A long made-up option label. '.repeat(400) }, { id: 'b', label: 'B' }];
+  await assert.rejects(startADecision({ ...opened, source_id: 'chat:long', options: long }, { door }), /shorten their labels/);
+  const most = Array.from({ length: settings.options.most }, (_, n) => ({ id: `o${n}`, label: `Option ${n}` }));
+  const { case_id: id } = await startADecision({ ...opened, source_id: 'chat:most', options: most }, { door });
+  assert.deepEqual(door.value(id).input.options, most);
+});
+
+test('a root written while options were laid apart reads them back and folds them into the root at its next change', async () => {
+  const door = account();
+  const { case_id: id } = await startADecision(opened, { door });
+  const root = door.value(id);
+  const { options, ...input } = root.input;
+  options.forEach((option, n) => door.put(`decision-option:${id}:${String(n).padStart(3, '0')}`, 'decision-option', option));
+  door.put(id, 'decision', { ...root, input, counts: { ...root.counts, options: options.length } });
+  const asked = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
+  assert.equal(asked.question.step_id, 'outcome', 'it reads');
+  const folded = door.value(id);
+  assert.deepEqual(folded.input.options, opened.options, 'its options are back on the root');
+  assert.equal(folded.counts.options, undefined);
+  assert.equal(door.value(`decision-option:${id}:000`), null, 'and their records are removed');
+  assert.equal((await startADecision(opened, { door })).case_id, id, 'the same start is still that decision');
 });

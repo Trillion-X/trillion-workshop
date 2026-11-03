@@ -37,7 +37,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { canonical, inputIdentity, laidTogether, readDecision, readStep, recordsOf, versionKey, writeDecision } from './decision-records.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
-const { records: NAMES, words: WORDS, precedence, candidates: CANDIDATES, revision: REVISION, evidence: EVIDENCE, history: HISTORY } = settings;
+const { records: NAMES, words: WORDS, precedence, candidates: CANDIDATES, revision: REVISION, evidence: EVIDENCE, history: HISTORY, options: OPTIONS } = settings;
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -176,6 +176,13 @@ function validatedCase(input, cat) {
   return { id: caseIdFor(input.source_id), method: cat.snapshotMethod(input.method ?? cat.defaultMethodId()) };
 }
 
+// The options live on the decision's root, so a new decision's options are bounded (`options` in the settings): the root
+// stays far under the door's write cap however large every other field it holds is.
+function optionsFit(options) {
+  if (options === undefined) return;
+  if (options.length > OPTIONS.most || Buffer.byteLength(JSON.stringify(options)) > OPTIONS.most_bytes) refuse('options_too_large', { count: OPTIONS.most, bytes: OPTIONS.most_bytes });
+}
+
 const ready = (cat, record) => {
   const asked = cat.decisionFieldsAsked(record);
   return { ai_instructions: [say(optionsOf(record).length ? 'ready' : 'none_standing')], options: optionsOf(record).map(({ id, label }) => ({ id, label })), how_to_say_it: cat.howToSayIt(record), ...(asked.length ? { decision_fields: asked } : {}) };
@@ -212,6 +219,7 @@ export async function startADecision(input, { door }) {
     if ((current.input_identity ?? inputIdentity(current.original_input ?? current.input)) !== inputIdentity(input)) refuse('source_changed', { source_id: input.source_id, case_id: id });
     return guideReply(door, await catalogueAt(door, methods, current), current);
   }
+  optionsFit(input.options);
   const record = {
     id, source_id: input.source_id, input, input_identity: inputIdentity(input), method, scratchpad: [], status: 'needs_decision', decision: null, actions: [], checks: [],
     pursuits_known: (await currentPursuits(door, 0)).length > 0, created_at: new Date().toISOString(), guidance: [],
