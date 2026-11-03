@@ -731,6 +731,18 @@
       "evidence": "README.md:3 how a Workshop tool reaches the person's own records: the client for the records door the run was handed"
     },
     {
+      "capability": "keep one outbound SSH tunnel open from a server's loopback port to a door on this computer, with a pinned host key and the key handed in from the vault, and set up the server side of it",
+      "owner": ["tools/keep-a-door-tunnel-open/"],
+      "entry": "tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs",
+      "evidence": "README.md:3 one SSH reverse forward from a server's 127.0.0.1 port to a door on this computer, reconnected when it ends, the key held only by a private ssh-agent"
+    },
+    {
+      "capability": "keep a rented server's public address on a valid certificate: issue and renew it by DNS-01 with the person's DNS key, set up the server's certificate owner and decide which paths its public host keeps before the rest goes to the engine",
+      "owner": ["tools/renew-a-tls-certificate/"],
+      "entry": "tools/renew-a-tls-certificate/tool-rows.json",
+      "evidence": "README.md:3 a certificate issued and renewed by DNS-01, every DNS record read before and after, the receptionist restarted and the public host reloaded on a change"
+    },
+    {
       "capability": "relate any of a person's records with the role as data and keep what happened between them, then read the graph around a record and find how records connect",
       "owner": [
         "tools/record-graph/"
