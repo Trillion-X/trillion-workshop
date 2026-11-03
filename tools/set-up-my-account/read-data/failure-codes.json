@@ -1,0 +1,120 @@
+{
+  "request-refused": {
+    "retryable": false,
+    "fatal": false,
+    "retry_after_seconds": null,
+    "fresh_handle_retry": false,
+    "remediation": "Read the reason and next call, correct the request, then send it again.",
+    "tries_again_later": false,
+    "domain": "request",
+    "payload": [
+      "next_call",
+      "upgrade_needed",
+      "feature"
+    ]
+  },
+  "service-interrupted": {
+    "retryable": true,
+    "fatal": false,
+    "retry_after_seconds": 5,
+    "fresh_handle_retry": true,
+    "remediation": "Send the same request again.",
+    "tries_again_later": true,
+    "domain": "service",
+    "payload": [
+      "next_call"
+    ]
+  },
+  "service-busy": {
+    "retryable": true,
+    "fatal": false,
+    "retry_after_seconds": 5,
+    "fresh_handle_retry": false,
+    "remediation": "Wait for the service to clear, then send the same request again.",
+    "tries_again_later": true,
+    "domain": "service",
+    "payload": [
+      "next_call"
+    ]
+  },
+  "peer-version-behind": {
+    "retryable": true,
+    "fatal": false,
+    "retry_after_seconds": 5,
+    "fresh_handle_retry": false,
+    "remediation": "A rollout reached this caller before the store it asked; send the same request again after the retry time.",
+    "tries_again_later": true,
+    "domain": "service",
+    "payload": [
+      "next_call"
+    ]
+  },
+  "resource-exhausted": {
+    "retryable": false,
+    "fatal": true,
+    "retry_after_seconds": null,
+    "fresh_handle_retry": false,
+    "remediation": "Reduce the work in one request before trying again.",
+    "tries_again_later": true,
+    "domain": "capacity",
+    "payload": [
+      "next_call",
+      "upgrade_needed",
+      "feature"
+    ]
+  },
+  "use-budget-reached": {
+    "retryable": true,
+    "fatal": false,
+    "retry_after_seconds": null,
+    "fresh_handle_retry": false,
+    "remediation": "Wait until the account's use budget resets, then send the same request again.",
+    "tries_again_later": true,
+    "domain": "budget",
+    "payload": [
+      "next_call",
+      "upgrade_needed",
+      "feature"
+    ]
+  },
+  "store-full": {
+    "retryable": true,
+    "fatal": false,
+    "retry_after_seconds": 60,
+    "fresh_handle_retry": false,
+    "remediation": "The store is full and is freeing derived space now; send the same request again after the retry time.",
+    "tries_again_later": true,
+    "domain": "capacity",
+    "payload": [
+      "next_call",
+      "upgrade_needed",
+      "feature"
+    ]
+  },
+  "unexpected": {
+    "retryable": false,
+    "fatal": true,
+    "retry_after_seconds": null,
+    "fresh_handle_retry": false,
+    "remediation": "Use the error reference to investigate the failure.",
+    "tries_again_later": false,
+    "domain": "unknown",
+    "payload": [
+      "next_call",
+      "upgrade_needed",
+      "feature"
+    ]
+  },
+  "outcome-unestablished": {
+    "retryable": false,
+    "fatal": false,
+    "retry_after_seconds": null,
+    "fresh_handle_retry": false,
+    "remediation": "This request's outcome was never established. Check the original work before trying again.",
+    "tries_again_later": false,
+    "domain": "service",
+    "payload": [
+      "next_call"
+    ]
+  }
+}
