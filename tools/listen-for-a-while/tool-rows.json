@@ -13,7 +13,7 @@
         "status": "active",
         "label": "Listen to the microphone until a time, and keep who said what",
         "job": "Listen in on a meeting or a room until a time I give, and keep each person's turn as it is said",
-        "description": "Records the microphone on this computer until `until`, hears each short piece of it on this computer with the Whisper model the person names, names each turn from the voices people enrolled (tool:enrol-a-voice-or-face; unknown voices keep the same number for the whole listening), and writes one heard row per turn as soon as its piece has been heard: the listening, the device, when it began and ended, the words, who said it, whether it is the person, the voice and how sure the match was. The sound never leaves this computer: pieces are kept in the run's own folder and deleted once heard, and only the words and the names are written. It stops at `until` by itself; the person's AI cancels the run to turn listening off, and what was heard before then is kept. The run lasts as long as `until` is from now, up to the row's longest run. The voice-print and listening-voices record kinds are stays_on_this_device: true.",
+        "description": "Records the microphone on this computer until `until`, hears each short piece of it on this computer with the Whisper model the person names, names each turn from the voices people enrolled (tool:enrol-a-voice-or-face; unknown voices keep the same number for the whole listening), and writes one heard row per turn as soon as its piece has been heard: the listening, the device, when it began and ended, the words, who said it, whether it is the person, the voice and how sure the match was. The sound never leaves this computer: pieces are kept in the run's own folder and deleted once heard, and only the words and the names are written. It stops at `until` by itself; the person's AI cancels the run to turn listening off, and what was heard before then is kept. Pause is real: while the listening's listening-switch row says { on: false, since }, nothing said after `since` is kept, however far behind the hearing is, and the run ends at the first piece recorded after it. The person's own recording rules (recording-rule rows and recording_rules) are asked again for every piece, over the facts in recording_facts and the listening's recording-facts row; a piece recorded while they say blocked is let go unheard. Every answer lists what leaves this computer and what stays. The run lasts as long as `until` is from now, up to the row's longest run. The voice-print and listening-voices record kinds are stays_on_this_device: true.",
         "input_schema": {
           "type": "object",
           "required": ["until", "model_path"],
@@ -28,18 +28,30 @@
             "piece_seconds": {"type": "integer", "minimum": 5, "maximum": 120, "description": "How long each piece of sound is (default 30)"},
             "rules": {"type": "object", "description": "Naming thresholds; see tool:who-is-in-this"},
             "words": {"type": "object", "description": "Wording of the speaker labels; see tool:who-is-in-this"},
-            "join_within_seconds": {"type": "number", "minimum": 0, "maximum": 30, "description": "Turns of one voice this close are joined (default 2)"}
+            "join_within_seconds": {"type": "number", "minimum": 0, "maximum": 30, "description": "Turns of one voice this close are joined (default 2)"},
+            "recording_rules": {
+              "type": "array",
+              "maxItems": 100,
+              "description": "Recording rules asked for every piece besides the person's recording-rule rows: { id, effect: block | require, when: { fact: value or [values] }, facts?: [names a require rule needs], says? }",
+              "items": {"type": "object"}
+            },
+            "recording_facts": {"type": "object", "description": "Facts the rules ask about (for example notice_given), before the listening's recording-facts row; kind is listening and device is this device"}
           }
         },
         "output_schema": {
           "type": "object",
-          "required": ["listening", "pieces", "turns", "rows_written"],
+          "required": ["listening", "pieces", "turns", "rows_written", "leaves", "stays"],
           "properties": {
             "listening": {"type": "string"},
             "pieces": {"type": "integer", "minimum": 0},
             "turns": {"type": "integer", "minimum": 0},
             "rows_written": {"type": "integer", "minimum": 0},
-            "left_out": {"type": "integer", "minimum": 0}
+            "left_out": {"type": "integer", "minimum": 0},
+            "let_go": {"type": "integer", "minimum": 0, "description": "Pieces let go unheard: recorded while a rule said no, or after the person paused"},
+            "blocked": {"type": ["string", "null"], "description": "Why the last piece was let go by a rule, or null"},
+            "paused": {"type": ["string", "null"], "description": "When the person turned listening off, or null"},
+            "leaves": {"type": "array", "description": "What leaves this computer: { id, what, to }"},
+            "stays": {"type": "array", "description": "What stays on this computer: { id, what, to }"}
           }
         },
         "invoke": {
@@ -55,7 +67,10 @@
             "rights": [
               {"kind": "heard", "operations": ["records:write"]},
               {"kind": "listening-voices", "operations": ["records:list", "records:write"]},
-              {"kind": "voice-print", "operations": ["records:list"]}
+              {"kind": "voice-print", "operations": ["records:list"]},
+              {"kind": "recording-rule", "operations": ["records:list"]},
+              {"kind": "recording-facts", "operations": ["records:read"]},
+              {"kind": "listening-switch", "operations": ["records:read"]}
             ]
           },
           "files": {

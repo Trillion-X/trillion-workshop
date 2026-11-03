@@ -17,10 +17,19 @@
 //      know-who-is-in-this's `who-is-in-this.py` on each piece and adds no recognizer.
 //   4. One turn is one row, its id its listening and start time, so writing a piece again changes nothing.
 //   5. Every number, program and wording is an input or a row; nothing here names a person.
+//   6. Pause is real: nothing said after the moment the person turned listening off (their `listening-switch` row says
+//      { on: false, since }) is kept, however far behind the hearing is. A piece recorded after it is let go unheard, the
+//      words after it in the piece it fell in are dropped before they are named or written, and the run then ends.
+//   7. Recording rules the person opted into (`recording-rule` rows and the request's `recording_rules`, read-data/
+//      recording-rules.mjs) are asked again for every piece, in this capture owner: a piece recorded while they say blocked
+//      is let go unheard. With none, nothing is ever blocked.
+//   8. What listening sends off this computer is told from DATA (read-data/leaves.json, leavesOf), in every answer.
 import { spawn, execFile } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
+import { evaluate } from './recording-rules.mjs';
+import leaves from './leaves.json' with { type: 'json' };
 
 const run = promisify(execFile);
 const MOST_PIECE_SECONDS = 120;
@@ -28,6 +37,43 @@ const MOST_PIECE_SECONDS = 120;
 export const HEARD = 'heard';
 export const SESSION = 'listening-voices';
 export const VOICE_PRINT = 'voice-print';
+export const RULE = 'recording-rule';
+export const FACTS = 'recording-facts';
+export const SWITCH = 'listening-switch';
+
+/**
+ * When the person turned listening off, in ms, while the switch still says off (null otherwise). A spoken stop is dated
+ * where the words ended, not when they were heard, so what was recorded after them in pieces already waiting to be heard
+ * is not kept either (invariant 6).
+ */
+export function pausedAt(state) {
+  return state?.on === false ? Date.parse(state.since) || null : null;
+}
+/** The stretches said before the pause (all of them when listening is not paused). */
+export const beforePause = (stretches, at) => (at == null ? stretches : stretches.filter(stretch => stretch.start_ms < at));
+
+/**
+ * What listening sends off this computer and what stays on it, worded from the same settings that decide it
+ * (listen.leaves, DATA): each row shows only while all its `when` tests hold ({ setting: 'a.b', equals | not }),
+ * so the list cannot say something is kept that is not. Returns { leaves: [{ id, what, to }], stays: [{ id, what, to }] }.
+ */
+export function leavesOf(listen) {
+  const at = path_ => path_.split('.').reduce((value, key) => value?.[key], listen);
+  const shown = (listen.leaves ?? []).filter(row => (row.when ?? []).every(test => (Object.hasOwn(test, 'equals') ? at(test.setting) === test.equals : at(test.setting) !== test.not)));
+  const words = row => ({ id: row.id, what: row.what, to: row.to });
+  return { leaves: shown.filter(row => row.leaves).map(words), stays: shown.filter(row => !row.leaves).map(words) };
+}
+
+/** The rules asked for a piece: the request's own plus the value of every `recording-rule` row, read again each piece. */
+export async function rulesIn(input, door) {
+  const rules = [...(input.recording_rules ?? [])];
+  for await (const row of door.list({ type: RULE })) if (row.value) rules.push(row.value);
+  return rules;
+}
+/** The facts the rules are asked about: this listening, the request's facts, then the listening's `recording-facts` row. */
+export async function factsIn(input, door, { listening, device }) {
+  return { kind: 'listening', device, ...(input.recording_facts ?? {}), ...((await door.read(FACTS, `${FACTS}:${listening}`)) ?? {}) };
+}
 
 /** The end time as milliseconds since 1970: a number, or an ISO time. Refuses a missing or unreadable time. */
 export function endOf(until) {
@@ -90,13 +136,18 @@ export async function* recordPieces({ device, seconds, folder, end, now = () => 
   child.stdout.on('data', chunk => push(String(chunk)));
   let closed = null;
   finished.then(code => { closed = code; wake?.(); });
-  for (;;) {
+  try {
+    for (;;) {
+      while (lines.length) { const piece = pieceOf(lines.shift(), folder, began); if (piece) yield piece; }
+      if (closed !== null) break;
+      await new Promise(done => { wake = done; });
+      wake = null;
+    }
     while (lines.length) { const piece = pieceOf(lines.shift(), folder, began); if (piece) yield piece; }
-    if (closed !== null) break;
-    await new Promise(done => { wake = done; });
-    wake = null;
+  } finally {
+    // A listener that stops early (the person paused) closes the microphone itself.
+    if (closed === null) child.kill('SIGTERM');
   }
-  while (lines.length) { const piece = pieceOf(lines.shift(), folder, began); if (piece) yield piece; }
   if (closed !== 0 && now() < end - 2000) throw new Error(`The microphone stopped before the end time${failure ? `: ${failure.trim()}` : '.'}`);
 }
 
@@ -124,7 +175,7 @@ export async function namePiece(request, { nameScript, python = 'python3' }) {
 }
 
 /**
- * The tool: input { until, listening, device_index?, piece_seconds?, model_path, rules?, words?, folder? }.
+ * The tool: input { until, listening, device_index?, piece_seconds?, model_path, rules?, words?, folder?, recording_rules?, recording_facts? }.
  * `steps` replaces the recorder, hearing and naming for tests; the defaults are the real programs.
  */
 export async function listenForAWhile(input, { door }, steps = {}) {
@@ -142,28 +193,45 @@ export async function listenForAWhile(input, { door }, steps = {}) {
   const record = steps.record ?? (() => recordPieces({ device: input.device_index ?? 'default', seconds, folder, end, now }));
   const hear = steps.hear ?? (file => hearPiece(file, work));
   const name = steps.name ?? (request => namePiece(request, work));
-  const tally = { listening, pieces: 0, turns: 0, rows_written: 0, left_out: 0 };
+  const tally = { listening, pieces: 0, turns: 0, rows_written: 0, left_out: 0, let_go: 0, blocked: null, paused: null, ...leavesOf(leaves) };
   // The unknown voices already heard in this listening (an earlier run of it), so voice-3 stays voice-3.
   let session = null;
   for await (const row of door.list({ type: SESSION })) if (row.value?.listening === listening) session = row.value;
+  // One piece: asked against the rules, let go after a pause, heard, named and written. Answers whether listening ends.
+  const listenTo = async piece => {
+    // The person's own opt-in recording rules, asked again here in the capture owner (no rules: allowed).
+    const verdict = evaluate(await rulesIn(input, door), await factsIn(input, door, { listening, device }));
+    if (verdict.state === 'blocked') { tally.blocked = verdict.why; tally.let_go += 1; return false; }
+    tally.blocked = null;
+    // Recorded after the person paused listening: let go unheard, and listening ends (invariant 6). A piece recorded
+    // before the pause is still heard, without the words said after it.
+    const paused = pausedAt(await door.read(SWITCH, `${SWITCH}:${listening}`));
+    if (paused !== null) tally.paused = new Date(paused).toISOString();
+    if (paused !== null && piece.startMs >= paused) { tally.let_go += 1; return true; }
+    const segments = beforePause((await hear(piece.file)).map(segment => ({ ...segment, start_ms: piece.startMs + Math.round(segment.start * 1000) })), paused)
+      .map(({ start_ms: _, ...segment }) => segment);
+    tally.pieces += 1;
+    if (!segments.length) return false;
+    const prints = [];
+    for await (const row of door.list({ type: VOICE_PRINT })) prints.push(row);
+    const sessions = session ? [session] : [];
+    const named = await name({ file: piece.file, segments, listening, voice_prints: prints, voice_sessions: sessions, rules: input.rules, words: input.words, join_within_seconds: input.join_within_seconds });
+    const rows = heardRows(named.speakers, { listening, device, startMs: piece.startMs });
+    tally.turns += named.speakers.length;
+    tally.left_out += named.speakers.length - rows.length;
+    const kept = [...rows, ...(named.records ?? []).map(({ id, kind, ...value }) => ({ id, type: kind, value: { kind, id, ...value } }))];
+    session = (named.records ?? []).find(each => each.kind === SESSION) ?? session;
+    if (kept.length) { await door.write(kept, { key: `listen:${listening}:${piece.startMs}` }); tally.rows_written += rows.length; }
+    return false;
+  };
   for await (const piece of record({ end })) {
+    let stop;
     try {
-      const segments = await hear(piece.file);
-      tally.pieces += 1;
-      if (!segments.length) continue;
-      const prints = [];
-      for await (const row of door.list({ type: VOICE_PRINT })) prints.push(row);
-      const sessions = session ? [session] : [];
-      const named = await name({ file: piece.file, segments, listening, voice_prints: prints, voice_sessions: sessions, rules: input.rules, words: input.words, join_within_seconds: input.join_within_seconds });
-      const rows = heardRows(named.speakers, { listening, device, startMs: piece.startMs });
-      tally.turns += named.speakers.length;
-      tally.left_out += named.speakers.length - rows.length;
-      const kept = [...rows, ...(named.records ?? []).map(({ id, kind, ...value }) => ({ id, type: kind, value: { kind, id, ...value } }))];
-      session = (named.records ?? []).find(each => each.kind === SESSION) ?? session;
-      if (kept.length) { await door.write(kept, { key: `listen:${listening}:${piece.startMs}` }); tally.rows_written += rows.length; }
+      stop = await listenTo(piece);
     } finally {
       rmSync(piece.file, { force: true });
     }
+    if (stop) break;
   }
   return tally;
 }

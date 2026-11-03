@@ -1,0 +1,8 @@
+{
+  "_what": "What listening sends off this computer and what stays on it (read-data/listen-for-a-while.mjs leavesOf). Each row shows while all its `when` tests hold ({ setting, equals | not }, over this object), so the list never says something is kept that is not. `leaves` true: it leaves this computer.",
+  "leaves": [
+    {"id": "words", "leaves": true, "what": "The words of each turn, with who said it", "to": "your records, as heard rows", "when": []},
+    {"id": "voices", "leaves": false, "what": "Voice numbers used to tell people apart", "to": "stay on this computer", "when": []},
+    {"id": "hearing", "leaves": false, "what": "The recording while it is turned into words", "to": "stays on this computer and is deleted once heard", "when": []}
+  ]
+}
