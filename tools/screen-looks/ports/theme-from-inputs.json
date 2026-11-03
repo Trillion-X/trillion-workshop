@@ -4,7 +4,7 @@
  "status": "ADAPTED",
  "directive": {
   "thread_id": "cloud job 2026-11-03: rea-not-yet-moved-product-module-src-workspace, part 2 of 2",
-  "message_multihash": "1f:1f:4bde43504575840d4557376c0f84fdeb5113a6fde4723f054ef60dd17bc63bd3",
+  "message_multihash": "1f:4bde43504575840d4557376c0f84fdeb5113a6fde4723f054ef60dd17bc63bd3",
   "quote": "Job: move the old trillion src/workspace product modules (part 2 of 2) into Trillion-X/trillion-workshop tools. Port the correct parts one to one with their original tests and assertions. \"move code, never rewrite it\"."
  },
  "mode": "SOURCE_FIRST_PORT",
@@ -13,7 +13,7 @@
    "repository": "trillion",
    "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
    "path": "parts/screen-look/read-data/theme-from-inputs.ts",
-   "multihash": "1f:1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
+   "multihash": "1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
    "ownership": "repository-owned",
    "old_copy": {
     "deleted_by": "2026-11-06T00:00:00Z",
@@ -24,7 +24,7 @@
    "repository": "trillion",
    "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
    "path": "parts/screen-look/read-data/tint-look.ts",
-   "multihash": "1f:1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab",
+   "multihash": "1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab",
    "ownership": "repository-owned",
    "old_copy": {
     "deleted_by": "2026-11-06T00:00:00Z",
@@ -56,19 +56,19 @@
  ],
  "baseline": {
   "copied_before_adaptation": true,
-  "source_multihash": "1f:1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
-  "target_multihash_at_baseline": "1f:1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
+  "source_multihash": "1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
+  "target_multihash_at_baseline": "1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
   "recorded_at": "2026-11-03T23:00:00Z",
   "rows": [
    {
     "path": "tools/screen-looks/read-data/theme-from-inputs.ts",
-    "source_multihash": "1f:1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
-    "target_multihash_at_baseline": "1f:1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6"
+    "source_multihash": "1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
+    "target_multihash_at_baseline": "1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6"
    },
    {
     "path": "tools/screen-looks/read-data/tint-look.ts",
-    "source_multihash": "1f:1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab",
-    "target_multihash_at_baseline": "1f:1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab"
+    "source_multihash": "1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab",
+    "target_multihash_at_baseline": "1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab"
    }
   ],
   "commit": "018dcda4e46f3c9ce5caeb48d01af0dfefa9c46a"
