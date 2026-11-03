@@ -5,9 +5,9 @@
 //   (its state, the changes it still holds, when its writes last reached the store), each copy of their records that
 //   settles with the store says how far it took (parts/record-log record-sync.mjs copyPositions), and every record two
 //   copies changed apart is read from where the record store keeps the versions a conflict met (`kept-apart` records,
-//   record-sync.mjs KEPT_APART). A page or an AI reads and settles it through this tool's rows (tool:see-copies-in-step,
-//   tool:say-how-this-copy-stands, tool:settle-two-versions; do-work/copies.mjs), which took the place of the store's
-//   GET /catch-up routes and the MCP tools copies_in_step and settle_two_versions.
+//   record-sync.mjs KEPT_APART). The rows of tools/keep-copies-in-step run it over the person's own records
+//   (do-work/copies.mjs): a page or an AI reads it with tool:see-if-my-copies-are-in-step, a device reports with
+//   tool:say-how-this-device-stands, and two versions are settled with tool:settle-two-versions.
 //
 // Non-negotiable invariants
 //   1. Blind: a state is the open key the device sent; a record kept apart is any record of any type. Nothing here
@@ -34,10 +34,9 @@
 //
 
 import settings from './catch-up.json' with { type: 'json' };
-import ROWS from './copies-rows.json' with { type: 'json' };
 
-// The record kind the record store keeps a conflict's versions under (trillion parts/record-log record-sync.mjs KEPT_APART).
-export const KEPT_APART = ROWS.kept_apart.type;
+/** The record type conflicts are kept in (trillion parts/record-log/do-work/record-sync.mjs KEPT_APART). */
+export const KEPT_APART = 'kept-apart';
 
 export class CatchUpError extends Error {}
 
@@ -187,4 +186,26 @@ export function catchUp(store, { records, positions = null, now = () => Date.now
     return { devices: [...devices, ...copies].slice(0, limits.most_devices), versions: keptIds().map(apartAt).map(apart => presentApart(apart, presentation)).filter(Boolean) };
   };
   return { here, settle, read };
+}
+
+// ---- the person store's routes ---------------------------------------------------------------------------------
+
+const ROUTES = {
+  'GET /catch-up': owner => owner.read(),
+  'POST /catch-up/here': (owner, body) => owner.here(body),
+  'POST /catch-up/settle': (owner, body, context) => owner.settle(body, context),
+};
+export const isCatchUpPath = path => path === '/catch-up' || path.startsWith('/catch-up/');
+
+export async function handleCatchUpRequest(owner, request) {
+  const url = new URL(request.url);
+  const route = ROUTES[`${request.method} ${url.pathname}`];
+  if (!route) return Response.json({ error: 'Not found' }, { status: 404 });
+  try {
+    const body = request.method === 'GET' ? {} : JSON.parse((await request.text()) || '{}');
+    return Response.json(await route(owner, body, { actor: { by: request.headers.get('x-trillion-app') || 'the person' } }));
+  } catch (error) {
+    if (error instanceof CatchUpError || error instanceof SyntaxError) return Response.json({ error: error.message }, { status: 400 });
+    throw error;
+  }
 }

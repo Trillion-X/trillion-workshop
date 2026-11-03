@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b0c75e3d8afcffc7736aa166a7fe0b89f077dd5cb20a29807aa25ac8c32d2f25"
+  "blake3": "1f:bb418abe258bc46f9de44cb85df6d174a6c58c1209cdbc62718e498a620e5bc7"
  },
  "fields": [
   {
@@ -6981,11 +6981,11 @@
    }
   },
   {
-   "id": "tool:say-how-this-copy-stands",
+   "id": "tool:say-how-this-device-stands",
    "values": {
-    "title": "Say how this copy stands",
-    "job": "Keep what this device says of how it stands",
-    "description": "Keeps what one device says of itself in your device rows (setting:catch_up_devices): device_id (the id it keeps for itself), state, waiting (changes it still holds), at (when its writes last reached the store), title, kind and copy_id (the copy of your records it keeps). A report is written only when what you would see changed, or when its last catch-up moved by more than an hour; the newest 40 devices are kept. Answers { device, written }.",
+    "title": "Say how this device stands",
+    "job": "Keep how this device of mine stands: caught up, offline or still holding changes",
+    "description": "Keeps one device's report in your device rows (setting:catch_up_devices): device_id (the id the device keeps for itself), state, waiting (the changes it still holds), at (when its writes last reached your store), title, kind and copy_id (the copy of your records it keeps). The row is written only when what you would see changed, or when its last catch-up moved by more than an hour; at most 40 devices are kept, newest first. One write, only while the rows are still what was read: rows changed meanwhile answer conflict and nothing is written.",
     "status": "active",
     "maker": "maker:keep-copies-in-step",
     "licence_class": "licence:maker-own",
@@ -7292,21 +7292,6 @@
    }
   },
   {
-   "id": "tool:see-copies-in-step",
-   "values": {
-    "title": "See whether every copy is in step",
-    "job": "Show me each of my devices, how it stands, and every record of one kind two copies changed apart",
-    "description": "Reads your device rows (setting:catch_up_devices) and every record of the kind you name that two copies changed apart (kept-apart records): devices, each with its state (such as waiting, catching-up, caught-up or offline), how many changes it still holds and when its writes last reached your store (at); and versions, each record kept as two versions with its thing ({ kind, id, title }) and its sides ({ id, from, keep, value, current }, the record as it is now first). other_kinds counts the records kept apart of other kinds, so you can ask for them next. Send positions ({ copy, settled_at }) to show copies of your records that settle with the store. It changes nothing.",
-    "status": "active",
-    "maker": "maker:keep-copies-in-step",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "keep-copies-in-step"
-   }
-  },
-  {
    "id": "tool:see-how-each-post-did",
    "values": {
     "title": "How each post did",
@@ -7319,6 +7304,21 @@
      "placement:small-container"
     ],
     "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:see-if-my-copies-are-in-step",
+   "values": {
+    "title": "See if my copies are in step",
+    "job": "Show me whether every copy of my things is in step, and which records two of my devices changed apart",
+    "description": "Reads your device rows (setting:catch_up_devices) and every record two copies changed apart (kept-apart records) of the kind you name as thing_type, and answers devices (each device's state, waiting changes and when it last caught up; a copy of your records you send in positions is shown once, as the device that named it or as a copy of its own) and versions (each record kept apart: the record as it is now first, then one side per other version, with the words of its keep button). other_kinds names the kinds of other records kept apart, to ask about next. It reads and changes nothing.",
+    "status": "active",
+    "maker": "maker:keep-copies-in-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-copies-in-step"
    }
   },
   {
@@ -7948,9 +7948,9 @@
   {
    "id": "tool:settle-two-versions",
    "values": {
-    "title": "Settle a record kept as two versions",
-    "job": "Settle a record two of my copies changed apart, as I chose",
-    "description": "Settles a record kept as two versions (id from tool:see-copies-in-step, kind its thing's kind): keep \"one\" version (side: its id), keep \"both\" as separate records (each other version is written as a record named after it), or keep a \"merged\" value (value: the whole record as it should be). The choice is written and the kept versions are removed in one write, conditioned on what was read; a record changed meanwhile answers conflict and nothing is written. Settle only as the person chose. request_key makes the same settle safe to send again.",
+    "title": "Settle two versions",
+    "job": "Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
+    "description": "Writes what you chose for one record kept apart (id, from see-if-my-copies-are-in-step): keep one (side, the id of the version to keep), both (each other version is kept as a record of its own, named after it with -kept- and a number that no record holds yet), or merged (value, the merged record). What you chose is written first and the kept versions are removed in the same write, so every copy takes it like any change. thing_type is the kind of the record. Every write stands only on what was read: a record changed meanwhile answers conflict and nothing is written.",
     "status": "active",
     "maker": "maker:keep-copies-in-step",
     "licence_class": "licence:maker-own",
