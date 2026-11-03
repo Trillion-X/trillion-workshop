@@ -1,0 +1,125 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:record-a-job-shown-once",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:record-a-demonstration",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 40,
+          "network_egress": false
+        },
+        "label": "Show me once",
+        "job": "Record, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and give it back as a draft workflow in words an AI can keep after the person has looked at it",
+        "description": "Give seconds (1 to 300; 30 when left out). The recorder listens only: it posts, blocks and changes nothing, and the stop key (Escape) ends it early. Text typed in a secure field is never recorded; the draft says a secret was typed. Answers draft ({ id, label, job, steps: [{ id, title, do, submit }], dropped_steps }), events_seen, secrets_skipped, ended (time, stop_key, most_events) and said. Without the Mac's Input Monitoring for the recorder the run is refused in words. Bounds and every step's words: read-data/demonstration.json.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "draft",
+            "events_seen",
+            "ended"
+          ],
+          "properties": {
+            "draft": {
+              "type": "object"
+            },
+            "events_seen": {
+              "type": "integer"
+            },
+            "secrets_skipped": {
+              "type": "integer"
+            },
+            "ended": {
+              "type": "string"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "watch-the-keyboard-and-pointer"
+          ],
+          "max_run_ms": 330000,
+          "workdir": "/opt/record-a-job-shown-once",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/record-a-job-shown-once/read-data/demonstration.mjs",
+            "record"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "record-a-job-shown-once",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/record-a-job-shown-once"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion demonstration (computer/, deleted in dc79bb0a87)"
+        }
+      }
+    }
+  ]
+}

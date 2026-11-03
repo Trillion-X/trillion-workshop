@@ -14,7 +14,7 @@
 //   5. Parsing is declarative: a row selects and cuts with patterns; it runs no code.
 //
 // The event half (watching the accessibility tree and asking the governor) stays in the Mac app, macos/App/ComputerReader.swift
-// in Trillion-X/trillion. This file is the policy half, and `parse` is the row tool:parse-snapshot.
+// (Trillion-X/trillion-apps). This file is the policy half, and `parse` is the row tool:parse-snapshot.
 //
 // USAGE
 //   node /opt/records-door/do-work/run-an-export.mjs /opt/read-what-is-on-screen/read-data/snapshot-triggers.mjs parse
