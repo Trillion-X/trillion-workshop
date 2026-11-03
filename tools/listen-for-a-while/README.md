@@ -7,8 +7,16 @@ Listens to the microphone until an end time the person gives, and writes each tu
 | File | Purpose |
 |------|---------|
 | `read-data/listen-for-a-while.mjs` | The tool `listenForAWhile` (run as a function by `tools/records-door`), and the pure helpers: the end time, the recorder command, a recorder line as a piece, the `heard` rows of a piece's turns, hearing and naming by the other two tools' scripts. |
-| `tool-rows.json` | The row `tool:listen-for-a-while`: a `computer` row with the `use-the-microphone` capability, rights to write `heard` and `listening-voices` rows and to list `voice-print` rows. |
-| `test/listen-for-a-while.test.mjs` | The loop on a fake recorder, hearing, naming and records door; the recorder reader on a fake process. |
+| `read-data/recording-rules.mjs` | The person's opt-in recording rules: `evaluate` (block wins, a false required fact blocks, an unknown one is pending), `mayStart`, `recheck`, the grant book, the notice step and consent events. The listener asks `evaluate` for every piece. |
+| `read-data/recording-rules.json` | The words of each refusal and notice step. |
+| `read-data/leaves.json` | What listening sends off this computer and what stays on it, as rows `leavesOf` shows while their `when` tests hold. |
+| `read-data/private-mode.mjs` | The opt-in private mode for a meeting or space: `available(mode, feature)` (mode off: everything; mode on: only features whose row says `private: true`, an unlisted feature is off), one plain sentence per feature, and a security code (BLAKE3 of the sorted keys, in digit groups) both sides compare out of band. |
+| `read-data/private-mode.json` | Which features exist and which private mode keeps, and its words. |
+| `ports/private-mode.json`, `ports/recording-rules.json` | The SOURCE_FIRST_PORT contracts for `private-mode.mjs` and `recording-rules.mjs`, both moved from the older owner. |
+| `tool-rows.json` | The row `tool:listen-for-a-while`: a `computer` row with the `use-the-microphone` capability, rights to write `heard` and `listening-voices` rows, to list `voice-print` and `recording-rule` rows, and to read the listening's `recording-facts` and `listening-switch` rows. |
+| `test/listen-for-a-while.test.mjs` | The loop on a fake recorder, hearing, naming and records door; the recorder reader on a fake process; pause, recording rules, the leaves list, and the microphone closed when listening ends early. |
+| `test/recording-rules.test.mjs` | The rules: open by default, block wins, pending, the mid-session recheck, grants, the notice step and consent events. |
+| `test/private-mode.test.mjs` | Private mode: off means everything, on keeps only what the table says and anything unlisted is off; the security code is the same for the same keys in any order and changes with one key. |
 | `part.json` | Nothing here is imported by other code. |
 
 ## How a run goes
@@ -17,6 +25,10 @@ Listens to the microphone until an end time the person gives, and writes each tu
 - A `heard` row is: `listening`, `device`, `start`, `end`, `text`, `speaker` (a name, `Unsure (A or B?)` or `Someone (voice-N)`), `me`, `voice`, `score` and `unsure` when the speaker is unsure. Its id is `heard:<listening>:<start in milliseconds>`, so a piece written again changes nothing.
 - The sound stays on this computer: pieces are written in the run's own folder and deleted as soon as they have been heard. Only text, names and scores are written. The `voice-print` and `listening-voices` kinds are stays_on_this_device: true.
 - A listening with the same `listening` name continues the unknown voices of an earlier run of it (its `listening-voices` record), so `voice-3` stays `voice-3`.
+- Pause is real. The listening's `listening-switch:<listening>` row (type `listening-switch`, `{ on, since }`) is read for every piece. While it says `on: false`, nothing said after `since` is kept, however far behind the hearing is: a piece recorded before `since` is heard without the words that start after it, the first piece recorded after it is let go unheard, and the run ends there and closes the microphone. `paused` in the answer says when.
+- Recording rules are asked again for every piece, here in the capture owner: the request's `recording_rules` plus the value of every `recording-rule` row, over the facts `{ kind: "listening", device }`, the request's `recording_facts` and the listening's `recording-facts:<listening>` row. A piece recorded while they say blocked is let go unheard (`let_go`, and `blocked` says why); when they allow again, the next piece is heard. With no rules nothing is blocked.
+- Every answer carries `leaves` and `stays`: what leaves this computer (the words of each turn) and what stays on it (voice numbers, the recording while it is heard), from `read-data/leaves.json`.
+- Moved from the product repo's always-on listener (`computer/listen.mjs` invariants 1c, 1d and 1e: `pausedAt`, `beforePause`, `leavesOf`, the per-piece rules check) and its rules owner (`src/recording-rules.mjs` with `src/recording-rules.json` and `test/recording-rules.test.mjs`, carried whole). The listener's own files on the Mac (the switch file, `recording-rules.json`, `recording-facts.json`) are rows here.
 
 ## Not yet
 

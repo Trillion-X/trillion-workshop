@@ -138,14 +138,14 @@
                   "do-work/check_plan_cuts.py",
                   "do-work/speech_reading.py"
                 ],
-                "at": "tools/check-a-rendered-video"
+                "at": "/opt/check-a-rendered-video"
               },
               {
                 "package": "assemble-a-plan-into-a-cut",
                 "paths": [
                   "read-data/spans.py"
                 ],
-                "at": "tools/assemble-a-plan-into-a-cut"
+                "at": "/opt/assemble-a-plan-into-a-cut"
               }
             ]
           },
@@ -233,7 +233,7 @@
                   "do-work/check_cut_speech.py",
                   "do-work/speech_reading.py"
                 ],
-                "at": "tools/check-a-rendered-video"
+                "at": "/opt/check-a-rendered-video"
               }
             ]
           },

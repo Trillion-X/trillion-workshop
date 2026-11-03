@@ -143,6 +143,47 @@ test('two current-document quotes cannot pretend to be original-source coverage'
   const dp=join(dir,'doc.md');writeFileSync(dp,text);const p=profile();p.required_components=['c'];p.original_sources=[{blake3:hash(text),authority:'author_text'}];const r=reviews(text);const q={source_id:'d',text:'You exist: here and now.',byte_start:text.indexOf('You exist'),byte_end:text.indexOf('You exist')+Buffer.byteLength('You exist: here and now.')};r.source_bindings={schema:'source-span-bindings-v1',sources:[{id:'d',path:dp,blake3:hash(text)}],quotes:[{id:'q1',...q},{id:'q2',...q}]};r.components=[{component_id:'c',source_quote_index:0,destination_quote_index:1,source_authority:'author_text',relationship_review:'Trying to self-cite.',reviewer_role:'model'}];assert.equal(verifyWritingProfile(Buffer.from(text),p,r).status,'invalid');
  }finally{rmSync(dir,{recursive:true,force:true});}
 });
+test('a rule row whose authority is any non-empty provenance label is a valid row',()=>{
+ const p=profile();p.rejections.push({id:'direct-rule',text:'Another rejected phrase',authority:'direct_current_user_rejection',basis:'made-up basis'});p.superseded_terms=[{id:'sibling-rule',text:'Earlier Named Method',authority:'editorial_sibling_propagation_of_direct_rejection',boundary_repair:'made-up'}];
+ const d=verifyWritingProfile(Buffer.from(text),p,reviews(text));assert.notEqual(d.status,'invalid');
+});
+test('an invalid rule row is named by its list, position and field and never by its text',()=>{
+ const cases=[['rejections','authority',r=>{r.authority='';}],['rejections','authority',r=>{delete r.authority;}],['rejections','text',r=>{r.text='short';}],['rejections','id',r=>{r.id=' ';}],['rejections','scope',r=>{r.scope='page';}],['rejections','text',r=>{r.scope='heading';r.text='two\nlines of words';}],['rejections','row',()=>{}]];
+ for(const [list,field,mutate] of cases){
+  const p=profile();if(field==='row')p.rejections[0]=null;else mutate(p.rejections[0]);const d=verifyWritingProfile(Buffer.from(text),p,reviews(text));
+  assert.equal(d.status,'invalid');assert.deepEqual(d.findings,[{kind:'invalid_rule',list,rule_index:0,field}]);
+ }
+ const p=profile();p.superseded_terms=[{id:'private-rejection-id',text:'Earlier Named Method',authority:'author_confirmed'}];
+ assert.deepEqual(verifyWritingProfile(Buffer.from(text),p,reviews(text)).findings,[{kind:'invalid_rule',list:'superseded_terms',rule_index:0,field:'id'}]);
+ assert.ok(!JSON.stringify(verifyWritingProfile(Buffer.from(text),p,reviews(text))).includes('Earlier Named'));
+});
+test('an original-source allowlist row may carry any provenance label, but only an author label backs a component',()=>{
+ const p=profile();p.original_sources=[{blake3:hash('one'),authority:'source_ref:made-up-label',path:'a'},{blake3:hash('two'),authority:'external_lexical_reference',scope:'made-up'}];
+ assert.notEqual(verifyWritingProfile(Buffer.from(text),p,reviews(text)).status,'invalid');
+});
+test('an invalid original-source row is named by its position and field and never by its content',()=>{
+ const good=()=>({blake3:hash('one'),authority:'author_text'});
+ const cases=[['blake3',r=>{r.blake3='ABC';}],['authority',r=>{r.authority='';}],['authority',r=>{delete r.authority;}],['row',null]];
+ for(const [field,mutate] of cases){
+  const p=profile();p.original_sources=[good(),good()];p.original_sources[1].blake3=hash('two');if(mutate)mutate(p.original_sources[1]);else p.original_sources[1]=null;
+  assert.deepEqual(verifyWritingProfile(Buffer.from(text),p,reviews(text)).findings,[{kind:'invalid_original_source_allowlist',source_index:1,field}]);
+ }
+ const p=profile();p.original_sources=[good(),good()];
+ assert.deepEqual(verifyWritingProfile(Buffer.from(text),p,reviews(text)).findings,[{kind:'invalid_original_source_allowlist',source_index:1,field:'blake3'}]);
+});
+test('a source whose allowlist label is not an author label cannot back a component',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'writing-label-'));try{
+  const doc='# Heading\n\nQuartz lantern steps.\n\nPlain closing remark.\n',src='Quartz lantern steps.';
+  const sp=join(dir,'source.txt'),dp=join(dir,'current.md');writeFileSync(sp,src);writeFileSync(dp,doc);
+  const at=doc.indexOf('Plain closing remark.'),quote=(id,source_id,s,start)=>({id,source_id,text:s,byte_start:start,byte_end:start+Buffer.byteLength(s)});
+  const p=profile();p.protected_literals=[];p.required_components=['c'];p.original_sources=[{blake3:hash(src),authority:'external_lexical_reference'}];
+  const r=reviews(doc);r.source_bindings={schema:['source-span','bindings','v1'].join('-'),sources:[{id:'s',path:sp,blake3:hash(src)},{id:'d',path:dp,blake3:hash(doc)}],quotes:[quote('sq','s',src,0),quote('dq','d','Plain closing remark.',at)]};
+  r.components=[{component_id:'c',source_quote_index:0,destination_quote_index:1,source_authority:'external_lexical_reference',relationship_review:'Made-up relationship.',reviewer_role:'root'}];
+  assert.deepEqual(verifyWritingProfile(Buffer.from(doc),p,r).findings,[{kind:'invalid_component_review'}]);
+  r.components[0].source_authority='author_text';assert.deepEqual(verifyWritingProfile(Buffer.from(doc),p,r).findings,[{kind:'component_source_not_authorized_original'}]);
+  p.original_sources[0].authority='author_text';assert.equal(verifyWritingProfile(Buffer.from(doc),p,r).status,'checks_satisfied');
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});
 test('reports omit private bodies and caller-controlled names',()=>{
  const p=profile();p.rejections[0].id='SECRET-CALLER-ID';const t=text+'\nKnown rejected phrase';const r=reviews(t);r.blocks[0].reviewer='SECRET-REVIEWER';const result=JSON.stringify(verifyWritingProfile(Buffer.from(t),p,r));for(const secret of ['SECRET-CALLER-ID','SECRET-REVIEWER','Known rejected phrase','You exist:'])assert.ok(!result.includes(secret));
 });

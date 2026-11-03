@@ -38,6 +38,8 @@ A person who sells with their own Stripe account can have their AI price a sale 
 | `do-work/take-payments.mjs` | The function each row runs. |
 | `read-data/resource-usage.mjs` | Exact rational supplier-cost allocation, effective-dated resource/plan/client markup, purchased snapshots, subcent cash clearing and nested leaf-only pricing. Public to consumers through `part.json`. |
 | `do-work/resource-usage.mjs` | Records-backed pricing configuration, immutable physical observations, supplier settlement/corrections and paged readback. Re-exported by `take-payments.mjs`, through the same records-door runner. |
+| `do-work/live-usage.mjs` | `tool:observe-live-usage`: reads the account's own usage day rows (the engine's counts of stored bytes, tool work milliseconds and source bytes, files door `usage_days`) and keeps each closed day as one `resource-usage-observation` per billed resource, for the existing settlement. Its readers are the older owner's `usageReadings` (REF-LIVE-USAGE-READINGS). |
+| `read-data/usage-meters.json` | The billed meters and the default +30% rule, ported one to one from old trillion `src/usage-meters.json`, and which engine row field each reading reads. |
 | `tool-rows.json` | The eighteen rows. |
 | `test/` | The ported cases (curve, dimensions, price discovery, voluntary amounts, verify, phases, webhook, request builder, Connect, links) and new ones for the quote, hosted session, listing completed checkouts and ended subscriptions (answers shaped like Stripe test mode), rows and money rules. `expect.mjs` is a vitest-shaped helper that compares whole-cent bigint amounts. |
 

@@ -1,0 +1,869 @@
+{
+  "kind": "package-set-records",
+  "record_set": "build-and-install-the-public-receptionist-tool-rows",
+  "what_this_is": "The Workshop rows for building and installing the public receptionist on its own rented Linux host: prepare the host, read it, build one commit there and install the built file. The host, its port, the administration user, every host path and the Rust toolchain version are inputs; the administration key reaches ssh only as a held file (credential_mounts mount_path). The SSH arguments come from tools/administer-a-rented-host.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:prepare-a-receptionist-build-host",
+        "label": "Prepare a receptionist build host",
+        "job": "Make my rented Linux server able to build the public receptionist",
+        "description": "Installs the build packages given, makes the source folder, adds a swap file if there is none and installs the exact Rust toolchain given, over SSH as the host's administrator with the held key. It sets up no service user, DNS, TLS or public route.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "host",
+            "source_root",
+            "rust",
+            "build_packages",
+            "swap"
+          ],
+          "properties": {
+            "host": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "address",
+                "ssh_port",
+                "admin_user",
+                "host_key"
+              ],
+              "description": "The rented Linux host the receptionist is built on.",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "description": "The host's IPv4 address or DNS name, e.g. 192.0.2.10 or build.example.com."
+                },
+                "ssh_port": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535,
+                  "description": "The host's SSH port."
+                },
+                "admin_user": {
+                  "type": "string",
+                  "description": "The Linux user that administers the host (it needs root rights for prepare)."
+                },
+                "host_key": {
+                  "type": "string",
+                  "description": "The host's pinned public SSH key, \"<type> <base64>\"; no other key is accepted."
+                }
+              }
+            },
+            "dry_run": {
+              "type": "boolean",
+              "description": "true answers the ssh arguments and remote command and runs nothing."
+            },
+            "source_root": {
+              "type": "string",
+              "pattern": "^/",
+              "description": "The folder on the host that holds one folder per built commit."
+            },
+            "rust": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "toolchain",
+                "cargo_home",
+                "rustup_home"
+              ],
+              "description": "The pinned Rust toolchain and where it lives on the host.",
+              "properties": {
+                "toolchain": {
+                  "type": "string",
+                  "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+                  "description": "The exact Rust version, e.g. 1.93.0."
+                },
+                "cargo_home": {
+                  "type": "string",
+                  "pattern": "^/",
+                  "description": "CARGO_HOME on the host."
+                },
+                "rustup_home": {
+                  "type": "string",
+                  "pattern": "^/",
+                  "description": "RUSTUP_HOME on the host."
+                }
+              }
+            },
+            "build_packages": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              },
+              "description": "Debian packages the build needs."
+            },
+            "swap": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "size"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "pattern": "^/",
+                  "description": "The swap file on the host."
+                },
+                "size": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*[MG]$"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "operation"
+          ],
+          "properties": {
+            "operation": {
+              "type": "string",
+              "const": "prepare"
+            },
+            "dry_run": {
+              "type": "boolean"
+            },
+            "ssh": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "remote_command": {
+              "type": "string"
+            },
+            "output": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            },
+            "directory": {
+              "type": "string"
+            },
+            "executable": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "workdir": "/opt/build-and-install-the-public-receptionist",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/build-and-install-the-public-receptionist/do-work/receptionist-build.mjs",
+            "prepare",
+            "/run/held/rented-host-admin-key"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "build-and-install-the-public-receptionist",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/build-and-install-the-public-receptionist"
+              },
+              {
+                "package": "administer-a-rented-host",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/administer-a-rented-host"
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "rented-host-admin-ssh-key",
+              "mount_path": "/run/held/rented-host-admin-key"
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 240,
+          "network_egress": true
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "host": {
+                "address": "192.0.2.10",
+                "ssh_port": 22,
+                "admin_user": "builder",
+                "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample"
+              },
+              "dry_run": true,
+              "source_root": "/srv/receptionist/source",
+              "rust": {
+                "toolchain": "1.93.0",
+                "cargo_home": "/srv/rust/cargo",
+                "rustup_home": "/srv/rust/rustup"
+              },
+              "build_packages": [
+                "ca-certificates",
+                "curl",
+                "openssl",
+                "pkg-config",
+                "libssl-dev",
+                "build-essential"
+              ],
+              "swap": {
+                "path": "/srv/receptionist/build-swap",
+                "size": "4G"
+              }
+            },
+            "output_selector": "$.remote_command",
+            "contains": "--default-toolchain 1.93.0"
+          }
+        ],
+        "maker": "maker:build-and-install-the-public-receptionist",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Trillion-X/trillion scripts/portable-receptionist-build.mjs and scripts/portable-service-host-setup.sh lines 2-4 and 26-35"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-receptionist-build-host",
+        "label": "Read a receptionist build host",
+        "job": "See what my receptionist build server has now: its Rust version, builds running, built copies and listening ports",
+        "description": "Reads the host's kernel, Rust version, memory, running compilers, source folders and built receptionists, which of the given ports are listening, and the given service user's sign-in state. Changes nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "host",
+            "source_root",
+            "rust"
+          ],
+          "properties": {
+            "host": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "address",
+                "ssh_port",
+                "admin_user",
+                "host_key"
+              ],
+              "description": "The rented Linux host the receptionist is built on.",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "description": "The host's IPv4 address or DNS name, e.g. 192.0.2.10 or build.example.com."
+                },
+                "ssh_port": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535,
+                  "description": "The host's SSH port."
+                },
+                "admin_user": {
+                  "type": "string",
+                  "description": "The Linux user that administers the host (it needs root rights for prepare)."
+                },
+                "host_key": {
+                  "type": "string",
+                  "description": "The host's pinned public SSH key, \"<type> <base64>\"; no other key is accepted."
+                }
+              }
+            },
+            "dry_run": {
+              "type": "boolean",
+              "description": "true answers the ssh arguments and remote command and runs nothing."
+            },
+            "source_root": {
+              "type": "string",
+              "pattern": "^/",
+              "description": "The folder on the host that holds one folder per built commit."
+            },
+            "rust": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "toolchain",
+                "cargo_home",
+                "rustup_home"
+              ],
+              "description": "The pinned Rust toolchain and where it lives on the host.",
+              "properties": {
+                "toolchain": {
+                  "type": "string",
+                  "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+                  "description": "The exact Rust version, e.g. 1.93.0."
+                },
+                "cargo_home": {
+                  "type": "string",
+                  "pattern": "^/",
+                  "description": "CARGO_HOME on the host."
+                },
+                "rustup_home": {
+                  "type": "string",
+                  "pattern": "^/",
+                  "description": "RUSTUP_HOME on the host."
+                }
+              }
+            },
+            "ports": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65535
+              },
+              "description": "Ports whose listeners to show."
+            },
+            "service_user": {
+              "type": "string",
+              "description": "A service user whose account and recent SSH sign-ins to show."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "operation"
+          ],
+          "properties": {
+            "operation": {
+              "type": "string",
+              "const": "inspect"
+            },
+            "dry_run": {
+              "type": "boolean"
+            },
+            "ssh": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "remote_command": {
+              "type": "string"
+            },
+            "output": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            },
+            "directory": {
+              "type": "string"
+            },
+            "executable": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "workdir": "/opt/build-and-install-the-public-receptionist",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/build-and-install-the-public-receptionist/do-work/receptionist-build.mjs",
+            "inspect",
+            "/run/held/rented-host-admin-key"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "build-and-install-the-public-receptionist",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/build-and-install-the-public-receptionist"
+              },
+              {
+                "package": "administer-a-rented-host",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/administer-a-rented-host"
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "rented-host-admin-ssh-key",
+              "mount_path": "/run/held/rented-host-admin-key"
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "host": {
+                "address": "192.0.2.10",
+                "ssh_port": 22,
+                "admin_user": "builder",
+                "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample"
+              },
+              "dry_run": true,
+              "source_root": "/srv/receptionist/source",
+              "rust": {
+                "toolchain": "1.93.0",
+                "cargo_home": "/srv/rust/cargo",
+                "rustup_home": "/srv/rust/rustup"
+              },
+              "ports": [
+                443,
+                9443
+              ],
+              "service_user": "door"
+            },
+            "output_selector": "$.remote_command",
+            "contains": "passwd -S door"
+          }
+        ],
+        "maker": "maker:build-and-install-the-public-receptionist",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Trillion-X/trillion scripts/portable-receptionist-build.mjs and scripts/portable-service-host-setup.sh lines 2-4 and 26-35"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:build-the-public-receptionist",
+        "label": "Build the public receptionist",
+        "job": "Build the public receptionist on my rented Linux server from one committed version of its source",
+        "description": "Sends git archive of one commit of a local trillion-rust checkout (declared source only: no home folder, Git settings, credentials or local state) to the host, builds trillion-mcp-receptionist there with the given Rust toolchain, and runs its bootstrap-credential test. Answers the commit, its folder, the built file and the build's last lines.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "host",
+            "source_root",
+            "rust",
+            "repository"
+          ],
+          "properties": {
+            "host": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "address",
+                "ssh_port",
+                "admin_user",
+                "host_key"
+              ],
+              "description": "The rented Linux host the receptionist is built on.",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "description": "The host's IPv4 address or DNS name, e.g. 192.0.2.10 or build.example.com."
+                },
+                "ssh_port": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535,
+                  "description": "The host's SSH port."
+                },
+                "admin_user": {
+                  "type": "string",
+                  "description": "The Linux user that administers the host (it needs root rights for prepare)."
+                },
+                "host_key": {
+                  "type": "string",
+                  "description": "The host's pinned public SSH key, \"<type> <base64>\"; no other key is accepted."
+                }
+              }
+            },
+            "dry_run": {
+              "type": "boolean",
+              "description": "true answers the ssh arguments and remote command and runs nothing."
+            },
+            "source_root": {
+              "type": "string",
+              "pattern": "^/",
+              "description": "The folder on the host that holds one folder per built commit."
+            },
+            "rust": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "toolchain",
+                "cargo_home",
+                "rustup_home"
+              ],
+              "description": "The pinned Rust toolchain and where it lives on the host.",
+              "properties": {
+                "toolchain": {
+                  "type": "string",
+                  "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+                  "description": "The exact Rust version, e.g. 1.93.0."
+                },
+                "cargo_home": {
+                  "type": "string",
+                  "pattern": "^/",
+                  "description": "CARGO_HOME on the host."
+                },
+                "rustup_home": {
+                  "type": "string",
+                  "pattern": "^/",
+                  "description": "RUSTUP_HOME on the host."
+                }
+              }
+            },
+            "repository": {
+              "type": "string",
+              "description": "Full path of the local trillion-rust checkout."
+            },
+            "revision": {
+              "type": "string",
+              "description": "The branch, tag or commit to build (default HEAD); a dry run needs the full commit."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "operation"
+          ],
+          "properties": {
+            "operation": {
+              "type": "string",
+              "const": "build"
+            },
+            "dry_run": {
+              "type": "boolean"
+            },
+            "ssh": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "remote_command": {
+              "type": "string"
+            },
+            "output": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            },
+            "directory": {
+              "type": "string"
+            },
+            "executable": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "use-git-in-a-folder"
+          ],
+          "workdir": "/opt/build-and-install-the-public-receptionist",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/build-and-install-the-public-receptionist/do-work/receptionist-build.mjs",
+            "build",
+            "/run/held/rented-host-admin-key"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "build-and-install-the-public-receptionist",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/build-and-install-the-public-receptionist"
+              },
+              {
+                "package": "administer-a-rented-host",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/administer-a-rented-host"
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "rented-host-admin-ssh-key",
+              "mount_path": "/run/held/rented-host-admin-key"
+            }
+          ],
+          "max_run_ms": 1500000
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 900,
+          "network_egress": true
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "host": {
+                "address": "192.0.2.10",
+                "ssh_port": 22,
+                "admin_user": "builder",
+                "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample"
+              },
+              "dry_run": true,
+              "source_root": "/srv/receptionist/source",
+              "rust": {
+                "toolchain": "1.93.0",
+                "cargo_home": "/srv/rust/cargo",
+                "rustup_home": "/srv/rust/rustup"
+              },
+              "repository": "/home/person/trillion-rust",
+              "revision": "0123456789abcdef0123456789abcdef01234567"
+            },
+            "output_selector": "$.remote_command",
+            "contains": "cargo' +1.93.0 build --locked --release --bin trillion-mcp-receptionist"
+          }
+        ],
+        "maker": "maker:build-and-install-the-public-receptionist",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Trillion-X/trillion scripts/portable-receptionist-build.mjs and scripts/portable-service-host-setup.sh lines 2-4 and 26-35"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:install-the-built-receptionist",
+        "label": "Install the built receptionist",
+        "job": "Install the receptionist I just built on my rented Linux server so it can run",
+        "description": "Checks that the receptionist built from the given commit is on the host, makes it runnable and, when install_path is given, puts a copy there in one rename. It starts and stops nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "host",
+            "source_root",
+            "commit"
+          ],
+          "properties": {
+            "host": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "address",
+                "ssh_port",
+                "admin_user",
+                "host_key"
+              ],
+              "description": "The rented Linux host the receptionist is built on.",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "description": "The host's IPv4 address or DNS name, e.g. 192.0.2.10 or build.example.com."
+                },
+                "ssh_port": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535,
+                  "description": "The host's SSH port."
+                },
+                "admin_user": {
+                  "type": "string",
+                  "description": "The Linux user that administers the host (it needs root rights for prepare)."
+                },
+                "host_key": {
+                  "type": "string",
+                  "description": "The host's pinned public SSH key, \"<type> <base64>\"; no other key is accepted."
+                }
+              }
+            },
+            "dry_run": {
+              "type": "boolean",
+              "description": "true answers the ssh arguments and remote command and runs nothing."
+            },
+            "source_root": {
+              "type": "string",
+              "pattern": "^/",
+              "description": "The folder on the host that holds one folder per built commit."
+            },
+            "commit": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$",
+              "description": "The commit the build answered."
+            },
+            "install_path": {
+              "type": "string",
+              "pattern": "^/",
+              "description": "Where the runnable copy goes on the host; left out, it stays in the commit's folder."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "operation"
+          ],
+          "properties": {
+            "operation": {
+              "type": "string",
+              "const": "install"
+            },
+            "dry_run": {
+              "type": "boolean"
+            },
+            "ssh": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "remote_command": {
+              "type": "string"
+            },
+            "output": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            },
+            "directory": {
+              "type": "string"
+            },
+            "executable": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "workdir": "/opt/build-and-install-the-public-receptionist",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/build-and-install-the-public-receptionist/do-work/receptionist-build.mjs",
+            "install",
+            "/run/held/rented-host-admin-key"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "build-and-install-the-public-receptionist",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/build-and-install-the-public-receptionist"
+              },
+              {
+                "package": "administer-a-rented-host",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/administer-a-rented-host"
+              }
+            ]
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "rented-host-admin-ssh-key",
+              "mount_path": "/run/held/rented-host-admin-key"
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "host": {
+                "address": "192.0.2.10",
+                "ssh_port": 22,
+                "admin_user": "builder",
+                "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample"
+              },
+              "dry_run": true,
+              "source_root": "/srv/receptionist/source",
+              "commit": "0123456789abcdef0123456789abcdef01234567",
+              "install_path": "/srv/receptionist/bin/trillion-mcp-receptionist"
+            },
+            "output_selector": "$.remote_command",
+            "contains": "chmod 0755"
+          }
+        ],
+        "maker": "maker:build-and-install-the-public-receptionist",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Trillion-X/trillion scripts/portable-receptionist-build.mjs and scripts/portable-service-host-setup.sh lines 2-4 and 26-35"
+        }
+      }
+    }
+  ]
+}
