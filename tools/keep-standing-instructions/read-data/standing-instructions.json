@@ -1,0 +1,94 @@
+{
+  "schema": "trillion.standing-instructions/v1",
+  "_what": "The standing instructions Trillion keeps in an AI's own harness instruction file, one short marked block, read by read-data/standing-instructions.mjs and kept by tool:keep-trillion-in-your-instructions. `text` is the block's content and is the one place to change it: the engine keeps the installed Workshop current (its keep-current row), so a change here reaches the person's computer with the next Workshop it installs. `markers` bracket the block; only the lines between them (and the two marker lines) are ever written or removed, every other byte of the file is left as it was. `harnesses`: where each harness keeps its instructions, copied from the engine's product/harnesses.json `standing_instructions` (kind file: `file` inside the folder the person granted this tool, `folder` naming the folder under the home folder the harness uses by default; kind host-control: no file, the AI uses the named control of the app itself).",
+  "markers": {
+    "start": "<!-- trillion standing instructions: start -->",
+    "end": "<!-- trillion standing instructions: end -->"
+  },
+  "text": "At the start of a conversation, read recent Trillion messages, pursuits and relevant assigned work. Do the authorized work and check its outcome. Use decisions and workflows when they help; routine answers, edits and fixes need no external-method prerequisite. Report the real result in plain words.",
+  "harnesses": [
+    {
+      "id": "claude-code",
+      "app": "Claude Code",
+      "standing_instructions": {
+        "kind": "file",
+        "folder": ".claude",
+        "file": "CLAUDE.md"
+      }
+    },
+    {
+      "id": "codex",
+      "app": "Codex",
+      "standing_instructions": {
+        "kind": "file",
+        "folder": ".codex",
+        "file": "AGENTS.md"
+      }
+    },
+    {
+      "id": "gemini-cli",
+      "app": "Gemini CLI",
+      "standing_instructions": {
+        "kind": "file",
+        "folder": ".gemini",
+        "file": "GEMINI.md"
+      }
+    },
+    {
+      "id": "hermes",
+      "app": "Hermes",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "its own memory"
+      }
+    },
+    {
+      "id": "muse",
+      "app": "Muse",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "its own memory or custom instructions"
+      }
+    },
+    {
+      "id": "chatgpt",
+      "app": "ChatGPT",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "ChatGPT's Custom instructions or Memory in its personalization settings"
+      }
+    },
+    {
+      "id": "claude",
+      "app": "Claude",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "Claude's personal preferences or memory in its settings"
+      }
+    },
+    {
+      "id": "gemini",
+      "app": "Gemini",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "Gemini's saved info or instructions for Gemini in its settings"
+      }
+    },
+    {
+      "id": "grok",
+      "app": "Grok",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "Grok's custom instructions in its settings"
+      }
+    },
+    {
+      "id": "cursor",
+      "app": "Cursor",
+      "standing_instructions": {
+        "kind": "host-control",
+        "control": "Cursor's User Rules in its settings"
+      }
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-standing-instructions-tool-rows",
+  "what_this_is": "The Workshop row that keeps Trillion's standing instructions as one marked block in an AI harness's own instruction file, in the folder the person granted it.",
+  "records": [
+    {
+      "id": "package::keep-standing-instructions::tool::keep-trillion-in-your-instructions",
+      "address": "package::keep-standing-instructions::tool::keep-trillion-in-your-instructions",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-trillion-in-your-instructions",
+        "label": "Keep Trillion in your AI's standing instructions",
+        "job": "Put Trillion's standing instructions into the instruction file your AI reads at the start of every conversation on this computer, check that they are there, or take them out",
+        "description": "Run this when you connect to Trillion on the person's computer, after the person grants it their AI's own folder (~/.claude, ~/.codex, ~/.gemini) to change: action apply writes Trillion's current standing instructions as one marked block in this AI's own global instruction file (Claude Code ~/.claude/CLAUDE.md, Codex ~/.codex/AGENTS.md, Gemini CLI ~/.gemini/GEMINI.md) and creates the file if it is missing; the run reaches only that folder. The words are this Workshop's current copy, so a change to them reaches the file the next time you apply after the Workshop updates. Only the block between the two marker lines is ever changed: every other line of the file stays exactly as it was, applying twice changes nothing, and remove takes out only the block. inspect says whether the block is absent, present or out of date without writing. A file whose markers are damaged is left alone and reported. For a hosted app with no file (ChatGPT, Claude, Gemini, Grok, Cursor) nothing is written: the report returns status use-host-control with the exact words and the app's own memory or custom-instructions control to put them in; use that control and say plainly what you did. No other path, text, command or harness can be named.",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "harness",
+            "action"
+          ],
+          "properties": {
+            "harness": {
+              "type": "string",
+              "enum": [
+                "claude-code",
+                "codex",
+                "gemini-cli",
+                "hermes",
+                "muse",
+                "chatgpt",
+                "claude",
+                "gemini",
+                "grok",
+                "cursor"
+              ],
+              "description": "The AI app or harness you are, as in read-data/standing-instructions.json"
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "inspect",
+                "apply",
+                "remove"
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "schema",
+            "observed_at",
+            "text_from",
+            "report"
+          ],
+          "properties": {
+            "schema": {
+              "const": "trillion.standing-instructions-result/v1"
+            },
+            "observed_at": {
+              "type": "string"
+            },
+            "text_from": {
+              "const": "this workshop"
+            },
+            "report": {
+              "type": "object",
+              "required": [
+                "schema",
+                "harness",
+                "action",
+                "status",
+                "changed",
+                "text"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/keep-standing-instructions",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-standing-instructions/read-data/standing-instructions.mjs",
+            "keep"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "folder": {
+              "fill": {
+                "from": "task",
+                "field": "grants.change-a-folder.folder"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-standing-instructions",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/keep-standing-instructions"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion computer/harness-instructions.mjs (tool:keep-trillion-in-your-instructions on the Mac tool host) and harness/standing-instructions.mjs with harness/standing-instructions.json, 2026-11-03"
+        }
+      }
+    }
+  ]
+}

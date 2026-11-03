@@ -773,6 +773,16 @@
       "evidence": "read-data/read-programs.js:3 every program running on this Mac: its process id, name and memory, read from the system's process information"
     },
     {
+      "capability": "keep Trillion's standing instructions as one marked block in the instruction file an AI harness reads at the start of every conversation, on the person's computer",
+      "owner": ["tools/keep-standing-instructions/"],
+      "entry": "tools/keep-standing-instructions/tool-rows.json",
+      "evidence": "read-data/standing-instructions.mjs:49 change: apply writes or replaces only the marked block and remove deletes only it, every other byte of the file left as it was",
+      "distinct_from": [
+        { "job": "say what every AI is told when it first connects, as rows the engine's door serves", "why": "That owner (tools/tell-ais-how-to-act) serves the instructions through the MCP door and writes no file; this writes the short startup reminder into the harness's own instruction file, in the folder the person granted, so the AI reads it before it connects." },
+        { "job": "edit text and code files", "why": "That owner edits any file a person names; this changes only its own marked block in one harness file and leaves every other byte alone." }
+      ]
+    },
+    {
       "capability": "keep saved examples of work that worked (posts, videos, pages), each with why it worked",
       "owner": ["tools/saved-examples/"],
       "entry": "tools/saved-examples/tool-rows.json",

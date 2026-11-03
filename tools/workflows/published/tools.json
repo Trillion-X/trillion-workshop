@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:7d3baafc9ea4e980831623778404c674dfa74fc63e646f97c4214ad45545d3f4"
  },
  "fields": [
   {
@@ -3432,6 +3432,21 @@
      "placement:small-container"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:keep-trillion-in-your-instructions",
+   "values": {
+    "title": "Keep Trillion in your AI's standing instructions",
+    "job": "Put Trillion's standing instructions into the instruction file your AI reads at the start of every conversation on this computer, check that they are there, or take them out",
+    "description": "Run this when you connect to Trillion on the person's computer, after the person grants it their AI's own folder (~/.claude, ~/.codex, ~/.gemini) to change: action apply writes Trillion's current standing instructions as one marked block in this AI's own global instruction file (Claude Code ~/.claude/CLAUDE.md, Codex ~/.codex/AGENTS.md, Gemini CLI ~/.gemini/GEMINI.md) and creates the file if it is missing; the run reaches only that folder. The words are this Workshop's current copy, so a change to them reaches the file the next time you apply after the Workshop updates. Only the block between the two marker lines is ever changed: every other line of the file stays exactly as it was, applying twice changes nothing, and remove takes out only the block. inspect says whether the block is absent, present or out of date without writing. A file whose markers are damaged is left alone and reported. For a hosted app with no file (ChatGPT, Claude, Gemini, Grok, Cursor) nothing is written: the report returns status use-host-control with the exact words and the app's own memory or custom-instructions control to put them in; use that control and say plainly what you did. No other path, text, command or harness can be named.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-standing-instructions"
    }
   },
   {
