@@ -1,6 +1,6 @@
 {
   "id": "move:trillion-to-workshop",
-  "about": "The old Trillion app's features move into the Workshop byte for byte. Groups come from the rows of Trillion's capabilities.json that name moves_to. Engine pieces (sign-in and the door, the stores, the Worker entry) stay: they are ported to Rust, not moved. Provider calls (Durable Object storage, KV, env bindings) are swapped for the records door's calls by the calls rows; a group with a provider call no row swaps is held. The KV rows swap only to calls the records door offers (read and write at @own-records) and need a door the caller hands in; a credential read from an env binding has no call swap, because the door hands credentials by handle through the tool row's invoke.connection, so such a group is held until its row declares that.",
+  "about": "The old Trillion app's features move into the Workshop byte for byte. Groups come from the rows of Trillion's capabilities.json that name moves_to. Engine pieces (sign-in and the door, the stores, the Worker entry) stay: they are ported to Rust, not moved. Provider calls (Durable Object storage, KV, env bindings) are swapped for the records door's calls by the calls rows; a group with a provider call no row swaps is held. The KV rows swap only to calls the records door offers (read and write at @own-records) and need a door the caller hands in; a credential read from an env binding has no call swap, because the door hands credentials by handle through the tool row's invoke.connection, so such a group is held until its row declares that. Groups with no moves_to row are listed by hand in groups.",
   "source": {
     "name": "Trillion-X/trillion",
     "commit": "42aff4e9dc",
@@ -57,7 +57,9 @@
     "src/decision-store.mjs",
     "src/share-collection-store.mjs",
     "src/show-rules-store.mjs",
-    "src/public-app-file-store.mjs"
+    "src/public-app-file-store.mjs",
+    "src/catch-up.mjs",
+    "src/record-model-tools.mjs"
   ],
   "provider_calls": [
     {
@@ -95,6 +97,29 @@
       "means": "A KV delete becomes records:write of null for that id.",
       "find": "(?<![.\\w$])env\\.([A-Z][A-Z0-9_]*_KV)\\.delete\\(\\s*([^()]+?)\\s*\\)",
       "replace": "door.write([{ id: $2, type: '$1', value: null }])"
+    }
+  ],
+  "keep_reasons": {
+    "src/catch-up.mjs": "Another lane moves it as keep-copies-in-step; this move leaves it alone.",
+    "src/record-model-tools.mjs": "tools/record-graph already holds it; what only the old file has is merged there and the old file deleted, not moved as a second copy."
+  },
+  "groups": [
+    {
+      "id": "methods-and-pursuit-lens",
+      "owner": [
+        "methods/",
+        "src/pursuit-lens.mjs"
+      ],
+      "to": "tools/methods-and-pursuit-lens",
+      "capability": "the methods an AI works by, and how it sees what a person is pursuing: the places to look, the parts to read what it finds by, and rows of what to look for and what to do"
+    },
+    {
+      "id": "set-up-with-your-ai",
+      "owner": [
+        "src/setup-plan.mjs"
+      ],
+      "to": "tools/set-up-with-your-ai",
+      "capability": "set up a new account with your AI: the setup contract as data, run by the existing workflow, with connecting an AI as the entrance, never the finished outcome"
     }
   ]
 }
