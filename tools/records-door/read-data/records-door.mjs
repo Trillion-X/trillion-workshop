@@ -21,7 +21,7 @@
 // back as RecordsDoorError with the door's code and outcome. Large answers use byte pages (read-data/byte-pages.mjs).
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
-import { wholeAnswer } from './byte-pages.mjs';
+import { pagedCall } from './byte-pages.mjs';
 
 const PROTOCOL = '2025-06-18';
 const BUSY_RETRIES = 5;
@@ -72,8 +72,9 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
 
   // A record too big for one message comes as pages of its own bytes; the same call with the same request key and
   // after_byte reads on. The engine serves later pages only to the key that made the answer.
-  async function call(method, input, key = `${method}:${randomUUID()}`, address = resource, retryTransport = false) {
-    return wholeAnswer(await callOnce(method, input, key, address, retryTransport), after => callOnce(method, { ...input, after_byte: after }, key, address, retryTransport));
+  const paged = pagedCall(callOnce);
+  function call(method, input, key = `${method}:${randomUUID()}`, address = resource, retryTransport = false) {
+    return paged(method, input, key, address, retryTransport);
   }
 
   async function callOnce(method, input, key, address, retryTransport = false) {
