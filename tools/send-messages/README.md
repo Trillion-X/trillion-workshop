@@ -4,14 +4,14 @@ The person's AI sends a message to one person or a list: an email (Amazon SES or
 
 Six packages did this one job and are merged here, ported from bitfield-packages: `broadcast-delivery` (Amazon SES, Resend and Twilio, to a list), `resend-email-sender` (one templated email, thread headers, retry key), `imessage-messages-sender` (Messages on the Mac), `composition-mail-serializer` (a document into a body) and `myletter-newsletter` (consent for email courses and update lists). The consent half sends its lessons through the sending half, which is why they share a folder.
 
-The provider's key arrives on a private pipe (the row's `credential_mounts`, one descriptor per key) and goes to the one adapter process in its environment. It is never in the request, an argument, a file, a record or the answer. No sender is assumed: an email has the `from` the person gives, and a template used with none is refused. Nothing is sent to a person without a recorded consent where a consent applies: a lesson is sent only while the subscription is active, and once.
+The provider's key arrives on a private pipe (the row's `credential_mounts`, one descriptor per key) and goes to the one adapter process in its environment. It is never in the request, an argument, a file, a record or the answer. No sender is assumed: an email row's email comes from the account's own mail row, which ships with none, so an account sends nothing until it names its sender; a lesson has its course's `from`, and a template used with none is refused. Nothing is sent to a person without a recorded consent where a consent applies: a lesson is sent only while the subscription is active, and once.
 
 ## Tools
 
 | Tool | What it does | Runs |
 |------|--------------|------|
-| `tool:send-an-email-with-amazon-ses` | An email to a list through the person's SES account | container, internet, keys `amazon-ses-access-key-id` and `amazon-ses-secret-access-key` |
-| `tool:send-an-email-with-resend` | An email to a list through the person's Resend account, from words or a template, with thread headers and a retry key | container, internet, key `resend-api-key` |
+| `tool:send-an-email-with-amazon-ses` | An email to a list through the person's SES account, under the account's mail rules (`do-work/mail-sender.mjs`) | container, internet, records door (`mail-settings`, `mail-sent`, `mail-day`), keys `amazon-ses-access-key-id` and `amazon-ses-secret-access-key` |
+| `tool:send-an-email-with-resend` | An email to a list through the person's Resend account, from words, markdown (a written email) or a template, with thread headers and a retry key, under the account's mail rules (`do-work/mail-sender.mjs`) | container, internet, records door (`mail-settings`, `mail-sent`, `mail-day`), key `resend-api-key` |
 | `tool:send-a-text-with-twilio` | A text message to a list of numbers through the person's Twilio account | container, internet, key `twilio-auth-token` |
 | `tool:send-a-message-on-this-mac` | A Messages message from the person's own Mac, failing closed with what to allow when macOS refuses | `computer` row holding `use-the-messages-app` |
 | `tool:write-a-message-body-from-a-document` | A document's nodes into `{ body_html, body_text, inline_refs, degraded }` | on the person's computer, Python |
@@ -33,6 +33,7 @@ The consent records (`email-course-subscription`, `email-course-token`, `email-c
 
 | File | Purpose |
 |------|---------|
+| `do-work/mail-sender.mjs` | The mail rules every email row runs under, moved from the older owner's mail sender: the sender only from the account's mail row (`mail-settings` record `settings:mail`, copied from `read-data/mail-settings.json` the first time), every email written down under its address (`mail-sent` records) and limited per person and kind, a proof address never handed to a provider, the day's allowance (`mail-day` records) with room kept for sign-in codes, a refusal before dispatch giving its allowance back and any other failure kept as unknown and never sent again blindly, a written email's BCC copy to the account's own address and its sent copy, and subscription headers. The allowance is taken before the provider is asked, in one records write conditioned on what was read. `mailSender`, `bindingFor`, `sendAnEmail`, `mailSettings`, and the command the email rows run. |
 | `do-work/send-a-message.mjs` | The sending seam. Picks the provider's row, checks the request, hands the adapter its keys, answers per recipient. `sendMessage`, `sendOnThisMac` (the computer row's export), and the command that reads the request on standard input and each key from its descriptor. |
 | `do-work/keep-who-agreed.mjs` | The consent seam: gives the course logic its reads, batch writes, contact points and queued lessons from the person's records, and sends through the sending seam. Exports for each consent tool. |
 | `do-work/send-via-resend.cjs` | Resend adapter (from `broadcast-delivery`), with the custom headers and retry key the single-email sender had. |
@@ -43,14 +44,15 @@ The consent records (`email-course-subscription`, `email-course-token`, `email-c
 | `read-data/render-a-message.ts` | Picks a template by name and fills its `{{key}}` words, escaping HTML (from the email sender's `render-email.ts`). |
 | `read-data/render-a-send.ts` | Builds the command for a program on the person's computer from DATA, with the body as its own argument (from `render-send.ts`). |
 | `read-data/check-message-headers.ts` | Bounded custom headers: names limited, no line breaks, 4 KiB (from the email sender's request checks). |
-| `read-data/message-providers.json` | The providers: settings from the request, keys by secret name and descriptor, adapter or command. |
+| `read-data/message-providers.json` | The providers: settings from the request, keys by secret name and descriptor (an email provider's keys come after the records door's descriptor 3), adapter or command. |
+| `read-data/mail-settings.json` | The mail row an account starts with (no sender, no postal address: the account names its own): per-person limits by kind, the sent log, proof addresses, the day's allowance and keep-back, and how each email provider's refusals read (`providers`: its error code, the codes refused before dispatch, the code saying its day is full). |
 | `read-data/inbox-pacing.json` | The pacing rows, event-source rows, outcome rows, and the closed lists of kinds and actions they may name. |
 | `read-data/inbox-pacing.mjs` | `planSends`, `sortOutcomes`, `eventFields` and the row checks `pacingProblems`, `outcomeRowProblems`, `eventSourceProblems`. |
 | `do-work/pace-an-inbox.mjs` | The command of both pacing rows: `plan` or `sort` in argv, JSON in, `{ result }` or `{ error }` out. |
 | `read-data/message-templates.json` | Two sample templates (a sign-in link, a welcome). They carry no sender. |
 | `tool-rows.json` | The fourteen rows. |
 | `part.json` | Nothing here is imported by other code. |
-| `test/` | `render-a-message.test.mjs` (the email sender's render and template cases), `send-a-message.test.mjs` (the adapters with a stand-in fetch, the Messages cases, the keys), `composition-mail-serializer.test.mjs` with `test_composition_mail_serializer.py`, `email-course.test.mjs` (the consent package's own cases), `keep-who-agreed.test.mjs` (the consent logic through the records door with each row's rights), `inbox-pacing.test.mjs` (the ramp, gap, days and hours in a time zone, held addresses, the pause, each event source and outcome row, rows added only as DATA, both commands), `stub-fetch.mjs` (the stand-in fetch). |
+| `test/` | `render-a-message.test.mjs` (the email sender's render and template cases), `send-a-message.test.mjs` (the adapters with a stand-in fetch, the Messages cases, the keys), `composition-mail-serializer.test.mjs` with `test_composition_mail_serializer.py`, `email-course.test.mjs` (the consent package's own cases), `keep-who-agreed.test.mjs` (the consent logic through the records door with each row's rights), `mail-sender.test.mjs` (the older owner's mail sender, per-person limit and admission cases through the records door: limits, codes without subjects, proofs, the day, refused against unknown, two sends racing, the sender from the row, written email and its BCC, subscription headers, the email rows), `inbox-pacing.test.mjs` (the ramp, gap, days and hours in a time zone, held addresses, the pause, each event source and outcome row, rows added only as DATA, both commands), `stub-fetch.mjs` (the stand-in fetch). |
 
 ## Key Types / Functions
 

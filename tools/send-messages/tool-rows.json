@@ -9,17 +9,22 @@
         "id": "tool:send-an-email-with-amazon-ses",
         "label": "Send an email with Amazon SES",
         "job": "Send an email, to one person or a list, through my Amazon SES account",
-        "description": "Give recipients (a list of addresses; to for one), from (an address verified in SES), region (such as us-east-1), and the words: subject and html (text optional), or template (a template name from read-data/message-templates.json, or your own templates) with variables. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error }. The held SES keys reach the one process on private pipes; they are never shown and no sender is assumed.",
+        "description": "Give recipients (a list of addresses; to for one), region (such as us-east-1), and the words: subject and html or text, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row (records `mail-settings` `settings:mail`, copied from read-data/mail-settings.json the first time), never from the request; each address may be sent only so many emails of a kind (per_person), the day keeps room for sign-in codes (daily), a proof address is written down and never sent, and every email is written down under its address. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held SES keys reach the one process on private pipes; they are never shown.",
         "status": "active",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["from", "region"],
+          "required": ["region"],
           "properties": {
             "recipients": { "type": "array", "minItems": 1, "items": { "type": "string" } },
             "to": { "type": "string" },
-            "from": { "type": "string" },
             "region": { "type": "string" },
+            "kind": { "type": "string" },
+            "markdown": { "type": "string" },
+            "preheader": { "type": "string" },
+            "action": { "type": "object" },
+            "reply_to": { "type": "string" },
+            "subscription": { "type": "object" },
             "subject": { "type": "string" },
             "html": { "type": "string" },
             "text": { "type": "string" },
@@ -36,7 +41,7 @@
           "required": ["provider", "sent", "said"],
           "properties": {
             "provider": { "type": "string" },
-            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "messageId": { "type": "string" }, "error": { "type": "string" } } } },
+            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "messageId": { "type": ["string", "null"] }, "error": { "type": "string" }, "limited": { "type": "boolean" }, "unknown": { "type": "boolean" }, "suppressed": { "type": "boolean" }, "kept_for_proof": { "type": "string" }, "sent_copy": { "type": "object" } } } },
             "said": { "type": "string" }
           }
         },
@@ -45,14 +50,27 @@
           "internet": true,
           "workdir": "/opt/send-messages",
           "stdout": "json",
-          "argv": ["node", "/opt/send-messages/do-work/send-a-message.mjs", "amazon-ses"],
+          "argv": ["node", "/opt/send-messages/do-work/mail-sender.mjs", "amazon-ses"],
           "stdin": { "fill": { "from": "input" } },
           "files": {
-            "package_files": { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" }
+            "package_files": [
+              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "mail-settings", "operations": ["records:read", "records:write"] },
+              { "kind": "mail-sent", "operations": ["records:read", "records:write"] },
+              { "kind": "mail-day", "operations": ["records:read", "records:write"] }
+            ]
           },
           "credential_mounts": [
-            { "secret_name": "amazon-ses-access-key-id", "fd": 3 },
-            { "secret_name": "amazon-ses-secret-access-key", "fd": 4 }
+            { "secret_name": "amazon-ses-access-key-id", "fd": 4 },
+            { "secret_name": "amazon-ses-secret-access-key", "fd": 5 }
           ]
         },
         "result_selector": "$.result",
@@ -69,7 +87,7 @@
         "id": "tool:send-an-email-with-resend",
         "label": "Send an email with Resend",
         "job": "Send an email, to one person or a list, through my Resend account",
-        "description": "Give recipients (a list of addresses; to for one), from (an address on a domain verified in Resend, see tool:list-email-sending-domains), and the words: subject and html (text optional), or template (a template name from read-data/message-templates.json, or your own templates) with variables. headers can carry In-Reply-To, References or List-Unsubscribe (names are limited to letters, digits and hyphens, values to one line of 4 KiB); idempotencyKey makes a retry safe. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with the provider's own status and reason. The held key reaches the one process on a private pipe; it is never shown and no sender is assumed.",
+        "description": "Give recipients (a list of addresses; to for one) and the words: subject and html or text, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). headers can carry In-Reply-To, References or List-Unsubscribe (names are limited to letters, digits and hyphens, values to one line of 4 KiB); idempotencyKey makes a retry safe. Every email comes from the account's own mail row (records `mail-settings` `settings:mail`, copied from read-data/mail-settings.json the first time; its from must be on a domain verified in Resend, see tool:list-email-sending-domains), never from the request; each address may be sent only so many emails of a kind (per_person), the day keeps room for sign-in codes (daily), a proof address is written down and never sent, and every email is written down under its address. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with the provider's own status, error name and reason, and limited, unknown (it may have gone; it is not sent again) or suppressed. The held key reaches the one process on a private pipe; it is never shown.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -78,7 +96,12 @@
           "properties": {
             "recipients": { "type": "array", "minItems": 1, "items": { "type": "string" } },
             "to": { "type": "string" },
-            "from": { "type": "string" },
+            "kind": { "type": "string" },
+            "markdown": { "type": "string" },
+            "preheader": { "type": "string" },
+            "action": { "type": "object" },
+            "reply_to": { "type": "string" },
+            "subscription": { "type": "object" },
             "subject": { "type": "string" },
             "html": { "type": "string" },
             "text": { "type": "string" },
@@ -95,7 +118,7 @@
           "required": ["provider", "sent", "said"],
           "properties": {
             "provider": { "type": "string" },
-            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "messageId": { "type": "string" }, "error": { "type": "string" } } } },
+            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "messageId": { "type": ["string", "null"] }, "error": { "type": "string" }, "limited": { "type": "boolean" }, "unknown": { "type": "boolean" }, "suppressed": { "type": "boolean" }, "kept_for_proof": { "type": "string" }, "sent_copy": { "type": "object" } } } },
             "said": { "type": "string" }
           }
         },
@@ -104,12 +127,25 @@
           "internet": true,
           "workdir": "/opt/send-messages",
           "stdout": "json",
-          "argv": ["node", "/opt/send-messages/do-work/send-a-message.mjs", "resend"],
+          "argv": ["node", "/opt/send-messages/do-work/mail-sender.mjs", "resend"],
           "stdin": { "fill": { "from": "input" } },
           "files": {
-            "package_files": { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" }
+            "package_files": [
+              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
           },
-          "credential_mounts": [{ "secret_name": "resend-api-key", "fd": 3 }]
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "mail-settings", "operations": ["records:read", "records:write"] },
+              { "kind": "mail-sent", "operations": ["records:read", "records:write"] },
+              { "kind": "mail-day", "operations": ["records:read", "records:write"] }
+            ]
+          },
+          "credential_mounts": [{ "secret_name": "resend-api-key", "fd": 4 }]
         },
         "result_selector": "$.result",
         "needs": { "expected_seconds": 10, "network_egress": true },

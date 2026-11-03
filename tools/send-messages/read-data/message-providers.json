@@ -11,8 +11,8 @@
         { "env": "EMAIL_FROM", "input": "from" }
       ],
       "credentials": [
-        { "env": "AWS_ACCESS_KEY_ID", "secret_name": "amazon-ses-access-key-id", "fd": 3 },
-        { "env": "AWS_SECRET_ACCESS_KEY", "secret_name": "amazon-ses-secret-access-key", "fd": 4 }
+        { "env": "AWS_ACCESS_KEY_ID", "secret_name": "amazon-ses-access-key-id", "fd": 4 },
+        { "env": "AWS_SECRET_ACCESS_KEY", "secret_name": "amazon-ses-secret-access-key", "fd": 5 }
       ]
     },
     {
@@ -25,7 +25,7 @@
         { "env": "EMAIL_FROM", "input": "from" }
       ],
       "credentials": [
-        { "env": "RESEND_API_KEY", "secret_name": "resend-api-key", "fd": 3 }
+        { "env": "RESEND_API_KEY", "secret_name": "resend-api-key", "fd": 4 }
       ]
     },
     {

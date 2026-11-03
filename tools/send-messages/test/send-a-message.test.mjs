@@ -21,6 +21,8 @@ import { after, describe, it } from 'node:test';
 import { MessageRejectedError } from '../read-data/check-message-headers.ts';
 import { buildSendInvocation, isTccDenial } from '../read-data/render-a-send.ts';
 import { MessageBlockedError, heldKeys, providerOf, providers, runAdapter, sendMessage } from '../do-work/send-a-message.mjs';
+import { SETTINGS, SETTINGS_ID, SHIPPED } from '../do-work/mail-sender.mjs';
+import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const stub = fileURLToPath(new URL('./stub-fetch.mjs', import.meta.url));
@@ -101,9 +103,9 @@ describe('email through Resend (carried from the email sender)', () => {
   });
 
   it('surfaces the provider\'s actual status and reason (diagnosable, not generic)', async () => {
-    const { run } = stubbed({ status: 401, body: '{"message":"API key is invalid"}' });
+    const { run } = stubbed({ status: 401, body: '{"name":"invalid_api_key","message":"API key is invalid"}' });
     const answer = await sendMessage(base, { providerId: 'resend', credentials: resendKey, run });
-    assert.match(answer.sent[0].error, /Resend 401: API key is invalid/);
+    assert.match(answer.sent[0].error, /Resend 401 invalid_api_key: API key is invalid/, 'the provider\'s own error name, which the mail rules read');
   });
 
   it('answers each recipient on its own: one failing does not hide the others', async () => {
@@ -112,7 +114,7 @@ describe('email through Resend (carried from the email sender)', () => {
     const { run: second } = stubbed(answers[1]);
     const one = await sendMessage({ ...base, recipients: ['user-df31bce7@example.com'] }, { providerId: 'resend', credentials: resendKey, run: first });
     const two = await sendMessage({ ...base, recipients: ['user-c96ea599@example.com'] }, { providerId: 'resend', credentials: resendKey, run: second });
-    assert.match(one.sent[0].error, /422: bad address/);
+    assert.match(one.sent[0].error, /422 unknown: bad address/);
     assert.equal(two.sent[0].messageId, 'm3');
   });
 });
@@ -145,9 +147,9 @@ describe('text through Twilio and email through Amazon SES (carried adapters)', 
   });
 
   it('reads the reason out of an SES error', async () => {
-    const { run } = stubbed({ status: 403, body: '<ErrorResponse><Error><Message>Email address is not verified.</Message></Error></ErrorResponse>' });
+    const { run } = stubbed({ status: 400, body: '<ErrorResponse><Error><Code>MessageRejected</Code><Message>Email address is not verified.</Message></Error></ErrorResponse>' });
     const answer = await sendMessage({ ...base, region: 'us-east-1' }, { providerId: 'amazon-ses', credentials: { AWS_ACCESS_KEY_ID: 'AKIDEXAMPLE', AWS_SECRET_ACCESS_KEY: 'test-secret-ses' }, run });
-    assert.match(answer.sent[0].error, /SES 403: Email address is not verified\./);
+    assert.match(answer.sent[0].error, /SES 400 MessageRejected: Email address is not verified\./);
   });
 
   it('signs the way AWS publishes (its Signature Version 4 get-vanilla test vector)', () => {
@@ -252,16 +254,19 @@ describe('the keys and the rows', () => {
 
   it('heldKeys reads each key from its descriptor and a missing one as empty', () => {
     const provider = providerOf('amazon-ses');
-    assert.deepEqual(heldKeys(provider, descriptor => (descriptor === 3 ? 'key-id' : (() => { throw new Error('closed'); })())), { AWS_ACCESS_KEY_ID: 'key-id', AWS_SECRET_ACCESS_KEY: '' });
+    assert.deepEqual(heldKeys(provider, descriptor => (descriptor === 4 ? 'key-id' : (() => { throw new Error('closed'); })())), { AWS_ACCESS_KEY_ID: 'key-id', AWS_SECRET_ACCESS_KEY: '' });
   });
 
-  it('the command takes the key from a private descriptor and it appears nowhere else', async () => {
+  it('the email command takes the key from a private descriptor after the records door\'s, and it appears nowhere else', async () => {
     const log = join(work, 'cli-requests.jsonl');
     writeFileSync(log, '');
     const keyFile = join(work, 'key');
     writeFileSync(keyFile, 'test-key-descriptor');
-    const stdio = ['pipe', 'pipe', 'pipe', openSync(keyFile, 'r')];
-    const child = spawn(process.execPath, [join(folder, 'do-work', 'send-a-message.mjs'), 'resend'], {
+    const door = await startFakeDoor({ rights: rows.find(item => item.id === 'tool:send-an-email-with-resend').invoke.records.rights,
+      records: [{ id: SETTINGS_ID, type: SETTINGS, value: { ...SHIPPED, from: { email: 'sender@example.com', name: 'Sender' } } }] });
+    after(() => door.close());
+    const stdio = ['pipe', 'pipe', 'pipe', openSync(door.descriptor, 'r'), openSync(keyFile, 'r')];
+    const child = spawn(process.execPath, [join(folder, 'do-work', 'mail-sender.mjs'), 'resend'], {
       stdio, env: { ...process.env, NODE_OPTIONS: `--import=${stub}`, STUB_LOG: log, STUB_REPLY: '{"status":200,"body":"{\\"id\\":\\"m9\\"}"}' },
     });
     let out = '';
@@ -273,6 +278,7 @@ describe('the keys and the rows', () => {
     assert.ok(!out.includes('test-key-descriptor'), 'the key is not in the answer');
     const [request] = readFileSync(log, 'utf8').split('\n').filter(Boolean).map(line => JSON.parse(line));
     assert.equal(request.headers.authorization, 'Bearer test-key-descriptor');
+    assert.equal(JSON.parse(request.body).from, 'Sender <sender@example.com>', 'the sender is the mail row\'s');
     assert.ok(!JSON.stringify(request.argv).includes('test-key-descriptor'), 'the key is not in the adapter\'s argv');
   });
 

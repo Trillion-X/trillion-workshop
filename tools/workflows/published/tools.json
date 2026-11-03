@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:5d4f2c9f43b3440fd474d4ffef5c05db21b8fe1deb7d0f060b200f5d63a59194"
+  "blake3": "1f:dcee23f3a9bf8f3ce88b901cb48b5ce37f45c03057a06f70827262b8fb305488"
  },
  "fields": [
   {
@@ -7536,7 +7536,7 @@
    "values": {
     "title": "Send an email with Amazon SES",
     "job": "Send an email, to one person or a list, through my Amazon SES account",
-    "description": "Give recipients (a list of addresses; to for one), from (an address verified in SES), region (such as us-east-1), and the words: subject and html (text optional), or template (a template name from read-data/message-templates.json, or your own templates) with variables. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error }. The held SES keys reach the one process on private pipes; they are never shown and no sender is assumed.",
+    "description": "Give recipients (a list of addresses; to for one), region (such as us-east-1), and the words: subject and html or text, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row (records `mail-settings` `settings:mail`, copied from read-data/mail-settings.json the first time), never from the request; each address may be sent only so many emails of a kind (per_person), the day keeps room for sign-in codes (daily), a proof address is written down and never sent, and every email is written down under its address. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held SES keys reach the one process on private pipes; they are never shown.",
     "status": "active",
     "maker": "maker:send-messages",
     "licence_class": "licence:maker-own",
@@ -7551,7 +7551,7 @@
    "values": {
     "title": "Send an email with Resend",
     "job": "Send an email, to one person or a list, through my Resend account",
-    "description": "Give recipients (a list of addresses; to for one), from (an address on a domain verified in Resend, see tool:list-email-sending-domains), and the words: subject and html (text optional), or template (a template name from read-data/message-templates.json, or your own templates) with variables. headers can carry In-Reply-To, References or List-Unsubscribe (names are limited to letters, digits and hyphens, values to one line of 4 KiB); idempotencyKey makes a retry safe. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with the provider's own status and reason. The held key reaches the one process on a private pipe; it is never shown and no sender is assumed.",
+    "description": "Give recipients (a list of addresses; to for one) and the words: subject and html or text, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). headers can carry In-Reply-To, References or List-Unsubscribe (names are limited to letters, digits and hyphens, values to one line of 4 KiB); idempotencyKey makes a retry safe. Every email comes from the account's own mail row (records `mail-settings` `settings:mail`, copied from read-data/mail-settings.json the first time; its from must be on a domain verified in Resend, see tool:list-email-sending-domains), never from the request; each address may be sent only so many emails of a kind (per_person), the day keeps room for sign-in codes (daily), a proof address is written down and never sent, and every email is written down under its address. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with the provider's own status, error name and reason, and limited, unknown (it may have gone; it is not sent again) or suppressed. The held key reaches the one process on a private pipe; it is never shown.",
     "status": "active",
     "maker": "maker:send-messages",
     "licence_class": "licence:maker-own",

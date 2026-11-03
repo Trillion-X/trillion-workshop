@@ -1,33 +1,19 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-MAIL-SENDER",
-  "status": "BASELINED",
+  "status": "ADAPTED",
   "directive": {
     "message_multihash": "1f:4e6568a9dacce83e8dd6725ff3bd10987392194ba3c7e2db4c0278aeb90c232f",
     "quote": "Same language, so it's a SOURCE_FIRST_PORT: byte copy first, then edits."
   },
   "mode": "SOURCE_FIRST_PORT",
   "sources": [
-    {
-      "repository": "trillion",
-      "commit": "6051f304da",
-      "path": "src/mail-sender.mjs",
-      "lines": [
-        122,
-        210
-      ],
-      "multihash": "1f:e1a9101fba13b9013994c4c6a87c640ca4cbf27aef2dde1f10bf0fe3a4e1b997",
-      "ownership": "repository-owned",
-      "old_copy": {
-        "deleted_by": "2026-11-06T11:00:00Z",
-        "deleted_with": "the cloud job that deletes the old sign-in files, with src/mail-admission.mjs and src/mail-settings.json"
-      }
-    }
+    { "repository": "trillion", "commit": "6051f304da", "path": "src/mail-sender.mjs", "lines": [122, 210], "multihash": "1f:e1a9101fba13b9013994c4c6a87c640ca4cbf27aef2dde1f10bf0fe3a4e1b997", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z", "deleted_with": "the cloud job that deletes the old sign-in files, with src/mail-admission.mjs and src/mail-settings.json" } },
+    { "repository": "trillion", "commit": "6051f304da", "path": "src/mail-sender.mjs", "lines": [254, 271], "multihash": "1f:bcd7d14ca93c24b5c4ff7cf280a863c304d79a0a9559a4c818e9a2702f51e8c7", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z", "deleted_with": "the same cloud job" } },
+    { "repository": "trillion", "commit": "6051f304da", "path": "src/mail-sender.mjs", "lines": [283, 341], "multihash": "1f:d6e84d89169136edf1bf095ba40579b5519469ae56f0832485fd383c039e63dc", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z", "deleted_with": "the same cloud job" } }
   ],
   "targets": [
-    {
-      "path": "tools/send-messages/do-work/mail-sender.mjs"
-    }
+    { "path": "tools/send-messages/do-work/mail-sender.mjs" }
   ],
   "preserve": [
     "the sender comes only from the mail row (the one from, or a written email's owner row of senders.rows); a caller adds only its reply_to",
@@ -57,10 +43,21 @@
     "recorded_at": "2026-11-03T19:40:00Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:e1a9101fba13b9013994c4c6a87c640ca4cbf27aef2dde1f10bf0fe3a4e1b997",
-    "target_multihash_at_baseline": "1f:e1a9101fba13b9013994c4c6a87c640ca4cbf27aef2dde1f10bf0fe3a4e1b997"
+    "target_multihash_at_baseline": "1f:e1a9101fba13b9013994c4c6a87c640ca4cbf27aef2dde1f10bf0fe3a4e1b997",
+    "commit": "dafa3bce7c36d4207d71fb1655ccb9818a5a53c5"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
-    "test_refs": []
+    "test_refs": [
+      "tools/send-messages/test/mail-sender.test.mjs messages to one person stop at the daily limit, and every send is listed",
+      "tools/send-messages/test/mail-sender.test.mjs sign-in codes have their own hourly limit, are not stopped by the daily one, and keep no subject",
+      "tools/send-messages/test/mail-sender.test.mjs a proof account's own address never reaches the provider, is still written down, and spends none of the day",
+      "tools/send-messages/test/mail-sender.test.mjs the day keeps room for sign-in codes, its most stops every kind, and the provider saying the day is full fills it",
+      "tools/send-messages/test/mail-sender.test.mjs refusals before dispatch release their allowance, unknown outcomes keep it, and nothing that may have gone is sent again blindly",
+      "tools/send-messages/test/mail-sender.test.mjs two sends racing for the last slot: one is admitted, the other limited, before either provider answers",
+      "tools/send-messages/test/mail-sender.test.mjs the sender comes from the mail row alone, and an account with none sends nothing",
+      "tools/send-messages/test/mail-sender.test.mjs a written email goes from the owner's own sender row, BCCs the owner once, and answers what the provider was given",
+      "tools/send-messages/test/mail-sender.test.mjs subscription email keeps its one-click headers and visible consent footer, and bad ones fail before delivery"
+    ]
   }
 }

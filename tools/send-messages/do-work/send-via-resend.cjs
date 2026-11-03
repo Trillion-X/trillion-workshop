@@ -36,6 +36,12 @@ async function sendViaResend(input) {
       if (input.text) {
         body.text = input.text;
       }
+      if (Array.isArray(input.bcc) && input.bcc.length > 0) {
+        body.bcc = input.bcc;
+      }
+      if (input.reply_to) {
+        body.reply_to = input.reply_to;
+      }
       // Bounded custom headers (In-Reply-To, References, List-Unsubscribe) and the caller's idempotency key,
       // merged in from the single-recipient email sender this adapter replaced.
       if (input.headers && Object.keys(input.headers).length > 0) {
@@ -67,7 +73,7 @@ async function sendViaResend(input) {
 
       if (!response.ok) {
         const message = parsed.message || parsed.name || response.statusText;
-        throw new Error(`Resend ${response.status}: ${message}`);
+        throw new Error(`Resend ${response.status} ${parsed.name ?? 'unknown'}: ${message}`);
       }
 
       results.push({

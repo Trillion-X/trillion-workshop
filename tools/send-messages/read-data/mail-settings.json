@@ -1,0 +1,74 @@
+{
+  "what_this_is": "The mail row an account starts with: do-work/mail-sender.mjs copies `settings` into the account's own `mail-settings` record `settings:mail` the first time an email row runs, and from then on reads only the account's row, which its owner edits like any record. `from` is the sender of every email (none here: an account names its own; with none, nothing is sent and the sender says so). `owner` is the account's own address, which a written email copies when `written_email_copies` is `account_owner`. `senders.rows` gives a written email sent for one owner address its own sender. `postal_address` is the physical mailing address a subscription email carries (none here: a subscription email is refused until the account names one). `per_person` limits how many emails one address is sent, by kind (a kind the request names, `default_kind` when it names none), counted from the `mail-sent` records; `sent_log.key_prefix` + the BLAKE3 identity of the lowercased address names each, `sent_log.days` is how long they are kept and `subject_kept_out_for` the kinds kept without their subject (a code's subject carries the code). `proof_names.patterns` are a proof account's own addresses, which are written down and never handed to a provider (`held_for_proofs.not_kept` is what such a send answers). `daily` is how many emails the account's provider takes in a UTC day (`mail-day` records, `daily.key_prefix` + the day): once only `keep_back` remain, only the `kept_for` kinds still go. `providers` says, for each provider row of read-data/message-providers.json, how its refusals read: `error_code` finds the provider's own code in the error its adapter answers (named group `code`); a code in `refused_before_dispatch_codes` was refused before anything went, so its allowance is given back, and any other failure may have sent the email, so it stays counted and is not sent again blindly; `suppression_codes` refuse the address itself; `provider_full_code` says the provider's own day is full, which fills the day. Ported from the older owner's mail settings (per_person, sent_log, held_for_proofs, daily, refused_before_dispatch_codes, from, senders, written_email_copies, subscription, postal_address), its sending binding dropped.",
+  "settings": {
+    "from": null,
+    "owner": null,
+    "senders": { "rows": [] },
+    "written_email_copies": "account_owner",
+    "subscription": { "unsubscribe_label": "Unsubscribe" },
+    "postal_address": null,
+    "per_person": {
+      "default_kind": "message",
+      "limits": [
+        {
+          "kinds": ["sign-in-code"],
+          "most": 4,
+          "window_minutes": 60,
+          "says": "Four sign-in codes were already sent to this email in the last hour. Use the newest one, or wait a little before asking again."
+        },
+        {
+          "kinds": ["share-code"],
+          "most": 4,
+          "window_minutes": 60,
+          "says": "Four codes to open shared things were already sent to this email in the last hour. Use the newest one, or wait a little before asking again."
+        },
+        {
+          "kinds": ["account-authority"],
+          "most": 3,
+          "window_minutes": 1440,
+          "says": "Three notices about who may confirm changes on this account were already sent to this email today."
+        },
+        {
+          "all_kinds_except": ["sign-in-code", "share-code", "account-authority"],
+          "most": 3,
+          "window_minutes": 1440,
+          "says": "This person was already sent three emails today, so this one was not sent."
+        }
+      ]
+    },
+    "sent_log": { "key_prefix": "mail-sent:", "days": 8, "subject_kept_out_for": ["sign-in-code", "share-code"] },
+    "proof_names": { "patterns": ["^proof-\\d{10,}@example\\.test$"] },
+    "held_for_proofs": { "not_kept": "a proof address, so not sent" },
+    "daily": {
+      "most": 200,
+      "keep_back": 50,
+      "kept_for": ["sign-in-code", "share-code", "account-authority"],
+      "key_prefix": "mail-day:",
+      "says": "Today's email limit is nearly reached and what is left is kept for sign-in codes, so this email was not sent."
+    },
+    "providers": {
+      "resend": {
+        "error_code": "^Resend \\d{3} (?<code>[a-z_]+):",
+        "refused_before_dispatch_codes": [
+          "validation_error", "missing_required_field", "invalid_from_address", "invalid_attachment", "invalid_access",
+          "invalid_parameter", "invalid_region", "invalid_idempotency_key", "invalid_idempotent_request",
+          "concurrent_idempotent_requests", "missing_api_key", "restricted_api_key", "invalid_api_key", "not_found",
+          "method_not_allowed", "rate_limit_exceeded", "daily_quota_exceeded", "monthly_quota_exceeded", "security_error"
+        ],
+        "suppression_codes": [],
+        "provider_full_code": "daily_quota_exceeded"
+      },
+      "amazon-ses": {
+        "error_code": "^SES \\d{3} (?<code>[A-Za-z]+):",
+        "refused_before_dispatch_codes": [
+          "MessageRejected", "MailFromDomainNotVerifiedException", "AccountSendingPausedException", "ConfigurationSetDoesNotExist",
+          "ConfigurationSetSendingPausedException", "InvalidParameterValue", "Throttling", "SignatureDoesNotMatch",
+          "InvalidClientTokenId", "AccessDenied"
+        ],
+        "suppression_codes": [],
+        "provider_full_code": null
+      }
+    },
+    "no_sender": "This account names no sender for its emails yet, so nothing was sent."
+  }
+}
