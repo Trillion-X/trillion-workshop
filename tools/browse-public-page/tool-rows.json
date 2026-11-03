@@ -138,7 +138,7 @@
       }
      }
     },
-    "result_selector": "$.result",
+    "result_selector": "$",
     "invoke": {
      "kind": "container",
      "internet": true,
@@ -342,7 +342,7 @@
       "contains": "Example Domain"
      }
     ],
-    "result_selector": "$.result"
+    "result_selector": "$"
    }
   }
  ]

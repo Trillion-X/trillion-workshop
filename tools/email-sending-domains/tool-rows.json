@@ -38,7 +38,7 @@
           },
           "credential_mounts": [{ "secret_name": "resend-api-key", "fd": 3 }]
         },
-        "result_selector": "$.result",
+        "result_selector": "$",
         "needs": { "expected_seconds": 5, "network_egress": true },
         "maker": "maker:email-sending-domains",
         "licence_class": "licence:maker-own",
