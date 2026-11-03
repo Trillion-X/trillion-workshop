@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/command-table/shortcut-coaching.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/coach-keyboard-shortcuts/parts/ui/show/command-table/shortcut-coaching.ts",
+      "source_identity": "1f:0c76dacd5fff95563b431f66a3253bdbf72d81f399b9cefbb302b019bc228270",
+      "identity": "1f:0c76dacd5fff95563b431f66a3253bdbf72d81f399b9cefbb302b019bc228270"
+    },
+    {
+      "from": "parts/ui/show/command-table/shortcut-coaching.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/coach-keyboard-shortcuts/parts/ui/show/command-table/shortcut-coaching.json",
+      "source_identity": "1f:b473efdc0bf59ba98cba28efa5f48934fd5a51321eec46ef8cf8ed8f4d4ad93b",
+      "identity": "1f:b473efdc0bf59ba98cba28efa5f48934fd5a51321eec46ef8cf8ed8f4d4ad93b"
+    },
+    {
+      "from": "parts/ui/show/command-table/command-table.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/coach-keyboard-shortcuts/parts/ui/show/command-table/command-table.ts",
+      "source_identity": "1f:417d29779aa9fd72e7319a854dbfcaf7ba6e0636e64f9018d458366336c5c7e4",
+      "identity": "1f:417d29779aa9fd72e7319a854dbfcaf7ba6e0636e64f9018d458366336c5c7e4"
+    },
+    {
+      "from": "parts/ui/show/command-table/command-table.test.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/coach-keyboard-shortcuts/parts/ui/show/command-table/command-table.test.ts",
+      "source_identity": "1f:70ab63f6ec8345020e6213a38a21f4ea529d58190f77ed60cf0d3447b16807b5",
+      "identity": "1f:70ab63f6ec8345020e6213a38a21f4ea529d58190f77ed60cf0d3447b16807b5"
+    },
+    {
+      "from": "parts/ui/show/command-table/README.md",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/coach-keyboard-shortcuts/parts/ui/show/command-table/README.md",
+      "source_identity": "1f:1c2e031aad2e4963154119473d035bd99054ddde858357262eb477131ad81179",
+      "identity": "1f:1c2e031aad2e4963154119473d035bd99054ddde858357262eb477131ad81179"
+    },
+    {
+      "from": "parts/ui/show/command-palette/command-filter.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/coach-keyboard-shortcuts/parts/ui/show/command-palette/command-filter.ts",
+      "source_identity": "1f:676244e2780544f3a4f39c1d0595448ac83d83cc9d7dd0c6e950e9def494563e",
+      "identity": "1f:676244e2780544f3a4f39c1d0595448ac83d83cc9d7dd0c6e950e9def494563e"
+    },
+    {
+      "from": "parts/group/show/board-commands.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/coach-keyboard-shortcuts/parts/group/show/board-commands.json",
+      "source_identity": "1f:0769e1f0f555bf03943e459fb5a3b9fc159855fe2d6c461c79ee73adda572148",
+      "identity": "1f:0769e1f0f555bf03943e459fb5a3b9fc159855fe2d6c461c79ee73adda572148"
+    }
+  ]
+}

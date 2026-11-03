@@ -1,0 +1,7 @@
+{
+  "_what": "The writes only some screens show, by the read a screen names to hear them (src/live-screen.mjs changedFor, src/workspace/store-changes.ts onStoreChange `reads`). An AI's own words kept in the person's messages (`messages`) and each call an AI makes kept in the AI activity record (`activity`) move no screen revision: every AI working on the account writes both many times a minute, and each revision made every open screen on every device (the Mac app's notices, each tab's pursuits, catch-up, notifications and new work) read itself again (2026-10-06: 20 to 25 reads a minute of each on one account). A screen drawn from one of them names it and reads itself again when it changes; every other screen stays drawn. A person's own message still moves the revision, since it opens a decision and work every screen may show. A notice that an AI replied (`notices`, src/ai-reply-notices.mjs) is drawn only by the page's notification center (src/workspace/told-here.ts), which reads it again on its narrow change; every other screen stays drawn. A run a rule started (`runs`, the Runs screen's read, src/workspace/workshop-screen.tsx) tells only it and `activity`.",
+  "messages": "/work/api/messages",
+  "activity": "/work/api/activity",
+  "notices": "/work/api/tell/notices",
+  "runs": "/work/api/workshop"
+}

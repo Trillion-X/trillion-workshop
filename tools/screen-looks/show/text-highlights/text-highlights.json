@@ -1,0 +1,11 @@
+{
+  "_what": "Text marks painted over a surface without touching its elements (text-highlights.ts): each kind is a CSS Custom Highlight name, drawn by its ::highlight rule in parts/screen-look/show/text-highlights.css. `kinds`: the marks a surface may paint (find: words looked for on the screen; citation: the words an answer quotes; review: words a reviewer marked). `least_word_chars`: shorter words are never looked for. `most_ranges`: the most marks one paint makes. `skip`: elements whose text is never marked (editable fields keep their own selection; code and scripts are not prose).",
+  "kinds": {
+    "find": { "highlight": "trillion-find" },
+    "citation": { "highlight": "trillion-citation" },
+    "review": { "highlight": "trillion-review" }
+  },
+  "least_word_chars": 2,
+  "most_ranges": 2000,
+  "skip": ["script", "style", "textarea", "input", "select", "[contenteditable=\"true\"]"]
+}

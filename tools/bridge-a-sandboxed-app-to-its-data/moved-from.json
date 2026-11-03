@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/isolated-module-surface/module-surface-document.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bridge-a-sandboxed-app-to-its-data/parts/ui/show/isolated-module-surface/module-surface-document.mjs",
+      "source_identity": "1f:6ccb9fa1aceb238ef55bece89c1c851dec956625544b4a1fa36cadd4ce389fa7",
+      "identity": "1f:6ccb9fa1aceb238ef55bece89c1c851dec956625544b4a1fa36cadd4ce389fa7"
+    },
+    {
+      "from": "parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bridge-a-sandboxed-app-to-its-data/parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
+      "source_identity": "1f:b7c0e8aa5d24cefc5951dc19d40fdd391c6842d447603e87cea725a2dcb95c7a",
+      "identity": "1f:b7c0e8aa5d24cefc5951dc19d40fdd391c6842d447603e87cea725a2dcb95c7a"
+    },
+    {
+      "from": "parts/ui/show/isolated-module-surface/sandboxed-screen-routes.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bridge-a-sandboxed-app-to-its-data/parts/ui/show/isolated-module-surface/sandboxed-screen-routes.json",
+      "source_identity": "1f:0dcca17576df1f00b8230b693a92b7539c538a4f7e5fd8bcf5b5f2f80ef99641",
+      "identity": "1f:0dcca17576df1f00b8230b693a92b7539c538a4f7e5fd8bcf5b5f2f80ef99641"
+    },
+    {
+      "from": "parts/ui/show/isolated-module-surface/IsolatedModuleSurface.tsx",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bridge-a-sandboxed-app-to-its-data/parts/ui/show/isolated-module-surface/IsolatedModuleSurface.tsx",
+      "source_identity": "1f:f0f40565eccd6bbea7c583ef61741637f9df4da0ace838817e4c555e9aa1ca6e",
+      "identity": "1f:f0f40565eccd6bbea7c583ef61741637f9df4da0ace838817e4c555e9aa1ca6e"
+    },
+    {
+      "from": "parts/ui/show/isolated-module-surface/resource-task-outcome.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bridge-a-sandboxed-app-to-its-data/parts/ui/show/isolated-module-surface/resource-task-outcome.mjs",
+      "source_identity": "1f:28c37c8f5e0de5d1cb6dff61ce1f4629f0d4b0daea8d4d16ca0b7a023aff653f",
+      "identity": "1f:28c37c8f5e0de5d1cb6dff61ce1f4629f0d4b0daea8d4d16ca0b7a023aff653f"
+    },
+    {
+      "from": "parts/ui/show/isolated-module-surface/README.md",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bridge-a-sandboxed-app-to-its-data/parts/ui/show/isolated-module-surface/README.md",
+      "source_identity": "1f:68ba2b38e7f32724107255a66d5ae7da49cb06e89b15a0dd04af2c7c04639826",
+      "identity": "1f:68ba2b38e7f32724107255a66d5ae7da49cb06e89b15a0dd04af2c7c04639826"
+    },
+    {
+      "from": "test/isolated-module-surface.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/bridge-a-sandboxed-app-to-its-data/test/isolated-module-surface.test.mjs",
+      "source_identity": "1f:fad6eecc2032979c41ee2487e62cb12f1434e36a19bd278f438d0d7c66659ef0",
+      "identity": "1f:fad6eecc2032979c41ee2487e62cb12f1434e36a19bd278f438d0d7c66659ef0"
+    }
+  ]
+}

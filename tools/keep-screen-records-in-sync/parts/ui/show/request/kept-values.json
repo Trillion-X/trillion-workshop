@@ -1,0 +1,10 @@
+{
+  "_what": "How a device store of kept answers is opened (kept-values.ts). `open_timeout_ms`: the longest an open waits, for instance on another tab that will not let go of the store; after it the store reads as nothing kept and the reason is recorded. `idle_evict_ms`: a value not read for this long is dropped by the sweep. `age_evict_ms`: a value written longer ago than this is dropped even if read since. `entries_most`: when more values than this are kept, the least recently used leave first. Values written `unsynced` are never dropped: they are the only copy. `touch_after_ms`: a read marks its value used at most this often. `sweep_after_ms`: how long after the store opens the sweep runs, once per page. `schema`: the row layout of this build; a value kept under another number reads as nothing kept and the sweep drops it (never an unsynced one); raise it when the layout of a kept value changes.",
+  "schema": 1,
+  "open_timeout_ms": 4000,
+  "idle_evict_ms": 2592000000,
+  "age_evict_ms": 7776000000,
+  "entries_most": 4000,
+  "touch_after_ms": 86400000,
+  "sweep_after_ms": 15000
+}

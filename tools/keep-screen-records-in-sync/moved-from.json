@@ -52,6 +52,104 @@
       "to": "tools/keep-screen-records-in-sync/test/request-classes.test.mjs",
       "source_identity": "1f:207ded42f57bbf6375dd587ab99a35fe1a5906a8657e37e06cd984ed3dc32784",
       "identity": "1f:207ded42f57bbf6375dd587ab99a35fe1a5906a8657e37e06cd984ed3dc32784"
+    },
+    {
+      "from": "src/workspace/store-changes.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/src/workspace/store-changes.ts",
+      "source_identity": "1f:546a1071341910a32c96f1fec27f4a50dce262f015f6d5c3a0ef60f4807b004e",
+      "identity": "1f:546a1071341910a32c96f1fec27f4a50dce262f015f6d5c3a0ef60f4807b004e"
+    },
+    {
+      "from": "src/workspace/first-answers.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/src/workspace/first-answers.json",
+      "source_identity": "1f:84d0a68d47310625782a078a7e13f264419d9cd424c3ca831d048fbf1f21cac4",
+      "identity": "1f:84d0a68d47310625782a078a7e13f264419d9cd424c3ca831d048fbf1f21cac4"
+    },
+    {
+      "from": "src/workspace/store-change-reads.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/src/workspace/store-change-reads.json",
+      "source_identity": "1f:e0c9dea3da7e8692525d06f673c774758f9cc1e33104cadd02d241c9f41051f5",
+      "identity": "1f:e0c9dea3da7e8692525d06f673c774758f9cc1e33104cadd02d241c9f41051f5"
+    },
+    {
+      "from": "src/live-protocol.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/src/live-protocol.mjs",
+      "source_identity": "1f:de3984bfb062e29143f26228ab5c1bf36d40c196f3d524280ceff7fbf0eb905c",
+      "identity": "1f:de3984bfb062e29143f26228ab5c1bf36d40c196f3d524280ceff7fbf0eb905c"
+    },
+    {
+      "from": "src/live-protocol.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/src/live-protocol.json",
+      "source_identity": "1f:85b84e86d6ff9938ab294069e12e984bd4200e17c3d6fb499fffa87b74893a02",
+      "identity": "1f:85b84e86d6ff9938ab294069e12e984bd4200e17c3d6fb499fffa87b74893a02"
+    },
+    {
+      "from": "src/record-depends.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/src/record-depends.mjs",
+      "source_identity": "1f:6fc06c7b9a32540c8c3aca50f240002ecb595cb35367414c6c8a4c844bbf56ab",
+      "identity": "1f:6fc06c7b9a32540c8c3aca50f240002ecb595cb35367414c6c8a4c844bbf56ab"
+    },
+    {
+      "from": "parts/ui/show/request/kept-values.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/parts/ui/show/request/kept-values.ts",
+      "source_identity": "1f:a3750d5746c5036c23ee9a9aa492a73191c371905e7923563db4ebf23235b44f",
+      "identity": "1f:a3750d5746c5036c23ee9a9aa492a73191c371905e7923563db4ebf23235b44f"
+    },
+    {
+      "from": "parts/ui/show/request/kept-values.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/parts/ui/show/request/kept-values.json",
+      "source_identity": "1f:3c93bcbf09884f089f31459359c902f1e9c23f23672402be28a09082a509fc9c",
+      "identity": "1f:3c93bcbf09884f089f31459359c902f1e9c23f23672402be28a09082a509fc9c"
+    },
+    {
+      "from": "test/store-changes-one-stream.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/test/store-changes-one-stream.test.mjs",
+      "source_identity": "1f:e9c1b93d3924e7c8fbd1d074d69c2cfd352ab8128f0e4af56dfa28d66442a2c7",
+      "identity": "1f:e9c1b93d3924e7c8fbd1d074d69c2cfd352ab8128f0e4af56dfa28d66442a2c7"
+    },
+    {
+      "from": "test/store-changes-remount.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/test/store-changes-remount.test.mjs",
+      "source_identity": "1f:b791132806e06877dc8c32daa71a5dfde57f333ef2c7df5e8f99a7a80ea20f28",
+      "identity": "1f:b791132806e06877dc8c32daa71a5dfde57f333ef2c7df5e8f99a7a80ea20f28"
+    },
+    {
+      "from": "test/store-changes-resume.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/test/store-changes-resume.test.mjs",
+      "source_identity": "1f:49b3c3788b3ae678716f0974ad1ae11cf32dfa835e05faee0d511d993dfb1757",
+      "identity": "1f:49b3c3788b3ae678716f0974ad1ae11cf32dfa835e05faee0d511d993dfb1757"
+    },
+    {
+      "from": "test/store-changes-two-tabs.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/test/store-changes-two-tabs.test.mjs",
+      "source_identity": "1f:460b1d517d635ef7509c1036075373fbe1cf27eab59bd2d6e051d66bba73c5b0",
+      "identity": "1f:460b1d517d635ef7509c1036075373fbe1cf27eab59bd2d6e051d66bba73c5b0"
+    },
+    {
+      "from": "test/store-changes-live-protocol.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/test/store-changes-live-protocol.test.mjs",
+      "source_identity": "1f:f6f73f8b5e84a92b4aa0f005f5beab80c6d01254075c4686fabb2a74ab8166ce",
+      "identity": "1f:f6f73f8b5e84a92b4aa0f005f5beab80c6d01254075c4686fabb2a74ab8166ce"
+    },
+    {
+      "from": "test/kept-values-eviction.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-screen-records-in-sync/test/kept-values-eviction.test.mjs",
+      "source_identity": "1f:d3f44c11b2808d9d3f78e9856eeffde381eed6676a6309d0dab6313ab6c90726",
+      "identity": "1f:d3f44c11b2808d9d3f78e9856eeffde381eed6676a6309d0dab6313ab6c90726"
     }
   ]
 }

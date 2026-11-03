@@ -1,0 +1,10 @@
+{
+  "_what": "When the page starts what a pointer is heading for (intent-prefetch.ts). The pointer's samples over the last `sample_ms` (mouse and pen only) give its velocity; the point it will reach `lookahead_ms` from now (at most `most_reach_px` away) is predicted, and the one target whose box the path to it crosses is started with an abort signal, aborted again when the path leaves it. Below `least_speed_px_per_ms` only the target under the pointer counts. Nothing is started ahead when the browser asks to save data, on a connection whose effectiveType is in `slow_connections`, or on a device with less than `least_device_memory_gb` of memory. `timings_kept`: how many opens are kept to measure how long ahead of the open the start was made.",
+  "sample_ms": 100,
+  "lookahead_ms": 180,
+  "most_reach_px": 320,
+  "least_speed_px_per_ms": 0.15,
+  "slow_connections": ["slow-2g", "2g"],
+  "least_device_memory_gb": 2,
+  "timings_kept": 50
+}
