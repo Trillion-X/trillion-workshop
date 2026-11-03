@@ -1,0 +1,61 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-TRILLION-VOICE-TO-HOW-SOMEONE-DOES-THEIR-THING",
+  "status": "VERIFIED",
+  "directive": {
+    "thread_id": "move-writing-voice-to-workshop",
+    "message_multihash": "1f:5e45ed88cbd8d312ca504c78b1c69bc08638467a5f0e2e1c71e2c20fbef93222",
+    "quote": "MOVE the original, never rewrite. One copy remains."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    { "repository": "Trillion-X/trillion", "commit": "b8e37020ea196431cc009f0197d3ac0566b0253a", "path": "src/voice.mjs", "multihash": "1f:ac9f7f2d6116b0706f70bc2352d644f4114312c2019b0c186221ec677d450e55", "ownership": "repository-owned" },
+    { "repository": "Trillion-X/trillion", "commit": "b8e37020ea196431cc009f0197d3ac0566b0253a", "path": "src/voice.json", "multihash": "1f:b9da6186e728c7a4789b137d6be5bc82f0675357f36a6d767dd953278f61d127", "ownership": "repository-owned" },
+    { "repository": "Trillion-X/trillion", "commit": "b8e37020ea196431cc009f0197d3ac0566b0253a", "path": "test/voice.test.mjs", "multihash": "1f:ff9cb727aa1807e26ddaae4642fcff15365853f4e070d30277f9fabd578d0669", "ownership": "repository-owned" }
+  ],
+  "targets": [
+    { "path": "tools/how-someone-does-their-thing/read-data/voice.mjs" },
+    { "path": "tools/how-someone-does-their-thing/read-data/voice.json" },
+    { "path": "tools/how-someone-does-their-thing/test/voice.test.mjs" }
+  ],
+  "preserve": [
+    "voice-edit and voice-profile record types, ids and value shapes",
+    "the profile's fields, sizes and the words an AI is told are DATA in voice.json",
+    "an edit is kept only when the words really changed, cut to max_edit_chars",
+    "one profile per kind; expected_set_at refuses a save over a newer profile",
+    "only the newest keep_edits edits are kept",
+    "forget removes a profile, one edit or every edit (of one kind) and says how many",
+    "read gives profiles, newest edits and the person's posted words together"
+  ],
+  "allowed_deltas": [
+    "records reached through the run's records door (tools/records-door) instead of the store's eeaf",
+    "functions are async because the door is",
+    "the default sent words read the person's posted post records named in voice.json",
+    "words name the Workshop tool ids (tool:read-voice, tool:save-voice)",
+    "one export per Workshop row",
+    "repeatedEdits: the count of word changes recurring across drafts over voice-edit records (folded from the deleted rewrite)",
+    "builds_on: one profile field row in voice.json expressing base, niche, group and person layering (folded from the deleted rewrite)",
+    "tests run each row against the stand-in records door with made-up words"
+  ],
+  "banned_substitutions": [
+    "a second store or record type for layered writing styles",
+    "a rewritten voice owner beside this one",
+    "a shipped base, niche, group or person layer",
+    "SHA-256 identities"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "copied_in_commit": "46eceea",
+    "source_multihash": "1f:ac9f7f2d6116b0706f70bc2352d644f4114312c2019b0c186221ec677d450e55",
+    "target_multihash_at_baseline": "1f:ac9f7f2d6116b0706f70bc2352d644f4114312c2019b0c186221ec677d450e55",
+    "recorded_at": "2026-11-02T00:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": ["function recordEdit", "async function read(", "async function save(", "async function forget(", "async function repeatedEdits(", "data.keep_edits", "expected_set_at"],
+    "test_refs": ["node --test tools/how-someone-does-their-thing/test/voice.test.mjs"],
+    "validate_from": "a folder holding src/voice.mjs from the source commit (git -C <trillion> show <commit>:src/voice.mjs) beside this repository's tools/",
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

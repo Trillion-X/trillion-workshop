@@ -14,7 +14,10 @@
     "workflow-steps"
    ],
    "workflow_ids": [
-    "refresh-measurement-coverage"
+    "refresh-measurement-coverage",
+    "reach-companies-with-a-long-open-job-post",
+    "reach-local-businesses-by-zip-code",
+    "run-a-linkedin-content-system"
    ],
    "verified_public_mode_recipes": 10,
    "verified_public_mode_steps": 41,
@@ -23,10 +26,7 @@
     "get-found-in-search-and-answer-engines",
     "connect-every-ai-to-one-memory-list",
     "build-a-best-x-for-y-comparison",
-    "out-launch-a-new-launch",
-    "reach-companies-with-a-long-open-job-post",
-    "reach-local-businesses-by-zip-code",
-    "run-a-linkedin-content-system"
+    "out-launch-a-new-launch"
    ]
   }
  },
