@@ -1,9 +1,11 @@
-// computer/other-ai-files.mjs
+// tools/read-my-other-ais-files/read-data/other-ai-files.mjs
 //
 // PURPOSE
 //   Lets Trillion's AIs read the instruction, command and skill files the person already keeps for their other AIs
 //   (Claude Code, Codex, Cursor, Gemini CLI), in place and labelled by the app they belong to, instead of the person
-//   copying them. Run by computer/mac-tools.mjs as tool:other-ai-files; the places are computer/other-ai-files.json.
+//   copying them. Run by tools/records-door's run-an-export.mjs as tool:other-ai-files (otherAiFilesInGrantedFolder), under
+//   the home folder the person granted;
+//   the places are read-data/other-ai-files.json.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Read only. Nothing is written into those folders and nothing is imported into Trillion by this tool.
@@ -83,3 +85,10 @@ export function otherAiFiles(input = {}, { rules = RULES, home = homedir() } = {
 }
 
 export const otherAiTools = { files: input => otherAiFiles(input ?? {}) };
+
+/** The row's export, run by tools/records-door's run-an-export.mjs: the folder the person granted (its argument after the export name) is the home read under. */
+export const otherAiFilesInGrantedFolder = input => {
+  const home = process.argv[4];
+  if (!home) throw new Error('No folder was granted: the row reads under the folder the person grants (read-a-folder).');
+  return otherAiFiles(input ?? {}, { home });
+};
