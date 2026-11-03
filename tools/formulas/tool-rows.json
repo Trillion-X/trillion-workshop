@@ -712,6 +712,249 @@
      "source": "bitfield-packages packages/formula-engine (source/src/slot_work/classify_by_rules.rs)"
     }
    }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:work-out-history-values",
+    "label": "Work out values from a field's history",
+    "status": "active",
+    "job": "Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one",
+    "description": "Send kept (the row, with _history: { <field id>: { cut, steps: [{ v, at, by?, via? }] } }, the steps a history-keeping field kept), fields ([{ id, history: { field, op, value?, at?, days_ago?, unit? } }], op one of value_at, previous_value, value_set_at, time_spent_in, has_been_in; unit seconds, minutes, hours or days) and now_ms. Answers values { <field id>: value }. An answer that needs history that was not kept (steps let go, or a first value whose start is not known) is null, never a guess. A field that is not finished (no op, no value for time_spent_in or has_been_in, no at or days_ago for value_at, an unknown unit) is refused with a sentence.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "kept",
+      "fields",
+      "now_ms"
+     ],
+     "properties": {
+      "kept": {
+       "type": "object"
+      },
+      "fields": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "now_ms": {
+       "type": "number"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "values"
+     ],
+     "properties": {
+      "values": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "formulas",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/formulas"
+      }
+     },
+     "workdir": "/opt/formulas",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "historyFieldValues"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:formulas",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "now_ms": 1760832000000,
+       "kept": {
+        "_history": {
+         "stage": {
+          "cut": false,
+          "steps": [
+           {
+            "v": "Lead",
+            "at": "2025-10-09T00:00:00.000Z"
+           },
+           {
+            "v": "Won",
+            "at": "2025-10-17T00:00:00.000Z"
+           }
+          ]
+         }
+        }
+       },
+       "fields": [
+        {
+         "id": "was",
+         "history": {
+          "field": "stage",
+          "op": "previous_value"
+         }
+        }
+       ]
+      },
+      "output_selector": "$.values.was",
+      "contains": "Lead"
+     }
+    ],
+    "provenance": {
+     "source": "Trillion-X/trillion src/list-value-history.mjs and src/write-via.mjs (b92aa549f2), moved unchanged into read-data/"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-a-fields-history",
+    "label": "Read a field's history as lines",
+    "status": "active",
+    "job": "Read one field's history of one row as lines a person reads: each value it held, from when until when, who changed it and by which road",
+    "description": "Send list ({ id, fields }, the field naming keeps_history: true), row_id, field_id and kept (the row, with its _history). Answers steps [{ value, from, until, by, said }] oldest first, said being who changed it and by which road in plain words (\"You via <app> over MCP\"), and complete: false when older steps were let go or the first step's start is not known.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "list",
+      "field_id",
+      "kept"
+     ],
+     "properties": {
+      "list": {
+       "type": "object"
+      },
+      "row_id": {
+       "type": "string"
+      },
+      "field_id": {
+       "type": "string"
+      },
+      "kept": {
+       "type": "object"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "complete",
+      "steps"
+     ],
+     "properties": {
+      "complete": {
+       "type": "boolean"
+      },
+      "steps": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "formulas",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/formulas"
+      }
+     },
+     "workdir": "/opt/formulas",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/run-request.mjs",
+      "fieldHistory"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:formulas",
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "list": {
+        "id": "deals",
+        "fields": [
+         {
+          "id": "stage",
+          "keeps_history": true
+         }
+        ]
+       },
+       "row_id": "sample",
+       "field_id": "stage",
+       "kept": {
+        "_history": {
+         "stage": {
+          "cut": false,
+          "steps": [
+           {
+            "v": "Lead",
+            "at": "2025-10-09T00:00:00.000Z",
+            "via": {
+             "app": "Sample App",
+             "basis": "client_declared"
+            }
+           }
+          ]
+         }
+        }
+       }
+      },
+      "output_selector": "$.steps[0].said",
+      "contains": "Sample App"
+     }
+    ],
+    "provenance": {
+     "source": "Trillion-X/trillion src/list-value-history.mjs and src/write-via.mjs (b92aa549f2), moved unchanged into read-data/"
+    }
+   }
   }
  ]
 }
