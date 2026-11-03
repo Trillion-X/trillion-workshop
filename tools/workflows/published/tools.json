@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:fb0097e2e3af2fa0f46e162ec7140a86bc451dd900e6b845e388d95f50aba024"
  },
  "fields": [
   {
@@ -8185,86 +8185,6 @@
      "placement:your-computer"
     ],
     "folder": "audio-transcription"
-   }
-  },
-  {
-   "id": "tool:trillion-media-drive-folder",
-   "values": {
-    "title": "Look inside a folder on a drive",
-    "job": "List the files and folders in one folder on a drive connected to this person's computer, a page at a time",
-    "description": "Runs on the person's computer. hidden \"1\" includes hidden files; offset and limit page through a long folder.",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:trillion-media-drive-holders",
-   "values": {
-    "title": "What is using a drive",
-    "job": "Name the programs on this person's computer that are using one drive right now, which would stop it from ejecting",
-    "description": "Runs on the person's computer. Returns mount and processes (each pid and name).",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:trillion-media-drive-icon",
-   "values": {
-    "title": "A drive's icon",
-    "job": "Get the icon Finder shows for one drive connected to this person's computer, as a PNG picture",
-    "description": "Runs on the person's computer. Returns mount, media_type and base64 (the PNG).",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:trillion-media-drive-kinds",
-   "values": {
-    "title": "What is on a drive",
-    "job": "Tell what is on one drive connected to this person's computer by kind of file (videos, pictures, sound, documents), with how many of each and how much space they take",
-    "description": "Runs on the person's computer; the first read of a drive runs in the background, and a kept read is used for 6 hours.",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:trillion-media-drives",
-   "values": {
-    "title": "Drives on my computers",
-    "job": "List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected",
-    "description": "Runs on the person's computer while the Trillion app is open there. Returns devices: each with name, mount, size_bytes, free_bytes, kind, internal, ejectable and state.",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
    }
   },
   {
