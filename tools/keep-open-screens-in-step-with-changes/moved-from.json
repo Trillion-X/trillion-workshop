@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/workspace/store-changes.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-open-screens-in-step-with-changes/src/workspace/store-changes.ts",
+      "source_identity": "1f:546a1071341910a32c96f1fec27f4a50dce262f015f6d5c3a0ef60f4807b004e",
+      "identity": "1f:546a1071341910a32c96f1fec27f4a50dce262f015f6d5c3a0ef60f4807b004e"
+    },
+    {
+      "from": "src/workspace/tab-leader.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-open-screens-in-step-with-changes/src/workspace/tab-leader.ts",
+      "source_identity": "1f:1527fa4b9551b0e68216e3dfabe9808eb87ba82e477958055be7ed2c846f6ca5",
+      "identity": "1f:1527fa4b9551b0e68216e3dfabe9808eb87ba82e477958055be7ed2c846f6ca5"
+    },
+    {
+      "from": "src/workspace/first-answers.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-open-screens-in-step-with-changes/src/workspace/first-answers.json",
+      "source_identity": "1f:84d0a68d47310625782a078a7e13f264419d9cd424c3ca831d048fbf1f21cac4",
+      "identity": "1f:84d0a68d47310625782a078a7e13f264419d9cd424c3ca831d048fbf1f21cac4"
+    },
+    {
+      "from": "src/workspace/store-change-reads.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-open-screens-in-step-with-changes/src/workspace/store-change-reads.json",
+      "source_identity": "1f:e0c9dea3da7e8692525d06f673c774758f9cc1e33104cadd02d241c9f41051f5",
+      "identity": "1f:e0c9dea3da7e8692525d06f673c774758f9cc1e33104cadd02d241c9f41051f5"
+    },
+    {
+      "from": "src/record-depends.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-open-screens-in-step-with-changes/src/record-depends.mjs",
+      "source_identity": "1f:6fc06c7b9a32540c8c3aca50f240002ecb595cb35367414c6c8a4c844bbf56ab",
+      "identity": "1f:6fc06c7b9a32540c8c3aca50f240002ecb595cb35367414c6c8a4c844bbf56ab"
+    },
+    {
+      "from": "src/live-protocol.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-open-screens-in-step-with-changes/src/live-protocol.mjs",
+      "source_identity": "1f:de3984bfb062e29143f26228ab5c1bf36d40c196f3d524280ceff7fbf0eb905c",
+      "identity": "1f:de3984bfb062e29143f26228ab5c1bf36d40c196f3d524280ceff7fbf0eb905c"
+    },
+    {
+      "from": "src/live-protocol.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-open-screens-in-step-with-changes/src/live-protocol.json",
+      "source_identity": "1f:85b84e86d6ff9938ab294069e12e984bd4200e17c3d6fb499fffa87b74893a02",
+      "identity": "1f:85b84e86d6ff9938ab294069e12e984bd4200e17c3d6fb499fffa87b74893a02"
+    }
+  ]
+}

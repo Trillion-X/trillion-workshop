@@ -1,0 +1,88 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-THEME-FROM-INPUTS-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: rea-not-yet-moved-product-module-src-workspace, part 2 of 2",
+  "message_multihash": "1f:1f:4bde43504575840d4557376c0f84fdeb5113a6fde4723f054ef60dd17bc63bd3",
+  "quote": "Job: move the old trillion src/workspace product modules (part 2 of 2) into Trillion-X/trillion-workshop tools. Port the correct parts one to one with their original tests and assertions. \"move code, never rewrite it\"."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "parts/screen-look/read-data/theme-from-inputs.ts",
+   "multihash": "1f:1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/looks.mjs (the one caller of theme-from-inputs.ts) and parts/screen-look/read-data/screen-look-record.ts (the other caller of tint-look.ts), then deletes these files and test/theme-from-inputs.test.ts"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+   "path": "parts/screen-look/read-data/tint-look.ts",
+   "multihash": "1f:1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z",
+    "deleted_with": "the old trillion change that moves src/looks.mjs (the one caller of theme-from-inputs.ts) and parts/screen-look/read-data/screen-look-record.ts (the other caller of tint-look.ts), then deletes these files and test/theme-from-inputs.test.ts"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/screen-looks/read-data/theme-from-inputs.ts"
+  },
+  {
+   "path": "tools/screen-looks/read-data/tint-look.ts"
+  }
+ ],
+ "preserve": [
+  "scheme follows the base: a base darker than dark_below_lightness makes a dark look",
+  "ink is moved away from its ground until its floor holds; a floor that cannot hold is reported in unmet, never hidden",
+  "roles, lightness lines, chroma limits and floors are DATA (theme-inputs.json); the code names no look and no colour",
+  "one OKLCH implementation (tint-look.ts)"
+ ],
+ "allowed_deltas": [
+  "none: both files are byte copies; the settings stay beside them at ../theme-inputs.json and ../tint-rules.json as in the source tree"
+ ],
+ "banned_substitutions": [
+  "a rewritten theme generator",
+  "a second OKLCH implementation",
+  "a copy of this code left in Trillion-X/trillion after its deleted_by"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
+  "target_multihash_at_baseline": "1f:1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
+  "recorded_at": "2026-11-03T23:00:00Z",
+  "rows": [
+   {
+    "path": "tools/screen-looks/read-data/theme-from-inputs.ts",
+    "source_multihash": "1f:1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6",
+    "target_multihash_at_baseline": "1f:1f:b91f96f5cbdb33d931540cd037ca85bd33d59847bc501b7d26f327cf127f3ce6"
+   },
+   {
+    "path": "tools/screen-looks/read-data/tint-look.ts",
+    "source_multihash": "1f:1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab",
+    "target_multihash_at_baseline": "1f:1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab"
+   }
+  ],
+  "commit": "018dcda4e46f3c9ce5caeb48d01af0dfefa9c46a"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.95,
+  "required_mechanisms": [
+   "export function themeFromInputs",
+   "export function themeChangesFor"
+  ],
+  "test_refs": [
+   "tools/screen-looks/test/theme-from-inputs.test.ts"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

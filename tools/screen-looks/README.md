@@ -12,9 +12,13 @@ A look is tokens; this resolves them into concrete colours and fonts and one sty
 | `do-work/resolve-a-look.mjs` | `node do-work/resolve-a-look.mjs <request.json> [--css <out.css>]`: reads the look and the face files, prints the values, writes the stylesheet. |
 | `do-work/read-current-worn-look.mjs` | `readCurrentWornLook(input, { door })`: reads the current screen-look and own-theme records plus the day plan and look rules; returns `DeviceLooks` tokens, current blend, ahead changes and next read time. |
 | `read-data/look-over-time.mjs`, `read-data/look-scheme.mjs` | Pure schedule placement/blending and colour/readability behavior used by the account look reader; `.d.mts` files preserve TypeScript signatures. |
+| `read-data/theme-from-inputs.ts` | `themeFromInputs({ base, accent, contrast? })` and `themeChangesFor(look, picks)`: a whole look from three picks, every colour token derived in OKLCH from `theme-inputs.json`, pulled inside sRGB and held to contrast floors; a floor that cannot hold is reported in `unmet`. Moved byte for byte from old trillion (`moved-from.json`). |
+| `read-data/tint-look.ts` | The one OKLCH implementation theme-from-inputs uses (parse, fit chroma, contrast), with its rules in `tint-rules.json`. Moved byte for byte. |
+| `theme-inputs.json`, `tint-rules.json` | The roles, lightness lines, chroma limits and contrast floors a three-pick look is made from: DATA, not code. |
 | `tool-rows.json` | `tool:resolve-a-look`, an `on-your-computer` row. |
 | `part.json` | Public palette, stylesheet and look DATA for other tools to import. |
 | `test/resolve-a-look.test.mjs` | A made-up look and made-up face bytes: concrete values, only the named faces, unsafe values refused. |
+| `test/theme-from-inputs.test.ts` | Old trillion's three-pick tests with their assertions unchanged: scheme follows the base, every floor holds across many picks, contrast moves ink, bad picks refused in words. |
 | `test/read-current-worn-look.test.mjs` | Record identities, native token payload, absent-versus-unavailable behavior, matching rules and scheduled blends. |
 
 ## How to run it

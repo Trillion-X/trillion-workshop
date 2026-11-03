@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/screen-spec.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/build-a-screen-as-an-ai-writes-it/src/screen-spec.mjs",
+      "source_identity": "1f:924bbfcec64c4dfbb47207f45738debd5e1ba8fbb150e0bc09c2bd700f78552d",
+      "identity": "1f:924bbfcec64c4dfbb47207f45738debd5e1ba8fbb150e0bc09c2bd700f78552d"
+    },
+    {
+      "from": "src/screen-spec.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/build-a-screen-as-an-ai-writes-it/src/screen-spec.json",
+      "source_identity": "1f:2869aff546219c1a4a7a0269f3e342c1b2ca270c622b1be77b1995e774c4ce0b",
+      "identity": "1f:2869aff546219c1a4a7a0269f3e342c1b2ca270c622b1be77b1995e774c4ce0b"
+    },
+    {
+      "from": "src/view-patch.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/build-a-screen-as-an-ai-writes-it/src/view-patch.mjs",
+      "source_identity": "1f:595225de0da08d3b492e97d5978cd59846322db4893235486843f5c929cd8b90",
+      "identity": "1f:595225de0da08d3b492e97d5978cd59846322db4893235486843f5c929cd8b90"
+    },
+    {
+      "from": "src/view-patch.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/build-a-screen-as-an-ai-writes-it/src/view-patch.json",
+      "source_identity": "1f:03ab5b305fe1bb5248aa2f62fe70189fa6d96e2a6c81c00be78eff2cf2926e4c",
+      "identity": "1f:03ab5b305fe1bb5248aa2f62fe70189fa6d96e2a6c81c00be78eff2cf2926e4c"
+    },
+    {
+      "from": "parts/ui/declared-props.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/build-a-screen-as-an-ai-writes-it/parts/ui/declared-props.json",
+      "source_identity": "1f:cce57f2bfaf97c7e2c13cac61b79fe8cd720c42000fb2621070c1ada0f34bd9f",
+      "identity": "1f:cce57f2bfaf97c7e2c13cac61b79fe8cd720c42000fb2621070c1ada0f34bd9f"
+    }
+  ]
+}

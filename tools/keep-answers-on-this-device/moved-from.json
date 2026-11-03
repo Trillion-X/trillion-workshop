@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/request/kept-values.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-answers-on-this-device/parts/ui/show/request/kept-values.ts",
+      "source_identity": "1f:a3750d5746c5036c23ee9a9aa492a73191c371905e7923563db4ebf23235b44f",
+      "identity": "1f:a3750d5746c5036c23ee9a9aa492a73191c371905e7923563db4ebf23235b44f"
+    },
+    {
+      "from": "parts/ui/show/request/kept-values.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-answers-on-this-device/parts/ui/show/request/kept-values.json",
+      "source_identity": "1f:3c93bcbf09884f089f31459359c902f1e9c23f23672402be28a09082a509fc9c",
+      "identity": "1f:3c93bcbf09884f089f31459359c902f1e9c23f23672402be28a09082a509fc9c"
+    },
+    {
+      "from": "src/workspace/memory-budget.ts",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/keep-answers-on-this-device/src/workspace/memory-budget.ts",
+      "source_identity": "1f:cfd4013c822e5d9dfc4ee003cd31ef68abd608625919203c87fd6e4d6ea00233",
+      "identity": "1f:cfd4013c822e5d9dfc4ee003cd31ef68abd608625919203c87fd6e4d6ea00233"
+    }
+  ]
+}
