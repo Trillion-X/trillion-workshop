@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cca701db6d2940a021f89ab5ba990a3238823acc02dd38e8cf3d39bd7c38617d"
+  "blake3": "1f:e2418ad8b9dcf49178b5bc133059f387effb88f9faf6b4d0214978ca4151f9f8"
  },
  "fields": [
   {
@@ -3683,6 +3683,21 @@
     "flags": [
      "has-a-screen"
     ]
+   }
+  },
+  {
+   "id": "tool:match-rows",
+   "values": {
+    "title": "Match rows from two places",
+    "job": "Pair rows from two places that describe the same thing: a bank or card line and its receipt, both sides of a transfer between accounts, a payment and the invoices it paid, a statement line and a bookkeeping row, a calendar event and a timesheet entry. You say which fields to compare (amounts, dates, words, exact values), how close counts and how much each matters. Returns confident matches, suggestions with their alternatives and why, and what is left unmatched on each side. Never auto-confirms when two candidates are nearly as good. Changes nothing; write the pairs you accept.",
+    "description": "Every left row is scored against every right row, field by field: a number agrees by being the same (or the same ignoring sign, or the mirror image, as the field says) within its tolerance; a date by being within its tolerance in days; words by the share of the smaller side's words they have in common (the rules' ignore_words never count); `same` by equal text ignoring case and spaces. A field marked required that disagrees or is missing on one side rules the pair out. A pair's confidence is the weighted share of the fields' scores. A pair at or above `confirm_at` is matched only when no other unused row is within the rules' `clear_lead` of it for either side; otherwise, and for pairs between `suggest_at` and `confirm_at`, it is suggested with up to the rules' `alternatives` other candidates. Each row is used once (`one_to_one`), or each right row goes to its best left row (`many_to_one`, many bills for one payment). Pairs in `already` are kept and their rows are not offered again. Each pair carries the reason for every field. With no `fields` the rules' defaults compare amount (ignoring sign, weighted most and required), date and description. A row without an id, or two rows on one side with the same id, is refused by name.",
+    "status": "active",
+    "maker": "maker:match-rows",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "match-rows"
    }
   },
   {
