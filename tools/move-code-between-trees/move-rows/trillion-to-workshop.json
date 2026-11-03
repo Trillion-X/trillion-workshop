@@ -1,6 +1,6 @@
 {
   "id": "move:trillion-to-workshop",
-  "about": "The old Trillion app's features move into the Workshop byte for byte. Groups come from the rows of Trillion's capabilities.json that name moves_to. Engine pieces (sign-in and the door, the stores, the Worker entry) stay: they are ported to Rust, not moved. Provider calls (Durable Object storage, KV, env bindings) are swapped for the records door's calls by the calls rows; a group with a provider call no row swaps is held. The KV rows swap only to calls the records door offers (read and write at @own-records) and need a door the caller hands in; a credential read from an env binding has no call swap, because the door hands credentials by handle through the tool row's invoke.connection, so such a group is held until its row declares that. Groups with no moves_to row are listed by hand in groups.",
+  "about": "The old Trillion app's features move into the Workshop byte for byte. Groups come from the rows of Trillion's capabilities.json that name moves_to. Engine pieces (sign-in and the door, the stores, the Worker entry) stay: they are ported to Rust, not moved. Provider calls (Durable Object storage, KV, env bindings) are swapped for the records door's calls by the calls rows; a group with a provider call no row swaps is held. The KV rows swap only to calls the records door offers (read and write at @own-records) and need a door the caller hands in; a credential read from an env binding has no call swap, because the door hands credentials by handle through the tool row's invoke.connection, so such a group is held until its row declares that. Groups with no moves_to row are listed by hand in groups. read_as_rows names the opinion content that becomes rows of the person's own lists (imported there separately): a moved logic file that imports one of these is not held for it; the file stays in the source, is not moved, and the logic file reads those rows from its caller once adapted.",
   "source": {
     "name": "Trillion-X/trillion",
     "commit": "42aff4e9dc",
@@ -60,6 +60,28 @@
     "src/public-app-file-store.mjs",
     "src/catch-up.mjs",
     "src/record-model-tools.mjs",
+    "methods/",
+    "records/workflow-recipe-records.json",
+    "records/execution-mode-records.json",
+    "records/starting-rules.json",
+    "records/copy-rules.json",
+    "records/commercial-offer-records.json",
+    "records/content-format-starters.json",
+    "records/feel-moments.json",
+    "records/delight-moments.json",
+    "communities/",
+    "cases/",
+    "src/awareness.json",
+    "src/life-map.json",
+    "src/pursuit-plan.json",
+    "src/story-settings.json",
+    "src/attention.json",
+    "src/workspace/walkthroughs/",
+    "src/error-page-lines.json",
+    "src/action-completeness.mjs",
+    "records/action-completeness.json"
+  ],
+  "read_as_rows": [
     "methods/",
     "records/workflow-recipe-records.json",
     "records/execution-mode-records.json",
@@ -137,7 +159,9 @@
     "src/story-settings.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
     "src/attention.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
     "src/workspace/walkthroughs/": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
-    "src/error-page-lines.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door."
+    "src/error-page-lines.json": "Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.",
+    "src/action-completeness.mjs": "The source's development standard (AGENTS.md, Complete actions by default) names records/action-completeness.json as its shared policy, which the source's workflow engine and entry points run: the policy and its owner stay with the source.",
+    "records/action-completeness.json": "The source's development standard (AGENTS.md, Complete actions by default) names records/action-completeness.json as its shared policy, which the source's workflow engine and entry points run: the policy and its owner stay with the source."
   },
   "groups": [
     {
@@ -147,6 +171,22 @@
       ],
       "to": "tools/set-up-with-your-ai",
       "capability": "set up a new account with your AI: the setup contract as data, run by the existing workflow, with connecting an AI as the entrance, never the finished outcome"
+    },
+    {
+      "id": "see-a-pursuit-through-the-lens",
+      "owner": [
+        "src/pursuit-lens.mjs"
+      ],
+      "to": "tools/see-a-pursuit-through-the-lens",
+      "capability": "tell an AI how to look at what a person is pursuing: where to look and what to do about it"
+    },
+    {
+      "id": "place-pursuits-on-a-life-map",
+      "owner": [
+        "src/life-map.mjs"
+      ],
+      "to": "tools/place-pursuits-on-a-life-map",
+      "capability": "place a person's pursuits on a map of a full life, what they serve and which parts of life they touch, with their own map as a list"
     }
   ]
 }

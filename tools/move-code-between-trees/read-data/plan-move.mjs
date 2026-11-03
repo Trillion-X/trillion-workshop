@@ -35,6 +35,10 @@ export function groupsOf(row, tree) {
 export function planMove(row, source, destination) {
   const keep = row.keep ?? [];
   const kept = path => keep.find(glob => globMatches(path, glob));
+  // Content a moved file imports that becomes rows of the person's lists: it stays in the source, is not followed or
+  // moved, and holds nothing; the moved file reads those rows from its caller once adapted.
+  const asRows = row.read_as_rows ?? [];
+  const readAsRows = path => asRows.some(glob => globMatches(path, glob));
   const swaps = row.calls ?? [];
   const detectors = row.provider_calls ?? [];
   const shared = row.destination?.shared_folder;
@@ -55,7 +59,7 @@ export function planMove(row, source, destination) {
     const stack = [...roots];
     while (stack.length) {
       const path = stack.pop();
-      if (found.has(path) || !source.exists(path)) continue;
+      if (found.has(path) || !source.exists(path) || readAsRows(path)) continue;
       found.add(path);
       for (const item of requestsOf(path)) if (item.target) stack.push(item.target);
     }
@@ -74,7 +78,8 @@ export function planMove(row, source, destination) {
       const glob = kept(path);
       if (glob) held.push(`${roots.includes(path) ? 'it owns' : 'it imports'} ${path}, which stays in the source (keep row ${glob})`);
     }
-    return { ...group, roots, closure, tests: [], held };
+    const readsRows = [...closure].flatMap(path => requestsOf(path).filter(item => item.target && readAsRows(item.target)).map(item => ({ file: item.target, by: path })));
+    return { ...group, roots, closure, tests: [], held, readsRows };
   });
   const moving = () => groups.filter(group => !group.held.length);
 
@@ -144,6 +149,8 @@ export function planMove(row, source, destination) {
         }
       }
       plan.import_changes = changes;
+      const rowsRead = requestsOf(path).filter(item => item.target && readAsRows(item.target)).map(item => item.target);
+      if (rowsRead.length) plan.reads_rows = [...new Set(rowsRead)];
       const swapped = swapCalls(text(path), swaps);
       plan.swaps = swapped.hits;
       const left = providerCallsLeft(swapped.text, detectors);
@@ -206,6 +213,7 @@ function summary(group) {
     owner_files: group.roots,
     closure_count: group.closure.size,
     tests: group.tests.map(test => test.path),
+    ...(group.readsRows?.length ? { reads_rows: group.readsRows } : {}),
     held: [...new Set(group.held)],
   };
 }
