@@ -1,0 +1,103 @@
+{
+  "kind": "tool-rows",
+  "record_set": "match-rows-tool-rows",
+  "what_this_is": "The Workshop row for tools/match-rows: rows from two places paired by the fields, tolerances and weights the caller names. It changes no row.",
+  "records": [
+    {
+      "id": "package::match-rows::tool::match-rows",
+      "address": "package::match-rows::tool::match-rows",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:match-rows",
+        "status": "active",
+        "label": "Match rows from two places",
+        "job": "Pair rows from two places that describe the same thing: a bank or card line and its receipt, both sides of a transfer between accounts, a payment and the invoices it paid, a statement line and a bookkeeping row, a calendar event and a timesheet entry. You say which fields to compare (amounts, dates, words, exact values), how close counts and how much each matters. Returns confident matches, suggestions with their alternatives and why, and what is left unmatched on each side. Never auto-confirms when two candidates are nearly as good. Changes nothing; write the pairs you accept.",
+        "description": "Every left row is scored against every right row, field by field: a number agrees by being the same (or the same ignoring sign, or the mirror image, as the field says) within its tolerance; a date by being within its tolerance in days; words by the share of the smaller side's words they have in common (the rules' ignore_words never count); `same` by equal text ignoring case and spaces. A field marked required that disagrees or is missing on one side rules the pair out. A pair's confidence is the weighted share of the fields' scores. A pair at or above `confirm_at` is matched only when no other unused row is within the rules' `clear_lead` of it for either side; otherwise, and for pairs between `suggest_at` and `confirm_at`, it is suggested with up to the rules' `alternatives` other candidates. Each row is used once (`one_to_one`), or each right row goes to its best left row (`many_to_one`, many bills for one payment). Pairs in `already` are kept and their rows are not offered again. Each pair carries the reason for every field. With no `fields` the rules' defaults compare amount (ignoring sign, weighted most and required), date and description. A row without an id, or two rows on one side with the same id, is refused by name.",
+        "input_schema": {
+          "type": "object",
+          "required": ["left", "right"],
+          "additionalProperties": false,
+          "properties": {
+            "left": {"type": "array", "items": {"type": "object"}, "description": "Rows from the first place"},
+            "right": {"type": "array", "items": {"type": "object"}, "description": "Rows from the second place"},
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["left"],
+                "properties": {
+                  "left": {"type": "string", "description": "Field on left rows (dots reach inside, like event.start)"},
+                  "right": {"type": "string", "description": "Field on right rows; the same name when left out"},
+                  "label": {"type": "string"},
+                  "kind": {"enum": ["number", "date", "words", "same"]},
+                  "compare": {"enum": ["same", "opposite", "absolute"], "description": "Numbers: compare as they are, as mirror images (transfers), or ignoring sign"},
+                  "tolerance": {"type": "number", "description": "How far apart still counts: amount, days, or the least share of words (0 to 1)"},
+                  "weight": {"type": "number"},
+                  "required": {"type": "boolean", "description": "A pair that disagrees here is ruled out"}
+                }
+              },
+              "description": "What to compare; amount, date and description when left out"
+            },
+            "left_id": {"type": "string"},
+            "right_id": {"type": "string"},
+            "mode": {"enum": ["one_to_one", "many_to_one"]},
+            "confirm_at": {"type": "number", "minimum": 0, "maximum": 1},
+            "suggest_at": {"type": "number", "minimum": 0, "maximum": 1},
+            "already": {
+              "type": "array",
+              "items": {"type": "object", "required": ["left", "right"], "properties": {"left": {"type": "string"}, "right": {"type": "string"}}},
+              "description": "Pairs already made; kept and not offered again"
+            },
+            "rules": {"type": "object", "description": "Overrides for clear_lead, alternatives, ignore_words, id_field"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "matched": {"type": "array", "items": {"type": "object", "required": ["left", "right", "confidence", "reasons"]}},
+            "suggested": {"type": "array", "items": {"type": "object", "required": ["left", "right", "confidence", "reasons"]}},
+            "kept": {"type": "array"},
+            "unmatched_left": {"type": "array"},
+            "unmatched_right": {"type": "array"}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {"package": "match-rows", "paths": ["do-work", "read-data"], "at": "/opt/match-rows"},
+              {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"},
+              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            ]
+          },
+          "workdir": "/opt/match-rows",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/match-rows/do-work/match-rows.mjs", "matchRows"],
+          "stdin": {"fill": {"from": "input"}}
+        },
+        "result_selector": "$.result",
+        "needs": {"expected_seconds": 3, "network_egress": false},
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:match-rows",
+        "provenance": {
+          "source": "Transaction matching in two finance apps, built 2026-10-15 from reverse engineering: confident matches, suggestions with alternatives, what is left on each side"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "left": [{"id": "card-1", "amount": -42.5, "date": "2026-10-01", "description": "Corner Coffee Roasters"}],
+              "right": [{"id": "receipt-1", "amount": 42.5, "date": "2026-10-01", "description": "Corner Coffee Roasters receipt"}]
+            },
+            "output_selector": "$.matched[0].right",
+            "contains": "receipt-1"
+          }
+        ]
+      }
+    }
+  ]
+}
