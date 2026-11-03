@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cb3a774bdb3998257970f863727d0fb0e8c5317d7952598bf15f44fdff739bbf"
+  "blake3": "1f:d3ff87b1c80fc45c0bad0a7344a6d09bc44f97aec523b29655748006cdebf1fe"
  },
  "fields": [
   {
@@ -361,6 +361,22 @@
      "placement:your-computer"
     ],
     "folder": "assemble-a-plan-into-a-cut"
+   }
+  },
+  {
+   "id": "tool:approve-a-pairing-code",
+   "values": {
+    "title": "Approve a pairing code",
+    "job": "Let a waiting sender's messages through by approving the pairing code they were given",
+    "description": "Give code (case and spaces do not matter) and, optionally, source_id. A code works once, only before it expires, and only for the source it was issued for. Returns source_id, sender and said; an unknown, used or expired code is refused with what to do.",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders"
    }
   },
   {
@@ -3651,6 +3667,25 @@
    }
   },
   {
+   "id": "tool:list-paired-senders",
+   "values": {
+    "title": "Paired senders and waiting codes",
+    "job": "List which senders are paired and which pairing codes are waiting, for one source or all",
+    "description": "Optional source_id narrows to one source. With source_id and sender, also answers is_paired for that sender. Returns waiting [{ source_id, sender, code, expires_at }] (expired codes left out) and paired [{ source_id, sender, paired_at }]. It changes nothing.",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:list-post-destinations",
    "values": {
     "title": "Where a post can go",
@@ -4594,6 +4629,22 @@
      "placement:small-container"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:pair-an-unknown-sender",
+   "values": {
+    "title": "Give an unknown sender a pairing code",
+    "job": "Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve",
+    "description": "Give source_id (the event source the message came in on) and sender (the sender's own id on that source). Returns { paired: true } when the sender is already paired; otherwise code (8 characters with no 0, O, 1 or I), expires_at (an hour from now) and said. Asking again for the same sender gives the same code; a source with 3 codes waiting gives no more ({ full: true, said }).",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders"
    }
   },
   {
@@ -8375,6 +8426,22 @@
      "placement:your-computer"
     ],
     "folder": "turn-frames-into-slides"
+   }
+  },
+  {
+   "id": "tool:unpair-a-sender",
+   "values": {
+    "title": "Unpair a sender",
+    "job": "Stop letting a paired sender's messages through, so they are unknown again",
+    "description": "Give source_id and sender. The sender is no longer paired for that source; their next message gets a new code. Returns source_id, sender and said.",
+    "status": "active",
+    "maker": "maker:pair-unknown-senders",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-03T12:00:00Z",
+    "folder": "pair-unknown-senders"
    }
   },
   {
