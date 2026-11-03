@@ -1,0 +1,54 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MAP-FROM-LISTS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:7774625d8372b26dd644d2cc908dc781ba5bd2b26f118db75876de7274031aec",
+    "quote": "move ONLY the logic that reads them into Workshop tools that read those rows through the records door"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "read a person's starter map and own map from their lists through their records door and place their pursuits on it",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/place-pursuits-on-a-life-map/do-work/place-pursuits-on-a-life-map.mjs"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/place-pursuits-on-a-life-map/",
+      "why": "This tool itself: the module it runs is src/ here, moved byte for byte from Trillion (moved-from.json); this file only reads that module's rows through the records door."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "read a person's starter map and own map from their lists through their records door and place their pursuits on it",
+        "the starter map from lists",
+        "place pursuits on the map read from lists"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "starterMapFromLists"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "d20cdcfd8ca37a7d26c87821994c88aae9df3f11"
+        },
+        {
+          "repository": "trillion",
+          "commit": "8762e7a48738b1292f202872438533e0950600ee"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/place-pursuits-on-a-life-map/test/place-pursuits-on-a-life-map.test.mjs"
+    ]
+  }
+}

@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:793551a143cc83604934feee80a929d83a06b48c814d510759b6c2ba0abdbda0"
+  "blake3": "1f:d8c6a5f11757fd8ead401f7c6a26b912c96bc0d31c60cedfa204588c5c16b361"
  },
  "fields": [
   {
@@ -4672,6 +4672,21 @@
    }
   },
   {
+   "id": "tool:place-pursuits-on-a-life-map",
+   "values": {
+    "title": "Place my pursuits on my life map",
+    "job": "Place what I am pursuing on my own map of a full life and say which parts of my life none of my pursuits touch",
+    "description": "Reads the person's own map (their map list, whose rows are its areas, each with what it is part of and what it means) and places each pursuit on the areas it names; answers every area with its pursuits, the leaf areas no pursuit names that are not optional, one line for each, and with section true the Progress section. A person who never made a map gets offered: true and nothing placed; the starter map is never read in its place. The starter map (its areas list and its settings row, named in read-data/place-pursuits-on-a-life-map.json) is read through the records door or handed in as settings; pursuits are handed in or read from the person's pursuit records (title and areas). It writes nothing.",
+    "status": "active",
+    "maker": "maker:place-pursuits-on-a-life-map",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "place-pursuits-on-a-life-map"
+   }
+  },
+  {
    "id": "tool:plan-a-column-fill",
    "values": {
     "title": "Fill a column by asking my sources in order",
@@ -7033,6 +7048,21 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "git-changes"
+   }
+  },
+  {
+   "id": "tool:see-a-pursuit-through-the-lens",
+   "values": {
+    "title": "See a pursuit through my lens",
+    "job": "Tell an AI how to look at what I am pursuing: where to look, the parts to read what it finds by, and what to look for and do, from my own pursuit lens",
+    "description": "Answers the paragraph every AI reads when it connects (the lens's opening, each part in one sentence, its closing) and the setup (every part with each of its rows whole: what to look for and what to ask or do, plus the joining interview: the rows marked joining_interview and where its answers are kept). The lens is the person's own: its rows are the rows of their pursuit lens list and its opening, parts and closing one row of their content settings (read-data/see-a-pursuit-through-the-lens.json names both), read through their records door; or hand it in as lens. It reads nothing else and writes nothing.",
+    "status": "active",
+    "maker": "maker:see-a-pursuit-through-the-lens",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "see-a-pursuit-through-the-lens"
    }
   },
   {

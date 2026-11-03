@@ -98,7 +98,9 @@ export function applyMove(plan, row, source, destination, { sourceFolder, destin
   const rowsMoved = moveOwnerRows(row, source, landing, { sourceFolder, destinationFolder });
 
   // 5. Packages the moved files import that the destination does not declare yet.
-  const added = Object.entries(plan.packages_to_add ?? {});
+  // Only the packages the files moved now import: a group that waits brings its own later.
+  const wanted = new Set(files.flatMap(file => file.packages ?? []));
+  const added = Object.entries(plan.packages_to_add ?? {}).filter(([name]) => wanted.has(name));
   if (added.length) {
     const path = join(destinationFolder, 'package.json');
     const manifest = json(path);

@@ -1,0 +1,18 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/life-map.mjs",
+      "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
+      "to": "tools/place-pursuits-on-a-life-map/src/life-map.mjs",
+      "source_identity": "1f:97d92c7e08cee1d8ef0c1b16d22f07a0fbc439420ebb33f2bf9836510d88a8fd",
+      "identity": "1f:97d92c7e08cee1d8ef0c1b16d22f07a0fbc439420ebb33f2bf9836510d88a8fd",
+      "reads_rows": [
+        "src/life-map.json"
+      ]
+    }
+  ]
+}

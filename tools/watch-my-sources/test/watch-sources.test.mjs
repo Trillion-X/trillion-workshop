@@ -1,7 +1,7 @@
 // tools/watch-my-sources/test/watch-sources.test.mjs (moved from Trillion-X/trillion test/watch-sources.test.mjs)
 //
 // The places a person follows, watched (read-data/watch-sources.mjs) over their lists kept as records behind a records
-// door (read-data/lists-door.mjs over test/memory-door.mjs), with the network (read) and the person's model route (ask)
+// door (tools/records-door/read-data/lists-door.mjs over test/memory-door.mjs), with the network (read) and the person's model route (ask)
 // stubbed: RSS, Atom (YouTube's media:description), JSON and a page's change each become rows; a source's first read is
 // a baseline that hands nothing on; a later read keeps what is new, weighs it in ONE question and hands only what moves a
 // pursuit (directly or as an insight) to the arrival door; the rest is set aside; an X account without a feed, a
@@ -11,7 +11,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import data from '../read-data/watch-sources.json' with { type: 'json' };
-import { listsOverDoor } from '../read-data/lists-door.mjs';
+import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
 import { movementOf } from '../read-data/ranked-lists.mjs';
 import { watchSources } from '../read-data/watch-sources.mjs';
 import { memoryDoor } from './memory-door.mjs';

@@ -1,0 +1,11 @@
+{
+  "about": "DATA for tools/see-a-pursuit-through-the-lens: where the person's lens is kept in their own lists. `rows`: the list whose rows are the lens rows (each { part, look_for, ask_or_do, joining_interview? }), with its row type, so the row's rights name exactly it. `about`: the one row holding what the lens says around its rows (opening, parts, closing), by list, row type and row id. These ids are the import's that keeps the account owner's content as list rows, which lives outside this repository: they are named here, not in code, and are corrected here if that import keeps them elsewhere (and in tool-rows.json rights, which must name the same lists).",
+  "rows": { "list": "pursuit-lens", "row_type": "pursuit-lens" },
+  "about_row": { "list": "content-settings", "row_type": "content-setting", "row": "pursuit-lens" },
+  "words": {
+    "no_lens": "There is no pursuit lens in your lists yet: the list {list} holds no rows. Hand in lens ({ opening, parts, closing, rows }) or keep the lens rows in that list first.",
+    "no_about": "Your lens rows are kept, but the row {row} of list {list}, which holds the lens's opening, parts and closing, is missing. Hand in lens, or keep that row first.",
+    "bad_lens": "lens is { opening, parts: [{ id, name, about }], closing, rows: [{ part, look_for, ask_or_do }] }.",
+    "bad_answer": "answer is paragraph (what every AI reads when it connects), setup (every part with each row whole) or both."
+  }
+}
