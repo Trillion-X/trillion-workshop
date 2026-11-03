@@ -1,11 +1,14 @@
-// Retained outbound service connection: one server-loopback listener, one Mac-loopback service, pinned host key.
+// Retained outbound service connection: one server-loopback listener, one loopback door on this computer, pinned host key.
 // The dedicated credential stays in the vault and reaches SSH only on a private descriptor.
 import { execFileSync, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
-import { dirname, resolve, join } from 'node:path';
+import { basename, dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateKeyPairSync, createPrivateKey } from 'node:crypto';
 import { homedir, tmpdir } from 'node:os';
+
+// The descriptor the held connection key arrives on: the row's credential_mounts fd, or the launch agent's pipe.
+export const keyDescriptor = 4;
 
 function checked(c) {
   const port = n => Number.isSafeInteger(n) && n > 0 && n <= 65535;
@@ -16,12 +19,13 @@ export function connectionArguments(c, { identityFile = c.publicKeyFile ?? `${di
   checked(c);
   return ['-N', '-T', '-i', identityFile, ...(agentSocket ? ['-o', `IdentityAgent=${agentSocket}`] : []), '-o', 'IdentitiesOnly=yes', '-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=yes', '-o', `UserKnownHostsFile=${c.knownHostsFile}`, '-o', 'ExitOnForwardFailure=yes', '-o', 'ServerAliveInterval=30', '-o', 'ServerAliveCountMax=3', '-o', 'ConnectTimeout=10', '-R', `127.0.0.1:${c.remotePort}:127.0.0.1:${c.localPort}`, `${c.user}@${c.address}`];
 }
-export function makeConnectionKey() {
+export function makeConnectionKey(comment) {
+  if (!/^[a-zA-Z0-9-]+$/.test(comment)) throw new Error('The connection key comment was refused: give letters, digits and hyphens.');
   const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 3072 });
   const parts = publicKey.export({ format: 'jwk' });
   const field = value => { const n = Buffer.alloc(4); n.writeUInt32BE(value.length); return Buffer.concat([n, value]); };
   const integer = value => { const b = Buffer.from(value, 'base64url'); return b[0] & 0x80 ? Buffer.concat([Buffer.from([0]), b]) : b; };
-  return { privateKey: privateKey.export({ type: 'pkcs1', format: 'pem' }), publicKey: `ssh-rsa ${Buffer.concat([field(Buffer.from('ssh-rsa')), field(integer(parts.e)), field(integer(parts.n))]).toString('base64')} trillion-service-connection` };
+  return { privateKey: privateKey.export({ type: 'pkcs1', format: 'pem' }), publicKey: `ssh-rsa ${Buffer.concat([field(Buffer.from('ssh-rsa')), field(integer(parts.e)), field(integer(parts.n))]).toString('base64')} ${comment}` };
 }
 export function pinHost(c, { run = execFileSync } = {}) {
   checked(c);
@@ -41,12 +45,12 @@ export function administrationArguments(c) {
 export function prepareConnectionHost(c, publicKey, { run = execFileSync } = {}) {
   checked(c);
   if (!/^ssh-rsa [A-Za-z0-9+/=]+(?: [a-zA-Z0-9-]+)?$/.test(publicKey)) throw new Error('The public service key was refused.');
-  const script = readFileSync(new URL('./portable-service-host-setup.sh', import.meta.url), 'utf8');
+  const script = readFileSync(new URL('./prepare-a-tunnel-host.sh', import.meta.url), 'utf8');
   const input = `service_user='${c.user}'\nservice_port='${c.remotePort}'\nservice_public_key='${publicKey}'\n${script}`;
   return run('/usr/bin/ssh', [...administrationArguments(c), '/bin/sh', '-s'], { input, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 240000, maxBuffer: 1024 * 1024 });
 }
 export async function startConnectionAgent() {
-  const directory = mkdtempSync(join(tmpdir(), 'trillion-service-agent-')), socket = join(directory, 'agent.sock');
+  const directory = mkdtempSync(join(tmpdir(), 'door-tunnel-agent-')), socket = join(directory, 'agent.sock');
   const child = spawn('/usr/bin/ssh-agent', ['-D', '-a', socket], { stdio: 'ignore' });
   let failed = false; child.once('error', () => { failed = true; }); child.once('exit', () => { failed = true; });
   for (let n = 0; !existsSync(socket) && !failed && n < 250; n++) await new Promise(resolve => setTimeout(resolve, 20));
@@ -78,30 +82,37 @@ export async function serveConnection(c, credential, { spawnImpl = spawn, agentO
   }
   } finally { agent.close(); }
 }
-export function connectionLaunchAgent({ label, nodeExecutable, script, configFile, productDataRoot, logFile }) {
-  if (!/^[a-z][a-z0-9.-]+$/.test(label) || [nodeExecutable, script, configFile, productDataRoot, logFile].some(value => typeof value !== 'string' || !value.startsWith('/'))) throw new Error('The connection supervisor configuration was refused.');
-  const xml = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict><key>Label</key><string>${xml(label)}</string><key>ProgramArguments</key><array><string>${xml(nodeExecutable)}</string><string>${xml(script)}</string><string>${xml(configFile)}</string></array><key>EnvironmentVariables</key><dict><key>PRODUCT_DATA_ROOT</key><string>${xml(productDataRoot)}</string></dict><key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>10</integer><key>StandardOutPath</key><string>${xml(logFile)}</string><key>StandardErrorPath</key><string>${xml(logFile)}</string></dict></plist>\n`;
+// The launch agent's own command: bash reads the held key with the vault command the configuration names (which writes
+// a value only to its descriptor 3) and hands it to this file on keyDescriptor, the configuration on standard input.
+export function connectionLaunchArguments({ nodeExecutable, script, configFile, credentialCommand }) {
+  if ([nodeExecutable, script, configFile].some(value => typeof value !== 'string' || !value.startsWith('/')) || !Array.isArray(credentialCommand) || !credentialCommand.length || !credentialCommand[0].startsWith('/') || credentialCommand.some(value => typeof value !== 'string')) throw new Error('The connection supervisor configuration was refused.');
+  return ['/bin/bash', '-c', `config=$1 node=$2 script=$3; shift 3; exec "$node" "$script" serve <"$config" ${keyDescriptor}< <(exec "$@" 3>&1 >/dev/null)`, 'keep-a-door-tunnel-open', configFile, nodeExecutable, script, ...credentialCommand];
 }
-export function installConnection(configFile, { productDataRoot, nodeExecutable, uid, home = homedir(), run = execFileSync } = {}) {
-  const config = checked(JSON.parse(readFileSync(configFile, 'utf8')));
-  const label = config.label ?? 'ai.gettrillion.portable-service-connection';
+export function connectionLaunchAgent({ label, programArguments, environment = {}, logFile }) {
+  if (!/^[a-z][a-z0-9.-]+$/.test(label) || typeof logFile !== 'string' || !logFile.startsWith('/') || !Array.isArray(programArguments) || !programArguments.length || [...programArguments, ...Object.values(environment)].some(value => typeof value !== 'string') || Object.keys(environment).some(name => !/^[A-Z_][A-Z0-9_]*$/.test(name))) throw new Error('The connection supervisor configuration was refused.');
+  const xml = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+  const variables = Object.entries(environment).map(([name, value]) => `<key>${name}</key><string>${xml(value)}</string>`).join('');
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict><key>Label</key><string>${xml(label)}</string><key>ProgramArguments</key><array>${programArguments.map(value => `<string>${xml(value)}</string>`).join('')}</array>${variables ? `<key>EnvironmentVariables</key><dict>${variables}</dict>` : ''}<key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>10</integer><key>StandardOutPath</key><string>${xml(logFile)}</string><key>StandardErrorPath</key><string>${xml(logFile)}</string></dict></plist>\n`;
+}
+export function installConnection(configFile, { label, credentialCommand, environment, nodeExecutable, uid, home = homedir(), run = execFileSync } = {}) {
+  checked(JSON.parse(readFileSync(configFile, 'utf8')));
   const folder = `${home}/Library/LaunchAgents`, file = `${folder}/${label}.plist`;
-  const definition = connectionLaunchAgent({ label, nodeExecutable, script: fileURLToPath(import.meta.url), configFile, productDataRoot, logFile: `${dirname(configFile)}/identity-connection.log` });
+  const definition = connectionLaunchAgent({ label, programArguments: connectionLaunchArguments({ nodeExecutable, script: fileURLToPath(import.meta.url), configFile, credentialCommand }), environment, logFile: `${dirname(configFile)}/${basename(configFile, '.json')}.log` });
   mkdirSync(folder, { recursive: true }); writeFileSync(file, definition, { mode: 0o600 });
   try { run('/bin/launchctl', ['bootout', `gui/${uid}/${label}`], { stdio: 'pipe' }); } catch (error) { if (!/No such process|Could not find service/.test(String(error.stderr))) throw error; }
   run('/bin/launchctl', ['bootstrap', `gui/${uid}`, file], { stdio: 'pipe' });
   return { label, supervisor: 'launchd', definition: file };
 }
 if (typeof process !== 'undefined' && process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  if (process.argv[2] === 'install' && process.argv.length === 4) {
-    process.stdout.write(`${JSON.stringify(installConnection(resolve(process.argv[3]), { productDataRoot: process.env.PRODUCT_DATA_ROOT, nodeExecutable: process.execPath, uid: process.getuid() }))}\n`);
+  if (process.argv[2] === 'install' && process.argv.length >= 6) {
+    const [configFile, label, ...credentialCommand] = process.argv.slice(3);
+    process.stdout.write(`${JSON.stringify(installConnection(resolve(configFile), { label, credentialCommand, nodeExecutable: process.execPath, uid: process.getuid() }))}\n`);
   } else {
-  if (process.argv.length !== 3) throw new Error('usage: portable-service-connection.mjs [install] CONFIG_FILE');
-  const config = JSON.parse(readFileSync(process.argv[2], 'utf8'));
-  const { heldByTheVault } = await import('../../bitfield-packages/packages/credentials-vault/read-data/ask-the-vault-for-one-secret.mjs');
+  if (process.argv[2] !== 'serve' || process.argv.length !== 3) throw new Error(`usage: keep-a-door-tunnel-open.mjs install CONFIG_FILE LABEL CREDENTIAL_COMMAND [ARGUMENTS...] | serve (the configuration on standard input, the held key on descriptor ${keyDescriptor})`);
+  const config = JSON.parse(readFileSync(0, 'utf8'));
+  const key = readFileSync(keyDescriptor, 'utf8');
   const stop = new AbortController();
   for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => stop.abort());
-  await serveConnection(config, () => heldByTheVault(config.credentialName), { signal: stop.signal, report: row => process.stderr.write(`${JSON.stringify(row)}\n`) });
+  await serveConnection(config, async () => key, { signal: stop.signal, report: row => process.stderr.write(`${JSON.stringify(row)}\n`) });
   }
 }
