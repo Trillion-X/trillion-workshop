@@ -1,0 +1,4 @@
+{
+  "_what": "The two Darwin notification names the Mac app listens for to keep its own windows out of a screen capture (read-data/capture-shield.mjs). begin is posted before the picture, end after it. They were kept in the Mac app's macos/computer-reader.json, which is not in Trillion-X/trillion; until the app's owner writes them here, both are null and nothing is posted.",
+  "capture_shield": { "begin": null, "end": null }
+}

@@ -1596,6 +1596,32 @@
       ]
     },
     {
+      "capability": "operate the person's Mac screen for their AIs: see what is on it as controls and text with where each is, find a described thing without touching it, and click, press, type, scroll, drag or use keys on it, then look again and say what really changed",
+      "owner": [
+        "tools/drive-the-screen/"
+      ],
+      "entry": "tools/drive-the-screen/tool-rows.json",
+      "evidence": "README.md:3 observe (the app's accessibility tree and the main display's text read from its pixels), locate by a DATA-described target, dispatch DATA action steps through read-data/screen-driver.swift, observe again and verify; moved from Trillion-X/trillion computer/drive-the-screen.mjs",
+      "distinct_from": [
+        {
+          "job": "see what is on the person's Mac screen right now: a picture of every display, each with its size in pixels",
+          "why": "tools/look-at-screen returns pictures for an AI to look at and acts on nothing; this one reads the screen as named controls and text with their places, acts on them, and uses look-at-screen's own capture for the picture it reads text from"
+        },
+        {
+          "job": "read what a person is doing on their Mac as text from the front window",
+          "why": "tools/read-what-is-on-screen watches the front window's words for continuity and acts on nothing; this one reads one app's controls once per call so an AI can act on them, and acts"
+        },
+        {
+          "job": "act on a computer's apps, windows and command lines within declared bounds",
+          "why": "computer-interface-actions (bitfield-packages, not yet in tools/) runs bounded app, window and command-line actions; this one drives the screen itself: pointer, keys and accessibility actions on what is visible, checked by looking again"
+        },
+        {
+          "job": "keep distracting apps closed and Focus on, on the person's computer, until a set time",
+          "why": "tools/hold-a-computer-quiet closes apps and switches Focus; this one clicks and types inside an app"
+        }
+      ]
+    },
+    {
       "capability": "plan a person's tasks into their free time and judge their meetings against their pursuits: ASAP first, then hard deadlines, then what serves the pursuits that matter most, then due date; tasks wait for their blockers, long tasks split into pieces, fixed-time tasks stay put, each day's work is held to a cap, and meetings that serve no pursuit and keep more valuable work from its deadline are proposed for decline",
       "owner": ["tools/plan-my-time/"],
       "entry": "tools/plan-my-time/tool-rows.json",

@@ -1,0 +1,505 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:drive-the-screen",
+        "needs": {
+          "expected_seconds": 15,
+          "priority": 5,
+          "network_egress": false
+        },
+        "id": "tool:look-at-the-screen",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "label": "See what is on the person's computer screen",
+        "job": "Read the person's computer screen: the app in front (or one named), its controls from the accessibility tree and the text on its windows from the pixels, with where each is",
+        "description": "Returns the app, the displays, and the things on the screen (role, label, centre and size, and the actions each offers) in points from the top left of the main display, never coordinates guessed from a picture. Text from the pixels is kept to the app's own windows. Read-only. Uses this Mac's existing Accessibility and Screen Recording permissions. The person can turn on an optional grant policy in the computer's settings; calls cannot change that policy.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "app": {
+              "type": "string",
+              "description": "The running app to read (its name or bundle id); the app in front when left out."
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Where to read from: ax (the accessibility tree) and/or ocr (the pixels read as text)."
+            },
+            "session": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-the-screen-text",
+            "see-the-screen"
+          ],
+          "workdir": "/opt/drive-the-screen",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/drive-the-screen/read-data/drive-the-screen.mjs",
+            "look"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "drive-the-screen",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/drive-the-screen"
+              },
+              {
+                "package": "look-at-screen",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/look-at-screen"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:drive-the-screen",
+        "needs": {
+          "expected_seconds": 15,
+          "priority": 5,
+          "network_egress": false
+        },
+        "id": "tool:find-on-the-screen",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "label": "Find a thing on the person's computer screen",
+        "job": "Say where a described thing is on the person's screen right now (a button, a field, a line of text) without touching it",
+        "description": "Describe the target by what it is called or what kind it is, never by coordinates. Returns the ranked matches with where each is now. Read-only. Uses this Mac's existing Accessibility and Screen Recording permissions. The person can turn on an optional grant policy in the computer's settings; calls cannot change that policy.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "target": {
+              "description": "What to find on the screen: a label string, or { match: { label|role|title|description|value|identifier|text: a string or { equals | contains | starts_with | regex } }, source?: ax or ocr, nth? }. Never coordinates.",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "app": {
+              "type": "string",
+              "description": "The running app to read (its name or bundle id); the app in front when left out."
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Where to read from: ax (the accessibility tree) and/or ocr (the pixels read as text)."
+            },
+            "session": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "target"
+          ]
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-the-screen-text",
+            "see-the-screen"
+          ],
+          "workdir": "/opt/drive-the-screen",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/drive-the-screen/read-data/drive-the-screen.mjs",
+            "find"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "drive-the-screen",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/drive-the-screen"
+              },
+              {
+                "package": "look-at-screen",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/look-at-screen"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:drive-the-screen",
+        "needs": {
+          "expected_seconds": 30,
+          "priority": 5,
+          "network_egress": false
+        },
+        "id": "tool:drive-the-screen",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "label": "Operate the person's computer screen",
+        "job": "Click, press, type, scroll, drag or use keys on the person's computer, finding the target by what it is called and checking afterwards what really changed",
+        "description": "One call looks at the screen, finds the target, does the action, looks again and says what changed. action is one the computer keeps (tool:screen-actions lists them; new ones are added as data on the computer). Give expect, a list of { target, min?, max? } or { changed }, and verified says whether the screen shows it; without expect, verified is null and the change seen is reported. dry_run shows the steps without doing them. Press and set_value act through the accessibility tree and do not move the person's pointer; click, type and key do. A target that moved or vanished is refused, never guessed. Uses this Mac's existing Accessibility and Screen Recording permissions. The person can turn on an optional grant policy in the computer's settings; calls cannot change that policy.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "description": "An action id from tool:screen-actions."
+            },
+            "target": {
+              "description": "What to find on the screen: a label string, or { match: { label|role|title|description|value|identifier|text: a string or { equals | contains | starts_with | regex } }, source?: ax or ocr, nth? }. Never coordinates.",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "to": {
+              "description": "What to find on the screen: a label string, or { match: { label|role|title|description|value|identifier|text: a string or { equals | contains | starts_with | regex } }, source?: ax or ocr, nth? }. Never coordinates.",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "text": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            },
+            "keys": {
+              "type": "string",
+              "description": "A key or combination, such as return or cmd+s."
+            },
+            "dx": {
+              "type": "integer"
+            },
+            "dy": {
+              "type": "integer"
+            },
+            "expect": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "app": {
+              "type": "string",
+              "description": "The running app to read (its name or bundle id); the app in front when left out."
+            },
+            "dry_run": {
+              "type": "boolean"
+            },
+            "session": {
+              "type": "string",
+              "description": "A name for this run of drives, so the opt-in taint guard can tell one AI's reads from another's; default when left out."
+            },
+            "background": {
+              "type": "boolean",
+              "description": "true posts input to the app itself and never brings it forward, so the person keeps their own screen."
+            }
+          },
+          "required": [
+            "action"
+          ]
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-the-screen-text",
+            "see-the-screen",
+            "drive-the-screen"
+          ],
+          "workdir": "/opt/drive-the-screen",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/drive-the-screen/read-data/drive-the-screen.mjs",
+            "drive"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "drive-the-screen",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/drive-the-screen"
+              },
+              {
+                "package": "look-at-screen",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/look-at-screen"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:drive-the-screen",
+        "needs": {
+          "expected_seconds": 5,
+          "priority": 5,
+          "network_egress": false
+        },
+        "id": "tool:screen-actions",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "label": "List what can be done on the person's computer screen",
+        "job": "List the actions this computer keeps for operating its screen, what each needs, and how to describe a target",
+        "description": "Read-only and needs no permission; it reads the computer's own list.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/drive-the-screen",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/drive-the-screen/read-data/drive-the-screen.mjs",
+            "actions"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "drive-the-screen",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/drive-the-screen"
+              },
+              {
+                "package": "look-at-screen",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/look-at-screen"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
