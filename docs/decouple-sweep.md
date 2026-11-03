@@ -4,7 +4,7 @@ Swept 2026-11-03 for "decouple literally everything from this Mac" (Avery, 2026-
 
 The primitive is placement stage 1 on trillion-rust main (`src/account/places.rs`, `create.rs`, `door.rs`): place rows per account and per pursuit, a place described only by what it reports, a router that stores nothing and chooses from signed rows. In this repository a tool cannot see those rows. It sees only the place it runs on. So the shape here is always the same: the tool asks the place it runs on for the thing it needs (a lock, a reader, a program, a key store), and when the place has none, it refuses in words that say what to give it. The tool never asks what kind of machine it is on. A row's `placements` and `invoke.capabilities` already say what a place must report before the router may choose it, so no new row or capability was needed.
 
-Branch: `claude/task-9zielx`. Every fix is its own commit on that branch, and all of them are in one pull request (the session may push only to that branch). Tests: `npm test` on Linux (this cloud box). Line numbers are on the branch.
+Branch: `claude/task-9zielx`, PR #16. Every fix is its own commit on that branch, and all of them are in that one pull request (the session may push only to that branch). Tests: `npm test` on Linux (this cloud box). Line numbers are on the branch.
 
 ## Ties removed
 
