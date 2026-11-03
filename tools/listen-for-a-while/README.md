@@ -1,17 +1,17 @@
 # tools/listen-for-a-while/
 
-Listens to the microphone until an end time the person gives, and writes each turn as a `heard` row as it is said. One recorder is opened once and writes the sound in pieces back to back. Each piece is heard with `tools/audio-transcription`, each turn in it is named with `tools/know-who-is-in-this`, and the turn is written as soon as its piece has been heard. It adds no recognizer.
+Listens to the microphone until an end time the person gives, and writes each turn as a `heard` row as it is said. It also hears a recording another of the person's devices made the same way (`tool:hear-for-a-device`). One recorder is opened once and writes the sound in pieces back to back. Each piece is heard with `tools/audio-transcription`, each turn in it is named with `tools/know-who-is-in-this`, and the turn is written as soon as its piece has been heard. It adds no recognizer.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `read-data/listen-for-a-while.mjs` | The tool `listenForAWhile` (run as a function by `tools/records-door`), and the pure helpers: the end time, the recorder command, a recorder line as a piece, the `heard` rows of a piece's turns, hearing and naming by the other two tools' scripts. |
+| `read-data/listen-for-a-while.mjs` | The tools `listenForAWhile` and `hearForADevice` (run as functions by `tools/records-door`), the one loop both go through (`hearPieces`), and the pure helpers: the end time, the recorder command, a recorder line as a piece, the `heard` rows of a piece's turns, hearing and naming by the other two tools' scripts. |
 | `read-data/recording-rules.mjs` | The person's opt-in recording rules: `evaluate` (block wins, a false required fact blocks, an unknown one is pending), `mayStart`, `recheck`, the grant book, the notice step and consent events. The listener asks `evaluate` for every piece. |
 | `read-data/recording-rules.json` | The words of each refusal and notice step. |
 | `read-data/leaves.json` | What listening sends off this computer and what stays on it, as rows `leavesOf` shows while their `when` tests hold. |
-| `tool-rows.json` | The row `tool:listen-for-a-while`: a `computer` row with the `use-the-microphone` capability, rights to write `heard` and `listening-voices` rows, to list `voice-print` and `recording-rule` rows, and to read the listening's `recording-facts` and `listening-switch` rows. |
-| `test/listen-for-a-while.test.mjs` | The loop on a fake recorder, hearing, naming and records door; the recorder reader on a fake process; pause, recording rules, the leaves list, and the microphone closed when listening ends early. |
+| `tool-rows.json` | `tool:hear-for-a-device`: a `computer` row with `start-a-program`, the files right to find and read the recording, and the same record rights as listening. `tool:listen-for-a-while`: a `computer` row with the `use-the-microphone` and `start-a-program` capabilities (the person grants the `record-and-hear` programs: ffmpeg, whisper-cli and the models folder), rights to write `heard` and `listening-voices` rows, to list `voice-print` and `recording-rule` rows, and to read the listening's `recording-facts` and `listening-switch` rows. |
+| `test/listen-for-a-while.test.mjs` | The loop on a fake recorder, hearing, naming and records door; the recorder reader on a fake process; pause, recording rules, the leaves list, the microphone closed when listening ends early, and a device's recording read through the door and heard as that device. |
 | `test/recording-rules.test.mjs` | The rules: open by default, block wins, pending, the mid-session recheck, grants, the notice step and consent events. |
 | `part.json` | Nothing here is imported by other code. |
 
@@ -26,7 +26,11 @@ Listens to the microphone until an end time the person gives, and writes each tu
 - Every answer carries `leaves` and `stays`: what leaves this computer (the words of each turn) and what stays on it (voice numbers, the recording while it is heard), from `read-data/leaves.json`.
 - Moved from the product repo's always-on listener (`computer/listen.mjs` invariants 1c, 1d and 1e: `pausedAt`, `beforePause`, `leavesOf`, the per-piece rules check) and its rules owner (`src/recording-rules.mjs` with `src/recording-rules.json` and `test/recording-rules.test.mjs`, carried whole). The listener's own files on the Mac (the switch file, `recording-rules.json`, `recording-facts.json`) are rows here.
 
+- A device's recording (`tool:hear-for-a-device`) is read whole through the run's door (`tools/records-door` `read-data/whole-file.mjs`) into the run's own folder, heard as one piece dated from `at`, named and written as that device's `heard` rows, and the copy is deleted. The person's file is left where it is. Moved from `computer/listen.mjs` `listeningTools.hear`; its sending to the old account's inbound route and its kept-sound cuts are the `heard` rows here.
+
 ## Not yet
+
+- The programs are passed as input (`whisper_cli`, `ffmpeg`) as well as granted: `run-an-export.mjs` hands the function only `input`, and the grant's paths reach a run only through argv fills of `grants.start-a-program.*` (trillion-rust src/runtime/workshop/computer.rs:244). The hearing seam runs `/usr/bin/python3`; whether the Command Line Tools' Python starts inside the base sandbox is unproved.
 
 - Cancelling the run (`tools:cancel`) kills its process group; the piece being heard at that moment is lost, and every earlier turn is already written.
 - The recorder (`ffmpeg`) and `whisper-cli` must be startable by a `computer` run; the `use-the-microphone` capability carries the three audio lookups measured on 2026-10-31, but a program row for them is not proved.
