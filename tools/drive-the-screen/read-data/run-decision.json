@@ -1,5 +1,5 @@
 {
-  "_what": "The one decision table for whether this Mac's screen driver may do an action in an app (computer/run-decision.mjs, read by computer/drive-the-screen.mjs). The lists are checked in `order`, first match wins; no match falls to `otherwise`, which is `open` (allow) unless the person's own rules file sets strict. user_* lists are the person's (their rules file); system_* lists are an organisation's controls (the controls file, optionally refreshed from a source). A rule is { action?, app?, url? }, each a text with * as the wildcard (or a list of them), all given parts must match, matched ignoring case; a rule with no parts matches everything. Nothing here is on by default: with no rules file and no controls file every action is allowed. Changing this table is a data edit.",
+  "_what": "The one decision table for whether this Mac's screen driver may do an action in an app (tools/drive-the-screen/read-data/run-decision.mjs, read by tools/drive-the-screen/read-data/drive-the-screen.mjs). The lists are checked in `order`, first match wins; no match falls to `otherwise`, which is `open` (allow) unless the person's own rules file sets strict. user_* lists are the person's (their rules file); system_* lists are an organisation's controls (the controls file, optionally refreshed from a source). A rule is { action?, app?, url? }, each a text with * as the wildcard (or a list of them), all given parts must match, matched ignoring case; a rule with no parts matches everything. Nothing here is on by default: with no rules file and no controls file every action is allowed. Changing this table is a data edit.",
   "order": [
     "user_deny",
     "user_allow",
@@ -51,11 +51,11 @@
     "steps": {
       "before_action": {
         "blocking": true,
-        "what": "Before the screen driver reads or acts in an app (computer/drive-the-screen.mjs)."
+        "what": "Before the screen driver reads or acts in an app (tools/drive-the-screen/read-data/drive-the-screen.mjs)."
       },
       "before_tool_run": {
         "blocking": true,
-        "what": "Before this Mac runs a tool it was handed (computer/mac-tools.mjs runHere); subject { step, action: the tool id }."
+        "what": "Before this Mac runs a tool it was handed (the Mac host, Trillion-X/trillion computer/mac-tools.mjs runHere; no computer run asks this step); subject { step, action: the tool id }."
       },
       "after_tool_run": {
         "blocking": false,

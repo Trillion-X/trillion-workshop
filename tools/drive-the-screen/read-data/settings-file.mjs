@@ -1,4 +1,4 @@
-// computer/settings-file.mjs
+// tools/drive-the-screen/read-data/settings-file.mjs (moved from Trillion-X/trillion computer/settings-file.mjs)
 //
 // Purpose: the one way this Mac's programs read and write a settings file the person may have edited. A file that cannot
 // be understood is not the same as no file: the program runs on defaults, but it refuses to write until the file is

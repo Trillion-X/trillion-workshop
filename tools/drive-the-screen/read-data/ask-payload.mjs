@@ -1,11 +1,11 @@
-// computer/ask-payload.mjs
+// tools/drive-the-screen/read-data/ask-payload.mjs (moved from Trillion-X/trillion computer/ask-payload.mjs)
 //
 // Purpose
 //   The person's redaction for what the AI reads off this Mac's screen: `redactor` applies the DATA patterns to every
-//   string of a screen read computer/drive-the-screen.mjs answers with, once the person has turned redaction on.
+//   string of a screen read tools/drive-the-screen/read-data/drive-the-screen.mjs answers with, once the person has turned redaction on.
 //
 // Non-negotiable invariants
-//   1. Redaction patterns and words are DATA (computer/ask-payload.json). Redaction is the person's choice (their own
+//   1. Redaction patterns and words are DATA (tools/drive-the-screen/read-data/ask-payload.json). Redaction is the person's choice (their own
 //      file) and off until they choose.
 //
 import { readFileSync } from 'node:fs';

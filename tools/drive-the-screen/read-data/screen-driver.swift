@@ -1,7 +1,7 @@
-// Reads the Mac's screen structure and dispatches primitive input, for computer/drive-the-screen.mjs.
+// Reads the Mac's screen structure and dispatches primitive input, for tools/drive-the-screen/read-data/drive-the-screen.mjs.
 // One JSON request on standard input, one JSON answer on standard output. Nothing here names an app, a control or a
 // flow: `read` lists the displays and the accessibility tree of one running app; `act` runs primitive events in order
-// and stops at the first that fails. What an action IS (click, type, press) is DATA in computer/drive-the-screen.json.
+// and stops at the first that fails. What an action IS (click, type, press) is DATA in tools/drive-the-screen/read-data/drive-the-screen.json.
 // Coordinates crossing the JSON boundary are global points from the top left of the main display. AX frames are
 // converted from AppKit's bottom-origin frame to this space; Core Graphics pointer points use this space directly.
 import Cocoa

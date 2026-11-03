@@ -1,7 +1,7 @@
 {
-  "_what": "How this Mac's screen is driven (computer/drive-the-screen.mjs; tools tool:look-at-the-screen, tool:find-on-the-screen, tool:drive-the-screen and tool:screen-actions in computer/mac-tools.json). The engine is blind: it observes (a screen capture read as text with bounds, plus the accessibility tree of one running app), locates a target the caller describes by DATA fields (never coordinates, never an app), dispatches an action, and observes again to say what really changed. Everything that varies is a row here. `actions` is the action set: a new action is a new row whose `steps` are primitive events (pause, mouse_move, mouse_drag, mouse_button, scroll, chord, text, ax_action, ax_set, app_activate: the operating system's own input primitives, run by computer/screen-driver.swift) with `{placeholders}` filled from the call's inputs and its located target (`target.x`, `target.y`, `target.ref`, `target.raw.<field>`, `target.app.pid`); global input is dispatched only while that observed process remains frontmost; the sequence stops on an app change. A step with `when` runs only if that path is present, and a placeholder that resolves to nothing drops its key. `inputs` types: string, number, integer, chord (a key combination such as cmd+shift+s read through `keys`), target (another thing on the screen, located the same way). A `target` row's `needs` are the fields a located thing must have (a pointer action needs x and y), `sources` limits where it is found. `elements` says how each source (ax, ocr) becomes a comparable element: `fields` maps a normalized field to the raw keys it is read from (first present wins), `static` fixes a field; `role_strip` is removed from a role and it is lowercased; `ocr.within_app_windows` keeps text read from the pixels only inside the observed app's windows (a grant for one app never reads the rest of the screen); `rank` orders candidates by element fields. `consent.require_grant` is off by default: the screen is driven with no grant. Turn it on and `consent` is a floor: nothing reads or acts without an unexpired grant for that exact action (and app, when the grant names apps) in `file` under the person's home, read again at the moment of action; a missing, unreadable or expired file means no; the call can never carry its own consent (`refuse_input_keys`); the person grants and revokes with `node computer/drive-the-screen.mjs grant|revoke|grants`. `limits` bound every look and every program; a program that does not answer in `program_timeout_ms` is a refusal, never an allow. `coordinates` records the one space every point is in; OCR boxes are converted with the MEASURED image size and refused when its shape does not match the display. `failsafe`, `narration` and `retry` are the person's stop, the visible caption before each action, and whether a refusal may be tried again. An action step may carry `deliver: \"app\"` to post keys straight to the driven process so it need not be frontmost (key_in_app, type_in_app); the default posts to the foreground. The `caption` event shows a dot and words at a point without taking focus (the `point` action, guidance only).",
+  "_what": "How this Mac's screen is driven (tools/drive-the-screen/read-data/drive-the-screen.mjs; tools tool:look-at-the-screen, tool:find-on-the-screen, tool:drive-the-screen and tool:screen-actions in tools/drive-the-screen/tool-rows.json). The engine is blind: it observes (a screen capture read as text with bounds, plus the accessibility tree of one running app), locates a target the caller describes by DATA fields (never coordinates, never an app), dispatches an action, and observes again to say what really changed. Everything that varies is a row here. `actions` is the action set: a new action is a new row whose `steps` are primitive events (pause, mouse_move, mouse_drag, mouse_button, scroll, chord, text, ax_action, ax_set, app_activate: the operating system's own input primitives, run by tools/drive-the-screen/read-data/screen-driver.swift) with `{placeholders}` filled from the call's inputs and its located target (`target.x`, `target.y`, `target.ref`, `target.raw.<field>`, `target.app.pid`); global input is dispatched only while that observed process remains frontmost; the sequence stops on an app change. A step with `when` runs only if that path is present, and a placeholder that resolves to nothing drops its key. `inputs` types: string, number, integer, chord (a key combination such as cmd+shift+s read through `keys`), target (another thing on the screen, located the same way). A `target` row's `needs` are the fields a located thing must have (a pointer action needs x and y), `sources` limits where it is found. `elements` says how each source (ax, ocr) becomes a comparable element: `fields` maps a normalized field to the raw keys it is read from (first present wins), `static` fixes a field; `role_strip` is removed from a role and it is lowercased; `ocr.within_app_windows` keeps text read from the pixels only inside the observed app's windows (a grant for one app never reads the rest of the screen); `rank` orders candidates by element fields. `consent.require_grant` is off by default: the screen is driven with no grant. Turn it on and `consent` is a floor: nothing reads or acts without an unexpired grant for that exact action (and app, when the grant names apps) in `file` under the person's home, read again at the moment of action; a missing, unreadable or expired file means no; the call can never carry its own consent (`refuse_input_keys`); the person grants and revokes with `node tools/drive-the-screen/read-data/drive-the-screen.mjs grant|revoke|grants`. `limits` bound every look and every program; a program that does not answer in `program_timeout_ms` is a refusal, never an allow. `coordinates` records the one space every point is in; OCR boxes are converted with the MEASURED image size and refused when its shape does not match the display. `failsafe`, `narration` and `retry` are the person's stop, the visible caption before each action, and whether a refusal may be tried again. An action step may carry `deliver: \"app\"` to post keys straight to the driven process so it need not be frontmost (key_in_app, type_in_app); the default posts to the foreground. The `caption` event shows a dot and words at a point without taking focus (the `point` action, guidance only).",
   "words": {
-    "no_grant": "The person has not allowed {action} on the screen{app}. Ask them to allow it (node computer/drive-the-screen.mjs grant --actions {action} --minutes 10); nothing was read or done.",
+    "no_grant": "The person has not allowed {action} on the screen{app}. Ask them to allow it (HOME=<their screen-driving settings folder> node tools/drive-the-screen/read-data/drive-the-screen.mjs grant --actions {action} --minutes 10); nothing was read or done.",
     "unreadable_grants": "The screen permissions file could not be read, so nothing was read or done.",
     "not_ready": "This Mac has not given {what} to the program that drives the screen. The person turns it on in System Settings > Privacy & Security; this is a Mac permission, separate from the person's consent in Trillion.",
     "carried_consent": "The input named {keys}. Consent is never carried by a call; it is only the person's grant.",
@@ -52,7 +52,7 @@
     "secret_unknown": "The reference {reference} is not one this Mac reads. It reads {known}."
   },
   "background": {
-    "_what": "Working without taking the person's screen. `drive` with background: true sends input to the driven process itself (`deliver`, run by computer/screen-driver.swift as CGEvent.postToPid) and leaves out the steps named in `skip_events`, so the app is never brought forward.",
+    "_what": "Working without taking the person's screen. `drive` with background: true sends input to the driven process itself (`deliver`, run by tools/drive-the-screen/read-data/screen-driver.swift as CGEvent.postToPid) and leaves out the steps named in `skip_events`, so the app is never brought forward.",
     "deliver": "app",
     "skip_events": ["app_activate"]
   },
@@ -69,14 +69,8 @@
     "caption_ms": 1500
   },
   "capture": {
-    "program": "/usr/sbin/screencapture",
-    "args": [
-      "-x",
-      "-m",
-      "-t",
-      "jpg",
-      "{file}"
-    ],
+    "_what": "The picture OCR reads: tools/look-at-screen's capture (do-work/look-at-screen.mjs systemCommands.capture) given one file, so the main display only, with no sound and no pointer, inside the capture shield. `aspect_tolerance` is how far the picture's shape may differ from the display's before its text is not placed.",
+    "file": "screen.png",
     "aspect_tolerance": 0.02
   },
   "driver": {
@@ -936,7 +930,7 @@
     ]
   },
   "observation": {
-    "_what": "What the reader may observe (computer/observation-rules.mjs). A default of observe means rows block; do_not_observe means rows allow; a block row always wins; a record with a website must pass the application and the website; a private window is never observed. Out of the box nothing is limited. applications rows: { app: bundle id or name, mode: allow | block }. websites rows: { domain: bare domain, matches its subdomains, mode }.",
+    "_what": "What the reader may observe (tools/drive-the-screen/read-data/observation-rules.mjs). A default of observe means rows block; do_not_observe means rows allow; a block row always wins; a record with a website must pass the application and the website; a private window is never observed. Out of the box nothing is limited. applications rows: { app: bundle id or name, mode: allow | block }. websites rows: { domain: bare domain, matches its subdomains, mode }.",
     "default_application": "observe",
     "default_website": "observe",
     "applications": [],
@@ -947,11 +941,16 @@
     "one_at_a_time": true,
     "refuse_under_launchd_what": "A program whose parent is launchd (pid 1) is not under the Trillion app: macOS gives it its own Mac permissions, not the app's. With this on, a drive or look is refused with a typed state instead of failing as a missing permission.",
     "stop_key": {
-      "_what": "The person's stop key while a drive posts events (computer/screen-driver.swift watches it with a listen-only tap, which needs Input Monitoring; without it the drive runs and says stop_key_watched false). key_code 53 is Escape. The marker is written into the source data of every event the driver posts itself, so the agent's own presses of this key never stop its drive.",
+      "_what": "The person's stop key while a drive posts events (tools/drive-the-screen/read-data/screen-driver.swift watches it with a listen-only tap, which needs Input Monitoring; without it the drive runs and says stop_key_watched false). key_code 53 is Escape. The marker is written into the source data of every event the driver posts itself, so the agent's own presses of this key never stop its drive.",
       "enabled": true,
       "key_code": 53,
       "marker": 7210
     },
     "refuse_under_launchd": true
+  },
+  "host_words": {
+    "_what": "Words the Mac host (Trillion-X/trillion computer/mac-tools.json words) said around these rows, said here now that a computer run has no host.",
+    "not_an_object": "Send the tool input as an object.",
+    "failed": "Something went wrong on this computer: {error}"
   }
 }

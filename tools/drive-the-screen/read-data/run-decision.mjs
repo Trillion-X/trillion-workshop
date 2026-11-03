@@ -1,8 +1,8 @@
-// computer/run-decision.mjs
+// tools/drive-the-screen/read-data/run-decision.mjs (moved from Trillion-X/trillion computer/run-decision.mjs)
 //
 // PURPOSE
 //   The one decision table for whether this Mac's screen driver may do an action in an app (the table is
-//   computer/run-decision.json). Four lists are read in a fixed order, first match wins: the person's deny list, the
+//   tools/drive-the-screen/read-data/run-decision.json). Four lists are read in a fixed order, first match wins: the person's deny list, the
 //   person's allow list, an organisation's deny list, an organisation's allow list. No match falls to the table's
 //   `otherwise`: allowed, unless the person turned strict on, then refused. Reading the screen is an action like any
 //   other, so a sensitive app can be kept unread by the same rule that keeps it untouched.

@@ -1,11 +1,11 @@
-// computer/observation-categories.mjs
+// tools/drive-the-screen/read-data/observation-categories.mjs (moved from Trillion-X/trillion computer/observation-categories.mjs)
 //
-// Purpose: lets the Mac reader's observation rules (computer/observation-rules.mjs) name a whole kind of website (a
+// Purpose: lets the Mac reader's observation rules (tools/drive-the-screen/read-data/observation-rules.mjs) name a whole kind of website (a
 // category) instead of listing every domain. A table of domain -> category is kept current by cursor-paged diffs with
 // tombstones, and the rules' category rows become website rows at the moment of the verdict.
 //
 // Non-negotiable invariants
-//   1. The seed table, the category modes, the source and the bounds are DATA (computer/observation-categories.json).
+//   1. The seed table, the category modes, the source and the bounds are DATA (tools/drive-the-screen/read-data/observation-categories.json).
 //      Out of the box the table is empty and no mode is set, so nothing is limited.
 //   2. A diff page is applied whole or not at all: upserts replace by domain, tombstones remove, and the cursor moves to
 //      the page's next_cursor only after the page is applied. A page that is not an object with arrays is refused.

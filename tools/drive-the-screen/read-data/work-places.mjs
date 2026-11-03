@@ -1,12 +1,12 @@
-// computer/work-places.mjs
+// tools/drive-the-screen/read-data/work-places.mjs (moved from Trillion-X/trillion computer/work-places.mjs)
 //
 // PURPOSE
 //   The places on this computer the person shares with their AIs (this Mac's own desktop), and the person's hold on them:
-//   the host's `place` seam (computer/mac-tools.mjs runHere) asks before an AI acts on a place and marks when it is done,
+//   the `place` seam (./drive-the-screen.mjs makeScreenTools; on the Mac host it was computer/mac-tools.mjs runHere) asks before an AI acts on a place and marks when it is done,
 //   and the person takes a place over and hands it back from their own command line.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Blind: this file names no place, program or word. A kind of place is a row of computer/work-places.json; a kind
+//   1. Blind: this file names no place, program or word. A kind of place is a row of tools/drive-the-screen/read-data/work-places.json; a kind
 //      with `singleton` exists without being made.
 //   2. Take over is the person's: while they have a place, every AI action there (a drive of the screen through the
 //      host's `place` seam) is refused with when it ends. A take-over always ends by itself (its `until` is required and
@@ -16,7 +16,7 @@
 //      and pointer reach a place (its kind's `person_input`), their input also holds it for idle_ttl_ms after their last
 //      input, without any take-over: input the AI's own action made is not theirs.
 //   3. Bounded: every wait and length is a limit in the DATA. A places file that cannot be read is never replaced
-//      (computer/settings-file.mjs).
+//      (tools/drive-the-screen/read-data/settings-file.mjs).
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { blake3 } from '@noble/hashes/blake3.js';
@@ -147,7 +147,7 @@ export function makePlaces({ settings = placeSettings(), home = homedir(), now =
       return { place: place.name, said: fill(settings.words.handed_back, { place: place.name }) };
     },
 
-    /** The host's seam (computer/mac-tools.mjs): refuses an AI action on `placeId` while the person has it or is using
+    /** The seam (./drive-the-screen.mjs makeScreenTools): refuses an AI action on `placeId` while the person has it or is using
      *  it; else marks the AI acting there and answers the once-only hand-back notice. `acted` marks the action's end. */
     async handsOn(placeId) {
       const kept = read();
@@ -160,8 +160,8 @@ export function makePlaces({ settings = placeSettings(), home = homedir(), now =
 
 // The person's own command line on this Mac: take a place over (the key is kept 0600 under the places folder, never
 // printed) and hand it back with that key.
-//   node computer/work-places.mjs take-over <place> [minutes]
-//   node computer/work-places.mjs hand-back <place> [note]
+//   node tools/drive-the-screen/read-data/work-places.mjs take-over <place> [minutes]
+//   node tools/drive-the-screen/read-data/work-places.mjs hand-back <place> [note]
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const [verb, place, extra] = process.argv.slice(2);
   const settings = placeSettings();
