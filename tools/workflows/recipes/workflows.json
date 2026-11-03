@@ -1,5 +1,5 @@
 {
-  "about": "Generated from published workflow views by do-work/rebuild-recipes.mjs; canonical account rows have been read back where synchronized. Pending account workflow rows: build-a-best-x-for-y-comparison, out-launch-a-new-launch, reach-companies-with-a-long-open-job-post, reach-local-businesses-by-zip-code, refresh-measurement-coverage, run-a-linkedin-content-system. The account row owner remains the source of truth.",
+  "about": "Generated from published workflow views by do-work/rebuild-recipes.mjs; canonical account rows have been read back where synchronized. Pending account workflow rows: refresh-measurement-coverage. The account row owner remains the source of truth.",
   "records": [
     {
       "payload": {
