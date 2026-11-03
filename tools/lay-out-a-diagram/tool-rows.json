@@ -1,0 +1,249 @@
+{
+  "kind": "tool-rows",
+  "record_set": "lay-out-a-diagram-tool-rows",
+  "what_this_is": "The Workshop rows for tools/lay-out-a-diagram: lay out a diagram of boxes and arrows in layers so few arrows cross and draw it as a standalone SVG, and tell what changed between two versions of a diagram. Each row runs one function of do-work/requests.mjs on the request given; the boxes, arrows, lanes and labels are the person's, none is built in.",
+  "records": [
+    {
+      "id": "package::lay-out-a-diagram::tool::lay-out-a-diagram",
+      "address": "package::lay-out-a-diagram::tool::lay-out-a-diagram",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:lay-out-a-diagram",
+        "label": "Lay out a diagram of boxes and arrows",
+        "status": "active",
+        "job": "Lay out a diagram of boxes and arrows so few arrows cross, and give me the positions, the arrow routes, how many arrows cross and a picture of it as SVG",
+        "description": "Takes the boxes (an id, and optionally a label, a size, a lane and a style) and the arrows between them (from, to, an optional id and label). Breaks cycles by reversing the arrows that close them (reported, and drawn in their real direction), puts every box in a layer, orders the boxes inside each layer to cut crossings (counted exactly, before and after), places them without overlap, spreads the arrow ends along each side of a box and routes each arrow as a list of points. Optional lanes (a list of lane ids in order) keep every box of a lane in its own band with the same layers lining up across lanes; direction \"right\" lays layers out left to right. Answers each box's position, size, layer, order and lane, each arrow's route, the drawing's width and height, quality numbers (crossings before and after, reversed arrows, layers, virtual points) and, unless draw is false, a standalone SVG whose colours are page variables (--diagram-background, --diagram-ink, --diagram-node-fill, --diagram-node-stroke, --diagram-edge) with fallbacks. A box's style may hold only fill, stroke, stroke-width, stroke-dasharray, font-weight, font-style and opacity, with plain values. The same request always gives the same answer. Takes no diagram text: send the boxes and arrows as data. An arrow to an unknown box, two boxes with one id, a lane not in lanes, a style outside the list and a request over the limits (1000 boxes, 5000 arrows, 200 characters in a label) are refused with a sentence saying what to send.",
+        "input_schema": {
+          "type": "object",
+          "required": ["nodes", "edges"],
+          "properties": {
+            "nodes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                  "id": { "type": "string", "description": "The name arrows use for this box" },
+                  "label": { "type": "string", "description": "The words in the box; the id by default" },
+                  "width": { "type": "number", "description": "The box's width; measured from the label by default" },
+                  "height": { "type": "number", "description": "The box's height; one line by default" },
+                  "lane": { "type": "string", "description": "The lane the box sits in; required for every box when lanes is sent" },
+                  "style": { "type": "object", "description": "Any of fill, stroke, stroke-width, stroke-dasharray, font-weight, font-style, opacity, with plain values" }
+                }
+              }
+            },
+            "edges": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["from", "to"],
+                "properties": {
+                  "id": { "type": "string", "description": "The arrow's name; e0, e1 and so on by position by default" },
+                  "from": { "type": "string", "description": "The id of the box the arrow leaves" },
+                  "to": { "type": "string", "description": "The id of the box the arrow points to" },
+                  "label": { "type": "string", "description": "Words on the arrow" }
+                }
+              }
+            },
+            "direction": { "type": "string", "enum": ["down", "right"], "description": "down (layers run top to bottom, the default) or right (left to right)" },
+            "lanes": { "type": "array", "items": { "type": "string" }, "description": "Lane ids in the order they sit; every box then names one of them" },
+            "draw": { "type": "boolean", "description": "false leaves out the SVG; true by default" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["width", "height", "nodes", "edges", "quality"],
+          "properties": {
+            "width": { "type": "number" },
+            "height": { "type": "number" },
+            "nodes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "x": { "type": "number" },
+                  "y": { "type": "number" },
+                  "width": { "type": "number" },
+                  "height": { "type": "number" },
+                  "rank": { "type": "integer" },
+                  "order": { "type": "integer" },
+                  "lane": { "type": ["string", "null"] }
+                }
+              }
+            },
+            "edges": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "from": { "type": "string" },
+                  "to": { "type": "string" },
+                  "points": { "type": "array", "items": { "type": "array", "items": { "type": "number" } } },
+                  "reversed": { "type": "boolean" },
+                  "label": { "type": ["string", "null"] }
+                }
+              }
+            },
+            "quality": {
+              "type": "object",
+              "properties": {
+                "crossings_before": { "type": "integer" },
+                "crossings_after": { "type": "integer" },
+                "reversed_edges": { "type": "integer" },
+                "ranks": { "type": "integer" },
+                "virtual_points": { "type": "integer" }
+              }
+            },
+            "svg": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": {
+              "package": "lay-out-a-diagram",
+              "paths": ["do-work", "read-data"],
+              "at": "/opt/lay-out-a-diagram"
+            }
+          },
+          "workdir": "/opt/lay-out-a-diagram",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-request.mjs", "layOutDiagram"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:lay-out-a-diagram",
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "nodes": [{ "id": "Order received" }, { "id": "Packed" }, { "id": "Shipped" }, { "id": "Delivered" }],
+              "edges": [{ "from": "Order received", "to": "Delivered" }, { "from": "Packed", "to": "Shipped" }]
+            },
+            "output_selector": "$.quality.crossings_after",
+            "contains": "0"
+          }
+        ],
+        "provenance": {
+          "source": "written for the Workshop from public reverse-engineering findings on layered diagram layout (no third-party code)"
+        }
+      }
+    },
+    {
+      "id": "package::lay-out-a-diagram::tool::compare-two-diagrams",
+      "address": "package::lay-out-a-diagram::tool::compare-two-diagrams",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:compare-two-diagrams",
+        "label": "Compare two versions of a diagram",
+        "status": "active",
+        "job": "Tell me what changed between two versions of a diagram: boxes and arrows added, removed or changed, and what changed on each",
+        "description": "Takes a before and an after, each with boxes (an id, and optionally a label, a size, a lane and a style) and arrows (from, to, an optional id and label). Boxes match by id. Arrows match by id when they have one, else by from, to and label. Answers the boxes added, removed and changed (the label, lane, style, width or height that differs, each with its before and after) and the arrows added, removed and changed (an arrow with an id whose label, from or to differs), all ordered by id; an arrow without an id is named \"from -> to\" or \"from -> to : label\". Two diagrams that differ only in the order of their lists have no difference. Positions are not compared: lay both out and compare their positions where that matters.",
+        "input_schema": {
+          "type": "object",
+          "required": ["before", "after"],
+          "properties": {
+            "before": {
+              "type": "object",
+              "required": ["nodes", "edges"],
+              "properties": {
+                "nodes": { "type": "array", "items": { "type": "object" }, "description": "Boxes: { id, label?, width?, height?, lane?, style? }" },
+                "edges": { "type": "array", "items": { "type": "object" }, "description": "Arrows: { id?, from, to, label? }" }
+              }
+            },
+            "after": {
+              "type": "object",
+              "required": ["nodes", "edges"],
+              "properties": {
+                "nodes": { "type": "array", "items": { "type": "object" }, "description": "Boxes: { id, label?, width?, height?, lane?, style? }" },
+                "edges": { "type": "array", "items": { "type": "object" }, "description": "Arrows: { id?, from, to, label? }" }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["nodes", "edges"],
+          "properties": {
+            "nodes": {
+              "type": "object",
+              "properties": {
+                "added": { "type": "array", "items": { "type": "string" } },
+                "removed": { "type": "array", "items": { "type": "string" } },
+                "changed": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "changes": { "type": "array", "items": { "type": "object", "properties": { "field": { "type": "string" }, "before": {}, "after": {} } } }
+                    }
+                  }
+                }
+              }
+            },
+            "edges": {
+              "type": "object",
+              "properties": {
+                "added": { "type": "array", "items": { "type": "string" } },
+                "removed": { "type": "array", "items": { "type": "string" } },
+                "changed": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "changes": { "type": "array", "items": { "type": "object", "properties": { "field": { "type": "string" }, "before": {}, "after": {} } } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": {
+              "package": "lay-out-a-diagram",
+              "paths": ["do-work", "read-data"],
+              "at": "/opt/lay-out-a-diagram"
+            }
+          },
+          "workdir": "/opt/lay-out-a-diagram",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "do-work/run-request.mjs", "compareTwoDiagrams"],
+          "stdin": { "fill": { "from": "input" } }
+        },
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:lay-out-a-diagram",
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "before": { "nodes": [{ "id": "Order received" }, { "id": "Packed" }], "edges": [{ "from": "Order received", "to": "Packed" }] },
+              "after": { "nodes": [{ "id": "Order received" }, { "id": "Packed" }, { "id": "Shipped" }], "edges": [{ "from": "Order received", "to": "Packed" }, { "from": "Packed", "to": "Shipped" }] }
+            },
+            "output_selector": "$.nodes.added[0]",
+            "contains": "Shipped"
+          }
+        ],
+        "provenance": {
+          "source": "written for the Workshop from public reverse-engineering findings on layered diagram layout (no third-party code)"
+        }
+      }
+    }
+  ]
+}

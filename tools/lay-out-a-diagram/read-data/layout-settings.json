@@ -1,0 +1,94 @@
+{
+  "what_this_is": "Every number and word the layout and the drawing use. Change a row here to change the spacing, the label measuring, the limits or the colours; no code names them.",
+  "font": {
+    "family": "system-ui, -apple-system, Helvetica, Arial, sans-serif",
+    "size": 14,
+    "edge_label_size": 12,
+    "line_height": 1.25
+  },
+  "advance": {
+    "what_this_is": "How wide each character is, in em (a fraction of the font size), for a common sans face. A character in no group takes `default`; a character in a wide range takes `wide`.",
+    "default": 0.6,
+    "wide": 1,
+    "groups": [
+      { "width": 0.191, "characters": "'" },
+      { "width": 0.222, "characters": "ijl" },
+      { "width": 0.26, "characters": "|" },
+      { "width": 0.278, "characters": " !,./:;I[\\]ft" },
+      { "width": 0.333, "characters": "()-`r" },
+      { "width": 0.334, "characters": "{}" },
+      { "width": 0.355, "characters": "\"" },
+      { "width": 0.389, "characters": "*" },
+      { "width": 0.469, "characters": "^" },
+      { "width": 0.5, "characters": "Jcksvxyz" },
+      { "width": 0.556, "characters": "#$0123456789?L_abdeghnopqu" },
+      { "width": 0.584, "characters": "+<=>~" },
+      { "width": 0.611, "characters": "FTZ" },
+      { "width": 0.667, "characters": "&ABEKPSVXY" },
+      { "width": 0.722, "characters": "CDHNRUw" },
+      { "width": 0.778, "characters": "GOQ" },
+      { "width": 0.833, "characters": "Mm" },
+      { "width": 0.889, "characters": "%" },
+      { "width": 0.944, "characters": "W" },
+      { "width": 1.015, "characters": "@" }
+    ],
+    "wide_ranges": [
+      [11904, 40959],
+      [44032, 55215],
+      [63744, 64255],
+      [65280, 65376],
+      [9728, 10175],
+      [127744, 129791]
+    ]
+  },
+  "node": {
+    "padding_x": 16,
+    "padding_y": 10,
+    "min_width": 60,
+    "min_height": 36
+  },
+  "spacing": {
+    "rank": 60,
+    "node": 40,
+    "virtual": 16,
+    "virtual_width": 1,
+    "lane": 48,
+    "loop": 24,
+    "margin": 20
+  },
+  "ports": {
+    "pitch": 16,
+    "min_gap": 8
+  },
+  "crossing_sweeps": 8,
+  "coordinate_passes": 6,
+  "limits": {
+    "max_nodes": 1000,
+    "max_edges": 5000,
+    "max_label_characters": 200,
+    "max_id_characters": 100,
+    "max_node_size": 2000,
+    "max_output_characters": 2000000
+  },
+  "theme": {
+    "background": { "variable": "--diagram-background", "fallback": "#ffffff" },
+    "ink": { "variable": "--diagram-ink", "fallback": "#1f2933" },
+    "node_fill": { "variable": "--diagram-node-fill", "fallback": "#f5f7fa" },
+    "node_stroke": { "variable": "--diagram-node-stroke", "fallback": "#52606d" },
+    "edge": { "variable": "--diagram-edge", "fallback": "#52606d" }
+  },
+  "drawing": {
+    "corner_radius": 6,
+    "line_width": 1.5,
+    "arrow_size": 8,
+    "halo_width": 4,
+    "marker_id": "diagram-arrow"
+  },
+  "style": {
+    "allowed_properties": ["fill", "stroke", "stroke-width", "stroke-dasharray", "font-weight", "font-style", "opacity"],
+    "text_properties": ["font-weight", "font-style"],
+    "refused_value_pattern": "url\\(|expression|javascript:|<|>|;",
+    "refused_value_flags": "i",
+    "max_value_characters": 64
+  }
+}

@@ -1,9 +1,29 @@
 // tools/content-identity/read-data/identity.mjs
 //
 // The one BLAKE3 identity of exact bytes, `1f:` and 64 hex digits, from the bytes at once or from ordered chunks
-// without collecting them. Pure: no file, account or network operation; a reader hands in bytes or chunks.
+// without collecting them, and the identity of a JSON value whatever order its keys were written in. Pure: no file,
+// account or network operation; a reader hands in bytes, chunks or a value.
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
+
+/** A JSON value's text with every object's keys in code-point order and no spaces: one text per value. */
+export function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(item => canonicalJson(item ?? null)).join(',')}]`;
+  if (value !== null && typeof value === 'object') {
+    const keys = Object.keys(value).filter(key => value[key] !== undefined).sort();
+    return `{${keys.map(key => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+  }
+  if (typeof value === 'number' && !Number.isFinite(value)) throw new TypeError('A JSON identity cannot hold NaN or Infinity.');
+  if (value === undefined || typeof value === 'function' || typeof value === 'symbol' || typeof value === 'bigint') {
+    throw new TypeError('A JSON identity takes JSON values only: objects, lists, text, finite numbers, true, false and null.');
+  }
+  return JSON.stringify(value);
+}
+
+/** The identity of a JSON value: of the UTF-8 bytes of its canonical text, so key order never changes it. */
+export function makeHashCodeHexFromJson(value) {
+  return makeHashCodeHexFromBytes(new TextEncoder().encode(canonicalJson(value)));
+}
 
 /** Canonical internal identity for exact bytes. */
 export function makeHashCodeHexFromBytes(bytes) {

@@ -1,7 +1,7 @@
 # tools/content-identity/
 
 The one owner of internal content identities: BLAKE3-256 of exact bytes, written `1f:<64 hex digits>`. Byte inputs and
-ordered chunk inputs give the same identity. It reads no file and makes no network or account call; the code that has
+ordered chunk inputs give the same identity, and a JSON value has one identity whatever order its keys were written in. It reads no file and makes no network or account call; the code that has
 the bytes hands them in, whole or in bounded chunks. A library: it offers no tool of its own, and every row whose code
 imports it packs `read-data` beside its own files (with the `@noble/hashes` module, licence included).
 
@@ -9,10 +9,10 @@ imports it packs `read-data` beside its own files (with the `@noble/hashes` modu
 
 | File | Purpose |
 |------|---------|
-| `read-data/identity.mjs` | `makeHashCodeHexFromBytes(bytes)` and `makeHashCodeHexFromChunks(chunks)`. |
+| `read-data/identity.mjs` | `makeHashCodeHexFromBytes(bytes)`, `makeHashCodeHexFromChunks(chunks)`, `makeHashCodeHexFromJson(value)` and `canonicalJson(value)`. |
 | `do-work/identity-from-stdin.mjs` | Internal bridge: reads exact bytes from stdin and prints their identity for callers that cannot import ESM directly. It reads no file. |
 | `part.json` | `read-data/identity.mjs` is public. |
-| `test/identity.test.mjs` | The published BLAKE3 vectors, and chunked input equal to whole input at every split. |
+| `test/identity.test.mjs` | The published BLAKE3 vectors, chunked input equal to whole input at every split, and one JSON identity for any key order. |
 
 ## Key Types / Functions
 
@@ -20,6 +20,8 @@ imports it packs `read-data` beside its own files (with the `@noble/hashes` modu
 |------|-----------|------|
 | `makeHashCodeHexFromBytes` | `(bytes: Uint8Array) -> "1f:<hex>"` | The identity of bytes; anything else is a TypeError. |
 | `makeHashCodeHexFromChunks` | `(chunks: Iterable<Uint8Array>) -> "1f:<hex>"` | The same identity, read chunk by chunk in order. |
+| `canonicalJson` | `(value) -> text` | A JSON value as text with every object's keys in code-point order and no spaces; NaN, Infinity and non-JSON values are a TypeError. |
+| `makeHashCodeHexFromJson` | `(value) -> "1f:<hex>"` | The identity of the UTF-8 bytes of `canonicalJson(value)`. |
 
 ## Dependencies
 
@@ -27,7 +29,8 @@ imports it packs `read-data` beside its own files (with the `@noble/hashes` modu
 
 **Depended on by:** `tools/where-a-person-stands` (`do-work/artifact-ref.mjs`: the identity of a file, a JSON view or folded text),
 `tools/media-composition` (stage reuse), `tools/legal-document-builder` (each document's identity),
-`tools/what-runs-on-its-own` (`wakeKey`, the hex without `1f:`), `tools/cross-techniques-with-a-goal` (`hashOf`, its first 32 hex).
+`tools/what-runs-on-its-own` (`wakeKey`, the hex without `1f:`), `tools/cross-techniques-with-a-goal` (`hashOf`, its first 32 hex),
+`tools/field-values` (`makeHashCodeHexFromJson`: the request key of each planned source call), `tools/decide-agent-actions` (`makeHashCodeHexFromJson`: an action's identity).
 
 ## Invariants
 
