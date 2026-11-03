@@ -44,6 +44,7 @@
         "computer/read-new-items.mjs",
         "computer/read-new-items.json",
         "computer/computer-sources.json",
+        "computer/own-writes.json",
         "computer/connections/**",
         "computer/sync-contacts.*"
       ],
@@ -57,7 +58,8 @@
       ],
       "to": "tools/pull-from-connected-accounts",
       "capability": "connect, rename and disconnect a service account and say what each operation's grants need, every service a descriptor row",
-      "joins_tool": "tools/pull-from-connected-accounts pulls from accounts already connected; it has no way to connect, rename or disconnect an account, no service descriptors and no grant check. This group brings those, so one tool lists and manages every connection."
+      "joins_tool": "tools/pull-from-connected-accounts pulls from accounts already connected; it has no way to connect, rename or disconnect an account, no service descriptors and no grant check. This group brings those, so one tool lists and manages every connection.",
+      "held_until": "Node does not strip TypeScript types from files under node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), and Trillion-X/trillion's .mjs files (src/held-values.mjs and 15 others) import these .ts files under Node. Apply this group once those importers reach them through a build, or once the .ts files are JavaScript."
     }
   ]
 }
