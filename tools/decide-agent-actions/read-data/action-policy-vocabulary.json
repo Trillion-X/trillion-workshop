@@ -1,0 +1,38 @@
+{
+  "description": "The words and ids of the action gate, as DATA. do-work/decide-action.mjs names no verdict, behaviour, scope or sentence: it reads them here. `verdicts` are the three ways a decision ends. `behaviours` are what a policy rule may name in `then`: `verdict` is what it gives when its `when` holds, `checked_first` puts it before grants and every other rule (a refusal that cannot be talked around), `verdict_when_asked_for` is what it gives instead when the person asked for exactly this action. `default_verdict` is the verdict when no rule holds and the policy names no `otherwise`. `outcomes` are the verdicts the gate itself gives (policy paused, action declined earlier, matching grant). `when_nobody_can_ask` turns a final verdict into another when no one can be asked now. `scopes` are the grant scopes: `requires` lists the conditions a grant must meet (`unused`: not yet used; `same_thread`: made for the thread of the request) and `consumed_on_use` says the caller marks it used. `retry` is the guidance for each way a decision can end. `identity_fields` are the fields of an action that make up its identity when the request names none. `problems` are the sentences of the policy check; {rule}, {then} and {other} are filled with the rule ids and the behaviour named.",
+  "verdicts": [
+    { "id": "refuse", "says": "This action is refused." },
+    { "id": "ask", "says": "The person has to be asked before this action runs." },
+    { "id": "allow", "says": "This action may run." }
+  ],
+  "behaviours": [
+    { "id": "refuse", "verdict": "refuse", "checked_first": true },
+    { "id": "ask", "verdict": "ask" },
+    { "id": "allow", "verdict": "allow" },
+    { "id": "allow-when-asked-for", "verdict": "ask", "verdict_when_asked_for": "allow" }
+  ],
+  "default_verdict": "ask",
+  "outcomes": { "paused": "refuse", "declined": "refuse", "grant": "allow" },
+  "when_nobody_can_ask": { "from": "ask", "to": "refuse" },
+  "scopes": [
+    { "id": "once", "matches": "Only the first time, until the caller marks the grant used.", "requires": ["unused"], "consumed_on_use": true },
+    { "id": "thread", "matches": "Every time in the thread the grant was made for.", "requires": ["same_thread"], "consumed_on_use": false },
+    { "id": "always", "matches": "Every time, until the grant expires.", "requires": [], "consumed_on_use": false }
+  ],
+  "retry": {
+    "refused_by_rule": "A rule of the policy refuses this action: do not retry it. The person changes the rule if they want it to run.",
+    "declined": "The person declined this action earlier: ask again only after the person has spoken since.",
+    "cannot_ask": "No one can be asked now: continue without this action. The person can do it themselves or give a grant for it.",
+    "paused": "The policy is paused: wait until the person resumes it."
+  },
+  "paused_says": "The person paused all actions.",
+  "declined_says": "The person declined this action earlier.",
+  "grant_says": "The person gave a grant for this action.",
+  "identity_fields": ["tool", "target", "arguments"],
+  "problems": {
+    "unknown-behaviour": "Rule {rule} names {then} in `then`, which is not one of: {other}.",
+    "incomplete-when": "Rule {rule} has a `when` the gate cannot fully evaluate (an unknown field or comparison, or missing values), so it never allows and a refusal by it fails closed.",
+    "repeated-id": "Rule id {rule} is used by more than one rule; each rule needs its own id.",
+    "never-decides": "Rule {rule} can never decide: rule {other} holds whenever it does and is looked at first."
+  }
+}

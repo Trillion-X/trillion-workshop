@@ -1515,6 +1515,52 @@
         {"job": "show a person's time blocks on a calendar", "why": "tools/calendar shows time blocks; this one pairs a calendar event row with a row from another list and shows nothing"},
         {"job": "reconcile generic execution receipts with source, meter and provider-price revisions so missing evidence makes forecast coverage visibly incomplete or stale", "why": "tools/keep-measurements-current reconciles measurement receipts against their sources for coverage; this one pairs any two lists of rows by caller-named fields and knows no receipts or meters"}
       ]
+    },
+    {
+      "capability": "work out the value each field of a row holds: set fields on the rows my rules match, fill a column by trying my sources in order until one passes my check, and settle which source's value wins by my precedence, keeping who offered what",
+      "owner": ["tools/field-values/"],
+      "entry": "tools/field-values/tool-rows.json",
+      "evidence": "README.md:3 the money-table and CRM mechanism (a rule engine that writes fields, a waterfall that fills a column, per-cell provenance with person over rule over AI) as three tools over any rows; the rule trees are tools/formulas' own",
+      "distinct_from": [
+        {"job": "evaluate formulas over rows", "why": "tools/formulas keeps the rows a rule tree matches and gives a record a label; this owner calls that same filter to decide which rows a rule sets, then answers the field changes, the source of each value and which offered value wins"},
+        {"job": "keep lists of rows with my own fields and look at them as a table, board, gallery, outline, timeline or tree; edit a cell in place, paste rows from a spreadsheet, see a field's history, and approve or decline changes my AI proposed", "why": "that owner keeps and shows a person's lists and writes their rows; this one writes nothing, it answers from rows and offers handed to it which values the fields should hold and why, for any owner to write"},
+        {"job": "organize the sidebar: lists of screens and rows, rules that fill or hide a list by facts and time, colours and places for rows, notes my AI left on rows, and a tree of my files", "why": "that owner's rules choose which rows a sidebar list shows; this owner's rules change the values inside the fields of rows"},
+        {"job": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort", "why": "that owner reads and orders a list's rows; this one is handed rows and answers what values their fields should hold"},
+        {"job": "rank a person's records in the order they should review them, and keep their accept or pass as their stand", "why": "that owner orders records for review; this one decides field values and the source that set each"},
+        {"job": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends", "why": "that owner finds, ranks and merges people; this one decides field values of any rows from rules, sources and precedence, with no person model"},
+        {"job": "send a model call first to my own connected AI subscriptions and then to local or budgeted services, in an order set by editable rows", "why": "that owner routes one model call to the next AI service that can take it; this one calls no model and routes no request: it decides which offered value a row's field keeps (person over rule over source over AI) and plans which data source a column fill asks next"},
+        {"job": "turn records on disk (JSON, tab-separated files, markdown tables) into rows of a person's lists", "why": "that owner converts file formats into rows; this one starts from rows and decides field values from rules, sources and precedence"},
+        {"job": "read and write records for tools: the generic record journal, queries, values and record models", "why": "that owner stores records; this one keeps nothing and decides values only"}
+      ]
+    },
+    {
+      "capability": "decide whether an AI agent's action may run, must be asked of the person first, or is refused, from the person's action policy rows, the grants they gave and the actions they declined",
+      "owner": ["tools/decide-agent-actions/"],
+      "entry": "tools/decide-agent-actions/tool-rows.json",
+      "evidence": "README.md:3 one gate for every action an AI agent is about to take: refusals checked before allowances, a rule it cannot evaluate refuses, a declined action stays declined until the person speaks again, and a dry run decides and reports without blocking",
+      "distinct_from": [
+        {"job": "guard an AI's spending: budgets, reservations, a spend ledger and resets", "why": "that owner reserves and records money against a budget; this one decides any action (send, post, delete, run a command, pay) by the person's policy rows and keeps no ledger"},
+        {"job": "say who should do each step of a plan: the person's tools or AIs, one tap first when it spends or reaches someone, only the person when a reason they alone can meet is given, or a doer still to build; and list what can do steps", "why": "that owner assigns the steps of a plan to doers before work starts; this one is asked at the moment one concrete action is about to run and answers allow, ask or refuse with the rule and grant that decided"},
+        {"job": "keep lists of rows with my own fields and look at them as a table, board, gallery, outline, timeline or tree; edit a cell in place, paste rows from a spreadsheet, see a field's history, and approve or decline changes my AI proposed", "why": "that owner holds a change an AI proposed to a list until a person decides; this one decides whether any action may run now, ask, or be refused, and keeps nothing"},
+        {"job": "share a record, a file or one list row with people by email, phone or link with a role, see who has access, stop sharing, and see everything shared with me and what I shared before", "why": "that owner grants people access to things; this one decides an AI's action against the person's policy"},
+        {"job": "hand a job to my AI from any button and get its answer back, and connect an AI first when none is connected", "why": "that owner hands work to an AI; this one decides whether an action the AI is about to take is allowed, asked or refused"},
+        {"job": "evaluate formulas over rows", "why": "tools/formulas evaluates rule trees over rows; this owner uses that filter to match an action against policy rows and adds the decision order, grants and declined-action memory"},
+        {"job": "check words, a plan or anything else made against a person's rule rows", "why": "that owner judges a made thing against rules; this one decides whether an action may be taken now, from policy rows, grants and earlier refusals"}
+      ]
+    },
+    {
+      "capability": "lay out a diagram of boxes and arrows in layers so few arrows cross, with its own quality numbers, and draw it as a standalone SVG themed by the page's colours",
+      "owner": ["tools/lay-out-a-diagram/"],
+      "entry": "tools/lay-out-a-diagram/tool-rows.json",
+      "evidence": "README.md:3 layered layout (cycles broken, ranks, crossings reduced, coordinates, arrow routes) over any nodes and edges handed in, answering crossings and reversed arrows beside the drawing",
+      "distinct_from": [
+        {"job": "turn a board's presentation frames into slides in story order, one page each, as SVG, printable HTML and a PDF", "why": "that owner draws items at the positions a board already holds; this one computes the positions of boxes and arrows from their links"},
+        {"job": "draw ink marks on any page or picture and erase them", "why": "that owner keeps hand-drawn marks; this one computes a graph's layout from nodes and edges"},
+        {"job": "turn a look's colour, size and font tokens into concrete values and the stylesheet a document carries, with its font faces", "why": "that owner resolves a look's tokens; this one places nodes and arrows and draws them with CSS variables a look can set"},
+        {"job": "lay out one person's or record's profile from a description of what to show", "why": "that owner arranges one record's fields on a profile; this one places a graph's nodes in layers by its edges"},
+        {"job": "show the shared calendar screen with event forms, invitation answers, colours and private notes", "why": "that owner places events on a time grid; this one places a graph's nodes in layers by its edges"},
+        {"job": "arrange time blocks for a day, week, month or agenda view", "why": "that owner places blocks on a time axis; this one places a graph's nodes in layers by its edges"}
+      ]
     }
   ]
 }
