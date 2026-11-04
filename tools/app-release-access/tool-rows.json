@@ -173,6 +173,9 @@
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:fulfill-setup-access",
+    "verify": [
+     {"kind": "needs-a-machine", "requires": "a Trillion engine whose records door serves the release owner's setup-access claim, checkpoint and finish operations (not built yet; README Not yet), plus the release owner's App Store Connect key on fd 4: until then every run refuses before any provider call, on any computer, so no sample can exit 0", "proved_on": null}
+    ],
     "label": "Arrange a person's beta app access",
     "status": "active",
     "job": "Arrange the TestFlight access a person's setup requires, through the release owner's Apple account, without sending a second invitation",
