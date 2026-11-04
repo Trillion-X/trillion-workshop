@@ -21,12 +21,12 @@ test('the method is built on its stages: every step sits in one stage, in order,
   orphan.steps.push({ id: 'extra', question: 'q', fields: [] });
   assert.throws(() => assertBackbone(orphan), /step extra belongs to no stage/);
   assert.throws(() => methodCatalogue([{ ...plainMethod(), backbone: switchable.backbone, steps: switchable.steps }]), /can be switched off/, 'a set that does not resolve whole is refused');
-  assert.throws(() => methodCatalogue([{ id: 'child', extends: 'nowhere' }]), /Unknown method nowhere/);
+  assert.throws(() => methodCatalogue([{ id: 'child', part_of: 'nowhere' }]), /Unknown method nowhere/);
   assert.throws(() => methodCatalogue([]), /at least one method/);
 });
 
 test('the default for each purpose is the row that says so, and a template rewords questions and presets switches', () => {
-  const quick = { id: 'quick', name: 'Quick', extends: 'plain', default_for: ['message'], questions: { outcome: 'What should change about this training?' }, checks: { worth_weighing: false } };
+  const quick = { id: 'quick', name: 'Quick', part_of: 'plain', default_for: ['message'], questions: { outcome: 'What should change about this training?' }, checks: { worth_weighing: false } };
   const cat = methodCatalogue([plainMethod(), quick], plainChecks());
   assert.deepEqual(cat.listMethods().map(method => method.id), ['plain', 'quick']);
   assert.equal(cat.defaultMethodId(), 'plain');
@@ -82,9 +82,9 @@ test('each step carries the checks its switches turn on, and the answer schema i
 });
 
 test('a check is asked of its own method and the methods extending it, never of another method with the same step', () => {
-  const quick = { id: 'quick', name: 'Quick', extends: 'plain' };
+  const quick = { id: 'quick', name: 'Quick', part_of: 'plain' };
   const other = { ...plainMethod(), id: 'other', default_for: [] };
-  const foreign = { id: 'other-outcome', method: 'other', step: 'outcome', check: 'A check only the other method asks', good_answer: 'Anything' };
+  const foreign = { id: 'other-outcome', part_of: 'other', step: 'outcome', check: 'A check only the other method asks', good_answer: 'Anything' };
   const cat = methodCatalogue([plainMethod(), quick, other], [...plainChecks(), foreign]);
   const asked = id => {
     const record = opened(cat.snapshotMethod(id));

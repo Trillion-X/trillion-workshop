@@ -62,11 +62,11 @@ export async function rowsOf(door, rowType, where) {
   return rows.sort((a, b) => (a.id < b.id ? -1 : 1)).map(row => row.value);
 }
 async function methodsOf(door) {
-  const methods = await rowsOf(door, NAMES.method_row);
+  const methods = await rowsOf(door, NAMES.method_row, NAMES.method_where);
   if (!methods.length) refuse('no_methods');
   return methods;
 }
-const catalogue = (methods, checks = []) => methodCatalogue(methods, checks, { grader: settings.grader });
+const catalogue = (methods, checks = []) => methodCatalogue(methods, checks, { grader: settings.grader, link: NAMES.method_link });
 // The method functions with the check rows of one step: that step's rows and the rows it names by id (`check_ids`), each
 // read with the door's `where`, so a call carries one step's checks, never the whole list. The step is the one given,
 // or the step asked next.
