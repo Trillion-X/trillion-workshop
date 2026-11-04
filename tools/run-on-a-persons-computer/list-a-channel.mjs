@@ -10,8 +10,8 @@
 //   1. Never an empty answer without a reason: no link reader, a refused page and a page that lists nothing each throw
 //      an error saying why in plain words.
 //   2. Which programs list a link, and what a page's list needs beyond one read (the other lists holding the same
-//      videos, the count the page states, which videos are shorts or live), are DATA: the hear-fetcher rows with a `list`
-//      command (records/hear-fetcher-records.json) and the video-list-rule rows (records/video-list-rule-records.json).
+//      videos, the count the page states, which videos are shorts or live), are DATA: list-a-channel.json `fetchers` (each with a `list`
+//      command) and `rules`.
 //      This file names no site and no program.
 //   3. A video listed by several lists is one video: the first list to name it decides its place, and each later list
 //      only fills what the earlier ones left unknown.
@@ -21,18 +21,12 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { hearingHere } from '../parts/computer-programs/read-data/program-here.mjs';
-import { withTables } from '../src/data-rows.mjs';
-import fetcherRecords from '../records/hear-fetcher-records.json' with { type: 'json' };
-import ruleRecords from '../records/video-list-rule-records.json' with { type: 'json' };
-import { refusedThisCopy, runFetcher } from './hear-a-link.mjs';
+import { hearingHere } from '../computer-programs/read-data/program-here.mjs';
+import { refusedThisCopy, runFetcher } from '../audio-transcription/read-data/hear-here.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-// The settings file with the link readers (`fetchers`) and the rules of a page's list (`rules`) read from their rows.
-export const listSettings = () => withTables(JSON.parse(readFileSync(path.join(HERE, 'list-a-channel.json'), 'utf8')), {
-  fetchers: { kind: 'hear-fetcher', records: fetcherRecords },
-  rules: { kind: 'video-list-rule', records: ruleRecords },
-});
+// The settings file, with the link readers (`fetchers`) and the rules of a page's list (`rules`).
+export const listSettings = () => JSON.parse(readFileSync(path.join(HERE, 'list-a-channel.json'), 'utf8'));
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
 /** Whether every test ({ field, matches }) holds for `fields`; no tests always hold. */
 const holds = (tests, fields) => (tests ?? []).every(test => new RegExp(test.matches).test(String(fields?.[test.field] ?? '')));

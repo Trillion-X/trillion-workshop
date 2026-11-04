@@ -14,10 +14,10 @@
 //   node computer/carry-connections.mjs                          carry every connection this computer can
 //   node computer/carry-connections.mjs --link whatsapp --phone <digits>   link WhatsApp once (shows the phone code)
 //   node computer/carry-connections.mjs --adopt whatsapp --from <folder>   take over a session linked here before
-//   [--origin https://app.gettrillion.ai] [--keychain-item <name>]
+//   [--origin https://app.gettrillion.ai]
 //
 // Non-negotiable invariants
-//   1. The personal key is read from the macOS Keychain (or the first line of stdin), held in memory, and sent only in
+//   1. The personal key arrives on the first line of stdin from the app that starts this, is held in memory, and sent only in
 //      the Authorization header.
 //   2. Only work addressed to this computer is taken, and only a verb its connection module has runs; anything else is
 //      finished with words saying so, never left hanging.
@@ -33,7 +33,6 @@ import { createInterface } from 'node:readline';
 import { accountCaller, fileKeeper } from './read-this-computer.mjs';
 import { endWithTheApp } from './end-with-the-app.mjs';
 import { reconcile } from './reconcile-fields.mjs';
-import { accountKeyOrNull } from '../harness/account-key.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 const home = path => String(path).replace(/^~(?=\/|$)/, homedir());
@@ -179,17 +178,10 @@ async function main(argv) {
   }
 
   const origin = (pairs.origin ?? settings.origin).replace(/\/$/, '');
-  const item = pairs['keychain-item'] ?? settings.keychain_item;
+  // The app that starts this hands it the personal key on the first line of stdin; nothing here reads a key store.
   let key;
-  if (pairs['key-stdin']) {
-    for await (const line of createInterface({ input: process.stdin })) { key = line.trim(); break; }
-  } else {
-    key = accountKeyOrNull({ item, timeout: 0 });
-    if (!key) {
-      for await (const line of createInterface({ input: process.stdin })) { key = line.trim(); break; }
-    }
-  }
-  if (!key) throw new Error(`No personal key: put one in the Keychain item ${item}, or give it on the first line of stdin.`);
+  for await (const line of createInterface({ input: process.stdin })) { key = line.trim(); break; }
+  if (!key) throw new Error('No personal key: give it on the first line of stdin.');
   // Started by the app: ends with it (computer/end-with-the-app.mjs).
   if (pairs['key-stdin']) endWithTheApp();
   const lock = join(folder, 'carrier.lock');

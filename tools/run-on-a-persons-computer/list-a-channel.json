@@ -1,6 +1,173 @@
 {
-  "_what": "How computer/list-a-channel.mjs (tool:list-every-video-on-a-channel) lists every video a channel, a channel's tab or a playlist holds, on the person's computer. The link readers are the `hear-fetcher` rows (records/hear-fetcher-records.json) that have a `list` command, tried in order as tool:hear-a-link tries them; what a page's list needs beyond one read (the other lists that hold the same videos, how many the page states it has, which videos are shorts or live) is the `video-list-rule` rows (records/video-list-rule-records.json), both read through src/data-rows.mjs. `most_minutes` is the longest one list may take to read. Every word the AI reads is under `words`; a link that lists nothing is always answered with why.",
+  "_what": "How computer/list-a-channel.mjs (tool:list-every-video-on-a-channel) lists every video a channel, a channel's tab or a playlist holds, on the person's computer. `fetchers` are the link readers that have a `list` command, tried in order as tool:hear-a-link tries them (tools/audio-transcription/read-data/hear-here.mjs runs each one); what a page's list needs beyond one read (the other lists that hold the same videos, how many the page states it has, which videos are shorts or live) is `rules`. Both were the hear-fetcher and video-list-rule rows of Trillion-X/trillion records/ (moved-from.json). `most_minutes` is the longest one list may take to read. Every word the AI reads is under `words`; a link that lists nothing is always answered with why.",
   "most_minutes": 10,
+  "fetchers_what": "The programs that read a link to a video or a recording on a person's Mac (kind hear-fetcher), tried in order by computer/hear-a-link.mjs and computer/list-a-channel.mjs: the first whose `check` answers here (its program found in `search_path`, then PATH) is used. Each payload has `info` (prints the page's facts as JSON), `captions` (writes the captions the page offers, in `languages`, into {folder}), `sound` (writes the sound alone into {folder}) and `list` (prints, as JSON, every video a channel, a channel's tab or a playlist lists, each without being read, for computer/list-a-channel.mjs); every value in braces is filled when it runs ({url}, {folder}, {languages}, {node}), and `update_hint` is what is told when a page refuses an old copy. The rest of how a link is heard (languages, kept sound, time, words) stays in computer/hear-a-link.json. A new reader is a new row.",
+  "fetchers": [
+    {
+      "id": "yt-dlp",
+      "label": "yt-dlp on this computer",
+      "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/homebrew/anaconda3/bin",
+        "~/anaconda3/bin",
+        "~/miniconda3/bin",
+        "~/miniforge3/bin",
+        "~/.local/bin"
+      ],
+      "check": [
+        "yt-dlp",
+        "--version"
+      ],
+      "info": [
+        "yt-dlp",
+        "--no-update",
+        "--no-warnings",
+        "--js-runtimes",
+        "node:{node}",
+        "--skip-download",
+        "--dump-single-json",
+        "--no-playlist",
+        "{url}"
+      ],
+      "list": [
+        "yt-dlp",
+        "--no-update",
+        "--no-warnings",
+        "--js-runtimes",
+        "node:{node}",
+        "--flat-playlist",
+        "--dump-single-json",
+        "{url}"
+      ],
+      "captions": [
+        "yt-dlp",
+        "--no-update",
+        "--no-warnings",
+        "--js-runtimes",
+        "node:{node}",
+        "--skip-download",
+        "--no-playlist",
+        "--write-subs",
+        "--write-auto-subs",
+        "--sub-format",
+        "vtt/best",
+        "--convert-subs",
+        "vtt",
+        "--sub-langs",
+        "{languages}",
+        "-o",
+        "{folder}/captions.%(ext)s",
+        "{url}"
+      ],
+      "sound": [
+        "yt-dlp",
+        "--no-update",
+        "--no-warnings",
+        "--js-runtimes",
+        "node:{node}",
+        "--no-playlist",
+        "-f",
+        "bestaudio/best",
+        "-x",
+        "-o",
+        "{folder}/sound.%(ext)s",
+        "{url}"
+      ],
+      "update_hint": "python3 -m pip install -U yt-dlp"
+    }
+  ],
+  "rules_what": "What a page's list of videos needs beyond reading it once, for computer/list-a-channel.mjs (tool:list-every-video-on-a-channel), kind video-list-rule. Every row whose `when` tests all hold for the link asked for applies, in order (a row with no `when` applies to every link). `read_also` lists the other lists that hold the same page's videos: `from` names a field of what the link answered and the pattern its value must match, and `url` is filled with the pattern's groups ({1}, {2}) and the answer's own fields; `stated_count` names the field of that list's answer that says how many videos the page itself states it has. `kinds` decide each video's kind (video, short, live): the first whose `when` tests all hold for the video wins, where a video's fields are its own plus `list_url`, the address of the list it came in. `skip` leaves out an entry that is a list rather than a video. A test is { field, matches } with a regular expression. A new site, or a new way a site splits its videos, is a new row.",
+  "rules": [
+    {
+      "id": "youtube-channel",
+      "label": "A YouTube channel: every upload, long and short",
+      "why": "A YouTube channel's Videos tab holds only its long videos and its Shorts tab only its shorts; the channel's uploads list (its id with UC turned into UU) holds every one, and says how many the channel states it has. The channel's own page holds each tab, so it tells which videos are shorts.",
+      "when": [
+        {
+          "field": "url",
+          "matches": "^https?://(www\\.|m\\.)?youtube\\.com/(@[^/?#]+|channel/UC[^/?#]+|c/[^/?#]+|user/[^/?#]+)(/(featured|videos|shorts|streams))?/?([?#].*)?$"
+        }
+      ],
+      "read_also": [
+        {
+          "from": {
+            "field": "channel_id",
+            "matches": "^UC(.+)$"
+          },
+          "url": "https://www.youtube.com/playlist?list=UU{1}",
+          "stated_count": "playlist_count"
+        },
+        {
+          "from": {
+            "field": "channel_id",
+            "matches": "^UC(.+)$"
+          },
+          "url": "https://www.youtube.com/channel/UC{1}"
+        }
+      ],
+      "skip": [
+        {
+          "field": "ie_key",
+          "matches": "Tab$"
+        }
+      ],
+      "kinds": [
+        {
+          "kind": "short",
+          "when": [
+            {
+              "field": "url",
+              "matches": "^https?://(www\\.|m\\.)?youtube\\.com/shorts/"
+            }
+          ]
+        },
+        {
+          "kind": "short",
+          "when": [
+            {
+              "field": "list_url",
+              "matches": "/shorts/?$"
+            }
+          ]
+        },
+        {
+          "kind": "live",
+          "when": [
+            {
+              "field": "list_url",
+              "matches": "/streams/?$"
+            }
+          ]
+        },
+        {
+          "kind": "video",
+          "when": [
+            {
+              "field": "list_url",
+              "matches": "/videos/?$"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "live-status",
+      "label": "Any page: a video that is or was streamed live",
+      "why": "yt-dlp marks a video streamed live with its live_status on every site it reads.",
+      "kinds": [
+        {
+          "kind": "live",
+          "when": [
+            {
+              "field": "live_status",
+              "matches": "^(is_live|was_live|is_upcoming|post_live)$"
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "words": {
     "needs_url": "Send the link to a channel, a channel's tab or a playlist as url.",
     "no_fetcher": "This computer has no program that lists the videos at a link (such as yt-dlp), so {url} could not be listed.",

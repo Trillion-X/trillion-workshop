@@ -1,0 +1,16 @@
+{
+  "about": "Files moved here from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here (BLAKE3, tools/content-identity), and `changed` when more than import paths differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/live-namespace/do-work/shared-file-reference.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/browse-and-upload-my-files/do-work/shared-file-reference.mjs",
+      "source_identity": "1f:85a38373a91e16c6db6b8f52bdfba35256346e80e7b9b521e240dc17be0c8d9c",
+      "identity": "1f:ba34329ce4ef6f2f48fe2e266c0ebe8a65419b153d8108580910af27af00a6eb",
+      "changed": "its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly"
+    }
+  ]
+}

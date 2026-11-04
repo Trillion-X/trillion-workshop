@@ -19,7 +19,7 @@ import { Worker } from 'node:worker_threads';
 import { readFileSync, realpathSync, statSync } from 'node:fs';
 import { dirname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { hostWithin } from '../parts/http-client/do-work/same-origin.mjs';
+import { hostWithin } from '../http-client/do-work/same-origin.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const sandboxSettings = () => JSON.parse(readFileSync(join(HERE, 'script-sandbox.json'), 'utf8'));

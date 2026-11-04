@@ -82,14 +82,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hearWith, hearingHere, hearingNow, hearingReasons, hearingState, resultsOver, runFound, toolCaller } from './keep-drive-files.mjs';
-import { bearerControl, namespaceClient } from '../parts/live-namespace/do-work/namespace-client.mjs';
-import { loadChunking } from '../parts/live-namespace/do-work/content-chunks.mjs';
-import { fileSource, sendWholeFiles } from '../parts/live-namespace/do-work/send-a-file-to-a-namespace.mjs';
-import { askHere, askLocal, localModelSettings, refreshModelRecords } from './local-models.mjs';
+import { bearerControl, namespaceClient } from '../browse-and-upload-my-files/do-work/namespace-client.mjs';
+import { loadChunking } from '../browse-and-upload-my-files/do-work/content-chunks.mjs';
+import { fileSource, sendWholeFiles } from '../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
+import { askHere, askLocal, localModelSettings } from './local-models.mjs';
 import { meetingNotes, taskProposalsFrom } from './meeting-notes.mjs';
-import { tickHybridClock } from '../src/hybrid-clock.mjs';
-import { available } from '../src/private-mode.mjs';
-import { evaluate } from '../src/recording-rules.mjs';
+import { tickHybridClock } from '../set-up-my-account/read-data/conflicts.mjs';
+import { available } from '../listen-for-a-while/read-data/private-mode.mjs';
+import { evaluate } from '../listen-for-a-while/read-data/recording-rules.mjs';
 import { factsIn, privateModeIn, rulesIn } from './listening-rules.mjs';
 import { isFalseText, jobState, livenessOf } from './meeting-ledger.mjs';
 
@@ -562,7 +562,7 @@ export async function send(turns, { listen, account, log, status, waiting, class
       // Trillion's own voice: kept as what it is, never dropped and never the person's (invariant 7).
       const sourceId = `${moment.id}#${index + 1}`;
       if (queuedIds.has(sourceId) || !String(turn.text ?? '').trim()) { if (!queuedIds.has(sourceId)) status.left_out += 1; continue; }
-      eventClockState = tickHybridClock(eventClockState, now(), moment.computer);
+      eventClockState = tickHybridClock(eventClockState, null, now(), moment.computer);
       writeJson(clockFile, { clock: eventClockState });
       const own = arrivalOf(turn, index, moment, listen, eventClockState);
       Object.assign(own, { from_person: false, from: listen.answers.own_voice_as, spoke: { notice_id: spokenWhile(turn, asked, listen.answers).notice_id }, verdict: 'context' });
@@ -578,7 +578,7 @@ export async function send(turns, { listen, account, log, status, waiting, class
     // requests, owned by whoever said them (src/attention.json); no answer sends no verdict.
     const sourceId = `${moment.id}#${index + 1}`;
     if (queuedIds.has(sourceId)) continue;
-    eventClockState = tickHybridClock(eventClockState, now(), moment.computer);
+    eventClockState = tickHybridClock(eventClockState, null, now(), moment.computer);
     writeJson(clockFile, { clock: eventClockState });
     const item = arrivalOf(turn, index, moment, listen, eventClockState);
     // An answer is the notice's own work, so the classifier is not asked about it (invariant 7).
@@ -1218,8 +1218,8 @@ export async function listen({ row, key, origin, file = null, fileAt = null, dev
   // The language this session's words are in, carried from piece to piece (stretchesOf); a file heard alone detects its own.
   const spoken = { language: null };
   const account = accountCaller(origin, key);
-  // The model rows are the ones the Marketplace publishes now, read through this account (computer/local-models.mjs).
-  const askModel = askHere({ origin, key });
+  // The model rows are tools/models-on-this-computer's (computer/local-models.mjs).
+  const askModel = askHere();
   const classify = classifierOf(account, input => askModel(input), { wait_ms: settings.sending.classify_wait_ms });
   const status = { listening: true, since: new Date().toISOString(), naming: null, pieces: 0, sent: 0, left_out: 0, waiting: 0, sound_waiting: 0, last_sent: null, error: null, notes: jobState('waiting') };
   // The heartbeat is what makes a listening that died read as finished (livenessOf).
@@ -1246,7 +1246,7 @@ export async function listen({ row, key, origin, file = null, fileAt = null, dev
   const sendSound = keep ? soundSender({ origin, key, keep }) : null;
   const notes = settings.notes?.on === false || !settings.notes || !available(privateModeIn(settings), 'notes') ? null : notesMaker({
     settings, status, report, log, // The notes job is the one the Marketplace publishes now: the rows are read afresh through this account first, when due.
-    ask: async input => { await refreshModelRecords({ origin, key }); return askLocal(input, localModelSettings(), { priority: -1 }); }, call: toolCaller(origin, key),
+    ask: input => askLocal(input, localModelSettings(), { priority: -1 }), call: toolCaller(origin, key),
   });
   const sound = keep ? soundKeeper({ keep, route: settings.route, join: settings.turns.join_within_seconds, state, device: computer.replace(/\.local$/, ''), encoder, words: settings.words, send: sendSound, sendMany: sendSound.many, notes, log }) : null;
   let drainingSound = null;
