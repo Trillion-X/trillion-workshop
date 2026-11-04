@@ -1,8 +1,11 @@
 {
- "what_this_is": "DATA for do-work/check-a-branch.mjs, the branch mode of tool:check-against-a-persons-rules-and-verdicts: where a person's branches and checks are in their records. `method_type`: the record type of their method rows (list:methods; each { id, extends?, check_lists?, judge_settings?, reading_settings? }). `check_type`: the record type of their one Checks list (list:checks), read with the door's `where` on `branch_field` once per branch of the lineage, never whole. `list_type`: the record type of a list (`list:<id>`, its `row_type` names its rows' type `record:<row_type>`), read for each list a branch names in `check_lists`. `check_list_row_types`: the row types such a list may have; the row's rights list each one, and a list of any other row type is refused. A row with `step_field` is a question of a decision step, asked by tools/decide-with-a-method and never judged here; a row whose `on_field` is `off` is not judged. `words`: every refusal and note of the branch mode, {name} filled from the request. A row that states no test (none of tools/judge-words SELECTOR_NAMES, imported, never listed here), and has no `ask_field` and no `part_field` is a reading row when it is not a piece (`kind_field` is `piece_kind`, a piece of a source file, do-work/pieces.mjs) and has words at `reading.says_field`: it is judged as an ask row whose `ask` is made from `reading` (its `about` says how), and listed in read_by_a_model, at most `read_by_a_model_at_most` rows (`more` counts the rest). Any other row that states no test (a piece, or a row with nothing to read) is never judged: it is counted in rows_used.skipped.no_test. A branch whose rows are all such rows answers status `no_applicable_status` with the line `words.no_applicable_rule`.",
- "method_type": "record:method",
+ "what_this_is": "DATA for do-work/check-a-branch.mjs, the branch mode of tool:check-against-a-persons-rules-and-verdicts: where a person's branches and checks are in their records: one tree in one list. `check_type`: the record type of their one Checks list (list:checks); every node of it names the one node it is part of in `link_field` (it replaces a leaf's `method` and a branch's `extends`). A branch is a node of that list matching `branch_where` (`kind_field` is `branch_kind`; each { id, part_of?, check_lists?, judge_settings?, reading_settings? }), all read once; a branch with no `link_field` is a root. The rows of a branch are read with the door's `where` on `link_field` once per branch of the lineage, never the whole list; a branch among them is a branch below, never judged (rows_used.skipped.branch). `list_type`: the record type of a list (`list:<id>`, its `row_type` names its rows' type `record:<row_type>`), read for each list a branch names in `check_lists`. `check_list_row_types`: the row types such a list may have; the row's rights list each one, and a list of any other row type is refused. A row with `step_field` is a question of a decision step, asked by tools/decide-with-a-method and never judged here; a row whose `on_field` is `off` is not judged. `words`: every refusal and note of the branch mode, {name} filled from the request. A row that states no test (none of tools/judge-words SELECTOR_NAMES, imported, never listed here), and has no `ask_field` and no `part_field` is a reading row when it is not a piece (`kind_field` is `piece_kind`, a piece of a source file, do-work/pieces.mjs) and has words at `reading.says_field`: it is judged as an ask row whose `ask` is made from `reading` (its `about` says how), and listed in read_by_a_model, at most `read_by_a_model_at_most` rows (`more` counts the rest). Any other row that states no test (a piece, or a row with nothing to read) is never judged: it is counted in rows_used.skipped.no_test. A branch whose rows are all such rows answers status `no_applicable_status` with the line `words.no_applicable_rule`.",
  "check_type": "record:check",
- "branch_field": "method",
+ "link_field": "part_of",
+ "branch_kind": "branch",
+ "branch_where": {
+  "kind": "branch"
+ },
  "step_field": "step",
  "on_field": "on",
  "off": "Off",
@@ -44,11 +47,11 @@
  ],
  "words": {
   "rules_and_branch": "Send a branch or rules and verdict_rules, not both: with branch the rules are read from the person's own check rows.",
-  "branch": "branch must be the id of one of the person's method rows (list:methods), such as the kind of thing being checked.",
-  "no_methods": "The person has no method rows (list:methods); a branch is one of them.",
-  "no_rules": "The branch {branch} (lineage {lineage}) has no check rows to judge with outside its verdict rows: {used}. Add a check row with method set to one of its branches, or send rules.",
-  "check_list_missing": "The method {method} names the check list {list}, which is not in the person's records; fix its check_lists.",
-  "check_list_row_type": "The method {method} names the check list {list}, whose rows are {row_type}; this tool may read only {allowed}. Add the row type to read-data/branch.json and the row's rights, or move those rows into list:checks.",
+  "branch": "branch must be the id of one of the person's branch rows (a node of their Checks list, list:checks, of kind branch), such as the kind of thing being checked.",
+  "no_methods": "The person has no branch rows (nodes of kind branch in list:checks); a branch is one of them.",
+  "no_rules": "The branch {branch} (lineage {lineage}) has no check rows to judge with outside its verdict rows: {used}. Add a check row with part_of set to one of its branches, or send rules.",
+  "check_list_missing": "The branch {method} names the check list {list}, which is not in the person's records; fix its check_lists.",
+  "check_list_row_type": "The branch {method} names the check list {list}, whose rows are {row_type}; this tool may read only {allowed}. Add the row type to read-data/branch.json and the row's rights, or move those rows into list:checks.",
   "no_applicable_rule": "The branch {branch} (lineage {lineage}) has no row that states a test or says anything a model can read: its {count} rows were left out (rows_used.skipped.no_test). Give a row words, pattern, exact, check, groups, path, evidence, ask, part or says to judge with it."
  }
 }

@@ -126,9 +126,13 @@ test('a call reads only the checks of the step it asks, and a check\'s whole wor
   const door = account();
   const checkType = `record:${settings.records.check_row}`;
   const { case_id: id } = await startADecision(opened, { door });
-  assert.deepEqual(door.lists.filter(list => list.type === checkType), [], 'the scope question asks no checks');
+  // The methods are the branch nodes of the same one Checks list, read by kind; no check row is read for the scope question.
+  const branches = { type: checkType, where: settings.records.method_where };
+  const checkReads = () => door.lists.filter(list => list.type === checkType && JSON.stringify(list) !== JSON.stringify(branches));
+  assert.deepEqual(checkReads(), [], 'the scope question asks no checks');
+  assert.ok(door.lists.some(list => JSON.stringify(list) === JSON.stringify(branches)), 'the methods are read as branch rows of list:checks');
   const scoped = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  assert.deepEqual(door.lists.filter(list => list.type === checkType), [{ type: checkType, where: { step: 'outcome' } }]);
+  assert.deepEqual(checkReads(), [{ type: checkType, where: { step: 'outcome' } }]);
   assert.deepEqual(scoped.question.checklist, [{ id: 'outcome-before-after', check: plainChecks()[0].check }], 'a check is its id and question');
   assert.equal(scoped.explain, settings.words.explain_note);
   const explained = await nextDecisionQuestion({ decision_id: id, explain: ['outcome-before-after'] }, { door });
@@ -288,11 +292,11 @@ test('the tool rows reach only the decision records, the person\'s pursuits and 
     const row = rows.find(each => each.id === id);
     assert.ok(row, `${id} has a row`);
     const rights = row.invoke.records.rights;
-    for (const right of rights) assert.ok([...decisionKinds, 'pursuit', 'record:method', 'record:check'].includes(right.kind), `${id} reaches ${right.kind}`);
+    for (const right of rights) assert.ok([...decisionKinds, 'pursuit', 'record:check'].includes(right.kind), `${id} reaches ${right.kind}`);
     // Ending a large old-layout decision goes through its record layout, so every decision tool reaches each laid-apart kind.
     for (const kind of decisionKinds.filter(each => each !== 'decision-call')) assert.ok(rights.some(right => right.kind === kind), `${id} reaches ${kind}, where a decision keeps its parts`);
     if (['tool:add-decision-evidence', 'tool:end-a-decision'].includes(id)) assert.ok(!rights.some(right => right.kind.startsWith('record:')), 'adding evidence reads no method rows');
-    else for (const kind of ['record:method', 'record:check']) assert.deepEqual(rights.find(right => right.kind === kind)?.operations, ['records:list'], `${id} only lists ${kind} rows`);
+    else for (const kind of ['record:check']) assert.deepEqual(rights.find(right => right.kind === kind)?.operations, ['records:list'], `${id} only lists ${kind} rows`);
     assert.ok(!rights.some(right => right.kind === 'pursuit' && right.operations.includes('records:write')), `${id} never writes a pursuit`);
   }
 });
@@ -726,7 +730,7 @@ test('a decision of any size fits: every record and every door write stays under
   const extra = Array.from({ length: 40 }, (_, n) => ({ id: `more-${n}`, question: `What does part ${n} of the made-up placement need?`, fields: [{ name: 'note', label: 'Note' }] }));
   const method = { ...base, id: 'big', default_for: [], about: 'A made-up method with a very long description of how it works. '.repeat(500), steps: [...base.steps, ...extra], backbone: [...base.backbone, { id: 'more', name: 'More parts', steps: extra.map(step => step.id) }] };
   door.put(`record:${settings.records.method_row}:big`, `record:${settings.records.method_row}`, method);
-  const checks = Array.from({ length: 300 }, (_, n) => ({ id: `big-check-${String(n).padStart(3, '0')}`, method: 'big', step: 'outcome', check: `Does the answer handle point ${n} of the long made-up list of placement concerns?`, good_answer: 'Names the point and how the placement handles it, with the fact that shows it.' }));
+  const checks = Array.from({ length: 300 }, (_, n) => ({ id: `big-check-${String(n).padStart(3, '0')}`, part_of: 'big', step: 'outcome', check: `Does the answer handle point ${n} of the long made-up list of placement concerns?`, good_answer: 'Names the point and how the placement handles it, with the fact that shows it.' }));
   for (const check of checks) door.put(`record:${settings.records.check_row}:${check.id}`, `record:${settings.records.check_row}`, check);
   for (let n = 0; n < 30; n += 1) door.put(`pursuit:p${n}`, 'pursuit', { title: `Made-up pursuit ${n} with a long title for the test`, now: 'Where it stands now in plain words', after: 'Where it should end up in plain words', status: 'active' });
   const claim = n => `Made-up fact ${n}: a measured detail about the synthetic placement, its owner, its cost and its timing, written out at length so the case grows.`;
