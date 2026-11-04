@@ -1,0 +1,31 @@
+{
+ "_what": "The values every account reads as its own until the person changes them, published by the default publisher with the deploy. Each payload of kind `shipped-default` is one record's default: `record` is the label of the person's own record it is read under, `value` the fields it ships. A reader lays it under the person's record (trillion-rust src/records/shipped_defaults.rs) and never writes it into the person's store: a field the person keeps wins; `merge` names the fields kept as lists by id (`by_id`: a person's entry with the same id replaces the shipped one) and the fields kept as lists of ids that a person switches off (`switched`: each shipped id is on unless the person's own `off_in` map holds it with on false). A changed value here reaches every account that never touched it on the next deploy, with no row written.",
+ "records": [
+  {
+   "payload": {
+    "kind": "shipped-default",
+    "id": "shipped-default:show-rules",
+    "record": "show-rules",
+    "merge": {
+     "by_id": [
+      "types"
+     ],
+     "switched": [
+      {
+       "field": "in_use",
+       "off_in": "starting"
+      }
+     ]
+    },
+    "value": {
+     "types": [
+      {"id":"simple-workspace","label":"Simple workspace","inherits":[],"rules":[{"id":"only-the-everyday-controls","label":"Only collapse and resize the sidebar; one screen with no tab bar, back and forward, folders, focus mode, picture in picture, ⋯ menus, hover cards outside lists, comments or selection popover; sharing stays","subject":"control","effect":"hide","when":{"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"within","operator":"has_any_of","params":{"values":["arrangement.empty.folders","arrangement.empty.layouts","arrangement.empty.open-as","arrangement.empty.start","arrangement.focus","arrangement.header.actions","arrangement.header.nav","arrangement.header.new-tab","arrangement.header.tabs","arrangement.layouts","arrangement.navigation","arrangement.split","cards.hover.panels","cards.hover.sidebar","cards.hover.tabs","comments","devices.active","open.open-as-window","open.open-beside","open.picture-in-picture","selection.responses","selection.tray","sidebar.content","sidebar.folders","sidebar.hide","sidebar.list.add","sidebar.list.auto-hide","sidebar.list.pin","sidebar.list.unpin","sidebar.position","sidebar.row-preview","sidebar.row.actions","sidebar.row.move","sidebar.undock"]}}]}},{"id":"only-the-everyday-screens","label":"Messages, lists and settings stay in reach","subject":"screen","effect":"change","when":{"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"screen","operator":"is_none_of","params":{"values":["trillion.messages","trillion.lists","trillion.settings"]}},{"kind":"group","combinator":"or","negate":true,"rules":[{"kind":"rule","field":"list","operator":"is_any_of","params":{"values":["pursuits"]}},{"kind":"rule","field":"from","operator":"is_any_of","params":{"values":["pursuit-navigation"]}}]}]},"set":[{"path":["listed"],"value":false}]},{"id":"everyday-destinations-together","label":"Keep the everyday destinations together","subject":"screen","effect":"change","when":{"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"screen","operator":"is_any_of","params":{"values":["trillion.messages","trillion.lists","trillion.settings"]}}]},"set":[{"path":["sidebar_collection"],"value":"everyday"}]},{"id":"one-container-one-tab","label":"One container and one tab in the permitted tiled presentation","subject":"arrangement","effect":"change","when":null,"set":[{"path":["constraints"],"value":{"max_containers":1,"max_tabs":1,"allowed_surfaces":["tiled"]}}]},{"id":"sidebar-on-the-left","label":"The sidebar stays on the left","subject":"sidebar","effect":"change","when":null,"set":[{"path":["position_choices"],"value":["left"]}]}]}
+     ],
+     "in_use": [
+      "simple-workspace"
+     ]
+    }
+   }
+  }
+ ]
+}
