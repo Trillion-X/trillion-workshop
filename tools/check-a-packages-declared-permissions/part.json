@@ -1,0 +1,7 @@
+{
+  "public": [
+    "read-data/manifest-permissions.mjs",
+    "read-data/manifest-permissions.json",
+    "do-work/check-a-manifest.mjs"
+  ]
+}
