@@ -1,0 +1,67 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PAGE-FRAME-MOTION-AND-ORDER-RULES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "rea pm/ws move 2026-11-03: unbuilt page checks F-1117, F-1119, F-1149",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "check a rendered page for its frame, its reduced-motion first screen, its heading order, its tab order and its page metadata",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/page-critic/do-work/measure-page-craft.mjs"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/page-critic/",
+      "why": "This tool itself: the rule rows (read-data/page-craft-rules.json), the reduced-motion second pass (do-work/critique-a-page.mjs), the README and the test of the measures this contract claims."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/conversations/test/python/test_transcript_mapper.py",
+      "why": "Its test_map_page_metadata maps the metadata of a saved conversation's page into a transcript; it does not judge whether a rendered page carries a title, language, viewport and description."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "check a rendered page for its frame, its reduced-motion first screen, its heading order, its tab order and its page metadata",
+        "rendered frame check: first screen title, untitled sections, lopsided sections, blank stretches, side margins",
+        "reduced motion second pass: first screen text hidden when motion is reduced",
+        "heading order, tab order and page metadata as one line rules"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "reduced_motion_hidden",
+        "lopsided_sections",
+        "blank_stretch",
+        "first_screen_title",
+        "untitled_section",
+        "heading_order",
+        "page_metadata"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "02aa88a30db2f3bb1881b62b04dca782f2250f5c"
+        },
+        {
+          "repository": "trillion",
+          "commit": "d273ef3049fea1297f18533f798d4916a3832192"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/page-critic/test/frame-motion-and-page-rules.test.mjs"
+    ]
+  }
+}
