@@ -69,6 +69,18 @@
         },
         "provenance": {
           "source": "Written for the Workshop: a content-addressed pin manifest of the kind a build checks before it trusts its inputs"
+        },
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "content-resolution-failure",
+              "guard_properties": {
+                "address": "text",
+                "asserted_content_hash": "text"
+              }
+            }
+          ]
         }
       }
     },

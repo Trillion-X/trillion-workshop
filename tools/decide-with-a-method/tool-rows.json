@@ -605,6 +605,89 @@
             "joined": "boolean",
             "message_id": "text"
           }
+        },
+        {
+          "type": "plan",
+          "properties": {
+            "pursuit_ids": "ids"
+          },
+          "parts": [
+            {
+              "role": "pursuit",
+              "path": [
+                "pursuit_ids"
+              ]
+            },
+            {
+              "role": "decision",
+              "path": [
+                "decision_case_id"
+              ]
+            }
+          ],
+          "_read_by": "src/plan-records.mjs",
+          "guard_properties": {
+            "title": "text",
+            "goal": "text",
+            "status": "text",
+            "decision_case_id": "text",
+            "body": "text",
+            "next_action": "text",
+            "success_measure": "text",
+            "workflow_run_id": "text",
+            "progress_ids": "texts",
+            "latest_progress": "text",
+            "created_at": "text",
+            "updated_at": "text",
+            "created_by": "text",
+            "updated_by": "text"
+          }
+        },
+        {
+          "type": "plan-progress",
+          "properties": {
+            "plan_id": "id"
+          },
+          "parts": [
+            {
+              "role": "plan",
+              "path": [
+                "plan_id"
+              ]
+            }
+          ],
+          "_read_by": "src/plan-records.mjs",
+          "guard_properties": {
+            "summary": "text",
+            "status": "text",
+            "step": "text",
+            "at": "text",
+            "app": "text"
+          }
+        },
+        {
+          "type": "record-scope",
+          "guard_properties": {
+            "changed_at": "text",
+            "kind": "text",
+            "not_pursuits": "list",
+            "not_spaces": "list",
+            "pursuits": "list",
+            "record": "text",
+            "spaces": "list"
+          }
+        },
+        {
+          "type": "scope-view",
+          "guard_properties": {
+            "changed_at": "text",
+            "coverage": "any",
+            "legacy_imported": "boolean",
+            "nodes": "object",
+            "pursuits": "list",
+            "screens": "any",
+            "spaces": "texts"
+          }
         }
       ],
       "indexes": [
@@ -659,6 +742,17 @@
             ]
           ],
           "_read_by": "src/decision-store.mjs callsAt"
+        },
+        {
+          "type": "plan",
+          "name": "updated_at",
+          "backfill": "plan-updated-at-v1",
+          "paths": [
+            [
+              "updated_at"
+            ]
+          ],
+          "_read_by": "src/plan-records.mjs collectionPage: newest bounded plan summaries with stable record-id ties"
         }
       ],
       "links": [
@@ -683,7 +777,8 @@
           ],
           "to": "decision"
         }
-      ]
+      ],
+      "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
     },
     "verify": [
      {"kind":"sample-run","input":{"source_id":"sample:class-price-1","goal":"Decide the made-up sample class price for spring","evidence":[{"ref":"e1","claim":"Last spring twelve made-up families signed up at the old price"},{"ref":"e2","claim":"The made-up material costs went up this year"}],"options":[{"id":"keep","label":"Keep the price"},{"id":"raise","label":"Raise the price"}]},"records":[{"id":"record:method:plain","type":"record:method","value":{"id":"plain","name":"Plain method","about":"A made-up method for the tests","default_for":["decision"],"answer_rules":{"field_min_words":2,"list_item_min_words":2,"evidence_min":1,"check":{"handled":[{"name":"how","label":"How it was handled","kind":"text","min_words":1}],"skip":[{"name":"because","label":"Why it does not apply","kind":"text","min_words":1}],"distinct":true}},"checks":[{"id":"worth_weighing","question":"Is this worth weighing beyond a quick choice?","on_when_any_other_is_on":true,"skip_requires":[{"name":"why_quick","label":"Why it is quick","kind":"text","min_words":2}]},{"id":"compare_existing","question":"Could something that already exists do this?","skip_requires":[{"name":"searched","label":"Where you looked","kind":"list","min":1,"min_words":2,"ask":"Where did you look for something that already does this?"}]}],"backbone":[{"id":"name","name":"Name the change","steps":["outcome"]},{"id":"test","name":"Test it","steps":["proof","existing"]}],"steps":[{"id":"scope","kind":"scope","question":"What kind of decision is this?"},{"id":"outcome","question":"Name the change: what is in which state now, and which state should it be in?","fields":[{"name":"desired_result","label":"Where you want it"},{"name":"current_state","label":"Where it is now"}],"checks_skippable":false},{"id":"proof","question":"How will you know it worked?","fields":[{"name":"check_by","label":"Check by","kind":"date"},{"name":"measure","label":"What you will measure"}]},{"id":"existing","question":"What already exists?","when":"compare_existing","fields":[{"name":"found","label":"What you found","kind":"list"}]}],"decision_fields":[{"name":"who_it_changes","label":"Who it changes beyond you","when":"worth_weighing","ask":"Who beyond the person does this change?","check":"Who beyond the person does this move change, and what is different for them?","good_answer":"Names people beyond the person and one concrete difference for them.","says":"Who it changes beyond you: {value}."}],"voice":[{"id":"plain-words","rule":"Say it in plain words","good_answer":"Short sentences a person reads once"}]}},{"id":"record:method-check:outcome-before-after","type":"record:method-check","value":{"id":"outcome-before-after","method":"plain","step":"outcome","check":"Have you named what is in which state now and which state it should end up in?","good_answer":"One before-and-after pair with the facts that show the current state."}},{"id":"record:method-check:existing-where","type":"record:method-check","value":{"id":"existing-where","method":"plain","step":"existing","when":"compare_existing","check":"Where did you look for something that already does this?","good_answer":"Names the places searched."}}]}

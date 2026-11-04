@@ -10,6 +10,14 @@
       "to": "tools/walk-a-new-person-through-setup/device-facts.json",
       "source_identity": "1f:8ea591c09727487390dcfb891ad0fb211dcdaa1a4b90b497eba7dd4cb8d145c8",
       "identity": "1f:8ea591c09727487390dcfb891ad0fb211dcdaa1a4b90b497eba7dd4cb8d145c8"
+    },
+    {
+      "from": "src/device-facts.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/walk-a-new-person-through-setup/device-facts.mjs",
+      "source_identity": "1f:79e1390d4921dfc8b3b144169260eba04bd333074725427e5412c0b61f0f047d",
+      "identity": "1f:79e1390d4921dfc8b3b144169260eba04bd333074725427e5412c0b61f0f047d",
+      "reused": true
     }
   ]
 }

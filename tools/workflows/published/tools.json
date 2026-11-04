@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b6716e0d28929ff56916f6e02e6cc7defcc93fa228fb51b172178e75c90e5d8a"
+  "blake3": "1f:31e858661300237124e191a769930d25f63272ba3767c98e52bc582ae61f6eaf"
  },
  "fields": [
   {
@@ -2103,6 +2103,21 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:count-my-ai-conversations-per-app",
+   "values": {
+    "title": "Count my AI conversations per app",
+    "job": "Count the AI conversations in my records per app, and how many messages each app's conversations hold",
+    "description": "Reads the rows of the person's AI conversations list (record:ai-conversation) through the records door, only their app and messages fields, and answers the number of conversations and messages per app, most first. Reads nothing else.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
    }
   },
   {
@@ -4206,6 +4221,21 @@
    }
   },
   {
+   "id": "tool:import-my-conversations-from-a-source",
+   "values": {
+    "title": "Import my conversations from one source",
+    "job": "Bring every conversation of one app (an AI chat export, Google Takeout activity, or a local AI app's sessions) from this computer into my records completely, one row per conversation and every message, continuing where an earlier run stopped",
+    "description": "Runs on the person's computer over the folder they granted (their home folder). source is one id tool:list-the-conversation-sources-on-this-computer gives; files, when given, names the files (paths in the folder) instead of looking for them. Each conversation is kept as the person's messages (record message, with its source key, so bringing it in again adds nothing twice) and one row of their AI conversations list (record:ai-conversation: title, app, conversation, started, last, messages, models, original_file; labels, people, pursuits and follow-ups they set are never touched). Writes go through the records door in batches; a busy (503) or slow door is asked again after a growing wait with the same request key. Each file has a cursor row (conversation-import-cursor) that moves only past what was kept, so a run that stops, or reaches time_box_seconds, answers more: true and the next run goes on from there; a file already done and unchanged is skipped. Files the messages carried are copied into the person's files through the files door under /messages: an export's file (ChatGPT's file-XXXX, Grok's asset) found beside the export as /messages/<app>/<name>, an image pasted into a session as /messages/<conversation>/<message>-<n>; a file already there with the same bytes is not written again, and a file not found beside the export is counted (attachments_not_kept), never an error.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
+   }
+  },
+  {
    "id": "tool:install-an-engine-builder",
    "values": {
     "title": "Install an engine builder",
@@ -4956,6 +4986,21 @@
      "placement:deployed-container"
     ],
     "folder": "work-breakdown"
+   }
+  },
+  {
+   "id": "tool:list-the-conversation-sources-on-this-computer",
+   "values": {
+    "title": "List the conversation sources on this computer",
+    "job": "Find every app's conversations on this computer (AI chat exports, Google Takeout activity, and the sessions local AI apps keep) and say how many files of each there are",
+    "description": "Runs on the person's computer over the folder they granted it to read (their home folder), and reads only inside it. For each kind of source (read-data/conversation-sources-on-this-computer.json: ChatGPT, Claude.ai and Grok account exports, Google Takeout activity for Gemini Apps, Assistant and AI Mode, and the sessions of Claude Code, Codex, Gemini CLI and Hermes) it answers how many files are here, their bytes and the first of them. more_places adds folders to look for exports in. Keeps nothing and reaches no records.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
    }
   },
   {
@@ -8859,6 +8904,21 @@
    }
   },
   {
+   "id": "tool:resume-importing-my-conversations",
+   "values": {
+    "title": "Resume importing all my conversations",
+    "job": "Bring in every conversation from every app found on this computer, continuing each source from where its last run stopped, until all of them are in my records",
+    "description": "Runs on the person's computer over the folder they granted (their home folder). Every source tool:list-the-conversation-sources-on-this-computer finds here (or the ones sources names) is imported in turn the way tool:import-my-conversations-from-a-source imports one, each file from its cursor row. A run stops at time_box_seconds, or when the records door stays busy past its retries, and answers more: true; run it again until more is false.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
+   }
+  },
+  {
    "id": "tool:review-rows-of-a-list",
    "values": {
     "title": "Review the rows of a list",
@@ -10258,6 +10318,21 @@
    }
   },
   {
+   "id": "tool:show-how-far-my-conversation-import-is",
+   "values": {
+    "title": "Show how far my conversation import is",
+    "job": "Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped",
+    "description": "Reads the import's cursor rows (conversation-import-cursor) through the records door and answers, per source, the files seen and done, conversations kept, messages added and already kept, files the messages carried that were not copied, its state (done, more, stopped) and when it last moved. Reads nothing else.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
+   }
+  },
+  {
    "id": "tool:show-what-a-tool-would-give-members",
    "values": {
     "title": "Show what a tool would give members",
@@ -10322,7 +10397,7 @@
    "values": {
     "title": "My site addresses",
     "job": "List the addresses my published websites answer at",
-    "description": "Every address your sites answer at: each host, its https address, the installation it shows, and for an earlier name the address it sends visitors on to.",
+    "description": "Every address your sites answer at: each host, its https address, the installation it shows, and for an earlier name the address it sends visitors on to. told says what the forwarder last answered: answering, or refused and why.",
     "status": "active",
     "maker": "maker:publish-a-site-at-its-own-address",
     "licence_class": "licence:maker-own",

@@ -1,0 +1,498 @@
+{
+  "id": "workflow:acquire-and-import-ai-chat-history",
+  "label": "Bring in complete AI chat history",
+  "job": "Recover and keep chat history from every AI service, account and local AI app in the installing person’s private Trillion. Discover all sources, import exact conversations and attachments without models rewriting them, reconcile coverage, use the evidence for pursuits and their own frameworks, and keep new changes arriving through existing schedules and connections.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "source_ref": {
+        "type": "string"
+      },
+      "sources": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "required": [
+            "provider",
+            "account_alias",
+            "export_route",
+            "delivery_mailbox"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "provider": {
+              "type": "string",
+              "minLength": 1
+            },
+            "account_alias": {
+              "type": "string",
+              "minLength": 1
+            },
+            "export_route": {
+              "type": "string",
+              "minLength": 1
+            },
+            "delivery_mailbox": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      },
+      "accounts": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "since": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "continuous": {
+        "type": "boolean"
+      },
+      "destination": {
+        "type": "string",
+        "enum": [
+          "private"
+        ]
+      },
+      "reconcile_prior_work": {
+        "type": "boolean"
+      },
+      "purpose": {
+        "type": "string"
+      },
+      "source_id": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "steps": [
+    {
+      "id": "inventory",
+      "title": "Find every source and the original work",
+      "do": "Read the actual request and prior chat-import runs and results. Discover all available AI services, browser accounts, desktop apps and transcript readers through the person’s connected hosts and Marketplace, including services not named in the request. ChatGPT, Claude, Gemini, Grok, Codex and Claude Code are examples, never a closed list. Separate accounts, web history and local transcripts; never infer an empty account from a failed read. Ask the credential/connection owner before claiming absent access. Read existing saved cursors and source coverage. Keep private account identifiers only in this run. Verify importer ownership and resume an existing run before starting another writer. Preserve source conversations as evidence; imported history must not reissue old requests as new person instructions. Respect the person’s current account exclusions; discovery is not permission to ingest an excluded account. Never publish private account mappings.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "request_ref",
+          "sources",
+          "prior_results",
+          "coverage_gaps"
+        ],
+        "properties": {
+          "request_ref": {
+            "type": "string"
+          },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "app",
+                "account_ref",
+                "kind",
+                "state",
+                "evidence_ref"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "app": {
+                  "type": "string"
+                },
+                "account_ref": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "web-account",
+                    "local-transcript",
+                    "account-export",
+                    "other"
+                  ]
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "reachable",
+                    "authentication-required",
+                    "unavailable",
+                    "unknown"
+                  ]
+                },
+                "evidence_ref": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "prior_results": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "coverage_gaps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": []
+    },
+    {
+      "id": "acquire",
+      "title": "Read reachable history without rewriting it",
+      "do": "Use installed, licensed provider exporters, account export APIs, browser readers or local transcript readers. Inspect their actual licences, authors, pinned sources and network/credential handling; adding a source is an adapter row or separately installable tool, not a provider branch in application code. Keep tokens in the existing credential/session owner; never in output, files, arguments or logs. Reuse active authenticated sessions when permitted. Read all reachable accounts, archived conversations, projects and attachments in bounded pages; no inference model reads or rewrites the corpus merely to copy it. For local transcripts use the existing trusted provenance rules, distinguishing real person turns, AI replies, peer messages, generated context and tool events. Preserve source IDs, actual timestamps, model and branch provenance; do not fabricate unknown times. Independent reachable sources proceed when another account requires provider verification. Retain exact blocked screens and continuation conditions. Discover tool:read-structured-chat-export for mapped JSON arrays or object-root arrays and tool:read-paired-activity-chat-export for paired activity records. Supply field mappings as DATA. Preserve compressed originals and source references before normalization. Account archives may arrive under unexpected filenames; inspect actual downloaded bytes. Large originals use the existing resumable piece-upload owner when one-request transport is too small. Provider export preparation is a wait condition, not empty history; avoid repeated export requests. Discover tool:read-original-zip-member for bounded exact extraction of a selected ZIP member. Keep metadata, notes, documents and media as individual private files when available; archive preservation and searchable content/link coverage remain separate. A tool’s sample check does not prove a large real archive run. When a permitted browser-control transport is unavailable, use the installing host’s declared native browser reader if it exists. Verify the exact page origin and current account before every content read or effect; do not trust a native tab selection alone. Keep session credentials solely in browser memory and authorize only same-origin account endpoints. Never forward them to returned download URLs. A displayed or returned catalogue total can be a page sentinel: continue by actual page contents, stop on a terminal page, and detect repeated source IDs. Discover archived history separately when the source separates it. Preserve original response text when available. Bound both transfer ranges and buffered originals, acknowledge durable local custody before releasing memory, respect provider Retry-After, and resume from accepted source IDs after rate limits. For JSONL metadata discovery, read enough bytes to include the actual complete metadata row; a smaller probe that truncates that row is not an unrecognized or empty source. Before every export-email read or export action, verify the service origin and the actual selected account using the visible account control or authenticated session owner. Mailbox route numbers, tab titles alone, cached results and an earlier sign-in are insufficient: account switches must be detected before reading or downloading, and each exported source must match the person’s included account.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "read_sources",
+          "blocked_sources",
+          "archives",
+          "missing_attachments"
+        ],
+        "properties": {
+          "read_sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "blocked_sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "source_id",
+                "reason",
+                "resume_when"
+              ],
+              "properties": {
+                "source_id": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "resume_when": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "archives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "missing_attachments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": [
+        {
+          "kind": "subset-of",
+          "path": [
+            "this",
+            "read_sources",
+            "*"
+          ],
+          "of": [
+            "steps",
+            "inventory",
+            "sources",
+            "*",
+            "id"
+          ],
+          "says": "Every read source belongs to this account’s discovered inventory."
+        },
+        {
+          "kind": "subset-of",
+          "path": [
+            "this",
+            "blocked_sources",
+            "*",
+            "source_id"
+          ],
+          "of": [
+            "steps",
+            "inventory",
+            "sources",
+            "*",
+            "id"
+          ],
+          "says": "Each access wall names its actual discovered source."
+        }
+      ]
+    },
+    {
+      "id": "keep-and-reconcile",
+      "title": "Keep the originals and prove what arrived",
+      "do": "Use bring_in_chat, bring_in_chat_export or the existing trusted local transcript recorder through the installing person’s authenticated account. Raw chats stay private: leave shared-pursuit/Space destinations out. Existing local conversation identities and source IDs must be preserved; do not create a second conversation just because an archive reader prefixes a vendor name. Ingest bounded batches, preserve attachments in that user’s namespace, split large items only through the existing import owner, and advance each cursor only after acceptance. Replays add no duplicates; edits carry source-linked corrections/history. Read back source-linked IDs, exact words and attachment bytes for the first, middle and last records of each source and every kind, and reconcile counts against the actual source. Never call import complete with unavailable reads, truncated pages or unexplained missing attachments. Retain retry state, unavailable sources and unresolved old tasks without replaying historical prompts. Use actual provider conversation IDs when present. An activity search URL is a reference, not proof of a chat thread: without a genuine thread identifier, retain separately identified source events and label counts as events. State when HTML responses are readable text extracted from original markup and when response times are only activity event times. Original markup, branches, citations and non-text items stay preserved; searchable/linkable coverage is separate from archive preservation. Inspect every per-call error and reconcile acknowledged unique source messages separately from new additions, duplicates and stored split parts. Rejoin parts for exact readbacks. Sample success does not prove hosted large-file jobs finished; preserve stalled task IDs and use the existing trusted host fallback when supported. Compare exact original timestamps through source_at when the import owner supplies it; normalized sortable at values can lose precision or intentionally order message parts. Do not report raw source-time exactness from a millisecond-only comparison. When a combined normalized replay file exceeds the serving reader’s actual resource limit, write smaller normalized export files and replay those through the same importer; retain original conversation/message identities and source_at. If an individual conversation is too large, page its original messages under that same conversation identity rather than inventing new chats. Match attachment references to exact archive member identities using supplied field mappings, never fuzzy filenames. Use read-original-zip-member to preserve exact member bytes, inspect supported signatures or label unknown bytes application/octet-stream, store them privately, and supply metadata.attachments plus importer attachment-id mappings. Replay to enrich existing messages and independently check the linked identities and bytes; missing_attachments is meaningful only when original references were actually supplied. Preserve unreferenced members too. Serialize writes and retain retryable failures. A stopped managed run is retried with its same request_key; queued or working is not completed. Distinguish client deadlines, provider rate limits and service backpressure. Do not repeat an unchanged failing export-file request: inspect the failure and use an existing bounded alternative, preserving successful source-ID acknowledgements. No accepted write means no imported-file claim. A local original stays local until its private namespace upload and byte readback are acknowledged. Protect private originals and account inventories from source commits. Scheduled/generated chat prompts require their actual sender provenance before they can support personal traits; a user-role label alone is not sufficient.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "checked_sources",
+          "coverage",
+          "accepted_ids",
+          "cursor_refs",
+          "unresolved"
+        ],
+        "properties": {
+          "checked_sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "coverage": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "source_id",
+                "source_conversations",
+                "kept_conversations",
+                "source_messages",
+                "kept_messages",
+                "state",
+                "proof_refs"
+              ],
+              "properties": {
+                "source_id": {
+                  "type": "string"
+                },
+                "source_conversations": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "kept_conversations": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "source_messages": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "kept_messages": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "checked",
+                    "partial",
+                    "blocked"
+                  ]
+                },
+                "proof_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "accepted_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cursor_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "unresolved": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": [
+        {
+          "kind": "covers",
+          "path": [
+            "this",
+            "coverage",
+            "*",
+            "source_id"
+          ],
+          "of": [
+            "steps",
+            "inventory",
+            "sources",
+            "*",
+            "id"
+          ],
+          "says": "Report every discovered source, including blocked and incomplete ones."
+        }
+      ]
+    },
+    {
+      "id": "use-the-evidence",
+      "title": "Connect the history to worthwhile pursuits",
+      "do": "Read the person’s current awareness, pursuits, own frameworks and AA framework from their actual sources. Use imported conversations as evidence to clarify existing pursuits, discover missing ones and update evidenced answers; distinguish statements, tentative thoughts and third-party claims. Keep citations to the original conversation, message, actual time and attachment. Use the existing awareness, record_scope, content and pursuit owners. Associating a private record with a pursuit does not authorize sharing it with other people. Content is an attributed draft unless the actual current publishing mandate permits publication; never fabricate memories or completed actions. Reconcile genuinely unfinished prior requests against their original jobs before continuing them, avoiding duplicate work. Do not start a decision or AI job for every old message.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "pursuit_changes",
+          "framework_changes",
+          "source_refs",
+          "disposition"
+        ],
+        "properties": {
+          "pursuit_changes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "framework_changes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "disposition": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": []
+    },
+    {
+      "id": "keep-current",
+      "title": "Keep collecting through the same installed workflow",
+      "do": "When continuous is requested, reuse the existing connection event, schedule, trigger and workflow owners. Read current schedules and match by workflow/source/account before creating any. Use one serialized writer per source, bounded batches, resumable cursors and retry/backoff; no new cron script, filesystem watcher, side daemon or self-scheduling loop. Provider sign-in walls must not stop independent sources. Recheck a blocked source only on a relevant access change or bounded existing schedule. Keep source-level last-success and exact failure visible; quiet while unchanged, notify meaningful changes or unavoidable human verification. Pause/resume/disconnect through existing owners, preserve originals and recoverable cursor state; removal of a connector never silently deletes the corpus. A saved schedule is not proof it has run.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "continuation_refs",
+          "observed_runs",
+          "blocked_resume_conditions"
+        ],
+        "properties": {
+          "continuation_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "observed_runs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "blocked_resume_conditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": []
+    },
+    {
+      "id": "report",
+      "title": "Show the real coverage and remaining walls",
+      "do": "Read the persisted records again and report each source’s actual checked coverage, last successful import, missing conversations or attachments, current writer and exact access failures. Give working links to originals, derived pursuits and this run. Distinguish discovered, acquired, imported, checked and continuously running. Publish only this generic workflow and reusable licensed tools, never account IDs, chat text, files, secrets, source counts or private run outputs. Install and run the same published version on the originating account to dogfood it; check another isolated account cannot read those conversations. A passing workflow schema or queued job is never proof of complete acquisition. Retain the responsible run for every unfinished source.",
+      "submit": {
+        "type": "object",
+        "required": [
+          "outcome",
+          "evidence_refs",
+          "limitations",
+          "result_links"
+        ],
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "checked",
+              "partial",
+              "blocked"
+            ]
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "result_links": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "checks": []
+    }
+  ],
+  "source": {
+    "from": "generic workflow authored for the existing chat-history importer",
+    "name": "Account-specific inputs and results stay private; Marketplace shares only this procedure."
+  }
+}

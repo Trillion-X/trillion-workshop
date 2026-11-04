@@ -655,7 +655,11 @@
             ],
             "_read_by": "parts/record-log record-log-store erase (a message erased takes what the person was told of it, built from its words, with it: src/record-model.json erase_with)"
           }
-        ]
+        ],
+        "live_heads": {
+          "_what": "The record the engine's live screen heads read the told list's newest seq from (trillion-rust src/local_account/live_heads.rs, old trillion keptList.lastSeq over the told list): moved from the engine, which named it in code. With this tool not installed, the screen has no told head.",
+          "told": "told-the-person"
+        }
       }
     }
   },

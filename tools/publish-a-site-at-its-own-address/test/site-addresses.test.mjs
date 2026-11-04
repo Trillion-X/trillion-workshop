@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { attachDomain, checkedDomain, checkedName, letGo, nameFromPage, nameFromTitle, nameSite, publishSite, readOrigins, siteAddresses } from '../read-data/site-addresses.mjs';
+import { attachDomain, checkedDomain, checkedName, letGo, nameFromPage, nameFromTitle, nameSite, publishSite, readOrigins, readTold, siteAddresses } from '../read-data/site-addresses.mjs';
 
 const INSTALL = 'a'.repeat(32);
 const OTHER = 'c'.repeat(32);
@@ -112,6 +112,10 @@ test('a domain is attached with the two DNS records naming the account, and an a
   assert.deepEqual(gone.origins.map(origin => origin.host), ['shop.example.com'], 'the name moved to it went with it');
   await assert.rejects(letGo({ host: 'nobody.trillion.run' }, { door: files }), /None of your sites/);
   assert.deepEqual(await readOrigins(door()), [], 'no list yet: no addresses');
+  assert.equal(await readTold(files), null, 'not handed in yet');
+  files.stored.set('/installations/origins-told.json', Buffer.from(JSON.stringify({ state: 'refused', why: 'host_taken', told_at_ms: 1762257600000 })));
+  assert.deepEqual((await siteAddresses({}, { door: files })).told, { state: 'refused', told_at: '2025-11-04T12:00:00.000Z',
+    why: "Another account's site holds one of these addresses. Choose another name, or let that address go." });
 });
 
 test('every row runs the export it names, through the run\'s own door, with the folder it edits only', () => {

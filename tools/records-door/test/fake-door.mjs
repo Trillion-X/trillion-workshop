@@ -252,5 +252,6 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
   const descriptor = join(mkdtempSync(join(tmpdir(), 'records-door-')), 'descriptor.json');
   writeFileSync(descriptor, JSON.stringify({ url: `http://127.0.0.1:${server.address().port}/mcp`, resource: '@own-records', capability,
     ...(fileRights.length ? { files_resource: FILES_RESOURCE } : {}) }));
-  return { descriptor, calls, kept, capability, close: () => new Promise(done => server.close(done)) };
+  // stored: the made-up files by name, the ones a run wrote among them.
+  return { descriptor, calls, kept, stored, capability, close: () => new Promise(done => server.close(done)) };
 }
