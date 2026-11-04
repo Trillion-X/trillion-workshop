@@ -9,7 +9,7 @@
         "id": "tool:send-an-email-with-amazon-ses",
         "label": "Send an email with Amazon SES",
         "job": "Send an email, to one person or a list, through my Amazon SES account",
-        "description": "Give recipients (a list of addresses; to for one), region (such as us-east-1), and the words: subject and text (drawn as an email in the account's look, with its mark from the mail row's brand and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row (records `mail-settings` `settings:mail`, copied from read-data/mail-settings.json the first time), never from the request; each address may be sent only so many emails of a kind (per_person), the day keeps room for sign-in codes (daily), a proof address is written down and never sent, and every email is written down under its address. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held SES keys reach the one process on private pipes; they are never shown.",
+        "description": "Give recipients (a list of addresses; to for one), region (such as us-east-1), and the words: subject and text (drawn as an email in the look the person wears, read from their screen-look records (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's brand and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row (records `mail-settings` `settings:mail`, copied from read-data/mail-settings.json the first time), never from the request; each address may be sent only so many emails of a kind (per_person), the day keeps room for sign-in codes (daily), a proof address is written down and never sent, and every email is written down under its address. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held SES keys reach the one process on private pipes; they are never shown.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -58,6 +58,10 @@
               { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
               { "package": "write-a-post-for-each-place", "paths": ["read-data/escape-html.mjs"], "at": "/opt/write-a-post-for-each-place" },
+              { "package": "screen-looks", "paths": ["do-work", "read-data"], "at": "/opt/screen-looks" },
+              { "package": "screen-look", "paths": ["look-over-time.json", "where-looks-apply.json"], "at": "/opt/screen-look" },
+              { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
+              { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
               { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
             ]
           },
@@ -66,7 +70,11 @@
             "rights": [
               { "kind": "mail-settings", "operations": ["records:read", "records:write"] },
               { "kind": "mail-sent", "operations": ["records:read", "records:write"] },
-              { "kind": "mail-day", "operations": ["records:read", "records:write"] }
+              { "kind": "mail-day", "operations": ["records:read", "records:write"] },
+              { "kind": "@own-records", "id": "screen-look", "operations": ["workspace:read"] },
+              { "kind": "@own-records", "id": "screen-look-own-themes", "operations": ["workspace:read"] },
+              { "kind": "@own-records", "id": "workspace-preference:screen-look-over-time", "operations": ["workspace:read"] },
+              { "kind": "@own-records", "id": "workspace-preference:where-looks-apply", "operations": ["workspace:read"] }
             ]
           },
           "credential_mounts": [
@@ -88,7 +96,7 @@
         "id": "tool:send-an-email-with-resend",
         "label": "Send an email with Resend",
         "job": "Send an email, to one person or a list, through my Resend account",
-        "description": "Give recipients (a list of addresses; to for one) and the words: subject and text (drawn as an email in the account's look, with its mark from the mail row's brand and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). headers can carry In-Reply-To, References or List-Unsubscribe (names are limited to letters, digits and hyphens, values to one line of 4 KiB); idempotencyKey makes a retry safe. Every email comes from the account's own mail row (records `mail-settings` `settings:mail`, copied from read-data/mail-settings.json the first time; its from must be on a domain verified in Resend, see tool:list-email-sending-domains), never from the request; each address may be sent only so many emails of a kind (per_person), the day keeps room for sign-in codes (daily), a proof address is written down and never sent, and every email is written down under its address. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with the provider's own status, error name and reason, and limited, unknown (it may have gone; it is not sent again) or suppressed. The held key reaches the one process on a private pipe; it is never shown.",
+        "description": "Give recipients (a list of addresses; to for one) and the words: subject and text (drawn as an email in the look the person wears, read from their screen-look records (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's brand and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). headers can carry In-Reply-To, References or List-Unsubscribe (names are limited to letters, digits and hyphens, values to one line of 4 KiB); idempotencyKey makes a retry safe. Every email comes from the account's own mail row (records `mail-settings` `settings:mail`, copied from read-data/mail-settings.json the first time; its from must be on a domain verified in Resend, see tool:list-email-sending-domains), never from the request; each address may be sent only so many emails of a kind (per_person), the day keeps room for sign-in codes (daily), a proof address is written down and never sent, and every email is written down under its address. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with the provider's own status, error name and reason, and limited, unknown (it may have gone; it is not sent again) or suppressed. The held key reaches the one process on a private pipe; it is never shown.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -136,6 +144,10 @@
               { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
               { "package": "write-a-post-for-each-place", "paths": ["read-data/escape-html.mjs"], "at": "/opt/write-a-post-for-each-place" },
+              { "package": "screen-looks", "paths": ["do-work", "read-data"], "at": "/opt/screen-looks" },
+              { "package": "screen-look", "paths": ["look-over-time.json", "where-looks-apply.json"], "at": "/opt/screen-look" },
+              { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
+              { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
               { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
             ]
           },
@@ -144,7 +156,11 @@
             "rights": [
               { "kind": "mail-settings", "operations": ["records:read", "records:write"] },
               { "kind": "mail-sent", "operations": ["records:read", "records:write"] },
-              { "kind": "mail-day", "operations": ["records:read", "records:write"] }
+              { "kind": "mail-day", "operations": ["records:read", "records:write"] },
+              { "kind": "@own-records", "id": "screen-look", "operations": ["workspace:read"] },
+              { "kind": "@own-records", "id": "screen-look-own-themes", "operations": ["workspace:read"] },
+              { "kind": "@own-records", "id": "workspace-preference:screen-look-over-time", "operations": ["workspace:read"] },
+              { "kind": "@own-records", "id": "workspace-preference:where-looks-apply", "operations": ["workspace:read"] }
             ]
           },
           "credential_mounts": [{ "secret_name": "resend-api-key", "fd": 4 }]
