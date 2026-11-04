@@ -1,0 +1,15 @@
+{
+  "_what": "What the person's devices report about themselves (src/device-facts.mjs): each device profile reports a few short facts, such as which cameras it sees or whether a switch on it is on. Reports are owned by a named source, so replacing one source's facts keeps the other sources on that profile and removes that source's old facts. A row on the person's Waiting on you list whose \"Done once\" rule (src/lists.json kind checked-by) passes on one device's merged facts is marked Done by itself. `fact` is the person fact they are kept in; at most `most_devices` identities, `most_sources` source snapshots per identity and `most_facts` merged facts per identity; a fact's name matches `name_pattern` and its value is text of at most `value_chars` characters. `device_chars` caps the display name.",
+  "fact": "device_facts",
+  "most_devices": 20,
+  "most_sources": 20,
+  "most_facts": 40,
+  "name_pattern": "^[a-z0-9][a-z0-9._-]{0,59}$",
+  "value_chars": 400,
+  "device_chars": 60,
+  "words": {
+    "bad_device": "Name the device these facts are about, in at most {chars} characters.",
+    "bad_facts": "Facts are { name: text } with at most {most} names, each a short name of lowercase letters, digits, dots and dashes.",
+    "bad_sources": "A device keeps at most {most} separate sources of facts."
+  }
+}
