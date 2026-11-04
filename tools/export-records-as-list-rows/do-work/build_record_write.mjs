@@ -12,15 +12,17 @@ const localRecordsDoor = resolve(here, '../../records-door/read-data/records-doo
 
 function runPython(args) {
   return new Promise((resolveRun, rejectRun) => {
-    const executable = process.platform === 'darwin' ? '/usr/bin/python3' : 'python3';
-    const child = spawn(executable, args, {
+    // `python3` from the place's own path, on every place; the tool never asks what kind of machine it runs on.
+    const child = spawn('python3', args, {
       env: { ...process.env, TRILLION_NODE: process.execPath },
       stdio: ['ignore', 'pipe', 'pipe', 3],
     });
     const stdout = [], stderr = [];
     child.stdout.on('data', chunk => stdout.push(chunk));
     child.stderr.on('data', chunk => stderr.push(chunk));
-    child.on('error', error => rejectRun(new Error(`Could not start Python for the records builder (${error.code ?? error.name}).`)));
+    child.on('error', error => rejectRun(new Error(error.code === 'ENOENT'
+      ? 'This place has no python3 on its path; give the run Python 3.10 or newer as python3 to build records.'
+      : `Could not start Python for the records builder (${error.code ?? error.name}).`)));
     child.on('close', code => {
       const out = Buffer.concat(stdout).toString('utf8');
       const said = Buffer.concat(stderr).toString('utf8').trim();
