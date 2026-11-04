@@ -1,0 +1,331 @@
+{
+  "_what": "The records a new account own records book holds after sign-up, other than command bookkeeping (execution, resource-command-result) and table-schema-change records: read from the real built Worker in workerd (test/new-account-rows-written-workerd.test.mjs, second account, 2026-10-28 10:02 AM MDT, record_log of its own-records RecordBook). test/new-account-record-tables-workerd.test.mjs writes them to a store opened on the real record model.",
+  "records": [
+    {
+      "id": "setting:owner_user_id",
+      "type": "setting",
+      "value": {
+        "value": "a6925001-c5e5-487f-a696-8ca0e6cfcc89"
+      }
+    },
+    {
+      "id": "schedule-state:starting:check-results",
+      "type": "schedule-state",
+      "value": {
+        "schedule_id": "starting:check-results",
+        "scan_from": "2026-10-28"
+      }
+    },
+    {
+      "id": "schedule-state:starting:brief-me-on-my-goals",
+      "type": "schedule-state",
+      "value": {
+        "schedule_id": "starting:brief-me-on-my-goals",
+        "scan_from": "2026-10-28"
+      }
+    },
+    {
+      "id": "schedule-state:starting:progress-digest",
+      "type": "schedule-state",
+      "value": {
+        "schedule_id": "starting:progress-digest",
+        "scan_from": "2026-10-28"
+      }
+    },
+    {
+      "id": "agent-review-mark:next-review-search",
+      "type": "agent-review-mark",
+      "value": {
+        "index": "review_ready",
+        "cursor": null,
+        "found_by": {}
+      }
+    },
+    {
+      "id": "setting:keep_running_clock",
+      "type": "setting",
+      "value": {
+        "value": {
+          "idle_checked": true,
+          "idle_next_at": 1793237400000,
+          "idle_code": null
+        }
+      }
+    },
+    {
+      "id": "list:waiting-on-you",
+      "type": "list",
+      "value": {
+        "label": "Waiting on you",
+        "row_type": "waiting-on-you",
+        "title_field": "what",
+        "fields": [
+          {
+            "id": "what",
+            "label": "What to do",
+            "kind": "text"
+          },
+          {
+            "id": "why",
+            "label": "Why it is needed",
+            "kind": "long-text"
+          },
+          {
+            "id": "where",
+            "label": "Where to do it",
+            "kind": "link-address"
+          },
+          {
+            "id": "needs",
+            "label": "What it needs",
+            "kind": "text"
+          },
+          {
+            "id": "only_you_because",
+            "label": "Why only you",
+            "kind": "text"
+          },
+          {
+            "id": "reason_id",
+            "label": "Which known reason it is yours",
+            "kind": "text"
+          },
+          {
+            "id": "tried_doer",
+            "label": "Which helper already tried and was stopped",
+            "kind": "text",
+            "free_text_because": "It names one of the person's AIs or helpers, which are agents and not rows of a list a link can hold; the AI that tried writes it."
+          },
+          {
+            "id": "unlocks",
+            "label": "What it unlocks",
+            "kind": "text"
+          },
+          {
+            "id": "waits_on",
+            "label": "Waits on",
+            "kind": "link",
+            "links_to": "waiting-on-you"
+          },
+          {
+            "id": "do_it_in",
+            "label": "Done in Trillion at",
+            "kind": "link-address"
+          },
+          {
+            "id": "pursuit",
+            "label": "Pursuit it serves",
+            "kind": "text",
+            "free_text_because": "It names a pursuit, which is a pursuit record and not a row of a list a link can hold; the AI that asks writes it and the card shows its words."
+          },
+          {
+            "id": "tried",
+            "label": "What your AIs tried first",
+            "kind": "long-text"
+          },
+          {
+            "id": "about_from",
+            "label": "Start of the time it asks about",
+            "kind": "date"
+          },
+          {
+            "id": "about_until",
+            "label": "End of the time it asks about",
+            "kind": "date"
+          },
+          {
+            "id": "arrivals_read",
+            "label": "What your AIs read from what your places already brought, before asking",
+            "kind": "long-text"
+          },
+          {
+            "id": "done_when",
+            "label": "Done when",
+            "kind": "text"
+          },
+          {
+            "id": "checking",
+            "label": "What Trillion is watching for",
+            "kind": "text"
+          },
+          {
+            "id": "uses_login",
+            "label": "Saved login it uses",
+            "kind": "text",
+            "free_text_because": "It names a saved login by its exact title, and Trillion links the row to that login itself from these words; saved logins are kept locked, never as list rows."
+          },
+          {
+            "id": "response",
+            "label": "Exact response surface (JSON)",
+            "kind": "long-text"
+          },
+          {
+            "id": "checked_by",
+            "label": "Done once",
+            "kind": "checked-by"
+          },
+          {
+            "id": "done_when_rule",
+            "label": "Done when (Trillion checks)",
+            "kind": "done-when-rule"
+          },
+          {
+            "id": "finish",
+            "label": "How you finish it",
+            "kind": "choice",
+            "choices": [
+              "Tap done",
+              "Paste it",
+              "Send a file",
+              "Send a link",
+              "Tell Trillion",
+              "Checked for you"
+            ]
+          },
+          {
+            "id": "device",
+            "label": "The device it is about (its model id). Empty for any camera that can send by FTP. Shown only to someone whose devices or files show that device",
+            "kind": "text",
+            "free_text_because": "A device model id (CAM-100) matched against what the person's devices and files report about themselves (src/device-facts.mjs), not a row of a list."
+          },
+          {
+            "id": "setup_words",
+            "label": "How to set that device to send here (its own words)",
+            "kind": "long-text"
+          },
+          {
+            "id": "asked_by",
+            "label": "Asked by",
+            "kind": "text"
+          },
+          {
+            "id": "round_step",
+            "label": "This round's step",
+            "kind": "text"
+          },
+          {
+            "id": "next_step",
+            "label": "Next round's step",
+            "kind": "text"
+          },
+          {
+            "id": "rounds_done",
+            "label": "Rounds finished",
+            "kind": "number"
+          },
+          {
+            "id": "rounds_planned",
+            "label": "Rounds planned",
+            "kind": "number"
+          },
+          {
+            "id": "round_log",
+            "label": "What each round showed",
+            "kind": "long-text"
+          },
+          {
+            "id": "progress",
+            "label": "Progress",
+            "kind": "progress",
+            "measure": {
+              "done_field": "rounds_done",
+              "total_field": "rounds_planned",
+              "evidence_field": "round_log",
+              "unit": "rounds",
+              "unit_one": "round",
+              "open_ended": true
+            }
+          },
+          {
+            "id": "status",
+            "label": "Status",
+            "kind": "choice",
+            "choices": [
+              "Waiting",
+              "Done"
+            ],
+            "settles": [
+              "Done"
+            ],
+            "starts": "Waiting",
+            "open_index": "open-status"
+          },
+          {
+            "id": "added",
+            "label": "Added",
+            "kind": "date"
+          },
+          {
+            "id": "closed_because",
+            "label": "How it closed",
+            "kind": "text"
+          }
+        ],
+        "indexes": [],
+        "icon": "Hand",
+        "about": "What your AIs could not do without you: sign-ins, approvals, payments and clicks, each with where to do it."
+      }
+    },
+    {
+      "id": "list-view:waiting-on-you:waiting",
+      "type": "list-view",
+      "value": {
+        "list_id": "waiting-on-you",
+        "view": {
+          "id": "waiting",
+          "label": "Waiting",
+          "search": "",
+          "time_zone": "UTC",
+          "rules": {
+            "kind": "group",
+            "combinator": "and",
+            "negate": false,
+            "rules": [
+              {
+                "kind": "rule",
+                "field": "status",
+                "operator": "is_none_of",
+                "params": {
+                  "values": [
+                    "Done"
+                  ]
+                }
+              }
+            ]
+          },
+          "sort": [],
+          "groups": [],
+          "columns": {
+            "order": [],
+            "hidden": []
+          }
+        },
+        "order": "V"
+      }
+    },
+    {
+      "id": "entity-list:waiting-on-you",
+      "type": "entity-list",
+      "value": {
+        "complete": false,
+        "before": ""
+      }
+    },
+    {
+      "id": "naming-fields-mark:lists",
+      "type": "naming-fields-mark",
+      "value": {
+        "due": true
+      }
+    },
+    {
+      "id": "setting:needs_you_nudge",
+      "type": "setting",
+      "value": {
+        "value": {
+          "count": 0
+        }
+      }
+    }
+  ]
+}

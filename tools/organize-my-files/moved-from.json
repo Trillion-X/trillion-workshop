@@ -104,6 +104,14 @@
       "identity": "1f:f3b91d523f0e79473d6665ab981b4f2ca12e6fdfc0bf93e2bd06bf2cd36a2657"
     },
     {
+      "from": "parts/ui/show/server-rendered-page/page-sections-html.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs",
+      "source_identity": "1f:96f3a44bbfbce604301db538e1b6676b6b008742efda4fe0e000cdd5b4c24283",
+      "identity": "1f:f3b91d523f0e79473d6665ab981b4f2ca12e6fdfc0bf93e2bd06bf2cd36a2657",
+      "reused": true
+    },
+    {
       "from": "parts/ui/show/share-row/share-row-html.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/organize-my-files/parts/ui/show/share-row/share-row-html.mjs",
@@ -132,11 +140,27 @@
       "identity": "1f:196791e21053fff43bef820310282f4e4d927e0017fd7553f13046967bae355a"
     },
     {
+      "from": "parts/ui/show/thread-cover/thread-cover.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-my-files/parts/ui/show/thread-cover/thread-cover.json",
+      "source_identity": "1f:196791e21053fff43bef820310282f4e4d927e0017fd7553f13046967bae355a",
+      "identity": "1f:196791e21053fff43bef820310282f4e4d927e0017fd7553f13046967bae355a",
+      "reused": true
+    },
+    {
       "from": "parts/ui/show/thread-cover/thread-cover.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/organize-my-files/parts/ui/show/thread-cover/thread-cover.mjs",
       "source_identity": "1f:d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547",
       "identity": "1f:d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547"
+    },
+    {
+      "from": "parts/ui/show/thread-cover/thread-cover.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-my-files/parts/ui/show/thread-cover/thread-cover.mjs",
+      "source_identity": "1f:d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547",
+      "identity": "1f:d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547",
+      "reused": true
     },
     {
       "from": "src/content-tags.json",
@@ -279,6 +303,13 @@
       "to": "tools/organize-my-files/test/namespace-file-lookup.test.mjs",
       "source_identity": "1f:5a5e03ae65776ddbf43cafb64a6ba6fe3dcbc4c2031d4a2784338e370c5cee81",
       "identity": "1f:5a5e03ae65776ddbf43cafb64a6ba6fe3dcbc4c2031d4a2784338e370c5cee81"
+    },
+    {
+      "from": "test/thread-cover.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/organize-my-files/test/thread-cover.test.mjs",
+      "source_identity": "1f:311f68154aea6f8fa5709ae5fac7044f207ef3b6d38bf3236b6ea06413691521",
+      "identity": "1f:1dca6acb82f1275482f61d433d6ce5a154c99d923234f999e63e7fbcfd8df1b1"
     }
   ]
 }

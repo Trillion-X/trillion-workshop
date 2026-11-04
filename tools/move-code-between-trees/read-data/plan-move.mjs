@@ -13,6 +13,9 @@ import { aliasesOf, isCode, isRelative, requestFor, requestsIn, targetOf } from 
 import { swapCalls, providerCallsLeft } from './swap-calls.mjs';
 
 const TEST_FILE = /\.test\.(?:mjs|cjs|js|ts|tsx|mts)$/;
+// A request with a scheme (node:fs, cloudflare:workers) names a module the runtime itself provides, never a package: no
+// package name holds a colon.
+const RUNTIME_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 export const packageOf = name => name.split('/').slice(0, name.startsWith('@') ? 2 : 1).join('/');
 
 /** The groups a move row names: its own `groups`, plus one per row of the source's owner index that names a destination. */
@@ -249,7 +252,7 @@ export function planMove(row, source, destination) {
           // A file that already imports a moved file through the destination package imports it by path once it is there too.
           const there = item.specifier.slice(packageName.length + 1);
           changes.push({ start: item.start, end: item.end, specifier: requestFor(to, there, there, there), was: item.specifier });
-        } else if (!isRelative(item.specifier) && !item.specifier.startsWith('#') && !item.specifier.startsWith('node:') && !builtinModules.includes(item.specifier) && item.how !== 'url') {
+        } else if (!isRelative(item.specifier) && !item.specifier.startsWith('#') && !RUNTIME_SCHEME.test(item.specifier) && !builtinModules.includes(item.specifier) && item.how !== 'url') {
           const name = packageOf(item.specifier);
           if (!declared[name] && name !== packageName) {
             packagesToAdd.set(name, sourceVersions[name] ?? null);
