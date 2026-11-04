@@ -1,0 +1,24 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/json-expansion.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/json-expansion.mjs",
+      "source_identity": "1f:a18552080f3cd2e12cc85201f078c33fc8e41a0adcca6ec18899ec39937bb8af",
+      "identity": "1f:a18552080f3cd2e12cc85201f078c33fc8e41a0adcca6ec18899ec39937bb8af",
+      "reused": true
+    },
+    {
+      "from": "parts/sql-statement-execution.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/sql-statement-execution.mjs",
+      "source_identity": "1f:4438b66d0bd00476648019ac1dcc7a2ed385b4ae699f1167113ef57584e984f7",
+      "identity": "1f:4438b66d0bd00476648019ac1dcc7a2ed385b4ae699f1167113ef57584e984f7",
+      "reused": true
+    }
+  ]
+}

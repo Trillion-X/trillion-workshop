@@ -1,0 +1,40 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/effect-outcomes.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-account/read-data/effect-outcomes.json",
+      "source_identity": "1f:e74121f14a1b0e0442f4b3b7560d8641bd906920bd2afc8d97d6ef4ec5c43942",
+      "identity": "1f:e74121f14a1b0e0442f4b3b7560d8641bd906920bd2afc8d97d6ef4ec5c43942",
+      "reused": true
+    },
+    {
+      "from": "src/failure-codes.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-account/read-data/failure-codes.json",
+      "source_identity": "1f:f85668913856d2bcbfcdf6e9c881da9bd84d568dab6360c1139bf13ac90907b6",
+      "identity": "1f:f85668913856d2bcbfcdf6e9c881da9bd84d568dab6360c1139bf13ac90907b6",
+      "reused": true
+    },
+    {
+      "from": "src/harnesses.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-account/read-data/harnesses.json",
+      "source_identity": "1f:2c38c77fc2bc48c7a815d6dd74868b87c7e129a7ce270a1bfa019c6063264640",
+      "identity": "1f:2c38c77fc2bc48c7a815d6dd74868b87c7e129a7ce270a1bfa019c6063264640",
+      "reused": true
+    },
+    {
+      "from": "src/platform-failures.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-account/read-data/platform-failures.json",
+      "source_identity": "1f:ff05d10f2ec52e296ee5bb07efdbc630b106d7645b7a38ac3f84298ea102db68",
+      "identity": "1f:ff05d10f2ec52e296ee5bb07efdbc630b106d7645b7a38ac3f84298ea102db68",
+      "reused": true
+    }
+  ]
+}
