@@ -9,7 +9,7 @@
         "id": "tool:publish-an-engine-release",
         "label": "Publish an engine release",
         "job": "Build the engine at a commit and publish it as a signed release every computer can adopt",
-        "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it with the repository's product/ folder as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
+        "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it (with the repository's product/ folder when the commit has one) as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -59,7 +59,7 @@
           "type": "object",
           "required": ["public_key", "feed_url", "receiver_active", "webhook"],
           "properties": {
-            "public_key": { "type": "string" }, "key_made": { "type": "boolean" }, "feed_url": { "type": "string" }, "receiver_active": { "type": "boolean" },
+            "public_key": { "type": "string" }, "key_made": { "type": "boolean" }, "deploy_key": { "type": ["string", "null"] }, "feed_url": { "type": "string" }, "receiver_active": { "type": "boolean" },
             "feed_status": { "type": ["integer", "null"] }, "webhook": { "type": "object" }
           }
         },
