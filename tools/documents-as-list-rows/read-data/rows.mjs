@@ -79,13 +79,14 @@ export async function changeDocumentRows({ root, folder = '/', rows = [], remove
   return read.write({ source: { of: folderKey(folder) }, rows, remove });
 }
 
-// The documents an atoms mapping names: its `sources`, or every document under its `folders` (walked, hidden folders
-// skipped) whose extension is in `extensions`, leaving out `exclude_folders`. Names are paths under `root`.
+// The documents an atoms mapping names: its `sources` (exact documents), then every document under its `folders`
+// (walked, hidden folders skipped) whose extension is in `extensions`, leaving out `exclude_folders`. Names are paths
+// under `root`. A mapping with `sources` and no `folders` reads only those.
 async function atomSources(files, plan) {
-  if (plan.sources) return plan.sources;
+  if (plan.sources && !plan.folders) return plan.sources;
   const extensions = new Set((plan.extensions ?? ['md', 'mdx', 'txt', 'markdown']).map(one => one.toLowerCase()));
   const skipped = (plan.exclude_folders ?? []).map(one => `/${String(one).replace(/^\/+|\/+$/g, '')}`);
-  const out = [];
+  const out = [...(plan.sources ?? [])];
   for (const folder of plan.folders ?? ['/']) {
     const base = `/${String(folder).replace(/^\/+|\/+$/g, '')}`.replace(/^\/$/, '/');
     for (const under of [base, ...(await files.foldersUnder(base))]) {

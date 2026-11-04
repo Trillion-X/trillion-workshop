@@ -6,7 +6,7 @@
 //   node do-work/documents.mjs rows  --root DIR [--folder SUB] [--match GLOB] [--after NAME] [--limit N] [--backlinks]
 //   node do-work/documents.mjs set   --root DIR --path /NAME --if-identity 1f:... [--set KEY=JSON ...] [--remove KEY ...]
 //   node do-work/documents.mjs split --root DIR --mapping FILE (--check | --out SUB --leftover SUB)
-//   node do-work/documents.mjs atoms --root DIR --mapping FILE [--check]     (report on stderr, one row per line on stdout)
+//   node do-work/documents.mjs atoms --root DIR (--mapping FILE | --stdin) [--check]   (report on stderr, one row per line on stdout)
 //   node do-work/documents.mjs selection --root DIR --stdin < {"source": <documents row source>}
 //   node do-work/documents.mjs rows|set|split --root DIR --stdin   < the input as JSON
 //
@@ -32,7 +32,7 @@ const run = { rows: readDocumentRows, set: changeDocumentRows, split: splitIntoD
 
 try {
   let answer;
-  if (flags.stdin === true && run[command]) {
+  if (flags.stdin === true && run[command] && command !== 'atoms') {
     answer = await run[command]({ ...JSON.parse((await text(process.stdin)) || '{}'), root: flags.root });
   } else if (command === 'rows') {
     answer = await readDocumentRows({ root: flags.root, folder: flags.folder, match: flags.match, after: flags.after ?? null,
@@ -53,7 +53,9 @@ try {
   } else if (command === 'atoms') {
     // The report goes to standard error and each row to standard output as one JSON line, so a corpus of millions of
     // pieces is never held as one answer by the caller.
-    const cut = await cutIntoRecords({ root: flags.root, mapping: flags.mapping, check: flags.check === true });
+    // With --stdin the mapping is the JSON on standard input (a mapping too long for a file under the granted root).
+    const mapping = flags.stdin === true ? JSON.parse(await text(process.stdin)) : flags.mapping;
+    const cut = await cutIntoRecords({ root: flags.root, mapping, check: flags.check === true });
     console.error(JSON.stringify(cut.report));
     for (const record of cut.records ?? []) console.log(JSON.stringify(record));
     answer = undefined;

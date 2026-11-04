@@ -169,7 +169,7 @@ Where each value goes:
 A mapping with `cut: "atoms"` is the second split rule, chosen by DATA per list. It cuts each document into atoms, ported from the earlier Trillion app (`scripts/method-atoms.mjs` there): one atom is one paragraph, list item, table row or fenced block, under the headings above it. Titles, horizontal rules and table headers are not atoms. The port changes two things: the identity hash comes from `tools/content-identity`, and each atom carries `line`, the line it starts at.
 
 ```
-node do-work/documents.mjs atoms --root DIR --mapping FILE [--check]
+node do-work/documents.mjs atoms --root DIR (--mapping FILE | --stdin) [--check]
 ```
 
 The report goes to standard error and each row to standard output as one JSON line, ready for `records:write`.
@@ -182,8 +182,13 @@ The report goes to standard error and each row to standard output as one JSON li
 | `extensions` | The document extensions read. Default `md`, `mdx`, `txt`, `markdown`. |
 | `exclude_folders` | Folders under the root left out. |
 | `record_type`, `id_prefix`, `id_hex` | The row's type (`note`), the id's prefix (`note:`) and how many hex digits of the identity make the id (32). |
+| `min_letters` | A piece with fewer letters or digits than this is not a row (a lone `{` or `},`). It is counted in the report as `too_short_to_keep`. |
+| `most_sources` | A row lists at most this many places in `sources`; `source_count` is always the true number. |
+| `most_text_bytes` | A row's text is at most this many bytes; a longer piece says so (`text_clipped`, `text_bytes` holds its whole length) and is counted in the report as `rows_with_text_clipped`. |
 
-A row's value is `key` (heading path plus the piece's lead), `heading_path`, `b3` (the BLAKE3 of the whitespace-folded text), `text` and `sources` (every `{ path, line }` the piece was found at). A piece with an identity already seen, in the same document or another, adds a source to its row and is never a second row. The report counts the atoms read, the rows and the pieces found again, and the cut is refused if they disagree.
+`sources` and `folders` can be given together: the exact documents first, then every document under the folders. With `--stdin` the mapping is the JSON on standard input.
+
+A row's value is `key` (heading path plus the piece's lead), `heading_path`, `b3` (the BLAKE3 of the whitespace-folded text), `text` and `sources` (the `{ path, line }` places the piece was found at) and `source_count`. A piece with an identity already seen, in the same document or another, adds a source to its row and is never a second row. The report counts the atoms read, the rows, the pieces found again and the pieces too short to keep, and the cut is refused if they disagree.
 
 ## Files
 

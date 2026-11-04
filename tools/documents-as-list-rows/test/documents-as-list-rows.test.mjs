@@ -626,7 +626,8 @@ test('cutting into rows: a piece found again adds a source and is never a second
   await writeFile(join(root, 'skip', 'c.md'), 'Water the beans.\n');
   const mapping = { cut: 'atoms', folders: ['/notes'], record_type: 'note', id_prefix: 'note:' };
   const { report, records } = await cutIntoRecords({ root, mapping });
-  assert.deepEqual(report, { atoms_in: 8, rows: 7, found_again_as_a_source: 1, documents: 2 });
+  assert.deepEqual(report, { atoms_in: 8, rows: 7, found_again_as_a_source: 1, too_short_to_keep: 0, rows_with_text_clipped: 0, documents: 2 });
+  assert.equal(records.find(record => record.value.text === 'Water the beans.').value.source_count, 2);
   assert.equal(records.length, 7);
   const beans = records.find(record => record.value.text === 'Water the beans.');
   assert.deepEqual(beans.value.sources, [{ path: '/notes/a.md', line: 23 }, { path: '/notes/b.txt', line: 5 }]);
@@ -637,6 +638,20 @@ test('cutting into rows: a piece found again adds a source and is never a second
   assert.deepEqual((await cutIntoRecords({ root, mapping, check: true })).records, undefined);
   const skipped = await cutIntoRecords({ root, mapping: { ...mapping, folders: ['/'], exclude_folders: ['skip'] }, check: true });
   assert.equal(skipped.report.documents, 2);
+});
+
+test('atoms limits are DATA and never silent: short pieces, listed places and long text are counted', async () => {
+  const root = await scratch();
+  const long = 'x'.repeat(50);
+  await writeFile(join(root, 'a.md'), `## A\n\n{\n\n}\n\n- same\n\n- same\n\n- same\n\n${long}\n`);
+  const { report, records } = await cutIntoRecords({ root, mapping: { cut: 'atoms', folders: ['/'], min_letters: 2, most_sources: 2, most_text_bytes: 10 } });
+  assert.deepEqual(report, { atoms_in: 6, rows: 2, found_again_as_a_source: 2, too_short_to_keep: 2, rows_with_text_clipped: 1, documents: 1 });
+  const same = records.find(record => record.value.text === '- same');
+  assert.equal(same.value.source_count, 3);
+  assert.equal(same.value.sources.length, 2);
+  const clipped = records.find(record => record.value.text_clipped);
+  assert.equal(clipped.value.text, 'xxxxxxxxxx');
+  assert.equal(clipped.value.text_bytes, 50);
 });
 
 test('the atoms command prints the report on stderr and one row per line on stdout; a document rule refuses atoms without check', async () => {
