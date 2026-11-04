@@ -5,14 +5,6 @@
   "calls": [],
   "files": [
     {
-      "from": "computer/computer-sources.json",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/run-on-a-persons-computer/computer-sources.json",
-      "source_identity": "1f:a7cc4565f0950178f6367137d6f2fd228aa2896fdd36194be66d254b40c482cf",
-      "identity": "1f:a7cc4565f0950178f6367137d6f2fd228aa2896fdd36194be66d254b40c482cf",
-      "reused": true
-    },
-    {
       "from": "src/workspace/file-previews.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/run-on-a-persons-computer/file-type.json",

@@ -68,7 +68,7 @@
     },
     {
       "from": "src/store-size.json",
-      "commit": "a7f1f9a0a8",
+      "commit": "a7f1f9a0a84ea399d0b964d3e7a201609884648f",
       "to": "tools/record-log/do-work/store-size.json",
       "source_identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
       "identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",

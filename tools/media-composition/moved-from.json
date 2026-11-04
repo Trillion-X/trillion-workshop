@@ -9,14 +9,16 @@
       "commit": "a7f1f9a0a84ea399d0b964d3e7a201609884648f",
       "to": "tools/media-composition/do-work/__tests__/author-voice-script-producer.test.mjs",
       "source_identity": "1f:de98a9401b34e474df2a993d0a723f5d5899c53eccc66a08e470fce3e20074f2",
-      "identity": "1f:de98a9401b34e474df2a993d0a723f5d5899c53eccc66a08e470fce3e20074f2"
+      "identity_at_move": "1f:de98a9401b34e474df2a993d0a723f5d5899c53eccc66a08e470fce3e20074f2",
+      "byte_copy_commit": "4d90a9cc88bae00ad744efb518a6be35320cd473"
     },
     {
       "from": "parts/media-composition/do-work/author-effect-stack.mjs",
       "commit": "a7f1f9a0a84ea399d0b964d3e7a201609884648f",
       "to": "tools/media-composition/do-work/author-effect-stack.mjs",
       "source_identity": "1f:df0d5e98e417ac4bcd6bc30ef134e27a72bd4607105f232607ca79cae885923b",
-      "identity": "1f:df0d5e98e417ac4bcd6bc30ef134e27a72bd4607105f232607ca79cae885923b"
+      "identity_at_move": "1f:df0d5e98e417ac4bcd6bc30ef134e27a72bd4607105f232607ca79cae885923b",
+      "byte_copy_commit": "4d90a9cc88bae00ad744efb518a6be35320cd473"
     },
     {
       "from": "parts/media-composition/do-work/narration/tests/test_asr_entry.py",
@@ -44,14 +46,15 @@
       "commit": "a7f1f9a0a84ea399d0b964d3e7a201609884648f",
       "to": "tools/media-composition/do-work/video-pipeline.mjs",
       "source_identity": "1f:b5395e1cd929d7670d04ef7d582347387d5f23ad17276438da5ca2d36efef92a",
-      "identity": "1f:b5395e1cd929d7670d04ef7d582347387d5f23ad17276438da5ca2d36efef92a"
+      "identity_at_move": "1f:b5395e1cd929d7670d04ef7d582347387d5f23ad17276438da5ca2d36efef92a",
+      "byte_copy_commit": "4d90a9cc88bae00ad744efb518a6be35320cd473"
     }
   ],
   "values": [
     {
       "from": "harness/take-open-work.json",
       "key": "program_paths",
-      "commit": "7fd8838475^",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/media-composition/do-work/narration/runtime.json",
       "key_here": "programs[local-narration-python].search_path",
       "note": "The computer helper's seven program folders, appended after ~/.showtime/venv/bin in their source order; author-voice-script.mjs no longer reads the old helper settings."
