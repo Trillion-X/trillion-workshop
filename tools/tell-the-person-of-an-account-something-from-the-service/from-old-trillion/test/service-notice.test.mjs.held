@@ -1,0 +1,51 @@
+// test/service-notice.test.mjs
+// Trillion's own owners tell the person of one account a notice (src/service-notice.mjs tellServiceNotice): one
+// tell:serviceNotice in that account's own records (RecordBook tellServiceNotice), as the service actor its policy owner
+// mints for that (src/service-actor-origins.json service-notice), never through the account's store. The model budget
+// alert of everyone's spend (src/pool.mjs) and the service watch's bill notices (src/service-watch.mjs) take this road.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { tellServiceNotice } from '../src/service-notice.mjs';
+import { mintServiceActor } from '../../../let-trillions-own-code-act-for-an-account-when/from-old-trillion/src/service-actor.mjs.held';
+import { executeNativeOwnResource } from '../src/own-record-resource-composition.mjs';
+import { nativeOwnRecordsFixture } from './native-own-records-for-tests.mjs';
+
+const ACCOUNT = 'runs-trillion';
+const signedIn = { sign_in: 'key:reader', issued_at: '2026-10-17T12:00:00.000Z', made: { private: true, spaces: 'all' }, ceiling: { private: true, spaces: 'all' }, approved_by: 'key' };
+const notices = f => executeNativeOwnResource({ env: f.env, owner: ACCOUNT, operation: 'tell:read', input: {}, claims: signedIn,
+  recorder: { app: 'test', app_basis: 'authenticated' }, requestKey: `read:${Math.random()}` });
+const titles = answer => answer.notices.map(notice => notice.title);
+
+test('a service notice is told in the account\'s own records, once per key, and updated in place, never through its store', async t => {
+  const f = await nativeOwnRecordsFixture(t); await f.own(ACCOUNT);
+  const notice = { key: 'model-budget:everyone:2026-10-17', kind: 'work-done', title: 'Model spend reached its budget', body: 'Everyone together reached the day budget.' };
+  await tellServiceNotice(f.env, ACCOUNT, notice);
+  assert.deepEqual(titles(await notices(f)), [notice.title]);
+  await tellServiceNotice(f.env, ACCOUNT, notice);
+  assert.deepEqual(titles(await notices(f)), [notice.title], 'the same key is one notice');
+  await tellServiceNotice(f.env, ACCOUNT, { ...notice, body: 'Everyone together is past the day budget.', update: true });
+  const [kept, ...more] = (await notices(f)).notices;
+  assert.equal(more.length, 0);
+  assert.equal(kept.body, 'Everyone together is past the day budget.', 'update changes the words in place');
+  await assert.rejects(tellServiceNotice(f.env, ACCOUNT, { title: 'No key' }), /names its key/);
+  await f.drain();
+  assert.deepEqual(f.storeAsked, [], 'no question reached the account\'s store');
+});
+
+test('the service-notice actor opens tell:serviceNotice and no other operation', async t => {
+  const f = await nativeOwnRecordsFixture(t); await f.own(ACCOUNT);
+  const { claims } = await mintServiceActor(f.env, { origin: 'service-notice', account: ACCOUNT, scope: { kind: 'service-notice', id: ACCOUNT } });
+  await assert.rejects(executeNativeOwnResource({ env: f.env, owner: ACCOUNT, operation: 'tell:read', input: {}, claims,
+    recorder: { app: 'Trillion', app_basis: 'service' }, requestKey: 'service-read' }), error => error.status === 403, 'a read its scope does not name is refused');
+  assert.deepEqual(f.storeAsked, []);
+});
+
+test('the model budget alert and the bill notices take the service-notice road', () => {
+  const pool = readFileSync(new URL('../src/pool.mjs', import.meta.url), 'utf8');
+  assert.match(pool, /alert: async notice => \{ if \(this\.env\.OPERATOR_ACCOUNT_ID\) await tellServiceNotice\(this\.env, this\.env\.OPERATOR_ACCOUNT_ID, modelBudgetNotice\(notice\)\); \}/);
+  assert.doesNotMatch(pool, /tellPerson/);
+  const watch = readFileSync(new URL('../../../watch-the-service-itself-such-as-the-share/from-old-trillion/src/service-watch.mjs.held', import.meta.url), 'utf8');
+  assert.match(watch, /tell = \(account, notice\) => tellServiceNotice\(env, account, notice\)/);
+  assert.doesNotMatch(watch, /tellPerson/);
+});

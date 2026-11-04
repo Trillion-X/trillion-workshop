@@ -1,0 +1,81 @@
+// The lane index service (src/search.mjs laneIndex): stats, disable, enable and prune of one index lane. A disabled lane
+// is neither built nor asked and keeps what it holds; prune drops its derived rows a page at a time; enabling it again
+// answers from the index it still holds, or from a rebuild after a prune.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { makeSearch } from '../src/search.mjs';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+
+const hex = (digit, index) => (digit + index.toString(16)).padEnd(64, digit);
+const drive = index => `12:${hex('b', index)}`, own = index => `1f:${hex('a', index)}`;
+const LANE = settings.lanes.find(lane => lane.match === 'colour-in-results').id;
+
+function person(pictures) {
+  const { sql } = sqliteHost(':memory:');
+  const files = namespaceStore(sql);
+  const results = resultsStore(sql, identity => files.identitiesOf(identity));
+  const { eeaf } = decisionStore(sql);
+  pictures.forEach(([name, palette], at) => {
+    const index = at + 1;
+    sql.exec("INSERT INTO namespace_files (identity, byte_length, media_type, origin, key, part_bytes, stored_at, checked_at) VALUES (?, 10, 'image/png', 'small', 'k', 10, 'now', 'now')", own(index));
+    files.addAliases(own(index), [drive(index)]);
+    sql.exec("INSERT INTO namespace_names (name, collection, identity, byte_length, modified_at_ms, named_at) VALUES (?, '/Pictures', ?, 10, 5, 'now')", `/Pictures/${name}`, own(index));
+    results.put([{ identity: drive(index), kind: 'facts', value: { palette } }]);
+  });
+  return { sql, eeaf, results };
+}
+async function indexed(search) {
+  for (let wake = 0; wake < 40 && (await search.stale()); wake += 1) await search.catchUp(10);
+  assert.equal(await search.stale(), 0);
+}
+const names = answer => answer.results.map(result => result.name).sort();
+const make = ({ sql, eeaf }) => makeSearch({ sql, eeaf, embed: null, runTool: async () => ({ state: 'failed', error: 'not connected' }), config: { ...settings, manage: { ...settings.manage, prune_page: 2, count_most: 3 } } });
+
+test('stats count a lane up to a bound, disable takes it out of the answer, enable brings it back', async () => {
+  const p = person([['a.png', ['#ff0000']], ['b.png', ['#ff0010']], ['c.png', ['#ff0020']], ['d.png', ['#ff0030']]]);
+  const search = make(p);
+  await indexed(search);
+  assert.deepEqual(names(await search.search('#ff0000', { places: ['seen'] })), ['a.png', 'b.png', 'c.png', 'd.png']);
+  const before = search.laneIndex({ action: 'stats', lane: LANE }).lanes[0];
+  assert.deepEqual([before.enabled, before.waiting, before.kept, before.mode], [true, false, { at_least: 3 }, 'colour-in-results']);
+  assert.deepEqual(search.laneIndex({ action: 'disable', lane: LANE }), { lane: LANE, enabled: false, mode: 'colour-in-results' });
+  assert.deepEqual(names(await search.search('#ff0000', { places: ['seen'] })), [], 'a disabled lane is not asked');
+  assert.equal(search.laneIndex({ action: 'stats', lane: LANE }).lanes[0].enabled, false);
+  search.laneIndex({ action: 'enable', lane: LANE });
+  assert.equal(names(await search.search('#ff0000', { places: ['seen'] })).length, 4, 'it still held its rows');
+});
+
+test('a disabled lane stops being built; a change made meanwhile is read when it is enabled', async () => {
+  const p = person([['a.png', ['#ff0000']]]);
+  const search = make(p);
+  await indexed(search);
+  search.laneIndex({ action: 'disable', lane: LANE });
+  p.results.put([{ identity: drive(1), kind: 'facts', value: { palette: ['#00ff00'] } }]);
+  for (let wake = 0; wake < 5; wake += 1) await search.catchUp(10);
+  assert.equal(p.sql.exec("SELECT COUNT(*) AS n FROM search_colours WHERE lane = ? AND l IS NOT NULL", LANE).toArray()[0].n, 1);
+  assert.equal(p.sql.exec('SELECT COUNT(*) AS n FROM search_changed WHERE lane = ?', LANE).toArray()[0].n > 0, true, 'the change waits');
+  search.laneIndex({ action: 'enable', lane: LANE });
+  await indexed(search);
+  assert.deepEqual(names(await search.search('#00ff00', { places: ['seen'] })), ['a.png']);
+});
+
+test('prune drops a page of derived rows a call and rebuilds an enabled lane from the results', async () => {
+  const p = person([['a.png', ['#ff0000']], ['b.png', ['#ff0010']], ['c.png', ['#ff0020']]]);
+  const search = make(p);
+  await indexed(search);
+  const sizes = [];
+  let step;
+  do { step = search.laneIndex({ action: 'prune', lane: LANE }); sizes.push(step.pruned); } while (step.more);
+  assert.deepEqual(sizes, [2, 1]);
+  assert.equal(step.rebuilding, true);
+  assert.deepEqual(search.laneIndex({ action: 'stats', lane: LANE }).lanes[0].kept, { exact: 0 });
+  await indexed(search);
+  assert.deepEqual(search.laneIndex({ action: 'stats', lane: LANE }).lanes[0].kept, { exact: 3 });
+  assert.equal(names(await search.search('#ff0000', { places: ['seen'] })).length, 3);
+  assert.throws(() => search.laneIndex({ action: 'prune', lane: 'nope' }), /not an index lane here/);
+  assert.throws(() => search.laneIndex({ action: 'disable' }), /needs the lane/);
+});

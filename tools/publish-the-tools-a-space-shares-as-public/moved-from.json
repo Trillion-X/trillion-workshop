@@ -1,0 +1,24 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/shared-workshop-projection.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/publish-the-tools-a-space-shares-as-public/from-old-trillion/src/shared-workshop-projection.mjs.held",
+      "source_identity": "1f:a8e6ea4fef8b12ee83a44eead7f5620b14713dca149e8f3666ed14c7bed7cded",
+      "identity": "1f:773e1d4c5d8a2fa4bcb7d4fbe1aa3ba6e04104fc253d4e85b08cd8f9844c9d31",
+      "held": true
+    },
+    {
+      "from": "test/shared-workshop-projection.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/publish-the-tools-a-space-shares-as-public/from-old-trillion/test/shared-workshop-projection.test.mjs.held",
+      "source_identity": "1f:7de1219d186602f53a9d62b5dacbce1891846da460ece735e9441a6895279b06",
+      "identity": "1f:ccbe304b1f99a4e2970f2aad1ce60471ceea6c4211213653a6ab6051d76fb067",
+      "held": true
+    }
+  ]
+}

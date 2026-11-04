@@ -1,0 +1,432 @@
+// src/showcases.mjs
+//
+// PURPOSE
+//   Trillion's own workspace, live, wherever Trillion is described (src/showcases.json). A visitor to
+//   https://<host>/<showcase> gets a throwaway account: its store is told it is throwaway (it sends no email, runs no
+//   model and empties itself when its lifetime ends, src/person-store.mjs beThrowaway), its own records are born native
+//   (RecordBook createNewAccountOwnRecords) and written through their own routes by a sign-in of the account itself,
+//   the showcase's tour is saved in them and shown, and the browser is signed in to it on that host only and sent to
+//   the screen the showcase opens.
+//   The tour then moves the real workspace by itself (its `play`), typing into real boxes and pressing real buttons,
+//   and hands the workspace to the visitor the moment they touch it. The same address is the frame every page shows:
+//   a showcase's own page (/live/<id> on the app), every Marketplace listing whose tool has one, the public site, and
+//   any outside page that embeds it.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. A throwaway sign-in lives only on `host`, a host no real sign-in is ever made on, so their cookies never meet;
+//      the Worker refuses a throwaway session anywhere else and a real one there (throwawayHostMismatch).
+//   2. A throwaway session reaches the workspace's own routes minus `refused_paths` (throwawayRefusal); everything
+//      outside the workspace on `host` is sent to the app's own address.
+//   3. Blind: no showcase, screen, tool or tour is named here. A showcase is a DATA row; a tool without one gets one
+//      made from its own record and its kind's `item_showcases` row (itemShowcase): its screen, its first input, its
+//      own sample. A tool or a workflow is shown this way, and a new kind is one more row.
+//   4. Bounded: starts are counted per address per hour (`starts_per_address_per_hour`), robots are told to stay out,
+//      and every throwaway store empties itself `lifetime_minutes` after it starts.
+//   5. Instant: a showcase row with `spare_accounts` keeps that many throwaway accounts already seeded, so a visitor
+//      gets one at once instead of waiting while every seed row is written (asked for 2026-10-12: the landing's live
+//      workspace took about a minute to start). Spares are prepared a step at a time (`spare_step_seconds`) after the
+//      live host answers, one holder per spare at a time and each spare handed to exactly one visitor (the spare's own
+//      records, deps.spareFor: src/showcase-spare-facts.mjs); a spare nobody took empties itself after `spare_hours`.
+
+import settings from '../../../showcases/src/showcases.json' with { type: 'json' };
+import { htmlPage } from './html-page.mjs';
+
+export const SHOWCASES = settings;
+const words = settings.words;
+const text = value => (typeof value === 'string' ? value.trim() : '');
+const fill = (template, values) => text(template).replace(/\{(\w+)\}/g, (_, name) => text(values[name]));
+
+/** True on the host the live workspace is served from. */
+export const isLiveHost = url => url.hostname === settings.host;
+
+/** A throwaway session asked for on a real host, or a real session on the live host: either is refused (invariant 1). */
+export const throwawayHostMismatch = (saved, url) => Boolean(saved?.throwaway) !== isLiveHost(url);
+
+/** Why a throwaway session may not use this route, in words the visitor reads, or null (invariant 2). */
+export function throwawayRefusal(session, url, method) {
+  if (!session?.throwaway) return null;
+  // A route the workspace itself uses to send what the visitor wrote (the message box) is let through before the prefixes below.
+  if ((settings.allowed_paths ?? []).some(row => url.pathname === row.path && (row.methods ?? ['POST']).includes(method))) return null;
+  const refused = settings.refused_paths.find(row => url.pathname.startsWith(row.path) && !(row.except_methods ?? []).includes(method));
+  return refused ? words.refused : null;
+}
+
+/** The live workspace's own address for a showcase id. */
+export const liveAddress = id => `https://${settings.host}/${encodeURIComponent(id)}`;
+/** The page about a showcase on the app (app origin given). */
+export const showcasePageAddress = (origin, id) => `${origin}${settings.page_path}/${encodeURIComponent(id)}`;
+
+/**
+ * A Marketplace item's showcase made from its own record (invariant 3) and its kind's row in `item_showcases`: it opens
+ * the item's screen, says what the item does, types the item's own sample when its kind has a step for one, and hands
+ * the screen to the visitor. Null for a kind with no row.
+ * item: { id, kind, label?, job, input_schema?, screen?, verify? } (src/pursuit-plan.mjs showcaseItem).
+ */
+export function itemShowcase(item) {
+  const made = settings.item_showcases[item?.kind];
+  if (!made || typeof made !== 'object' || !Array.isArray(made.steps)) return null;
+  // An item with no label is named from its id, as a sentence starts: tool:say-hello reads "Say hello".
+  const named = text(item.id).replace(/^[a-z]+:/i, '').replace(/-/g, ' ');
+  const label = text(item.label) || text(item.screen?.label) || named.charAt(0).toUpperCase() + named.slice(1);
+  const first = Object.entries(item.input_schema?.properties ?? {}).find(([, schema]) => schema?.type === 'string' && schema?.format !== 'namespace-file');
+  // What it does, in the line written for people first (as its own screen reads it), as one whole sentence for the card.
+  const values = { label, job: firstSentence(text(item.screen?.about) || text(item.description) || text(item.job)), sample: first ? sampleFor(item, first[0]) : '' };
+  // The screens the item shows in, and controls inside them.
+  const screen = made.screens.map(id => `[data-trillion-screen="${id}"]`).join(', ');
+  const inside = controls => made.screens.flatMap(id => controls.map(control => `[data-trillion-screen="${id}"] ${control}`)).join(', ');
+  // Every step leaves the item in plain sight, a card with nothing to point at included (`look.backdrop`).
+  const clear = { spotlight: { scrim_color: 'rgba(0, 0, 0, 0)', blur_px: 0 }, backdrop: { opacity: 0, blur_px: 0 } };
+  const opening = { surface: { id: made.surface, surface_input: { [made.surface_input_key]: item.id } } };
+  const kept = made.steps.filter(step => !step.needs || values[step.needs]);
+  const steps = kept.map(step => ({
+    id: step.id,
+    target_preparation: opening,
+    target_ref: { from: 'selector', query: Array.isArray(step.inside) ? inside(step.inside) : screen },
+    ...(Array.isArray(step.inside) ? { cutout: { shapes: [{ shape: 'rounded-rect', padding: 6, radius: 10 }] } } : {}),
+    placement: { prefer: step.placement ?? 'below', auto_flip: true, gap: 14 },
+    look: clear, centered_when_target_missing: true,
+    ...(step.act ? { act: { ...step.act, text: values.sample } } : {}),
+    nav: { buttons: [step.button] },
+  }));
+  // The same tour with the item's own words replaced by its kind's plain ones, kept when the item's own are refused.
+  const plain = { ...values, job: fill(made.plain_body, values) };
+  const tourOf = words => ({
+    id: `showcase-${text(item.id).replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`, title: fill(made.title, words), play: { step_ms: made.step_ms, after_ms: made.after_ms },
+    steps: kept.map((step, at) => ({ id: step.id, content: { content_kind: 'text', payload: { title: fill(step.title, words), body: fill(step.body, words) } }, ...steps[at] })),
+  });
+  return {
+    id: item.id, title: label, heading: label, body: values.job, opens: made.opens.replace('{id}', encodeURIComponent(item.id)), tool: item.id,
+    tour: tourOf(values), plain_tour: tourOf(plain),
+  };
+}
+
+// The first whole sentence of a text, ending as a sentence ends: an item's line for people is often several.
+function firstSentence(value) {
+  const first = text(value).split(/(?<=[.!?])\s+(?=[A-Z])/)[0] ?? '';
+  return first && !/[.!?]$/.test(first) ? `${first}.` : first;
+}
+
+// A tool's own sample for one input: its verify sample when it has one, else the schema's example or default.
+function sampleFor(tool, field) {
+  const verify = Array.isArray(tool.verify) ? tool.verify : tool.verify ? [tool.verify] : [];
+  for (const check of verify) {
+    const value = check?.input?.[field] ?? check?.sample?.[field];
+    if (typeof value === 'string' && value.trim()) return value.trim().slice(0, 140);
+  }
+  const schema = tool.input_schema?.properties?.[field] ?? {};
+  const example = Array.isArray(schema.examples) ? schema.examples[0] : schema.example ?? schema.default;
+  return typeof example === 'string' ? example.slice(0, 140) : '';
+}
+
+/** The showcase row by id, or null. An item id with no row of its own is made from the item (describe: id → item or null). */
+export async function showcaseFor(id, { describe }) {
+  const row = settings.showcases.find(one => one.id === id || one.tool === id);
+  if (row) return row;
+  if (!/^[a-z]+:[a-z0-9-]+$/i.test(id)) return null;
+  const item = await describe(id).catch(() => null);
+  return item?.id ? itemShowcase(item) : null;
+}
+
+/** The next steps a showcase's page offers: its own `next`, else the defaults. */
+export const nextStepsOf = row => (Array.isArray(row?.next) && row.next.length ? row.next : settings.next_defaults);
+
+/**
+ * Answers a request on the live host, or null to let the Worker answer it as it answers any workspace request.
+ * deps: { env, origin (the app's own), sessionUser(request) → session|null, isWorkspacePath(path) → boolean,
+ *         personFor(userId) → store stub, keyHash(token) → string, describe(id) → tool|null, cookieName,
+ *         grantPlan(userId) → records the plan for a throwaway account, in its policy owner,
+ *         makeOwnRecords(userId) → the throwaway account's own records, made native and ready,
+ *         browserGeneration(userId) → the browser sign-in generation its policy owner issues a session under,
+ *         seedSession(userId, seconds) → the account's own sign-in that writes its seed (a session no browser holds),
+ *         seed(session, path, body, headers, method) → Response: one write of a showcase's `seed` DATA (a list, its rows,
+ *           a file, a case, its tour) through the account's own routes, as that session }
+ */
+export async function answerLiveHost(request, deps) {
+  const url = new URL(request.url);
+  const path = url.pathname;
+  if (deps.waitUntil) deps.waitUntil(prepareSpares(deps).catch(error => console.error('live spares not prepared', String(error?.message ?? error).slice(0, 300))));
+  if (path === '/robots.txt') return new Response('User-agent: *\nDisallow: /\n', { headers: { 'content-type': 'text/plain; charset=utf-8' } });
+  // The workspace uploader sends bytes with its own signed lease. Keep that
+  // request on this host: redirecting a POST loses its body and this host's
+  // isolated browser session. The namespace owner still validates the lease.
+  const workspace = path === '/work' || path.startsWith('/work/') || path.startsWith('/workspace/')
+    || path.startsWith('/namespace/') || deps.isWorkspacePath(path);
+  const id = decodeURIComponent(path.slice(1));
+  const asked = request.method === 'GET' && id && !id.includes('/') && !workspace ? await showcaseFor(id, deps) : null;
+  if (asked) {
+    // A browser already holding this showcase's live workspace gets it again with the tour replayed, never a second
+    // throwaway account: a landing visited twice, or reloaded, costs one store and one start.
+    const already = await deps.sessionUser(request);
+    if (already?.throwaway && already.showcase === asked.id) return replayShowcase(asked, writerAs(deps, already), already.seeded);
+    return startShowcase(request, asked, deps);
+  }
+  // A screen asked for with no live workspace behind it (an expired one, or a typed address) starts the first showcase.
+  const page = request.method === 'GET' && !path.startsWith('/work') && !path.startsWith('/workspace/') && deps.isWorkspacePath(path);
+  if (page && !(await deps.sessionUser(request))) return Response.redirect(liveAddress(settings.showcases[0].id), 302);
+  if (workspace) return null;
+  // Everything that is not the workspace lives at the app's own address (invariant 2).
+  if (path === '/' || path === '') return Response.redirect(liveAddress(settings.showcases[0].id), 302);
+  return Response.redirect(`${deps.origin}${path}${url.search}`, 302);
+}
+
+// The value at a dotted path in parsed JSON (`a.b.0.c`), or undefined.
+const pick = (value, path) => String(path).split('.').reduce((at, name) => (at && typeof at === 'object' ? at[name] : undefined), value);
+
+// A recording's bytes for a seed: `seconds` of silence as a mono 8 kHz 8-bit WAV (a real file any player opens), base64.
+export function silentWavBase64(seconds) {
+  const rate = 8000, size = Math.round(seconds) * rate;
+  const bytes = new Uint8Array(44 + size).fill(0x80);
+  const view = new DataView(bytes.buffer);
+  const tag = (at, word) => [...word].forEach((letter, i) => { bytes[at + i] = letter.charCodeAt(0); });
+  tag(0, 'RIFF'); view.setUint32(4, 36 + size, true); tag(8, 'WAVE'); tag(12, 'fmt '); view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); view.setUint16(22, 1, true); view.setUint32(24, rate, true); view.setUint32(28, rate, true);
+  view.setUint16(32, 1, true); view.setUint16(34, 8, true); tag(36, 'data'); view.setUint32(40, size, true);
+  let text = '';
+  for (let at = 0; at < bytes.length; at += 0x8000) text += String.fromCharCode(...bytes.subarray(at, at + 0x8000));
+  return btoa(text);
+}
+
+// {{name}} in any string of a seed row or a tour: a value kept by an earlier row, {{account}} (a short id of this visitor, for
+// names that are global), {{now}} (the moment the account starts) or {{silent_wav_<seconds>}} (a recording's bytes).
+export function fillSeedTokens(value, held) {
+  const one = name => {
+    const wav = /^silent_wav_(\d{1,3})$/.exec(name);
+    if (wav) return silentWavBase64(Number(wav[1]));
+    return name in held ? String(held[name]) : null;
+  };
+  return JSON.parse(JSON.stringify(value).replace(/\{\{(\w+)\}\}/g, (all, name) => { const found = one(name); return found === null ? all : JSON.stringify(found).slice(1, -1); }));
+}
+
+/**
+ * Writes a showcase's `seed` rows, in order, each through `seed(userId, path, body, headers, method)` (the store or owner
+ * function the app itself uses for that write). A row is DATA: { path, body, method?, headers?, keep? }.
+ *   method   the write's method (POST unless given).
+ *   headers  sent with the write (who is writing, as an AI app does: x-trillion-reader).
+ *   keep     { name: "dotted.path.in.the.answer" }: the answer's value, held as {{name}} for every later row and for the tour.
+ * A row that fails is told on the console and the rest still go in: the visitor never sees a half-seed as an error.
+ * Answers what was kept.
+ */
+export async function seedShowcase(rows, userId, seed, showcaseId = '') {
+  const held = seedStart(userId);
+  for (const row of rows ?? []) await seedRow(row, userId, seed, held, showcaseId);
+  return held;
+}
+
+// What every seed starts holding: {{account}} and {{now}}.
+const seedStart = userId => ({ account: userId.replace(/-/g, '').slice(0, 8), now: new Date().toISOString() });
+
+// The {{name}} tokens a filled seed row or tour step still names: a value no earlier row kept. Nothing holding one is sent,
+// since a literal {{name}} reaching a route reads as a real name (2026-10-17: about 460 calls a week reached routes as
+// /spaces/{{space}}/about or /cases/{{price_case}}/guide, from seed rows and from the tour's space step).
+export const unfilledTokens = filled => [...new Set(JSON.stringify(filled).match(/\{\{(\w+)\}\}/g) ?? [])];
+
+// One seed row written, its kept values added to `held`. A row naming a value no earlier row kept is not sent.
+async function seedRow(row, userId, seed, held, showcaseId) {
+  const filled = fillSeedTokens(row, held);
+  const missing = unfilledTokens(filled);
+  if (missing.length) { console.error('showcase seed not sent', showcaseId, row.path, missing.join(' ')); return; }
+  const { path, body, method, headers, keep } = filled;
+  let answered;
+  try { answered = await seed(userId, path, body, headers ?? {}, method ?? 'POST'); } catch (error) { console.error('showcase seed not kept', showcaseId, path, String(error?.message ?? error).slice(0, 300)); return; }
+  if (!answered.ok) { console.error('showcase seed not kept', showcaseId, path, (await answered.text()).slice(0, 300)); return; }
+  if (keep) {
+    const json = await answered.json().catch(() => null);
+    for (const [name, at] of Object.entries(keep)) { const value = pick(json, at); if (value !== undefined) held[name] = value; else console.error('showcase seed kept nothing', showcaseId, path, name, JSON.stringify(json)?.slice(0, 400)); }
+  }
+}
+
+// Spare accounts (invariant 5). The app's key-value store lists each showcase's spares by state: `preparing` (seed rows
+// still being written; the spare's own records keep how far, `throwaway_spare`) and `ready` (seeded, waiting for a visitor).
+const spareKey = (state, id, userId = '') => `live-spare:${state}:${id}:${userId}`;
+const spareIds = async (kv, state, id) => (await kv.list({ prefix: spareKey(state, id) })).keys.map(({ name }) => name.slice(spareKey(state, id).length));
+const sparesKept = kv => typeof kv?.list === 'function' && typeof kv?.delete === 'function';
+
+// A ready spare handed to this visitor, or null. Each spare goes to one visitor only, even when two ask at once.
+async function claimSpare(showcase, deps, until) {
+  const kv = deps.env.APP_KV;
+  if (!(showcase.spare_accounts > 0) || !sparesKept(kv)) return null;
+  for (const userId of await spareIds(kv, 'ready', showcase.id)) {
+    await kv.delete(spareKey('ready', showcase.id, userId));
+    const spare = deps.spareFor(userId);
+    if (!(await spare.holdFact('throwaway_claimed', crypto.randomUUID(), null))) continue;
+    const prepared = await spare.fact('throwaway_spare');
+    if (!prepared?.done || !prepared.session) continue;
+    const person = deps.personFor(userId);
+    await person.beThrowaway({ until, showcase: showcase.id });
+    return { userId, person, held: prepared.held };
+  }
+  return null;
+}
+
+/**
+ * Prepares spare accounts for every showcase row with `spare_accounts`, for at most `spare_step_seconds`: starts the
+ * spares still missing and writes the next seed rows of those still preparing. Run after the live host answers
+ * (deps.waitUntil); asked at most once a minute, so most requests only read one key.
+ */
+export async function prepareSpares(deps, { now = Date.now() } = {}) {
+  const kv = deps.env.APP_KV;
+  if (!sparesKept(kv) || (await kv.get('live-spare:asked'))) return;
+  await kv.put('live-spare:asked', '1', { expirationTtl: 60 });
+  const ends = now + settings.spare_step_seconds * 1000;
+  // Every missing spare is started and every spare still preparing is written at the same time, so a step prepares
+  // as many spares as are missing instead of one (each spare still has one writer, held in its own records).
+  await Promise.all(settings.showcases.filter(row => row.spare_accounts > 0).map(async showcase => {
+    const [ready, preparing] = await Promise.all([spareIds(kv, 'ready', showcase.id), spareIds(kv, 'preparing', showcase.id)]);
+    const missing = Math.max(0, showcase.spare_accounts - ready.length - preparing.length);
+    preparing.push(...await Promise.all(Array.from({ length: missing }, () => startSpare(showcase, deps))));
+    await Promise.all(preparing.map(userId => continueSpare(showcase, userId, deps, ends)));
+  }));
+}
+
+async function startSpare(showcase, deps) {
+  const userId = crypto.randomUUID();
+  const person = deps.personFor(userId);
+  const seconds = (settings.spare_hours * 60 + settings.lifetime_minutes) * 60;
+  await person.beThrowaway({ until: new Date(Date.now() + seconds * 1000).toISOString(), showcase: showcase.id });
+  await deps.grantPlan(userId);
+  await deps.makeOwnRecords(userId);
+  const session = await deps.seedSession(userId, seconds);
+  await deps.spareFor(userId).setFact('throwaway_spare', { next: 0, held: seedStart(userId), done: false, session });
+  await deps.env.APP_KV.put(spareKey('preparing', showcase.id, userId), '1', { expirationTtl: settings.spare_hours * 3600 });
+  return userId;
+}
+
+async function continueSpare(showcase, userId, deps, ends) {
+  const kv = deps.env.APP_KV;
+  const spare = deps.spareFor(userId);
+  if (!(await spare.holdFact('throwaway_spare_writer', crypto.randomUUID(), ends - Date.now() + 30000))) return;
+  const state = await spare.fact('throwaway_spare');
+  // A spare begun before its own records were born native has no writer of its own: it is left to empty itself.
+  if (!state || state.done || !state.session || (await spare.fact('throwaway_claimed'))) { await kv.delete(spareKey('preparing', showcase.id, userId)); return; }
+  const rows = showcase.seed ?? [];
+  while (state.next < rows.length && Date.now() < ends) {
+    await seedRow(rows[state.next], userId, writerAs(deps, state.session), state.held, showcase.id);
+    state.next += 1;
+    await spare.setFact('throwaway_spare', state);
+  }
+  if (state.next < rows.length) return;
+  await spare.setFact('throwaway_spare', { ...state, done: true });
+  await kv.put(spareKey('ready', showcase.id, userId), '1', { expirationTtl: settings.spare_hours * 3600 });
+  await kv.delete(spareKey('preparing', showcase.id, userId));
+}
+
+// One sign-in of the throwaway account writing through its own routes, as seedShowcase's `seed(userId, path, body, ...)`.
+const writerAs = (deps, session) => (_userId, path, body, headers = {}, method = 'POST') => deps.seed(session, path, body, headers, method);
+
+// The showcase's tour kept in the visitor's own records and shown now (src/tours.mjs, as save_tour with show_now).
+// A made tour whose item's own words the tour's checks refuse is kept in its plain words instead, so a showcase always
+// plays (itemShowcase `plain_tour`).
+// A step naming a value its seed did not keep is left out of the tour, so the visitor never opens a {{name}} address.
+async function showTour(showcase, write, held = {}) {
+  const save = tour => write(null, '/tours/save', { tour, show_now: true, by: 'Trillion' });
+  let saved = await save(filledTour(showcase, held));
+  if (!saved.ok && showcase.plain_tour) saved = await save(showcase.plain_tour);
+  if (!saved.ok) console.error('showcase tour not saved', showcase.id, (await saved.text()).slice(0, 300));
+}
+
+function filledTour(showcase, held) {
+  const tour = fillSeedTokens(showcase.tour, held);
+  const steps = tour.steps.filter(step => {
+    const missing = unfilledTokens(step);
+    if (missing.length) console.error('showcase tour step left out', showcase.id, step.id, missing.join(' '));
+    return !missing.length;
+  });
+  return { ...tour, steps };
+}
+
+// The same visitor back at a showcase they hold: its tour plays again in the workspace they already have.
+async function replayShowcase(showcase, write, held) {
+  await showTour(showcase, write, held);
+  return new Response(null, { status: 303, headers: { location: showcase.opens, 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
+}
+
+// One visitor's live workspace: a throwaway account with the showcase's tour shown in it, this browser signed in to it.
+async function startShowcase(request, showcase, deps) {
+  const { env, keyHash, personFor, cookieName, grantPlan } = deps;
+  const address = request.headers.get('cf-connecting-ip') ?? 'unknown';
+  const hour = new Date().toISOString().slice(0, 13);
+  const countKey = `live-starts:${keyHash(address)}:${hour}`;
+  const started = Number(await env.APP_KV.get(countKey)) || 0;
+  if (started >= settings.starts_per_address_per_hour) return new Response(words.too_many, { status: 429, headers: { 'content-type': 'text/plain; charset=utf-8', 'retry-after': '3600' } });
+  await env.APP_KV.put(countKey, String(started + 1), { expirationTtl: 3600 });
+  const seconds = settings.lifetime_minutes * 60;
+  const until = new Date(Date.now() + seconds * 1000).toISOString();
+  // A spare already seeded answers at once; with none ready the visitor's own account is seeded now.
+  const spare = await claimSpare(showcase, deps, until);
+  const userId = spare?.userId ?? crypto.randomUUID();
+  const person = spare?.person ?? personFor(userId);
+  let held = spare?.held;
+  if (!spare) {
+    await person.beThrowaway({ until, showcase: showcase.id });
+    // The whole product is shown, so the visitor's throwaway account holds the plan, as an operator's grant does.
+    await grantPlan(userId);
+    await deps.makeOwnRecords(userId);
+    // What the showcase starts with (its `seed` rows: lists, their rows, files, decisions, handoffs, a site...), so its tour
+    // searches and opens real things.
+    held = await seedShowcase(showcase.seed, userId, writerAs(deps, await deps.seedSession(userId, seconds)), showcase.id);
+  }
+  const token = [...crypto.getRandomValues(new Uint8Array(32))].map(byte => byte.toString(16).padStart(2, '0')).join('');
+  const browser_generation = await deps.browserGeneration(userId);
+  const created_at = new Date().toISOString();
+  await env.APP_KV.put(`session:${keyHash(token)}`, JSON.stringify({ userId, created_at, browser_generation, method: 'throwaway', throwaway: true, showcase: showcase.id, seeded: held }), { expirationTtl: seconds });
+  await showTour(showcase, writerAs(deps, { userId, id: keyHash(token), created_at, browser_generation, method: 'throwaway' }), held);
+  const headers = new Headers({ location: showcase.opens, 'cache-control': 'no-store', 'x-robots-tag': 'noindex' });
+  // Partitioned and SameSite=None: the frame works inside any page that embeds it, kept apart per embedding site.
+  headers.append('set-cookie', `${cookieName}=${token}; HttpOnly; Secure; SameSite=None; Partitioned; Path=/; Max-Age=${seconds}`);
+  return new Response(null, { status: 303, headers });
+}
+
+/** The app's addresses for showcase pages: /live (every showcase) and /live/<id> (one). */
+export const isShowcasePagePath = path => path === settings.page_path || path.startsWith(`${settings.page_path}/`);
+
+// The live workspace as a page section: a frame of its own address (the shared page draws a text/html media as a frame).
+const liveSection = (row, heading, body) => ({
+  emphasis: 'live', heading, body,
+  media: { src: liveAddress(row.id), type: 'text/html', label: fill(settings.frame.title, row), height_px: settings.frame.height_px, phone_height_px: settings.frame.phone_height_px, allow: settings.frame.allow },
+  actions: [{ label: words.open_live, href: liveAddress(row.id) }],
+});
+
+/** A tool's live workspace address, or null when the tool has no screen to show (a listing's `live`, framed by its page). */
+export async function liveToolAddress(toolId, { describe }) {
+  const row = await showcaseFor(toolId, { describe });
+  return row ? liveAddress(row.id) : null;
+}
+
+/** The section a page shows a tool live in (a Marketplace listing), or null when the tool has no screen to show. */
+export async function liveToolSection(toolId, { describe }) {
+  const row = await showcaseFor(toolId, { describe });
+  return row ? liveSection(row, words.listing_heading, words.listing_body) : null;
+}
+
+/** One showcase's page: its heading and words, the live workspace, where to go next and what else to see live. */
+export async function showcasePage({ origin, id, describe }) {
+  const row = await showcaseFor(id, { describe });
+  if (!row) return htmlPage({ title: words.missing, canonical_origin: origin, sections: [{ heading: words.missing, actions: [{ label: words.index_heading, href: `${origin}${settings.page_path}` }] }] }, {}, 404);
+  const related = (row.related ?? []).map(other => settings.showcases.find(one => one.id === other)).filter(Boolean);
+  return htmlPage({
+    title: fill(words.page_title, row), canonical_origin: origin, canonical_path: `${settings.page_path}/${encodeURIComponent(row.id)}`, meta_description: row.body,
+    share: { type: 'website', site_name: 'Trillion', title: row.heading, description: row.body, url: showcasePageAddress(origin, row.id) },
+    sections: [
+      { emphasis: 'hero', heading: row.heading, heading_level: 1, body: row.body, actions: nextStepsOf(row) },
+      liveSection(row, null, words.live_label),
+      ...(related.length ? [{ heading: words.related, cards: related.map(other => ({ heading: other.heading, body: other.body, href: showcasePageAddress(origin, other.id) })) }] : []),
+    ],
+  });
+}
+
+/** Every showcase, and every tool with a screen, each linking to its own live page. */
+export async function showcasesIndexPage({ origin, tools }) {
+  const listed = [...settings.showcases.map(row => ({ heading: row.heading, body: row.body, href: showcasePageAddress(origin, row.id) })),
+    ...(await tools()).filter(tool => !settings.showcases.some(row => row.tool === tool.id)).map(tool => {
+      const row = itemShowcase({ kind: 'tool', ...tool });
+      return { heading: row.heading, body: row.body, href: showcasePageAddress(origin, row.id) };
+    })];
+  return htmlPage({
+    title: words.index_heading, canonical_origin: origin, canonical_path: settings.page_path, meta_description: words.index_body,
+    sections: [
+      { emphasis: 'hero', heading: words.index_heading, heading_level: 1, body: words.index_body, actions: settings.next_defaults },
+      liveSection(settings.showcases[0], null, words.live_label),
+      { cards: listed },
+    ],
+  });
+}

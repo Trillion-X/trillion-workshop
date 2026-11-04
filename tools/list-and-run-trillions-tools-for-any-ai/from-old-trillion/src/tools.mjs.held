@@ -1,0 +1,716 @@
+import {nativeCollectionAnswer,nativeCollectionContinuation,nativeCollectionCoverage} from './native-collection-continuation.mjs';
+import listingBudget from './tool-listing-budget.json' with { type: 'json' };
+import { listWithinBudget, listingMeta, withNamedInFull } from './tool-listing-budget.mjs';
+import { addressedCapabilityTools, addressedCapabilityAnnotations } from '../../../address-installed-capabilities/src/addressed-capability-tools.mjs';
+import { formerOperation } from '../../../shared-code/src/renamed-tools.mjs';
+import { refusalFor, refusalAsError } from '../../../refuse-a-tool-call-that-is-not-on-the-callers-current/src/tool-call-refusal.mjs';
+import { consequenceHold } from '../../../say-what-an-action-does-to-the-world/src/consequence-classes.mjs';
+import { withItemLinks } from '../../../hand-off-jobs-between-agents/src/item-links.mjs';
+import { withBehaviorNotes } from './tool-behavior-notes.mjs';
+import { transactionAnnotations, transactionTools } from '../../../run-several-tool-calls-together-so-the-whole/src/tool-transaction-tool.mjs';
+import toolUndo from '../../../tool-undo/src/tool-undo.json' with { type: 'json' };
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { workflowBindingsSchema } from '../../../track-decision-obligations/src/decision-workflows.mjs';
+import { executionModeTools, executionModeAnnotations } from './execution-mode-tools.mjs';
+import { executionModeInstructions, executionModeLens } from './execution-modes.mjs';
+// The MCP tools and message handling, shared by the local stdio server and the hosted web endpoint.
+import { SEND_AGAIN_WORDS, passing } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/cut-off.mjs';
+import { failureOf, payloadOf, platformSaid, WorkFailure } from '../../../tweak-live-controls/failure.mjs';
+import { exportFormats } from './report.mjs';
+import { agentAnnotations, agentTools } from '../../../shared-code/src/agents.mjs';
+import { workForAisAnnotations, workForAisTools } from '../../../send-work-tasks-tours-and-instructions-from/from-old-trillion/src/work-for-ais.mjs.held';
+import { ownAisAnnotations, ownAisTools } from '../../../shared-code/src/own-ais.mjs';
+import { awarenessAnnotations, awarenessTools } from './awareness.mjs';
+import { asksAnnotations, asksTools } from './asks-for-your-ais.mjs';
+import { momentAnnotations, momentTools } from '../../../shared-code/src/moments.mjs';
+import { carriedAnnotations, carriedTools } from '../../../shared-code/src/carried-connections.mjs';
+import { scoreAnnotations, scoreTools } from '../../../pick-the-best-of-a-known-set-of-choices-by-how/src/score-candidates.mjs';
+import { localChoiceAnnotations, localChoiceTools } from './local-choice-observations.mjs';
+import { explicitChoiceAnnotations, explicitChoiceTools } from './local-choice.mjs';
+import { communityAnnotations, communityTools, configSchema as communityConfigSchema } from '../../../run-a-community/src/community-tools.mjs';
+import networkSettings from '../../../introduce-two-people/src/network-settings.json' with { type: 'json' };
+import { spaceAnnotations, spaceTools } from '../../../give-an-ai-the-tools-to-read-and-change-a-pursuits/from-old-trillion/src/space-tools.mjs.held';
+import { shareDestinationAnnotations, shareDestinationTools } from '../../../choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-destinations.mjs.held';
+import { sharingAnnotations, sharingTools } from './record-sharing.mjs';
+import { scopeAnnotations, scopeTools } from './record-scope.mjs';
+import { modelAnnotations, modelTools } from '../../../query-and-change-list-rows/src/record-model-tools.mjs';
+import { recordVersionAnnotations, recordVersionTools } from './record-version-tools.mjs';
+import { databaseAnnotations, databaseTools } from './customer-databases.mjs';
+import {databaseProviderTools, databaseProviderAnnotations} from './database-workshop-provider.mjs';
+import { stanceAnnotations, stanceTools } from '../../../record-where-i-stand-on-one-of-my-records-agree/src/record-stance.mjs';
+import { contentFormatAnnotations, contentFormatTools } from './content-formats.mjs';
+import { fileAnnotations, fileTools } from '../../../organize-my-files/src/file-tools.mjs';
+import { mediaAnnotations, mediaTools } from './media-tools.mjs';
+import { workflowAnnotations, workflowTools } from '../../../let-an-ai-find-a-workflow-for-a-job-read/src/workflow-tools.mjs';
+import { automationAnnotations, automationTools } from './automation-tools.mjs';
+import { taskProposalAnnotations, taskProposalTools } from '../../../let-an-ai-or-a-rule-suggest-tasks-found/src/task-proposals.mjs';
+import { dateShiftAnnotations, dateShiftTools } from '../../../move-a-dated-plan/src/date-shift.mjs';
+import { sharedLibraryAnnotations, sharedLibraryTools } from './design-library.mjs';
+import { socialPostAnnotations, socialPostTools } from '../../../draft-approve-and-publish-my-social-posts-now/from-old-trillion/src/social-post-tools.mjs.held';
+import { listAnnotations, listTools } from '../../../query-and-change-list-rows/src/list-tools.mjs';
+import { configurationAnnotations, configurationTools } from '../../../query-and-change-list-rows/src/configurations.mjs';
+import { marketplaceConfigurationAnnotations, marketplaceConfigurationTools } from '../../../preview-a-published-marketplace-bundle-and-install-it-on-an-acco/src/marketplace-configuration-tools.mjs';
+import { savedLinkAnnotations, savedLinkTools } from '../../../keep-links-i-saved-elsewhere-such/src/saved-links-tools.mjs';
+import { linkPageAnnotations, linkPageTools } from '../../../share-links/src/link-page-tools.mjs';
+import { savedLoginAnnotations, savedLoginTools } from '../../../keep-my-own-logins-sealed-so-i-can-always/from-old-trillion/src/saved-logins-tools.mjs';
+import { deviceFactsAnnotations, deviceFactsTools } from '../../../set-up-my-devices-and-cameras/src/device-facts-tools.mjs';
+import { lookAnnotations, lookTools } from '../../../choose-and-publish-screen-looks/src/looks.mjs';
+import { sidebarAnnotations, sidebarTools } from '../../../read-the-sidebar-add-a-note-to-it-and-change-it-from/src/sidebar-tools.mjs';
+import { tourAnnotations, tourTools } from '../../../let-an-ai-write-a-guided-tour-for-the-moment/from-old-trillion/src/tours-tools.mjs';
+import { layoutAnnotations, layoutTools } from '../../../make-screen-layouts-and-controls/src/layouts-tools.mjs';
+import { controlsAnnotations, controlsTools } from '../../../make-screen-layouts-and-controls/src/controls-tools.mjs';
+import { showRuleAnnotations, showRuleTools } from './show-rules-tools.mjs';
+import { setupAccessAnnotations, setupAccessTools } from '../../../let-a-person-ask-for-the-trillion-app-to-be-installed/src/setup-access-tools.mjs';
+import { useAnnotations, useTools } from '../../../let-an-ai-read-what-the-persons-work/src/use-tools.mjs';
+import { sentAnnotations, sentTools } from '../../../list-everything-my-ais-sent-out-in-the-world/src/sent-tools.mjs';
+import { executionAnnotations, executionTools } from './execution-tools.mjs';
+import { contextWorkshopAnnotations, contextWorkshopTools } from '../../../address-installed-capabilities/src/context-workshop-tools.mjs';
+import { publicAppAnnotations, publicAppTools } from '../../../let-an-ai-create-and-edit-a-site-its-draft/src/public-app-tools.mjs';
+import { sourceProjectAnnotations, sourceProjectTools } from '../../../connect-the-original-repository-behind-an-app-edit/from-old-trillion/src/source-project-tools.mjs';
+import { diagramAnnotations, diagramTools } from '../../../draw-a-diagram/src/diagram-tools.mjs';
+import { cameraAnnotations, cameraTools } from '../../../set-up-my-devices-and-cameras/src/camera-tools.mjs';
+import { CONTENT, SAID, VIEW_DATA } from '../../../organize-my-files/src/tool-reply.mjs';
+import { withContinuation } from './mcp-continuation.mjs';
+import SAVE_TOOL_EXAMPLE from '../../../keep-and-wake-ai-sessions-on-this-computer/src/save-tool-example.json' with { type: 'json' };
+import instructions from '../../../shared-code/src/server-instruction-paragraphs.mjs';
+import { lensParagraph, useLens } from 'trillion-workshop/tools/see-a-pursuit-through-the-lens/src/pursuit-lens.mjs';
+import lensRows from '../methods/pursuit-lens.json' with { type: 'json' };
+import { screenParagraph, withScreenHints } from './screen-capabilities.mjs';
+import { placementTitle, screenViewAnnotations, screenViewTools, withScreenViews } from './screen-view.mjs';
+import listing from '../../../keep-and-wake-ai-sessions-on-this-computer/server.json' with { type: 'json' };
+import { setupAnnotations, setupInstructions, setupTools } from '../../../walk-a-new-person-through-first-setup/from-old-trillion/src/setup-plan.mjs.held';
+import { transcriptHookNames } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/harnesses.mjs';
+// The pursuit lens (trillion-workshop) reads the lens its caller hands in: the rows kept here.
+useLens(lensRows);
+// `call(path, body, method)` reaches the Trillion routes (POST when there is a body, unless a method is given); `askPerson(message, schema)` asks the person directly
+// when the client supports it (elicitation) and returns their answers, or null.
+
+// On the free plan nothing is kept, so a decision's whole state travels in its case_id and every reply carries a new
+// one (src/free-run.mjs): an AI that keeps sending the first id walks the decision back to its first question.
+const id = { type: 'string', description: 'The case_id from the latest reply about this decision (start_decision gives the first; on the free plan every reply gives a new one, so always send the newest)' };
+const taskId = { type: 'string', description: 'Task id returned by run_tool' };
+
+const usage = { type: 'object', description: 'What this cost you: numbers such as model_calls, input_tokens, output_tokens, seconds, and short labels such as model', additionalProperties: { type: ['number', 'string'] } };
+// Your own verdicts on the checks of an answer (src/check-judge.mjs takeCallerVerdicts): taken only where they rest on the answer's words or an evidence ref.
+const callerVerdicts = { type: 'array', description: 'The verdict on each check of this answer, from the grader method_questions names: check is a checklist id of the question (or a decision field name for the decision), meets whether the answer meets that check, rests_on the words of this answer (at least eight characters) or an evidence ref of the case that the verdict rests on, and missing (only when meets is false) the words of the check the answer does not address, copied exactly. A verdict that does not meet these rules is ignored and its check is judged by the check judge.', items: { type: 'object', required: ['check', 'meets', 'rests_on', 'graded_by'], properties: { check: { type: 'string' }, meets: { type: 'boolean' }, rests_on: { type: 'string' }, missing: { type: 'string' }, graded_by: { type: 'string', description: 'Who judged this check: your model or agent name, or the second judge\'s (the grader words of method_questions say which).' } } } };
+const at = caseId => `/cases/${encodeURIComponent(caseId)}`;
+// What follows a decision (tools for its next action, a session offer) is a bonus: it waits this long, then is let go.
+const AFTER_DECISION_MS = 2000;
+const soon = work => Promise.race([Promise.resolve(work).catch(() => null), new Promise(resolve => setTimeout(() => resolve(null), AFTER_DECISION_MS).unref?.())]);
+
+// Unexpected failures inside one tool need a reference the AI can return, while the log must not repeat any part of
+// the tool arguments, provider response, or exception message. Keep only V8 stack frames after the headline.
+function diagnoseUnexpectedToolFailure(tool, error) {
+  const failure = failureOf(error);
+  if (failure.code !== 'unexpected') return { failure, reference: null };
+  const reference = crypto.randomUUID().replaceAll('-', '').slice(0, 16);
+  const error_class = [[TypeError, 'TypeError'], [RangeError, 'RangeError'], [ReferenceError, 'ReferenceError'], [SyntaxError, 'SyntaxError'], [URIError, 'URIError'], [EvalError, 'EvalError'], [Error, 'Error']]
+    .find(([Type]) => error instanceof Type)?.[1] ?? 'UnknownThrownValue';
+  const headline = `${error?.name}: ${error?.message}`;
+  const stack = typeof error?.stack === 'string' && error.stack.startsWith(`${headline}\n`)
+    ? error.stack.slice(headline.length + 1) : '';
+  const frames = stack.split('\n').filter(line => /^\s*at\s+/.test(line)).slice(0, 20);
+  const reply_status = Number.isInteger(error?.reply_status) && error.reply_status >= 100 && error.reply_status <= 599
+    ? error.reply_status : undefined;
+  console.error(JSON.stringify({ event: 'unexpected_tool_failure', reference, tool, error_class, frames,
+    ...(reply_status === undefined ? {} : { reply_status }) }));
+  return { failure, reference };
+}
+
+// A failure Trillion did not expect (it has a reference) whose words are the platform's own (the database's "LIKE or
+// GLOB pattern too complex: SQLITE_ERROR", src/platform-failures.json own_words) answers these words and its reference
+// instead; words Trillion wrote, for the AI or the person, still answer as they are.
+const UNEXPECTED_WORDS = 'Trillion hit a problem it did not expect while doing this.';
+const errorTextWithReference = (error, reference) => {
+  const text = reference && platformSaid(error) ? UNEXPECTED_WORDS : String(error.message ?? error);
+  return reference ? `${text}\nFailure reference: ${reference}` : text;
+};
+
+/** Reject declared required top-level inputs before an owner or read path can run. */
+// A call cut off in passing is answered 'send this again', unless whether it was done is not known: then sending it again
+// without its request key could do it twice, so its own words (which name the key) are answered (src/native-resource-command.mjs).
+const sentAgainSafely = error => passing(error) && error?.outcome_unknown !== true;
+
+export function invalidToolInput(tool, input) {
+  const schema = tool?.inputSchema;
+  if (!schema || !(schema.type === 'object' || (Array.isArray(schema.type) && schema.type.includes('object')))) return null;
+  if (input === null || typeof input !== 'object' || Array.isArray(input)) {
+    return new WorkFailure('request-refused', 'Invalid input: arguments must be an object.');
+  }
+  const missing = (schema.required ?? []).filter(name => !Object.hasOwn(input, name));
+  return missing.length
+    ? new WorkFailure('request-refused', `Invalid input: missing required field${missing.length === 1 ? '' : 's'}: ${missing.join(', ')}.`)
+    : null;
+}
+
+// What every AI reads when it connects (DATA: src/server-instructions.json).
+// Who this server is, as every AI app and directory shows it: the same name, description, website and icon the
+// MCP Registry lists (DATA: server.json at the repository root).
+export const serverInfo = { name: 'trillion', title: listing.title, version: listing.version, description: listing.description, websiteUrl: listing.websiteUrl, icons: listing.icons };
+// {transcript_hook_apps} in a paragraph is the apps whose rows (src/harnesses.json) say a hook records their turns.
+const paragraphs = instructions.paragraphs.map(paragraph => paragraph.replaceAll('{transcript_hook_apps}', transcriptHookNames()));
+// The pursuit lens (DATA: ../methods/pursuit-lens.json) follows the setup paragraph whose step 3 points at it.
+const withLens = paragraphs.flatMap(paragraph => paragraph.startsWith('Setting a person up') ? [setupInstructions(), lensParagraph()] : [paragraph]);
+// What an AI can change on the person's screen (DATA: src/screen-capabilities.json) follows the paragraph on designing a screen.
+const withScreen = withLens.flatMap(paragraph => paragraph.startsWith('Designing a screen') ? [paragraph, screenParagraph()] : [paragraph]);
+// Deciding first, then the opening, are served before everything else, whatever is added to the paragraphs (Codex
+// decides from the first 512 characters and other apps cut the rest short).
+// The modes in use can change (src/mode-catalogue.mjs installs the published ones), so the hosted route reads these now.
+export const serverInstructionsNow = () => [`${instructions.decide_first} ${instructions.look_first} ${instructions.opening}`, executionModeInstructions(), ...withScreen, ...(instructions.continuation ?? [])].join('\n\n');
+export const continuationInstructionsNow = () => [...executionModeLens(), ...(instructions.continuation ?? [])];
+export const serverInstructions = serverInstructionsNow();
+const defaultContinuationInstructions = continuationInstructionsNow();
+
+// `readCustomers` is given only to the operator account's MCP route (src/worker.mjs); without it read_customers refuses.
+export function makeTools({ call, askPerson, readCustomers = null, cameFrom = async () => null }) {
+  // Fields about the person the decision belongs to. The AI answers first from what it already knows about them
+  // (its memory of them, their files, notes and past conversations) and says where each answer came from.
+  // Only what it cannot find is asked of the person, directly when the app allows it, otherwise relayed.
+  async function answerOthers(caseId, stepId, answer) {
+    const { question } = await call(at(caseId) + '/guide');
+    return fillOthers(question?.step_id === stepId ? question.ask_others ?? [] : [], answer);
+  }
+  async function fillOthers(others, answer) {
+    if (!others.length) return answer;
+    const filled = { ...answer, answered_by: { ...(answer?.answered_by ?? {}) } };
+    const unanswered = others.filter(item => !(typeof filled[item.field] === 'string' && filled[item.field].trim() && typeof filled.answered_by[item.field] === 'string' && filled.answered_by[item.field].trim()));
+    if (askPerson && unanswered.length) {
+      const content = await askPerson(unanswered.map(item => item.ask).join('\n'), {
+        type: 'object', required: unanswered.map(item => item.field),
+        properties: Object.fromEntries(unanswered.map(item => [item.field, { type: 'string', title: item.ask }])),
+      });
+      for (const item of unanswered) if (typeof content?.[item.field] === 'string' && content[item.field].trim()) {
+        filled[item.field] = content[item.field];
+        filled.answered_by[item.field] = item.answered_by;
+      }
+    }
+    const missing = others.filter(item => !filled.answered_by[item.field]);
+    if (missing.length) throw new Error('These are about the person the decision belongs to. First answer them from what you already know about this person (your memory of them, their files, notes and past conversations) and set answered_by to where it came from; ask the person only what you cannot find, and then set answered_by to "person": ' + missing.map(item => `${item.field}: "${item.ask}"`).join('; '));
+    return filled;
+  }
+  // What deciding adds to the choice: the tools that already do the chosen move. It does not change the decision, so a
+  // slow read is let go after AFTER_DECISION_MS.
+  async function afterDecision(decided, nextAction) {
+    const tools = await soon(call('/tools/find', { job: nextAction, limit: 3 }));
+    return { ...decided, ...(tools ? { tools_for_next_action: tools } : {}) };
+  }
+
+  const listed = withAnnotations([
+    { name: 'list_public_insights', description: 'Lists this account’s published insights and their public links.', inputSchema: { type: 'object', properties: {} }, run: () => call('/public-insights') },
+    { name: 'publish_insight', description: 'Publishes one checkable insight only when approval_message_id names a saved message from the person containing the exact title, insight, method, data, trace and source quotes. Without approval_message_id, returns the exact words to show the person and publishes nothing.',
+      inputSchema: { type: 'object', required: ['title', 'insight', 'method', 'data', 'trace', 'sources'], properties: {
+        title: { type: 'string' }, insight: { type: 'string' }, method: { type: 'string' }, data: { type: 'string' }, trace: { type: 'string' },
+        sources: { type: 'array', minItems: 1, maxItems: 20, items: { type: 'object', required: ['url', 'quote'], properties: { url: { type: 'string' }, quote: { type: 'string' } } } },
+        approval_message_id: { type: 'string' },
+      } }, run: input => call('/public-insights', input) },
+    { name: 'unpublish_insight', description: 'Withdraws one insight this account published from its public page and feed.', inputSchema: { type: 'object', required: ['insight_id'], properties: { insight_id: { type: 'string' } } }, run: ({ insight_id }) => call(`/public-insights/${encodeURIComponent(insight_id)}`, null, 'DELETE') },
+    { name: 'list_audience_questions', description: 'Read observed questions, reviews and private draft work for this account. No content is published.', inputSchema: { type: 'object', properties: {} }, run: () => call('/audience-questions') },
+    { name: 'observe_audience_source', description: 'Check an exact quote on a public HTTPS page and keep its source privately. role is question, answer or rights. A question needs offer_ref.', inputSchema: { type: 'object', required: ['role', 'venture_ref', 'source_url', 'quote'], properties: { role: { type: 'string', enum: ['question', 'answer', 'rights'] }, venture_ref: { type: 'string' }, offer_ref: { type: 'string' }, source_url: { type: 'string' }, quote: { type: 'string' } } }, run: input => call('/audience-questions/observe', input) },
+    { name: 'keep_audience_question', description: 'Keep a question from an observed source. Venture and offer come from the source. It remains private.', inputSchema: { type: 'object', required: ['source_id'], properties: { source_id: { type: 'string' }, audience: { type: 'string' }, locale: { type: 'string' } } }, run: input => call('/audience-questions/keep', input) },
+    { name: 'review_audience_question', description: 'Accept or reject a question. Acceptance needs checked answer and rights sources, why the answer is grounded, and why the rights cover that answer. Rejection needs a reason and withdraws pending work.', inputSchema: { type: 'object', required: ['candidate_id', 'verdict'], properties: { candidate_id: { type: 'string' }, verdict: { type: 'string', enum: ['accepted', 'rejected'] }, reason: { type: 'string' }, answer_source_id: { type: 'string' }, answer_note: { type: 'string' }, rights_source_id: { type: 'string' }, rights_note: { type: 'string' } } }, run: input => call('/audience-questions/review', input) },
+    { name: 'admit_audience_question', description: 'After acceptance, place an evidence-backed question in private pending draft work. Re-reads the current source, review and evidence; never publishes.', inputSchema: { type: 'object', required: ['candidate_id'], properties: { candidate_id: { type: 'string' } } }, run: input => call('/audience-questions/admit', input) },
+    { name: 'save_audience_answer_draft', description: 'Save a private answer and proposed HTTPS destination for admitted question work. The account copies its current venture, source, grounding and offer; nothing is published. Pass expected_revision from the listed draft, or null for the first save.', inputSchema: { type: 'object', required: ['candidate_id', 'answer', 'destination_url'], properties: { candidate_id: { type: 'string' }, answer: { type: 'string' }, destination_url: { type: 'string' }, expected_revision: { type: ['string', 'null'] } } }, run: input => call('/audience-questions/draft', input) },
+    { name: 'list_methods', description: 'Lists the decision methods start_decision can use: the ones published in the Marketplace that every account uses, one for any decision and others for particular kinds of decision. Returns each method\'s id, name and what it is for; pass the id as start_decision\'s method, or leave method out for the one for any decision. Needs nothing and changes nothing.', inputSchema: { type: 'object', properties: {} }, run: () => call('/methods') },
+    { name: 'publish_method', description: 'Publishes a decision method to the Marketplace under this account, with the checks its steps ask: send method (a method row: id, name, about, steps and backbone, or extends naming a published method, with check_rows, each {id, step, check}), or method_id to publish a method in use as it is. Every account whose default methods include this account\'s uses it; decisions already started keep the method they started with. unpublish_method withdraws it.', inputSchema: { type: 'object', properties: { method: { type: 'object' }, method_id: { type: 'string' } } }, run: input => call('/methods/publish', input) },
+    { name: 'unpublish_method', description: 'Withdraws a decision method this account published to the Marketplace. Decisions already started keep the method they started with.', inputSchema: { type: 'object', required: ['method_id'], properties: { method_id: { type: 'string' } } }, run: input => call('/methods/unpublish', input) },
+    ...setupTools({ call, origin: listing.websiteUrl, cameFrom }),
+    { name: 'list_pursuits', reach: 'spaces', description: 'Reads what this person is working toward, the one list Trillion keeps of it (every place they share with other people is one of these pursuits too): each pursuit with its id, title, where it is now (now), where they want it to get (after), why it matters, depth, and how pursuits nest: parents (the pursuits it is set under) and children (the pursuits set under it), in tree order. Every pursuit has space_id (its shared place when it has one, else its own id, which every pursuit tool takes); one shared with other people also has people_count, others (their names), unread and items; invite_to_space, share_to_space, add_to_space and read_space take its id. One pursuit can sit under several; set_record_scope with add.pursuits puts a pursuit under another. Decisions are weighed against these, so read them before advising. archived: true lists the archived ones. Returns a page with total and next_offset; call again with offset set to next_offset until it is null. It changes nothing; record_pursuits changes them, merge_pursuit joins duplicates, and archive_pursuit, leave_pursuit and end_pursuit take one out.', inputSchema: { type: 'object', properties: { offset: { type: 'integer', minimum: 0 }, limit: { type: 'integer', minimum: 1, maximum: 25 }, archived: { type: 'boolean' } } }, run: async ({ offset = 0, limit = 5, archived } = {}) => {
+      const page = await call(`/pursuits?offset=${Number(offset) || 0}&limit=${Number(limit) || 5}${archived ? '&archived=true' : ''}`);
+      return Array.isArray(page?.pursuits) ? { ...page, pursuits: page.pursuits.map(item => ({ ...item, space_id: item.space_id ?? item.id })) } : page;
+    } },
+    { name: 'archive_pursuit', reach: 'spaces', description: 'Archives one pursuit out of this person\'s lists (list_pursuits, the sidebar, Focus, every share picker), or puts it back with archived false. Only their own view changes: if others are in it they still are, its link still opens it, notices of what others add still come, rules or tools that name it keep working and nothing in it changes. Archiving twice changes nothing. Returns pursuit_id, archived and archived_at.', inputSchema: { type: 'object', required: ['pursuit_id'], properties: { pursuit_id: { type: 'string', description: 'The pursuit: its id from list_pursuits (pursuit:...), the space_id it carries, or its name (its whole name or one word only it has)' }, archived: { type: 'boolean', description: 'true (when left out) archives it; false puts it back' } } }, run: ({ pursuit_id, archived }) => call(`${String(pursuit_id).startsWith('pursuit:') ? '/pursuits' : '/spaces'}/${encodeURIComponent(pursuit_id)}/archive`, { archived: archived ?? true }) },
+    { name: 'merge_pursuit', description: 'Joins two pursuits that are the same piece of work. The pursuit named by into is kept and takes the other pursuit\'s shared place, records, parents and children; the duplicate ends. Nobody leaves the shared place and nobody is notified. It refuses when both pursuits already have shared places, when into is archived, or when both ids are the same. Only when the person asked to join these pursuits.', inputSchema: { type: 'object', required: ['pursuit_id', 'into'], properties: { pursuit_id: { type: 'string', description: 'The duplicate pursuit id from list_pursuits' }, into: { type: 'string', description: 'The pursuit id to keep' } } }, run: ({ pursuit_id, into }) => call(`/pursuits/${encodeURIComponent(pursuit_id)}/merge`, { into }) },
+    { name: 'leave_pursuit', description: 'Leaves a pursuit this person shares with other people: they are no longer in it, it is no longer one of their pursuits, and what they put there stays with the others. Only when the person asked to leave.', inputSchema: { type: 'object', required: ['pursuit_id'], properties: { pursuit_id: { type: 'string' } } }, run: ({ pursuit_id }) => call(`/pursuits/${encodeURIComponent(pursuit_id)}/leave`, {}) },
+    { name: 'end_pursuit', description: 'Ends one pursuit: it is no longer one of this person\'s pursuits and its history is kept. A pursuit shared with others is left as leave_pursuit does; one only they are in keeps everything in it. Only when the person asked.', inputSchema: { type: 'object', required: ['pursuit_id'], properties: { pursuit_id: { type: 'string' } } }, run: ({ pursuit_id }) => call(`/pursuits/${encodeURIComponent(pursuit_id)}/end`, {}) },
+    { name: 'record_pursuits', description: 'When the conversation establishes or corrects a concrete pursuit, call this action and then list_pursuits to verify it. A refusal from another action does not prove this save is refused; use only actual customer facts and keep unknowns unknown. Records what this person is pursuing, so every one of their AIs and every decision is weighed against it. Each pursuit needs title, now (where it stands today, concretely) and after (where they want it to get), written to the person (\'your files\', never \'his files\': they are shown to them, and he, his, she or her is refused), and may have id, why_it_matters, drive_evidence, status, last_seen, evidence [{where, date, quote_or_fact}], needle_mover (true on the one pursuit that, done, moves the others most: the person\'s biggest needle mover, shown first on their Home; set it false on any other that had it) and areas (the ids of the areas of their map, read_awareness map, that it serves or lives along the way). A pursuit with the id list_pursuits gave it is updated; one without an id is added (or updated, when its title matches). Pursuits you leave out stay as they are, unless replace_all is true: then the list you send is the whole list and every pursuit left out is marked ended (never erased). Fill it from what you already know about the person (your memory of them, their files and past conversations) before asking them, and be specific: generic pursuits make generic decisions. Returns the pursuits now current.', inputSchema: { type: 'object', required: ['pursuits'], properties: { pursuits: { type: 'array', items: { type: 'object', required: ['title', 'now', 'after'], properties: { id: { type: 'string' }, title: { type: 'string' }, now: { type: 'string' }, after: { type: 'string' }, why_it_matters: { type: 'string' }, drive_evidence: { type: 'string' }, status: { type: 'string' }, last_seen: { type: 'string' }, needle_mover: { type: 'boolean' }, evidence: { type: 'array', items: { type: 'object' } }, areas: { type: 'array', items: { type: 'string' } } } } }, replace_all: { type: 'boolean', description: 'true when this is the whole list: every current pursuit left out is ended' } } }, run: ({ pursuits, replace_all }) => call('/pursuits', { pursuits, ...(replace_all === true ? { replace_all: true } : {}) }, 'PUT') },
+    { name: 'send_to_all_ais', description: 'Sends one message from this person to every AI on their account at once: the Home box. The text is kept word for word in the shared Trillion conversation (conversation_id "trillion:shared"), then each AI is woken with a notice to read it with read_messages. Use it only for words the person wrote to all of their AIs. files (optional, at most 19) names the person\'s own files by identity, like {"identity": "1f:..."}; each AI is pointed at them, never sent their bytes. Returns message_id, conversation_id, files, delivery (agent_id, name and state for each AI: waiting, delivered, or next_connection when it can only see it the next time it connects) and a plain message. Being woken is not the same as having read it. Fails when no AI is connected yet.', inputSchema: { type: 'object', required: ['text'], properties: { text: { type: 'string', description: 'The person\'s words, exactly as written' }, files: { type: 'array', maxItems: 19, items: { type: 'object', required: ['identity'], properties: { identity: { type: 'string' } } } }, client_id: { type: 'string', maxLength: 200, description: 'An id you make for this message and send again unchanged when you retry it: the same id is the same message, the same words under another id are a new one. Left out, sending the same words again within ten minutes is taken as a retry.' } } }, run: input => call('/messages/send-all', input) },
+    { name: 'record_messages', description: 'Keeps messages between this person and you in their Trillion account, word for word, so every other AI they use can read them (read_messages). In ' + transcriptHookNames() + ', the verified transcript hook keeps both person prompts and AI replies; do not call this tool for that chat. In other apps, record both sides of an actual person turn before replying. Never record generated context, peer traffic, or SDK diagnostics as the person. Each message: conversation_id (the same id for every turn of this chat; make one up at the start if the app gives you none), app (your app, like "ChatGPT", "Claude", "Muse"; it defaults to the app you connected as), speaker, text (exactly as written, never summarized), at (leave it out for this turn and Trillion stamps the time; give it only for older messages you are sending from an earlier conversation, as their real ISO time), model (optional), final_reply (optional, AI messages only: false for an intermediate update, true for a completed reply; leave it out to preserve the existing default of a completed reply when at is omitted, or a nonfinal historical message when at is provided), attachments (optional list of file identities already in this person’s Files, linked to the message; use write_file or an upload first) and about (optional: what it concerns, as [{kind, id}], like {"kind": "pursuit", "id": "pursuit:content"}, {"kind": "decision", "id": "<case_id>"}, {"kind": "tool", "id": "tool:extract-sound"}, {"kind": "file", "id": "1f:..."}, with an optional part naming the exact piece, like the words a person selected). Up to 100 messages a call, so an earlier conversation can be sent in batches. A retry with the same original at changes nothing; keep the original time when retrying. Without at, the time is when this call records it. Returns how many were new and each message\'s id. It does not send the messages to anyone.', inputSchema: { type: 'object', required: ['messages'], properties: { messages: { type: 'array', minItems: 1, maxItems: 100, items: { type: 'object', required: ['conversation_id', 'speaker', 'text'], properties: { conversation_id: { type: 'string' }, app: { type: 'string' }, speaker: { type: 'string', description: '"person" for the person, "ai" for you, or the name of anyone else in the conversation' }, text: { type: 'string' }, at: { type: 'string', format: 'date-time' }, model: { type: 'string' }, final_reply: { type: 'boolean', description: 'For AI messages: false keeps an intermediate update nonfinal; true marks a completed reply. Omit to retain the existing default: final when at is omitted, nonfinal when at is provided. Does not change the message time, app or speaker.' }, attachments: { type: 'array', description: 'File identities already in this person’s Files, linked to this message.', items: { type: 'string', pattern: '^(1f|12):[0-9a-f]{64}$' } }, about: { type: 'array', items: { type: 'object', required: ['kind', 'id'], properties: { kind: { type: 'string' }, id: { type: 'string' }, part: { type: 'object', description: 'Which piece of it, when the message is about only some of it, like {"kind": "text-range", "quote": "the exact words", "prefix": "words before", "suffix": "words after", "start": 120, "end": 134}', required: ['kind'], properties: { kind: { type: 'string' } } } } } } } } } } }, run: input => call('/messages', input) },
+    { name: 'correct_message_duplicate', description: 'Retires one proven manual AI copy of a nearby identical transcript reply in the same app and conversation. Keeps the transcript row and any links from the manual copy. Check both exact message IDs and source evidence first; commentary and finals are distinct messages unless their text matches exactly.', inputSchema: { type: 'object', required: ['duplicate_id', 'kept_id', 'evidence'], properties: { duplicate_id: { type: 'string' }, kept_id: { type: 'string' }, evidence: { type: 'string' } } }, run: input => call('/messages/correct-duplicate', input) },
+    { name: 'read_messages', description: 'Reads messages this person exchanged with any of their AIs, newest first: each with id, conversation_id, app, speaker, text, at and about. Filter by conversation_id, by app, by not_app (everything except one app, like your own, to see what they said elsewhere), by about_id (messages about one pursuit, decision, tool or file), by speaker (exactly, like "person"), or by query (messages whose text holds every word of it, in any order, any case). One call looks through at most 1000 messages: it returns what it found, looked_through (how many it looked through) and next_before; pass next_before as before to go on, which finds older matches of a rare filter too. Read it at the start of a conversation to pick up what the person has been working on with their other AIs. It never changes anything.', inputSchema: { type: 'object', properties: { conversation_id: { type: 'string' }, app: { type: 'string' }, not_app: { type: 'string' }, about_id: { type: 'string' }, speaker: { type: 'string', description: 'Only messages by this speaker, like "person" or "ai"' }, query: { type: 'string', description: 'Only messages whose text holds every one of these words, in any order, any case' }, before: { type: 'string' }, limit: { type: 'integer', minimum: 1, maximum: 100 } } }, run: (input = {}) => call(`/messages?${new URLSearchParams(Object.entries(input).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, String(value)]))}`) },
+    { name: 'correct_message_provenance', description: 'Corrects a message that was falsely recorded as the person speaking, after checking its original transcript or source. Use only for a proven SDK diagnostic, peer prompt, or generated context row. The original words and correction evidence remain in the private audit history; the false founder message and arrival are retired, and the message is kept under its actual speaker. The decision it opened is withdrawn (or, when it joined another message\'s decision, it is taken out of that decision\'s facts) and the open work it opened is closed.', inputSchema: { type: 'object', required: ['message_id', 'speaker', 'evidence'], properties: { message_id: { type: 'string' }, speaker: { type: 'string', enum: ['sdk diagnostic', 'peer', 'generated context'] }, evidence: { type: 'string', description: 'Exact source and provenance fields proving the correction' } } }, run: input => call('/messages/correct-provenance', input) },
+    { name: 'correct_message_authored_at', description: 'Corrects when a previously kept person message was actually written, using its original chat transcript as evidence. Keeps the existing message, decision and handoff IDs; shows authored_at separately from the later captured_at. Use only after confirming the transcript words exactly match.', inputSchema: { type: 'object', required: ['message_id', 'authored_at', 'evidence'], properties: { message_id: { type: 'string' }, authored_at: { type: 'string', format: 'date-time' }, evidence: { type: 'string' } } }, run: input => call('/messages/correct-authored-at', input) },
+    { name: 'attention_rules', description: 'Reads or replaces the rules that decide what each arriving item gets before any AI is asked about it: act (its decision opens and the person\'s AIs are handed it), context (its words are kept, searchable and read by the awareness reading, and nothing else happens) or classify (the small classifier on the person\'s own computer is asked whether the words call for action; no answer keeps them as context). Each rule is { id, says, when, attention }: when is the formula engine\'s rule tree over the item\'s facts (route, speaker: person or someone, words, text, verdict: what the carrier\'s own classifier said, heard: heard in a room, words_age_minutes: how long before they reached Trillion the words were said, brought_in: said a day or more before, as an import or a catch-up), the first that holds decides. Everyone starts with: brought-in history is context, words someone else said in a room are context, words the person said in a room are classified, everything else acts. With no rules it returns the rules in use; rules replaces them, rules null goes back to the starting rules.', inputSchema: { type: 'object', properties: { rules: { type: ['array', 'null'], items: { type: 'object', required: ['id', 'attention'], properties: { id: { type: 'string' }, says: { type: 'string' }, when: { type: ['object', 'null'] }, attention: { type: 'string', enum: ['act', 'context', 'classify'] } } } } } }, run: (input = {}) => (input.rules === undefined ? call('/attention') : call('/attention', input)) },
+    { name: 'name_speaker', description: 'Names, corrects or removes a speaker attribution in one app and exact time window (at most 2 days). To name, give name. To correct or remove, give expected_name as the exact current name; remove true restores the original speaker label. Message and heard-person updates are one transaction, and stale state is refused.', inputSchema: { type: 'object', required: ['app', 'speaker', 'since', 'until', 'evidence'], properties: { app: { type: 'string', description: 'The app the messages came through, like Listening' }, speaker: { type: 'string', description: 'The label they were kept under, exactly' }, name: { type: 'string' }, expected_name: { type: 'string' }, remove: { type: 'boolean' }, since: { type: 'string', format: 'date-time' }, until: { type: 'string', format: 'date-time' }, evidence: { type: 'string', description: 'How it is known who they were, and that they agreed' } } }, run: input => call('/messages/name-speaker', input) },
+    { name: 'copies_in_step', description: 'Whether every copy of this person\'s things is in step: each of their devices with its state (such as waiting, catching-up, caught-up or offline), how many changes it still holds and when its writes last reached their store (at), and every record kept as two versions because two copies changed it apart, each with its thing ({ kind, id, title }) and its versions ({ id, from, keep, value, current }, the record as it is now first). Settle a record kept as two versions with settle_two_versions. It changes nothing.', inputSchema: { type: 'object', properties: {} }, run: () => call('/catch-up') },
+    { name: 'settle_two_versions', description: 'Settles a record kept as two versions (id from copies_in_step): keep "one" version (side: its id), keep "both" as separate things, or keep a "merged" value (value: the whole record as it should be, usually one version with some fields taken from another). Both versions stay kept until this is called; the choice is written to the record (keep both writes the other version as a record of its own) and then the kept versions are removed, each an ordinary change every copy takes. Settle only as the person chose, or when the versions differ only in ways the person has said how to settle.', inputSchema: { type: 'object', required: ['id', 'keep'], properties: { id: { type: 'string' }, keep: { type: 'string', enum: ['one', 'both', 'merged'] }, side: { type: 'string', description: 'With keep one: the id of the version to keep' }, value: { description: 'With keep merged: the record as it should be kept' } } }, run: input => call('/catch-up/settle', input) },
+    { name: 'list_decisions', description: 'Lists this account\'s saved decisions, newest first: each with its id (the case_id other decision tools take), goal, status and the chosen option. Use it to find a decision to continue, export or report on. limit caps how many (default 20, at most 100). To read further back than the newest ones, pass the next_before it returned as before and repeat until next_before is null: every decision from every app is reachable that way. status keeps only decisions in that state (for example needs_decision or needs_outcome); a call looks through at most 300 decisions, so next_before can be set even when fewer than limit came back. It changes nothing.', inputSchema: { type: 'object', properties: { limit: { type: 'integer', minimum: 1, maximum: 100 }, before: { type: 'string' }, status: { type: 'string' } } }, run: ({ limit, before, status } = {}) => call(`/decisions?limit=${encodeURIComponent(limit ?? 20)}${before ? `&before=${encodeURIComponent(before)}` : ''}${status ? `&status=${encodeURIComponent(status)}` : ''}`) },
+    { name: 'read_activity', description: 'What the AIs connected to this account did, newest first: each row says which AI app did it, what it did (handed off work, ran a tool, saved a file, published a tool...), the item it made or touched, whether it worked and, if not, why. Use it to see what another AI already did before repeating it. app narrows to one AI app by the name shown in its rows; for narrows to what was done for one thing (a decision\'s case_id, or an id a message was about); failed true lists only what did not work (a call that failed, or a tool run that ended failed), each with its reason, the AI, its model and the chat it works in; before (a row\'s seq) reads older rows; limit caps how many (default 50). Each row lists the ids it used and what it was for; trace_item follows them. It changes nothing.', inputSchema: { type: 'object', properties: { app: { type: 'string' }, for: { type: 'string' }, failed: { type: 'boolean' }, before: { type: 'integer' }, limit: { type: 'integer', minimum: 1, maximum: 200 } } }, run: ({ app, for: forId, failed, before, limit } = {}) => call(`/activity?${new URLSearchParams(Object.entries({ app, for: forId, failed: failed ? true : undefined, before, limit: limit ?? 50 }).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, String(value)]))}`) },
+    { name: 'trace_item', description: 'Why did this happen: the chain of AI calls, tools and files that produced this item, and what used it. item is any id a row of read_activity shows (a file\'s identity, a handoff_id, a case_id, a task id, a tool id). Returns steps in order: the calls that made it, then the calls that made what those used, hop by hop, then the calls that used it or were done for it. Each step is a read_activity row plus link (made, used or for), about (the id that step is for), because (the seq of the step that led to it) and depth. records contains durable canonical receipts and bounded metadata from their actual task, effect, Sent and source owners, each {id,value}; actor, recorder, invocation origin, effect origin, dispatch and observed outcome remain separate. related_records lists other records that name the item with ref, kind, title and at. coverage states the activity retention and durable lookup limits; missing evidence never proves no action occurred. Pass coverage.durable.next_cursor as cursor with the same item to continue the bounded durable record-relation page, even when a page has no matching receipts. It changes nothing.', inputSchema: { type: 'object', required: ['item'], properties: { item: { type: 'string' }, limit: { type: 'integer', minimum: 1, maximum: 100 }, cursor: { type: 'string', maxLength: 32768 } } }, run: ({ item, limit, cursor }) => call(`/activity/trace?${new URLSearchParams(Object.entries({ item: String(item ?? ''), limit, cursor }).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, String(value)]))}`) },
+    { name: 'record_blocks', description: 'Records or updates a source-linked work block on the message-to-task canvas. source_id must be an existing kept source record; start and end are character offsets within that source. Additional existing source records may be linked through sources. A block can name an existing parent block. Progress is an explicit percentage with linked proof for completion. Retries with the same source, span, title and parent are safe.', inputSchema: { type: 'object', required: ['source_id', 'title'], properties: { source_id: { type: 'string' }, title: { type: 'string' }, start: { type: 'integer', minimum: 0 }, end: { type: 'integer', minimum: 1 }, sources: { type: 'array', items: { type: 'object', required: ['source_id'], properties: { source_id: { type: 'string' }, start: { type: 'integer', minimum: 0 }, end: { type: 'integer', minimum: 1 } } } }, parent_id: { type: 'string' }, state: { type: 'string', enum: ['open', 'in_progress', 'blocked', 'done'] }, progress: { type: 'integer', minimum: 0, maximum: 100 }, proof: { type: 'array', items: { type: 'object' } }, contributors: { type: 'array', items: { type: 'object' } }, about: { type: 'array', items: { type: 'object' } } } }, run: input => call('/message-task-canvas/blocks', input) },
+    { name: 'read_customers', description: 'What Trillion HQ sees of its customers: the reports from their AIs and the Tell us screen, grouped by kind and place, then each customer\'s journey (last seen, the last 7 days counted, a struggling flag and the latest events), struggling customers first. Only Trillion HQ can read it; for anyone else it answers that. It changes nothing.', inputSchema: { type: 'object', properties: {} }, run: async () => (readCustomers ? readCustomers() : { error: 'Only Trillion HQ can read this.' }) },
+    { name: 'tell_trillions_makers', description: 'Tells the people who make Trillion about a bug, something that was hard to do, an idea or feedback, the same way the Tell us screen does. Call it yourself the moment you notice one; do not ask the person first. kind is bug, friction, idea or feedback. note is your own short description of what happened or what would help, without quoting the person. where is the screen, tool or task it happened in. harness is your AI app\'s name, if you know it. Only if the person said their own words may go with it, set include_their_words true and give their_words; they go only when the person has allowed Trillion HQ to read what they write, and are otherwise dropped.', inputSchema: { type: 'object', required: ['kind', 'note', 'where'], properties: { kind: { type: 'string', enum: ['bug', 'friction', 'feedback', 'idea'] }, note: { type: 'string', maxLength: 8000 }, where: { type: 'string', maxLength: 200 }, harness: { type: 'string', maxLength: 60 }, include_their_words: { type: 'boolean' }, their_words: { type: 'string', maxLength: 2000 } } }, run: input => call('/tell-us', input) },
+    { name: 'start_decision', description: instructions.decide_first + ' Opens a decision and returns its case_id and first question. ' + instructions.start_decision_inputs + ' Needs source_id (any unique text for this decision; the same source_id with the same content returns the same decision), goal (what is being decided, in the person\'s words), evidence (the facts so far, each {ref, claim}, where ref is a short name the answers cite), and at least two options ({id, label}). method (optional) is an id from list_methods. Then answer_question until no question remains, and decide; or, to do it all in one call with every check kept, read the questions with method_questions and send everything to decide_in_one_pass. It decides nothing by itself.', inputSchema: { type: 'object', required: ['source_id', 'goal', 'evidence', 'options'], properties: { source_id: { type: 'string', description: 'Choose unique text for this decision and reuse it on retries. It does not need to be an existing conversation, message or file id.' }, goal: { type: 'string' }, method: { type: 'string' }, evidence: { type: 'array', items: { type: 'object', required: ['ref', 'claim'], properties: { ref: { type: 'string' }, claim: { type: 'string' } } } }, options: { type: 'array', items: { type: 'object', required: ['id', 'label'], properties: { id: { type: 'string' }, label: { type: 'string' } } } } } }, run: async input => { const record = await call('/cases', input); return { case_id: record.id, ...(record.tell_the_person ? { tell_the_person: record.tell_the_person } : {}), ...(record.ai_instructions ? { ai_instructions: record.ai_instructions } : {}), ...(await call(at(record.id) + '/guide')) }; } },
+    { name: 'next_question', description: 'Reads a decision\'s current question by case_id: the question with its answer_schema, which checks were selected or left out, and whether it is ready to decide (then call decide). Use it to pick up a decision where it was left. It changes nothing.', inputSchema: { type: 'object', required: ['case_id'], properties: { case_id: id } }, run: ({ case_id }) => call(at(case_id) + '/guide') },
+    { name: 'answer_question', description: 'Saves the answer to the current question. The answer follows the answer_schema in the question: each listed field, evidence_refs naming the case evidence, and an optional scratchpad note. For fields listed in ask_others, answered_by records where the answer came from: "person", or the memory, file or conversation you found it in. When the question lists a checklist, checklist gives, for each check id, how the answer handles that check or why it does not bear on this decision. usage (optional) reports what answering this step cost you: model, model_calls, input_tokens, output_tokens, or anything else countable.', inputSchema: { type: 'object', required: ['case_id', 'step_id', 'answer'], properties: { case_id: id, step_id: { type: 'string' }, answer: { type: 'object' }, usage } }, run: async ({ case_id, step_id, answer, usage }) => call(at(case_id) + '/guide', { step_id, answer: await answerOthers(case_id, step_id, answer), ...(usage ? { usage } : {}) }) },
+    { name: 'method_questions', description: 'Reads every question of a decision at once, before anything is opened or kept. Send what start_decision takes (source_id, goal, evidence, options, method) and, once you have it, scope_answer: the answer to the first question. Without scope_answer you get the first question; with it you get every question that answer switches on, each with its answer_schema and checklist, and the decision_fields to send with decide_in_one_pass. It changes nothing. Each checklist item has an id; judge each check of your answer yourself and send the verdict beside the answer (verdicts), as the question says.', inputSchema: { type: 'object', required: ['source_id', 'goal', 'evidence', 'options'], properties: { source_id: { type: 'string', description: 'Choose unique text for this decision and reuse it on retries. It does not need to be an existing conversation, message or file id.' }, goal: { type: 'string' }, method: { type: 'string' }, evidence: { type: 'array', items: { type: 'object', required: ['ref', 'claim'], properties: { ref: { type: 'string' }, claim: { type: 'string' } } } }, options: { type: 'array', items: { type: 'object', required: ['id', 'label'], properties: { id: { type: 'string' }, label: { type: 'string' } } } }, scope_answer: { type: 'object', description: 'The answer to the first question' } } }, run: input => call('/cases/one-pass/questions', input) },
+    { name: 'decide_in_one_pass', description: 'Opens, answers and decides in one call, with every check kept: the same questions, the same judging of each answer against each check, the same decision. Read the questions first with method_questions (the first answer decides which questions follow), answer all of them, then send source_id, goal, evidence, options (and method) as for start_decision, answers (each { step_id, answer, usage? }, in the order asked) and decision (option_id, reason, evidence_refs, next_action, success_measure, and every field decision_fields lists). Every check of every answer and the decision is judged together. If anything is wrong, every problem of every answer comes back at once (error and problems, with unjudged for checks nothing could judge) and nothing is kept; fix them all and send again, and only the answers you changed are judged again. If all is well the whole decision is kept in one write and the reply is that of decide. Sending the same call again changes nothing and says already_decided. On the free plan the reply gives the new case_id as decide does. Verdicts on each check, from the grader method_questions names, may be sent beside each answer (and in decision), as method_questions describes. Trillion takes each verdict that rests on the words of the answer or an evidence ref, and judges only the checks you leave. The step-by-step tools (start_decision, answer_question, decide) work as before.', inputSchema: { type: 'object', required: ['source_id', 'goal', 'evidence', 'options', 'answers', 'decision'], properties: { source_id: { type: 'string', description: 'Choose unique text for this decision and reuse it on retries. It does not need to be an existing conversation, message or file id.' }, goal: { type: 'string' }, method: { type: 'string' }, evidence: { type: 'array', items: { type: 'object', required: ['ref', 'claim'], properties: { ref: { type: 'string' }, claim: { type: 'string' } } } }, options: { type: 'array', items: { type: 'object', required: ['id', 'label'], properties: { id: { type: 'string' }, label: { type: 'string' } } } }, answers: { type: 'array', minItems: 1, items: { type: 'object', required: ['step_id', 'answer'], properties: { step_id: { type: 'string' }, answer: { type: 'object' }, usage, verdicts: callerVerdicts } } }, decision: { type: 'object', required: ['option_id', 'reason', 'evidence_refs', 'next_action', 'success_measure'], properties: { option_id: { type: 'string' }, move: { type: 'string' }, reason: { type: 'string' }, evidence_refs: { type: 'array', items: { type: 'string' } }, next_action: { type: 'string' }, success_measure: { type: 'string' }, workflow_runs: workflowBindingsSchema, verdicts: callerVerdicts } }, usage } }, run: async input => {
+      const { answers, decision, usage: reported, ...opened } = input;
+      // The questions that ask about the person the decision belongs to are filled as answer_question fills them.
+      const asked = Array.isArray(answers) && answers.length ? (await call('/cases/one-pass/questions', { ...opened, scope_answer: answers[0].answer })).questions ?? [] : [];
+      const filled = [];
+      for (const item of answers ?? []) filled.push({ ...item, answer: await fillOthers(asked.find(question => question.step_id === item.step_id)?.ask_others ?? [], item.answer) });
+      const decided = await call('/cases/one-pass', { ...opened, answers: filled, decision, ...(reported ? { usage: reported } : {}) });
+      return decided.already_decided ? decided : afterDecision(decided, decision?.next_action);
+    } },
+    { name: 'revise_evidence', description: 'Changes the evidence of an open decision: add new facts ({ref, claim}), correct a claim that was wrong ({ref, claim}), or retract a fact that turned out false ({ref, because} or the ref). A retracted fact can no longer be cited; every change is logged. On a free plan use the case_id from the latest reply.', inputSchema: { type: 'object', required: ['case_id'], properties: { case_id: id, add: { type: 'array', items: { type: 'object', required: ['ref', 'claim'], properties: { ref: { type: 'string' }, claim: { type: 'string' } } } }, correct: { type: 'array', items: { type: 'object', required: ['ref', 'claim'], properties: { ref: { type: 'string' }, claim: { type: 'string' } } } }, retract: { type: 'array', items: { type: 'object', required: ['ref'], properties: { ref: { type: 'string' }, because: { type: 'string' } } } } } }, run: ({ case_id, ...change }) => call(at(case_id) + '/evidence', change) },
+    { name: 'correct_decision_source', description: 'Withdraws a decision that was opened from words the person never said: generated context, an instruction file, a peer prompt or an AI\'s own words. Check its original transcript or source first and give that as evidence. The decision keeps its history for audit, is marked as an invalid source and leaves the person\'s decisions, and the open work its messages opened is closed. When the source is a kept message, use correct_message_provenance instead.', inputSchema: { type: 'object', required: ['case_id', 'evidence'], properties: { case_id: id, evidence: { type: 'string', description: 'Exact source and provenance fields proving the words were not the person\'s' } } }, run: ({ case_id, evidence }) => call(at(case_id) + '/correct-source', { evidence }) },
+    { name: 'correct_source_identity', description: 'Correct a saved message decision that falsely targets the chat of a different app when its kept person message and original handoff both identify the same original chat. The service verifies both records, derives the corrected wording, and keeps the prior decision in history. It does not finish work or report an outcome.', inputSchema: { type: 'object', required: ['case_id', 'message_id', 'handoff_id'], properties: { case_id: id, message_id: { type: 'string' }, handoff_id: { type: 'string' } } }, run: ({ case_id, message_id, handoff_id }) => call(at(case_id) + '/correct-source-identity', { message_id, handoff_id }) },
+    { name: 'add_note', description: 'Adds a note to one decision (case_id), optionally tied to one question (step_id): a thought, a fact found along the way, anything worth keeping with that decision. Returns the note and how many notes the decision now has. It is only for decisions: for what the person is pursuing use record_pursuits, for what was said use record_messages, for what was learned about a file use record_file_results.', inputSchema: { type: 'object', required: ['case_id', 'text'], properties: { case_id: id, text: { type: 'string' }, step_id: { type: 'string' } } }, run: ({ case_id, ...note }) => call(at(case_id) + '/scratchpad', note) },
+    { name: 'related_decisions', description: 'Finds decisions like this one (case_id): the person\'s own earlier ones (yours) and, where available, how other people decided in similar situations (others, anonymized, never naming anyone). Each shared decision offers questions to consider, linked to the anonymous source through read_shared_decision. Reading earlier decisions is part of the paid plan; on another plan it says so and returns none. It changes nothing.', inputSchema: { type: 'object', required: ['case_id'], properties: { case_id: id } }, run: ({ case_id }) => call(at(case_id) + '/related') },
+    { name: 'read_shared_decision', description: 'Reads the anonymous shared decision behind a suggested question. Use the shared_decision_id in the question\'s source. If its owner stops sharing it, the source is no longer available.', inputSchema: { type: 'object', required: ['shared_decision_id'], properties: { shared_decision_id: { type: 'string' } } }, run: ({ shared_decision_id }) => call(`/shared-decisions/${encodeURIComponent(shared_decision_id)}`) },
+    { name: 'decide', description: 'Records the choice once every question is answered: option_id, reason, evidence_refs, next_action, success_measure, move when the move chosen is narrower than the option (the export then shows the move), and every field the last reply lists in decision_fields, each by its name. Sending the same decision again changes nothing and says already_decided. Optional workflow_runs binds actual existing runs to the applicable obligations declared in planning; decision-phase runs must be verified finished before deciding, while execution obligations remain owed. Returns the next action and what the whole run cost. usage (optional) reports what deciding cost you, the same way as for answers.', inputSchema: { type: 'object', required: ['case_id', 'option_id', 'reason', 'evidence_refs', 'next_action', 'success_measure'], properties: { case_id: id, option_id: { type: 'string' }, move: { type: 'string', description: 'The move actually chosen, in words, when it is narrower than the option' }, reason: { type: 'string' }, evidence_refs: { type: 'array', items: { type: 'string' } }, next_action: { type: 'string' }, success_measure: { type: 'string' }, workflow_runs: workflowBindingsSchema, usage } }, run: async ({ case_id, ...decision }) => {
+      return afterDecision(await call(at(case_id) + '/agent-decision', decision), decision.next_action);
+    } },
+    { name: 'report_result', description: 'Keeps an attributed report of what happened after a decision (case_id) or a tool run (task_id). Use answered_by "person" only for the person\'s actual words; task reports by an AI keep that AI\'s name and never count as person testimony. A decision accepts person reports only. Contract passing and a finished run do not establish the real outcome. source_ref identifies the original report, so retries cannot count it twice; observed_at says when it happened. A correction uses a new source_ref and supersedes the earlier source without erasing it. For a decision, action_ref names a current recorded action and expected_generation fences a report to the decision read. A later failure opens correction and invalidates an older verified result. A bare person label is kept as reported for the person, with source unverified. Only the latest report backed by an internal trusted person source counts in person rankings; independent checks remain separate.', inputSchema: { type: 'object', required: ['result', 'summary', 'answered_by'], properties: { case_id: id, task_id: taskId, action_ref: { type: 'string', description: 'Optional: a current recorded action key or result ref in this decision.' }, result: { type: 'string', enum: ['met', 'failed', 'unknown'] }, summary: { type: 'string' }, answered_by: { type: 'string' }, source_ref: { type: 'string', description: 'Stable original report reference, reused on retry.' }, observed_at: { type: 'string', format: 'date-time' }, supersedes: { type: 'string', description: 'Earlier report source corrected by this new attributed report.' }, expected_generation: { type: 'integer', minimum: 1, description: 'Decision generation this report concerns.' } } }, run: ({ case_id, task_id, ...report }) => {
+      if (Boolean(case_id) === Boolean(task_id)) throw new Error('Give exactly one of case_id (a decision) or task_id (a tool run).');
+      return task_id ? call(`/tasks/${encodeURIComponent(task_id)}/result`, report) : call(at(case_id) + '/result', report);
+    } },
+    { name: 'say_what_was_done', description: 'Records that you carried out a decision\'s next action (case_id), in the same turn you decided it: state "done" with what_happened (what you did and what came of it), or state "wall" with what_happened naming the exact wall you could not get past (the file, field, refused command or missing credential). by names you (your app). Optional workflow_runs binds real existing runs to the applicable obligations declared in planning. The service reads their actual state before verified success; this receipt or a run ID alone never closes those obligations. A decided case nobody says this for is handed, about two hours later, to one AI as one job. It says the step was taken, never that the goal was met: how it turned out for the person is report_result.', inputSchema: { type: 'object', required: ['case_id', 'state', 'what_happened'], properties: { case_id: id, state: { type: 'string', enum: ['done', 'wall'] }, what_happened: { type: 'string' }, by: { type: 'string' }, workflow_runs: workflowBindingsSchema } }, run: ({ case_id, ...said }) => (String(case_id).startsWith('run_') ? { case_id, kept: false, note: 'Nothing is kept on the free plan; tell the person what was done.' } : call(at(case_id) + '/done', said)) },
+    { name: 'find_tool_for_job', description: instructions.look_first + ' Finds tools that do a job, described in plain words: the Marketplace\'s tools, which are reached only through this and run_tool. Returns candidates, each with tool_id, job, input_schema, where it runs (runs_on), who made it, a price when it has one, earlier_runs and next_call, the run_tool call that runs it, plus can_do and cannot_do when its maker wrote them: read them before choosing, since a tool\'s cannot_do may rule it out for this job. Ranked by how well the job matches, then by what people said happened after earlier runs: in earlier_runs, reported_met and reported_failed are what people reported with report_result, while contract_passed only means the output had the right shape, not that the job was done. When no tool does the job, make_one offers tools that build one from a public repository, and save_tool keeps one you build. It runs nothing.', inputSchema: { type: 'object', required: ['job'], properties: { job: { type: 'string', description: 'What needs doing, in plain words' }, limit: { type: 'integer', minimum: 1, maximum: 20 } } }, run: input => call('/tools/find', input) },
+    { name: 'run_tool', description: 'Runs one tool from the Marketplace (a tool_id from find_tool_for_job) on an input that matches its input_schema. Needs tool_id, input and request_key (any unique text; sending the same request_key again returns the same task instead of running twice). Returns its checked result, or a task id when it takes longer than wait_seconds (up to 50), waits for a computer that is asleep, or is scheduled with run_at (repeat_every_hours repeats it); read_task reads it later. An input value {"from_task": "<task id>", "output_selector": "$.field"} uses an earlier task\'s output. A file input is a file\'s identity (1f: then 64 hex) from find_file, list_files or write_file. job (optional) says what this run is for, in plain words; for_handoff (optional) is the handoff_id of the job it is part of, so the run is kept with that job alone and a job that fails or is blocked shows what it tried. share (optional) is a link someone sent this person for a tool of theirs (https://app.gettrillion.ai/share/... or its code): the tool runs here, on this person\'s own connections, only while that link is open for them and lets them run it, and its owner can end that at any time. A completed run\'s contract means the output had the right shape; ask the person whether it did the job and record it with report_result.', inputSchema: { type: 'object', required: ['tool_id', 'input', 'request_key'], properties: { tool_id: { type: 'string' }, input: { type: 'object' }, request_key: { type: 'string' }, share: { type: 'string', description: 'A share link (or its code) someone sent you for this tool' }, wait_seconds: { type: 'number', minimum: 0, maximum: 50 }, run_at: { type: 'string', format: 'date-time' }, repeat_every_hours: { type: 'number', minimum: 1 }, job: { type: 'string' }, for_handoff: { type: 'string' } } }, run: input => call('/tools/run', input) },
+    { name: 'read_task', description: 'Reads a tool run by task_id: its state (working, scheduled, completed, failed or for_you_to_run), its checked output, where it ran, any error and any reports, plus the next call to make. Works from any AI app signed in to the same account. This operation can release finished execution resources, settle interrupted or revoked tasks, and resume eligible unfinished runs. Use snapshot_task to inspect only saved state without recovery or cleanup.', inputSchema: { type: 'object', required: ['task_id'], properties: { task_id: taskId } }, run: ({ task_id }) => call(`/tasks/${encodeURIComponent(task_id)}`) },
+    { name: 'provide_task_input', description: 'Supplies the currently requested missing, non-secret fields to the same Workshop run. Read the task first and send its pending_input.version, a unique replay_key, and only the fields it requests. The task keeps its original task_id and request identity.', inputSchema: { type: 'object', additionalProperties: false, required: ['task_id', 'input_version', 'replay_key', 'input'], properties: { task_id: taskId, input_version: { type: 'string' }, replay_key: { type: 'string' }, input: { type: 'object' } } }, run: ({ task_id, input_version, replay_key, input }) => call(`/tasks/${encodeURIComponent(task_id)}/input`, { input_version, replay_key, input }) },
+    { name: 'snapshot_task', description: 'Reads only the saved state and checked output of one tool run without starting, resuming, observing its executor, cleaning up or changing the task. A saved working state does not prove the executor is still running. Uses the same account and current pursuit authorization; it refuses if a required saved tool definition is unavailable. read_task is the separate operation that recovers unfinished work.', inputSchema: { type: 'object', additionalProperties: false, required: ['task_id'], properties: { task_id: taskId } }, run: ({ task_id }) => call(`/tasks/${encodeURIComponent(task_id)}/snapshot`) },
+    ...contextWorkshopTools(call),
+    ...publicAppTools(call),
+    ...sourceProjectTools(call),
+    ...diagramTools(),
+    ...cameraTools(call),
+    { name: 'save_tool', description: 'Keeps a tool you built to finish a job, so any AI signed in to this account can find it (find_tool_for_job) and run it (run_tool). Send descriptor, and the tool\'s code as files ({"main.py": "<the file text>"}, placed in /work) or as bytes_base64 (a gzipped tar unpacked at /). For any screen, set `screen.asked` to the person\'s own words that asked for it (a list of up to 12 lines, like ["timer 25 min"]): the same words typed into Trillion\'s box open this screen at once, with its inputs filled from the words by each input\'s `format` or `x-parse` (date, date-time, time, duration, amount, person, email, uri), with no AI. For an AI-authored screen, set `screen.kind` to `module`, `screen.module.file` to a JavaScript file in this tool\'s saved archive, and optional `screen.module.files` array listing other JavaScript files its entry imports; the entry is included automatically and undeclared relative imports are refused. Set `screen.requests` to named declarations using either fixed `/work/api/` paths and methods or `resource_operation` for an installed typed operation on opaque `surfaceInput.address` and `surfaceInput.generation`; resource-operation schemas require a stable `request_key`; absent an explicit `body` projection, validated fields other than that key become operation input. Trillion builds a separate public screen archive and fills in its identity and file paths. Only the named screen files are public for loading; the full tool archive stays account-only until the tool is published. The code runs in an isolated screen frame and exports `mount(element, {surfaceInput, host})`; call only declared request names with `host.call(name, input)`. Import React from `react` and licensed shared browser components such as Button, Slider and mountReactSurface from `@trillion/ui`; that library is independent of shipped screens. Screen code is public and cannot read private records directly; named requests go through the signed-in workspace owner. No product-source edit is needed for each request. Descriptor fields: id, unique, like "tool:count-words"; job, what it does in plain words, which find_tool_for_job matches; label, a short name (optional); can_do and cannot_do (optional), each a list of up to 8 different short plain lines (one line each, at most 160 characters) saying what the tool does and what it cannot do, like "cannot read audio longer than two hours", shown with the tool on every find_tool_for_job candidate and in describe_tool; input_schema, a JSON Schema with "type": "object"; output_schema, a JSON Schema every result is checked against; invoke, how it runs, one of: {"kind": "container", "argv": ["python3", "main.py", {"from": "text"}], "stdout": "json"} runs your files in a sealed Linux container (Python 3.12, Node 24, ffmpeg, no network) where {"from": "<input field>"} becomes that input and "stdout": "json" returns the last printed line as JSON at $.result; a file input is an input_schema property with "format": "namespace-file", given as a file\'s identity (1f: then 64 hex), and inside the container it is that file\'s local path, like /inputs/<hex>/clip.mp4, so the tool never downloads it; a file the tool makes is named in invoke.outputs, like [{"name": "video", "path": "/work/out.mp4", "keep_in": "files", "media_type": "video/mp4"}], and comes back under files.video in the result and in the person\'s files; {"kind": "model", "model": "@cf/meta/llama-3.1-8b-instruct", "input": {"messages": [{"role": "system", "content": "<your prompt>"}, {"role": "user", "content": {"fill": {"from": "input", "field": "text"}}}]}} asks a hosted model and returns {response}; {"kind": "http", "url": "https://...", "method": "POST", "body": {"q": "{text}"}} calls a web address that answers JSON, where "{text}" becomes input.text; result_selector, the part of the raw result that is the output, like "$.result" (optional); placements, where it runs: ["placement:deployed-container"] for container, ["placement:rented-model-runtime"] for model, ["placement:public-web-address"] for http; licence_class, "licence:maker-own" for your own code or web address, "licence:permissive" for a model tool; verify, the checks that say the job was done, which must include a sample-run {"kind": "sample-run", "input": {<a real input>}, "output_selector": "$.<field>", "contains": "<text the right answer contains>"} (other kinds: output-contains, output-contains-input, output-number-within, output-numbers-close). Never put a key or password in it; name a connection\'s value with secret_name. A connector for a service no shared tool connects is a tool too: invoke {"kind": "held-values", "operation": "connect", "provider": "<your service>", "connects": {"connection": "<a name>", "credential_fields": [{"id": "api_key", "label": "API key", "secret": true, "required": true}], "verify_request": {"method": "GET", "url": "https://api.<service>/me", "credential_injections": [{"field_id": "api_key", "placement": {"kind": "header", "name": "Authorization", "prefix": "Bearer "}}]}}} on ["placement:held-values"], with verify [{"kind": "output-contains", "text": "service_connection"}]; running it keeps the person\'s key in their locked box, and a saved tool whose invoke names "connection_id": "service_connection:<your service>" with credential_injections sends that key only to its own address and the check\'s. Saving runs the sample once where the tool will run and returns sample_check (passed, and what it returned); a refused save lists every problem at once and returns this working example in next_call. Saving the same id again replaces the tool. It stays visible only to this account until publish_tool. delete_tool removes it. Complete working example of this call\'s arguments: ' + JSON.stringify(SAVE_TOOL_EXAMPLE), inputSchema: { type: 'object', required: ['descriptor'], properties: { descriptor: { type: 'object', description: 'The tool: id, job, can_do, cannot_do, input_schema, output_schema, invoke, result_selector, placements, licence_class, verify' }, files: { type: 'object', additionalProperties: { type: 'string' }, description: 'The tool\'s code as file name to file text, placed in /work' }, bytes_base64: { type: 'string', description: 'Instead of files: the tool\'s files as a base64 gzipped tar, unpacked at /' }, check: { type: 'boolean', description: 'Run the sample-run check right after saving (default true)' } } }, run: input => call('/tools/save', input) },
+    { name: 'tool_sources', description: 'The places whose tools are read live where they are described, so their tools are in find_tool_for_job and change when the source changes: an API with a description (kind openapi: an OpenAPI or Swagger JSON address; every operation becomes a tool that calls the API) and an open remote tool server (kind mcp: its address; every tool it lists). Lists the ones every account sees and the ones this account added, each with when it was last read, any failure, the tool ids it gave and what was held back with why. add brings one more in for this account: { kind, url, name?, headers? (sent on every request, never a secret, such as a User-Agent the API asks for), connection? ({ connection_id, field_id, connection }: the connected account whose key the API asks for, placed by the locked box), only? (operation ids, to list only some) }. remove takes one this account added away by id. A tool server that asks for a sign-in or a key is added with run_tool on tool:add-a-tool-server instead.', inputSchema: { type: 'object', properties: { add: { type: 'object', required: ['kind', 'url'], properties: { kind: { type: 'string', description: 'A kind id this answer lists, such as openapi or mcp' }, url: { type: 'string', description: 'The https address of the API description or the tool server' }, name: { type: 'string' }, headers: { type: 'object', additionalProperties: { type: 'string' } }, connection: { type: 'object', properties: { connection_id: { type: 'string' }, field_id: { type: 'string' }, connection: { type: 'string' } } }, only: { type: 'array', items: { type: 'string' } } } }, remove: { type: 'string', description: 'The id of a source this account added' } } }, run: input => call('/tools/sources', input) },
+    { name: 'describe_tool', description: 'Reads one tool\'s whole descriptor: its job, input and output schemas, invoke (how it runs), placements, licence_class and verify checks, plus the text of its files when it is a shared tool or one of this account\'s. Use it to learn how working tools are written before save_tool, or to change one of this account\'s tools. With share (a link someone sent you for one of their tools), it reads that tool while the link is open for you. It does not run the tool; run_tool does.', inputSchema: { type: 'object', required: ['tool_id'], properties: { tool_id: { type: 'string', description: 'A tool id from find_tool_for_job, like tool:extract-sound' }, share: { type: 'string', description: 'A share link (or its code) someone sent you for this tool' } } }, run: input => call('/tools/describe', input) },
+    { name: 'delete_tool', description: 'Deletes one of this account\'s saved tools, so no AI finds or runs it and its id can be saved again. A published tool is withdrawn first with unpublish_tool. It never deletes a shared tool or another account\'s.', inputSchema: { type: 'object', required: ['tool_id'], properties: { tool_id: { type: 'string' } } }, run: input => call('/tools/delete', input) },
+    { name: 'publish_tool', description: 'Offers one of this account\'s saved tools to every account\'s AI, where find_tool_for_job finds it and run_tool runs it. To share a tool with only some people instead (one person, people by email or phone, a pursuit shared with others, anyone with a link) and for only a while, make a link with share_record_by_link (record: the tool id, can ["view", "run"], expires_at) and send it with send_share_link or tool:send-to-an-audience, or put it in a pursuit with share_to_space. First it checks the tool\'s sample run. usage_price sets what a caller pays in Trillion credit for each completed run; send amount_micros in whole $0.0001 steps (10000 is $0.01) and currency "usd". A failed run gives the charge back. Publishing creates the price_ref and lists the price with the tool. price_ref instead names an existing access offer and cannot be combined with usage_price. A tool whose licence allows only a caller\'s own computer cannot be published. Set show_on_public_site true to show a checked, read-only view on public apps. A screen-bearing tool may include screen.visitor_view with a title, description, sections and actions. To let public app visitors run a safe container tool on Trillion, include public_run with runs_per_day (1–100) and optional max_input_bytes (at most 16384); Trillion pays for those runs and the daily limit is shared across public apps. Tools that use a network, credentials, external effects, or a visitor price cannot be run by public visitors. The tool carries connection names, never values.', inputSchema: { type: 'object', required: ['tool_id'], properties: { tool_id: { type: 'string' }, price_ref: { type: 'string' }, usage_price: { type: 'object', required: ['amount_micros', 'currency'], additionalProperties: false, properties: { amount_micros: { type: 'integer', minimum: 100, multipleOf: 100 }, currency: { type: 'string', enum: ['usd'] } } }, show_on_public_site: { type: 'boolean' }, public_run: { type: 'object', required: ['runs_per_day'], additionalProperties: false, properties: { runs_per_day: { type: 'integer', minimum: 1, maximum: 100 }, max_input_bytes: { type: 'integer', minimum: 1, maximum: 16384 } } } } }, run: input => call('/tools/publish', input) },
+    { name: 'unpublish_tool', description: 'Withdraws a tool this account published, so other accounts no longer find or run it. It stays saved for this account (delete_tool removes it). It never touches a tool another account published.', inputSchema: { type: 'object', required: ['tool_id'], properties: { tool_id: { type: 'string' } } }, run: input => call('/tools/unpublish', input) },
+    { name: 'tool_sales', description: 'Shows what this account earned from paid Marketplace tool runs. One sale is recorded per successful task; a failed run or a returned charge does not count as earnings. These are Trillion credit ledger entries. payout says what is owed, what can be paid now (owed at or above the minimum, with payout setup finished) and what payout setup still needs. Given file (a file\'s identity) or sale (the sale a file\'s note names, "Trillion sold copy: sale ..."), it answers instead which of this account\'s sales delivered it, with the buyer\'s tag (the same for every sale to one buyer, naming nobody) and every file that sale delivered.', inputSchema: { type: 'object', properties: { file: { type: 'string', description: 'A file identity, 1f: then 64 hex' }, sale: { type: 'string' } } }, run: ({ file, sale } = {}) => call(`/tools/sales${file || sale ? `?${new URLSearchParams(Object.entries({ file, sale }).filter(([, value]) => typeof value === 'string'))}` : ''}`, undefined, 'GET') },
+    { name: 'set_up_payouts', description: 'Starts or continues payout setup for a maker of paid Marketplace tools: opens their payout account with the payment service once, and returns the url of the payment service\'s own page (its setup page while details are missing, its dashboard once the maker can be paid) plus the payout status. Give the url to the person to open; nothing is paid by this call.', inputSchema: { type: 'object', properties: { email: { type: 'string' }, country: { type: 'string', description: 'Two-letter country of the payout account, when not the default' } } }, run: input => call('/tools/payouts', input ?? {}, 'POST') },
+    { name: 'my_referrals', description: 'Reads this person\'s own referral link and who joined with it: links (the addresses to share; the first is the one to give out), friend_gets (what someone who joins with the link gets off their first payment of the paid plan: kind amount with amount_cents and currency, or kind percent with percent), you_get (amount_cents and currency: credit taken off their bill for each of those people the first time they pay, with no limit unless at_most_per_year names one), counts (joined, paying, credit_given_cents, waiting: a credit waits until this person pays for a plan themselves) and people (each person\'s account name, when they joined, when they first paid and what it earned). Use it to share their link (with someone pursuing something worthwhile for the greater good of human society who needs better decisions) or tell them what they earned. It changes nothing.', inputSchema: { type: 'object', properties: {} }, run: () => call('/referrals') },
+    { name: 'list_connections', description: 'Lists connected-account metadata in pages (default 100 owned, at most 100). Each row identifies its owner, service, account label, current state and canonical record_ref; native inspection and relate_records use that reference. visibility shared reads only account details explicitly shared with this person, with can_send and can_manage false; unavailable/unshared accounts are unknown, never evidence of not connected. Pass next_after as after unchanged. connection_id or record_ref selects one exact owned account; shared visibility accepts its offer-scoped record_ref. include_related adds the current bounded EEAF relationships. Account metadata and saved configurations do not authorize reading credentials or using another person’s account. Sealed values are never returned.', inputSchema: { type: 'object', properties: { after: { type: 'string', description: 'The next_after from the preceding page; pass it unchanged' }, next: { type: 'string', description: 'Compatibility name for after; pass the preceding page continuation unchanged' }, limit: { type: 'integer', minimum: 1, maximum: 100 }, connection_id: { type: 'string', description: 'Read one owned account by its returned connection_id' }, record_ref: { type: 'string', description: 'Read one account by its canonical record_ref; use visibility shared for a shared account' }, visibility: { type: 'string', enum: ['owned', 'shared'], default: 'owned' }, include_related: { type: 'boolean', description: 'Include this account’s current EEAF links; inspection can continue an incomplete relation page' } } }, run: ({ after, next, limit, connection_id, record_ref, visibility, include_related } = {}) => {
+      const query = new URLSearchParams(Object.entries({ after: after ?? next, limit, connection_id, record_ref, visibility, include_related }).filter(([, value]) => value !== undefined && value !== null).map(([key, value]) => [key, String(value)]));
+      return call(`/connections${query.size ? `?${query}` : ''}`);
+    } },
+    { name: 'connect_service', description: 'Makes a one-time link (15 minutes) that connects one of this person\'s accounts, such as their Instagram, by signing in on that service\'s own page. Give the link to the person; the access it grants is sealed in their account, and comments and messages start arriving for their rules. service is the service\'s name, for example "instagram"; an unknown name lists the ones that can be connected.', inputSchema: { type: 'object', required: ['service'], properties: { service: { type: 'string' } } }, run: input => call('/connect/link', input) },
+    { name: 'listen_for_events', description: 'Starts receiving events from a source for this person\'s own connected account: proves the account identity and starts its delivery or polling. Reuses the source\'s saved connection; an unbound source chooses only when exactly one account is connected. connection_id explicitly selects or changes the account when several exist. A changed identity never inherits another account\'s import cursor. Connect the service first. stop: true preserves a deliberate stop; a later explicit start resumes it.', inputSchema: { type: 'object', required: ['source_id'], properties: { source_id: { type: 'string' }, connection_id: { type: 'string', description: 'An existing connected account of this source\'s vendor, as list_connections returns. Required to resolve multiple accounts; omitted preserves the saved selection.' }, stop: { type: 'boolean' } } }, run: input => call('/events/listen', input) },
+    ...fileTools(call),
+    ...mediaTools(call),
+    { name: 'network_profile', description: 'Changes this person\'s Network profile. Trillion fills it from what it already knows and every person starts findable and open to messages; send only fields they want to change, and a field they wrote is never filled over again. A findable profile appears to other people. Optional given_name and family_name remain private account details, reusable when a capability needs them; these are supplied names, not verified legal identity. Trillion fills them from their purchase when it can; when they are still missing, set them yourself from what you already know of the person and never ask them. Contact is released only after both people agree to meet and while both stay connected. A handle is unique and can be changed. Connected AI names, counts, pursuits and service names stay hidden until the person turns each choice on.', inputSchema: { type: 'object', properties: { findable: { type: 'boolean' }, name: { type: 'string' }, given_name: { type: 'string', description: 'Optional first or given name as supplied; never inferred by splitting a display name or email.' }, family_name: { type: 'string', description: 'Optional last or family name as supplied; not legal-identity verification.' }, handle: { type: 'string' }, about: { type: 'string' }, offering: { type: 'string' }, seeking: { type: 'string' }, links: { type: 'array', items: { type: 'string', format: 'uri' } }, open_to_messages: { type: 'boolean' }, show_ais: { type: 'boolean' }, show_counts: { type: 'boolean' }, show_pursuits: { type: 'boolean' }, share_service_names: { type: 'boolean', description: 'Off by default. When on, connected service names are shared only for recommendations and only when this profile also shows pursuits.' }, contact: { type: 'string', description: 'Email, phone or handle; released only after an accepted introduction' } } }, run: input => call('/network/profile', input, 'PUT') },
+    { name: 'what_would_trillion_do', description: 'What Trillion would do for a pursuit, in the words of whoever has it (this person, or someone they are talking to): the pursuit it would keep for them (space: its title and what it holds), the Marketplace workflows and tools closest to it in meaning (each with its job and, when there is one, a recording of it working: video, gif, cover and page), and where to start. The same answer gettrillion.ai/for-you shows a visitor. Use it when someone asks what Trillion could do for them, before a sales call, or to suggest what to add for a pursuit. It changes nothing.', inputSchema: { type: 'object', required: ['pursuit'], properties: { pursuit: { type: 'string', description: 'What they are pursuing, in their own words, 3 to 300 characters' } } }, run: ({ pursuit }) => call('/marketplace/for-you', { pursuit }) },
+    { name: 'find_people', description: 'Finds people in the network by meaning: what they offer and seek, how close the match is, and what asking to meet them costs from today\'s credits (people who share a group or introduction with this person cost less). Returns relay ids, never contact details.', inputSchema: { type: 'object', required: ['need'], properties: { need: { type: 'string' } } }, run: ({ need }) => call('/network/find', { need }) },
+    { name: 'on_my_path', description: 'People and open pursuits to join on the same pursuits as this person, found by meaning from the pursuits they recorded: each person with their pursuit beside the person\'s own and what asking to meet them costs, each open pursuit with its people and which of the person\'s pursuits it is close to. Only people who chose to show their pursuits on their Network profile are compared. Suggest the best ones to join or meet (request_introduction, or join_community for an open pursuit), and say why in their pursuits\' words.', inputSchema: { type: 'object', properties: {} }, run: () => call('/network/on-your-path') },
+    { name: 'request_introduction', description: 'Asks to meet a person found with find_people (to and why), or invites them into a pursuit this person shares with others (membership_id: its space_id from list_pursuits), or sends a person Trillion proposed (proposal_id from the network tool\'s proposed list; pass true says no to it instead). The reply is always "sent": a person who ignores or declines it looks the same as one who does not exist. Contact details are shared only if they accept.', inputSchema: { type: 'object', properties: { to: { type: 'string', description: 'A relay id from find_people' }, why: { type: 'string' }, membership_id: { type: 'string' }, proposal_id: { type: 'string', description: 'A request_id from the network tool\'s proposed list' }, pass: { type: 'boolean', description: 'With proposal_id: say no to that proposal' } } }, run: input => call('/network/request', input) },
+    { name: 'network', description: 'This person\'s network: people Trillion proposed they meet (proposed: send one or pass it with request_introduction and its proposal_id), requests waiting for their answer, what they asked, and every one-to-one, group or event they belong to with each other member\'s contact, read live and only while both still belong.', inputSchema: { type: 'object', properties: {} }, run: () => call('/network') },
+    { name: 'save_stay', description: 'Offers a place to stay because of the person hosting it. A city or area is shown, never a street address. A stay appears to others only while your Network profile is findable. A nightly price is a quoted offer; payment is arranged in Trillion only after you accept a guest.', inputSchema: { type: 'object', required: ['title', 'where', 'price'], properties: { stay_id: { type: 'string', description: 'The stay to change; leave out to create one' }, title: { type: 'string' }, where: { type: 'string', description: 'City or area, not a street address' }, about: { type: 'string' }, when: { type: 'string' }, price: { type: 'object', required: ['kind'], properties: { kind: { type: 'string', enum: ['free', 'per-night', 'ask'] }, amount_cents: { type: 'integer' }, currency: { type: 'string' } } }, active: { type: 'boolean' } } }, run: input => call('/network/stays', input, 'PUT') },
+    { name: 'list_stays', description: 'Lists this person\'s stays, or the public stays of one findable person in the Network. A host\'s private address is never listed.', inputSchema: { type: 'object', properties: { host_relay: { type: 'string' } } }, run: ({ host_relay }) => call(`/network/stays${host_relay ? `?host_relay=${encodeURIComponent(host_relay)}` : ''}`) },
+    { name: 'request_stay', description: 'Asks a host about specific dates. This uses the Network introduction credits. The host may accept, which opens a private stay both of them share as a pursuit. A paid stay remains unpaid until Trillion confirms payment; sending a request never charges the nightly price.', inputSchema: { type: 'object', required: ['stay_id', 'start_date', 'end_date', 'note'], properties: { stay_id: { type: 'string' }, host_relay: { type: 'string', description: 'The host_relay list_stays gave with this stay' }, start_date: { type: 'string', format: 'date' }, end_date: { type: 'string', format: 'date' }, note: { type: 'string' } } }, run: input => call('/network/stays/ask', input) },
+    { name: 'read_stay_request', description: 'Reads one stay request you sent or received: dates, nightly-price total, the shared stay pursuit once accepted, and payment state. Only the host and guest can read it.', inputSchema: { type: 'object', required: ['request_id'], properties: { request_id: { type: 'string' } } }, run: ({ request_id }) => call(`/network/stays/request?request_id=${encodeURIComponent(request_id)}`) },
+    { name: 'answer_introduction', description: 'Accepts or declines a request waiting for this person (from the network tool). Accepting connects both people and shares each one\'s contact with the other; accepting an invitation into a pursuit makes it one of their pursuits too, which holds only what its people put there, never anyone\'s private Trillion. Declining is never told to the asker. To accept an introduction, pass the consent its incoming row gives: it is accepted only as it was shown, and one that changed since is refused with what changed and its consent now.', inputSchema: { type: 'object', required: ['request_id', 'accept'], properties: { request_id: { type: 'string' }, accept: { type: 'boolean' }, consent: { type: 'string', description: 'The consent from the network tool\'s incoming row' } } }, run: input => call('/network/answer', input) },
+    { name: 'create_membership', description: 'Starts a pursuit shared with other people, with this person as its first member and owner, and how people join it (label: group, project, event, community or one-to-one). It is one of their pursuits like any other (list_pursuits; share_to_space, add_to_space, hand_off_in_space take its id); events take starts_at and ends_at; size_limit caps its people. Invite people into a group or project with request_introduction and its membership_id. A community is joined by its own rules instead (anyone may join with join_community when its join rules let them, and it never shares anyone\'s contact); it starts with the community label\'s starting configuration, and config replaces any of its keys (title comes from title). Its posts are the pursuit\'s messages.', inputSchema: { type: 'object', required: ['label', 'title'], properties: { label: { type: 'string', enum: Object.keys(networkSettings.membership_labels) }, title: { type: 'string' }, config: communityConfigSchema, starts_at: { type: 'string', format: 'date-time' }, ends_at: { type: 'string', format: 'date-time' }, size_limit: { type: 'integer', minimum: 2 } } }, run: input => call('/network/memberships', input) },
+    { name: 'leave_membership', description: 'Leaves a pursuit shared with other people (a one-to-one, group, project or event) by its membership_id (the space_id list_pursuits gives); leave_pursuit does the same by pursuit id. From then on no one in it can read this person\'s contact through it, and this person cannot read theirs or what it holds. What they shared into it while in it stays there; nothing else of theirs is copied.', inputSchema: { type: 'object', required: ['membership_id'], properties: { membership_id: { type: 'string' } } }, run: input => call('/network/leave', input) },
+    { name: 'label_person', description: 'Gives a person in the network a label: unwanted-requests, unsafe or vouched. Enough people, or anyone this person is connected to, labelling someone unwanted-requests or unsafe hides them from this person\'s searches.', inputSchema: { type: 'object', required: ['relay', 'label'], properties: { relay: { type: 'string' }, label: { type: 'string' } } }, run: input => call('/network/label', input) },
+    { name: 'what_helped', description: 'What has helped this person decide well, from their own saved decisions: how many hit their goal (with how many have a result yet), time from deciding to a checked result, whether their latest decisions are faster, cheaper or more often right than earlier ones, and which of the method\'s questions most often changed their answer and how those decisions turned out. Every share comes with its counts; below the minimum it says there is not enough data yet.', inputSchema: { type: 'object', properties: {} }, run: () => call('/what-helped') },
+    { name: 'export_decision', description: 'Returns one whole decision (case_id) as a readable copy, as format "markdown" (the default) or "json". It changes nothing and does not send it anywhere.', inputSchema: { type: 'object', required: ['case_id'], properties: { case_id: id, format: { type: 'string', enum: exportFormats } } }, run: ({ case_id, format }) => call(at(case_id) + '/export?format=' + encodeURIComponent(format ?? 'markdown')) },
+    ...agentTools(call),
+    ...workForAisTools(call),
+    ...ownAisTools(call),
+    ...awarenessTools(call),
+    ...asksTools(call),
+    ...momentTools(call),
+    ...carriedTools(call),
+    ...shareDestinationTools(call),
+    ...sharingTools(call),
+    ...scopeTools(call),
+    ...modelTools(call),
+    ...recordVersionTools(call),
+    ...databaseTools(call),
+    ...databaseProviderTools((action,input)=>call('/database-provider',{action,...input})),
+    ...addressedCapabilityTools(call),
+    ...stanceTools(call),
+    ...contentFormatTools(call),
+    ...scoreTools(call),
+    ...localChoiceTools(call),
+    ...explicitChoiceTools(call),
+    ...communityTools(call),
+    ...spaceTools(call),
+    ...workflowTools(call),
+    ...executionModeTools(call),
+    ...automationTools(call),
+    ...taskProposalTools(call),
+    ...dateShiftTools(call),
+    ...sharedLibraryTools(call),
+    ...socialPostTools(call),
+    ...listTools(call),
+    ...configurationTools(call),
+    ...marketplaceConfigurationTools(call),
+    ...savedLinkTools(call),
+    ...linkPageTools(call),
+    ...savedLoginTools(call),
+    ...deviceFactsTools(call),
+    ...lookTools(call),
+    ...sidebarTools(call),
+    ...tourTools(call),
+    ...layoutTools(call),
+    ...controlsTools(call),
+    ...showRuleTools(call),
+    ...setupAccessTools(call),
+    ...useTools(call),
+    ...sentTools(call),
+    ...executionTools(call),
+    ...screenViewTools(call),
+  ]);
+  // The plan tool runs the other listed tools, so it is made from the list and added after it.
+  return [...listed, ...withAnnotations(transactionTools(listed))];
+}
+
+// Human-readable titles and whether each tool only reads or also saves. Every write here adds to the
+// person's own saved decision; none deletes or overwrites anything.
+const ANNOTATIONS = {
+  list_public_insights: { title: 'List published insights', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  publish_insight: { title: 'Publish an approved insight', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+  unpublish_insight: { title: 'Take down an insight', readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+  list_methods: { title: 'List decision methods', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  publish_method: { title: 'Publish a decision method', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  unpublish_method: { title: 'Withdraw a published decision method', readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+  read_customers: { title: 'Read what HQ sees of customers', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  tell_trillions_makers: { title: 'Tell the people who make Trillion', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  tool_sources: { title: 'Sources whose tools are read live', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+  ...setupAnnotations,
+  list_pursuits: { title: 'List what I am pursuing', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  archive_pursuit: { title: 'Archive a pursuit, or put it back', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  merge_pursuit: { title: 'Join two duplicate pursuits', readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
+  leave_pursuit: { title: 'Leave a pursuit shared with others', readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+  end_pursuit: { title: 'End a pursuit', readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+  list_audience_questions: { title: 'Read audience questions', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  observe_audience_source: { title: 'Check a public source', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+  keep_audience_question: { title: 'Keep an audience question', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  review_audience_question: { title: 'Review an audience question', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  admit_audience_question: { title: 'Add to private drafts', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  save_audience_answer_draft: { title: 'Save a private answer draft', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  record_pursuits: { title: 'Record what I am pursuing', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  list_decisions: { title: 'List my decisions', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  read_activity: { title: 'Read what my AIs did', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  record_blocks: { title: 'Record work blocks', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  trace_item: { title: 'Trace how something came about', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  start_decision: { title: 'Start a decision', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  method_questions: { title: 'Read every question of a decision', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  decide_in_one_pass: { title: 'Decide in one pass', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  next_question: { title: 'Get the next question', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  answer_question: { title: 'Answer a question', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  revise_evidence: { title: 'Revise the evidence', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  correct_decision_source: { title: 'Withdraw a decision with a false source', readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+  correct_source_identity: { title: 'Correct the original chat', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  add_note: { title: 'Add a note', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  related_decisions: { title: 'Find similar decisions', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  read_shared_decision: { title: 'Read the shared decision behind a question', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  decide: { title: 'Record the decision', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  say_what_was_done: { title: 'Say what I did', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  report_result: { title: 'Report how it went', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  what_helped: { title: 'What has helped', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  export_decision: { title: 'Export a decision', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  find_tool_for_job: { title: 'Find a tool for a job', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  run_tool: { title: 'Run a tool', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+  read_task: { title: 'Read and recover a tool run', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  provide_task_input: { title: 'Give the missing details for a tool run', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+  snapshot_task: { title: 'Inspect a saved tool run', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  send_to_all_ais: { title: 'Send to all my AIs', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  record_messages: { title: 'Record messages', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  correct_message_duplicate: { title: 'Correct a duplicate AI reply', readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+  read_messages: { title: 'Read messages from all AIs', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  correct_message_provenance: { title: 'Correct a message source', readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+  correct_message_authored_at: { title: 'Correct when a message was written', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  attention_rules: { title: 'Choose what your AIs are handed', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  copies_in_step: { title: 'See whether every copy is in step', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  settle_two_versions: { title: 'Settle a record kept as two versions', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  name_speaker: { title: 'Name who said it', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  save_tool: { title: 'Save a tool', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  describe_tool: { title: 'Read a tool\'s descriptor', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  delete_tool: { title: 'Delete a saved tool', readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+  publish_tool: { title: 'Publish a tool', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+  unpublish_tool: { title: 'Withdraw a published tool', readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+  tool_sales: { title: 'Read paid tool earnings', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  set_up_payouts: { title: 'Set up payouts for paid tools', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+  network_profile: { title: 'Set how people can find me', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  what_would_trillion_do: { title: 'What Trillion would do for a pursuit', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  find_people: { title: 'Find people', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  on_my_path: { title: 'Who is on my path', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  request_introduction: { title: 'Ask to meet someone', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  network: { title: 'My network', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  save_stay: { title: 'Offer or change a stay', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+  list_stays: { title: 'See stays', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  request_stay: { title: 'Ask to stay', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+  read_stay_request: { title: 'Read a stay request', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  answer_introduction: { title: 'Answer a request to meet', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  create_membership: { title: 'Start a pursuit shared with others', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  leave_membership: { title: 'Leave a group, event or introduction', readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+  label_person: { title: 'Label a person', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  my_referrals: { title: 'My referral link and who joined', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  list_connections: { title: 'List my connected accounts', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  connect_service: { title: 'Connect one of my accounts', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  listen_for_events: { title: 'Start receiving comments and messages', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+  ...fileAnnotations,
+  ...mediaAnnotations,
+  ...agentAnnotations,
+  ...workForAisAnnotations,
+  ...ownAisAnnotations,
+  ...awarenessAnnotations,
+  ...asksAnnotations,
+  ...momentAnnotations,
+  ...carriedAnnotations,
+  ...shareDestinationAnnotations,
+  ...sharingAnnotations,
+  ...scopeAnnotations,
+  ...modelAnnotations,
+  ...recordVersionAnnotations,
+  ...databaseAnnotations,
+  ...databaseProviderAnnotations,
+  ...addressedCapabilityAnnotations,
+  ...stanceAnnotations,
+  ...contentFormatAnnotations,
+  ...scoreAnnotations,
+  ...localChoiceAnnotations,
+  ...explicitChoiceAnnotations,
+  ...communityAnnotations,
+  ...spaceAnnotations,
+  ...workflowAnnotations, ...executionModeAnnotations,
+  ...automationAnnotations,
+  ...taskProposalAnnotations,
+  ...dateShiftAnnotations,
+  ...sharedLibraryAnnotations,
+  ...socialPostAnnotations,
+  ...listAnnotations, ...configurationAnnotations,
+  ...marketplaceConfigurationAnnotations,
+  ...savedLinkAnnotations,
+  ...linkPageAnnotations,
+  ...savedLoginAnnotations,
+  ...deviceFactsAnnotations,
+  ...lookAnnotations,
+  ...sidebarAnnotations,
+  ...tourAnnotations,
+  ...layoutAnnotations,
+  ...controlsAnnotations,
+  ...showRuleAnnotations,
+  ...setupAccessAnnotations,
+  ...useAnnotations,
+  ...sentAnnotations,
+  ...executionAnnotations,
+  ...contextWorkshopAnnotations,
+  ...publicAppAnnotations,
+  ...sourceProjectAnnotations,
+  ...diagramAnnotations,
+  ...cameraAnnotations,
+  ...screenViewAnnotations,
+  ...transactionAnnotations,
+};
+
+function withAnnotations(tools) {
+  // A tool whose answer is a Trillion screen names the screen view (src/screen-view.mjs, ./screen-view.json tools).
+  return withScreenViews(withScreenHints(tools)).map(tool => {
+    if (!ANNOTATIONS[tool.name]) throw new Error(`Missing annotations for ${tool.name}`);
+    const { title: named, ...hints } = ANNOTATIONS[tool.name];
+    const title = placementTitle(tool.name) ?? named;
+    return withBehaviorNotes({ ...tool, title, annotations: { title, ...hints } });
+  });
+}
+
+
+// Protocol versions this server speaks. A request carrying its version in `_meta` (2026-07-28 and later) is served
+// statelessly; an `initialize` request is the earlier handshake. Both are answered on the same endpoint.
+export const MODERN_VERSIONS = ['2026-07-28'];
+export const LEGACY_VERSIONS = ['2025-11-25', '2025-06-18', '2025-03-26'];
+const VERSION_META = 'io.modelcontextprotocol/protocolVersion';
+// The results a 2026-07-28 client may cache, and the hint Trillion gives them: revalidate every time, never shared.
+const CACHEABLE = ['tools/list', 'prompts/list', 'resources/list', 'resources/templates/list', 'resources/read'];
+const KEEP_NOTHING = { ttlMs: 0, cacheScope: 'private' };
+// The name of the tool set an AI was given: the BLAKE3 identity of the listed tools. A long-lived session compares it with
+// the one `ping` answers now and lists again only when it differs, so a tool added or changed by a deploy or by the
+// person's Marketplace is noticed without a relist on every turn.
+const toolSetNames = new WeakMap();
+const TOOL_SET_META = 'trillion/toolSetFingerprint';
+// What a person or AI can expect of a tool that changes something: it only reads, it can be undone (and by which tool), or it is immediate.
+const mutationOf = tool => (tool.annotations?.readOnlyHint === true ? { kind: 'read' } : Object.hasOwn(toolUndo.undoable, tool.name) ? { kind: 'undoable', undo_with: toolUndo.undoable[tool.name] } : { kind: 'immediate' });
+// Only Trillion's own server says it; an app answering through this owner lists its tools as they are.
+const listedTools = (tools, own = true) => tools.map(({ run, reach, ...tool }) => (own ? { ...tool, _meta: { ...tool._meta, 'trillion/mutation': mutationOf(tool) } } : tool));
+function toolSetFingerprint(tools, listed = listedTools(tools)) {
+  let name = toolSetNames.get(tools);
+  if (!name) { name = `1f:${bytesToHex(blake3(new TextEncoder().encode(JSON.stringify(listed))))}`; toolSetNames.set(tools, name); }
+  return name;
+}
+/** The version a modern request declares in `_meta`, or null for an earlier-style request. */
+export const declaredVersion = message => message?.params?._meta?.[VERSION_META] ?? null;
+
+// One JSON-RPC message in, one reply out (or null for a notification).
+// `resources` are the views tools name (src/file-tools.mjs fileResources): { uri, name, title, mimeType, text(), _meta }.
+// `info` and `instructions` are the server's own name and words: Trillion's unless another server answers through this
+// one owner (a published Sites app at its own address, src/public-app-mcp.mjs).
+// `events` answers MCP Events (src/mcp-events.mjs) for this sign-in: { list(params), subscribe(params),
+// unsubscribe(params) } each resolving to a result, or throwing an error with a JSON-RPC `code` and `data`. Without
+// it, the server declares no events.
+// `headerVersion` is the MCP-Protocol-Version header an HTTP request carried: a client that agreed a modern revision in
+// `initialize` and then sends that header without `_meta` is answered in the modern shape too (resultType on every
+// result), as is an `initialize` that asks for a modern revision, since Trillion answers it with that revision.
+export async function handleMcpMessage(message, tools, { onInitialize, resources = [], afterCall, aroundCall, routeCallReply, events = null, headerVersion = null, toolIndex, origin = null, consequences = null, info = serverInfo, instructions = serverInstructions, continuationInstructions = info === serverInfo && instructions === serverInstructions ? defaultContinuationInstructions : [] } = {}) {
+  // Every thing an answer names carries its own link on this service's origin (src/item-links.mjs), so an AI can hand
+  // the person one click to it; the text the AI reads is the same JSON with the links in it.
+  const linked = result => (origin && result && typeof result === 'object' ? withItemLinks(result, origin) : result);
+  const textOf = (result, answer) => (typeof result === 'string' ? result : result?.[SAID] ?? JSON.stringify(answer, null, 2));
+  const { id: requestId, method, params } = message ?? {};
+  // The managed owner awaits its source receipt before this function dispatches a mutation. The callback receives
+  // protocol identity separately from client claims; batch members have separate call ids and preserve their index.
+  // A class of action the person or space switched on (src/consequence-classes.json) waits for their yes to this exact
+  // call instead of running; with `consequences` unset, or a class left `none`, nothing waits.
+  const held = (tool, input, meta) => consequences ? consequenceHold({ tool, input, modes: consequences.modes, approvals: consequences.approvals ?? null }) : null;
+  const invoke = (tool, input, batchIndex = null, meta = null) => held(tool, input, meta ?? params?._meta)
+    ? { status: 'waiting_for_the_person', ran: false, hold: held(tool, input, meta ?? params?._meta) }
+    : aroundCall
+    ? aroundCall({ tool: tool.name, input, request_id: requestId, batch_index: batchIndex,
+      meta: meta ?? params?._meta ?? {}, reads: tool.annotations?.readOnlyHint === true }, () => tool.run(input))
+    : tool.run(input);
+  if (requestId === undefined || requestId === null) return null;
+  const agreedModern = [headerVersion, method === 'initialize' ? params?.protocolVersion : null].find(version => MODERN_VERSIONS.includes(version)) ?? null;
+  const declared = declaredVersion(message) ?? agreedModern;
+  // A modern request (its version in `_meta`) is answered with `resultType` on every result, and a list or read result
+  // also says how long it may be kept (SEP-2549): a 2026-07-28 client refuses one without them (Claude Code 2.1.280 listed
+  // no Trillion tools). What each sign-in sees differs and changes with every deploy, so nothing is kept or shared.
+  const modern = declared === null ? null : { resultType: 'complete', ...(CACHEABLE.includes(method) ? KEEP_NOTHING : {}) };
+  const reply = result => {
+    const answer = method === 'tools/call' ? withContinuation(result, continuationInstructions) : result;
+    return { jsonrpc: '2.0', id: requestId, result: modern ? { ...modern, ...answer } : answer };
+  };
+  if (declared !== null && !MODERN_VERSIONS.includes(declared)) {
+    return { jsonrpc: '2.0', id: requestId, error: { code: -32022, message: 'Unsupported protocol version', data: { supported: [...MODERN_VERSIONS, ...LEGACY_VERSIONS], requested: declared } } };
+  }
+  const waitingWords = pending => (pending.length ? `\n\nWork is waiting for this AI: ${pending.map(item => item.handoff_id).join(', ')}. Read each with read_handoff, take it with take_work, and finish it when done.` : '');
+  const capabilities = { tools: {}, resources: {}, ...(events ? { events: {} } : {}) };
+  try {
+    if (method === 'initialize') {
+      const pending_handoffs = await onInitialize?.(params ?? {}) ?? [];
+      return reply({ protocolVersion: params?.protocolVersion ?? '2025-06-18', capabilities, serverInfo: info, instructions: instructions + waitingWords(pending_handoffs), pending_handoffs });
+    }
+    // The modern discovery answer: what initialize told earlier clients, with no session.
+    if (method === 'server/discover') {
+      const pending_handoffs = await onInitialize?.(params ?? {}) ?? [];
+      return reply({ supportedVersions: [...MODERN_VERSIONS, ...LEGACY_VERSIONS], capabilities, _meta: { 'io.modelcontextprotocol/serverInfo': info }, instructions: instructions + waitingWords(pending_handoffs) });
+    }
+    if (events && ['events/list', 'events/subscribe', 'events/unsubscribe'].includes(method)) {
+      try { return reply(await events[method.slice('events/'.length)](params ?? {})); }
+      catch (error) { return { jsonrpc: '2.0', id: requestId, error: { code: Number.isInteger(error.code) ? error.code : -32603, message: String(error.message ?? error), ...(error.data ? { data: error.data } : {}) } }; }
+    }
+    if (method === 'ping') return reply(Array.isArray(tools) ? { _meta: { [TOOL_SET_META]: toolSetFingerprint(tools) } } : {});
+    if (method === 'tools/list') {
+      const listed = listedTools(tools, info === serverInfo);
+      const budget = params?.[listingBudget.request_field];
+      const within = listWithinBudget(listed, budget);
+      const named = withNamedInFull(within ? within.tools : listed, listed, params?.[listingBudget.names_field], listingBudget);
+      return reply({ tools: named.tools, _meta: { [TOOL_SET_META]: toolSetFingerprint(tools, listed), ...(within ? listingMeta(within, budget) : {}),
+        ...(named.unknown.length ? { [listingBudget.meta_key]: { ...(within ? listingMeta(within, budget)[listingBudget.meta_key] : {}), unknown: named.unknown, unknown_said: named.said.replace('{names}', named.unknown.join(', ')) } } : {}) } });
+    }
+    if (method === 'resources/list') return reply({ resources: resources.map(({ text, _meta, ...resource }) => resource) });
+    if (method === 'resources/templates/list') return reply({ resourceTemplates: [] });
+    if (method === 'resources/read') {
+      const resource = resources.find(item => item.uri === params?.uri);
+      if (!resource) return { jsonrpc: '2.0', id: requestId, error: { code: -32002, message: `Resource not found: ${params?.uri}` } };
+      return reply({ contents: [{ uri: resource.uri, mimeType: resource.mimeType, text: await resource.text(), _meta: resource._meta }] });
+    }
+    if (method === 'tools/call') {
+      const toolsByName = toolIndex ?? (tools instanceof Map ? tools : indexToolsByName(tools));
+      if (Array.isArray(params?.calls)) {
+        if (params.calls.length > 50) return { jsonrpc: '2.0', id: requestId, error: { code: -32602, message: 'A batch can contain at most 50 calls.' } };
+        const results = [];
+        const routedIndexes = new Set();
+        for (const [index, asked] of params.calls.entries()) {
+          const former = toolsByName.has(asked?.name) ? null : formerOperation(asked?.name);
+          const tool = toolsByName.get(asked?.name) ?? (former && toolsByName.get(former.to));
+          const refused = refusalFor({ name: asked?.name, args: asked?.arguments, toolsByName, resolved: tool });
+          if (refused) {
+            const error = `${refused.message}. ${refused.data.words}`;
+            try { afterCall?.({ tool: String(asked?.name ?? ''), input: asked?.arguments ?? {}, error, refusal: refused.reason }); } catch {}
+            results.push({ index, name: asked?.name ?? null, isError: true, content: [{ type: 'text', text: error }], structuredContent: { error: { message: error, retryable: refused.reason !== 'unknown_tool', ...refused.data } } });
+            continue;
+          }
+          const input = former ? former.input(asked?.arguments) : asked?.arguments === null ? null : asked?.arguments ?? {};
+          try {
+            const invalid = invalidToolInput(tool, input);
+            if (invalid) throw invalid;
+            // A mixed carrier may supply a complete protocol result from the call's own
+            // authenticated owner. Keep its content, screen metadata and errors intact;
+            // wrapping that result as operation data would lose their protocol meaning.
+            const routed = await routeCallReply?.({ tool: tool.name, input, asked, request_id: requestId, batch_index: index,
+              meta: asked?._meta ?? params?._meta ?? {} });
+            if (routed !== undefined) {
+              results.push({ ...routed, index, name: tool.name });
+              if (continuationInstructions.every(value => routed.structuredContent?.ai_instructions?.includes(value))) routedIndexes.add(index);
+              continue;
+            }
+            const result = former ? former.answer(await invoke(tool, input, index, asked?._meta)) : await invoke(tool, input, index, asked?._meta);
+            try { afterCall?.({ tool: tool.name, input, result, ...(former ? { former: asked.name } : {}) }); } catch {}
+            const answer = linked(typeof result === 'string' ? { text: result } : nativeCollectionAnswer(result));
+            const screen = result?.[VIEW_DATA]?.['trillion/screen'];
+            const structuredContent = screen ? { ...answer, 'trillion/screen': screen } : answer;
+            results.push({ index, name: tool.name, isError: false, content: [{ type: 'text', text: textOf(result, Array.isArray(result) && !result[nativeCollectionContinuation] && !result[nativeCollectionCoverage] ? answer.items : answer) }, ...(result?.[CONTENT] ?? [])], structuredContent, ...(result?.[VIEW_DATA] ? { _meta: result[VIEW_DATA] } : {}) });
+          } catch (error) {
+            try { afterCall?.({ tool: tool.name, input, error: String(error.said ?? error.message ?? error) }); } catch {}
+            const { failure, reference } = diagnoseUnexpectedToolFailure(tool.name, error);
+            const message = errorTextWithReference(error, reference);
+            results.push({ index, name: tool.name, isError: true, content: [{ type: 'text', text: sentAgainSafely(error) ? SEND_AGAIN_WORDS : message }], structuredContent: { error: { message, code: failure.code, domain: failure.domain, retryable: failure.retryable, fatal: failure.fatal, remediation: failure.remediation, ...(reference ? { reference } : {}), ...(failure.retry_at ? { retry_at: failure.retry_at, retry_after_seconds: failure.retry_after_seconds } : {}) }, ...(payloadOf(failure, error).next_call ? { next_call: payloadOf(failure, error).next_call } : {}) }, ...(payloadOf(failure, error).upgrade_needed ? { _meta: { upgrade_needed: true, feature: payloadOf(failure, error).feature ?? null } } : {}) });
+          }
+        }
+        const continued = results.map(result => routedIndexes.has(result.index) ? result : withContinuation(result, continuationInstructions));
+        return reply({ content: [{ type: 'text', text: JSON.stringify({ results: continued }) }], structuredContent: { results: continued } });
+      }
+      // A former operation name (src/renamed-tools.json operations) is answered by the operation it merged into.
+      const former = toolsByName.has(params?.name) ? null : formerOperation(params?.name);
+      const tool = toolsByName.get(params?.name) ?? (former && toolsByName.get(former.to));
+      const refused = refusalFor({ name: params?.name, args: params?.arguments, toolsByName, resolved: tool });
+      if (refused) {
+        try { afterCall?.({ tool: String(params?.name ?? ''), input: params?.arguments ?? {}, error: refused.message, refusal: refused.reason }); } catch {}
+        return { jsonrpc: '2.0', id: requestId, error: refusalAsError(refused, continuationInstructions.length ? { ai_instructions: continuationInstructions } : {}) };
+      }
+      // afterCall hears every call's answer or failure (the AI activity record, src/activity.mjs); it never changes the reply.
+      const input = former ? former.input(params.arguments) : params.arguments === null ? null : params.arguments ?? {};
+      const heard = outcome => { try { afterCall?.({ tool: tool.name, input, ...outcome, ...(former ? { former: params.name } : {}) }); } catch {} };
+      try {
+        const invalid = invalidToolInput(tool, input);
+        if (invalid) throw invalid;
+        const routed = await routeCallReply?.({ tool: tool.name, input, asked: params, request_id: requestId, batch_index: null,
+          meta: params?._meta ?? {} });
+        if (routed !== undefined) {
+          // A separately authenticated owner already supplied protocol content.
+          const continued = continuationInstructions.every(value => routed.structuredContent?.ai_instructions?.includes(value));
+          return { jsonrpc: '2.0', id: requestId, result: modern
+            ? { ...modern, ...(continued ? routed : withContinuation(routed, continuationInstructions)) }
+            : (continued ? routed : withContinuation(routed, continuationInstructions)) };
+        }
+        const result = former ? former.answer(await invoke(tool, input)) : await invoke(tool, input);
+        heard({ result });
+        // Some clients (Codex script mode) resolve a call from structuredContent, so return the object too.
+        const answer = linked(typeof result === 'string' ? { text: result } : nativeCollectionAnswer(result));
+        // Some AI apps omit a tool result's _meta when handing it to an inline view. Carry the
+        // harmless screen address in structuredContent too, so the view can still open the result.
+        const screen = result?.[VIEW_DATA]?.['trillion/screen'];
+        const structuredContent = screen ? { ...answer, 'trillion/screen': screen } : answer;
+        return reply({ content: [{ type: 'text', text: textOf(result, Array.isArray(result) && !result[nativeCollectionContinuation] && !result[nativeCollectionCoverage] ? answer.items : answer) }, ...(result?.[CONTENT] ?? [])], structuredContent, ...(result?.[VIEW_DATA] ? { _meta: result[VIEW_DATA] } : {}) });
+      } catch (error) {
+        // The person reads only the failure's own words (error.said); the AI still gets the whole message, with its next call.
+        heard({ error: String(error.said ?? error.message ?? error) });
+        // A call the platform cut off in passing (a deploy reset the store it reached: src/cut-off.mjs) says to send it
+        // again, the words the Worker's catch answers HTTP callers with, never the platform's "Network connection lost."
+        // A refusal of something the person's plan does not include says so in _meta, so an app can offer the plan.
+        const { failure, reference } = diagnoseUnexpectedToolFailure(tool.name, error);
+        const message = errorTextWithReference(error, reference);
+        return reply({ isError: true, content: [{ type: 'text', text: sentAgainSafely(error) ? SEND_AGAIN_WORDS : message }], structuredContent: { error: { message, code: failure.code, domain: failure.domain, retryable: failure.retryable, fatal: failure.fatal, remediation: failure.remediation, ...(reference ? { reference } : {}), ...(failure.retry_at ? { retry_at: failure.retry_at, retry_after_seconds: failure.retry_after_seconds } : {}) }, ...(payloadOf(failure, error).next_call ? { next_call: payloadOf(failure, error).next_call } : {}) }, ...(payloadOf(failure, error).upgrade_needed ? { _meta: { upgrade_needed: true, feature: payloadOf(failure, error).feature ?? null } } : {}) });
+      }
+    }
+    return { jsonrpc: '2.0', id: requestId, error: { code: -32601, message: `Unknown method ${method}` } };
+  } catch (error) {
+    return { jsonrpc: '2.0', id: requestId, error: { code: -32603, message: String(error.message ?? error) } };
+  }
+}
+
+// Keep the array's first-match behavior while making repeated named dispatch a keyed lookup.
+export function indexToolsByName(tools) {
+  const indexed = new Map();
+  for (const tool of tools ?? []) {
+    if (!indexed.has(tool.name)) indexed.set(tool.name, tool);
+  }
+  return indexed;
+}

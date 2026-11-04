@@ -1,0 +1,24 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/work-workflows.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-my-automations-on-the-signed-in-page-what-sets/from-old-trillion/src/work-workflows.mjs.held",
+      "source_identity": "1f:9b801c066d0ef34772cdcaa9c6226b2f896a8ca120f61e02a75aead67ffa45d7",
+      "identity": "1f:4baec8426ed71e9c1c32ad28e9c964a271664326763564587083c33f7567177f",
+      "held": true
+    },
+    {
+      "from": "test/work-workflows-edits.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-my-automations-on-the-signed-in-page-what-sets/from-old-trillion/test/work-workflows-edits.test.mjs.held",
+      "source_identity": "1f:3c0da13de144a641c44ffb406972cdea2363ef390fab6d1076c93c4b64fb7377",
+      "identity": "1f:3c0da13de144a641c44ffb406972cdea2363ef390fab6d1076c93c4b64fb7377",
+      "held": true
+    }
+  ]
+}

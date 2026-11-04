@@ -1,0 +1,28 @@
+// src/service-check-rows.mjs
+//
+// Purpose: Trillion's own checks as rows of the Everything still working list of the account that runs Trillion
+// (src/lists.mjs withRowSources), read at request time from what each check's own owner published
+// (src/service-checks.mjs readServiceCheckStates), never kept in that account's records. Any other account's list
+// shows none of them.
+//
+// Non-Negotiable Invariants:
+//   1. Rows come only from the published states and carry only the fields the list shows; nothing is written.
+//   2. Which list shows them is the capability checks' own DATA (src/capability-checks.json list.row_sources).
+//
+//   serviceCheckRowSources(env, { operator }) → { sources, declared } for withRowSources
+import { readServiceCheckStates } from './service-checks.mjs';
+import capabilityCheckSettings from '../../../check-every-capability-still-works/src/capability-checks.json' with { type: 'json' };
+
+const SHOWN = ['label', 'state', 'last_worked', 'last_checked', 'problem', 'owner', 'check'];
+
+export function serviceCheckRowSources(env, { operator }) {
+  const read = async ({ limit, row_ids }) => {
+    if (!operator()) return { rows: [], next_cursor: null };
+    const states = await readServiceCheckStates(env);
+    const rows = states.filter(state => !row_ids || row_ids.includes(state.check)).slice(0, limit)
+      .map(state => ({ id: state.check, values: Object.fromEntries(SHOWN.filter(field => state[field] !== undefined && state[field] !== null).map(field => [field, state[field]])) }));
+    return { rows, next_cursor: null };
+  };
+  const declared = new Map([[capabilityCheckSettings.list.id, capabilityCheckSettings.list.row_sources ?? null]]);
+  return { sources: Object.fromEntries((capabilityCheckSettings.list.row_sources ?? []).map(row => [row.source, read])), declared: id => declared.get(id) ?? null };
+}

@@ -1,0 +1,324 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { handleSetupRuntimeRequest, makeSetupRuntime, makeSetupWorkflow, setupRuntimeReport } from '../src/setup-runtime.mjs';
+import { createHash } from 'node:crypto';
+import { overlayRecords } from '../src/shipped-defaults.mjs';
+import starting from '../records/starting-rules.json' with { type: 'json' };
+
+const now = Date.parse('2026-10-08T12:00:00Z');
+const instant = difference => new Date(now + difference).toISOString();
+const byId = (report, id) => report.components.find(row => row.id === id);
+const clone = value => structuredClone(value);
+
+function readySnapshot() {
+  const desired = { label: 'Review results', enabled: true, every: { unit: 'day', at: '09:00', time_zone: 'UTC' },
+    then: { tool_id: 'tool:review-results', input: {} } };
+  return {
+    defaults: { initialized: true, rows: [{ id: 'schedule:review', kind: 'schedule', desired, current: clone(desired) }] },
+    timed_work: { failed: [], running: [], alarm_at: instant(60_000), last_wake: { at: instant(-60_000), ran: 1 }, worker_version: 'build-1' },
+    event_intake: { sources: [{ source_id: 'events:example', label: 'Example' }], listening: [{ source_id: 'events:example', since: instant(-60_000) }], stopped: [], attempts: [], running: [] },
+    own_ais: { rows: [{ id: 'ai:local', label: 'My computer', kind: 'device-model', live_now: true, connected: true }], wake_failure: null, last: { finished: true } },
+    awareness: { allowed: true, read_count: 1, last_read_at: instant(-60_000), history_done: false },
+    agents: { agents: [{ agent_id: 'my-session', name: 'My AI', takes_work: true, ready_now: true,
+      capacity: { status: 'available', max_concurrent: 1, expires_at: instant(300_000) }, reach: { route: 'stream', live: true } }] },
+  };
+}
+const report = snapshot => setupRuntimeReport(snapshot, { now: () => now });
+
+test('setup reads real owner evidence; ready configuration and observed execution remain separate', () => {
+  const state = readySnapshot();
+  const got = report(state);
+  assert.equal(got.ready, true);
+  assert.equal(byId(got, 'timed_work').evidence.observed_wake, true);
+  assert.equal(byId(got, 'own_ais').evidence.observed_finished_job, true);
+  assert.equal(byId(got, 'awareness').evidence.history_done, false, 'one real reading is not a finished backfill');
+  state.timed_work.last_wake = null;
+  state.own_ais.last = null;
+  const configured = report(state);
+  assert.equal(byId(configured, 'timed_work').evidence.observed_wake, false);
+  assert.equal(byId(configured, 'own_ais').evidence.observed_finished_job, false);
+});
+
+test('every shipped default is read by identity and a new DATA row needs no setup code change', () => {
+  const state = readySnapshot();
+  const extra = { rule_id: 'a-new-source', label: 'A newly shipped behavior', when: { recorded: 'new-kind' }, then: { tool_id: 'tool:handle-new-kind', input: {} } };
+  state.defaults.rows = [...starting.every_account, extra].map(row => ({
+    id: row.schedule_id ? `schedule:${row.schedule_id}` : `trigger-rule:${row.rule_id}`,
+    kind: row.schedule_id ? 'schedule' : 'rule', desired: row, current: clone(row),
+  }));
+  const defaults = byId(report(state), 'defaults');
+  assert.equal(defaults.ready, true);
+  assert.equal(defaults.evidence.rows.length, starting.every_account.length + 1);
+  assert.equal(defaults.evidence.rows.at(-1).then.tool_id, extra.then.tool_id);
+  assert.equal(defaults.evidence.rows.find(row => row.id === 'trigger-rule:starting:board-for-each-decided-build').state, 'default_off');
+});
+
+test('baseline preparation uses the existing overlay and preserves custom, paused and removed defaults', async () => {
+  const raw = new Map();
+  let writes = 0;
+  const records = {
+    ids: type => [...raw].filter(([, row]) => row.type === type && row.value !== null).map(([id]) => id),
+    typeOf: id => raw.get(id)?.value == null ? null : raw.get(id)?.type,
+    read: id => raw.get(id)?.value ?? null,
+    write: entries => { writes += entries.length; for (const row of entries) raw.set(row.id, clone(row)); },
+  };
+  const shipped = new Map(['normal', 'custom', 'off', 'removed'].map(id => [`trigger-rule:${id}`, {
+    type: 'trigger-rule', value: { label: id, enabled: true, then: { tool_id: 'tool:read', input: {} } },
+  }]));
+  const overlay = overlayRecords(records, shipped, { now: () => now });
+  overlay.write([{ id: 'trigger-rule:custom', type: 'trigger-rule', value: { ...shipped.get('trigger-rule:custom').value, label: 'My wording' } },
+    { id: 'trigger-rule:off', type: 'trigger-rule', value: { ...shipped.get('trigger-rule:off').value, enabled: false } },
+    { id: 'trigger-rule:removed', type: 'trigger-rule', value: null }]);
+  const before = clone([...raw]);
+  const writeCount = writes;
+  const state = readySnapshot();
+  const runtime = makeSetupRuntime({ now: () => now,
+    read: { ...Object.fromEntries(Object.keys(state).map(name => [name, () => clone(state[name])])),
+      defaults: () => ({ initialized: true, rows: [...shipped].map(([id, row]) => ({ id, kind: 'rule', desired: row.value, current: overlay.read(id), changed: overlay.changed(id) })) }) },
+    prepare: { defaults: () => ({ copied_defaults: false }), event_intake: () => ({}), timed_work: () => ({}) },
+  });
+  const result = await runtime.ensure();
+  await runtime.ensure();
+  assert.equal(writes, writeCount, 'setup never copies shipped defaults or resets a change');
+  assert.deepEqual([...raw], before);
+  const rows = byId(result, 'defaults').evidence.rows;
+  assert.deepEqual(rows.map(row => row.state), ['active', 'customized', 'off', 'removed']);
+  assert.equal(rows[1].label, 'My wording');
+  assert.equal(rows[3].preserved, true);
+  assert.equal(byId(result, 'defaults').ready, false, 'stopped defaults are visible and not claimed to be running');
+});
+
+test('read performs no preparation; concurrent ensures share one pass and later retries can recover', async () => {
+  const state = readySnapshot();
+  const called = [];
+  let release;
+  let broken = true;
+  const runtime = makeSetupRuntime({ now: () => now,
+    read: Object.fromEntries(Object.keys(state).map(name => [name, () => clone(state[name])])),
+    prepare: {
+      defaults: async () => { called.push('defaults'); if (broken) await new Promise(resolve => { release = resolve; }); },
+      event_intake: () => { called.push('event_intake'); },
+      timed_work: () => { called.push('timed_work'); if (broken) throw new Error('alarm could not be armed'); },
+    },
+  });
+  await runtime.read();
+  assert.deepEqual(called, []);
+  const one = runtime.ensure();
+  const two = runtime.ensure();
+  assert.equal(one, two);
+  release();
+  const result = await one;
+  assert.deepEqual(called, ['defaults', 'event_intake', 'timed_work']);
+  assert.equal(result.provisioned.timed_work.state, 'failed');
+  assert.equal(byId(result, 'timed_work').state, 'unknown', 'a preexisting alarm cannot hide this preparation failure');
+  broken = false;
+  assert.equal((await runtime.ensure()).ready, true);
+  assert.equal(called.length, 6);
+});
+
+test('explicit source stops are configured choices while unfinished listeners and read failures stay incomplete', async () => {
+  const state = readySnapshot();
+  state.event_intake.listening = [];
+  state.event_intake.running = [{ source_id: 'events:example', started_at: instant(-1000) }];
+  assert.equal(byId(report(state), 'event_intake').state, 'pending');
+  state.event_intake.running = [];
+  state.event_intake.stopped = [{ source_id: 'events:example' }];
+  const stopped = byId(report(state), 'event_intake');
+  assert.equal(stopped.state, 'ready');
+  assert.equal(stopped.evidence.sources[0].preserved, true);
+  assert.ok(stopped.next_calls.every(call => call.tool !== 'listen_for_events'), 'read guidance does not quietly undo a deliberate stop');
+  state.event_intake.sources.push({ source_id: 'events:other' });
+  state.event_intake.attempts = [{ source_id: 'events:other', state: 'failed', problem: 'Insufficient authentication scopes.', retryable: false }];
+  assert.equal(byId(report(state), 'event_intake').state, 'blocked', 'a preserved stop cannot hide another source refusal');
+  state.event_intake.attempts = [{ source_id: 'events:other', state: 'working', problem: 'The requested connection is missing.' }];
+  assert.equal(byId(report(state), 'event_intake').state, 'pending', 'a missing credential cannot become an optional feed');
+  state.event_intake.sources.pop();
+  state.event_intake.stopped = [];
+  state.event_intake.attempts = [{ source_id: 'events:example', task_id: 'task:identity', state: 'working', retry_at: now + 60_000 }];
+  assert.equal(byId(report(state), 'event_intake').state, 'pending');
+  const readers = Object.fromEntries(Object.keys(state).map(name => [name, () => clone(state[name])]));
+  readers.event_intake = () => { throw new Error('connection read failed'); };
+  const unknown = await makeSetupRuntime({ read: readers, now: () => now }).read();
+  assert.equal(byId(unknown, 'event_intake').state, 'unknown');
+  assert.equal(unknown.ready, false);
+});
+
+test('empty, stale, and held alarm evidence do not pass the running requirement', () => {
+  const state = readySnapshot();
+  state.timed_work.alarm_at = null;
+  assert.equal(byId(report(state), 'timed_work').state, 'pending');
+  state.timed_work.alarm_at = instant(-600_000);
+  assert.equal(byId(report(state), 'timed_work').state, 'blocked');
+  state.timed_work.alarm_at = instant(60_000);
+  state.timed_work.failed = [{ key: 'events|read', held: true, error: 'provider refused' }];
+  assert.equal(byId(report(state), 'timed_work').state, 'blocked');
+});
+
+test('provider selection and registration are not fabricated and setup cannot enable spend', async () => {
+  const state = readySnapshot();
+  let selected = 0;
+  state.own_ais.rows = [];
+  const runtimeOf = () => makeSetupRuntime({ now: () => now,
+    read: Object.fromEntries(Object.keys(state).map(name => [name, () => clone(state[name])])),
+    prepare: { defaults() {}, event_intake() {}, timed_work() {}, own_ais() { selected += 1; } },
+  });
+  const missing = await runtimeOf().ensure();
+  assert.equal(selected, 0);
+  assert.equal(byId(missing, 'own_ais').state, 'pending');
+  assert.equal(byId(missing, 'own_ais').required, false, 'a verified host worker may supply background continuity without an AI of the person\'s own');
+  assert.equal(byId(missing, 'own_ais').evidence.selection_required, false);
+  assert.deepEqual(byId(missing, 'own_ais').next_calls[0].arguments, {});
+  state.own_ais.rows = [{ id: 'ai:local', label: 'My computer', kind: 'device-model', live_now: false, connected: false, problem: 'it is asleep' }];
+  assert.equal(byId(await runtimeOf().read(), 'own_ais').state, 'blocked');
+  state.own_ais.rows = [{ id: 'ai:local', label: 'My computer', kind: 'device-model', live_now: true, connected: true }];
+  state.own_ais.wake_failure = { error: 'Authorization: bearer hidden-example-token', retry_at: instant(300_000) };
+  const failedWake = byId(await runtimeOf().read(), 'own_ais');
+  assert.equal(failedWake.state, 'blocked');
+  assert.ok(!JSON.stringify(failedWake).includes('hidden-example-token'));
+  state.agents.agents[0].capacity.expires_at = instant(-1);
+  assert.equal(byId(report(state), 'agents').state, 'pending', 'a stale registered card is not an available agent');
+  state.awareness.read_count = 0;
+  state.awareness.last_read_at = null;
+  assert.equal(byId(report(state), 'awareness').state, 'pending');
+});
+
+test('missing readers and malformed evidence fail closed; errors hide credential-shaped values', async () => {
+  const runtime = makeSetupRuntime({ now: () => now, read: { defaults: () => { throw new Error('Authorization: bearer sensitive-test-token-123456789'); } } });
+  const unknown = await runtime.read();
+  assert.equal(unknown.ready, false);
+  assert.ok(unknown.components.every(row => row.state === 'unknown'));
+  assert.ok(!JSON.stringify(unknown).includes('sensitive-test-token'));
+  const malformed = report({ defaults: {}, timed_work: {}, event_intake: { sources: {} }, own_ais: { rows: 'not a list' }, awareness: {}, agents: { agents: {} } });
+  assert.ok(malformed.components.every(row => row.state === 'unknown'));
+});
+
+test('HTTP read and prepare keep private reach, entitlement and method guards before owner access', async () => {
+  let owners = 0, reads = 0, prepares = 0;
+  const options = { privateReach: true, authorize: async () => null, owner: () => { owners += 1; return { read: async () => { reads += 1; return { read: true }; }, ensure: async () => { prepares += 1; return { prepared: true }; } }; } };
+  for (const method of ['GET', 'POST']) {
+    const request = new Request('https://person/setup/runtime', { method });
+    assert.equal((await handleSetupRuntimeRequest(request, { ...options, privateReach: false })).status, 403);
+    assert.equal((await handleSetupRuntimeRequest(request, { ...options, authorize: async () => ({ error: 'plan refused', upgrade_needed: true }) })).status, 402);
+  }
+  assert.equal((await handleSetupRuntimeRequest(new Request('https://person/setup/runtime', { method: 'DELETE' }), options)).status, 405);
+  assert.equal(owners, 0);
+  const read = await handleSetupRuntimeRequest(new Request('https://person/setup/runtime'), options);
+  assert.deepEqual(await read.json(), { read: true });
+  assert.equal(prepares, 0);
+  const prepared = await handleSetupRuntimeRequest(new Request('https://person/setup/runtime', { method: 'POST' }), options);
+  assert.deepEqual(await prepared.json(), { prepared: true });
+  assert.equal(reads, 1);
+  assert.equal(prepares, 1);
+});
+
+test('HTTP restart is explicit and malformed bodies never reach the setup owner', async () => {
+  const calls = [];
+  let owners = 0;
+  const options = { privateReach: true, authorize: async () => null, owner: () => { owners += 1; return {
+    ensure: input => { calls.push(input); return input; }, read: () => ({ read: true }),
+  }; } };
+  const post = body => handleSetupRuntimeRequest(new Request('https://person/setup/runtime', { method: 'POST', body }), options);
+  for (const body of ['not JSON', 'null', '[]', '{"restart":"true"}']) assert.equal((await post(body)).status, 400);
+  assert.equal(owners, 0);
+  assert.deepEqual(await (await post('{}')).json(), { restart: false });
+  assert.deepEqual(await (await post('{"restart":true}')).json(), { restart: true });
+  assert.deepEqual(calls, [{ restart: false }, { restart: true }]);
+});
+
+test('an explicit restart waits for an existing preparation and reaches only the workflow owner', async () => {
+  const state = readySnapshot();
+  state.workflow = { exists: true, state: 'failed', withdrawal: { kind: 'workflow-stop' }, verified: false };
+  const called = [];
+  let release, first = true;
+  const runtime = makeSetupRuntime({ now: () => now,
+    read: Object.fromEntries(Object.keys(state).map(name => [name, () => clone(state[name])])),
+    prepare: { defaults: async input => { called.push(['defaults', input]); if (first) { first = false; await new Promise(resolve => { release = resolve; }); } },
+      event_intake: input => { called.push(['events', input]); }, workflow: input => { called.push(['workflow', input]); },
+      timed_work: input => { called.push(['alarm', input]); } },
+  });
+  const normal = runtime.ensure(), restart = runtime.ensure({ restart: true });
+  assert.notEqual(normal, restart);
+  release(); await Promise.all([normal, restart]);
+  assert.deepEqual(called.filter(([name]) => name === 'workflow').map(([, input]) => input), [{ restart: false }, { restart: true }]);
+  assert.ok(called.filter(([name]) => name !== 'workflow').every(([, input]) => input === undefined));
+});
+
+test('a real workflow is prepared before the alarm; its reference and completion are read separately', async () => {
+  const state = readySnapshot();
+  state.workflow = { workflow_id: 'workflow:setup', run_id: 'run:one', exists: false, state: 'not_started', verified: false };
+  const called = [];
+  const runtime = makeSetupRuntime({ now: () => now,
+    read: Object.fromEntries(Object.keys(state).map(name => [name, () => clone(state[name])])),
+    prepare: {
+      defaults: () => called.push('defaults'), event_intake: () => called.push('intake'),
+      workflow: () => { called.push('workflow'); state.workflow.exists = true; state.workflow.state = 'working'; return { run_id: state.workflow.run_id }; },
+      timed_work: () => called.push('alarm'),
+    },
+  });
+  const started = await runtime.ensure();
+  assert.deepEqual(called, ['defaults', 'intake', 'workflow', 'alarm']);
+  assert.equal(started.workflow.run_id, 'run:one');
+  assert.equal(byId(started, 'workflow').ready, false);
+  assert.equal(started.ready, false, 'starting the durable work is not verification');
+  assert.deepEqual(byId(started, 'workflow').next_calls[0].arguments, { run_id: 'run:one' });
+  state.workflow.state = 'finished';
+  assert.equal(byId(await runtime.read(), 'workflow').ready, false, 'a finished run without verification remains incomplete');
+  state.workflow.verified = true;
+  assert.equal((await runtime.read()).ready, true);
+  state.workflow.verified = false;
+  state.workflow.withdrawn = true;
+  assert.equal(byId(await runtime.read(), 'workflow').state, 'blocked');
+  assert.deepEqual(byId(await runtime.read(), 'workflow').next_calls, [], 'withdrawn work is not automatically restarted');
+});
+
+test('the shared workflow owner reuses its account key, never executes on reads, and preserves finished or withdrawn work', async () => {
+  const policy = { id: 'workflow:setup', request_key: 'account-setup:v1', inventory_step: 'discover', verification_step: 'verify', input: { goal: 'Get started' } };
+  const identity = value => `1f:${createHash('sha256').update(JSON.stringify(value)).digest('hex')}`;
+  const records = new Map();
+  const outputs = new Map();
+  const calls = [];
+  const workflow = makeSetupWorkflow({ policy, identity,
+    readRun: id => records.get(id), readOutput: (id, step) => outputs.get(`${id}:${step}`),
+    owner: () => ({
+      start: async input => { calls.push(['start', input]); const run_id = `run:${identity({ workflow_id: input.workflow_id, request_key: input.request_key }).slice(3, 27)}`;
+        const run = { run_id, state: 'working', done: {}, waiting: [{ step_id: 'discover' }] }; records.set(run_id, run); return run; },
+      read: async input => { calls.push(['read', input]); return records.get(input.run_id); },
+    }),
+  });
+  assert.equal(workflow.read().exists, false);
+  assert.deepEqual(calls, []);
+  await workflow.ensure();
+  const first = workflow.read();
+  assert.equal(first.state, 'working');
+  await workflow.ensure();
+  assert.equal(calls.filter(([operation]) => operation === 'start').length, 1);
+  assert.deepEqual(calls[0][1], { workflow_id: policy.id, request_key: policy.request_key, input: policy.input });
+  const run = records.get(first.run_id);
+  run.state = 'stuck';
+  await workflow.ensure();
+  assert.deepEqual(calls.at(-1), ['read', { run_id: first.run_id, resume: true }]);
+  run.withdrawal = { at: instant(0), why: 'The person stopped setup' };
+  const before = calls.length;
+  await workflow.ensure();
+  assert.equal(calls.length, before, 'an explicit withdrawal never becomes another start or resume');
+  delete run.withdrawal;
+  run.state = 'finished';
+  await workflow.ensure();
+  assert.equal(calls.length, before, 'completed work is never recreated by repeating setup');
+  assert.equal(workflow.read().verified, false);
+  const output = { verified: [{ id: 'first-result', state: 'verified' }], remaining: [] };
+  run.done.verify = { admitted_at: instant(0), output_identity: identity(output) };
+  assert.equal(workflow.read().verified, false, 'an admitted pointer without its actual output is not proof');
+  outputs.set(`${first.run_id}:verify`, { ...output, remaining: ['not finished'] });
+  assert.equal(workflow.read().verified, false, 'a changed output is not the admitted evidence');
+  outputs.set(`${first.run_id}:verify`, output);
+  assert.equal(workflow.read().verified, false, 'a final output without its original inventory is not a verified setup');
+  const inventory = { requirements: [{ id: 'first-result', applicability: 'applicable' }] };
+  run.done.discover = { admitted_at: instant(-1), output_identity: identity(inventory) };
+  outputs.set(`${first.run_id}:discover`, inventory);
+  assert.equal(workflow.read().verified, false, 'finished + admitted identities only proves integrity, not the real account outcome');
+  assert.ok(workflow.read().evidence.problems.length > 0);
+  assert.deepEqual(workflow.read().verification, output);
+  assert.deepEqual(workflow.read().inventory, inventory);
+  assert.equal(calls.length, before, 'reading and verifying stored evidence execute no workflow step');
+});

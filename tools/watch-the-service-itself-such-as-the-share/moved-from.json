@@ -1,0 +1,48 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/service-watch.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/watch-the-service-itself-such-as-the-share/from-old-trillion/src/service-watch.mjs.held",
+      "source_identity": "1f:d354b79e68196d9502744f4e6d491afd05cf6f9222dd839aeb72302a874cd0de",
+      "identity": "1f:a412ff5fd977b18d7ec1a966e1fe7052a3c3e8698842aca24af5db21c184228f",
+      "held": true
+    },
+    {
+      "from": "test/service-watch-build-read.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/watch-the-service-itself-such-as-the-share/from-old-trillion/test/service-watch-build-read.test.mjs.held",
+      "source_identity": "1f:2cdbba254b37ef8bab28e133f3766f2c77991cad1c13a782419c9c9fdd832a78",
+      "identity": "1f:f068f21febde4e2af149ba0b152c6ec2bf96876fce721418c6b78aa3ef428fea",
+      "held": true
+    },
+    {
+      "from": "test/service-watch-operator-calls.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/watch-the-service-itself-such-as-the-share/from-old-trillion/test/service-watch-operator-calls.test.mjs.held",
+      "source_identity": "1f:450f38e1372ecb5b0b33fd2ef2e4b23a420415952a07eeacccf97ed568653cd5",
+      "identity": "1f:02ee48e3e2a4c75247eea8089c956694e04824f43764e8578fadd7f5c99ca9e3",
+      "held": true
+    },
+    {
+      "from": "test/service-watch-release.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/watch-the-service-itself-such-as-the-share/from-old-trillion/test/service-watch-release.test.mjs.held",
+      "source_identity": "1f:84fe7aa0041ac8ac503a41f8d7718e0d738b66e64a085f2e91b44b631e53f487",
+      "identity": "1f:f77a3022ad3bb392abfaeea72ebe58585eef0aea037e307f260d1262f0410dcb",
+      "held": true
+    },
+    {
+      "from": "test/service-watch.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/watch-the-service-itself-such-as-the-share/from-old-trillion/test/service-watch.test.mjs.held",
+      "source_identity": "1f:63aa1aba427bb23dfcac77cce90d8646b5a86ec5f2dfe7e1252629f18f00c41e",
+      "identity": "1f:75cd0eb77fcf51b416dbd279c25e314437580071f501b8e255de76b32f8d4443",
+      "held": true
+    }
+  ]
+}

@@ -1,0 +1,382 @@
+// Connected sources retry setup, keep the reason visible, and preserve a person's explicit stop.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { startingRules } from '../src/starting-rules.mjs';
+import { dueAt } from '../../../learn-a-workflow-from-a-job/src/scheduler.mjs';
+import defaults from '../records/starting-rules.json' with { type: 'json' };
+
+const row = vendor => ({
+  id: `events:${vendor}`, label: `${vendor} inbox`, connects_with: { vendor },
+  events: [{ name: 'message', fields: { text: ['text'] } }],
+});
+const firstDelay = 60_000;
+const data = { ...defaults, listen_retry: { first_after_seconds: 60, factor: 2, longest_after_seconds: 900 } };
+
+function account({ rows = [row('one')], legacy = false } = {}) {
+  const a = {
+    clock: Date.parse('2026-10-07T10:00:00Z'),
+    connected: rows.map(source => ({ vendor: source.connects_with.vendor, status: 'connected' })),
+    live: new Set(), stopped: [], attempts: [], calls: [],
+    answer: async source_id => ({ source_id, listening: true }),
+    connectionError: null, listingError: null,
+  };
+  a.create = (options = {}) => startingRules({
+    data, now: () => a.clock,
+    connections: async () => { if (a.connectionError) throw a.connectionError; return a.connected; },
+    sources: async () => rows,
+    listening: async () => {
+      if (a.listingError) throw a.listingError;
+      return legacy ? [...a.live] : {
+        listening: [...a.live].map(source_id => ({ source_id, account: 'this-account' })),
+        stopped: a.stopped, attempts: a.attempts,
+      };
+    },
+    listen: async source_id => {
+      a.calls.push({ source_id, at: a.clock });
+      const result = await a.answer(source_id);
+      if (result?.listening !== false) a.live.add(source_id);
+      return result;
+    },
+    ...options,
+  });
+  a.rules = a.create();
+  return a;
+}
+
+test('a transient refusal stays visible between bounded retries and clears after recovery', async () => {
+  const a = account({ legacy: true });
+  let failed = true;
+  a.answer = async () => { if (failed) throw new Error('service is busy'); };
+  const first = await a.rules.ensure();
+  assert.equal(first.problems[0]?.problem, 'service is busy');
+  assert.deepEqual(await a.rules.ensure(), first, 'an unreadied source must not silently appear healthy');
+  assert.equal(a.calls.length, 1);
+  a.clock += firstDelay - 1;
+  assert.deepEqual(await a.rules.ensure(), first);
+  assert.equal(a.calls.length, 1);
+  failed = false;
+  a.clock += 1;
+  assert.deepEqual(await a.rules.ensure(), { problems: [] });
+  assert.equal(a.calls.length, 2, 'a temporary failure must not be suppressed until process restart');
+});
+
+test('repeated failures back off according to the row and remain capped', async () => {
+  const a = account({ legacy: true });
+  a.answer = async () => { throw new Error('temporarily unavailable'); };
+  await a.rules.ensure();
+  for (const delay of [60, 120, 240, 480, 900, 900]) {
+    const count = a.calls.length;
+    a.clock += delay * 1000 - 1;
+    assert.equal((await a.rules.ensure()).problems.length, 1);
+    assert.equal(a.calls.length, count, 'wait for the retry boundary');
+    a.clock += 1;
+    assert.equal((await a.rules.ensure()).problems.length, 1);
+    assert.equal(a.calls.length, count + 1, 'retry once when due');
+  }
+});
+
+test('concurrent ensures share a pending attempt and return the same failure', async () => {
+  const a = account({ legacy: true });
+  let release, entered;
+  const blocked = new Promise(resolve => { release = resolve; });
+  const started = new Promise(resolve => { entered = resolve; });
+  a.answer = async () => { entered(); await blocked; throw new Error('provider is still starting'); };
+  const first = a.rules.ensure();
+  await started;
+  const second = a.rules.ensure();
+  release();
+  const results = await Promise.all([first, second]);
+  assert.deepEqual(results[1], results[0]);
+  assert.equal(results[0].problems[0]?.problem, 'provider is still starting');
+  assert.equal(a.calls.length, 1, 'one account/source has only one in-flight setup');
+});
+
+test('durable setup task backoff survives a new starting-rules instance', async () => {
+  const a = account();
+  const retry_at = a.clock + 300_000;
+  a.attempts = [{ source_id: 'events:one', state: 'working', problem: 'identity task is working', retry_at, task_id: 'task:kept' }];
+  assert.equal(await a.rules.nextRetry(), retry_at);
+  const first = await a.rules.ensure();
+  assert.equal(first.problems[0]?.problem, 'identity task is working');
+  assert.equal(first.problems[0]?.retry_at, retry_at);
+  assert.equal(a.calls.length, 0);
+  a.rules = a.create();
+  a.clock = retry_at - 1;
+  assert.equal(await a.rules.nextRetry(), retry_at, 'the existing alarm retains the durable retry after restart');
+  assert.deepEqual(await a.rules.ensure(), first);
+  assert.equal(a.calls.length, 0, 'a restart must not manufacture another identity request');
+  a.clock = retry_at;
+  a.answer = async source_id => { a.attempts = []; return { source_id, listening: true }; };
+  assert.deepEqual(await a.rules.ensure(), { problems: [] });
+  assert.equal(a.calls.length, 1, 'resume through the event owner only when its kept task is due');
+  assert.equal(await a.rules.nextRetry(), null);
+});
+
+test('sources and accounts are isolated and disconnected sources are never set up', async () => {
+  const a = account({ rows: [row('one'), row('two'), row('disconnected')] });
+  a.connected.find(item => item.vendor === 'disconnected').status = 'needs_sign_in';
+  a.answer = async source_id => {
+    if (source_id === 'events:one') throw new Error('one is unavailable');
+    return { source_id, listening: true };
+  };
+  assert.equal((await a.rules.ensure()).problems[0]?.source_id, 'events:one');
+  assert.deepEqual(a.calls.map(item => item.source_id), ['events:one', 'events:two']);
+  assert.deepEqual([...a.live], ['events:two']);
+  const b = account();
+  assert.deepEqual(await b.rules.ensure(), { problems: [] });
+  assert.deepEqual([...b.live], ['events:one'], 'another account does not inherit the first account failure');
+  a.connected.find(item => item.vendor === 'one').status = 'needs_sign_in';
+  a.clock += firstDelay;
+  await a.rules.ensure();
+  assert.equal(a.calls.filter(item => item.source_id === 'events:one').length, 1, 'a due retry does not restore lost authorization');
+  assert.equal(await a.rules.nextRetry(), null, 'neither disconnected source arms a retry');
+});
+
+test('an explicit stop stays stopped across restart; an explicit resume is observed', async () => {
+  const a = account();
+  a.stopped = [{ source_id: 'events:one', at: new Date(a.clock).toISOString() }];
+  assert.deepEqual(await a.rules.ensure(), { problems: [] });
+  assert.equal(await a.rules.nextRetry(), null, 'an explicit stop asks for no alarm');
+  a.clock += 86_400_000;
+  a.rules = a.create();
+  assert.deepEqual(await a.rules.ensure(), { problems: [] });
+  assert.equal(a.calls.length, 0, 'default retry does not undo a stop');
+  // The person resumed through listen_for_events; its resulting listener state is authoritative.
+  a.stopped = [];
+  a.live.add('events:one');
+  assert.deepEqual(await a.rules.ensure(), { problems: [] });
+  assert.equal(a.calls.length, 0, 'an existing resumed listener needs no duplicate setup');
+});
+
+test('a terminal refusal stays visible and does not prompt automatic authorization retries', async () => {
+  const a = account();
+  a.answer = async () => { throw Object.assign(new Error('connection must be renewed'), { retryable: false }); };
+  const failure = await a.rules.ensure();
+  assert.equal(failure.problems[0]?.problem, 'connection must be renewed');
+  a.clock += 86_400_000;
+  assert.deepEqual(await a.rules.ensure(), failure);
+  assert.equal(a.calls.length, 1);
+  assert.equal(await a.rules.nextRetry(), null, 'a non-retryable failure asks for no alarm');
+  a.attempts = [{ source_id: 'events:one', state: 'failed', problem: 'connection must be renewed', retryable: false, retry_at: a.clock }];
+  a.rules = a.create();
+  assert.deepEqual(await a.rules.ensure(), failure, 'the provider terminal constraint is preserved across restart');
+  assert.equal(await a.rules.nextRetry(), null);
+  assert.equal(a.calls.length, 1);
+  // A confirmed explicit setup after the person renews the connection clears the prior failure.
+  a.live.add('events:one');
+  assert.deepEqual(await a.rules.ensure(), { problems: [] });
+});
+
+test('a returned pending listener is a visible pending state, with the provider retry time', async () => {
+  const a = account();
+  const retry_at = a.clock + 600_000;
+  a.answer = async source_id => ({ source_id, listening: false, problem: 'subscription still working', retry_at: new Date(retry_at).toISOString() });
+  const result = await a.rules.ensure();
+  assert.equal(result.problems[0]?.problem, 'subscription still working');
+  assert.equal(result.problems[0]?.retry_at, retry_at);
+  a.clock += firstDelay;
+  assert.deepEqual(await a.rules.ensure(), result);
+  assert.equal(a.calls.length, 1);
+  assert.equal(a.live.size, 0);
+});
+
+test('connection and listener read failures are visible and do not start new setup', async () => {
+  const a = account();
+  a.connectionError = new Error('connection state is unavailable');
+  await assert.rejects(a.rules.ensure(), /connection state is unavailable/);
+  a.connectionError = null;
+  a.listingError = new Error('listener state is unavailable');
+  await assert.rejects(a.rules.ensure(), /listener state is unavailable/);
+  assert.equal(a.calls.length, 0, 'missing connection/stop state cannot be interpreted as permission to listen');
+  a.listingError = null;
+  assert.deepEqual(await a.rules.ensure(), { problems: [] }, 'failed ensure calls release their coalescing slot');
+});
+
+test('the existing timed source resumes setup without another request and removes itself after success', async () => {
+  const a = account();
+  let fail = true;
+  a.answer = async source_id => {
+    if (fail) throw new Error('setup is temporarily unavailable');
+    return { source_id, listening: true };
+  };
+  const timed = dueAt('event-listen-retries', () => a.rules.nextRetry(), () => a.rules.ensure());
+  assert.equal(Date.parse((await timed.data()).time_windows[0].start), a.clock, 'a connected source with no listener is due now');
+  await timed.run();
+  const retryAt = Date.parse((await timed.data()).time_windows[0].start);
+  assert.equal(retryAt, a.clock + firstDelay, 'a temporary setup failure remains scheduled');
+  fail = false;
+  a.clock = retryAt;
+  await timed.run();
+  assert.equal(a.calls.length, 2);
+  assert.deepEqual(await timed.data(), {}, 'confirmed listening needs no setup wake');
+});
+
+test('host-tracked setup releases the timed source while the provider is still running', { timeout: 1500 }, async () => {
+  const a = account();
+  const owned = [];
+  let release, entered, settled = 0;
+  const blocked = new Promise(resolve => { release = resolve; });
+  const started = new Promise(resolve => { entered = resolve; });
+  a.answer = async source_id => { entered(); await blocked; return { source_id, listening: true }; };
+  a.rules = a.create({
+    keepAlive: work => { assert.equal(a.calls.length, 0, 'host ownership is established before provider work'); owned.push(work); },
+    onSettled: async () => { settled += 1; },
+  });
+  const timed = dueAt('event-listen-retries', () => a.rules.nextRetry(), () => a.rules.runDue());
+  await timed.run();
+  await started;
+  let unrelatedRan = false;
+  await dueAt('another-source', async () => a.clock, async () => { unrelatedRan = true; }).run();
+  assert.equal(unrelatedRan, true, 'other timed work is not held behind provider setup');
+  assert.deepEqual(a.rules.running(), [{ source_id: 'events:one', started_at: new Date(a.clock).toISOString() }]);
+  assert.equal(await a.rules.nextRetry(), a.clock + firstDelay, 'a future recovery wake remains armed without a one-second loop');
+  await timed.run();
+  assert.equal(owned.length, 1);
+  assert.equal(a.calls.length, 1, 'another wake does not duplicate a running setup');
+  release();
+  await owned[0];
+  assert.deepEqual(a.rules.running(), []);
+  assert.deepEqual(a.rules.status(), { problems: [], running: [] });
+  assert.equal(await a.rules.nextRetry(), null);
+  assert.equal(settled, 1, 'settlement rearms through the existing owner');
+});
+
+test('a stopped or disconnected sibling is rechecked after an earlier provider wait', { timeout: 1500 }, async () => {
+  const a = account({ rows: [row('one'), row('two'), row('three')] });
+  const owned = [];
+  let release, entered;
+  const blocked = new Promise(resolve => { release = resolve; });
+  const started = new Promise(resolve => { entered = resolve; });
+  a.answer = async source_id => {
+    if (source_id === 'events:one') { entered(); await blocked; }
+    return { source_id, listening: true };
+  };
+  a.rules = a.create({ keepAlive: work => owned.push(work) });
+  await a.rules.runDue();
+  await started;
+  a.stopped = [{ source_id: 'events:two', at: new Date(a.clock).toISOString() }];
+  a.connected.find(item => item.vendor === 'three').status = 'needs_sign_in';
+  release();
+  await owned[0];
+  assert.deepEqual(a.calls.map(call => call.source_id), ['events:one']);
+  assert.equal(await a.rules.nextRetry(), null, 'neither the explicit stop nor lost connection is retried');
+});
+
+test('a stop reported by the event owner is respected even after the initial state read', async () => {
+  const a = account();
+  a.answer = async source_id => {
+    a.stopped = [{ source_id, at: new Date(a.clock).toISOString() }];
+    return { source_id, listening: false, stopped: true, retryable: false, problem: 'This source was explicitly stopped.' };
+  };
+  assert.deepEqual(await a.rules.ensure(), { problems: [] }, 'a person stop is not reported as a failed service');
+  assert.equal(await a.rules.nextRetry(), null);
+  assert.equal(a.live.size, 0);
+});
+
+test('a host that cannot retain setup must await it instead of abandoning the promise', { timeout: 1500 }, async () => {
+  const a = account();
+  let release, entered, finished = false;
+  const blocked = new Promise(resolve => { release = resolve; });
+  const started = new Promise(resolve => { entered = resolve; });
+  a.answer = async source_id => { entered(); await blocked; return { source_id, listening: true }; };
+  a.rules = a.create({ keepAlive: () => { throw new Error('host cannot retain work'); } });
+  const run = a.rules.runDue().then(result => { finished = true; return result; });
+  await started;
+  assert.equal(finished, false);
+  release();
+  assert.deepEqual(await run, { problems: [] });
+  assert.equal(finished, true);
+  assert.deepEqual(a.rules.running(), []);
+});
+
+test('background state-read failure remains observable and schedules another owner check', async () => {
+  const a = account();
+  const owned = [];
+  let settled = 0;
+  a.connectionError = new Error('connection state is unavailable');
+  a.rules = a.create({ keepAlive: work => owned.push(work), onSettled: async () => { settled += 1; } });
+  const result = await a.rules.runDue();
+  assert.equal(result.started, true);
+  assert.equal(result.running.length, 1);
+  await assert.rejects(owned[0], /connection state is unavailable/);
+  assert.equal(a.rules.status().error, 'connection state is unavailable');
+  assert.deepEqual(a.rules.running(), []);
+  assert.equal(settled, 1);
+  assert.equal(a.calls.length, 0);
+  a.connectionError = null;
+  assert.equal(await a.rules.nextRetry(), a.clock, 'the source remains due when connection state becomes readable');
+});
+
+
+test('setup demand with no eligible listener starts no host work and sends no settlement arm', async () => {
+  for (const state of ['empty', 'listening', 'stopped', 'future', 'held']) {
+    const a = account();
+    if (state === 'empty') a.connected = [];
+    if (state === 'listening') a.live.add('events:one');
+    if (state === 'stopped') a.stopped = [{ source_id: 'events:one' }];
+    if (state === 'future' || state === 'held') a.attempts = [{ source_id: 'events:one', state: 'working',
+      retry_at: a.clock + firstDelay, retryable: state !== 'held', problem: 'setup remains owned' }];
+    const owned = [];
+    let settled = 0;
+    a.rules = a.create({ keepAlive: work => owned.push(work), onSettled: async () => { settled += 1; } });
+    for (let read = 0; read < 3; read += 1) {
+      const result = await a.rules.runDue();
+      assert.equal(result.started, false, state);
+      assert.deepEqual(result.running, [], state);
+      assert.equal(result.problems.length, state === 'future' || state === 'held' ? 1 : 0, state);
+    }
+    assert.equal(owned.length, 0, state);
+    assert.equal(settled, 0, state);
+    assert.equal(a.calls.length, 0, state);
+  }
+});
+
+test('setup demand sees a new connection inside an unchanged timing-memo window', async () => {
+  const a = account();
+  a.connected = [];
+  const owned = [];
+  let settled = 0;
+  a.rules = a.create({ version: async () => 'unchanged-listeners', keepAlive: work => owned.push(work),
+    onSettled: async () => { settled += 1; } });
+  assert.equal(await a.rules.nextRetry(), null);
+  a.connected = [{ vendor: 'one', status: 'connected' }];
+  assert.equal(await a.rules.nextRetry(), null, 'the ordinary timing memo still represents the earlier observation');
+  assert.equal((await a.rules.runDue()).started, true, 'fresh demand must not reuse that empty memo');
+  await owned[0];
+  assert.deepEqual(a.calls.map(call => call.source_id), ['events:one']);
+  assert.equal(settled, 1);
+  assert.equal((await a.rules.runDue()).started, false);
+  assert.equal(owned.length, 1, 'settled listening starts no second batch');
+});
+
+test('setup demand preserves durable retry deadlines and starts once at the boundary', async () => {
+  const a = account();
+  const retry_at = a.clock + firstDelay;
+  a.attempts = [{ source_id: 'events:one', state: 'working', problem: 'kept provider task', retry_at, task_id: 'task:owned' }];
+  const owned = [];
+  a.rules = a.create({ keepAlive: work => owned.push(work) });
+  assert.equal((await a.rules.runDue()).started, false);
+  assert.equal(owned.length, 0);
+  a.clock = retry_at;
+  assert.equal((await a.rules.runDue()).started, true);
+  await owned[0];
+  assert.equal(a.calls.length, 1);
+  assert.equal(a.calls[0].at, retry_at);
+});
+
+
+test('no-op setup demand clears a prior problem only after confirmed listening or explicit stop', async () => {
+  for (const confirmed of ['listening', 'stopped', 'disconnected']) {
+    const a = account();
+    a.answer = async () => { throw new Error('temporary provider refusal'); };
+    await a.rules.ensure();
+    assert.equal(a.rules.status().problems[0].problem, 'temporary provider refusal');
+    if (confirmed === 'listening') a.live.add('events:one');
+    if (confirmed === 'stopped') a.stopped = [{ source_id: 'events:one' }];
+    if (confirmed === 'disconnected') a.connected = [];
+    const result = await a.rules.runDue();
+    assert.equal(result.started, false, confirmed);
+    assert.deepEqual(result.problems, [], confirmed);
+    assert.equal(a.calls.length, 1, confirmed);
+  }
+});

@@ -1,0 +1,110 @@
+// Finding items by their words in a pursuit, as the asker may read them (F-0113, src/space-search.mjs, read_space with
+// `query`): every word must be in the item, a hidden thing's words are never found by someone who may not show it, a
+// withdrawn item is never found, a page that scanned more than it returned goes on with next_before, and the route and
+// tool carry the query.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { sqliteHost } from '../src/local-store.mjs';
+import { withSourceImports } from './source-imports-for-tests.mjs';
+import rules from '../../../introduce-two-people/src/network-settings.json' with { type: 'json' };
+import permissions from '../../../space-permission-rules/src/space-permission-rules.json' with { type: 'json' };
+import memberTypes from '../../../space-member-types/src/space-member-types.json' with { type: 'json' };
+import { documentMemberTypesOf } from '../../../decide-who-may-do-what-in-a-space/from-old-trillion/src/space-member-types.mjs';
+import { handleSpacesRequest } from '../src/person-spaces.mjs';
+import { importSource } from './import-source-for-tests.mjs';
+import { makeSharedNetwork } from '../src/shared-resource-routing.mjs';
+import { accountControlBinding } from './account-control-binding-for-tests.mjs';
+
+const source = withSourceImports(readFileSync(new URL('../src/network.mjs', import.meta.url), 'utf8')
+  .replace("import { DurableObject } from 'cloudflare:workers';", 'class DurableObject { constructor(ctx, env) { this.ctx = ctx; this.env = env; } }')
+  .replace("import rules from './network-settings.json' with { type: 'json' };", `const rules = ${JSON.stringify(rules)};`));
+const { Network } = await importSource(source);
+
+const ana = 'relay_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const bo = 'relay_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+
+test('legacy member types beyond one page retain late inheritance and permission-change detection', async () => {
+  const { net, sql, id } = await space();
+  const count = memberTypes.own_types.max + 3;
+  const last = `legacy_${String(count - 1).padStart(3, '0')}`;
+  for (let index = 0; index < count; index += 1) {
+    sql.exec('INSERT INTO space_member_types (space_id, type_id, label, added_by, added_at, inherits) VALUES (?, ?, ?, ?, ?, ?)',
+      id, `legacy_${String(index).padStart(3, '0')}`, `Legacy ${index}`, ana, '2026-10-13T00:00:00Z', JSON.stringify(index === count - 1 ? ['owner'] : []));
+  }
+  const target = { id, label: 'project' };
+  assert.equal(net.baseMemberTypesOf(target).filter(type => type.own).length, count);
+  assert.deepEqual(net.memberTypeIdsOf(target, last), ['owner', last]);
+  const before = net.spaceAccessState(id, ana);
+  sql.exec('UPDATE space_member_types SET inherits = ? WHERE space_id = ? AND type_id = ?', JSON.stringify(['viewer']), id, last);
+  assert.throws(() => net.assertSpaceAccessUnchanged(id, ana, before), /permissions changed/);
+  assert.deepEqual(net.memberTypeIdsOf(target, last), ['viewer', last]);
+});
+
+async function space(label = 'project') {
+  const { sql, transaction } = sqliteHost(':memory:');
+  const net = new Network({ storage: { sql, transactionSync: transaction } }, { ACCOUNT_CONTROL: accountControlBinding(), PERSON: { idFromString: ref => ref, get: () => ({ includesPlanFeature: async () => true, spaceChanged: async () => undefined }) } });
+  for (const [relay, ref] of [[ana, 'store-ana'], [bo, 'store-bo']]) net.remember(relay, ref);
+  const { membership_id: id } = await net.createMembership({ relay: ana, person_ref: 'store-ana', label, title: 'Riverside' });
+  const asked = await net.request({ from: ana, person_ref: 'store-ana', to: bo, why: 'Join', membership_id: id });
+  await net.answer({ relay: bo, request_id: asked.request_id, accept: true });
+  const { ids: [anaItem] } = await net.addSpaceItems({ relay: ana, space_id: id, items: [{ kind: 'message', body: 'From ana' }] });
+  return { net, sql, id, anaItem };
+}
+import { searchWords } from '../src/space-search.mjs';
+import { spaceTools } from '../../../give-an-ai-the-tools-to-read-and-change-a-pursuits/from-old-trillion/src/space-tools.mjs.held';
+
+test('the query is its distinct lower-cased words, bounded', () => {
+  assert.deepEqual(searchWords('  Budget  BUDGET plan '), ['budget', 'plan']);
+  assert.equal(searchWords('   '), null);
+  assert.equal(searchWords(undefined), null);
+  assert.equal(searchWords('a b c d e f g h i j').length, 8);
+});
+
+test('every word must be in the item, newest first, and a withdrawn item is not found', async () => {
+  const { net, id } = await space();
+  const add = body => net.addSpaceItems({ relay: ana, space_id: id, items: [{ kind: 'note', body }] }).then(answer => answer.ids[0]);
+  const one = await add('Budget plan for the autumn');
+  await add('Budget only');
+  const three = await add('Autumn budget plan, revised');
+  const found = await net.spaceItems({ relay: bo, space_id: id, query: 'plan BUDGET' });
+  assert.deepEqual(found.items.map(item => item.item_id), [three, one]);
+  assert.equal(found.next_before, null);
+  assert.deepEqual((await net.spaceItems({ relay: bo, space_id: id, query: '100%' })).items, [], 'a % in the words is a plain character');
+  await net.withdrawSpaceItem({ relay: ana, space_id: id, item_id: three });
+  assert.deepEqual((await net.spaceItems({ relay: bo, space_id: id, query: 'revised' })).items, []);
+  assert.equal((await net.spaceItems({ relay: bo, space_id: id, query: 'autumn', kind: 'message' })).items.length, 0, 'kind narrows it');
+});
+
+test('a hidden thing is found only by a reader who may show it again', async () => {
+  const { net, id, anaItem } = await space();
+  await net.hideSpaceItem({ relay: ana, space_id: id, item_id: anaItem, hidden: true });
+  assert.deepEqual((await net.spaceItems({ relay: bo, space_id: id, query: 'ana' })).items, [], 'bo may not read its words, so cannot find them');
+  assert.deepEqual((await net.spaceItems({ relay: ana, space_id: id, query: 'ana' })).items.map(item => item.item_id), [anaItem]);
+  await net.hideSpaceItem({ relay: ana, space_id: id, item_id: anaItem, hidden: false });
+  assert.deepEqual((await net.spaceItems({ relay: bo, space_id: id, query: 'ana' })).items.map(item => item.item_id), [anaItem]);
+});
+
+test('someone outside the pursuit is refused as for any read', async () => {
+  const { net, id } = await space();
+  await assert.rejects(net.spaceItems({ relay: 'relay_cccccccccccccccccccccccccccccccc', space_id: id, query: 'ana' }));
+});
+
+test('a page goes on with next_before and the route and tool carry the query', async () => {
+  const { net, id } = await space();
+  for (let index = 0; index < 5; index += 1) await net.addSpaceItems({ relay: ana, space_id: id, items: [{ kind: 'note', body: `find me ${index}` }] });
+  const first = await net.spaceItems({ relay: bo, space_id: id, query: 'find', limit: 2 });
+  assert.equal(first.items.length, 2);
+  assert.ok(first.next_before);
+  const second = await net.spaceItems({ relay: bo, space_id: id, query: 'find', limit: 2, before: first.next_before });
+  assert.equal(second.items.length, 2);
+  assert.ok(!second.items.some(item => first.items.some(seen => seen.item_id === item.item_id)));
+  const person = { network: () => net, relay: () => bo, ctx: { id: { toString: () => 'store-bo' } } };
+  const answer = await (await handleSpacesRequest(person, new Request(`https://person/spaces/${id}/items?query=find&limit=3`))).json();
+  assert.equal(answer.items.length, 3);
+  const calls = [];
+  const read = spaceTools(path => { calls.push(path); return {}; }).find(tool => tool.name === 'read_space');
+  assert.ok(read.inputSchema.properties.query);
+  read.run({ space_id: id, query: 'plan' });
+  assert.match(calls[0], /items\?.*query=plan/);
+});

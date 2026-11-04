@@ -1,0 +1,406 @@
+// The facts of the person's decisions as workspace screens: each decision's own screen (decisionFacts: its notes,
+// results and history; records/marketplace-screens.json tool:decision draws them) and Progress's facts (progressFacts:
+// what is waiting for their answer, what they are working toward, what helped; tool:progress draws them). The generic
+// screen host draws each as a guide description for the workspace's shared guide (parts/ui/show/coss/guide.tsx); this
+// file supplies only the person's data and the words other owners keep.
+// Dense list anatomy from Tana's To-Do list and Perplexity's History (title left, quiet status label, one line per
+// row); the status label follows Tremor's status badge (21st.dev component 521): a pill with a small dot.
+import { workedSteps } from './answer-words.mjs';
+import { resultWords, statusWords } from './report.mjs';
+import { keepsWords, leftWords } from './allowance.mjs';
+import words from './screen-words.json' with { type: 'json' };
+import workspaceSurfaces from '../../../shared-code/src/workspace/screens.mjs';
+import { itemAddressOf } from '../../../hand-off-jobs-between-agents/src/workspace/addresses.mjs';
+import { whatHelpedSections } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/check-uses.mjs';
+import { progressTrendSections } from './progress-trends.mjs';
+import { pursuitHierarchyRows } from '../../../keep-goals-and-focus/read-data/pursuit-hierarchy-view.mjs';
+import { awarenessSections } from './awareness.mjs';
+import stanceData from '../../../record-where-i-stand-on-one-of-my-records-agree/src/record-stance.json' with { type: 'json' };
+
+const day = iso => (typeof iso === 'string' && iso.length >= 10 ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }) : null);
+const decisionHref = id => itemAddressOf(workspaceSurfaces, 'trillion.decision', id);
+// The address an item names as its source, and whether it is a page Trillion looked at, or null where it names no
+// web address (a page reference loses the time it was read).
+const sourceOf = ref => {
+  const page = typeof ref === 'string' && ref.startsWith('page:') ? ref.slice(5).replace(/@\d{4}-\d{2}-\d{2}T.*$/, '') : null;
+  const href = page ?? ref;
+  return /^https?:\/\/[^\s]+$/i.test(href ?? '') ? { href, page: page !== null } : null;
+};
+const pursuitChange = value => {
+  const match = typeof value === 'string' && value.match(/^(.+): now (.+); should be (.+)$/s);
+  return match ? { title: match[1], now: match[2], after: match[3] } : null;
+};
+
+// A page section as the workspace's shared guide draws it (parts/ui/show/coss/guide.tsx): each item one row, its
+// heading the title, its body and details one detail line under it, its label the row's status. Only actions that are
+// real addresses carry over; everything a page did through in-page links is reached by opening the row's own page.
+const realActions = actions => (actions ?? []).filter(action => typeof action.href === 'string' && !action.href.startsWith('#')).map(({ label, href }) => ({ label, href }));
+function guideSection(section, key) {
+  const rows = (section.items ?? []).map((item, index) => ({
+    id: `${key}-${index}`,
+    title: item.heading ?? item.body ?? '',
+    detail: [item.heading ? item.body : null, ...(item.details ?? [])].filter(Boolean).join('\n') || undefined,
+    ...(item.meta?.label ? { status: { label: item.meta.label, tone: item.meta.tone } } : {}),
+    ...(realActions(item.actions).length ? { actions: realActions(item.actions) } : {}),
+  }));
+  return { heading: section.heading, body: section.body, ...(rows.length ? { rows } : {}), ...(realActions(section.actions).length ? { actions: realActions(section.actions) } : {}) };
+}
+
+const pursuitStatus = status => (status === 'active' ? 'Active' : status === 'paused' ? 'Paused' : 'Recorded');
+
+/**
+ * Progress's facts (records/marketplace-screens.json tool:progress draws them; tool:read-progress reads them): what is
+ * waiting for the person's answer, what they are working toward, the pursuits made with others, and, already built by
+ * their own owners, what Trillion has figured out about them (src/awareness.mjs awarenessSections), their decisions over
+ * time (src/progress-trends.mjs, shared with the home screen) and what helped (src/check-uses.mjs). `origin` names
+ * where to pay; `screen` is the account's work screen (work:screen). The decisions themselves are the Decisions screen;
+ * the plan is Plan.
+ */
+export function progressFacts({ origin, screen, referred = 0, awareness = null }) {
+  const space = (screen.space_pursuits ?? []).map(item => ({ id: `${item.space_id}:${item.item_id}`, title: item.title || 'Untitled pursuit',
+    now: item.body?.now || null, after: item.body?.after || null, open: `/spaces/${encodeURIComponent(item.space_id)}` }));
+  if (screen.free) {
+    return { kind: 'progress', free: true, space_pursuits: space, keeps: keepsWords(origin, screen.price_arm),
+      lead: screen.allowance?.count === null ? words.free.screen : `${words.free.screen} ${leftWords(screen.allowance)}` };
+  }
+  const { summaries, pursuits, pursuits_words: pursuitsWords } = screen;
+  const waiting = summaries.filter(item => item.outcome_question);
+  return {
+    kind: 'progress', free: false, space_pursuits: space, decisions: summaries.length, waiting_count: waiting.length,
+    waiting: waiting.map(item => ({ case_id: item.case_id, goal: item.goal, question: item.outcome_question, href: decisionHref(item.case_id) })),
+    // With nothing recorded, an invitation; a number appears only when the pool measured one (pursuits_words.measured).
+    invite: pursuits.length ? null : pursuitsWords?.measured ? pursuitsWords.text : words.pursuits.screen_invite,
+    pursuits: pursuitHierarchyRows(pursuits).map(({ record: pursuit, depth, parents }) => ({
+      id: pursuit.id, title: `${'↳ '.repeat(depth)}${pursuit.title}`, open: `/pursuits/${encodeURIComponent(pursuit.id)}`,
+      under: parents.length ? parents.map(parent => parent.title).join(', ') : null,
+      spaces: Array.isArray(pursuit.spaces) && pursuit.spaces.length ? pursuit.spaces.map(item => item.title).filter(Boolean).join(', ') : null,
+      now: String(pursuit.now), after: String(pursuit.after), why: pursuit.why_it_matters || null,
+      space_links: Array.isArray(pursuit.spaces) ? pursuit.spaces.filter(item => item?.id && item?.title).map(item => ({ title: item.title, href: `/spaces/${encodeURIComponent(item.id)}` })) : [],
+      status: pursuitStatus(pursuit.status),
+      facts: { title: pursuit.title, now: pursuit.now ?? '', after: pursuit.after ?? '', why: pursuit.why_it_matters ?? '', under: parents.map(parent => parent.title), status: pursuitStatus(pursuit.status) },
+    })),
+    sections_after: [
+      ...(awareness ? awarenessSections(awareness, { readNowPath: '/work/api/progress/awareness', startMapPath: '/work/api/progress/map' }) : []),
+      ...(screen.helped ? progressTrendSections(screen.helped, { referred, sendPath: '/work/api/progress/share' }) : []),
+      ...(screen.helped ? whatHelpedSections(screen.helped).map((section, index) => guideSection(section, `helped-${index}`)) : []),
+    ],
+  };
+}
+
+/**
+ * One decision's facts (records/marketplace-screens.json tool:decision draws them; tool:read-decision reads them): what
+ * was decided, its results and notes, what it rested on and how it was worked through, with the person's answer box
+ * when one is waiting. `record` is the decision as its owner reads it, `stance` where the person stands on it
+ * (src/record-stance.mjs stanceOf) and `trace` what came after it (src/activity.mjs traceActivity); a store that cannot
+ * answer the last two leaves that part out. A decision that cannot be read (removed, or its record gone) is { found:
+ * false }, never a TypeError. Every date is said as a day, every result in the words of src/screen-words.json, every
+ * status as the { label, tone } the row shows; the layout writes the rest of the words.
+ */
+const toneOf = result => (result === 'met' ? 'good' : result === 'failed' ? 'attention' : 'quiet');
+const statusOf = (iso, tone = 'quiet') => ({ label: day(iso) ?? '', tone });
+const lines = items => items.filter(Boolean).join('\n') || null;
+
+// Where the person stands on the decision (src/record-stance.mjs): the words of its question, the stand taken and why,
+// and one choice for each stand src/record-stance.json lists. A stand taken on an earlier version says so.
+function stanceFacts(record, stance) {
+  const taken = stance?.stance ?? null;
+  const row = stanceData.stances.find(item => item.id === taken?.stance);
+  const earlier = Boolean(taken?.decision_generation && taken.decision_generation !== (record.decision_generation ?? 1));
+  const why = taken?.why || null;
+  const { heading, ask, why_label: whyLabel, earlier: earlierWords } = stanceData.words;
+  return {
+    words: { heading, ask, why_label: whyLabel, earlier: earlierWords },
+    said: row && !earlier ? row.said : null,
+    earlier_said: row && earlier ? row.said : null,
+    why,
+    detailed: Boolean(why || (row && earlier)),
+    status: row ? statusOf(taken.at, row.tone) : null,
+    choices: stanceData.stances.map(item => ({ id: item.id, label: item.label, icon: item.icon, primary: item.id === taken?.stance && !earlier })),
+  };
+}
+
+// What came after the decision, newest first: the person's records that name it (their stand on it, messages about it,
+// plans for it) and every AI call that used it or was done for it (src/activity.mjs traceActivity), each once.
+function followedFacts(trace) {
+  const records = (trace?.records ?? []).filter(item => item.kind !== stanceData.type)
+    .map(item => ({ at: item.at, id: `record-${item.ref}`, title: item.title ?? item.kind, detail: item.kind, failed: false }));
+  const calls = (trace?.steps ?? []).filter(step => step.link !== 'made')
+    .map(step => ({ at: step.at, id: `call-${step.seq}`, title: step.title ?? step.label, detail: [step.label, step.agent_name ?? step.app].filter(Boolean).join(' · '), failed: step.ok === false }));
+  return [...records, ...calls].sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? ''))).slice(0, 30)
+    .map(({ at, failed, ...row }) => ({ ...row, failed, status: failed ? null : statusOf(at) }));
+}
+
+// An action and its independently observed outcome share action_key. Keep them together on the page so a result is
+// visibly about the step that produced it; an AI's account of work done is shown without calling it an outcome.
+function actionFacts(record) {
+  return (record.actions ?? []).map(action => {
+    const observed = action.key ? (record.observations ?? []).filter(item => item.action_key === action.key)
+      .sort((a, b) => String(a.observed_at ?? '').localeCompare(String(b.observed_at ?? ''))).at(-1) : null;
+    const result = action.owner_result;
+    const refs = [action.key, action.result_ref, result?.ref].filter(Boolean);
+    const reported = (record.reports ?? []).filter(item => refs.includes(item.action_ref))
+      .sort((a, b) => String(a.reported_at ?? '').localeCompare(String(b.reported_at ?? ''))).at(-1);
+    const completion = result?.status === 'completed' ? 'completed' : result?.status === 'failed' ? 'failed' : action.state === 'running' ? 'running' : null;
+    const error = result?.error || null;
+    const outcome = observed ? { result: resultWords(observed.result), summary: observed.summary || null } : null;
+    const said = reported ? { result: resultWords(reported.result), summary: reported.summary ?? null } : null;
+    return {
+      title: action.description ?? action.request?.description ?? action.request?.operation ?? record.decision?.next_action ?? null,
+      completion, error, outcome, reported: said,
+      detailed: Boolean(completion || error || outcome || said),
+      status: statusOf(observed?.observed_at ?? reported?.reported_at ?? action.recorded_at, observed?.result === 'met' ? 'good' : observed?.result === 'failed' || result?.status === 'failed' ? 'attention' : 'quiet'),
+      source: observed ? sourceOf(observed.source_ref) : null,
+    };
+  });
+}
+
+// What the AI that carried out the next action said it did, one row for each.
+const carriedOutFacts = record => (record.carried_out ?? []).map(entry => ({ done: entry.state === 'done', what_happened: entry.what_happened ?? null,
+  status: statusOf(entry.at, entry.state === 'wall' ? 'attention' : 'quiet') }));
+
+// Every check, report and observation of how it went, oldest first.
+function resultFacts(record) {
+  return [
+    ...(record.outcome_checks ?? []).map((check, index) => ({
+      id: `check-${index}`, at: check.checked_at, kind: 'check', result: resultWords(check.result),
+      reason: check.reason || null, by_person: check.observer === 'person', observed: check.observed ?? null,
+      looked_at: check.source_ref ? check.source_ref.replace(/@.*$/, '').replace(/^page:/, '') : null,
+      status: statusOf(check.checked_at, toneOf(check.result)), source: null,
+    })),
+    ...(record.reports ?? []).filter(report => !report.action_ref).map((report, index) => ({
+      id: `report-${index}`, at: report.reported_at, kind: 'report', result: resultWords(report.result), summary: report.summary ?? null,
+      status: statusOf(report.reported_at), source: null,
+    })),
+    ...(record.observations ?? []).map((observation, index) => ({
+      id: `observation-${index}`, at: observation.observed_at, kind: 'observation', result: resultWords(observation.result), summary: observation.summary ?? null,
+      status: statusOf(observation.observed_at, toneOf(observation.result)), source: sourceOf(observation.source_ref),
+    })),
+  ].sort((a, b) => String(a.at ?? '').localeCompare(String(b.at ?? ''))).map(({ at, ...row }) => row);
+}
+
+export function decisionFacts({ record, stance = null, trace = null }) {
+  if (!record?.input) return { kind: 'decision', asked: true, found: false };
+  const decision = record.decision ?? null;
+  const chosen = record.input.options.find(option => option.id === decision?.option_id);
+  const latest = [...(record.outcome_checks ?? []).map(item => ({ at: item.checked_at, result: item.result, summary: item.reason })),
+    ...(record.observations ?? []).map(item => ({ at: item.observed_at, result: item.result, summary: item.summary })),
+    ...(record.reports ?? []).map(item => ({ at: item.reported_at, result: item.result, summary: item.summary }))]
+    .sort((a, b) => String(a.at ?? '').localeCompare(String(b.at ?? ''))).at(-1);
+  const actions = actionFacts(record);
+  const carriedOut = carriedOutFacts(record);
+  return {
+    kind: 'decision', asked: true, found: true,
+    id: record.id,
+    followed_heading: stanceData.words.followed_heading,
+    goal: record.input.goal,
+    status_words: statusWords(record),
+    copy_href: `/work/decisions/${encodeURIComponent(record.id)}/copy`,
+    decision: decision ? {
+      name: decision.move ?? chosen?.label ?? decision.option_id,
+      from_option: decision.move && chosen ? chosen.label : null,
+      reason: decision.reason, next_action: decision.next_action, success_measure: decision.success_measure,
+      recheck_day: record.recheck_on ? day(record.recheck_on) : null,
+    } : null,
+    latest_result: latest ? { result: resultWords(latest.result), summary: latest.summary || null } : null,
+    waiting: record.outcome_question ? { question: record.outcome_question.question } : null,
+    options: record.input.options.map(option => ({ label: option.label, chosen: option.id === decision?.option_id })),
+    stance: decision ? stanceFacts(record, stance) : null,
+    actions, carried_out: carriedOut, acted: Boolean(actions.length || carriedOut.length),
+    followed: followedFacts(trace),
+    pursuits: Object.values(record.cited_pursuits ?? {}).map(pursuitChange).filter(Boolean),
+    results: resultFacts(record),
+    notes: (record.scratchpad ?? []).map(note => ({ title: note.text, status: statusOf(note.written_at) })),
+    evidence: record.input.evidence.map(item => ({ claim: item.claim, withdrawn: Boolean(item.retracted_at), source: sourceOf(item.ref) })),
+    worked: workedSteps(record).map(step => ({ question: step.question, detail: lines(step.rows.map(row => `${row.label}: ${row.text}`)) })),
+    started: day(record.created_at),
+  };
+}
+
+const sourceAction = ref => {
+  const page = typeof ref === 'string' && ref.startsWith('page:') ? ref.slice(5).replace(/@\d{4}-\d{2}-\d{2}T.*$/, '') : null;
+  const href = page ?? ref;
+  return /^https?:\/\/[^\s]+$/i.test(href ?? '') ? [{ label: page ? 'Open page checked' : 'Open source', href }] : [];
+};
+
+/**
+ * One decision, a workspace screen (surface trillion.decision, opened with the decision's id): what was decided, its
+ * results and notes, what it rested on and how it was worked through, with the person's answer box when one is
+ * waiting. A guide description (GuideDescription); its actions answer and remove through /work/api/decisions/...
+ */
+// Where the person stands on the decision (src/record-stance.mjs): its question, their stand and why, and one button per
+// stand src/record-stance.json lists, each sending what they wrote with it. A stand taken on an earlier version says so.
+function stanceSection(record, stance) {
+  const taken = stance?.stance ?? null;
+  const row = stanceData.stances.find(item => item.id === taken?.stance);
+  const earlier = taken?.decision_generation && taken.decision_generation !== (record.decision_generation ?? 1);
+  return {
+    heading: stanceData.words.heading,
+    rows: [{
+      id: 'stance',
+      title: row && !earlier ? row.said : stanceData.words.ask,
+      detail: [taken?.why ?? null, row && earlier ? `${row.said} ${stanceData.words.earlier}` : null].filter(Boolean).join('\n') || undefined,
+      ...(row ? { status: { label: day(taken.at) ?? '', tone: row.tone } } : {}),
+      fields: [{ name: 'text', label: stanceData.words.why_label, value: taken?.why ?? '' }],
+      starts_open: true,
+      actions: stanceData.stances.map(item => ({ label: item.label, icon: item.icon, tone: item.id === taken?.stance && !earlier ? 'primary' : 'quiet', send: { path: '/work/api/stance', body: { record: record.id, stance: item.id }, with_fields: true } })),
+    }],
+  };
+}
+
+// What came after the decision, newest first: the person's records that name it (their stand on it, messages about it,
+// plans for it) and every AI call that used it or was done for it (src/activity.mjs traceActivity), each once.
+function followedSection(trace) {
+  const records = (trace?.records ?? []).filter(item => item.kind !== stanceData.type)
+    .map(item => ({ at: item.at, id: `record-${item.ref}`, title: item.title ?? item.kind, detail: item.kind }));
+  const calls = (trace?.steps ?? []).filter(step => step.link !== 'made')
+    .map(step => ({ at: step.at, id: `call-${step.seq}`, title: step.title ?? step.label, detail: [step.label, step.agent_name ?? step.app].filter(Boolean).join(' · '), ...(step.ok === false ? { status: { label: 'Did not work', tone: 'attention' } } : {}) }));
+  const rows = [...records, ...calls].sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? ''))).slice(0, 30)
+    .map(({ at, ...row }) => ({ ...row, status: row.status ?? { label: day(at) ?? '', tone: 'quiet' } }));
+  return rows.length ? [{ heading: stanceData.words.followed_heading, rows }] : [];
+}
+
+// An action and its independently observed outcome share action_key. Keep them together on the page so a result is
+// visibly about the step that produced it; an AI's account of work done is shown without calling it an outcome.
+function actionSection(record) {
+  const lines = items => items.filter(Boolean).join('\n') || undefined;
+  const actions = (record.actions ?? []).map((action, index) => {
+    const observed = action.key ? (record.observations ?? []).filter(item => item.action_key === action.key)
+      .sort((a, b) => String(a.observed_at ?? '').localeCompare(String(b.observed_at ?? ''))).at(-1) : null;
+    const result = action.owner_result;
+    const refs = [action.key, action.result_ref, result?.ref].filter(Boolean);
+    const reported = (record.reports ?? []).filter(item => refs.includes(item.action_ref))
+      .sort((a, b) => String(a.reported_at ?? '').localeCompare(String(b.reported_at ?? ''))).at(-1);
+    return {
+      id: `action-${index}`,
+      title: action.description ?? action.request?.description ?? action.request?.operation ?? record.decision.next_action,
+      detail: lines([
+        result?.status === 'completed' ? 'Action completed' : result?.status === 'failed' ? 'Action did not work' : action.state === 'running' ? 'Action in progress' : null,
+        result?.error ?? null,
+        observed ? `Outcome: ${resultWords(observed.result)}${observed.summary ? ` — ${observed.summary}` : ''}` : null,
+        observed ? 'Checked independently' : null,
+        reported ? `You reported: ${resultWords(reported.result)} — ${reported.summary}` : null,
+      ]),
+      status: { label: day(observed?.observed_at ?? reported?.reported_at ?? action.recorded_at) ?? '', tone: observed?.result === 'met' ? 'good' : observed?.result === 'failed' || result?.status === 'failed' ? 'attention' : 'quiet' },
+      ...(observed && sourceAction(observed.source_ref).length ? { actions: sourceAction(observed.source_ref) } : {}),
+    };
+  });
+  const said = (record.carried_out ?? []).map((entry, index) => ({
+    id: `carried-out-${index}`,
+    title: entry.state === 'done' ? 'Action reported done' : 'Action reached a wall',
+    detail: entry.what_happened,
+    status: { label: day(entry.at) ?? '', tone: entry.state === 'wall' ? 'attention' : 'quiet' },
+  }));
+  return actions.length || said.length ? [{ heading: 'Actions taken', rows: [...actions, ...said] }] : [];
+}
+
+export function decisionScreen({ record, stance = null, trace = null }) {
+  // A decision that cannot be read (removed, or its record gone) is shown as removed, never as a TypeError.
+  if (!record?.input) return removedDecisionScreen();
+  const chosen = record.input.options.find(option => option.id === record.decision?.option_id);
+  const worked = workedSteps(record);
+  const lines = items => items.filter(Boolean).join('\n') || undefined;
+  const latestResult = [...(record.outcome_checks ?? []).map(item => ({ at: item.checked_at, result: item.result, summary: item.reason })),
+    ...(record.observations ?? []).map(item => ({ at: item.observed_at, result: item.result, summary: item.summary })),
+    ...(record.reports ?? []).map(item => ({ at: item.reported_at, result: item.result, summary: item.summary }))]
+    .sort((a, b) => String(a.at ?? '').localeCompare(String(b.at ?? ''))).at(-1);
+  const summary = lines([
+    record.input.goal,
+    record.decision ? `Decision: ${record.decision.move ?? chosen?.label ?? record.decision.option_id}` : 'Still being decided',
+    record.decision ? `Why: ${record.decision.reason}` : null,
+    record.decision ? `Next: ${record.decision.next_action}` : null,
+    record.decision ? `How you will know: ${record.decision.success_measure}` : null,
+    latestResult ? `Latest result: ${resultWords(latestResult.result)}${latestResult.summary ? ` — ${latestResult.summary}` : ''}` : null,
+  ]);
+  const pursuitChanges = Object.values(record.cited_pursuits ?? {}).map(pursuitChange).filter(Boolean);
+  const results = [
+    ...(record.outcome_checks ?? []).map((check, index) => ({
+      id: `check-${index}`, at: check.checked_at,
+      title: `Checked: ${resultWords(check.result)}`,
+      detail: lines([check.reason, check.observer === 'person' ? `You said: ${check.observed}` : `Looked at: ${check.source_ref.replace(/@.*$/, '').replace(/^page:/, '')}`]),
+      status: { label: day(check.checked_at) ?? '', tone: check.result === 'met' ? 'good' : check.result === 'failed' ? 'attention' : 'quiet' },
+    })),
+    ...(record.reports ?? []).filter(report => !report.action_ref).map((report, index) => ({ id: `report-${index}`, at: report.reported_at, title: `You said ${resultWords(report.result)}`, detail: report.summary, status: { label: day(report.reported_at) ?? '', tone: 'quiet' } })),
+    ...(record.observations ?? []).map((observation, index) => ({
+      id: `observation-${index}`, at: observation.observed_at, title: `Observed: ${resultWords(observation.result)}`,
+      detail: observation.summary ?? undefined,
+      status: { label: day(observation.observed_at) ?? '', tone: observation.result === 'met' ? 'good' : observation.result === 'failed' ? 'attention' : 'quiet' },
+      ...(sourceAction(observation.source_ref).length ? { actions: sourceAction(observation.source_ref) } : {}),
+    })),
+  ].sort((a, b) => String(a.at ?? '').localeCompare(String(b.at ?? ''))).map(({ at, ...row }) => row);
+  return {
+    title: record.input.goal,
+    lead: statusWords(record),
+    sections: [
+      {
+        actions: [
+          { label: 'All decisions', tone: 'quiet', open: 'trillion.decisions' },
+          { label: 'Copy a summary', tone: 'quiet', copy: summary },
+          { label: 'Download a copy', tone: 'quiet', href: `/work/decisions/${encodeURIComponent(record.id)}/copy` },
+          { label: 'Remove', tone: 'danger', send: { path: '/work/api/decisions/remove', body: { case_id: record.id }, confirm: 'Remove this decision? This cannot be undone.' } },
+        ],
+      },
+      ...(record.outcome_question ? [{
+        heading: 'Waiting for you',
+        rows: [{
+          id: 'answer',
+          title: 'How did it go?',
+          detail: record.outcome_question.question,
+          status: { label: 'Your answer needed', tone: 'attention' },
+          fields: [{ name: 'text', label: 'What happened, in your words', secret: false }],
+          open_label: 'Answer',
+          starts_open: true,
+          actions: [{ label: 'Save my answer', tone: 'primary', send: { path: '/work/api/decisions/answer', body: { case_id: record.id }, with_fields: true } }],
+        }],
+      }] : []),
+      record.decision ? {
+        heading: 'What was decided',
+        rows: [{
+          id: 'decided',
+          title: record.decision.move ?? chosen?.label ?? record.decision.option_id,
+          detail: lines([record.decision.move && chosen ? `From the option: ${chosen.label}` : null, `Why: ${record.decision.reason}`, `Next: ${record.decision.next_action}`, `How you will know: ${record.decision.success_measure}`, record.recheck_on ? `Checked again on ${day(record.recheck_on)}` : null]),
+        }],
+      } : {
+        heading: 'The options',
+        rows: record.input.options.map((option, index) => ({ id: `option-${index}`, title: option.label })),
+      },
+      ...(record.decision ? [stanceSection(record, stance)] : []),
+      ...actionSection(record),
+      ...followedSection(trace),
+      ...(pursuitChanges.length ? [{
+        heading: 'Where this decision aims to take you',
+        cards: pursuitChanges.flatMap(pursuit => [
+          { title: 'At the start', body: `${pursuit.title}: ${pursuit.now}` },
+          { title: 'Working toward', body: `${pursuit.title}: ${pursuit.after}` },
+        ]),
+      }] : []),
+      ...(record.decision ? [{
+        heading: 'Options considered',
+        rows: record.input.options.map((option, index) => ({
+          id: `considered-${index}`, title: option.label,
+          status: { label: option.id === record.decision.option_id ? 'Chosen' : 'Also considered', tone: option.id === record.decision.option_id ? 'good' : 'quiet' },
+        })),
+      }] : []),
+      ...(results.length ? [{ heading: 'Results', rows: results }] : []),
+      ...((record.scratchpad ?? []).length ? [{
+        heading: 'Notes',
+        rows: record.scratchpad.map((note, index) => ({ id: `note-${index}`, title: note.text, status: { label: day(note.written_at) ?? '', tone: 'quiet' } })),
+      }] : []),
+      {
+        heading: 'What it rested on',
+        rows: record.input.evidence.map((item, index) => ({ id: `evidence-${index}`, title: item.claim, ...(item.retracted_at ? { status: { label: 'Withdrawn', tone: 'quiet' } } : {}), ...(sourceAction(item.ref).length ? { actions: sourceAction(item.ref) } : {}) })),
+      },
+      ...(worked.length ? [{
+        heading: 'How it was worked through',
+        rows: worked.map((step, index) => ({ id: `step-${index}`, title: step.question, detail: lines(step.rows.map(row => `${row.label}: ${row.text}`)) })),
+      }] : []),
+      { note: `Started ${day(record.created_at)}.` },
+    ],
+  };
+}
+
+/** A decision that is no longer in the person's store, as the same screen: said plainly, with the way back. */
+export const removedDecisionScreen = () => ({
+  title: 'This decision is gone',
+  lead: 'It was removed, so there is nothing more to show here.',
+  sections: [{ actions: [{ label: 'All decisions', tone: 'quiet', open: 'trillion.decisions' }] }],
+});

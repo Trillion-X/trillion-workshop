@@ -1,0 +1,256 @@
+{
+  "_what": "What `@` offers in the message box, read from the person's own store (src/work-mentions.mjs), and what each kind looks like and does. A row reads one list: `read` is the store call (`query` its query values for a GET, `body` its body otherwise); `rows` the list in its answer; `value`, `label_field` and `detail` the fields of each row; `needs` a query value the row is read only with (the space being written in), filled into the path as {name}; `search` the query or body field the words typed after @ go in, and `search_from` how many characters must be typed before the row is read (2 when left out); `skip_when` a field that, when true, leaves a row out (the person themself). For a tool search, `read.body.search_mode: words` asks only for word-matched tools already available to this account, without run-history, meaning or registry lookup. A row names its one `kind`, or, with `kind_field`, takes each thing's kind from that field of the thing, so every kind the answer holds is offered with no row for it: such a kind must match `kind_pattern`, a kind another row names is left to that row, and it looks as parts/screen-look/show/record-kind-appearance.json says (tone as colour; its fallback, with the kind made readable, for a kind nobody styled). `source` names a row with no one kind. `wakes`: a message mentioning things of this kind is delivered only to them (they are the person's AIs). `hands_off`: in a space, a message mentioning one is also handed to it there as a job. `about`: the kind a kept message links the mention as (a kind from `kind_field` is linked as itself). `colour` is a screen-look colour id, `icon` a named icon. Where a mention opens is the screen whose `opens_kinds` (src/workspace/surfaces.json) names its kind. `native` is where the account's own owners answer that read, asked by src/native-mention-sources.mjs: `own` an operation of its own records (with `request` it carries the read's path, method and body), `shared` an operation of the space being written in, `namespace` its own Namespace resource at /namespace<path>.",
+  "kinds": [
+    {
+      "kind": "ai",
+      "label": "AI",
+      "icon": "Bot",
+      "colour": "purple",
+      "wakes": true,
+      "about": "agent",
+      "read": {
+        "method": "POST",
+        "path": "/agents/find",
+        "body": {
+          "all": true
+        }
+      },
+      "native": {
+        "own": "claims:find"
+      },
+      "rows": "agents",
+      "value": "agent_id",
+      "label_field": "name",
+      "detail": "description"
+    },
+    {
+      "kind": "person",
+      "label": "Person",
+      "icon": "User",
+      "colour": "blue",
+      "about": "member",
+      "needs": "space",
+      "read": {
+        "method": "GET",
+        "path": "/spaces/{space}"
+      },
+      "native": {
+        "shared": "space"
+      },
+      "rows": "members",
+      "value": "member_id",
+      "label_field": "name",
+      "skip_when": "you"
+    },
+    {
+      "kind": "space-ai",
+      "label": "AI in this pursuit",
+      "icon": "BotMessageSquare",
+      "colour": "pink",
+      "about": "agent",
+      "hands_off": true,
+      "needs": "space",
+      "read": {
+        "method": "GET",
+        "path": "/spaces/{space}"
+      },
+      "native": {
+        "shared": "space"
+      },
+      "rows": "agents",
+      "value": "agent_id",
+      "label_field": "name",
+      "detail": "member"
+    },
+    {
+      "kind": "workflow",
+      "label": "Workflow",
+      "icon": "Workflow",
+      "colour": "green",
+      "about": "workflow",
+      "read": {
+        "method": "POST",
+        "path": "/workflows/find",
+        "body": {
+          "limit": 25
+        }
+      },
+      "native": {
+        "own": "workflows:find"
+      },
+      "rows": "workflows",
+      "value": "workflow_id",
+      "label_field": "label",
+      "detail": "job"
+    },
+    {
+      "kind": "automation",
+      "label": "Automation",
+      "icon": "Zap",
+      "colour": "orange",
+      "about": "rule",
+      "read": {
+        "method": "GET",
+        "path": "/automations/rules"
+      },
+      "native": {
+        "own": "automations:request",
+        "request": true
+      },
+      "rows": "rules",
+      "value": "rule_id",
+      "label_field": "label"
+    },
+    {
+      "kind": "schedule",
+      "label": "Schedule",
+      "icon": "CalendarClock",
+      "colour": "turquoise",
+      "about": "schedule",
+      "read": {
+        "method": "GET",
+        "path": "/automations/schedules"
+      },
+      "native": {
+        "own": "automations:request",
+        "request": true
+      },
+      "rows": "schedules",
+      "value": "schedule_id",
+      "label_field": "label"
+    },
+    {
+      "kind": "action",
+      "label": "Action",
+      "icon": "Wrench",
+      "colour": "yellow",
+      "about": "tool",
+      "read": {
+        "method": "POST",
+        "path": "/tools/find",
+        "body": {
+          "limit": 8,
+          "search_mode": "words"
+        }
+      },
+      "native": {
+        "own": "tools:find"
+      },
+      "rows": "candidates",
+      "value": "tool_id",
+      "label_field": "label",
+      "detail": "job",
+      "search": "job"
+    },
+    {
+      "kind": "space",
+      "label": "Space",
+      "icon": "UsersRound",
+      "colour": "pink",
+      "about": "space",
+      "read": {
+        "method": "GET",
+        "path": "/spaces"
+      },
+      "native": {
+        "own": "spaces:request",
+        "request": true
+      },
+      "rows": "spaces",
+      "value": "space_id",
+      "label_field": "title"
+    },
+    {
+      "kind": "file",
+      "label": "File",
+      "icon": "File",
+      "colour": "grey",
+      "about": "file",
+      "read": {
+        "method": "GET",
+        "path": "/search",
+        "query": {
+          "sources": "files",
+          "limit": "8"
+        }
+      },
+      "native": {
+        "namespace": true
+      },
+      "rows": "results",
+      "value": "identity",
+      "label_field": "title",
+      "detail": "path",
+      "search": "q"
+    },
+    {
+      "source": "records",
+      "kind_field": "kind",
+      "kind_pattern": "^[a-z0-9][a-z0-9:_-]{0,63}$",
+      "read": {
+        "method": "POST",
+        "path": "/records/find",
+        "body": {
+          "fields": [
+            [
+              "title"
+            ],
+            [
+              "label"
+            ],
+            [
+              "name"
+            ],
+            [
+              "input",
+              "goal"
+            ],
+            [
+              "goal"
+            ],
+            [
+              "text"
+            ]
+          ],
+          "leave_out": [
+            "setting",
+            "signed_event_effect",
+            "file-arrival",
+            "arrival",
+            "asked",
+            "block",
+            "notice-readers",
+            "notice-list",
+            "told-the-person",
+            "decision-made",
+            "trigger-dispatch-outcome",
+            "trigger-rule",
+            "message-time-correction",
+            "message-provenance-correction",
+            "authorization_code",
+            "window",
+            "profile",
+            "audience-source",
+            "audience-question-work",
+            "audience-answer-draft",
+            "audience-answer-evidence",
+            "audience-question-review",
+            "audience-question-decision",
+            "conjunction",
+            "space-calendar-choice",
+            "space-calendar-event"
+          ],
+          "limit": 30
+        }
+      },
+      "native": {
+        "own": "recordModel:find"
+      },
+      "rows": "records",
+      "value": "id",
+      "label_field": "title",
+      "search": "words",
+      "search_from": 0
+    }
+  ]
+}

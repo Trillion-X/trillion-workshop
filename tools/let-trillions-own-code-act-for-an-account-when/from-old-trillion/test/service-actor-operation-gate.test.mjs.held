@@ -1,0 +1,46 @@
+// A service actor whose scope names operations reaches the account's own records through the consumer road
+// (src/own-resource-request.mjs routeOwnResourceCallPerson) only for those operations. The readiness check
+// (src/native-own-consumer-context.mjs ensureReady) asks the gate before the operation runs; it must name the operation,
+// or the gate refuses every operation-scoped actor: brand-presentation's looks:request (every page and email draws the
+// operator's worn look) was refused as "scope does not reach the @own-records gate".
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mintServiceActor } from '../src/service-actor.mjs';
+import { routeOwnResourceCallPerson } from '../src/own-resource-request.mjs';
+import { nativeOwnRecordsFixture } from './native-own-records-for-tests.mjs';
+
+const ACCOUNT = 'runs-trillion';
+
+test('an operation-scoped service actor reaches its named operations through the consumer road, and only those', async t => {
+  const f = await nativeOwnRecordsFixture(t); await f.own(ACCOUNT);
+  const { claims } = await mintServiceActor(f.env, { origin: 'brand-presentation', account: ACCOUNT, scope: { kind: 'brand-read', id: ACCOUNT } });
+  const context = { env: f.env, owner: ACCOUNT, claims, recorder: { app: 'Trillion', app_basis: 'service' } };
+  const looks = await routeOwnResourceCallPerson('/looks', undefined, 'GET', context);
+  assert.equal(typeof looks, 'object', 'looks:request, which its scope names, is answered');
+  await assert.rejects(routeOwnResourceCallPerson('/messages', { text: 'hello' }, 'POST', context),
+    error => error.status === 403 && /scope does not reach/.test(error.message), 'an operation its scope does not name is refused');
+  assert.deepEqual(f.storeAsked, [], 'no question reached the account\'s store');
+});
+
+// The brand reader reads the Brand assets list through the same road the page draws it from
+// (src/brand-assets.mjs readOperatorBrandPresentation): the list read asks which resource holds that list (its original-work
+// affinity gate, @affinity:<key>), which brand-read names for lists:read only.
+test('the brand reader reads its Brand assets list, through the list\'s affinity gate, and nothing else there', async t => {
+  const f = await nativeOwnRecordsFixture(t); await f.own(ACCOUNT);
+  const { claims } = await mintServiceActor(f.env, { origin: 'brand-presentation', account: ACCOUNT, scope: { kind: 'brand-read', id: ACCOUNT } });
+  const context = { env: f.env, owner: ACCOUNT, claims, recorder: { app: 'Trillion', app_basis: 'service' } };
+  const listed = await routeOwnResourceCallPerson('/lists/brand-assets', undefined, 'GET', context).catch(error => error);
+  assert.ok(!(listed instanceof Error) || ![401, 403].includes(listed.status), `the brand list read is admitted: ${listed?.message}`);
+  await assert.rejects(routeOwnResourceCallPerson('/lists/brand-assets/rows', { rows: [{ title: 'x' }] }, 'POST', context),
+    error => error.status === 403 && /scope does not reach/.test(error.message), 'a list write through the same affinity gate is refused');
+  assert.deepEqual(f.storeAsked, [], 'no question reached the account\'s store');
+});
+
+test('a prefixed gate row opens only its named operations, and only for the scope kind that names it', async () => {
+  const { serviceGateOf, serviceGateKnown } = await import('../src/service-actor.mjs');
+  const brand = { service_scope: { kind: 'brand-read', id: ACCOUNT } };
+  assert.deepEqual(serviceGateOf(brand, '@affinity:abc').operations, ['lists:read']);
+  assert.equal(serviceGateOf({ service_scope: { kind: 'service-work', id: ACCOUNT } }, '@affinity:abc'), null);
+  assert.equal(serviceGateOf(brand, '@affinityx'), null);
+  assert.equal(serviceGateKnown('@affinity:abc'), true);
+});

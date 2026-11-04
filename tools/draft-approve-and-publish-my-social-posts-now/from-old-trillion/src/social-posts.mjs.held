@@ -1,0 +1,679 @@
+// src/social-posts.mjs
+//
+// Purpose: a person's posts to the places they publish (their social accounts), each kept in their Trillion as a record
+// that is drafted, looked at and approved, then published now or at its time, and read back with the address of each
+// published copy. One post goes to many destinations (connected accounts); each destination is sent on its own, so one
+// place refusing a post never holds up or repeats the others.
+//
+//   GET  /posts                 { posts }                           newest first (?status= keeps one status)
+//   GET  /posts/destinations    { destinations, not_connected }     the person's connected accounts, and a connect link
+//                                                                   for each place not connected yet (?links=no: those
+//                                                                   places by name only, making no link)
+//   POST /posts/connect         { platform }                        the connect link for one place
+//   POST /posts/draft           { post_id?, media?, caption, source?, format_id?, ... } keeps a draft (changing an approved post makes it a
+//                                                                   draft again); source keeps a checked pointer, not source words
+//   POST /posts/approve         { post_id }                         a post that reaches someone only from the person's page
+//   POST /posts/publish         { post_id?, resend? }               sends an approved post now, or sets it to go at its
+//                                                                   time (no post_id: the one approved longest ago)
+//   POST /posts/read            { post_id }                         asks each place where its copy is now
+//   GET  /posts/calendar        { from, to, posts, unscheduled }    ?from=&to= (dates and times with their zone): the
+//                                                                   posts whose time falls in between, and the drafts
+//                                                                   and approved posts with no time yet
+//   POST /posts/check           { post_id }                         whether the post is ready for each place it is going,
+//                                                                   and what is missing there, in plain words
+//                                                                   (src/post-ready.mjs over each place's `format`)
+//
+// Non-Negotiable Invariants:
+//   1. Nothing here names a place, a publisher, a person or a kind of content. Places are post-place rows
+//      (records/post-place-records.json): which publisher posts there, which connection reaches the account, how the
+//      publisher's options are filled, which hosts a key may go to (written out, or read from a readable field of the
+//      connection when the place lives at the person's own address). Publishers are handed in by name
+//      (src/post-publishers.mjs). A new place is a row.
+//   2. A token never enters a publisher or a record. The publisher is given a one-use stand-in; the fetch it is handed
+//      puts the person's real value in its place only at send time, only for the row's own hosts, read from their
+//      locked box (`heldValue`), and forgets it after the request.
+//   3. A post is published only after it was approved, and only the words and video that were approved: changing
+//      anything makes it a draft again. A draft needs no destination (a person with nothing connected can still write
+//      one); approving and publishing need at least one, and until then its ready check says where it can go.
+//   4. Publishing never sends to a destination that already took the post, and never resends one whose outcome is not
+//      known unless the caller names it in `resend`; so calling publish again, from a person or a schedule, is safe.
+//   5. A post with a time in the future is published by Trillion's own schedule at that time (one schedule per post,
+//      `later`), so a place that cannot hold a post for later still gets it on time. A post set for later that nothing
+//      was sent for yet can still change: it becomes a draft again, so its old time sends nothing (publish refuses a
+//      draft, and a time still ahead only sets the schedule again).
+//   6. Every failure a person can read is in plain words about their post (src/social-posts.json outcome_words).
+//   7. A post that reaches someone (its words name them, or it lists them in `reaches`, people found outside Trillion
+//      with where each was found) is approved only by the person on their own signed-in page (`by_person`, which only
+//      the page road sets: src/typed-on-signed-in-screen.mjs). A first message to anyone never goes out on an AI's say-so.
+//      Before it is shown, the person's own computer checks it says only what was found of them (groundedCheck).
+//
+// Key Concepts: a post record { post_id, status, media ({ identity, name, media_type, facts? }: facts are the file's
+//   duration_seconds, width and height when the caller knew them), caption, caption_by_platform, settings_by_platform,
+//   destinations[] (connection ids), link, scheduled_for, time_zone, sent_at (when sending began), deliveries: { [account_id]: { platform, label,
+//   status, url, platform_post_id, delivery_ref, error, attempt } } }. status is draft, approved, scheduled, posted,
+//   failed or partial; a destination is not sent, on its way, posted, failed or not known.
+//
+// Security: a held value goes only to the hosts its place row lists (invariant 2); a stand-in found on any other host
+//   refuses the request before anything is sent.
+//
+
+import { mediaFacts, readyFor, readyOverall } from './post-ready.mjs';
+import { APPROVAL_FIELDS, shapePost as shaped } from './post-shape.mjs';
+import { resolveCaptionStyle } from '../parts/media-composition/read-data/caption-styles.mjs';
+import { timeZoneName } from '../../../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
+import { TYPED_ON_SIGNED_IN_SCREEN } from './typed-on-signed-in-screen.mjs';
+import { PERSON_APP } from './activity.mjs';
+import { makeSnippets, SnippetError } from './snippets.mjs';
+import { makeThreadSummaries, SummaryError } from './thread-summaries.mjs';
+import decisionEvals from '../../../introduce-two-people/src/decision-evals.json' with { type: 'json' };
+
+export class PostsError extends Error {
+  constructor(message, next_call = null) { super(message); this.next_call = next_call; }
+}
+
+const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+const text = (value, max) => (typeof value === 'string' && value.trim() ? value.trim().slice(0, max) : null);
+const fillWords = (words, values) => words.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+const textMap = (value, max) => (object(value)
+  ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, text(item, max)]).filter(([key, item]) => /^[a-z0-9_-]{1,40}$/i.test(key) && item))
+  : {});
+// A refusal made here, wherever a publisher wrapped it.
+const ours = error => { for (let at = error, depth = 0; at && depth < 6; at = at.cause, depth += 1) if (at instanceof PostsError) return at; return null; };
+// What a person approves: everything that goes out. Saving the same content again is not a change.
+const DAY_MS = 86_400_000;
+const contentOf = post => JSON.stringify(APPROVAL_FIELDS.map(field => post[field] ?? null));
+
+// The people a post contacts first, found outside Trillion, as the caller listed them: each with a handle, a public
+// address and at least one place they were found. Null for a list that is not that.
+function reachesOf(value, rules) {
+  if (!Array.isArray(value) || value.length > rules.most) return null;
+  const people = value.map(item => {
+    const handle = object(item) ? text(item.handle, 100)?.replace(/^@/, '') : null;
+    const profile = object(item) ? text(item.profile_url, 500) : null;
+    const provenance = object(item) && Array.isArray(item.provenance) ? item.provenance.slice(0, rules.provenance_most).filter(object)
+      .map(row => ({ source: text(row.source, 200), url: text(row.url, 500), title: text(row.title, 200), posted_at: text(row.posted_at, 40) }))
+      .filter(row => row.source && row.url && URL.canParse(row.url)) : [];
+    const sought = object(item) ? text(item.sought, 600) : null;
+    return handle && profile && URL.canParse(profile) && provenance.length ? { network: text(item.network, 40), handle, profile_url: profile, ...(sought ? { sought } : {}), provenance } : null;
+  });
+  return people.every(Boolean) ? people : null;
+}
+// Everyone a post reaches: the people it lists and every handle its words name, in any place's words.
+const reachedBy = (post, rules) => {
+  const names = new RegExp(rules.names, 'g');
+  const said = [post.caption ?? '', ...Object.values(post.caption_by_platform ?? {})].flatMap(words => [...String(words).matchAll(names)].map(found => found[1]));
+  return [...new Set([...(post.reaches ?? []).map(person => person.handle), ...said].map(handle => `@${handle}`))];
+};
+
+// The fetch a publisher is handed: each stand-in in the address, a header or a text body becomes the person's value,
+// read from their box at send time, and only for the place's own hosts.
+export function heldFetch({ standIns, hosts, send = fetch }) {
+  return async (input, init = {}) => {
+    const source = input instanceof Request ? input : null;
+    let url = String(source ? source.url : input);
+    const headers = new Headers(init.headers ?? source?.headers ?? undefined);
+    let body = init.body !== undefined ? init.body : source?.body ?? undefined;
+    if (body instanceof URLSearchParams) body = body.toString();
+    const seen = [...standIns.keys()].filter(mark => url.includes(mark) || [...headers.values()].some(value => value.includes(mark)) || (typeof body === 'string' && body.includes(mark)));
+    if (seen.length) {
+      const host = new URL(url).hostname;
+      if (!hosts.includes(host)) throw new PostsError(`A connection's key goes only to ${hosts.join(', ')}, so nothing was sent to ${host}.`);
+      for (const mark of seen) {
+        const value = await standIns.get(mark)();
+        url = url.split(mark).join(encodeURIComponent(value));
+        for (const [name, current] of [...headers]) if (current.includes(mark)) headers.set(name, current.split(mark).join(value));
+        if (typeof body === 'string') body = body.split(mark).join(value);
+      }
+    }
+    const streamed = body instanceof ReadableStream;
+    // A fetch redirect can copy an injected header or URL value to another host.
+    // Return the redirect to the publisher instead of following it with a held value.
+    return send(url, { method: init.method ?? source?.method ?? 'GET', headers, ...(body !== undefined && body !== null ? { body } : {}), ...(streamed ? { duplex: 'half' } : {}), ...(init.signal ?? source?.signal ? { signal: init.signal ?? source.signal } : {}), redirect: seen.length ? 'manual' : init.redirect ?? source?.redirect ?? 'follow' });
+  };
+}
+
+export function makeSocialPosts({ eeaf, settings, places, placeSource=null, publishing, connections, plainFields, heldValue, connectLink, files, later, serviceOrigin, resolveSource, formatOf = () => null, send = fetch, now = () => new Date(), newId = () => crypto.randomUUID(), judge = null, decisions = decisionEvals, repliedSince = async () => false, threadEnds = { latest: () => null, newer: () => 0 }, keepEdit = null }) {
+  const refreshPlaces=async()=>{if(placeSource)places=await placeSource();};
+  const TYPE = settings.record_type;
+  const idOf = postId => (postId.startsWith(`${TYPE}:`) ? postId : `${TYPE}:${postId}`);
+  const read = postId => (typeof postId === 'string' && postId.trim() ? eeaf.read(idOf(postId.trim())) : null);
+  const keep = post => { eeaf.write([{ id: post.post_id, type: TYPE, value: post }], { actor: { by: 'trillion' } }); return post; };
+  const placeFor = vendor => places.find(place => place.connection_vendor === vendor) ?? null;
+  // The person's voice is the Workshop's (settings.voice_tools): what they change in an AI's words is handed to its
+  // keep-an-edit tool as it happens (draft, keepEdit), and it reads what they sent from their posted posts.
+  const snippets = makeSnippets({ eeaf, now, newId });
+  const summaries = makeThreadSummaries({ eeaf, now, ...threadEnds });
+
+  // One value of a publisher's options, from where its place row says it comes.
+  const leaf = value => object(value) && ['held', 'plain', 'service_origin', 'value'].some(key => key in value) && Object.keys(value).length === 1;
+  function filled(template, { plain, standIn, label }) {
+    if (Array.isArray(template)) return template.map(item => filled(item, { plain, standIn, label }));
+    if (!object(template)) return template;
+    if (leaf(template)) {
+      if ('value' in template) return template.value;
+      if (template.service_origin) return serviceOrigin();
+      if ('plain' in template) {
+        const found = plain[template.plain];
+        if (typeof found !== 'string' || !found) throw new PostsError(`Your ${label} connection does not say its ${template.plain.replace(/_/g, ' ')}, so nothing can be posted there. Connect ${label} again.`);
+        return found;
+      }
+      return standIn(template.held);
+    }
+    return Object.fromEntries(Object.entries(template).map(([key, item]) => [key, filled(item, { plain, standIn, label })]));
+  }
+
+  // A publisher for one connection: its options filled, its fetch holding the person's values.
+  async function publisherFor(connection) {
+    await refreshPlaces();
+    const place = placeFor(connection.vendor);
+    if (!place) throw new PostsError(`${connection.service ?? connection.vendor} is not a place Trillion posts to.`);
+    const plain = (await plainFields(connection.connection_id)) ?? {};
+    const standIns = new Map();
+    const standIn = field => {
+      const mark = `trillion-held-${newId().replace(/-/g, '')}`;
+      standIns.set(mark, async () => {
+        const value = await heldValue(connection.connection_id, field);
+        if (typeof value !== 'string' || !value) throw new PostsError(`Your ${place.label} connection holds no ${field.replace(/_/g, ' ')}. Connect ${place.label} again.`);
+        return value;
+      });
+      return mark;
+    };
+    const options = filled(place.options, { plain, standIn, label: place.label });
+    const readable = template => filled(template, { plain, standIn: () => { throw new PostsError(`${place.label}'s account and hosts are named by readable fields, never held ones.`); }, label: place.label });
+    const accountId = readable(place.account);
+    // A host is written as it is, or read from the connection (a place at the person's own address, like their
+    // publication), as the host name of the address that field holds.
+    const hosts = place.hosts.map(item => (typeof item === 'string' ? item : URL.canParse(readable(item)) ? new URL(readable(item)).hostname : null)).filter(Boolean);
+    const { publishers, sdk } = await publishing();
+    const make = publishers[place.adapter];
+    if (typeof make !== 'function') throw new PostsError(`Trillion cannot post to ${place.label} yet.`);
+    const publisher = make({ ...options, fetch: heldFetch({ standIns, hosts, send: (url, init) => send(url, init, connection) }) });
+    return { place, social: sdk.createSocial({ backend: publisher }), account: sdk.connectedAccountRef({ backend: 'default', platform: place.platform, accountId }) };
+  }
+
+  // The words for a failed or unknown destination.
+  function wordsFor(place, { code = '', message = '', retry = null }) {
+    const detail = String(message || code || 'it gave no reason').slice(0, 300);
+    const lower = `${code} ${message}`.toLowerCase();
+    const row = settings.outcome_words.find(item => (item.retry && item.retry === retry) || (item.contains_any ?? []).some(word => lower.includes(word)));
+    return fillWords(row?.says ?? settings.outcome_fallback, { platform: place.label, detail });
+  }
+  function fromOutcome(place, outcome, earlier) {
+    const status = settings.outcome_states[outcome?.state] ?? 'not known';
+    const detail = outcome?.message ?? outcome?.diagnostic ?? ((outcome?.issues ?? []).map(issue => issue.message).join(' ') || outcome?.reason);
+    return {
+      platform: place.platform, label: place.label, status, attempt: earlier.attempt ?? 0,
+      ...(outcome?.url ? { url: String(outcome.url) } : earlier.url ? { url: earlier.url } : {}),
+      ...(outcome?.post?.postId ? { platform_post_id: String(outcome.post.postId) } : {}),
+      ...(outcome?.delivery ? { delivery_ref: outcome.delivery } : outcome?.job ? { delivery_ref: outcome.job } : {}),
+      ...(status === 'failed' ? { error: wordsFor(place, { code: outcome?.code ?? outcome?.reason, message: detail, retry: outcome?.retryDisposition?.kind }) } : {}),
+      ...(status === 'not known' ? { error: fillWords(settings.not_known_words, { platform: place.label }) } : {}),
+    };
+  }
+
+  // The overall state of a post from the state of each destination.
+  function overall(post) {
+    const states = post.destinations.map(id => post.deliveries?.[id]?.status ?? 'not sent');
+    if (states.every(state => state === 'posted')) return 'posted';
+    if (states.every(state => state === 'failed')) return 'failed';
+    if (states.some(state => state === 'failed' || state === 'not known')) return 'partial';
+    return 'scheduled';
+  }
+
+  // Each connected account a post can go to, and each place not connected yet; with `links`, a connect link for each
+  // of those places (a ready check and a page's list read the places by name only, so they never make a link).
+  async function destinations({ links = true, all: listed = null } = {}) {
+    await refreshPlaces();
+    const all = listed ?? await connections(places.map(place => place.connection_vendor));
+    const found = [];
+    const notConnected = [];
+    for (const place of places) {
+      const mine = all.filter(item => item.vendor === place.connection_vendor);
+      for (const item of mine) {
+        const plain = (await plainFields(item.connection_id)) ?? {};
+        const needs = object(place.account) && 'plain' in place.account && !plain[place.account.plain] ? place.account.plain : null;
+        found.push({ account_id: item.connection_id, platform: place.platform, label: place.label, name: item.account_label ?? null, ready: !needs && item.can_send !== false,
+          ...(needs ? { said: `This ${place.label} connection does not say its ${needs.replace(/_/g, ' ')}. Connect ${place.label} again.` } : {}) });
+      }
+      if (!mine.length) notConnected.push({ platform: place.platform, label: place.label, ...(links ? await connectLink(place.connection_vendor) ?? { connect_url: null, said: `Trillion cannot connect ${place.label} yet.` } : {}) });
+    }
+    return { destinations: found, not_connected: notConnected,
+      said: found.length ? `${found.length} ${found.length === 1 ? 'account is' : 'accounts are'} connected for posting.` : 'No account is connected for posting yet. Open a connect link, sign in, then list again.' };
+  }
+
+  async function connect({ platform } = {}) {
+    await refreshPlaces();
+    const place = places.find(item => item.platform === platform);
+    if (!place) throw new PostsError(`Trillion does not post to "${platform}". It posts to: ${places.map(item => `${item.platform} (${item.label})`).join(', ')}.`);
+    const link = await connectLink(place.connection_vendor);
+    if (!link?.connect_url) throw new PostsError(`Trillion cannot connect ${place.label} yet.`);
+    return { platform: place.platform, label: place.label, ...link, tell_the_person: `Open this link and connect ${place.label} so Trillion can post there: ${link.connect_url}` };
+  }
+
+  // A post that can still change: a draft, an approved post, or one set for later that nothing was sent for yet.
+  const changeable = post => ['draft', 'approved'].includes(post.status) || (post.status === 'scheduled' && !post.sent_at && !Object.keys(post.deliveries ?? {}).length);
+
+  // A post as every reader sees it.
+
+  // What a format's caption style says of the drafted video: null when the format names none, 'not recorded' when the
+  // video keeps no caption-style result (captioned elsewhere, or not at all), 'matches' when it was captioned in that
+  // look. Another look is refused.
+  function refuseOtherCaptions(media, format, made) {
+    if (!format?.caption_style) return null;
+    if (made === undefined || made === null) return 'not recorded';
+    const wanted = resolveCaptionStyle(format.caption_style);
+    let used;
+    try { used = resolveCaptionStyle(made); } catch { used = { name: 'a caption style Trillion does not know', id: null }; }
+    const look = style => JSON.stringify([style.font, style.colours, style.reveal]);
+    if (look(used) !== look(wanted)) throw new PostsError(`${media.name ?? 'This video'} has its captions in ${used.id === wanted.id ? `${used.name} with other colours or another font` : used.name}, but ${format.label} videos use ${wanted.name}. Caption it again in ${wanted.name} (style ${wanted.id}), then draft it.`);
+    return 'matches';
+  }
+
+  async function draft(input = {}, { app = null } = {}) {
+    await refreshPlaces();
+    if (!object(input)) throw new PostsError('Give the post as an object: caption, and optionally source, format_id, media, destinations, link and scheduled_for.');
+    const earlier = input.post_id === undefined ? null : read(input.post_id);
+    if (input.post_id !== undefined && !earlier) throw new PostsError(`There is no post ${input.post_id} in this Trillion. Leave post_id out to draft a new one.`);
+    if (earlier && !changeable(earlier)) throw new PostsError(`${earlier.post_id} is already on its way, so it cannot change. Draft a new post instead.`);
+    const base = earlier ?? {};
+    const caption = input.caption === undefined ? base.caption ?? '' : (typeof input.caption === 'string' ? input.caption.slice(0, settings.max_caption_characters) : '');
+    let source = base.source ?? null;
+    if (input.source !== undefined) {
+      if (input.source === null) source = null;
+      else {
+        if (!object(input.source) || typeof input.source.kind !== 'string' || !input.source.kind.trim() || typeof input.source.id !== 'string' || !input.source.id.trim()) throw new PostsError('source names a checked source as { kind, id }, from shape_into_formats.');
+        if (typeof resolveSource !== 'function') throw new PostsError('This Trillion cannot check source links right now, so the draft was not changed.');
+        source = await resolveSource({ kind: input.source.kind.trim(), id: input.source.id.trim() });
+        if (!object(source) || typeof source.kind !== 'string' || typeof source.id !== 'string' || !source.id) throw new PostsError('That source is not in this account any more.');
+      }
+    }
+    const formatId = input.format_id === undefined ? base.format_id ?? null
+      : input.format_id === null || input.format_id === '' ? null
+        : typeof input.format_id === 'string' && input.format_id.trim() ? input.format_id.trim().slice(0, 100)
+          : (() => { throw new PostsError('format_id is the id from content_formats.'); })();
+    let media = base.media ?? null;
+    if (input.media !== undefined) {
+      if (input.media === null || input.media === '') media = null;
+      else {
+        const found = await files.locate(String(input.media));
+        if (!found) throw new PostsError(`${input.media} is not in your files. Give a file name like /Media/clip.mp4 or a file identity from list_media.`);
+        media = { identity: found.identity, ...(found.name ? { name: found.name } : {}), ...(found.media_type ? { media_type: found.media_type } : {}) };
+      }
+    }
+    // What the caller knows about the file that its bytes do not say (its length, width and height), for the ready check.
+    if (media && object(input.media_facts)) {
+      const facts = Object.fromEntries(['duration_seconds', 'width', 'height'].filter(key => Number.isFinite(input.media_facts[key]) && input.media_facts[key] > 0).map(key => [key, input.media_facts[key]]));
+      const { facts: _earlier, ...file } = media;
+      media = Object.keys(facts).length ? { ...file, facts } : file;
+    }
+    // A video drafted in a format that names its caption style must have been captioned in that style: the file's own
+    // result (kind caption-style, kept by the tool that captioned it) is compared look for look, so a reel in another
+    // colour or font never reaches the person as that format's draft. The draft as it will be kept is checked, whichever
+    // of its video or its format changed, and a video with no kept style says so rather than passing as a match.
+    const captionStyleCheck = media && formatId ? refuseOtherCaptions(media, await formatOf(formatId), await files.results?.(media.identity, 'caption-style')) : null;
+    const given = input.destinations === undefined ? base.destinations ?? [] : input.destinations;
+    if (!Array.isArray(given) || given.some(item => typeof item !== 'string' || !item.trim())) throw new PostsError('destinations is a list of account_id values from list_post_destinations.');
+    const destinationIds = [...new Set(given.map(item => item.trim()))];
+    if (destinationIds.length > settings.max_destinations) throw new PostsError(`A post goes to at most ${settings.max_destinations} destinations.`);
+    const known = new Set((await connections()).filter(item => placeFor(item.vendor)).map(item => item.connection_id));
+    const unknown = destinationIds.filter(id => !known.has(id));
+    if (unknown.length) throw new PostsError(`${unknown.join(', ')} ${unknown.length === 1 ? 'is not an account' : 'are not accounts'} this person can post to. list_post_destinations shows the ones they can.`, { tool: 'list_post_destinations', arguments: {} });
+    if (!caption.trim() && !media) throw new PostsError('A post needs words (caption) or a video or picture (media).');
+    const link = input.link === undefined ? base.link ?? null : text(input.link, 2000);
+    if (link && !(URL.canParse(link) && new URL(link).protocol === 'https:')) throw new PostsError('link is a full https address, like the page where people sign up.');
+    const scheduledFor = input.scheduled_for === undefined ? base.scheduled_for ?? null : text(input.scheduled_for, 60);
+    if (scheduledFor && !Number.isFinite(Date.parse(scheduledFor))) throw new PostsError('scheduled_for is a date and time with its zone, like 2026-10-01T09:00:00-04:00.');
+    const saidZone = input.time_zone === undefined ? base.time_zone ?? null : text(input.time_zone, 80);
+    const timeZone = saidZone === null ? null : timeZoneName(saidZone);
+    if (saidZone !== null && !timeZone) throw new PostsError(`${saidZone} is not a time zone; use one like America/New_York.`);
+    const reaches = input.reaches === undefined ? base.reaches ?? [] : reachesOf(input.reaches, settings.first_contact);
+    if (!reaches) throw new PostsError(fillWords(settings.first_contact.words.reaches, { most: String(settings.first_contact.most) }));
+    const hold = settings.hold;
+    const holdSeconds = input.hold_seconds === undefined ? base.hold_seconds ?? null
+      : input.hold_seconds === null ? null
+        : Number.isInteger(input.hold_seconds) && input.hold_seconds >= 0 && input.hold_seconds <= hold.max_seconds ? input.hold_seconds
+          : (() => { throw new PostsError(fillWords(hold.words.bad_seconds, { max: String(hold.max_seconds) })); })();
+    const abortOnReply = input.abort_on_reply === undefined ? base.abort_on_reply ?? null
+      : input.abort_on_reply === null ? null
+        : object(input.abort_on_reply) && typeof input.abort_on_reply.conversation_id === 'string' && input.abort_on_reply.conversation_id.trim() ? { conversation_id: input.abort_on_reply.conversation_id.trim() }
+          : (() => { throw new PostsError(hold.words.bad_reply); })();
+    const at = now().toISOString();
+    const post = {
+      post_id: earlier?.post_id ?? `${TYPE}:${now().getTime().toString(36).padStart(9, '0')}-${newId().replace(/-/g, '').slice(0, 12)}`,
+      status: 'draft', caption,
+      ...(media ? { media } : {}),
+      ...(source ? { source } : {}), ...(formatId ? { format_id: formatId } : {}), ...(reaches.length ? { reaches } : {}), ...(captionStyleCheck ? { caption_style_check: captionStyleCheck } : {}),
+      caption_by_platform: input.caption_by_platform === undefined ? base.caption_by_platform ?? {} : textMap(input.caption_by_platform, settings.max_caption_characters),
+      settings_by_platform: input.settings_by_platform === undefined ? base.settings_by_platform ?? {} : (object(input.settings_by_platform) ? Object.fromEntries(Object.entries(input.settings_by_platform).filter(([, value]) => object(value))) : {}),
+      destinations: destinationIds, ...(link ? { link } : {}), ...(scheduledFor ? { scheduled_for: new Date(scheduledFor).toISOString() } : {}), ...(timeZone ? { time_zone: timeZone } : {}),
+      ...(holdSeconds ? { hold_seconds: holdSeconds } : {}), ...(abortOnReply ? { abort_on_reply: abortOnReply } : {}),
+      // The AI that wrote the words stays on the post when the person changes them (edited_by_person_at says they did).
+      created_at: base.created_at ?? at, updated_at: at, ...(app && !(app === PERSON_APP && earlier?.drafted_by) ? { drafted_by: app } : earlier?.drafted_by ? { drafted_by: earlier.drafted_by } : {}),
+      ...(earlier?.edited_by_person_at ? { edited_by_person_at: earlier.edited_by_person_at } : {}),
+    };
+    if (earlier && app === PERSON_APP && input.caption !== undefined && earlier.caption !== caption) post.edited_by_person_at = at;
+    if (earlier && contentOf(earlier) === contentOf(post) && (earlier.hold_seconds ?? null) === (post.hold_seconds ?? null) && JSON.stringify(earlier.abort_on_reply ?? null) === JSON.stringify(post.abort_on_reply ?? null)) return { post: shaped(earlier), ready: await checksOf(earlier), said: 'Nothing changed in the post.' };
+    const grounded = await groundedCheck(post);
+    if (grounded) post.grounded = grounded;
+    keep(post);
+    // The person changing the words of a draft is how their voice is learned: the draft's words and theirs, kept.
+    if (keepEdit && earlier && app === PERSON_APP && input.caption !== undefined && earlier.caption !== post.caption) await keepEdit({ kind: 'post', subject_id: post.post_id, before: earlier.caption ?? '', after: post.caption, before_by: earlier.drafted_by ?? null });
+    if (grounded?.grounded === false) return { post: shaped(post), ready: await checksOf(post), said: fillWords(settings.first_contact.grounded.words.not_grounded, { names: post.reaches.map(person => `@${person.handle}`).join(', ') }) };
+    const said = earlier?.status === 'approved' || earlier?.status === 'scheduled' ? 'The post changed, so it is a draft again: approve it once it has been looked at.'
+      : destinationIds.length ? 'The post is kept as a draft. Show it to the person, then approve it with approve_post.'
+        : 'The post is kept as a draft that goes nowhere yet. Pick where it goes (destinations from list_post_destinations) before it can be approved.';
+    return { post: shaped(post), ready: await checksOf(post), said };
+  }
+
+  // Whether a post that reaches someone says only what was found of them and what the person seeks, asked of the person's
+  // own computer with the words and judge the decision was measured and wired with (src/decision-evals.json). Null when
+  // the post reaches nobody or the decision is not wired; { checked: false } when no computer answered.
+  async function groundedCheck(post) {
+    const rules = settings.first_contact.grounded;
+    const decision = decisions.evals.find(row => row.id === rules.decision);
+    if (!post.reaches?.length || !decision?.wired || typeof judge !== 'function') return null;
+    const scores = [];
+    for (const person of post.reaches) {
+      const found = person.provenance.map(row => fillWords(rules.found, { title: row.title ?? row.url })).join(rules.joiner);
+      const reply = await judge({ job: decision.id, state: fillWords(decision.state, { found, seeking: person.sought ?? '', message: post.caption }), questions: { verdict: { type: 'noul', instructions: decision.question, criteria: decision.means } } });
+      const p = Number(reply?.answers?.verdict?.noul);
+      if (!Number.isFinite(p)) return { checked: false };
+      scores.push(p);
+    }
+    const p = Math.min(...scores);
+    return { checked: true, grounded: p >= decision.wired.act_at, by: decision.wired.judge, p };
+  }
+
+  // The refusal for a post that goes nowhere yet: where it can go is list_post_destinations.
+  const nowhere = post => new PostsError(`${post.post_id} goes nowhere yet. Pick where it goes: give draft_post its destinations (account_id values from list_post_destinations, which also has a connect link for each place not connected).`, { tool: 'list_post_destinations', arguments: {} });
+
+  function approve({ post_id: postId, expected_values: expected } = {}, { app = null, by_person: byPerson = false } = {}) {
+    const post = read(postId);
+    if (!post) throw new PostsError(`There is no post ${postId} in this Trillion.`, { tool: 'list_posts', arguments: {} });
+    // The reviewed snapshot is compared synchronously with the owner read and approval write. A caller cannot
+    // approve newer words, destinations or timing accidentally after its review, including an idempotent retry.
+    if (expected !== undefined && (!object(expected) || Object.keys(expected).length !== APPROVAL_FIELDS.length
+      || APPROVAL_FIELDS.some(field => !Object.hasOwn(expected, field)) || contentOf(expected) !== contentOf(post))) {
+      throw new PostsError('The post changed after it was reviewed. Read and review its current approval_values before approving it.', { tool: 'read_post', arguments: { post_id: postId } });
+    }
+    if (post.status === 'approved') return { post: shaped(post), said: 'The post was already approved.' };
+    if (post.status !== 'draft') throw new PostsError(`${post.post_id} is already on its way, so there is nothing to approve.`);
+    if (!post.destinations?.length) throw nowhere(post);
+    const reached = reachedBy(post, settings.first_contact);
+    if (reached.length && !byPerson) throw new PostsError(fillWords(settings.first_contact.words.person_only, { names: reached.join(', ') }), settings.first_contact.next_call);
+    const at = now().toISOString();
+    return { post: shaped(keep({ ...post, status: 'approved', approved_at: at, ...(app ? { approved_by: app } : {}), updated_at: at })), said: 'Approved. publish_post sends it now, or at its scheduled time.' };
+  }
+
+  // The words one destination is sent with: its own caption or the post's, then the link tagged for it.
+  function wordsOf(post, place, accountId) {
+    const words = post.caption_by_platform?.[place.platform] ?? post.caption ?? '';
+    if (!post.link) return words;
+    const address = new URL(post.link);
+    const from = { post_id: post.post_id, platform: place.platform, account_id: accountId };
+    for (const tag of settings.link_tags) address.searchParams.set(tag.param, tag.value ?? from[tag.from] ?? '');
+    return [words, address.href].filter(Boolean).join(settings.link_joiner);
+  }
+
+  // Whether the post is ready for each place it is going (src/post-ready.mjs): the words and settings exactly as each
+  // place is sent them, the file as the person's files hold it, the account as their connections list it.
+  async function checksOf(post) {
+    const listed = await connections();
+    const { destinations: accounts, not_connected: notConnected } = await destinations({ links: false, all: listed });
+    const byId = new Map(accounts.map(item => [item.account_id, item]));
+    const all = new Map(listed.map(item => [item.connection_id, item]));
+    const file = post.media ? await files.locate(post.media.identity) : null;
+    const media = post.media ? { found: Boolean(file), media_type: file?.media_type ?? post.media.media_type ?? null, facts: mediaFacts(file, post.media.facts) } : null;
+    const checked = (post.destinations ?? []).map(accountId => {
+      const connection = all.get(accountId);
+      const place = connection ? placeFor(connection.vendor) : null;
+      const chosen = place ? { ...(place.default_settings ?? {}), ...(post.settings_by_platform?.[place.platform] ?? {}) } : {};
+      return { account_id: accountId, platform: place?.platform ?? null, label: place?.label ?? null, name: byId.get(accountId)?.name ?? null,
+        ...readyFor({ place, account: byId.get(accountId) ?? null, words: place ? wordsOf(post, place, accountId) : '', chosen, media, settings }) };
+    });
+    return { ...readyOverall(checked, settings, { connected: accounts, not_connected: notConnected }), destinations: checked };
+  }
+
+  async function check({ post_id: postId } = {}) {
+    await refreshPlaces();
+    const post = read(postId);
+    if (!post) return { post_id: String(postId ?? ''), status: 'missing', said: `There is no post ${postId ?? ''} in this Trillion, so nothing was checked.` };
+    return { post_id: post.post_id, status: post.status, ...(await checksOf(post)) };
+  }
+
+  // The approved post waiting longest.
+  function nextApproved() {
+    return eeaf.ids(TYPE).map(id => eeaf.read(id)).filter(post => post?.status === 'approved')
+      .sort((a, b) => String(a.approved_at).localeCompare(String(b.approved_at)))[0] ?? null;
+  }
+
+  async function mediaFor(post, place) {
+    if (!post.media) return null;
+    const found = await files.locate(post.media.identity);
+    if (!found) throw new PostsError(`The video for ${post.post_id} is no longer in your files. Draft the post again with a video that is.`);
+    const mediaType = found.media_type ?? post.media.media_type ?? null;
+    const kind = mediaType?.split('/')[0] === 'image' ? 'image' : 'video';
+    const source = place.media_from === 'bytes'
+      ? await (async () => { const opened = await files.open(found.identity); return { kind: 'stream', open: () => opened.stream(), fingerprint: found.identity }; })()
+      : { kind: 'https-url', url: await files.publicAddress(found.identity, settings.media_wait_seconds) };
+    return { kind, source, ...(mediaType ? { mimeType: mediaType } : {}), ...(found.byte_length ? { byteSize: found.byte_length } : {}), ...(found.name ? { filename: String(found.name).split('/').pop() } : {}) };
+  }
+
+  async function publish({ post_id: postId, resend = [] } = {}) {
+    await refreshPlaces();
+    let post = postId === undefined || postId === null || postId === '' ? nextApproved() : read(postId);
+    if (!post) return postId ? { post_id: String(postId), status: 'missing', said: `There is no post ${postId} in this Trillion, so nothing was published.` } : { status: 'nothing', said: 'No approved post is waiting, so nothing was published.' };
+    if (post.status === 'draft') throw new PostsError(`${post.post_id} is not approved yet. Show it to the person, approve it with approve_post, then publish.`, { tool: 'approve_post', arguments: { post_id: post.post_id } });
+    if (!post.destinations?.length) throw nowhere(post);
+    // A time still ahead: Trillion's own schedule publishes it then (invariant 5).
+    if (post.scheduled_for && Date.parse(post.scheduled_for) > now().getTime()) {
+      if (post.status === 'approved') {
+        await later({ post_id: post.post_id, at: post.scheduled_for, label: `Publish ${post.caption ? `"${post.caption.slice(0, 40)}"` : post.post_id}` });
+        const current = read(post.post_id);
+        if (!current || !['approved', 'scheduled'].includes(current.status) || contentOf(current) !== contentOf(post)) {
+          throw new PostsError('The post changed while its publication time was being set. Read and review the current post before scheduling it.', { tool: 'read_post', arguments: { post_id: post.post_id } });
+        }
+        post = current.status === 'scheduled' ? current : keep({ ...current, status: 'scheduled', armed_at: now().toISOString(), updated_at: now().toISOString() });
+      }
+      return { post_id: post.post_id, status: post.status, post: shaped(post), said: `It goes out at ${post.scheduled_for}.` };
+    }
+    // A post that carries hold_seconds and no time of its own waits that long before it goes, so it can be taken back
+    // (undo_post): the first publish arms Trillion's own schedule; the schedule's publish, once the time has come, sends.
+    if (post.hold_seconds && !post.scheduled_for) {
+      const words = settings.hold.words;
+      if (!post.held_until) {
+        const at = new Date(now().getTime() + post.hold_seconds * 1000).toISOString();
+        await later({ post_id: post.post_id, at, label: `Publish ${post.caption ? `"${post.caption.slice(0, 40)}"` : post.post_id}` });
+        const current = read(post.post_id);
+        if (!current || !['approved', 'scheduled'].includes(current.status) || contentOf(current) !== contentOf(post)) {
+          throw new PostsError('The post changed while it was being held. Read and review the current post before publishing it.', { tool: 'read_post', arguments: { post_id: post.post_id } });
+        }
+        post = keep({ ...current, status: 'scheduled', held_until: at, armed_at: now().toISOString(), updated_at: now().toISOString() });
+        return { post_id: post.post_id, status: post.status, post: shaped(post), said: fillWords(words.holding, { at }) };
+      }
+      if (Date.parse(post.held_until) > now().getTime()) return { post_id: post.post_id, status: post.status, post: shaped(post), said: fillWords(words.still_held, { at: post.held_until }) };
+    }
+    // Someone else wrote in the conversation this send was waiting on after it was armed: it is not sent.
+    if (post.abort_on_reply && post.status === 'scheduled' && !post.sent_at && await repliedSince({ conversation_id: post.abort_on_reply.conversation_id, since: post.armed_at ?? post.approved_at })) {
+      post = keep({ ...post, status: 'draft', held_until: undefined, cancelled_because: 'reply', updated_at: now().toISOString() });
+      return { post_id: post.post_id, status: post.status, post: shaped(post), said: settings.hold.words.replied };
+    }
+    const named = new Set(Array.isArray(resend) ? resend.map(String) : []);
+    const deliveries = { ...(post.deliveries ?? {}) };
+    const due = post.destinations.filter(id => {
+      const state = deliveries[id]?.status ?? 'not sent';
+      return settings.resend_states.includes(state) || (state === 'not known' && named.has(id));
+    });
+    if (!due.length) return { post_id: post.post_id, status: post.status, post: shaped(post), said: post.status === 'posted' ? 'This post is already published everywhere it was meant to go.' : 'Every destination already has this post or is taking it. read_post shows where it is.' };
+
+    const all = new Map((await connections()).map(item => [item.connection_id, item]));
+    const save = () => { const next = { ...post, sent_at: post.sent_at ?? now().toISOString(), deliveries: { ...deliveries }, updated_at: now().toISOString() }; post = keep({ ...next, status: overall(next) }); };
+    for (const accountId of due) {
+      const earlier = deliveries[accountId] ?? {};
+      const connection = all.get(accountId);
+      const place = connection ? placeFor(connection.vendor) : null;
+      if (!place) {
+        deliveries[accountId] = { ...earlier, platform: earlier.platform ?? null, status: 'failed', error: `That account is no longer connected. Ask your AI for its connect link, connect it, then publish again.` };
+        continue;
+      }
+      // The attempt moves on after each send, so a later retry is a new request to the place.
+      const attempt = (earlier.attempt ?? 0) + (earlier.status && earlier.status !== 'not sent' ? 1 : 0);
+      try {
+        const { social, account } = await publisherFor(connection);
+        const media = await mediaFor(post, place);
+        const chosen = { ...(place.default_settings ?? {}), ...(post.settings_by_platform?.[place.platform] ?? {}) };
+        // Recorded before the send: if the send is cut off, its outcome is not known and it is not resent by itself.
+        deliveries[accountId] = { platform: place.platform, label: place.label, status: 'not known', attempt, error: fillWords(settings.not_known_words, { platform: place.label }) };
+        save();
+        const result = await social.posts.publish({
+          targets: [{ account, ...(Object.keys(chosen).length ? { options: chosen } : {}) }],
+          content: { text: wordsOf(post, place, accountId), ...(media ? { media: [media] } : {}) },
+          idempotencyKey: `${post.post_id}:${accountId}:${attempt}`,
+        });
+        deliveries[accountId] = fromOutcome(place, result.outcomes?.[0], { attempt });
+      } catch (error) {
+        // Refused here before anything left (a missing value, a host a key may not go to): it failed. Anything else
+        // after the send began may have reached the place, so it stays not known (invariant 4).
+        const refusedHere = ours(error);
+        const beforeSending = deliveries[accountId]?.status !== 'not known' || refusedHere || error?.issues?.length || error?.retryDisposition?.kind === 'never';
+        deliveries[accountId] = !beforeSending ? { ...deliveries[accountId] }
+          : { platform: place.platform, label: place.label, status: 'failed', attempt, error: refusedHere?.message ?? wordsFor(place, { code: error?.code, message: error?.message, retry: error?.retryDisposition?.kind }) };
+      }
+      save();
+    }
+    save();
+    // The video that went out reads as published on the person's Recent screen (files.used, src/recent-files.mjs).
+    if (post.status === 'posted' && post.media?.identity) files.used?.(post.media.identity, 'published');
+    const shown = shaped(post);
+    return {
+      post_id: post.post_id, status: post.status, post: shown,
+      said: post.status === 'posted' ? 'Published everywhere.' : post.status === 'scheduled' ? 'Sent; read_post shows each published address once it is up.' : shown.errors.map(item => item.said).join(' '),
+    };
+  }
+
+  // Takes back a post that is waiting to go (held, or set for later) and has not begun to send: it is a draft again, so the
+  // schedule that was armed for it sends nothing (invariant 5). A post already on its way cannot be taken back.
+  function undo({ post_id: postId } = {}) {
+    const post = read(postId);
+    if (!post) throw new PostsError(`There is no post ${postId ?? ''} in this Trillion.`, { tool: 'list_posts', arguments: {} });
+    if (post.status !== 'scheduled' || post.sent_at || Object.keys(post.deliveries ?? {}).length) {
+      throw new PostsError(fillWords(settings.hold.words.nothing_to_undo, { post_id: post.post_id, status: post.status }), { tool: 'read_post', arguments: { post_id: post.post_id } });
+    }
+    return { post: shaped(keep({ ...post, status: 'draft', held_until: undefined, cancelled_because: 'undo', updated_at: now().toISOString() })), said: settings.hold.words.undone };
+  }
+
+  async function refresh({ post_id: postId } = {}) {
+    await refreshPlaces();
+    let post = read(postId);
+    if (!post) throw new PostsError(`There is no post ${postId} in this Trillion.`, { tool: 'list_posts', arguments: {} });
+    const all = new Map((await connections()).map(item => [item.connection_id, item]));
+    const deliveries = { ...(post.deliveries ?? {}) };
+    const waiting = Object.entries(deliveries).filter(([, item]) => item.status === 'on its way' && item.delivery_ref);
+    for (const [accountId, item] of waiting) {
+      const connection = all.get(accountId);
+      if (!connection) continue;
+      try {
+        const { place, social } = await publisherFor(connection);
+        deliveries[accountId] = fromOutcome(place, await social.posts.getDelivery(item.delivery_ref), item);
+      } catch (error) {
+        deliveries[accountId] = { ...item, error: error instanceof PostsError ? error.message : `${item.label ?? 'The place'} could not be asked where the post is: ${String(error?.message ?? error).slice(0, 200)}` };
+      }
+    }
+    if (waiting.length) {
+      const next = { ...post, deliveries, updated_at: now().toISOString() };
+      post = keep({ ...next, status: overall(next) });
+    }
+    return { post: shaped(post), said: post.status === 'posted' ? 'Published everywhere.' : `The post is ${post.status}.` };
+  }
+
+  function list({ status } = {}) {
+    const ids = status ? eeaf.ids(TYPE).reverse() : eeaf.ids(TYPE, { limit: settings.list_limit });
+    return { posts: ids.map(id => eeaf.read(id)).filter(post => post && (!status || post.status === status)).slice(0, settings.list_limit).map(shaped) };
+  }
+
+  // The posts on a calendar between two times: each post is at its scheduled time, or, sent without one, when sending
+  // began; a draft or approved post with neither is unscheduled. Each post says whether it can still be moved.
+  function calendar({ from, to } = {}) {
+    const start = Date.parse(from);
+    const end = Date.parse(to);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) throw new PostsError('from and to are dates and times with their zone, from before to, like 2026-10-01T00:00:00-04:00 and 2026-11-01T00:00:00-04:00.');
+    if (end - start > settings.calendar_max_days * DAY_MS) throw new PostsError(`A calendar read covers at most ${settings.calendar_max_days} days; read a shorter span.`);
+    const at = post => post.scheduled_for ?? post.sent_at ?? null;
+    const every = eeaf.ids(TYPE).map(id => eeaf.read(id)).filter(Boolean);
+    const onIt = every.filter(post => { const time = Date.parse(at(post)); return time >= start && time < end; }).sort((a, b) => Date.parse(at(a)) - Date.parse(at(b)));
+    const unscheduled = every.filter(post => !at(post) && ['draft', 'approved'].includes(post.status)).reverse().slice(0, settings.list_limit);
+    const shown = post => ({ ...shaped(post), at: at(post), can_move: changeable(post) });
+    return { from: new Date(start).toISOString(), to: new Date(end).toISOString(), posts: onIt.map(shown), unscheduled: unscheduled.map(shown) };
+  }
+
+  return { destinations, connect, draft, approve, publish, undo, read: refresh, list, calendar, check, snippets, summaries };
+}
+
+export const isPostsPath = path => path === '/posts' || path.startsWith('/posts/');
+
+// A posts action that is a Workshop tool, run through the account's Workshop ({ run }) by its tool id, so a press on the
+// page, an AI's MCP tool and a schedule all reach the one tool, its checks and its run record; the tool's own refusal
+// comes back as said.
+function throughTool(workshop, toolId, { job, doing, key }) {
+  return async input => {
+    const task = await workshop.run({ tool_id: toolId, input, request_key: key(input), wait_seconds: 50, job });
+    if (task.state === 'completed') return task.output;
+    throw new PostsError(task.error ?? `${doing} did not finish yet (${task.state}). read_task ${task.task_id} shows when it does.`, task.next_call ?? null);
+  };
+}
+
+// Publishing as settings.publish_tool_id, the same tool a schedule names.
+export function publishThroughTool(workshop, toolId, { newId = () => crypto.randomUUID() } = {}) {
+  return throughTool(workshop, toolId, { job: 'publish a post', doing: 'Publishing', key: input => `publish:${input?.post_id ?? 'post'}:${newId()}` });
+}
+
+// The person's voice as the Workshop tools settings.voice_tools names: each /posts/voice route runs its tool (a save is
+// marked the person's only when it came from their own page), and keepEdit hands the person's change of a draft's words
+// to the edit tool without waiting for its run.
+export function voiceThroughTools(workshop, tools, { newId = () => crypto.randomUUID() } = {}) {
+  const routes = Object.fromEntries(Object.entries(tools.routes).map(([path, { tool_id, by_field }]) => {
+    const run = throughTool(workshop, tool_id, { job: 'read or keep how the person writes', doing: 'Reading or keeping their voice', key: () => `voice:${newId()}` });
+    return [path, (input, { app }) => run(by_field ? { ...input, [by_field]: app === PERSON_APP ? 'person' : 'ai' } : input)];
+  }));
+  const keepEdit = input => workshop.run({ tool_id: tools.edit_tool_id, input, request_key: `voice-edit:${input.subject_id}:${newId()}`, wait_seconds: 0, job: 'keep the person\'s edit of a draft' });
+  return { routes, keepEdit };
+}
+
+/** posts: makeSocialPosts(...); publish: how a publish is run (publishThroughTool), else the posts' own publish; voice:
+ *  the /posts/voice routes (voiceThroughTools(...).routes). */
+export async function handlePostsRequest(posts, request, { publish = posts.publish, voice = {} } = {}) {
+  const path = new URL(request.url).pathname;
+  const app = request.headers.get('x-trillion-app') || null;
+  try {
+    if (request.method === 'GET' && path === '/posts') return Response.json(posts.list({ status: new URL(request.url).searchParams.get('status') || undefined }));
+    // ?links=no lists the accounts and the places not connected by name only, making no connect link.
+    if (request.method === 'GET' && path === '/posts/destinations') return Response.json(await posts.destinations({ links: new URL(request.url).searchParams.get('links') !== 'no' }));
+    if (request.method === 'GET' && path === '/posts/calendar') { const query = new URL(request.url).searchParams; return Response.json(posts.calendar({ from: query.get('from'), to: query.get('to') })); }
+    if (request.method !== 'POST') return Response.json({ error: 'Not found' }, { status: 404 });
+    const raw = await request.text();
+    if (raw.length > 200_000) throw new PostsError('Request too large');
+    const input = JSON.parse(raw || '{}');
+    const verbs = {
+      '/posts/snippet/save': () => posts.snippets.save(input),
+      '/posts/snippet/list': () => posts.snippets.list(input),
+      '/posts/snippet/use': () => posts.snippets.use(input),
+      '/posts/snippet/remove': () => posts.snippets.remove(input),
+      '/posts/summary/save': () => posts.summaries.save(input),
+      '/posts/summary/read': () => posts.summaries.read(input),
+      '/posts/summary/remove': () => posts.summaries.remove(input),
+      ...Object.fromEntries(Object.entries(voice).map(([path, run]) => [path, () => run(input, { app })])),
+      '/posts/connect': () => posts.connect(input),
+      '/posts/draft': () => posts.draft(input, { app }),
+      '/posts/approve': () => posts.approve(input, { app, by_person: request.headers.get(TYPED_ON_SIGNED_IN_SCREEN) === 'yes' }),
+      '/posts/publish': () => publish(input),
+      '/posts/undo': () => posts.undo(input),
+      '/posts/read': () => posts.read(input),
+      '/posts/check': () => posts.check(input),
+    };
+    if (!verbs[path]) return Response.json({ error: 'Not found' }, { status: 404 });
+    return Response.json(await verbs[path]());
+  } catch (error) {
+    const known = error instanceof PostsError || error instanceof SnippetError || error instanceof SummaryError || error instanceof SyntaxError;
+    return Response.json({ error: error.message, ...(error.next_call ? { next_call: error.next_call } : {}) }, { status: known ? 400 : 500 });
+  }
+}

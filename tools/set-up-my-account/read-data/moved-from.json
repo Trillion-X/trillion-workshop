@@ -45,6 +45,14 @@
       "reused": true
     },
     {
+      "from": "src/setup-access.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-up-my-account/read-data/setup-access.json",
+      "source_identity": "1f:daf16b1fa0197daa95adcdaff490e056215f481d25e518d4ba067debfa383fac",
+      "identity": "1f:daf16b1fa0197daa95adcdaff490e056215f481d25e518d4ba067debfa383fac",
+      "reused": true
+    },
+    {
       "from": "src/site-icon-url.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/set-up-my-account/read-data/site-icon-url.mjs",

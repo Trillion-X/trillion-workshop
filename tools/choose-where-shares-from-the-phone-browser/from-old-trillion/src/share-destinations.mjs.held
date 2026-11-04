@@ -1,0 +1,876 @@
+// Where a person's shares can go and what their AI should do with them: one list every place that shares reads live
+// (the iPhone Share sheet and app, the Chrome extension, the Android share page) and the Sharing screen edits.
+//
+//   GET  /share-destinations   { destinations, actions, folders, default_action_by_site, all_destinations }
+//   POST /share-destinations   { destinations?: [{ id, shown, on_by_default }], actions?: [{ id?, label, words, folder? }],
+//                                folders?: [{ id?, label, folder? }],
+//                                default_action_by_site?: [{ host_suffix, action_id }] }   returns the same as GET
+//   POST /share-destinations/deliver   { to?, items, request_key, action?, own_words?, to_agent?, from_agent?, from?, input? }
+//        to left out or empty: Trillion routes the share itself (private, the route-it-yourself action, connected in the answer).
+//                                action and to_agent each take one id or a list of ids
+//                                returns { delivered: [{ id, label, said? }], stopped_at: { id, label, error } | null,
+//                                          handoff_ids, workflow_runs: [run_id] }
+//   GET  /shares?limit&before    { shares: [ShareRow], next_before }   everything shared before, newest first
+//   POST /shares/unknown         { folders }   returns { folders }: which kept share folders are not in the list yet
+//   POST /shares/adopt           { shares: [ShareRow] }   adds kept shares a device saved without this road
+//
+// Delivery is the one road every sharing place sends through (the deliver_share tool, the Chrome extension, the
+// Android share page, the iPhone Share sheet and app, the web tray): their own Trillion ({ private: true }) is handed
+// the share with hand_off, once to each AI chosen (to_agent, one or several; none chosen, whichever AI is free takes it),
+// with every chosen action's words as the job (action, one or several; none chosen, the action its site starts on);
+// each chosen pursuit ({ pursuit_id, space_id? }) files every shared record, file and tool under it privately (POST
+// /scope/record add.pursuits) and, when it has a room (space_id) or the share carries links or words (which only a room
+// keeps: a pursuit without one is given it by that first share, since the space routes take a pursuit's id), its room gets one mixed request with the source
+// records and files still owned by the person, plus links and words as items, so the share reaches the other people in
+// that pursuit and nobody else; each chosen tool place ({ tool_id }) runs that tool once with the share (below).
+// A tool place is every tool in the person's Workshop whose input takes the field records/share-destination-starters.json
+// tool_places.takes names ("things"): Tell the people who make Trillion is one such tool row, and another place to send
+// to is another tool row, never code here. Its input is filled from the share and only with the fields its own
+// input_schema has: things (input.things when the sender gives them, else one thing per shared item), note (their own
+// words), any word the place's own form sent as text (input.address, input.channel, input.database, input.title: a field of
+// the same name, so Send to a webhook, Add to Notion and Post to Slack are tool rows), picture (the first shared picture's file), screen, browser and where (from input, browser else `from`).
+// A link reaches a space bare ({ url }) at once. A small, fixed number of cards are read afterwards (readLink) and
+// filled into those same things (POST /spaces/<id>/fill), and the share list's row when it had no preview. This bounds
+// remote page reads independently of the number of things delivered.
+// An action listed in saved_example_actions (records/share-destination-starters.json) first keeps each shared link as a
+// saved example (src/saved-examples.mjs) and hands the AI their ids, so it can add why each one worked.
+// An action with workflow { workflow_id, input } starts that workflow on the share when it reaches their own Trillion:
+// each input value { "fill": { "from": "share", "field": ... } } is taken from the share (words: their own words, every
+// shared text and title, then every address; own_words; links; items), through the same fill as Workshop tools and
+// rules (src/workshop.mjs buildInvocation). The filled input is checked against the workflow's input_schema before
+// anything is sent, the run is started with the share's request_key (so sending again starts one run), and the AI is
+// handed the share with each run named (input.workflow_runs, and the job's line from workflow_job in the starters DATA).
+//
+// destinations are the person's own Trillion ("private"), every pursuit from the one pursuits owner (GET /pursuits: tree
+// order, each pursuit once, depth from the top, its room's space_id and the other people in it) and every tool place,
+// in that one order (placesInOrder), with hidden ones left out, each { id, label, description, depth, to, others_count };
+// the sidebar's focus switcher reads the same pursuits list, so both show the same things in the same order. The pursuit
+// the workspace is focused on, else the one the newest share went to, comes first with the pursuits under it, and a
+// focused one starts picked (records/share-destination-starters.json focused). all_destinations is the same list with
+// the hidden ones, for the screen that arranges them. A pursuit made later appears by itself (DATA: pursuit); one that
+// ended is gone. A room's id read from an older choice or sent by an older app names the pursuit the room belongs to.
+// actions are their saved instructions (src/agents.mjs, the saved_instructions tool): the one list, read and written
+// through that owner, so an edit made here is what saved_instructions returns and the other way round. The person
+// arranges it as a tree: folders lists the folders (each { id, label, folder }), and each action names the folder it
+// sits in (folder: an id from folders, or null); actions come in the order the tree is read, so the first is the first
+// one shown. Within a folder its actions come first, then the folders inside it, each in the order given. An action saved
+// without a folder key stays in the folder it was in, so a place that saves the list without knowing folders (an
+// older app) never moves anything; folder: null puts it at the top.
+// default_action_by_site says which action a share from a site starts on; a row whose action was removed is left out.
+//
+// Shared before: every delivery is kept as one row of the person's share list (history), whichever device or AI sent
+// it, so the list on the Sharing screen, the iPhone and any AI (the shares_sent tool) is the same list. A row is
+// { share_id, at, from, items, own_words, actions: [{ id, label }], sent_to: [{ id, label }], preview, kept_in }; a row
+// kept before actions were a list (action: { id, label }) is read as a list of that one.
+// `from` is where the sender says it was shared from (Chrome, Android), else the name the connected app that sent it
+// registered with; an agent id is never shown as a sender.
+// A share a device kept in the person's Files without this road (an iPhone Share sheet, an Android share not sent
+// yet: folders named in records/share-destination-starters.json kept_share_folders) is adopted into the same list by
+// its folder (src/share-history.mjs), and a later delivery of that kept share replaces its row.
+//
+// Invariants
+// - Their own Trillion is always offered: it can be moved or left unpicked, never hidden.
+// - Only whether each place is shown and starts picked is kept here; pursuits and actions are read from their owners
+//   on every read, and the order is always theirs.
+// - A share reaches other people only through a pursuit's room; a pursuit with nobody else in it keeps it private.
+// - A save is checked whole before anything is written, so a refused part leaves every part as it was.
+//
+// store: { choices() -> { destinations, default_action_by_site } | null, putChoices(value) }
+// history: { keep(row), list({ limit, before }) -> rows newest first, has(share_id) -> boolean }
+// instructions: the saved-instructions owner (src/agents.mjs makeAgents()): { instructions(input), shapeInstructions(list) }
+// pursuits(): the pursuits this person has, as GET /pursuits answers with the reach the request carries, each
+//   { id, title, depth, parents, children, status, space_id? (when it has a room), others (the other people's names),
+//   people_count (everyone in its room, the person too) }, in tree order; archived ones are not among them.
+// focus(): the pursuit or room id the whole workspace is focused on now, or null (src/record-scope.mjs views).
+// filesPrivately: whether the delivering sign-in reaches the private Trillion, so a pursuit can file things privately;
+//   a sign-in held to some spaces reaches only the rooms of the pursuits it sees.
+// tools(): the tools in this person's Workshop, each { tool_id, label, job, input_schema } (POST /tools/list)
+// send(path, body): posts to this person's own routes (/handoffs, /spaces/<id>/share, /scope/record,
+//   /spaces/<id>/fill, /tools/run), with the reach the delivering request carries; answers the route's body, or throws its refusal.
+// aiWorkOf(handoff_id): the AI job with that id, { handoff_id, state, taken_by, finished_at, outcome }, or null. Each
+//   listed share carries the jobs it was handed as ai_works (every AI it went to) and the first as ai_work, so the list
+//   says whether each AI took it and what it did. A share kept before its jobs were listed names one job by its key.
+// readLink(url): the card of one public link (src/read-link.mjs readLinkCard); later(work): keeps `work` running after
+//   the delivery has answered.
+import { byTimeThenIdDescending, isAfterTimeCursor, readTimeCursor, timeCursor } from '../../../recently-deleted-and-storage/time-cursor.mjs';
+import starters from '../records/share-destination-starters.json' with { type: 'json' };
+import inboundWords from '../../../keep-and-wake-ai-sessions-on-this-computer/src/inbound-words.json' with { type: 'json' };
+import { handoffIdFor, instructionFolders, instructionsInTreeOrder } from '../../../shared-code/src/agents.mjs';
+import { buildInvocation, schemaProblems } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
+import { readBoundedJson } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/read-bounded-json.mjs';
+import { routingAction, startingAction } from './share-starting-action.mjs';
+import { MAX_SHARED_ITEMS } from '../../../keep-anything-sent-to-trillion-a-link-file/from-old-trillion/src/share-input-limits.mjs';
+import { instructionsFor } from '../parts/record-audio/read-data/meeting-settings.mjs';
+
+export class ShareDestinationsError extends Error {}
+
+const MAX_SITES = 100;
+// What a tool place is always filled from the share itself, and the longest a word from its own form may be.
+const FIXED_FIELDS = new Set(['things', 'note', 'picture', 'screen', 'browser', 'where']);
+const FORM_FIELD_CHARACTERS = 2000;
+const PRIVATE = starters.private.id;
+const ROUTE = starters.route_itself;
+const SAVED_EXAMPLE_ACTIONS = new Set(starters.saved_example_actions);
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+// One id or a list of ids, as a list without repeats; left out, an empty list. Anything else is refused by `what`.
+function idList(value, what) {
+  if (value === undefined || value === null || value === '') return [];
+  const list = Array.isArray(value) ? value : [value];
+  if (list.some(id => typeof id !== 'string' || !id)) throw new ShareDestinationsError(`${what} is one id or a list of ids.`);
+  return [...new Set(list)];
+}
+
+// A site as a host name ending: "Instagram.com", "*.instagram.com" and "www.instagram.com" are all "instagram.com".
+function hostSuffix(value) {
+  const host = String(value ?? '').trim().toLowerCase().replace(/^\*?\.+/, '').replace(/^www\./, '');
+  if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(host)) throw new ShareDestinationsError(`"${value}" is not a site. Give its address, for example instagram.com.`);
+  return host;
+}
+
+const MAX_AUTOMATIC_CARD_READS = 4;
+const addressOf = item => item.url ?? item.page_url;
+
+// What an item can carry to be a share at all: the fields any client or AI sends (links, words, titles, a record, a file,
+// another share, a workflow, a tool, a picture, or a name) and the kinds that stand for a thing by their own fields.
+// An item with none of them (a misspelt field such as `link`) says nothing to share, and is refused by its place in the list.
+const ITEM_FIELDS = ['url', 'page_url', 'text', 'title', 'page_title', 'record', 'file', 'share', 'code', 'share_code', 'workflow', 'workflow_id', 'tool', 'tool_id', 'name', 'image', 'pictures'];
+const carriesSomething = item => ITEM_FIELDS.some(field => item[field] !== undefined && item[field] !== null) || ['share', 'workflow', 'tool'].includes(item.kind);
+
+// One shared item as a Space receives it. Keep every source as its own reference, so one mixed selection can carry
+// records, files, another share, links and words through the same request.
+function spaceItem(item) {
+  const title = item.title ?? item.page_title;
+  if (title !== undefined && title !== null && (typeof title !== 'string' || title.trim().length > 300)) throw new ShareDestinationsError('A shared title holds at most 300 characters. Shorten it before sharing.');
+  const named = title ? { title } : {};
+  if (item.record !== undefined) {
+    if (typeof item.record !== 'string' || !item.record.trim()) throw new ShareDestinationsError('A shared record needs its reference.');
+    return { kind: 'record', record: item.record.trim() };
+  }
+  if (item.file !== undefined) {
+    if (typeof item.file !== 'string' || !item.file.trim()) throw new ShareDestinationsError('A shared file needs its identity.');
+    return { kind: 'file', file: item.file.trim() };
+  }
+  if (item.workflow_id !== undefined || item.kind === 'workflow') {
+    const workflow = item.workflow_id ?? item.workflow;
+    if (typeof workflow !== 'string' || !workflow.trim()) throw new ShareDestinationsError('A shared workflow needs its id.');
+    return { kind: 'workflow', workflow_id: workflow.trim() };
+  }
+  if (item.tool_id !== undefined || item.kind === 'tool') {
+    const tool = item.tool_id ?? item.tool;
+    if (typeof tool !== 'string' || !tool.trim()) throw new ShareDestinationsError('A shared tool needs its id.');
+    return { kind: 'tool', tool_id: tool.trim() };
+  }
+  const url = addressOf(item);
+  if (item.kind === 'share' || item.code || item.share_code) {
+    const code = item.code ?? item.share_code;
+    if (code !== undefined) {
+      if (typeof code !== 'string' || !code.trim()) throw new ShareDestinationsError('A shared link needs its link code.');
+      return { kind: 'share', code: code.trim(), ...named };
+    }
+    if (typeof url === 'string' && /^https?:\/\//i.test(url)) return { kind: 'link', url, ...named };
+    if (typeof url !== 'string' || !/^\/share\//.test(url)) throw new ShareDestinationsError('A shared link needs its link code.');
+  }
+  if (typeof url === 'string' && /^\/share\//.test(url)) {
+    try { return { kind: 'share', code: decodeURIComponent(url.slice('/share/'.length)), ...named }; }
+    catch { throw new ShareDestinationsError('A shared link needs a valid link code.'); }
+  }
+  if (url !== undefined && url !== null) {
+    if (typeof url !== 'string' || !/^https?:\/\//i.test(url)) throw new ShareDestinationsError('A shared link needs an http or https address.');
+    return { kind: 'link', url, ...named };
+  }
+  if (item.text !== undefined) {
+    if (typeof item.text !== 'string' || !item.text.trim()) throw new ShareDestinationsError('Shared words cannot be empty.');
+    return { kind: 'text', text: item.text, ...named };
+  }
+  throw new ShareDestinationsError('A pursuit share item must name a record, file, workflow, tool, link, words or another share.');
+}
+
+// The reference a pursuit files one shared thing under (src/record-scope.mjs refs), or null for links, words and other
+// shares, which live in a room.
+const recordRef = entry => (entry.kind === 'record' ? entry.record : entry.kind === 'file' ? `file:${entry.file}` : entry.kind === 'tool' ? `tool:${entry.tool_id}` : null);
+
+const MAX_LISTED = 100;
+const text = (value, limit) => (typeof value === 'string' && value.trim() ? value.trim().slice(0, limit) : null);
+// The share list's own id for a kept share: its folder, so a delivery of it later lands on the same row.
+const keptId = folder => `kept:${folder}`;
+
+/** What a workflow action's input fills from: the share as words (their own words, each shared text and title, then
+ *  each address), their own words, its addresses and its items; request, the same words with the names of shared files
+ *  and records added and never empty or longer than a mode's request; scope, what the share connects to
+ *  (connectedScope of `connected`, the answer of connectedTo, or the line saying nothing is connected yet). */
+export function shareFacts(items, ownWords, connected = null) {
+  const links = [...new Set(items.map(addressOf).filter(Boolean))];
+  const said = items.flatMap(item => [item.text, item.title ?? item.page_title]).filter(value => typeof value === 'string' && value.trim()).map(value => value.trim());
+  const words = [ownWords, ...said, ...links].filter(Boolean).join('\n\n');
+  const named = items.filter(item => !addressOf(item) && !(typeof item.text === 'string' && item.text.trim())).map(item => text(item.name ?? item.title ?? item.record ?? item.file ?? item.kind, 200)).filter(Boolean);
+  return {
+    words, own_words: ownWords ?? '', links, items,
+    request: [words, ...named].filter(Boolean).join('\n\n').slice(0, ROUTE.connect.request_characters) || ROUTE.empty_request,
+    scope: connectedScope(connected),
+  };
+}
+
+// The words a person's search and pursuits are asked with: the shared titles, words, the site's name and the words of
+// the address's path, each at least min_word_length letters and not one of the words that name nothing.
+const IGNORED = new Set(ROUTE.connect.ignore);
+const termsOf = values => [...new Set(values.flatMap(value => String(value ?? '').toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [])
+  .filter(word => word.length >= ROUTE.connect.min_word_length && !IGNORED.has(word) && !/^\d+$/.test(word)))];
+function addressTerms(address) {
+  try {
+    const link = new URL(address);
+    const labels = link.hostname.toLowerCase().replace(/^www\./, '').split('.');
+    return [...labels.slice(0, -1), ...decodeURIComponent(link.pathname).split(/[^\p{L}\p{N}]+/u)];
+  } catch { return []; }
+}
+const textsOf = value => (typeof value === 'string' ? [value] : Array.isArray(value) ? value.flatMap(textsOf) : object(value) ? textsOf(value.text ?? value.title ?? value.summary) : []);
+const within = (work, ms) => new Promise((resolve, reject) => {
+  const timer = setTimeout(() => reject(new Error('Looking for what this connects to took too long.')), ms);
+  work.then(resolve, reject).finally(() => clearTimeout(timer));
+});
+
+/** What a share connects to among what the owner already has: { pursuits: [{ id, title }], people: [{ name, id? }],
+ *  records: [{ id, title }] }. Cheap and bounded for a memory-limited store (records/share-destination-starters.json
+ *  route_itself.connect): the pursuits list already read is matched by the words of the share against each pursuit's
+ *  title (and where it is now, where it is going, why and its evidence); ONE search over the share's words (names,
+ *  titles, words and the address's site and path, word mechanisms only, no model) finds records and files; at most
+ *  scope_reads of the shared records, files and best hits are asked which pursuits they belong to (record_scope). People
+ *  are the others in the connected pursuits' rooms and any person record found. It never throws: a store that cannot
+ *  answer in time leaves what the pursuits list alone found.
+ *  deps: { pursuits: the pursuits list, search(question) -> { results }, scope(ref) -> { pursuits } }. */
+export async function connectedTo(items, own, { pursuits = [], search = null, scope = null } = {}) {
+  const cfg = ROUTE.connect;
+  const terms = termsOf([own, ...items.flatMap(item => [item.title ?? item.page_title, item.text, item.name, ...addressTerms(addressOf(item) ?? '')])]);
+  const listed = new Map(pursuits.filter(pursuit => object(pursuit) && typeof pursuit.id === 'string' && pursuit.status !== 'archived').map(pursuit => [pursuit.id, pursuit]));
+  const connected = new Map();
+  const people = new Map();
+  const records = new Map();
+  const addPursuit = (id, title, weight) => {
+    const held = listed.get(id);
+    connected.set(id, { id, title: text(held?.title ?? title, 300) ?? starters.pursuit.untitled_label, weight: (connected.get(id)?.weight ?? 0) + weight });
+  };
+  for (const pursuit of listed.values()) {
+    const title = new Set(termsOf([pursuit.title]));
+    const rest = new Set(termsOf([pursuit.now, pursuit.after, pursuit.why, pursuit.evidence].flatMap(textsOf)));
+    const score = terms.filter(word => title.has(word)).length * 2 + terms.filter(word => rest.has(word)).length;
+    if (score >= 2) addPursuit(pursuit.id, pursuit.title, score);
+  }
+  const ask = async () => {
+    const refs = items.map(item => item.record ?? (item.file ? `file:${item.file}` : null)).filter(ref => typeof ref === 'string' && ref.trim()).map(ref => ref.trim());
+    if (search && terms.length) {
+      const found = await search(terms.slice(0, cfg.terms).join(' ').slice(0, cfg.question_characters)).catch(() => null);
+      for (const hit of (found?.results ?? []).slice(0, cfg.search_limit)) {
+        const ref = typeof hit?.id === 'string' ? hit.id.replace(/^record:/, '') : null;
+        if (!ref || hit.source === 'github') continue;
+        if (listed.has(ref)) { addPursuit(ref, hit.title, 2); continue; }
+        if (/^(record:)?person:/.test(hit.id) || /^person:/.test(ref)) { people.set(ref, { id: ref, name: text(hit.title, 200) ?? ref }); continue; }
+        records.set(ref, { id: ref, title: text(hit.title ?? hit.name, 300) ?? ref });
+        refs.push(ref);
+      }
+    }
+    if (!scope) return;
+    const asked = [...new Set(refs)].slice(0, cfg.scope_reads);
+    for (const answer of await Promise.all(asked.map(ref => scope(ref).catch(() => null)))) {
+      for (const pursuit of answer?.pursuits ?? []) if (object(pursuit) && typeof pursuit.id === 'string') addPursuit(pursuit.id, pursuit.title, 1);
+    }
+  };
+  await within(ask(), cfg.wait_ms).catch(() => {});
+  const chosen = [...connected.values()].sort((a, b) => b.weight - a.weight).slice(0, cfg.pursuits_shown);
+  for (const pursuit of chosen) {
+    for (const name of listed.get(pursuit.id)?.others ?? []) if (text(name, 200)) people.set(`name:${name}`, { name: text(name, 200) });
+  }
+  return {
+    pursuits: chosen.map(({ id, title }) => ({ id, title })),
+    people: [...people.values()].slice(0, cfg.people_shown),
+    records: [...records.values()].slice(0, cfg.records_shown),
+  };
+}
+
+/** The words a mode's scope holds for a share: what it connects to, or that nothing is connected yet. */
+export function connectedScope(connected) {
+  if (!connected || !(connected.pursuits?.length || connected.people?.length || connected.records?.length)) return ROUTE.scope_none;
+  const list = (rows, name) => rows.map(row => `${row[name]}${row.id ? ` (${row.id})` : ''}`).join(', ');
+  return [
+    connected.pursuits.length ? filledLine(ROUTE.scope_pursuits, { pursuits: list(connected.pursuits, 'title') }) : null,
+    connected.people.length ? filledLine(ROUTE.scope_people, { people: connected.people.map(person => person.name).join(', ') }) : null,
+    connected.records.length ? filledLine(ROUTE.scope_records, { records: list(connected.records, 'title') }) : null,
+  ].filter(Boolean).join(' ').slice(0, ROUTE.connect.scope_characters);
+}
+
+/** A tool place's input from a share: only the fields the tool takes (`takes`), each filled from the share. things are
+ *  the sender's own (input.things) when given, else one per shared item; picture is the first shared picture's file; any
+ *  other field the place's form sent as text (address, channel, title) is handed over under its own name. */
+export function toolInput(takes, items, own, extra, from) {
+  const thingOf = item => ({
+    kind: text(item.kind, 60) ?? 'thing',
+    label: text(item.title ?? item.page_title ?? item.text ?? item.name ?? addressOf(item), 200) ?? 'Shared',
+    ...(addressOf(item) ? { address: addressOf(item) } : {}),
+    ...(text(item.record ?? item.file, 200) ? { id: text(item.record ?? item.file, 200) } : {}),
+  });
+  const picture = items.find(item => item.file && /^(image|picture|photo)$/i.test(String(item.kind ?? '')))?.file;
+  // The words a place's own form asked for (an address, a channel, a title): each is handed over as text when the tool's
+  // input takes a field of that name, so a new place with a form is a tool row and never code here.
+  const formed = Object.fromEntries(Object.entries(object(extra) ? extra : {}).filter(([field, value]) => !FIXED_FIELDS.has(field) && typeof value === 'string' && text(value, FORM_FIELD_CHARACTERS)).map(([field, value]) => [field, text(value, FORM_FIELD_CHARACTERS)]));
+  const filled = {
+    ...formed,
+    things: Array.isArray(extra?.things) ? extra.things : items.map(thingOf),
+    note: own ?? '',
+    ...(picture ? { picture } : {}),
+    ...(text(extra?.screen, 2000) ? { screen: text(extra.screen, 2000) } : {}),
+    ...(text(extra?.browser, 400) ?? from ? { browser: text(extra?.browser, 400) ?? from } : {}),
+    ...(text(extra?.where, 200) ? { where: text(extra.where, 200) } : {}),
+  };
+  return Object.fromEntries(Object.entries(filled).filter(([field]) => takes.includes(field)));
+}
+
+const filledLine = (template, values) => template.replace(/\{(\w+)\}/g, (whole, key) => values[key] ?? whole);
+
+/** A share the person sent is the person speaking: the job it hands their AIs carries the priority of their own words
+ *  (src/inbound-words.json) and a said line, their own words or what they shared, so an AI takes it before information
+ *  that arrived for them and the person sees it as theirs. Given a hand-off's fields, answers them with both. */
+export function personShareHandOff(handOff) {
+  const input = object(handOff.input) ? handOff.input : {};
+  const items = Array.isArray(input.items) ? input.items.filter(object) : [];
+  const named = items.map(item => item.name ?? addressOf(item) ?? item.title ?? item.text).filter(value => typeof value === 'string' && value.trim());
+  const said = text(handOff.said, 300) ?? text(input.own_words, 300) ?? (named.length ? filledLine(starters.share_said, { items: named.join(', ') }).slice(0, 300) : null);
+  return { ...handOff, ...(handOff.priority === undefined ? { priority: inboundWords.priority.from_person } : {}), ...(said ? { said } : {}) };
+}
+
+/** Whether a hand-off is a share a person's own share sheet sent (its input.sent_from is one of person_share_sources). */
+export const isPersonShareHandOff = handOff => starters.person_share_sources.includes(handOff?.input?.sent_from);
+
+/** Only the authorized delivery receipt travels back, never the receiving account's work output or notes. */
+export function deliveryReceipt(value) {
+  if (!object(value)) return null;
+  const keys = ['task_id', 'execution_ref', 'state', 'source_ref', 'work_ref', 'handoff_id', 'list_id', 'row_id', 'origin', 'intake_state', 'replay_coverage'];
+  const entries = keys.filter(key => typeof value[key] === 'string' && value[key]).map(key => {
+    if (value[key].length > 8192) throw new ShareDestinationsError(`The delivery ${key} exceeds the reference limit; it was not truncated.`);
+    return [key, value[key]];
+  });
+  return entries.length ? Object.fromEntries(entries) : null;
+}
+
+/** One share as the list keeps it, from a delivery or a kept folder; anything else in `given` is left out. */
+export function shareRow(given) {
+  if (!object(given)) throw new ShareDestinationsError('Each share is { share_id, at, items }.');
+  const shareId = text(given.share_id, 500);
+  const at = text(given.at, 40);
+  if (!shareId || !at || Number.isNaN(Date.parse(at))) throw new ShareDestinationsError('Each share needs share_id and at (a time).');
+  if (!Array.isArray(given.items) || given.items.length > MAX_SHARED_ITEMS || !given.items.every(object)) throw new ShareDestinationsError(`items is a list of at most ${MAX_SHARED_ITEMS} things shared.`);
+  const place = row => (object(row) && text(row.id, 200) ? { id: text(row.id, 200), label: text(row.label, 200) ?? text(row.id, 200), ...(deliveryReceipt(row.receipt) ? { receipt: deliveryReceipt(row.receipt) } : {}) } : null);
+  return {
+    share_id: shareId, at, from: text(given.from, 100), items: given.items, own_words: text(given.own_words, 8000),
+    // A row kept before actions were a list names its one action as `action`.
+    actions: (Array.isArray(given.actions) ? given.actions : [given.action]).map(place).filter(Boolean), sent_to: (Array.isArray(given.sent_to) ? given.sent_to : []).map(place).filter(Boolean),
+    ...(object(given.stopped_at) ? { stopped_at: { ...place(given.stopped_at), error: text(given.stopped_at.error, 2000) } } : {}),
+    preview: object(given.preview) ? given.preview : null, kept_in: text(given.kept_in, 4096),
+    // A row kept before runs were a list names its one run as `workflow_run`.
+    workflow_runs: (Array.isArray(given.workflow_runs) ? given.workflow_runs : [given.workflow_run]).filter(run => object(run) && text(run.run_id, 200))
+      .map(run => ({ workflow_id: text(run.workflow_id, 200), run_id: text(run.run_id, 200) })),
+    // The jobs it was handed as, one per AI it went to (a row kept before this list names none).
+    ...(Array.isArray(given.handoff_ids) && given.handoff_ids.length ? { handoff_ids: given.handoff_ids.map(id => text(id, 200)).filter(Boolean).slice(0, 100) } : {}),
+  };
+}
+
+/** An in-memory share list with the same shape as the person store's (tests and tools that run outside it). */
+export function memoryShareHistory() {
+  const rows = new Map();
+  return {
+    keep: row => { rows.set(row.share_id, structuredClone(row)); },
+    has: id => rows.has(id),
+    list: ({ limit, before }) => [...rows.values()].filter(row => isAfterTimeCursor(readTimeCursor(before), row.at, row.share_id))
+      .sort(byTimeThenIdDescending(row => row.at, row => row.share_id)).slice(0, limit).map(row => structuredClone(row)),
+  };
+}
+
+// What a link's card adds to a shared link: its site, description, picture, every picture and video, and icon.
+const cardBody = card => ({
+  url: card.url, site: card.site ?? card.host, description: card.description, picture: card.image,
+  ...(card.images.length > 1 ? { images: card.images } : {}), ...(card.videos.length ? { videos: card.videos } : {}), icon: card.icon,
+});
+
+// How many other people are in a pursuit's room: its names, else everyone in it but the person.
+const othersIn = pursuit => (Array.isArray(pursuit.others) && pursuit.others.length ? pursuit.others.length : Math.max(0, (Number(pursuit.people_count) || 0) - 1));
+
+// What a pursuit says under its name: the other people in its room, by name (names_shown of them, then how many more).
+const peopleLine = pursuit => {
+  const names = (Array.isArray(pursuit.others) ? pursuit.others : []).map(name => text(name, 80)).filter(Boolean);
+  const count = othersIn(pursuit);
+  if (!count) return null;
+  const shown = names.slice(0, starters.pursuit.names_shown);
+  const listed = new Intl.ListFormat('en', { type: 'conjunction' }).format(shown);
+  return count > shown.length
+    ? filledLine(starters.pursuit.more_people, { names: shown.join(', ') || String(count), more: String(count - shown.length) })
+    : filledLine(starters.pursuit.with_people, { names: listed });
+};
+
+/** The places a share can go, in the order every place that chooses one shows them: the person's own Trillion, then
+ *  every pursuit in the pursuits owner's own order (tree order, each once, `depth` 0 at the top), its room folded into
+ *  it, then every tool place. The pursuit the workspace is focused on (`first`), with the pursuits under it, comes
+ *  right after their own Trillion. Each row is { id, label, description, depth, to, others_count }. */
+export function placesInOrder({ pursuits, tools, first = null }) {
+  const own = { id: PRIVATE, label: starters.private.label, description: starters.private.description, depth: 0, to: { private: true }, others_count: 0 };
+  const rows = pursuits.filter(pursuit => object(pursuit) && typeof pursuit.id === 'string' && pursuit.id && pursuit.status !== 'archived').map(pursuit => ({
+    id: pursuit.id, label: text(pursuit.title, 300) ?? starters.pursuit.untitled_label, description: peopleLine(pursuit),
+    depth: Math.max(0, Math.floor(Number(pursuit.depth) || 0)),
+    to: { pursuit_id: pursuit.id, ...(text(pursuit.space_id, 200) ? { space_id: text(pursuit.space_id, 200) } : {}) },
+    others_count: othersIn(pursuit),
+  }));
+  const at = first && starters.focused.first ? rows.findIndex(row => row.id === first) : -1;
+  if (at > 0) {
+    // The focused pursuit moves with everything set under it, so the tree stays a tree.
+    let end = at + 1;
+    while (end < rows.length && rows[end].depth > rows[at].depth) end += 1;
+    const lift = rows[at].depth;
+    const moved = rows.splice(at, end - at).map(row => ({ ...row, depth: row.depth - lift }));
+    rows.unshift(...moved);
+  }
+  return [own, ...rows, ...tools.map(place => ({ ...place, depth: 0, others_count: 0 }))];
+}
+
+// Whether a delivering sign-in files a share privately: only one whose reach includes the private Trillion (its claims'
+// `made` reach, the same reach the sign-in was approved with). A pursuit-limited sign-in files nothing privately.
+export const filesPrivatelyOf = claims => claims?.made?.private === true;
+
+export function makeShareDestinations({ store, history, instructions, pursuits, focus = async () => null, filesPrivately = true, tools = async () => [], send, readLink, later, aiWorkOf = () => null, connect = null, standing = () => null }) {
+  const savedList = async () => (await instructions.instructions({})).instructions;
+  const actions = async () => instructionsInTreeOrder(await savedList());
+  // The action a share that picked no place starts on (records/share-destination-starters.json route_itself): the
+  // person's own saved instruction of that id when they edited it, else Trillion's; null when they turned it off.
+  const routeItselfAction = list => (store.choices()?.route_itself === false ? null : list.find(row => row.id === ROUTE.action.id) ?? structuredClone(ROUTE.action));
+  // Every tool taking the tool-place field, each with the input fields it takes; a plan without the Workshop has none.
+  const toolPlaces = async () => (await tools(starters.tool_places.takes).catch(() => []))
+    .filter(tool => Object.hasOwn(tool.input_schema?.properties ?? {}, starters.tool_places.takes)
+      && (tool.input_schema?.required ?? []).every(field => field === starters.tool_places.takes || field === 'note'))
+    .map(tool => ({ id: `${starters.tool_places.id_prefix}${tool.tool_id}`, label: tool.label ?? tool.tool_id, description: text(tool.job, 400), to: { tool_id: tool.tool_id }, takes: Object.keys(tool.input_schema.properties) }));
+
+  // The pursuit a share starts on: the one the workspace is focused on, else the one the newest share went to.
+  // `focused` says which of the two it is, since only a focus picks it at the start.
+  const startingPursuit = async (list, aliasOf) => {
+    const focused = await focus().catch(() => null);
+    const chosen = focused ? aliasOf(focused) : null;
+    if (chosen) return { id: chosen, focused: true };
+    // A reader of the list alone (a record's sharing sheet) keeps no shares, so it has no newest one.
+    const newest = history ? history.list({ limit: 1 })[0] : null;
+    const last = (newest?.sent_to ?? []).map(place => aliasOf(place.id)).find(id => id && list.some(pursuit => pursuit.id === id));
+    return last ? { id: last, focused: false } : null;
+  };
+
+  // Every place, keyed by id, with `aliasOf`: a room's id names the pursuit it belongs to, so a choice saved or a
+  // delivery sent before rooms were folded into pursuits still finds its place.
+  async function places() {
+    const [listed, offered] = await Promise.all([pursuits(), toolPlaces()]);
+    const rooms = new Map(listed.filter(pursuit => pursuit?.space_id).map(pursuit => [pursuit.space_id, pursuit.id]));
+    const ids = new Set(listed.map(pursuit => pursuit?.id));
+    const aliasOf = id => (ids.has(id) ? id : rooms.get(id) ?? null);
+    const start = await startingPursuit(listed, aliasOf);
+    const rows = placesInOrder({ pursuits: listed, tools: offered, first: start?.id ?? null });
+    return { known: new Map(rows.map(row => [row.id, row])), aliasOf: id => (id === PRIVATE || offered.some(place => place.id === id) ? id : aliasOf(id)), start, pursuits: listed };
+  }
+  // A place as the person's lists show it: what it takes is for delivery only.
+  const shownPlace = ({ takes, ...place }) => place;
+
+  // `given` is places() when the caller already read it. Places come in their one order; what the person keeps is
+  // whether each is shown and whether it starts picked.
+  async function read(given = null) {
+    const saved = store.choices() ?? {};
+    const { known, aliasOf, start } = given ?? await places();
+    const kept = new Map();
+    for (const row of saved.destinations ?? []) {
+      const id = aliasOf(row.id);
+      if (id && !kept.has(id)) kept.set(id, row);
+    }
+    const arranged = [...known.values()].map(place => {
+      const row = kept.get(place.id);
+      const startsPicked = start?.focused && start.id === place.id && starters.focused.on_by_default;
+      if (place.id === PRIVATE) return { ...shownPlace(place), shown: true, on_by_default: row ? row.on_by_default === true : starters.private.on_by_default };
+      return { ...shownPlace(place), shown: row ? row.shown !== false : starters.pursuit.shown, on_by_default: startsPicked || (row ? row.on_by_default === true : starters.pursuit.on_by_default) };
+    });
+    const list = await savedList();
+    const ordered = instructionsInTreeOrder(list);
+    const ids = new Set(ordered.map(action => action.id));
+    return {
+      destinations: arranged.filter(place => place.shown).map(({ shown, ...place }) => place),
+      actions: ordered,
+      folders: instructionFolders(list),
+      default_action_by_site: (saved.default_action_by_site ?? starters.default_action_by_site).filter(row => ids.has(row.action_id)).map(row => ({ ...row })),
+      all_destinations: arranged,
+      // What a share does when its sender picks no place: Trillion routes it itself with this action.
+      route_itself: { on: store.choices()?.route_itself !== false, action: routeItselfAction(ordered) ?? structuredClone(ROUTE.action), edited: ordered.some(row => row.id === ROUTE.action.id) },
+    };
+  }
+
+  // What the person keeps for each place: whether it is shown and whether it starts picked. Places come in their one
+  // order, so a list given in another order changes nothing about where each one sits.
+  function destinationsFrom(given, previous, aliasOf) {
+    if (!Array.isArray(given)) throw new ShareDestinationsError('destinations is a list: each { id, shown, on_by_default }.');
+    const seen = new Set();
+    const rows = [];
+    for (const item of given) {
+      if (!object(item) || typeof item.id !== 'string' || !item.id) throw new ShareDestinationsError('Each destination is { id, shown, on_by_default }, id from share_destinations.');
+      const id = aliasOf(item.id);
+      // A place gone since the list was read is dropped, not refused.
+      if (!id) continue;
+      if (seen.has(id)) throw new ShareDestinationsError(`${item.id} is listed twice.`);
+      seen.add(id);
+      if (id === PRIVATE && item.shown === false) throw new ShareDestinationsError(`${starters.private.label} is always offered. It can be left unpicked, not hidden.`);
+      rows.push({ id, shown: item.shown !== false, on_by_default: item.on_by_default === true });
+    }
+    return [...rows, ...previous.filter(row => !seen.has(row.id))];
+  }
+
+  function sitesFrom(given, actionIds) {
+    if (!Array.isArray(given)) throw new ShareDestinationsError('default_action_by_site is a list: each { host_suffix, action_id }.');
+    if (given.length > MAX_SITES) throw new ShareDestinationsError(`At most ${MAX_SITES} sites.`);
+    const seen = new Set();
+    return given.map(item => {
+      if (!object(item)) throw new ShareDestinationsError('Each site is { host_suffix, action_id }.');
+      const host_suffix = hostSuffix(item.host_suffix);
+      if (seen.has(host_suffix)) throw new ShareDestinationsError(`${host_suffix} is listed twice.`);
+      seen.add(host_suffix);
+      if (!actionIds.has(item.action_id)) throw new ShareDestinationsError(`No action ${item.action_id}. Use an id from actions.`);
+      return { host_suffix, action_id: item.action_id };
+    });
+  }
+
+  // The whole saved list from the given actions and folders, each left out keeping what is saved now.
+  async function treeFrom(given) {
+    const current = await savedList();
+    const folderOf = new Map(current.map(row => [row.id, row.folder ?? null]));
+    const workflowOf = new Map(current.filter(row => row.workflow).map(row => [row.id, row.workflow]));
+    const listOf = (value, what) => {
+      if (!Array.isArray(value) || !value.every(object)) throw new ShareDestinationsError(`${what} is a list of rows.`);
+      return value;
+    };
+    const folders = given.folders === undefined
+      ? current.filter(row => row.kind === 'folder')
+      : listOf(given.folders, 'folders').map(row => ({ ...(row.id ? { id: row.id } : {}), label: row.label, kind: 'folder', folder: row.folder ?? null }));
+    const rows = given.actions === undefined
+      ? current.filter(row => row.kind !== 'folder')
+      : listOf(given.actions, 'actions').map(row => {
+        // Left out, an action keeps the workflow it starts, so a place that saves only names and words never drops it.
+        const workflow = row.workflow === undefined ? workflowOf.get(row.id) : row.workflow;
+        return { ...(row.id ? { id: row.id } : {}), label: row.label, words: row.words, ...(workflow ? { workflow } : {}), folder: row.folder === undefined ? folderOf.get(row.id) ?? null : row.folder };
+      });
+    try { return instructions.shapeInstructions([...folders, ...rows]); } catch (error) { throw new ShareDestinationsError(error.message); }
+  }
+
+  async function save(input = {}) {
+    if (!object(input) || !['destinations', 'actions', 'folders', 'default_action_by_site', 'route_itself'].some(key => input[key] !== undefined)) {
+      throw new ShareDestinationsError('Nothing to save: give destinations, actions, folders, default_action_by_site or route_itself.');
+    }
+    if (input.route_itself !== undefined && typeof input.route_itself !== 'boolean') throw new ShareDestinationsError('route_itself is true or false: whether a share that picks no place is routed by Trillion itself.');
+    const saved = store.choices() ?? {};
+    // A place left out keeps what it has now.
+    const known = input.destinations === undefined ? null : await places();
+    const current = known ? (await read(known)).all_destinations.map(({ id, shown, on_by_default }) => ({ id, shown, on_by_default })) : null;
+    const destinations = current ? destinationsFrom(input.destinations, current, known.aliasOf) : saved.destinations;
+    const shaped = input.actions !== undefined || input.folders !== undefined ? await treeFrom(input) : null;
+    const actionIds = new Set((shaped ? instructionsInTreeOrder(shaped) : await actions()).map(action => action.id));
+    const sites = input.default_action_by_site === undefined ? saved.default_action_by_site : sitesFrom(input.default_action_by_site, actionIds);
+    if (shaped) await instructions.instructions({ instructions: shaped });
+    const routeOff = input.route_itself === undefined ? saved.route_itself === false : input.route_itself === false;
+    store.putChoices({ ...(destinations ? { destinations } : {}), ...(sites ? { default_action_by_site: sites } : {}), ...(routeOff ? { route_itself: false } : {}) });
+    return read();
+  }
+
+  // A share sent with an action that keeps examples keeps each shared address as a saved example
+  // (src/saved-examples.mjs), with the words shared beside it; answers the example ids.
+  async function keepExamples(items) {
+    const words = items.filter(item => !addressOf(item) && typeof item.text === 'string' && item.text.trim()).map(item => item.text.trim()).join('\n\n') || undefined;
+    const ids = [];
+    for (const item of items) {
+      const url = addressOf(item);
+      if (!url) continue;
+      const title = item.title ?? item.page_title;
+      ids.push((await send('/saved-examples', { url, ...(title ? { title } : {}), ...(words ? { words } : {}), added_from: 'share' })).id);
+    }
+    return ids;
+  }
+
+  // The items with a missing title filled in for the first link_reads links that have none (route_itself.connect): from
+  // the preview the sender sent when it is of that link, else the card readLink reads within link_wait_ms (kept in
+  // cardsRead so the cards read after delivery do not read the same page again). A link that
+  // does not answer in time, or says nothing about itself, keeps what it has; nothing here fails a share or asks a model.
+  async function withLinkTitles(items, preview, cardsRead) {
+    const cfg = ROUTE.connect;
+    const bareLink = item => typeof addressOf(item) === 'string' && /^https?:\/\//i.test(addressOf(item)) && !text(item.title ?? item.page_title, 300);
+    const wanted = [...new Set(items.filter(bareLink).map(addressOf))].slice(0, cfg.link_reads);
+    if (!wanted.length) return items;
+    const titles = new Map();
+    await Promise.all(wanted.map(async url => {
+      const kept = object(preview) && (preview.url === url || preview.final_url === url) ? text(preview.title, 300) : null;
+      if (kept) { titles.set(url, kept); return; }
+      if (typeof readLink !== 'function') return;
+      const card = await within(Promise.resolve().then(() => readLink(url)), cfg.link_wait_ms).catch(() => null);
+      if (card && !card.unread) cardsRead.set(url, card);
+      const title = card && !card.unread ? text(card.title, 300) : null;
+      if (title) titles.set(url, title);
+    }));
+    return items.map(item => (bareLink(item) && titles.has(addressOf(item)) ? { ...item, title: titles.get(addressOf(item)) } : item));
+  }
+
+  // The first few shared links' cards, read after delivery answered: each fills every matching bare Space item, and
+  // the first may fill the share list's preview. Other links remain usable with their original URL and title.
+  async function fillCards(links, bare, row = null, cardsRead = new Map()) {
+    for (const url of links) {
+      const card = cardsRead.get(url) ?? await readLink(url).catch(() => null);
+      if (!card || card.unread) continue;
+      for (const link of bare.filter(one => one.url === url)) {
+        await send(`${link.at}/fill`, { item_id: link.item_id, ...(card.title ? { title: card.title } : {}), body: cardBody(card) }).catch(() => {});
+      }
+      if (row && !row.preview && url === links[0] && history.has(row.share_id)) history.keep({ ...row, preview: { url: card.url, host: card.host, site: card.site, title: card.title, description: card.description, image: card.image, images: card.images, videos: card.videos, icon: card.icon } });
+    }
+  }
+
+  // Everything is checked before anything is sent, so a refused delivery reaches no place. A place that refuses
+  // midway stops the delivery there: the places before it have it, and the answer names where it stopped.
+  // `by` is the connected app that sent it, as it registered its name (the sign-in or key it called with).
+  async function deliver(input = {}, { by = null } = {}) {
+    if (!object(input)) throw new ShareDestinationsError('Give { to, items, request_key }.');
+    const { to, items, request_key: requestKey, own_words: ownWords, from_agent: fromAgent, from: sentFrom, input: extra } = input;
+    // to left out or empty: the sender picked no place, so Trillion routes the share itself (route_itself in the starters DATA).
+    const routesItself = to === undefined || (Array.isArray(to) && !to.length);
+    if (!routesItself && (!Array.isArray(to) || to.some(id => typeof id !== 'string' || !id))) throw new ShareDestinationsError('to is a list of place ids from share_destinations, or left out to let Trillion route it.');
+    if (!Array.isArray(items) || !items.length || items.length > MAX_SHARED_ITEMS || !items.every(object)) throw new ShareDestinationsError(`items is a list of 1 to ${MAX_SHARED_ITEMS} things shared, each { kind, url, title, text, file }.`);
+    const empty = items.findIndex(item => !carriesSomething(item));
+    if (empty >= 0) throw new ShareDestinationsError(`items[${empty}] carries nothing to share. Each item is an object with one or more of: url, page_url, text, title, record, file, share, workflow_id, tool_id (and kind, name).`);
+    if (typeof requestKey !== 'string' || !requestKey.trim() || requestKey.length > 500) throw new ShareDestinationsError('request_key is unique text of at most 500 characters for this share.');
+    if (ownWords !== undefined && ownWords !== null && typeof ownWords !== 'string') throw new ShareDestinationsError('own_words is text.');
+    if (extra !== undefined && !object(extra)) throw new ShareDestinationsError('input is an object.');
+    const actionIds = idList(input.action, 'action');
+    const agentIds = idList(input.to_agent, 'to_agent');
+    const listed = await places();
+    const current = await read(listed);
+    const chosen = [...new Set((routesItself ? [PRIVATE] : to).map(id => listed.aliasOf(id) ?? id))].map(id => (current.destinations.some(place => place.id === id) ? listed.known.get(id) : id));
+    const unknown = chosen.find(place => typeof place === 'string');
+    if (unknown) throw new ShareDestinationsError(`"${unknown}" is not one of the places this person shares to any more. Read share_destinations for the current list.`);
+    // Trillion's own route-itself action can be named even when the person never saved it, until they turn it off.
+    const routeAction = routeItselfAction(current.actions);
+    const actionNamed = id => current.actions.find(row => row.id === id) ?? (id === ROUTE.action.id ? routeAction : undefined);
+    const missing = actionIds.find(id => !actionNamed(id));
+    if (missing) throw new ShareDestinationsError(`No action ${missing}. Use an id from share_destinations actions.`);
+    const addresses = items.map(addressOf).filter(Boolean);
+    const starting = routesItself ? routingAction(addresses, current.actions, current.default_action_by_site, routeAction) : startingAction(addresses, current.actions, current.default_action_by_site);
+    const actions = actionIds.length ? actionIds.map(actionNamed) : starting ? [starting] : [];
+    const own = ownWords?.trim() || null;
+    // One action's words are the job as written; several are each named, so the AI does every one.
+    const asked = actions.length > 1 ? actions.map(action => `${action.label}: ${action.words}`) : actions.map(action => action.words);
+    const job = [...asked, own].filter(Boolean).join('\n\n');
+    const toPrivate = chosen.some(place => place.to.private);
+    if (!job && toPrivate) throw new ShareDestinationsError('There is nothing set for your AI to do with this share. Pick an action or add your own words.');
+    // Shape the whole Space selection before delivering to any destination. A malformed nested link must not be
+    // discovered only after an earlier destination already received the share.
+    const spaceEntries = chosen.some(place => place.to.pursuit_id)
+      ? [...items.map(spaceItem), ...(own ? [{ kind: 'text', text: own }] : [])] : [];
+    // What a pursuit files privately: each shared record, file and tool, by the reference its scope reads. Links and
+    // words are not records, so they need the pursuit's room; a pursuit without one is given it first.
+    // A shared thing that is itself one of the places (a pursuit shared into another) goes to the room only: filing it
+    // would set one pursuit under the other, which sharing never does.
+    const filed = filesPrivately ? spaceEntries.map(recordRef).filter(ref => ref && !listed.known.has(ref)) : [];
+    const needsRoom = spaceEntries.some(entry => !recordRef(entry));
+    // The workflow each action starts, with its input filled from the share and checked before anything is sent.
+    // A share that routes itself first finds what it connects to among what the person already has.
+    // A bare link has no title to match, so the titles of the first few are read (or taken from the preview the sender
+    // already read) and used as words only: to find what it connects to and in the request the AI is handed.
+    const cardsRead = new Map();
+    const titled = routesItself ? await withLinkTitles(items, extra?.preview, cardsRead) : items;
+    const connected = routesItself ? await connectedTo(titled, own, { pursuits: listed.pursuits, ...(connect ?? {}) }) : null;
+    const flows = toPrivate ? await Promise.all(actions.filter(action => action.workflow).map(action => workflowStart(action, titled, own, connected))) : [];
+    // The person's own standing instructions for their AIs (meeting settings, scope "chat"), handed with the share.
+    const standingWords = instructionsFor(standing(), 'chat');
+    const delivered = [];
+    const handoffIds = [];
+    const workflowRuns = [];
+    let stoppedAt = null;
+    // The share list keeps what was sent and where it reached, including a delivery that stopped partway.
+    const keptIn = text(extra?.kept_in, 4096);
+    // Each link that reached a space bare, { at, item_id, url }, for its card to fill in once the delivery answered.
+    const bare = [];
+    const remember = () => {
+      const row = shareRow({
+        share_id: keptIn ? keptId(keptIn) : requestKey, at: new Date().toISOString(), from: text(sentFrom, 100) ?? text(by, 100),
+        items, own_words: own, actions: actions.map(action => ({ id: action.id, label: action.label })), sent_to: delivered, preview: extra?.preview ?? null, kept_in: keptIn,
+        workflow_runs: workflowRuns, handoff_ids: handoffIds, ...(stoppedAt ? { stopped_at: stoppedAt } : {}),
+      });
+      history.keep(row);
+      const links = [...new Set(items.map(addressOf).filter(Boolean))].slice(0, MAX_AUTOMATIC_CARD_READS);
+      if (links.length && (delivered.length || bare.length)) later(fillCards(links, bare, row, cardsRead));
+    };
+    // A key per part when there are several, so sending again returns the same jobs and runs and never doubles them.
+    const keyFor = (part, count) => (count > 1 ? `${requestKey}:${part}` : requestKey);
+    for (const place of chosen) {
+      // What a tool place said back, in its own words, for the place it was sent from to show.
+      let said = null;
+      let receipt = null;
+      try {
+        if (place.to.private) {
+          const examples = actions.some(action => SAVED_EXAMPLE_ACTIONS.has(action.id)) ? await keepExamples(items) : [];
+          for (const flow of flows) {
+            const run = await send('/workflows/start', { workflow_id: flow.workflow_id, input: flow.input, request_key: keyFor(flow.workflow_id, flows.length) });
+            workflowRuns.push({ workflow_id: flow.workflow_id, label: flow.label, run_id: run.run_id });
+          }
+          const runLines = workflowRuns.map(run => filledLine(starters.workflow_job, { workflow: run.label, run_id: run.run_id }));
+          // Each chosen AI is handed the share once; none chosen, whichever AI is free takes it.
+          for (const agent of agentIds.length ? agentIds : [null]) {
+            const handed = await send('/handoffs', personShareHandOff({
+              job: [job, ...runLines].join('\n\n'),
+              request_key: keyFor(agent, agentIds.length), ...(fromAgent ? { from_agent: fromAgent } : {}), ...(agent ? { to_agent: agent } : {}),
+              input: {
+                ...(extra ?? {}), saved_instructions: actions.map(action => action.id), own_words: own, items,
+                ...(standingWords ? { standing_instructions: standingWords } : {}),
+                ...(connected ? { routed_by_trillion: true, connected } : {}),
+                ...(examples.length ? { saved_examples: examples } : {}),
+                ...(workflowRuns.length ? { workflow_runs: workflowRuns.map(({ workflow_id, run_id }) => ({ workflow_id, run_id })) } : {}),
+              },
+            }));
+            // The job it became, so the place it was sent from can show it being done (src/workspace/job-run.tsx).
+            if (handed?.handoff?.handoff_id) handoffIds.push(handed.handoff.handoff_id);
+          }
+        } else if (place.to.tool_id) {
+          const run = await send('/tools/run', { tool_id: place.to.tool_id, input: toolInput(place.takes, items, own, extra, text(sentFrom, 100) ?? text(by, 100)), request_key: requestKey, wait_seconds: 20 });
+          receipt = deliveryReceipt({ ...run?.output, task_id: run?.task_id, execution_ref: run?.execution_ref ?? run?.output?.execution_ref, state: run?.state });
+          if (run?.state === 'failed') throw new Error(run.error ?? `${place.label} did not take it.`);
+          if (run?.state !== 'completed') throw new Error(`The delivery is still unconfirmed${run?.task_id ? ` in task ${run.task_id}` : ''}. Retry this same share to read its result.`);
+          said = text(run?.output?.said, 400);
+        } else {
+          for (const record of filed) await send('/scope/record', { record, add: { pursuits: [place.to.pursuit_id] } });
+          // A pursuit without a room is given one by its first share there: the space routes take its id.
+          const room = place.to.space_id ?? (needsRoom ? place.to.pursuit_id : null);
+          if (!room) { delivered.push({ id: place.id, label: place.label }); continue; }
+          const at = `/spaces/${encodeURIComponent(room)}`;
+          // One mixed Space request preflights owner-backed references before its first write, then places bounded
+          // mixed slices through the Space owner. The sender never needs a kind-specific posting loop; Namespace
+          // bytes remain with their owner, and retrying this request key retains literal item ids.
+          const entries = spaceEntries;
+          if (entries.length) {
+            const answer = await send(`${at}/share`, { items: entries, request_key: requestKey });
+            if (answer?.placed?.some(item => item?.withdrawn === true)) {
+              throw new Error('An item in this earlier share was taken back. Send a new share to share it again.');
+            }
+            // The Space owner returns one placed id per selected item. Literal
+            // batches can be separated by records and files, so the last
+            // batch's ids cannot identify links in earlier batches.
+            for (const [index, entry] of entries.entries()) {
+              if (entry.kind === 'link' && answer?.placed?.[index]?.item_id) {
+                bare.push({ at, item_id: answer.placed[index].item_id, url: entry.url });
+              }
+            }
+          }
+        }
+        delivered.push({ id: place.id, label: place.label, ...(said ? { said } : {}), ...(receipt ? { receipt } : {}) });
+      } catch (error) {
+        stoppedAt = { id: place.id, label: place.label, error: error.message, ...(receipt ? { receipt } : {}) };
+        remember();
+        return { delivered, stopped_at: stoppedAt, handoff_ids: handoffIds, workflow_runs: workflowRuns.map(run => run.run_id), ...(connected ? { connected } : {}) };
+      }
+    }
+    remember();
+    return { delivered, stopped_at: null, handoff_ids: handoffIds, workflow_runs: workflowRuns.map(run => run.run_id), ...(connected ? { connected } : {}) };
+  }
+
+  // The workflow an action starts on this share: its input filled from the share and checked against the workflow's
+  // input_schema, so a share it cannot start is refused before anything is sent.
+  async function workflowStart(action, items, own, connected = null) {
+    const { workflow_id: workflowId, input = {} } = action.workflow;
+    let found;
+    try { found = await send('/workflows/describe', { workflow_id: workflowId }); } catch (error) { throw new ShareDestinationsError(`${action.label} starts ${workflowId}, which cannot be started: ${error.message}`); }
+    const filled = await buildInvocation(input, { input: {}, task: null, extra: { share: shareFacts(items, own, connected) } }).catch(error => { throw new ShareDestinationsError(`${action.label}: ${error.message}`); });
+    const problems = schemaProblems(filled, found.workflow.input_schema ?? { type: 'object' }, 'input');
+    if (problems.length) throw new ShareDestinationsError(`${action.label} cannot start ${found.workflow.label ?? workflowId} with this share: ${problems.join('; ')}.`);
+    return { workflow_id: workflowId, label: found.workflow.label ?? workflowId, input: filled };
+  }
+
+  // Shared before, newest first: a page of at most `limit` rows after the `before` cursor, and where the next page starts
+  // (the last row's time and id, so shares sent in the same instant are never skipped; src/time-cursor.mjs).
+  function shares({ limit, before } = {}) {
+    const size = Math.min(Math.max(Math.floor(Number(limit)) || 30, 1), MAX_LISTED);
+    const rows = history.list({ limit: size + 1, before: text(before, 4200) });
+    // Each row says what AI work it became: every job it was handed as (one per AI), or for a row kept before those were
+    // listed, the one job its request key names (a kept folder is named by its key).
+    const keyOf = row => (row.kept_in ? row.kept_in.replace(/\/+$/, '').split('/').pop() : row.share_id);
+    const withWork = row => {
+      const works = (row.handoff_ids ?? [handoffIdFor(keyOf(row))]).map(aiWorkOf).filter(Boolean);
+      return works.length ? { ...row, ai_work: works[0], ai_works: works } : row;
+    };
+    const last = rows[size - 1];
+    return { shares: rows.slice(0, size).map(shareRow).map(withWork), next_before: rows.length > size ? timeCursor(last.at, last.share_id) : null };
+  }
+
+  // Which kept share folders are not in the list yet.
+  function unknownFolders({ folders } = {}) {
+    if (!Array.isArray(folders) || folders.length > 5000 || folders.some(folder => typeof folder !== 'string')) throw new ShareDestinationsError('folders is a list of folder names.');
+    return { folders: folders.filter(folder => !history.has(keptId(folder))) };
+  }
+
+  // Kept shares a device saved without this road; a folder already listed is left as it is.
+  function adopt({ shares: given } = {}) {
+    if (!Array.isArray(given) || given.length > 500) throw new ShareDestinationsError('shares is a list of at most 500 kept shares.');
+    const rows = given.map(row => shareRow({ ...row, share_id: keptId(text(row?.kept_in, 4096) ?? ''), sent_to: [] }));
+    if (rows.some(row => !row.kept_in)) throw new ShareDestinationsError('Each kept share names the folder it is kept in (kept_in).');
+    let adopted = 0;
+    for (const row of rows) if (!history.has(row.share_id)) { history.keep(row); adopted += 1; }
+    return { adopted };
+  }
+
+  return { read, save, deliver, shares, unknownFolders, adopt };
+}
+
+export const DELIVER_PATH = '/share-destinations/deliver';
+export const SHARES_PATH = '/shares';
+const POSTS = { '/share-destinations': 'save', [DELIVER_PATH]: 'deliver', [`${SHARES_PATH}/unknown`]: 'unknownFolders', [`${SHARES_PATH}/adopt`]: 'adopt' };
+export const isShareDestinationsPath = path => path === '/share-destinations' || path === SHARES_PATH || path in POSTS;
+
+export async function handleShareDestinationsRequest(shareDestinations, request) {
+  try {
+    const url = new URL(request.url);
+    if (request.method === 'GET' && url.pathname === '/share-destinations') return Response.json(await shareDestinations.read());
+    if (request.method === 'GET' && url.pathname === SHARES_PATH) return Response.json(shareDestinations.shares({ limit: url.searchParams.get('limit'), before: url.searchParams.get('before') }));
+    const verb = POSTS[url.pathname];
+    if (request.method !== 'POST' || !verb) return Response.json({ error: 'Not found' }, { status: 404 });
+    const body = await readBoundedJson(request, 2_000_000, new ShareDestinationsError('Request too large'));
+    // Who sent it is the connected app's registered name, set by Trillion on the way in, never a caller's own id.
+    return Response.json(await shareDestinations[verb](body, { by: request.headers.get('x-trillion-app') }));
+  } catch (error) {
+    return Response.json({ error: error.message }, { status: error instanceof ShareDestinationsError || error instanceof SyntaxError ? 400 : 500 });
+  }
+}
+
+const destinationRow = { type: 'object', required: ['id'], properties: { id: { type: 'string' }, shown: { type: 'boolean' }, on_by_default: { type: 'boolean' } } };
+const actionRow = { type: 'object', required: ['words'], properties: { id: { type: 'string' }, label: { type: 'string' }, words: { type: 'string' }, folder: { type: ['string', 'null'], description: 'The id of the folder it sits in (from folders), or null for the top; left out, it stays where it is' }, workflow: { type: ['object', 'null'], description: 'A workflow this action starts on what is sent: { workflow_id (from find_workflow), input }, where an input value { "fill": { "from": "share", "field": "words" } } is taken from the share (words, own_words, links or items); left out, it keeps the one it has; null, it starts none', properties: { workflow_id: { type: 'string' }, input: { type: 'object' } } } } };
+const folderRow = { type: 'object', required: ['label'], properties: { id: { type: 'string' }, label: { type: 'string' }, folder: { type: ['string', 'null'], description: 'The id of the folder it sits in, or null for the top' } } };
+const siteRow = { type: 'object', required: ['host_suffix', 'action_id'], properties: { host_suffix: { type: 'string' }, action_id: { type: 'string' } } };
+const sharedItem = { type: 'object', properties: { kind: { type: 'string' }, url: { type: 'string' }, title: { type: 'string' }, text: { type: 'string' }, record: { type: 'string', description: 'A record reference from this person\'s Trillion; the owner checks its current sharing choice on every Space read' }, file: { type: 'string', description: 'A kept file\'s identity in this person\'s files' }, workflow_id: { type: 'string', description: 'A saved workflow ID' }, tool_id: { type: 'string', description: 'A saved tool ID' }, code: { type: 'string', description: 'For kind share: the code of another open share belonging to this person' }, name: { type: 'string' } } };
+export const deliverShareSchema = {
+  type: 'object', required: ['items', 'request_key'],
+  properties: {
+    to: { type: 'array', items: { type: 'string' }, description: 'Place ids from share_destinations destinations. Left out or empty, Trillion routes the share itself: it reads it, finds the pursuits, people and records it connects to, and runs Trillion X mode on the move that matters' },
+    items: { type: 'array', minItems: 1, maxItems: MAX_SHARED_ITEMS, items: sharedItem },
+    request_key: { type: 'string' },
+    action: { anyOf: [{ type: 'string' }, { type: 'array', minItems: 1, items: { type: 'string' } }], description: 'One action id from share_destinations, or a list of them (the AI is asked to do each); left out, the action the first address\'s site starts on' },
+    own_words: { type: 'string' },
+    to_agent: { anyOf: [{ type: 'string' }, { type: 'array', minItems: 1, items: { type: 'string' } }], description: 'One agent_id from find_agents, or a list of them (each is handed the share once); left out, whichever of their AIs is free takes it' },
+    from_agent: { type: 'string' },
+    from: { type: 'string', description: 'Where the person shared it from, as they would name it (for example Chrome, Android, iPhone); shown in shares_sent. Left out, the name your app registered with is shown' },
+    input: { type: 'object', description: 'Anything else the AI gets with it, kept in the handoff input. kept_in: the folder in their Files a device kept this share in, so the share list shows one row for it. things, screen, browser and where: what a tool place is told (the things picked, the address, the browser or device, where they were working)' },
+  },
+};
+
+export const shareDestinationTools = call => [
+  { name: 'share_destinations', description: 'Where this person\'s shares can go and what their AI should do with them, as every place they share from offers it: destinations in one order, the same as their sidebar shows (their own Trillion, id "private", then each pursuit in tree order with depth 0 at the top and the one they are focused on first, then each tool place, leaving out what they hid; each { id, label, description, depth, to, others_count, on_by_default }: to is { private: true }, { pursuit_id, space_id? } or { tool_id }; a pursuit with others_count above 0 has others in its room, and description names them; a tool place is a tool that takes what is shared, such as Tell the people who make Trillion), actions (their saved instructions, each { id, label, words, folder }, and workflow { workflow_id, input } when it starts a workflow on what is sent, in the order their list shows them), folders (how they filed them, each { id, label, folder }: folder is the folder a row sits in, or null at the top), default_action_by_site (which action a share from a site starts on, matched on the end of the host name), and all_destinations, the same destinations including hidden ones, each with shown.', inputSchema: { type: 'object', properties: {} }, run: () => call('/share-destinations') },
+  { name: 'save_share_destinations', description: 'Changes where this person\'s shares can go and what their AI does with them; read share_destinations first. destinations: each { id, shown, on_by_default } (one left out keeps what it has; the order is always the one the sidebar shows; their own Trillion can never be hidden). actions: the whole list of saved instructions in the order to offer them, each { label, words } and optionally id, folder and workflow, replacing it (the same list saved_instructions reads); an action given without folder stays in its folder, and one given without workflow keeps the workflow it starts. folders: the whole list of folders, each { label } and optionally id and folder; left out, the folders stay as they are. default_action_by_site: the whole list of { host_suffix, action_id }. route_itself: false takes away Trillion\'s own route-it-yourself instruction (what a share with no place picked starts on), true puts it back; edit its words by saving an action with the id route-it-yourself (share_destinations route_itself.action has it). Give any of them; returns what share_destinations returns.', inputSchema: { type: 'object', properties: { destinations: { type: 'array', items: destinationRow }, actions: { type: 'array', items: actionRow }, folders: { type: 'array', items: folderRow }, default_action_by_site: { type: 'array', items: siteRow }, route_itself: { type: 'boolean' } } }, run: input => call('/share-destinations', input ?? {}) },
+  { name: 'shares_sent', description: 'Everything this person shared into Trillion from any device or AI, newest first: from every place that shares into Trillion, all arriving through deliver_share. Each share is { share_id, at, from (where it was sent from), items (the links, words and kept files, as deliver_share takes them), own_words, action ({ id, label } the AI was asked to do, or null), sent_to (the places it reached, empty for a share kept but not sent), preview (a link\'s title, site and picture, when read), kept_in (its folder in their Files, when kept there), ai_works (each AI job it became, one per AI it was handed to: { handoff_id, state, taken_by, finished_at, outcome }) and ai_work (the first of them), status (only on a share still kept at the edge because their account was not answering: "waiting to deliver", or "could not deliver: <reason>") }. limit (at most 100, default 30); before (next_before from the last page) reads further back. To share one again or hand it to their AI, send its items with deliver_share.', inputSchema: { type: 'object', properties: { limit: { type: 'integer', minimum: 1, maximum: MAX_LISTED }, before: { type: 'string', description: 'next_before from the previous page' } } }, run: ({ limit, before } = {}) => call(`${SHARES_PATH}?${new URLSearchParams({ ...(limit ? { limit: String(limit) } : {}), ...(before ? { before } : {}) })}`) },
+  { name: 'deliver_share', description: 'Sends one selection of up to 1000 things to places this person shares to (to: ids from share_destinations; left out or empty, Trillion routes it itself into their own Trillion with no place to pick: its route-it-yourself instruction runs Trillion X mode on what the share connects to, and the answer lists that as connected: { pursuits, people, records }). When their account is not answering the share is kept and the answer is { queued: true, request_key, words }; send the same request_key again to retry. Items may mix source records, files, workflows, tools, links, words and another open share. Their own Trillion gets it handed to their AI with every chosen action\'s words and own_words as the job, once to each AI in to_agent (one or a list; left out, whichever is free); an action that keeps examples saves each shared link first, and an action with a workflow starts it on the share. Each chosen pursuit files every shared record, file and tool under it (change it later with set_record_scope), and its room (made for it when links or words are shared into a pursuit without one) receives the mixed selection in one request, placed in bounded batches: files, records, workflows and tools stay with their owner, while links and words become items there; only the other people in that pursuit see them. Reuse request_key to retry without duplicating Space items. Each tool place runs its tool once with the share. Returns delivered ({ id, label } each), stopped_at ({ id, label, error }, or null when every place has it): the places before stopped_at have it, handoff_ids (the jobs handed to their AI, each readable with read_handoff) and workflow_runs (the runs started, each readable with read_workflow_run).', inputSchema: deliverShareSchema, run: input => call(DELIVER_PATH, input ?? {}) },
+];
+
+export const shareDestinationAnnotations = {
+  share_destinations: { title: 'Read where my shares go', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  save_share_destinations: { title: 'Change where my shares go', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  shares_sent: { title: 'Read what I shared before', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  deliver_share: { title: 'Send a share where I share', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+};
+
+// Shared SQL realization; each host invokes it at its original lazy boundary.
+export function setupShareDestinationHistoryTable(sql) {
+  sql.exec('CREATE TABLE IF NOT EXISTS shares_sent (share_id TEXT PRIMARY KEY, at TEXT NOT NULL, value TEXT NOT NULL)');
+  return sql;
+}
