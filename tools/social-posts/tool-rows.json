@@ -970,14 +970,46 @@
      "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "expected_values": {
+            "caption": "A made-up sample post.",
+            "media": null,
+            "caption_by_platform": {},
+            "settings_by_platform": {},
+            "destinations": [
+              "service_connection:x:sample"
+            ],
+            "link": null,
+            "scheduled_for": null,
+            "time_zone": null,
+            "source": null,
+            "format_id": null,
+            "reaches": null
+          },
+          "approved_by": "person:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "draft",
+              "destinations": [
+                "service_connection:x:sample"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -1041,7 +1073,64 @@
      }
     },
     "provenance": {"source": "the posting owner of the person's posts, using the existing post wake and each place's send and delivery-record owner"},
-    "verify": [{"kind": "sample-run", "input": {"post_id": "post:that-is-not-there", "expected_values": {}}, "output_selector": "$", "contains": "There is no post"}],
+    "verify": [
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "expected_values": {
+            "caption": "A made-up sample post.",
+            "media": null,
+            "caption_by_platform": {},
+            "settings_by_platform": {},
+            "destinations": [
+              "service_connection:x:sample"
+            ],
+            "link": null,
+            "scheduled_for": null,
+            "time_zone": null,
+            "source": null,
+            "format_id": null,
+            "reaches": null
+          }
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "approved",
+              "destinations": [
+                "service_connection:x:sample"
+              ],
+              "approved_at": "2026-11-01T00:00:00Z",
+              "approved_by": "person:sample"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ax%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:x:sample",
+              "vendor": "x",
+              "account_label": "Sample account",
+              "plain": {
+                "user_id": "1000000000000000001"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "result_selector": "$.result"
    }
   },
@@ -1166,14 +1255,48 @@
      "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "approved",
+              "destinations": [
+                "service_connection:x:sample"
+              ],
+              "approved_at": "2026-11-01T00:00:00Z",
+              "approved_by": "person:sample",
+              "scheduled_for": "2030-01-01T12:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ax%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:x:sample",
+              "vendor": "x",
+              "account_label": "Sample account",
+              "plain": {
+                "user_id": "1000000000000000001"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -1286,14 +1409,34 @@
      "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:x:sample"
+              ],
+              "approved_at": "2026-11-01T00:00:00Z",
+              "approved_by": "person:sample",
+              "scheduled_for": "2030-01-01T12:00:00.000Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -1619,15 +1762,49 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:youtube"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:youtube:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:youtube:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ayoutube%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:youtube:sample",
+              "vendor": "youtube",
+              "account_label": "Sample account",
+              "plain": {
+                "youtube_channel_id": "UCsample0000000000000000"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -1789,15 +1966,49 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:tiktok"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:tiktok:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:tiktok:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Atiktok%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:tiktok:sample",
+              "vendor": "tiktok",
+              "account_label": "Sample account",
+              "plain": {
+                "open_id": "sample-open-id"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -1960,15 +2171,49 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:instagram"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:instagram:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:instagram:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ainstagram%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:instagram:sample",
+              "vendor": "instagram",
+              "account_label": "Sample account",
+              "plain": {
+                "ig_user_id": "17800000000000001"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2130,15 +2375,62 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:facebook-messenger"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:facebook-messenger:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:facebook-messenger:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Afacebook-messenger%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:facebook-messenger:sample",
+              "vendor": "facebook-messenger",
+              "account_label": "Sample account",
+              "plain": {
+                "page_id": "100000000000001"
+              },
+              "held": [
+                "page_access_token"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://graph.facebook.com/v23.0/100000000000001/feed"
+            },
+            "status": 200,
+            "body": {
+              "id": "100000000000001_200000000000001"
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2300,15 +2592,49 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:instagram-facebook"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:instagram-facebook:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:instagram-facebook:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ainstagram-facebook%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:instagram-facebook:sample",
+              "vendor": "instagram-facebook",
+              "account_label": "Sample account",
+              "plain": {
+                "ig_user_id": "17800000000000001"
+              },
+              "held": [
+                "page_access_token"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2471,15 +2797,97 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:threads"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:threads:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:threads:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Athreads%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:threads:sample",
+              "vendor": "threads",
+              "account_label": "Sample account",
+              "plain": {
+                "threads_user_id": "1000000000000001"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://graph.threads.net/v1.0/1000000000000001/threads"
+            },
+            "status": 200,
+            "body": {
+              "id": "17900000000000001"
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://graph.threads.net/v1.0/17900000000000001"
+            },
+            "status": 200,
+            "body": {
+              "id": "17900000000000001",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://graph.threads.net/v1.0/1000000000000001/threads_publish"
+            },
+            "status": 200,
+            "body": {
+              "id": "17900000000000002"
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://graph.threads.net/v1.0/17900000000000002"
+            },
+            "status": 200,
+            "body": {
+              "id": "17900000000000002",
+              "text": "A made-up sample post.",
+              "username": "sample_account",
+              "media_type": "TEXT_POST",
+              "permalink": "https://www.threads.example.test/@sample_account/post/SAMPLE1"
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2641,15 +3049,63 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:linkedin"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:linkedin:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:linkedin:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Alinkedin%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:linkedin:sample",
+              "vendor": "linkedin",
+              "account_label": "Sample account",
+              "plain": {
+                "author_urn": "urn:li:person:sample1"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.linkedin.com/rest/posts"
+            },
+            "status": 201,
+            "headers": {
+              "x-restli-id": "urn:li:share:7000000000000000001"
+            },
+            "body": ""
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2811,15 +3267,91 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:substack"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:substack:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {
+                "substack": {
+                  "title": "A sample letter"
+                }
+              },
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:substack:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Asubstack%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:substack:sample",
+              "vendor": "substack",
+              "account_label": "Sample account",
+              "plain": {
+                "publication_url": "https://sample.substack.example.test"
+              },
+              "held": [
+                "session_cookie"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://substack.com/api/v1/user/profile/self"
+            },
+            "status": 200,
+            "body": {
+              "id": 100000001,
+              "name": "Sample Writer",
+              "handle": "samplewriter"
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://sample.substack.example.test/api/v1/drafts"
+            },
+            "status": 200,
+            "body": {
+              "id": 200000001,
+              "draft_title": "A sample letter"
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://sample.substack.example.test/api/v1/drafts/200000001/publish"
+            },
+            "status": 200,
+            "body": {
+              "id": 200000001,
+              "slug": "a-sample-letter",
+              "canonical_url": "https://sample.substack.example.test/p/a-sample-letter"
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2982,15 +3514,65 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:x"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:x:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:x:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ax%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:x:sample",
+              "vendor": "x",
+              "account_label": "Sample account",
+              "plain": {
+                "user_id": "1000000000000000001"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.x.com/2/tweets"
+            },
+            "status": 201,
+            "body": {
+              "data": {
+                "id": "1850000000000000001",
+                "text": "A made-up sample post."
+              }
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -3152,15 +3734,85 @@
      "source": "the request shapes of the posting owner's beehiiv sender, written as its place row (read-data/post-places.json, adapter requests) and sent by the one requests publisher"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:beehiiv"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:beehiiv:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {
+                "beehiiv": {
+                  "title": "A sample letter"
+                }
+              },
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:beehiiv:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Abeehiiv%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:beehiiv:sample",
+              "vendor": "beehiiv",
+              "account_label": "Sample account",
+              "plain": {
+                "publication_id": "pub_00000000-0000-0000-0000-000000000001"
+              },
+              "held": [
+                "api_key"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.beehiiv.com/v2/publications/pub_00000000-0000-0000-0000-000000000001/posts"
+            },
+            "status": 201,
+            "body": {
+              "data": {
+                "id": "post_00000000-0000-0000-0000-000000000001",
+                "title": "A sample letter",
+                "status": "confirmed"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://api.beehiiv.com/v2/publications/pub_00000000-0000-0000-0000-000000000001/posts/post_00000000-0000-0000-0000-000000000001"
+            },
+            "status": 200,
+            "body": {
+              "data": {
+                "id": "post_00000000-0000-0000-0000-000000000001",
+                "title": "A sample letter",
+                "status": "confirmed",
+                "web_url": "https://sample-letters.example.test/p/a-sample-letter"
+              }
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -3322,15 +3974,79 @@
      "source": "the request shapes of the posting owner's Ghost sender, written as its place row (read-data/post-places.json, adapter requests) and sent by the one requests publisher"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:ghost"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:ghost:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {
+                "ghost": {
+                  "title": "A sample letter"
+                }
+              },
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:ghost:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Aghost%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:ghost:sample",
+              "vendor": "ghost",
+              "account_label": "Sample account",
+              "plain": {
+                "site_url": "https://sample-site.example.test"
+              },
+              "held": [
+                "admin_api_key"
+              ]
+            }
+          }
+        ],
+        "held": {
+          "admin_api_key": "6500000000000000000000ff:0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f"
+        },
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://sample-site.example.test/ghost/api/admin/posts/"
+            },
+            "status": 201,
+            "body": {
+              "posts": [
+                {
+                  "id": "6500000000000000000000a1",
+                  "uuid": "00000000-0000-4000-8000-000000000001",
+                  "title": "A sample letter",
+                  "slug": "a-sample-letter",
+                  "status": "published",
+                  "url": "https://sample-site.example.test/a-sample-letter/",
+                  "published_at": "2026-11-03T12:00:00.000Z"
+                }
+              ]
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
