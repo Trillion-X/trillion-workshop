@@ -1,0 +1,143 @@
+{
+  "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "sources": [
+    "parts/service-connections/",
+    "src/held-values.mjs",
+    "src/held-sends.mjs",
+    "src/held-values-rotation.mjs",
+    "src/required-secrets.mjs",
+    "crates/http-client/"
+  ],
+  "files": [
+    {
+      "from": "parts/service-connections/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/README.md",
+      "source_identity": "1f:98ed45e40e0faf0205e08df8956fea0921d82db9689ed96147fd21ccafa929d8",
+      "identity": "1f:98ed45e40e0faf0205e08df8956fea0921d82db9689ed96147fd21ccafa929d8"
+    },
+    {
+      "from": "parts/service-connections/do-work/connect-service.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/connect-service.ts",
+      "source_identity": "1f:631074245c9c1249eccb02ad4b2fef9bb6d0d9808f1810c28478726f3df1bd30",
+      "identity": "1f:631074245c9c1249eccb02ad4b2fef9bb6d0d9808f1810c28478726f3df1bd30"
+    },
+    {
+      "from": "parts/service-connections/do-work/disconnect-service.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/disconnect-service.ts",
+      "source_identity": "1f:b1807902d4f09336acba2190d045acfdb460a6dbc34df19b023618d9d21500dc",
+      "identity": "1f:b1807902d4f09336acba2190d045acfdb460a6dbc34df19b023618d9d21500dc"
+    },
+    {
+      "from": "parts/service-connections/do-work/engine-seams.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/engine-seams.ts",
+      "source_identity": "1f:4f2187d4dfe85539d82fbc2a94fa0a1b6167752d2f6059d9b1ee8e471d546cc2",
+      "identity": "1f:4f2187d4dfe85539d82fbc2a94fa0a1b6167752d2f6059d9b1ee8e471d546cc2"
+    },
+    {
+      "from": "parts/service-connections/do-work/external-effect-attempt.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/external-effect-attempt.ts",
+      "source_identity": "1f:b818954edc1ca16e1587dd283abdba7e2cd2eee872d5bf4f844091179e3d2cee",
+      "identity": "1f:b818954edc1ca16e1587dd283abdba7e2cd2eee872d5bf4f844091179e3d2cee"
+    },
+    {
+      "from": "parts/service-connections/do-work/rename-service-connection.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/rename-service-connection.ts",
+      "source_identity": "1f:ecb3ae37a1dc68f28718ef999972f69096b25c3b6f0361eb00421ee18f2c7e08",
+      "identity": "1f:ecb3ae37a1dc68f28718ef999972f69096b25c3b6f0361eb00421ee18f2c7e08"
+    },
+    {
+      "from": "parts/service-connections/do-work/workflow-actions.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/workflow-actions.ts",
+      "source_identity": "1f:ab32cbafe93cdc3b843e06adea9282446195bff1406e638c554b6d17d8f14777",
+      "identity": "1f:ab32cbafe93cdc3b843e06adea9282446195bff1406e638c554b6d17d8f14777"
+    },
+    {
+      "from": "src/held-sends.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/held-sends.mjs",
+      "source_identity": "1f:ca5863926f5fb20d462737e1c31a26b8afc181439daed44cd821e367910b3c28",
+      "identity": "1f:ca5863926f5fb20d462737e1c31a26b8afc181439daed44cd821e367910b3c28"
+    },
+    {
+      "from": "parts/service-connections/part.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/part.json",
+      "source_identity": "1f:d99b5568fef374f5dea6921cbe8bebb768ad80426e9213913370d93ff7dc338b",
+      "identity": "1f:291cc508349e205ccf7a3a41a413661dd4056ab140834791a548e8bab8df7a35"
+    },
+    {
+      "from": "parts/service-connections/read-data/calendar-connection-options.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/calendar-connection-options.ts",
+      "source_identity": "1f:30a3ac8dc50eccd5750b5187fbec7348b11d8972d59e2a62123450bec01622e9",
+      "identity": "1f:30a3ac8dc50eccd5750b5187fbec7348b11d8972d59e2a62123450bec01622e9"
+    },
+    {
+      "from": "parts/service-connections/read-data/grant-requirements.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/grant-requirements.ts",
+      "source_identity": "1f:17fa34dcd1c0d6b5ff418365a3b62b02278dbf03e0f3eea02597612e2957e6ce",
+      "identity": "1f:17fa34dcd1c0d6b5ff418365a3b62b02278dbf03e0f3eea02597612e2957e6ce"
+    },
+    {
+      "from": "parts/service-connections/read-data/owner-record-work-contract.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/owner-record-work-contract.ts",
+      "source_identity": "1f:76f9bbd6c67a63ec74598c216d4b0f776b9daf221a8de84c1545bb0b607f18b3",
+      "identity": "1f:76f9bbd6c67a63ec74598c216d4b0f776b9daf221a8de84c1545bb0b607f18b3"
+    },
+    {
+      "from": "parts/service-connections/read-data/public-door-rows.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/public-door-rows.mjs",
+      "source_identity": "1f:108a42d858a6aa051a2b59e23834b507a7dbb3e211bbd4e4a55f6a39bf971982",
+      "identity": "1f:108a42d858a6aa051a2b59e23834b507a7dbb3e211bbd4e4a55f6a39bf971982"
+    },
+    {
+      "from": "parts/service-connections/read-data/read-service-connection-options.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/read-service-connection-options.ts",
+      "source_identity": "1f:2bbc5e555b29c449883cb6a6d4e729807f8b5555d8b5deb958335f9090988408",
+      "identity": "1f:2bbc5e555b29c449883cb6a6d4e729807f8b5555d8b5deb958335f9090988408"
+    },
+    {
+      "from": "parts/service-connections/read-data/read-service-connections.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/read-service-connections.ts",
+      "source_identity": "1f:4d9fd31672ef7f0378dd458aed29ae5623f0a98ccf76a4a7575f2325a1259b8a",
+      "identity": "1f:4d9fd31672ef7f0378dd458aed29ae5623f0a98ccf76a4a7575f2325a1259b8a"
+    },
+    {
+      "from": "parts/service-connections/records.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/records.json",
+      "source_identity": "1f:6c1737ec4b2f0b7fdedc980ffb3adffd993575277525bf23f79de85f517c86ae",
+      "identity": "1f:6c1737ec4b2f0b7fdedc980ffb3adffd993575277525bf23f79de85f517c86ae"
+    },
+    {
+      "from": "src/required-secrets.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/required-secrets.mjs",
+      "source_identity": "1f:306ff999a38d3e488978067b48c9d172d6a1519fcdcd23c963f037e3153e2f64",
+      "identity": "1f:306ff999a38d3e488978067b48c9d172d6a1519fcdcd23c963f037e3153e2f64"
+    },
+    {
+      "from": "parts/service-connections/work-contract.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/work-contract.json",
+      "source_identity": "1f:98c6e8f33dd3009f0695bb6cdc0a0abb664953a608202e13b9b3ed6d719f61fb",
+      "identity": "1f:98c6e8f33dd3009f0695bb6cdc0a0abb664953a608202e13b9b3ed6d719f61fb"
+    }
+  ],
+  "not_matched": []
+}

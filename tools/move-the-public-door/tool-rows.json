@@ -1,0 +1,209 @@
+{
+  "kind": "package-set-records",
+  "record_set": "move-the-public-door-tool-rows",
+  "what_this_is": "The Workshop rows for tools/move-the-public-door: where the person's public door runs and the hosting and DNS rows it can move between, read from their Service connections list (record:service-connection); renting and releasing one host lease; and cutting one hostname over to a new address, each receipt a row of their Public door receipts list (record:public-door-receipt). Every row reaches those records through the records door and its held provider key through one credential mount; no key is printed or answered.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-where-the-public-door-runs",
+        "label": "See where the public door runs",
+        "job": "See where my public door runs now and which hosting and DNS services it can move between",
+        "description": "Reads the person's Service connections list and answers where their public door runs now (its hosting row, its DNS row, its address and what proves it), each hosting row with whether the door can move there and why not, and each DNS row, with the vault name of the key each uses. It never reads or shows a key and changes nothing.",
+        "status": "active",
+        "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
+        "output_schema": {
+          "type": "object",
+          "required": ["current", "hosting_providers", "dns_providers"],
+          "properties": {
+            "current": { "type": "object" },
+            "hosting_providers": { "type": "array", "items": { "type": "object", "required": ["id", "move_ready"] } },
+            "dns_providers": { "type": "array", "items": { "type": "object", "required": ["id", "vault_key"] } }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "move-the-public-door", "paths": ["do-work", "read-data"], "at": "/opt/move-the-public-door" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] },
+          "workdir": "/opt/move-the-public-door",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "seeWhereTheDoorRuns"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [{ "kind": "record:service-connection", "operations": ["records:list"] }] }
+        },
+        "result_selector": "$.result",
+        "verify": [{
+          "kind": "sample-run",
+          "input": {},
+          "records": [
+            { "id": "record:service-connection:current-door", "type": "record:service-connection", "value": { "kind": "public-door-placement", "id": "current", "name": "Where the public door runs", "hosting_provider": "own-box", "dns_provider": "names", "hostname": "door.example.com", "server_id": null, "address": "192.0.2.10", "dns_record": null, "lease_file": null, "proof": { "health": "/healthz", "download": "/download/App.dmg" } } },
+            { "id": "record:service-connection:own-box", "type": "record:service-connection", "value": { "kind": "host-you-already-run", "id": "own-box", "name": "Your own box over SSH", "rents_a_host": { "base": null, "move_ready": true, "placement": { "address": null } } } },
+            { "id": "record:service-connection:names", "type": "record:service-connection", "value": { "kind": "how-to-ask-something-else-to-do-things", "name": "Names", "connection_id": "service_connection:names", "credential_injections": [{ "placement": { "name": "Authorization", "prefix": "Bearer " } }], "points_a_name": { "base": "https://dns.example.com/v1", "vault_key": "names-api-token" } } }
+          ],
+          "output_selector": "$.current.hosting_provider",
+          "contains": "own-box"
+        }],
+        "needs": { "expected_seconds": 5 },
+        "maker": "maker:move-the-public-door",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:rent-a-host-for-the-public-door",
+        "label": "Rent a host for the public door",
+        "job": "Rent one server for my public door from my hosting service, or adopt a box I already run, and keep its lease",
+        "description": "Rents one server from the hosting row `provider` names in the person's Service connections list, through that row's own requests only, and keeps the lease under `lease` in their Public door receipts list: the provider, the server and SSH key identities, the address, size and place, and the cleanup deadline of a test host (within one day; a retained service has none). Asked again with the same lease it answers the lease it already holds. A server with the same name that this lease does not own is left untouched. When the provider's answer is lost, it removes only the server labelled with this lease's name. A row with no provider API (a box the person already runs) is adopted at the address given and is never deleted. The hosting key comes from the vault by the row's vault name and is never shown.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["provider", "lease", "name", "lifetime"],
+          "properties": {
+            "provider": { "type": "string", "minLength": 1, "description": "The hosting row's id, as see-where-the-public-door-runs names it." },
+            "lease": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,119}$", "description": "The receipt name the lease is kept under." },
+            "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,60}$", "description": "The server's name and the label that marks it as this lease's." },
+            "public_key": { "type": "string", "description": "An ssh-ed25519 public key for the new server's administration." },
+            "server_type": { "type": "string" },
+            "location": { "type": "string" },
+            "image": { "type": "string" },
+            "address": { "type": "string", "description": "The public IPv4 of a box the person already runs." },
+            "lifetime": { "enum": ["test", "service"] },
+            "expires_at": { "type": "integer", "description": "UTC milliseconds a test host is removed by." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["provider", "name", "state", "address"],
+          "properties": { "provider": { "type": "string" }, "name": { "type": "string" }, "state": { "type": "string" }, "address": { "type": ["string", "null"] }, "serverId": {}, "sshKeyId": {}, "reused": { "type": "boolean" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "files": { "package_files": [
+            { "package": "move-the-public-door", "paths": ["do-work", "read-data"], "at": "/opt/move-the-public-door" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] },
+          "workdir": "/opt/move-the-public-door",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "rentAHost"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [
+            { "kind": "record:service-connection", "operations": ["records:list"] },
+            { "kind": "record:public-door-receipt", "operations": ["records:read", "records:write"] }
+          ] },
+          "credential_mounts": [{ "secret_name": "hetzner-api-token", "env": "HETZNER_API_TOKEN" }]
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 60, "network_egress": true },
+        "maker": "maker:move-the-public-door",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:release-a-host-of-the-public-door",
+        "label": "Release a host of the public door",
+        "job": "Remove the server and SSH key one of my public door's host leases rented, and only those",
+        "description": "Reads the lease kept under `lease` in the person's Public door receipts list and removes the exact server and SSH key it names, through the requests of the hosting row it was rented from, after reading each one back and checking it still carries this lease's label. A server relabelled to someone else is left untouched. Asked again for a lease already removed, it answers the removed lease. A box the person already runs is only forgotten, never touched. The hosting key comes from the vault by the row's vault name and is never shown.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lease"],
+          "properties": { "lease": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,119}$" } }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["provider", "name", "state"],
+          "properties": { "provider": { "type": "string" }, "name": { "type": "string" }, "state": { "type": "string" }, "removedAt": { "type": "integer" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "files": { "package_files": [
+            { "package": "move-the-public-door", "paths": ["do-work", "read-data"], "at": "/opt/move-the-public-door" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] },
+          "workdir": "/opt/move-the-public-door",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "releaseAHost"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [
+            { "kind": "record:service-connection", "operations": ["records:list"] },
+            { "kind": "record:public-door-receipt", "operations": ["records:read", "records:write"] }
+          ] },
+          "credential_mounts": [{ "secret_name": "hetzner-api-token", "env": "HETZNER_API_TOKEN" }]
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 30, "network_egress": true },
+        "maker": "maker:move-the-public-door",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:cut-a-hostname-over-to-a-new-address",
+        "label": "Cut a hostname over to a new address",
+        "job": "Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask",
+        "description": "Through the DNS row of the person's Service connections list (the current door's, unless `dns_provider` names one): `prepare` reads the zone and keeps a receipt under `cutover` in their Public door receipts list with the one address record or production Worker domain that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider. Before every change it checks that no other record, route or domain changed since prepare, and refuses when one did. A change whose answer was lost is reconciled from what the provider shows, never sent twice. The DNS key comes from the vault by the row's vault name and is never shown.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action", "cutover", "hostname", "address"],
+          "properties": {
+            "action": { "enum": ["prepare", "activate", "rollback", "status"] },
+            "cutover": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,119}$" },
+            "hostname": { "type": "string" },
+            "address": { "type": "string", "description": "The new server's public IPv4." },
+            "dns_provider": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["state", "hostname", "address"],
+          "properties": { "state": { "type": "string" }, "hostname": { "type": "string" }, "address": { "type": "string" }, "mode": { "type": "string" }, "original": {}, "current": {}, "worker_routes_preserved": { "type": "integer" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "files": { "package_files": [
+            { "package": "move-the-public-door", "paths": ["do-work", "read-data"], "at": "/opt/move-the-public-door" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] },
+          "workdir": "/opt/move-the-public-door",
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "cutAHostnameOver"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": { "fd": 3, "rights": [
+            { "kind": "record:service-connection", "operations": ["records:list"] },
+            { "kind": "record:public-door-receipt", "operations": ["records:read", "records:write"] }
+          ] },
+          "credential_mounts": [{ "secret_name": "cloudflare-api-token", "env": "CLOUDFLARE_API_TOKEN" }]
+        },
+        "result_selector": "$.result",
+        "needs": { "expected_seconds": 30, "network_egress": true },
+        "maker": "maker:move-the-public-door",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    }
+  ]
+}

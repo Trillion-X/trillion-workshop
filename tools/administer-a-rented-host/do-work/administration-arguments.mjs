@@ -2,6 +2,7 @@
 // Moved here from Trillion-X/trillion scripts/portable-service-connection.mjs (administrationArguments) so every tool
 // that administers the same host packs this one copy. The connection is the caller's: { address, ssh_port, admin_user,
 // adminKeyFile, knownHostsFile } and, to pin it from the request, host_key. This file names no host, port or user.
+import { appendFileSync, readFileSync } from 'node:fs';
 
 const IPV4 = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$/;
 const NAME = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z][a-z0-9-]{0,61}[a-z0-9]$/;
@@ -33,12 +34,31 @@ function checked(c) {
   return c;
 }
 
+// The ssh options that reach the host through a run's loopback proxy (http://127.0.0.1:<port>, a run's HTTPS_PROXY):
+// a CONNECT tunnel of that proxy through the system nc, and a keepalive every 30 seconds so a long quiet step (a DNS-01
+// wait) never looks idle to the proxy. With no proxy (null), the keepalive alone.
+export function proxied(proxy) {
+  const keepalive = ['-o', 'ServerAliveInterval=30', '-o', 'ServerAliveCountMax=4'];
+  if (!proxy) return keepalive;
+  const { protocol, hostname, port } = URL.parse(proxy) ?? {};
+  if (protocol !== 'http:' || !['127.0.0.1', 'localhost'].includes(hostname) || !/^[0-9]{1,5}$/.test(port)) throw new Error('The run\'s proxy setting was refused.');
+  return ['-o', `ProxyCommand=/usr/bin/nc -X connect -x ${hostname}:${port} %h %p`, ...keepalive];
+}
+
+// A held key file as ssh reads it: the vault keeps a value without its last newline and ssh refuses a key without one
+// ("invalid format"), so the file it was handed gets it back in place; no second copy of the key is made.
+export function heldKeyFile(file) {
+  if (typeof file === 'string' && readFileSync(file).at(-1) !== 0x0a) appendFileSync(file, '\n');
+  return file;
+}
+
 // The ssh arguments, before the remote command, that reach the host as its administrator with only c.adminKeyFile and
-// only the pinned key in c.knownHostsFile: no agent, no password, no prompt, no new host key accepted.
+// only the pinned key in c.knownHostsFile: no agent, no password, no prompt, no new host key accepted. c.proxy, when
+// given, is the run's proxy (or null for none): the arguments then start with proxied(c.proxy).
 export function administrationArguments(c) {
   checked(c);
   if (!c.adminKeyFile) throw new Error('The host administration identity was refused.');
-  return ['-T', '-p', String(c.ssh_port), '-i', c.adminKeyFile, '-o', 'IdentitiesOnly=yes', '-o', 'IdentityAgent=none', '-o', 'BatchMode=yes',
+  return [...(c.proxy === undefined ? [] : proxied(c.proxy)), '-T', '-p', String(c.ssh_port), '-i', c.adminKeyFile, '-o', 'IdentitiesOnly=yes', '-o', 'IdentityAgent=none', '-o', 'BatchMode=yes',
     '-o', 'StrictHostKeyChecking=yes', '-o', `UserKnownHostsFile=${c.knownHostsFile}`, '-o', 'GlobalKnownHostsFile=/dev/null',
     '-o', 'ConnectTimeout=10', `${c.admin_user}@${c.address}`];
 }

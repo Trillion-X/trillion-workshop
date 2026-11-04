@@ -1,0 +1,388 @@
+{
+  "kind": "tool-rows",
+  "record_set": "renew-a-tls-certificate-tool-rows",
+  "what_this_is": "The Workshop rows for tools/renew-a-tls-certificate: a rented server's public certificate by DNS-01 (issue, renew, read), the server's certificate owner (set up, update, check on the server), the public host's paths and its receptionist. Every row runs one process on the person's computer that reaches the server as its administrator (admin_user at ssh_port, both input) over SSH with its pinned key, through the engine's proxy; the server's administration key is a file the engine mounts for the run and the DNS key (issue and renew) arrives on descriptor 3. Every fact about the server is the input; the renewal schedule is a wake the person declares for tool:renew-a-tls-certificate.",
+  "records": [
+    {
+      "id": "package::renew-a-tls-certificate::tool::renew-a-tls-certificate",
+      "address": "package::renew-a-tls-certificate::tool::renew-a-tls-certificate",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:renew-a-tls-certificate",
+        "label": "Renew a server's TLS certificate",
+        "job": "Renew the certificate of my server's public address before it runs out, and check every DNS record stayed as it was",
+        "description": "Asks the server's certificate owner (installed by tool:set-up-a-servers-tls-owner) to renew the certificate of `hostname` by DNS-01 with the person's DNS key: certbot renews only when the certificate is due, every DNS record is read before and after and any change fails the run, and a changed certificate restarts the receptionist (checked through public TLS) and reloads the public host. `dryRun: true` renews against the certificate authority's staging server and changes no certificate. Answers the certificate as the server verified it (present, trusted for the name, valid from and until in local time, issuer, serial, key mode), whether it changed and whether this was a dry run. Declare a wake for this row (every 6 hours) with the server's facts as its input to keep the address renewed. The DNS key reaches the server only on the SSH process's private input; no error carries it.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": { "type": "string", "maxLength": 253, "description": "The server's public address, like app.example.com" },
+            "address": { "type": "string", "maxLength": 15, "description": "The server's IPv4 address" },
+            "ssh_port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")" },
+            "admin_user": { "type": "string", "maxLength": 32, "description": "The administrator the run signs in as" },
+            "knownHost": { "type": "string", "maxLength": 200, "description": "The server's pinned SSH key: \"<address> ssh-ed25519 <key>\"" },
+            "host": { "type": "object", "description": "The server's layout: owner, state, downloads, ingress, receptionist, site (see this folder's README)" },
+            "remotePort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "receptionistBinary": { "type": "string", "maxLength": 300 },
+            "connectionDiagnostics": { "type": "boolean" },
+            "tokenField": { "type": "string", "maxLength": 64, "description": "When the DNS key is held as fields, the one that holds the token (default token)" },
+            "dryRun": { "type": "boolean", "description": "Renew against the staging server and change no certificate" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["hostname", "certificate_present"],
+          "properties": {
+            "hostname": { "type": "string" }, "certificate_present": { "type": "boolean" },
+            "system_trust_and_hostname_verified": { "type": "boolean" }, "not_before_local": { "type": "string" }, "not_after_local": { "type": "string" },
+            "issuer": { "type": "string" }, "serial": { "type": "string" }, "private_key_mode": { "type": "string" },
+            "preexisting_dns_records_unchanged": { "type": "boolean" }, "certificate_changed": { "type": "boolean" }, "dry_run": { "type": "boolean" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "max_run_ms": 660000,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "renew", "/held/server-administration-key"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "credential_mounts": [
+            { "secret_name": "cloudflare-api-token", "fd": 3 },
+            { "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }
+          ]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 90, "network_egress": true },
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "id": "package::renew-a-tls-certificate::tool::issue-a-tls-certificate",
+      "address": "package::renew-a-tls-certificate::tool::issue-a-tls-certificate",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:issue-a-tls-certificate",
+        "label": "Issue a server's TLS certificate",
+        "job": "Get a certificate for my server's public address for the first time, by a DNS-01 check with my DNS key",
+        "description": "Asks the server's certificate owner (tool:set-up-a-servers-tls-owner first) for a certificate for `hostname` by DNS-01 with the person's DNS key; one that is still valid is kept (certbot --keep-until-expiring). Every DNS record is read before and after and any change fails the run. Answers the certificate as the server verified it. The DNS key reaches the server only on the SSH process's private input.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": { "type": "string", "maxLength": 253 },
+            "address": { "type": "string", "maxLength": 15 },
+            "ssh_port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")" },
+            "admin_user": { "type": "string", "maxLength": 32, "description": "The administrator the run signs in as" },
+            "knownHost": { "type": "string", "maxLength": 200 },
+            "host": { "type": "object" },
+            "remotePort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "receptionistBinary": { "type": "string", "maxLength": 300 },
+            "connectionDiagnostics": { "type": "boolean" },
+            "tokenField": { "type": "string", "maxLength": 64 }
+          }
+        },
+        "output_schema": { "type": "object", "required": ["hostname", "certificate_present"], "properties": { "hostname": { "type": "string" }, "certificate_present": { "type": "boolean" }, "certificate_changed": { "type": "boolean" } } },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "max_run_ms": 660000,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "issue", "/held/server-administration-key"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "credential_mounts": [
+            { "secret_name": "cloudflare-api-token", "fd": 3 },
+            { "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }
+          ]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 120, "network_egress": true },
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "id": "package::renew-a-tls-certificate::tool::read-a-servers-tls-certificate",
+      "address": "package::renew-a-tls-certificate::tool::read-a-servers-tls-certificate",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-servers-tls-certificate",
+        "label": "Read a server's TLS certificate",
+        "job": "See whether my server's certificate is present and trusted, and when it runs out",
+        "description": "Asks the server's certificate owner how the certificate for `hostname` stands, as the server itself verifies it: present, trusted by the system for that name with at least a day left, valid from and until (in local time), issuer, serial and a 0600 private key. It changes nothing and needs no DNS key.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": { "type": "string", "maxLength": 253 },
+            "address": { "type": "string", "maxLength": 15 },
+            "ssh_port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")" },
+            "admin_user": { "type": "string", "maxLength": 32, "description": "The administrator the run signs in as" },
+            "knownHost": { "type": "string", "maxLength": 200 },
+            "host": { "type": "object" },
+            "remotePort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "receptionistBinary": { "type": "string", "maxLength": 300 },
+            "connectionDiagnostics": { "type": "boolean" }
+          }
+        },
+        "output_schema": { "type": "object", "required": ["hostname", "certificate_present"], "properties": { "hostname": { "type": "string" }, "certificate_present": { "type": "boolean" }, "not_after_local": { "type": "string" } } },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "status", "/held/server-administration-key"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "id": "package::renew-a-tls-certificate::tool::set-up-a-servers-tls-owner",
+      "address": "package::renew-a-tls-certificate::tool::set-up-a-servers-tls-owner",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-up-a-servers-tls-owner",
+        "label": "Set up a server's TLS owner",
+        "job": "Prepare my rented server to hold a certificate: install what it needs and the program that looks after its certificate",
+        "description": "Installs the server's certificate owner at host.owner with its layout beside it (host.owner with .json: the state folder, the ingress and receptionist services, the receptionist's account, build pattern, listen address and environment), then prepares the server: certbot with its Cloudflare DNS plugin, nginx and the CA list, installed with no default HTTP and no tokenless renewal timer switched on, the state folder and the receptionist's own account. Nothing about DNS or traffic changes. tool:update-a-servers-tls-owner replaces only the owner and its layout.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": { "type": "string", "maxLength": 253 },
+            "address": { "type": "string", "maxLength": 15 },
+            "ssh_port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")" },
+            "admin_user": { "type": "string", "maxLength": 32, "description": "The administrator the run signs in as" },
+            "knownHost": { "type": "string", "maxLength": 200 },
+            "host": { "type": "object" },
+            "remotePort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "receptionistBinary": { "type": "string", "maxLength": 300 },
+            "connectionDiagnostics": { "type": "boolean" }
+          }
+        },
+        "output_schema": { "type": "object", "properties": { "packages_installed": { "type": "boolean" }, "default_http_not_enabled": { "type": "boolean" }, "dns_credentials_on_disk": { "type": "boolean" } } },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "max_run_ms": 600000,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "setup", "/held/server-administration-key"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 180, "network_egress": true },
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "id": "package::renew-a-tls-certificate::tool::update-a-servers-tls-owner",
+      "address": "package::renew-a-tls-certificate::tool::update-a-servers-tls-owner",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:update-a-servers-tls-owner",
+        "label": "Update a server's TLS owner",
+        "job": "Put the newest certificate program and my server's layout on my server, changing nothing else",
+        "description": "Replaces the server's certificate owner at host.owner with this folder's, and its layout beside it (the layout first, each written whole and then moved into place), with nothing installed, restarted or reconfigured. Run it after this tool changes or after the server's layout changes.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": { "type": "string", "maxLength": 253 },
+            "address": { "type": "string", "maxLength": 15 },
+            "ssh_port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")" },
+            "admin_user": { "type": "string", "maxLength": 32, "description": "The administrator the run signs in as" },
+            "knownHost": { "type": "string", "maxLength": 200 },
+            "host": { "type": "object" },
+            "remotePort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "receptionistBinary": { "type": "string", "maxLength": 300 },
+            "connectionDiagnostics": { "type": "boolean" }
+          }
+        },
+        "output_schema": { "type": "object", "required": ["tls_owner_installed"], "properties": { "tls_owner_installed": { "type": "boolean" } } },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "update-owner", "/held/server-administration-key"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "id": "package::renew-a-tls-certificate::tool::write-a-public-hosts-paths",
+      "address": "package::renew-a-tls-certificate::tool::write-a-public-hosts-paths",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:write-a-public-hosts-paths",
+        "label": "Write a public host's paths",
+        "job": "Set which addresses my public server answers itself and send everything else to my engine",
+        "description": "Writes the server's public ingress (nginx) for `hostname` with its certificate: /healthz, the downloads folder by GET and HEAD, the receptionist's paths (host.receptionist.paths, to host.receptionist.listen over verified TLS) and the site's pages (host.site.paths, handed to host.site.hostname by GET and HEAD), and every other path to the engine's connection on 127.0.0.1:remotePort. With `connectionDiagnostics` it logs only time, path and statuses of host.ingress.diagnostics_paths. The candidate is tested by nginx before it replaces the live one; with `receptionistBinary` (matching host.receptionist.binary_pattern, readable and executable by others) the receptionist's service is written too, and a build that cannot start is refused before anything is switched. No DNS or traffic cut-over happens here.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host", "remotePort"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": { "type": "string", "maxLength": 253 },
+            "address": { "type": "string", "maxLength": 15 },
+            "ssh_port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")" },
+            "admin_user": { "type": "string", "maxLength": 32, "description": "The administrator the run signs in as" },
+            "knownHost": { "type": "string", "maxLength": 200 },
+            "host": { "type": "object" },
+            "remotePort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "receptionistBinary": { "type": "string", "maxLength": 300 },
+            "connectionDiagnostics": { "type": "boolean" }
+          }
+        },
+        "output_schema": { "type": "object", "required": ["public_tls_configured"], "properties": { "public_tls_configured": { "type": "boolean" }, "hostname": { "type": "string" }, "receptionist_configured": { "type": "boolean" }, "traffic_cutover": { "type": "boolean" } } },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "configure", "/held/server-administration-key"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 10, "network_egress": true },
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "id": "package::renew-a-tls-certificate::tool::switch-on-a-servers-receptionist",
+      "address": "package::renew-a-tls-certificate::tool::switch-on-a-servers-receptionist",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:switch-on-a-servers-receptionist",
+        "label": "Switch on a server's receptionist",
+        "job": "Start the receptionist on my public server and check it answers through its certificate",
+        "description": "Enables and restarts the receptionist service tool:write-a-public-hosts-paths wrote (host.receptionist.service), which runs the build as its own account with the certificate handed on private descriptors, then checks through verified public TLS on the server itself that it serves its protected-resource description for https://<hostname>/mcp. No DNS or traffic cut-over happens here.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": { "type": "string", "maxLength": 253 },
+            "address": { "type": "string", "maxLength": 15 },
+            "ssh_port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")" },
+            "admin_user": { "type": "string", "maxLength": 32, "description": "The administrator the run signs in as" },
+            "knownHost": { "type": "string", "maxLength": 200 },
+            "host": { "type": "object" },
+            "remotePort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "receptionistBinary": { "type": "string", "maxLength": 300 },
+            "connectionDiagnostics": { "type": "boolean" }
+          }
+        },
+        "output_schema": { "type": "object", "required": ["receptionist_active"], "properties": { "receptionist_active": { "type": "boolean" }, "protected_resource_served_through_verified_tls": { "type": "boolean" }, "traffic_cutover": { "type": "boolean" } } },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "activate", "/held/server-administration-key"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 15, "network_egress": true },
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "id": "package::renew-a-tls-certificate::tool::check-a-servers-tls-owner-on-the-server",
+      "address": "package::renew-a-tls-certificate::tool::check-a-servers-tls-owner-on-the-server",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-servers-tls-owner-on-the-server",
+        "label": "Check a server's TLS owner on the server",
+        "job": "Run the certificate program's own tests on my Linux server, where its private-credential checks can run",
+        "description": "Puts this folder's test/tls-host-owner.test.py beside the server's certificate owner (host.owner with .test.py) and runs it there with the server's Python: the Linux-only checks (the DNS key lives only in an anonymous memory file a child reads by an inherited descriptor; a failed provider never returns the key; a dry run asks the staging server) run on the server, as nowhere else. Answers the test output, or `passed`.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": { "type": "string", "maxLength": 253 },
+            "address": { "type": "string", "maxLength": 15 },
+            "ssh_port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")" },
+            "admin_user": { "type": "string", "maxLength": 32, "description": "The administrator the run signs in as" },
+            "knownHost": { "type": "string", "maxLength": 200 },
+            "host": { "type": "object" },
+            "remotePort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "receptionistBinary": { "type": "string", "maxLength": 300 },
+            "connectionDiagnostics": { "type": "boolean" }
+          }
+        },
+        "output_schema": { "type": "object", "required": ["host_tests"], "properties": { "host_tests": { "type": "string" } } },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "host-test", "/held/server-administration-key"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work", "test/tls-host-owner.test.py"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 10, "network_egress": true },
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    }
+  ]
+}
