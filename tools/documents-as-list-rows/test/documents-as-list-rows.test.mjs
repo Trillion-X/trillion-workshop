@@ -593,6 +593,63 @@ test('with --stdin the input comes as JSON and the root only from the command, a
   assert.deepEqual(JSON.parse(rows.stdout).rows.map(row => row.id), ['/rooms/kitchen.md']);
 });
 
+// The atoms rule: one row per paragraph, list item, table row or fenced block; one row per identity.
+import { atomsOf } from '../read-data/atoms.mjs';
+import { cutIntoRecords } from '../read-data/rows.mjs';
+
+const houseRules = '# House rules\n\n## Kitchen\n\n**Dishes.** Wash them the same day.\n\n- Wipe the counter\n- Empty the bin\n\n| Day | Chore |\n|---|---|\n| Mon | Floors |\n\n```\nnot a heading\n# still code\n```\n\n---\n\n## Garden\n\nWater the beans.\n';
+
+test('atoms: pieces, keys and the line each starts at', () => {
+  const atoms = atomsOf(houseRules);
+  assert.deepEqual(atoms.map(atom => atom.key), [
+    'Kitchen / Dishes', 'Kitchen / Wipe the counter', 'Kitchen / Empty the bin', 'Kitchen / Mon', 'Kitchen / not a heading # still code', 'Garden / Water the beans.']);
+  assert.deepEqual(atoms.map(atom => atom.line), [5, 7, 8, 12, 14, 23]);
+  assert.equal(atoms[0].heading_path, 'Kitchen');
+  assert.match(atoms[0].identity, /^1f:[0-9a-f]{64}$/);
+});
+
+test('atoms: spacing does not change a piece identity, a changed word does, and a repeated key is numbered', () => {
+  const [one] = atomsOf('## A\n\nWater   the\nbeans.\n');
+  const [same] = atomsOf('## A\n\nWater the beans.\n');
+  const [other] = atomsOf('## A\n\nWater the peas.\n');
+  assert.equal(one.identity, same.identity);
+  assert.notEqual(one.identity, other.identity);
+  assert.deepEqual(atomsOf('## A\n\n- x\n\n- x\n').map(atom => atom.key), ['A / x', 'A / x (2)']);
+});
+
+test('cutting into rows: a piece found again adds a source and is never a second row; every atom is counted once', async () => {
+  const root = await scratch();
+  await mkdir(join(root, 'notes'), { recursive: true });
+  await writeFile(join(root, 'notes', 'a.md'), houseRules);
+  await writeFile(join(root, 'notes', 'b.txt'), '# Copy\n\n## Garden\n\nWater the beans.\n\n## Extra\n\nSomething new.\n');
+  await mkdir(join(root, 'skip'));
+  await writeFile(join(root, 'skip', 'c.md'), 'Water the beans.\n');
+  const mapping = { cut: 'atoms', folders: ['/notes'], record_type: 'note', id_prefix: 'note:' };
+  const { report, records } = await cutIntoRecords({ root, mapping });
+  assert.deepEqual(report, { atoms_in: 8, rows: 7, found_again_as_a_source: 1, documents: 2 });
+  assert.equal(records.length, 7);
+  const beans = records.find(record => record.value.text === 'Water the beans.');
+  assert.deepEqual(beans.value.sources, [{ path: '/notes/a.md', line: 23 }, { path: '/notes/b.txt', line: 5 }]);
+  assert.equal(beans.value.key, 'Garden / Water the beans.');
+  assert.match(beans.id, /^note:[0-9a-f]{32}$/);
+  assert.equal(beans.type, 'note');
+  assert.equal(new Set(records.map(record => record.id)).size, records.length);
+  assert.deepEqual((await cutIntoRecords({ root, mapping, check: true })).records, undefined);
+  const skipped = await cutIntoRecords({ root, mapping: { ...mapping, folders: ['/'], exclude_folders: ['skip'] }, check: true });
+  assert.equal(skipped.report.documents, 2);
+});
+
+test('the atoms command prints the report on stderr and one row per line on stdout; a document rule refuses atoms without check', async () => {
+  const root = await scratch();
+  await writeFile(join(root, 'a.md'), '## A\n\nOne.\n\nTwo.\n');
+  await writeFile(join(root, 'map.json'), JSON.stringify({ cut: 'atoms', folders: ['/'] }));
+  const run = spawnSync(process.execPath, [command, 'atoms', '--root', root, '--mapping', 'map.json'], { encoding: 'utf8' });
+  assert.equal(run.status, 0, run.stderr);
+  assert.equal(JSON.parse(run.stderr).rows, 2);
+  assert.deepEqual(run.stdout.trim().split('\n').map(line => JSON.parse(line).value.text), ['One.', 'Two.']);
+  await assert.rejects(splitIntoDocuments({ root, mapping: { cut: 'atoms', folders: ['/'] }, out: 'o', leftover: 'l' }), /atoms/);
+});
+
 test('a whole document is written or removed only while it is still the one read, and a new one only when none is there', async () => {
   const root = await chores();
   const folder = join(root, 'chores');
