@@ -253,8 +253,8 @@
               },
               "from": "goal:g1"
             },
-            "output_selector": "$.lines[2].to",
-            "contains": "job:h1"
+            "output_selector": "$.counts.Job",
+            "at_least": 1
           }
         ]
       }

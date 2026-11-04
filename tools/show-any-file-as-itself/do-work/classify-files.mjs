@@ -21,5 +21,7 @@ export function classifyFiles({ files } = {}) {
     const { renderer, language, icon, label, mimeType } = fallbackFileContentClassification(path, file.mime_type || undefined);
     return { path, renderer, language, icon, label, ...(mimeType ? { mime_type: mimeType } : {}) };
   });
-  return { classified };
+  const by_renderer = {};
+  for (const { renderer } of classified) by_renderer[renderer] = (by_renderer[renderer] ?? 0) + 1;
+  return { classified, by_renderer };
 }
