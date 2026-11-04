@@ -50,7 +50,9 @@
       "trillion-skill.md",
       "ag-ui-agent.mjs",
       "ag-ui-wire.mjs",
-      "local-door.mjs"
+      "local-door.mjs",
+      "replay-recorded-writes.mjs",
+      "replay-recorded-writes.json"
     ],
     "link": "~/.local/bin/trillion",
     "owner_file": "install-owner.json"
