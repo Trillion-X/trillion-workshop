@@ -63,7 +63,7 @@
   "tool:trillion-media-transfer": {
    "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
    "function": "copyOrMoveBetweenDrives",
-   "hand": { "note_written": { "file": "own-writes.mjs", "export": "noteOwnWrite" } }
+   "hand": { "note_written": { "workshop": "tools/bring-in-new-items-from-this-computer/computer/own-writes.mjs", "export": "noteOwnWrite" } }
   },
   "tool:trillion-media-eject": {
    "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
@@ -140,22 +140,22 @@
   "tool:hold-a-device-quiet": {
    "workshop": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
    "function": "holdADeviceQuiet",
-   "with": { "keep_open_rows": { "file": "computer-sources.json", "field": "sources" } }
+   "with": { "keep_open_rows": { "workshop": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.json", "field": "sources" } }
   },
   "tool:release-a-device": {
    "workshop": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
    "function": "releaseADevice",
-   "with": { "keep_open_rows": { "file": "computer-sources.json", "field": "sources" } }
+   "with": { "keep_open_rows": { "workshop": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.json", "field": "sources" } }
   },
   "tool:device-holds": {
    "workshop": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
    "function": "deviceHolds",
-   "with": { "keep_open_rows": { "file": "computer-sources.json", "field": "sources" } }
+   "with": { "keep_open_rows": { "workshop": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.json", "field": "sources" } }
   },
   "tool:focus": {
    "workshop": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
    "function": "focus",
-   "with": { "keep_open_rows": { "file": "computer-sources.json", "field": "sources" } }
+   "with": { "keep_open_rows": { "workshop": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.json", "field": "sources" } }
   },
   "tool:printers": {
    "workshop": "tools/print-here/read-data/print-here.mjs",
@@ -327,7 +327,7 @@
   {
    "workshop": "tools/hold-a-computer-quiet/read-data/hold-this-mac.mjs",
    "function": "resumeHolds",
-   "with": { "keep_open_rows": { "file": "computer-sources.json", "field": "sources" } }
+   "with": { "keep_open_rows": { "workshop": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.json", "field": "sources" } }
   },
   {
    "module": "./open-from-web.mjs",

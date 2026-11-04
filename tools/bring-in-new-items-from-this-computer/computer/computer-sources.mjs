@@ -19,7 +19,7 @@
 //   Connections page are opened once, the first time; nothing else waits on it.
 // - The account is told when discovery or reader evidence changes; each report replaces this computer's previous one.
 // - The core names no app, place or service: they are rows (computer-sources.json) and the account's own list.
-import {readFileSync, writeFileSync, renameSync, readdirSync, statSync, openSync, closeSync, copyFileSync, mkdirSync, rmSync} from 'node:fs';
+import {existsSync, readFileSync, writeFileSync, renameSync, readdirSync, statSync, openSync, closeSync, copyFileSync, mkdirSync, rmSync} from 'node:fs';
 import {execFile, execFileSync, spawn} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
@@ -41,6 +41,30 @@ const readerReason = value => {
   return 'reader failed';
 };
 const refused = error => /EPERM|EACCES|not permitted|authorization denied|unable to open database/i.test(`${error?.code ?? ''} ${error?.message ?? error}`);
+
+// Whether a program is on this computer: a path that is there, or a bare name found on PATH.
+export const programIsHere = (program, {env = process.env} = {}) => (String(program).includes('/') ? existsSync(program)
+  : String(env.PATH ?? '').split(path.delimiter).some(folder => folder && existsSync(path.join(folder, program))));
+const rowPrograms = () => JSON.parse(readFileSync(new URL('./computer-sources.json', import.meta.url), 'utf8')).programs ?? {};
+
+/**
+ * The run of a job a look or a read starts (computer-sources.json `programs`): the first try whose program is on this
+ * computer, its holes filled from `values`, as { argv, reads } (reads: the try's pattern over what it prints, or null),
+ * or null when no try's program is here. A job the rows do not name is a throw: the rows are wrong, not the computer.
+ */
+export function programRun(job, values = {}, {programs = rowPrograms(), here = programIsHere} = {}) {
+  const tries = programs[job];
+  if (!Array.isArray(tries)) throw new Error(`computer-sources.json programs names no ${job}.`);
+  const found = tries.find(item => Array.isArray(item?.run) && item.run.length && here(item.run[0]));
+  return found ? {argv: found.run.map(word => fill(word, values)), reads: found.reads ? new RegExp(found.reads, 'g') : null} : null;
+}
+
+/** Opens an address (a settings pane, a page) with this computer's `open_address` program; nothing when none is here. */
+export function openAddress(target, {run = programRun, start = execFile} = {}) {
+  const found = run('open_address', {target});
+  if (found) start(found.argv[0], found.argv.slice(1));
+  return Boolean(found);
+}
 
 /**
  * The address that opens the pane a switch needs (computer-sources.json `gates`): the Trillion app's own guide, a panel
@@ -157,9 +181,13 @@ export const LOOKS = {
 /**
  * What a found app says about itself: `facts` is { file, keys } where file is under the found place (an app's
  * Contents/Info.plist) and keys maps a fact's name to the key it is read from. `path` is always a fact. A property list
- * is read with macOS's own plutil, so a binary one reads the same as text.
+ * is read with the computer's own `app_facts` program (computer-sources.json `programs`), so a binary one reads the same as text.
  */
-export function factsOf(place, {file, keys = {}}, read = target => JSON.parse(execFileSync('/usr/bin/plutil', ['-convert', 'json', '-o', '-', target], {encoding: 'utf8', timeout: 10_000}))) {
+export function factsOf(place, {file, keys = {}}, read = target => {
+  const found = programRun('app_facts', {file: target});
+  if (!found) throw new Error('No program on this computer reads what an app says about itself.');
+  return JSON.parse(execFileSync(found.argv[0], found.argv.slice(1), {encoding: 'utf8', timeout: 10_000}));
+}) {
   let list = {};
   try { list = read(path.join(place, file)); } catch {}
   return {path: place, ...Object.fromEntries(Object.entries(keys).map(([name, key]) => [name, typeof list[key] === 'string' ? list[key] : null]))};
@@ -243,7 +271,12 @@ export async function lookInChild(input, {seconds = input.look_seconds ?? 20, mo
   return {sources: answers.flatMap(answer => answer.sources), browser_sites: [...new Set(answers.flatMap(answer => answer.browser_sites))]};
 }
 
-const computerName = () => new Promise(resolve => execFile('/usr/sbin/scutil', ['--get', 'ComputerName'], {encoding: 'utf8'}, (error, stdout) => resolve((!error && stdout.trim()) || os.hostname().replace(/\.local$/, ''))));
+const computerName = () => new Promise(resolve => {
+  const found = programRun('computer_name');
+  const hostName = () => os.hostname().replace(/\.local$/, '');
+  if (!found) return resolve(hostName());
+  execFile(found.argv[0], found.argv.slice(1), {encoding: 'utf8'}, (error, stdout) => resolve((!error && stdout.trim()) || hostName()));
+});
 
 /**
  * rows: computer-sources.json. account(route, {method, body}) -> {status, body} | null (trillion-account.mjs).
@@ -251,7 +284,7 @@ const computerName = () => new Promise(resolve => execFile('/usr/sbin/scutil', [
  * and whose first items reached the account is 'reading'.
  * connectionsUrl: the account's Connections page, opened once with the switch's pane when a place needs its switch.
  */
-export function computerSources({rows, account, stateFile, workdir, computerId = null, program = 'Trillion', carriers = () => [], connectionsUrl = null, look = lookInChild, name = computerName, open = target => execFile('/usr/bin/open', [target]), home = os.homedir(), log = () => {}}) {
+export function computerSources({rows, account, stateFile, workdir, computerId = null, program = 'Trillion', carriers = () => [], connectionsUrl = null, look = lookInChild, name = computerName, open = target => openAddress(target), home = os.homedir(), log = () => {}}) {
   let state = {};
   try { state = JSON.parse(readFileSync(stateFile, 'utf8')); } catch {}
   const save = () => { writeFileSync(`${stateFile}.next`, JSON.stringify(state, null, 1)); renameSync(`${stateFile}.next`, stateFile); };

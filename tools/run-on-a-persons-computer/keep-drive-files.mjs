@@ -54,6 +54,8 @@ import { seeWith, seenAlready } from './see-a-recording.mjs';
 import { observeVisual, captionWith, genericVisualTitle } from './observe-visual.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+// The places and their rules are rows of the Workshop tool that reads them (trillion-workshop package).
+const PLACE_ROWS = fileURLToPath(new URL('../bring-in-new-items-from-this-computer/computer/computer-sources.json', import.meta.url));
 const pause = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 const expand = (place, home = os.homedir()) => place.replace(/^~(?=\/|$)/, home);
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
@@ -256,7 +258,7 @@ function* localRecordingBytes(file) {
  * account results. Offline requests use a fresh direct provider process so an
  * already-running resident cannot evade the offline environment contract. */
 export async function hearLocalFile(recording, { hearingId, offline = false, language = '',
-  rows = JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8')),
+  rows = JSON.parse(readFileSync(PLACE_ROWS, 'utf8')),
   find = hearingHere, hear = hearWith } = {}) {
   const file = path.resolve(recording);
   if (!statSync(file).isFile()) throw new Error('Local hearing needs a regular recording file.');
@@ -825,7 +827,7 @@ async function main() {
   const root = option('--drive'), stateDir = option('--state');
   const sourceAt = argv.indexOf('--source-id');
   const sourceId = sourceAt >= 0 ? argv[sourceAt + 1] : null;
-  const rows = JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8'));
+  const rows = JSON.parse(readFileSync(PLACE_ROWS, 'utf8'));
   const row = sourceId ? rows.imports?.find(source => source.id === sourceId && path.resolve(expand(source.root)) === path.resolve(root)) : rows.sources.find(source => source.keep && source.look?.each);
   if (!row) throw new Error('No configured source owns this folder.');
   const origin = process.env.TRILLION_ORIGIN ?? rows.origin;

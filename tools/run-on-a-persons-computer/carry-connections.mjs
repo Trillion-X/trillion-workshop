@@ -145,11 +145,22 @@ export function keptResults(file, limit) {
   };
 }
 
+// A connection row names its module beside this file (`module`) or in a Workshop tool folder of the trillion-workshop
+// package (`workshop`, tools/<folder>/...mjs), never a path out of tools/.
+const WORKSHOP_MODULE = /^tools\/[a-z0-9]+(?:-[a-z0-9]+)*\/(?:[a-z0-9]+(?:-[a-z0-9]+)*\/)*[a-z0-9]+(?:-[a-z0-9]+)*\.mjs$/;
+export function connectionModule(row) {
+  if (row.workshop === undefined) return new URL(row.module, import.meta.url);
+  if (typeof row.workshop !== 'string' || !WORKSHOP_MODULE.test(row.workshop)) throw new Error(`${row.workshop} is not a module of a Workshop tool folder.`);
+  // This folder is itself a Workshop tool folder, so the module is first looked for in the tree it sits in.
+  const here = new URL(`../../${row.workshop}`, import.meta.url);
+  return existsSync(here) ? here : new URL(import.meta.resolve(`trillion-workshop/${row.workshop}`));
+}
+
 /** The modules DATA names, each made with its own row. */
 export async function loadConnections(settings, helpers) {
   const found = new Map();
   for (const row of settings.connections) {
-    const made = (await import(new URL(row.module, import.meta.url)))[row.export];
+    const made = (await import(connectionModule(row)))[row.export];
     found.set(row.vendor, { row, module: made(row, helpers) });
   }
   return found;
