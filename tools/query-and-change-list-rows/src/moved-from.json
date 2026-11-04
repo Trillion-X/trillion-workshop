@@ -1,0 +1,56 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/list-aggregates.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-aggregates.mjs",
+      "source_identity": "1f:216081c6d7b58cc6dc7437d1a7a1bb39a17bd1073e978027e9f14ec75106d3ca",
+      "identity": "1f:6d4fd2e0fa3f02d038d5cf1cde8de96fead94f7d91966c349ab6e824914900fb",
+      "reused": true
+    },
+    {
+      "from": "src/list-plain-files.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-plain-files.mjs",
+      "source_identity": "1f:39948476951ac6de4a41bc7adbe7f0e3629b8f82f2ce98cfd0842f1c37c01a99",
+      "identity": "1f:2284c757649bd0d631b67ff4b5fae7f48151996ced69b74dd5421e5dbfa738bb",
+      "reused": true
+    },
+    {
+      "from": "src/list-refusals.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-refusals.mjs",
+      "source_identity": "1f:5a98a80cc796793160f4f43aa88de0af62414f5e09fd4b6c6a9519caf644a66c",
+      "identity": "1f:ccf6247f44138a9e84f504bd4411f3b24b2048b6ed8a6033b66437cc99e05281",
+      "reused": true
+    },
+    {
+      "from": "src/list-rollups.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-rollups.mjs",
+      "source_identity": "1f:b654595f615869b1eaf000c19f0f74f32370b34b4b3a50bdbe7fd988eb4dbb40",
+      "identity": "1f:f7381768bc8b05ef6294d417016e3267ef0356bb2448d3e99c30f199d54d1961",
+      "reused": true
+    },
+    {
+      "from": "src/list-row-operations.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-row-operations.mjs",
+      "source_identity": "1f:575e364e6022ffc353c22d0f38c7beeae2b8b878df21ccec928014512640fdbd",
+      "identity": "1f:2fe602fa1571e5d5a429df4287afb2e972ecd5a5c7614434c8e46e9c8852240f",
+      "reused": true
+    },
+    {
+      "from": "src/list-snapshots.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-snapshots.mjs",
+      "source_identity": "1f:67f1858f7a89bfa48135bbcfc5bdde15fee5c5bcc9616bb55fc8b92afb5c9c5f",
+      "identity": "1f:ec9cb5cc4c9a1e07317b18f4a33f4288ae62df13d954604cc09d4c69a4794c63",
+      "reused": true
+    }
+  ]
+}

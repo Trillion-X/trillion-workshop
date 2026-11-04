@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-record-inspection.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-a-saved-record-and-show-its-value-the-same/src/native-record-inspection.mjs",
+      "source_identity": "1f:c0084fe43b6e1b30d5958c4baffc809f4024ad17c1d847a641be41096d542c6c",
+      "identity": "1f:1ce94eb6e33361ab47398c774f30c2ce09d5faf07ab228afab3ca6a28dc0156a"
+    }
+  ]
+}

@@ -26,14 +26,17 @@ const sh = (cwd, ...args) => {
   return ran.stdout.trim();
 };
 
-// A made-up engine repository: a bare "remote" whose main has `count` commits, the first with product/ in it.
-function repository(count, { trailerAt } = {}) {
+// A made-up engine repository: a bare "remote" whose main has `count` commits, the first with product/ in it unless
+// `product` is false.
+function repository(count, { trailerAt, product = true } = {}) {
   const top = folder(), remote = join(top, 'remote.git'), work = join(top, 'checkout');
   mkdirSync(work);
   spawnSync('git', ['init', '-q', '--bare', '-b', 'main', remote]);
   sh(work, 'init', '-q', '-b', 'main');
-  mkdirSync(join(work, 'product'));
-  writeFileSync(join(work, 'product', 'new-accounts.json'), '{"sign_in_ways":[]}\n');
+  if (product) {
+    mkdirSync(join(work, 'product'));
+    writeFileSync(join(work, 'product', 'new-accounts.json'), '{"sign_in_ways":[]}\n');
+  }
   writeFileSync(join(work, 'Cargo.toml'), '[package]\nname = "made-up"\n');
   sh(work, 'add', '.');
   sh(work, 'commit', '-q', '-m', 'first');
@@ -98,6 +101,17 @@ test('a publish builds, packs and signs the commit, and its entry verifies with 
   const again = await publish(request, { token: canary });
   assert.equal(again.already_published, true, 'the same commit again changes nothing');
   assert.equal(JSON.parse(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8')).releases.length, 1);
+});
+
+test('a commit with no product/ folder publishes a release that holds only trillion-local', async () => {
+  const { remote, commits } = repository(2, { product: false });
+  const { key, request } = builder(remote);
+  const answer = await publish(request);
+  assert.deepEqual([answer.commit, answer.sequence, answer.already_published], [commits[1], 2, false]);
+  const [entry] = JSON.parse(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8')).releases;
+  assert.ok(verifyEntry(entry, key.public_key));
+  const bytes = readFileSync(join(request.feed_folder, commits[1], 'x86_64-unknown-linux-gnu.tar.gz'));
+  assert.deepEqual(untarGz(bytes).map(file => file.name), ['trillion-local']);
 });
 
 test('a release and the shipped files pack with no tar program: same bytes and executable bit back, no __pycache__ shipped', () => {
@@ -238,7 +252,7 @@ test('install sets the builder up over SSH, and the token and secret travel only
   const request = { builder: { address: '192.0.2.50', host_name: 'releases.example.com' }, ssh: { known_hosts: '/x/known_hosts' }, repository: { url: 'https://github.com/owner/engine.git', branch: 'main' } };
   const answer = await installBuilder(request, { token: canary, secret, run, tarball: () => ({ pipe() {} }), fetchImpl: async () => ({ status: 200 }) });
   assert.deepEqual(answer, {
-    public_key: 'a'.repeat(64), key_made: true, feed_url: 'https://releases.example.com/engine-releases/feed.json', receiver_active: true, feed_status: 200,
+    public_key: 'a'.repeat(64), key_made: true, deploy_key: null, feed_url: 'https://releases.example.com/engine-releases/feed.json', receiver_active: true, feed_status: 200,
     webhook: { url: 'https://releases.example.com/engine-release-push', content_type: 'application/json', events: ['push'] },
   });
   for (const { command } of calls) for (const value of [canary, secret]) assert.ok(!command.includes(value), command);
@@ -254,6 +268,29 @@ test('install sets the builder up over SSH, and the token and secret travel only
   assert.match(receiverUnit({ hasToken: false }), /3<\/dev\/null/);
   await assert.rejects(installBuilder(request, { token: canary, secret: '', run }), /holds no push secret/);
   for (const path of SHIPPED) assert.ok(existsSync(join(here, '..', '..', '..', path)), path);
+});
+
+test('a repository reached over SSH needs no token: install makes the builder a read key and answers its public half', async () => {
+  const calls = [], deployKey = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAmadeup user-369f4086@example.com';
+  const run = async (_machine, command, input) => {
+    calls.push({ command, input: input?.pipe ? '<tarball>' : String(input ?? '') });
+    if (command.includes(' make-key ')) return `${JSON.stringify({ public_key: 'a'.repeat(64), made: false })}\n`;
+    if (command.includes('ssh-keygen')) return `${deployKey}\n`;
+    if (command.includes('systemctl is-active')) return 'active\n';
+    return '';
+  };
+  const request = { builder: { address: '192.0.2.50', host_name: 'releases.example.com' }, ssh: { known_hosts: '/x/known_hosts' }, repository: { url: 'ssh://user-3de132cd@example.com/owner/engine.git', branch: 'main' } };
+  const answer = await installBuilder(request, { secret: 'push-secret-canary', run, tarball: () => ({ pipe() {} }), fetchImpl: async () => ({ status: 200 }) });
+  assert.equal(answer.deploy_key, deployKey);
+  const keygen = calls.find(call => call.command.includes('ssh-keygen')).command;
+  assert.match(keygen, new RegExp(`^runuser -u 'engine-builder' -- sh -c `));
+  assert.ok(keygen.includes(settings.on_builder.repository_key_file) && keygen.includes('test -f'), 'an existing key is kept');
+  const unit = calls.find(call => call.command.includes('/etc/systemd/system/')).input;
+  assert.equal(unit, receiverUnit({ hasToken: false, sshKey: true }));
+  assert.match(unit, new RegExp(`Environment="GIT_SSH_COMMAND=ssh -i ${settings.on_builder.repository_key_file} .*UserKnownHostsFile=${settings.on_builder.repository_known_hosts}"`));
+  assert.match(unit, /3<\/dev\/null/);
+  assert.ok(!receiverUnit({ hasToken: true }).includes('GIT_SSH_COMMAND'));
+  assert.ok(calls.some(call => call.command.startsWith('rm -f') && call.command.includes('repository-token')), 'no token is kept');
 });
 
 test('git asks the credential helper, which answers the token from descriptor 3 and nothing else', async () => {

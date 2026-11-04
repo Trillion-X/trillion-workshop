@@ -1,0 +1,64 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/original-work-installation-shard.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-task-input-and-list-on-the-one-record-book/src/original-work-installation-shard.mjs",
+      "source_identity": "1f:ce7e8df2208b90ee2c40442338c24e7b06b726d37172063fee61bf2c6af82cb6",
+      "identity": "1f:ce7e8df2208b90ee2c40442338c24e7b06b726d37172063fee61bf2c6af82cb6"
+    },
+    {
+      "from": "src/original-work-resource-affinity.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-task-input-and-list-on-the-one-record-book/src/original-work-resource-affinity.mjs",
+      "source_identity": "1f:2028a7521c47781dc4990d55346e2255eb8b3b13e8a265f10d4da3420bc113f4",
+      "identity": "1f:2028a7521c47781dc4990d55346e2255eb8b3b13e8a265f10d4da3420bc113f4"
+    },
+    {
+      "from": "src/original-work-resource-catalogue.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-task-input-and-list-on-the-one-record-book/src/original-work-resource-catalogue.mjs",
+      "source_identity": "1f:060c34373e9ebeb77f99e891d8f046d501b3a8705189ce167f19cc1c6d7a621d",
+      "identity": "1f:4f329532e8f4adda36041dba3690b0f91d18d0003285f1c5508e0da914f52d58"
+    },
+    {
+      "from": "src/original-work-resource-selection.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-task-input-and-list-on-the-one-record-book/src/original-work-resource-selection.mjs",
+      "source_identity": "1f:7a8ae7bd2b63313f10abed6f55bf136a19133851e2688629f5be225c374c6521",
+      "identity": "1f:7a8ae7bd2b63313f10abed6f55bf136a19133851e2688629f5be225c374c6521"
+    },
+    {
+      "from": "test/original-work-installation-shard.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-task-input-and-list-on-the-one-record-book/test/original-work-installation-shard.test.mjs",
+      "source_identity": "1f:2479a03050a5c14a30c725c234d3e0cf339349e0f7c9fe87143cc3be2aac4c9a",
+      "identity": "1f:ed7e74f2320e2e92f2abb68575e183bebf30104a14e325ce49d752ca88514d3f"
+    },
+    {
+      "from": "test/original-work-resource-affinity.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-task-input-and-list-on-the-one-record-book/test/original-work-resource-affinity.test.mjs",
+      "source_identity": "1f:88c655e4ff267395c49d29aa56db2b97843bda53195245a41f23ed263c1e3cd8",
+      "identity": "1f:e2a0ca456d18f40514282ff6dbce914efb29f026fc01153cd208dd86acd546a5"
+    },
+    {
+      "from": "test/original-work-resource-catalogue.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-task-input-and-list-on-the-one-record-book/test/original-work-resource-catalogue.test.mjs",
+      "source_identity": "1f:6feae615e4c8ed22f7f363547d94d53fa89b5cf157fed40ef08e781754328303",
+      "identity": "1f:ea4dc020abafbd75b3ec0f1ae9303eb79b13da34858bc4c7f5bb3a4be76f5344"
+    },
+    {
+      "from": "test/original-work-resource-selection.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-task-input-and-list-on-the-one-record-book/test/original-work-resource-selection.test.mjs",
+      "source_identity": "1f:e155303ab2dfa5d32d6e16c9a6fb6d7626046f79f0fd352f418c95a677800925",
+      "identity": "1f:698fc4cd57b6eeeee0340ce32f9689ee852e196a47fc3e8c5d03ad81db7d21d7"
+    }
+  ]
+}

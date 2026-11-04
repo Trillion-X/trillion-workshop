@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/public-app-route-refresh.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/refresh-one-page-of-a-copied-site-from-its-original/src/public-app-route-refresh.mjs",
+      "source_identity": "1f:6503fc7ce1bcf340d78ddb85321594968caef488641231105017d886acb243bb",
+      "identity": "1f:302a66ee3d2f1c03653c3db50fd523dc70eb39f2c4a4b09be8fe741a4a790038"
+    },
+    {
+      "from": "src/source-project-preview.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/refresh-one-page-of-a-copied-site-from-its-original/src/source-project-preview.mjs",
+      "source_identity": "1f:7ff83bd7eddcf0068001b1e74ff91e29b639bf5d0a8cd33d9d7b86fd0187ae48",
+      "identity": "1f:7ff83bd7eddcf0068001b1e74ff91e29b639bf5d0a8cd33d9d7b86fd0187ae48"
+    },
+    {
+      "from": "test/public-app-route-refresh.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/refresh-one-page-of-a-copied-site-from-its-original/test/public-app-route-refresh.test.mjs",
+      "source_identity": "1f:07c120d0f2f36075bc8b52b79892359a493bee5a91a71d4e446cc86e8a9142e1",
+      "identity": "1f:07c120d0f2f36075bc8b52b79892359a493bee5a91a71d4e446cc86e8a9142e1"
+    }
+  ]
+}

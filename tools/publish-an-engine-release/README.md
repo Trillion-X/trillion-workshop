@@ -1,6 +1,6 @@
 # tools/publish-an-engine-release/
 
-Publish a signed engine release on every merge, so an engine fix reaches every account without an app install. A builder computer receives each push to the engine repository's branch, builds `trillion-local` at that commit for its own rust target, packs it with the repository's `product/` folder, signs the entry with a key only the builder holds, and adds it to a feed served at `https://<builder name>/engine-releases/feed.json`. A release is a pointer change: each computer reads the feed, checks the signature against the public keys its config names (`release_feed` in the place config start-a-place writes) and adopts the newest release itself (engine job J1). The repository, branch and builder are input; nothing here names them.
+Publish a signed engine release on every merge, so an engine fix reaches every account without an app install. A builder computer receives each push to the engine repository's branch, builds `trillion-local` at that commit for its own rust target, packs it (with the repository's `product/` folder when the commit has one), signs the entry with a key only the builder holds, and adds it to a feed served at `https://<builder name>/engine-releases/feed.json`. A release is a pointer change: each computer reads the feed, checks the signature against the public keys its config names (`release_feed` in the place config start-a-place writes) and adopts the newest release itself (engine job J1). The repository, branch and builder are input; nothing here names them.
 
 ## Files
 
@@ -27,7 +27,7 @@ Publish a signed engine release on every merge, so an engine fix reaches every a
 
 - `sequence`: `git rev-list --count --first-parent <commit>`, for a commit on the branch's first-parent line (anything else is refused).
 - `target`: the builder's rust target triple (the host line of `rustc -vV`).
-- `url`: `<base_url><commit>/<target>.tar.gz`; the tar.gz holds `trillion-local` and `product/`.
+- `url`: `<base_url><commit>/<target>.tar.gz`; the tar.gz holds `trillion-local`, and `product/` when the commit has one.
 - `content`: `1f:` and the BLAKE3 hex of the tar.gz (`tools/content-identity`), `bytes` its size.
 - `urgent`: true when the commit message has the trailer `Release-Urgent: true`.
 - `signature`: 128 hex, Ed25519 over `trillion-engine-release-v1\n<commit>\n<sequence>\n<target>\n<content>\n<bytes>\n<urgent>`.
@@ -49,6 +49,7 @@ The build gets `TRILLION_RELEASE_COMMIT` and `TRILLION_RELEASE_SEQUENCE` in its 
 
 - The signing key is made on the builder by `make-key` (mode 0400, owned by the builder user) and never leaves it; only its public half is printed.
 - The repository token reaches `publish` on descriptor 3. git reads it through a credential helper that reads that descriptor on `get`; it is in no argv, file, environment, log or answer, and cargo never sees it.
+- A repository named by an `ssh://` or `git@` URL needs no token: install makes a read key for the builder user on the builder (`on_builder.repository_key_file`, never leaving it), answers its public half as `deploy_key` to add to the repository as a read-only deploy key, and the receiver's git uses it through `GIT_SSH_COMMAND`.
 - The push secret reaches the receiver on descriptor 4. install hands both from the person's vault (descriptors 3 and 4 on the person's computer) to `systemd-creds encrypt` on the SSH channel's standard input; on the builder they rest encrypted with its host key, and systemd opens them onto the receiver's descriptors 3 and 4 (`LoadCredentialEncrypted`).
 
 ## Dependencies

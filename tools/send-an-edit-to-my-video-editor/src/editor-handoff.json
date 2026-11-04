@@ -1,0 +1,38 @@
+{
+  "_what": "Saved edit handoff choices for src/editor-handoff.mjs and the shared Send to editor panel. Filmcraft writes its own project through the existing installed-app job owner. Source files are admitted as mounted Namespace references; callers never supply a mount path or force a full download. Unsupported composition changes stop before the job without changing the saved edit. A queued job is distinct from a completed project. frame_rates names the timeline speeds; default marks the initial choice. places and left_out retain historical saved-choice documentation but are not active Filmcraft inputs.",
+  "editors": [
+    { "id": "filmcraft", "label": "Filmcraft", "format": "app-job", "extension": ".fcproj", "open_steps": "Open this project in Filmcraft. Its clips refer to your Namespace files." }
+  ],
+  "places": [
+    { "id": "mac", "label": "Mac", "folder": "", "native_folder": true, "connect_steps": "Trillion for Mac fills this from its connected source folder. In a browser, enter the full path to that folder on the computer with your editor." },
+    { "id": "windows", "label": "Windows", "folder": "Z:\\", "connect_steps": "In File Explorer choose Map network drive, pick Z:, enter {origin}/dav/ and sign in with any name and a personal key as the password." },
+    { "id": "linux", "label": "Linux", "folder": "/mnt/trillion", "connect_steps": "Mount {origin}/dav/ at /mnt/trillion with davfs2, signing in with any name and a personal key as the password." }
+  ],
+  "frame_rates": [
+    { "value": 23.976, "label": "23.976 frames a second" },
+    { "value": 24, "label": "24 frames a second" },
+    { "value": 25, "label": "25 frames a second" },
+    { "value": 29.97, "label": "29.97 frames a second" },
+    { "value": 30, "label": "30 frames a second", "default": true },
+    { "value": 50, "label": "50 frames a second" },
+    { "value": 59.94, "label": "59.94 frames a second" },
+    { "value": 60, "label": "60 frames a second" }
+  ],
+  "left_out": {
+    "source-rate-assumed": "Each clip is placed at the timeline's speed; check any clip filmed at another speed.",
+    "source-audio-assumed": "Each clip's sound is linked as one track.",
+    "audio-channel-routing-unverified": "Each clip's sound is linked as one track.",
+    "clip-transforms-not-translated": "Looks, speed and framing on clips are not in the timeline; set them again in your editor.",
+    "captions-not-translated": "Captions are not in the timeline; add them again in your editor.",
+    "composition-fields-not-translated": "Text on screen and extra layers are not in the timeline; add them again in your editor.",
+    "spine-fields-not-translated": "Transitions between clips are not in the timeline.",
+    "render-settings-not-translated": "Export settings stay with Trillion's render; choose them again when you export.",
+    "music-mix-not-translated": "Music fades and ducking are not in the timeline; set them again in your editor.",
+    "audio-placement-mix-not-translated": "Effects on added sound are not in the timeline.",
+    "audio-layers-not-translated": "Some sound layers are not in the timeline.",
+    "generated-audio-not-translated": "Generated voice or sound is not in the timeline.",
+    "image-placement-transforms-not-translated": "Where pictures sit on screen is not in the timeline; place them again in your editor.",
+    "video-placement-transforms-not-translated": "Where added videos sit on screen is not in the timeline; place them again in your editor.",
+    "default": "Something in this edit is not in the timeline; check it in your editor."
+  }
+}

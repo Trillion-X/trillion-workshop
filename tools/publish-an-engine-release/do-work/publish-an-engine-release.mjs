@@ -84,9 +84,10 @@ export function filesUnder(root, paths, skip = []) {
   });
 }
 
-/** Pack the program and product/ as tar.gz into `file`; answers { content, bytes }. */
+/** Pack the program, and product/ when the commit has one, as tar.gz into `file`; answers { content, bytes }. */
 export function packRelease({ program, source, file }) {
-  const packed = tarGz([...filesUnder(dirname(program), [settings.binary]), ...filesUnder(source, [settings.product_folder])]);
+  const product = existsSync(join(source, settings.product_folder)) ? filesUnder(source, [settings.product_folder]) : [];
+  const packed = tarGz([...filesUnder(dirname(program), [settings.binary]), ...product]);
   writeFileSync(file, packed, { mode: 0o644 });
   return { content: makeHashCodeHexFromBytes(packed), bytes: packed.length };
 }
@@ -160,7 +161,6 @@ export async function publish(request, { token = '', commit: asked } = {}) {
   await git(source, ['clean', '-q', '-ffdx']);
   const trailer = (await git(source, ['log', '-1', `--format=%(trailers:key=${settings.urgent_trailer},valueonly)`, commit])).trim().toLowerCase();
   const urgent = request.urgent === true || trailer.split('\n').includes('true');
-  if (!existsSync(join(source, settings.product_folder))) throw refuse(`Commit ${commit} has no ${settings.product_folder}/ folder: a release holds ${settings.binary} and ${settings.product_folder}/.`);
   const log = createWriteStream(join(work, 'build.log'));
   try {
     await runProgram(request.toolchain?.cargo ?? 'cargo', ['build', '--release', '--bin', settings.binary], { cwd: source, env, timeout: settings.build_timeout_ms, log });

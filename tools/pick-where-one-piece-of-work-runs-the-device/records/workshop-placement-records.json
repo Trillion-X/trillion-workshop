@@ -1,0 +1,283 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-placement-records",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::placement::rented-model-runtime",
+      "address": "package::ai-tool-catalog::placement::rented-model-runtime",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:rented-model-runtime",
+        "label": "rented model compute",
+        "executor": "model-runtime",
+        "reachable_from": [
+          "hosted"
+        ],
+        "vendor": "Cloudflare Workers AI",
+        "billing": "per unit of work; nothing runs or bills between calls",
+        "idle_cost_usd_per_month": 0
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::placement::public-web-address",
+      "address": "package::ai-tool-catalog::placement::public-web-address",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:public-web-address",
+        "label": "the tool\u2019s own web address",
+        "executor": "http",
+        "reachable_from": [
+          "hosted"
+        ],
+        "idle_cost_usd_per_month": 0
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::placement::your-computer",
+      "address": "package::ai-tool-catalog::placement::your-computer",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:your-computer",
+        "label": "Your computer",
+        "executor": "agent",
+        "reachable_from": [
+          "hosted"
+        ],
+        "idle_cost_usd_per_month": 0,
+        "settings": {
+          "agent_id": "computer-tools",
+          "wait_seconds": 110,
+          "included_in_every_plan": true,
+          "words": {
+            "absent": "Your computer is not connected to Trillion right now, so its drives cannot be reached. Open Trillion on it and try again.",
+            "late": "Your computer did not answer in time. Check that it is awake and connected to Trillion, then try again."
+          },
+          "computer_scope": {
+            "tool_ids": [
+              "tool:manage-harness"
+            ],
+            "input_field": "computer_id",
+            "agent_prefix": "computer-tools:",
+            "skill_prefix": "computer-sources:"
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::placement::your-browser",
+      "address": "package::ai-tool-catalog::placement::your-browser",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:your-browser",
+        "label": "your own browser, signed in as you",
+        "executor": "agent",
+        "reachable_from": [
+          "hosted"
+        ],
+        "idle_cost_usd_per_month": 0,
+        "settings": {
+          "agent_id": "this-browser",
+          "wait_seconds": 110,
+          "included_in_every_plan": true,
+          "words": {
+            "absent": "Your browser with Send to Trillion is not connected right now, so this could not run there. Open your browser and sign in to Send to Trillion, then try again.",
+            "late": "Your browser did not pick this up in time. Make sure it is open and signed in to Send to Trillion, then try again."
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::placement::caller-sandbox",
+      "address": "package::ai-tool-catalog::placement::caller-sandbox",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:caller-sandbox",
+        "label": "your own computer or sandbox",
+        "executor": "caller",
+        "reachable_from": [
+          "hosted"
+        ],
+        "idle_cost_usd_per_month": 0
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::placement::your-computer-network",
+      "address": "package::ai-tool-catalog::placement::your-computer-network",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:your-computer-network",
+        "label": "your own computer's internet connection",
+        "executor": "computer-network",
+        "reachable_from": [
+          "hosted"
+        ],
+        "idle_cost_usd_per_month": 0,
+        "settings": {
+          "wait_seconds": 60,
+          "words": {
+            "absent": "None of your computers is connected to Trillion right now, so this could not be sent from your own internet connection. Open Trillion on your computer and try again.",
+            "late": "Your computer did not pick up the request in time, so nothing was sent. Make sure Trillion is running on your computer and try again.",
+            "not_known": "Your computer took the request and did not say what happened, so it may have been sent. Check the place it went before sending it again."
+          }
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::placement::deployed-container",
+      "address": "package::ai-tool-catalog::placement::deployed-container",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:deployed-container",
+        "label": "an isolated container that runs only while working",
+        "executor": "container",
+        "reachable_from": [
+          "hosted"
+        ],
+        "vendor": "Cloudflare Containers",
+        "billing": "per 10 ms while running; sleeps to zero between calls",
+        "idle_cost_usd_per_month": 0,
+        "settings": {
+          "build": {
+            "dockerfile_lines": [
+              "FROM docker.io/library/python:3.12-bookworm",
+              "COPY --from=docker.io/library/node:24-bookworm-slim /usr/local/bin/node /usr/local/bin/node",
+              "RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg fonts-dejavu-core fonts-ebgaramond chromium fonts-inter fonts-noto-color-emoji && rm -rf /var/lib/apt/lists/*",
+              "RUN pip install --no-cache-dir pillow==11.3.0",
+              "RUN pip install --no-cache-dir onnxruntime==1.23.2 tokenizers==0.22.1 numpy==2.3.3 blake3==1.0.5",
+              "RUN pip install --no-cache-dir kaldi-native-fbank==1.22.3 webrtcvad-wheels==2.0.14",
+              "RUN mkdir -p /opt/models/campplus-voice && cd /opt/models/campplus-voice && python -c \"import urllib.request as u, blake3 as b; p='campplus_cn_en_common_200k.onnx'; u.urlretrieve('https://huggingface.co/welcomyou/campplus-3dspeaker-200k-onnx/resolve/6265ff7af2a104d745b4389026ed9815c6c1c6ff/'+p,p); assert b.blake3(open(p,'rb').read()).hexdigest() == 'da1c3e7a3fdf95635f967c4c79e1c0d7e922e5c5eb598f06d39d1b600cbc6f42'\"",
+              "RUN mkdir -p /opt/models/clip-vit-base-patch32 && cd /opt/models/clip-vit-base-patch32 && python -c \"import json, urllib.request as u, blake3 as b; B='https://huggingface.co/Xenova/clip-vit-base-patch32/resolve/d15189d7028b43f1d3e65039190477f6af591c2a/'; W={'onnx/text_model.onnx': '4a2656f646824b8ae4e3ddf16c4761a208379a600cfb72a03673c2dd88feeb71', 'tokenizer.json': 'fce83ce4401d6659642c31e4d7f78b926b83e5f8f091be7f827c32f580d44712'}; [u.urlretrieve(B + p, p.split('/')[-1]) for p in W]; bad = [p for p, h in W.items() if b.blake3(open(p.split('/')[-1], 'rb').read()).hexdigest() != h]; assert not bad, bad; json.dump({'names': {'name': 'ViT-B-32', 'pretrained': 'openai'}, 'context_length': 77, 'pad_id': 49407}, open('model.json', 'w'))\"",
+              "RUN mkdir -p /opt/models/u2net-human-seg && cd /opt/models/u2net-human-seg && python -c \"import urllib.request as u, blake3 as b; p='u2net_human_seg.onnx'; u.urlretrieve('https://github.com/danielgatis/rembg/releases/download/v0.0.0/'+p,p); assert b.blake3(open(p,'rb').read()).hexdigest() == '71a0354b1cfafe7241c9d46b08cea3af8904818f8ac4c649317e24945f4bbb83'\"",
+              "RUN mkdir -p /opt/models/faces && cd /opt/models/faces && python -c \"import urllib.request as u, blake3 as b; B='https://media.githubusercontent.com/media/opencv/opencv_zoo/'; W={'f12e12798e8314f7c074a6656816c048dcc95b7a/models/face_detection_yunet/face_detection_yunet_2023mar.onnx': '3d5938c4cd5a02dc416f1cd1f7fc1f662a22adc370477112c871954587e63431', 'ba91a3b91d00d76e86540d4013f944bd6b514e39/models/face_recognition_sface/face_recognition_sface_2021dec.onnx': '584d0f5792e9e776ab5e5bf3f559f2310ff8fdd3b39f94dd364751046592b512'}; [u.urlretrieve(B + p, p.split('/')[-1]) for p in W]; bad = [p for p, h in W.items() if b.blake3(open(p.split('/')[-1], 'rb').read()).hexdigest() != h]; assert not bad, bad\"",
+              "RUN printf '%s' '<?xml version=\"1.0\"?><!DOCTYPE fontconfig SYSTEM \"fonts.dtd\"><fontconfig><alias binding=\"same\"><family>SF Pro Text</family><prefer><family>Inter</family></prefer></alias><alias binding=\"same\"><family>SF Pro Display</family><prefer><family>Inter</family></prefer></alias></fontconfig>' > /etc/fonts/local.conf"
+            ]
+          },
+          "instance_type": "standard-4",
+          "max_instances": 5,
+          "binding": "TOOL_CONTAINER",
+          "class_name": "ToolContainer",
+          "application": "tool-container"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::placement::small-container",
+      "address": "package::ai-tool-catalog::placement::small-container",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:small-container",
+        "label": "a small isolated container for short tools that runs only while working",
+        "executor": "container",
+        "reachable_from": [
+          "hosted"
+        ],
+        "vendor": "Cloudflare Containers",
+        "billing": "per 10 ms while running; sleeps to zero between calls",
+        "idle_cost_usd_per_month": 0,
+        "settings": {
+          "build": {
+            "dockerfile_lines": [
+              "FROM docker.io/library/node:24-bookworm-slim",
+              "RUN test -x /usr/local/bin/node && /usr/local/bin/node --version"
+            ]
+          },
+          "instance_type": "basic",
+          "max_instances": 20,
+          "binding": "SMALL_TOOL_CONTAINER",
+          "class_name": "SmallToolContainer",
+          "application": "small-tool-container"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::placement::held-values",
+      "address": "package::ai-tool-catalog::placement::held-values",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:held-values",
+        "label": "this account\u2019s locked box",
+        "executor": "held-values",
+        "reachable_from": [
+          "hosted"
+        ],
+        "idle_cost_usd_per_month": 0
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::placement::hosted-sites",
+      "address": "package::ai-tool-catalog::placement::hosted-sites",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:hosted-sites",
+        "label": "a site this service hosts, in a container that runs only while it is visited",
+        "executor": "hosted-service",
+        "reachable_from": [
+          "hosted"
+        ],
+        "vendor": "Cloudflare Containers",
+        "billing": "per 10 ms while awake; sleeps to zero"
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::placement::this-worker",
+      "address": "package::ai-tool-catalog::placement::this-worker",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-placement",
+        "id": "placement:this-worker",
+        "label": "Trillion itself, in the same process that answers the call",
+        "executor": "worker-module",
+        "reachable_from": [
+          "hosted"
+        ],
+        "vendor": "Cloudflare Workers",
+        "billing": "part of the request that asks for it; nothing runs between calls",
+        "idle_cost_usd_per_month": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "_what": "What counts as new for the person on each screen, and what the New for you strip on Home shows. Owned by src/new-work.mjs. A count row names a sidebar screen (`surface`, an id in src/workspace/surfaces.json) and where its count comes from: `source` `activity` (the default) counts the rows of the person's AI activity record (src/activity-marks.json) whose `tools` it lists (or every tool, with `tools` \"every\"), made by an AI (never what the person did on their own page), after the person last saw that screen; `where` narrows by a fact the row keeps (`fact` and `starts_with`, any of them). `source` `space_unread` is the unread count of every space the person is in, which opening each space clears. A screen the person has never opened counts only the last `window_days` days, and so does one last seen longer ago. The window's start moves in steps of `window_step_minutes`, so a count may hold a row up to one step older than `window_days`. The strip lists the newest rows made by an AI whose tool is in `strip.tools`, at most `strip.count`, each marked new when it came after the person last saw `strip.surface`, the same thing once (its newest row), and `looks` says how something that is not a file shows (an icon and the words for its kind); a file shows its own picture (src/workspace/file-previews.json). A new kind of made thing is a row here and a mark in activity-marks.json; no code changes. `badge_kind` says what a screen's count is, for how its sidebar row shows it (parts/sidebar/read-data/sidebar-badge-marks.json): the top-level value for every row, a row's own for that row; `notification` for unread notifications (a space's unread messages), which a collapsed sidebar shows as a red dot. `reconcile_after_ms` is how long a burst of removals waits before the store's own count is read to settle a row's badge (src/workspace/badge-counts.ts). `badge_events` names the row a real write moves at once, before the store's count settles it: the person marking a space seen takes its unread off `space_seen.removes_from`; an AI's activity record changing adds one to `ai_activity.adds_to`. A typed `badge` frame from the store (src/live-screen.mjs badge) names an event in this list and an amount; another member withdrawing an item this person had not seen takes it off `space_item_withdrawn.removes_from`. A new event is a row here and a writer that sends it.",
+  "window_days": 14,
+  "window_step_minutes": 60,
+  "badge_kind": "count",
+  "counts": [
+    {
+      "surface": "trillion.home",
+      "tools": [
+        "file_kept",
+        "start_decision",
+        "save_tool",
+        "post_to_community"
+      ]
+    },
+    {
+      "surface": "trillion.files",
+      "tools": [
+        "file_kept"
+      ]
+    },
+    {
+      "surface": "trillion.media",
+      "tools": [
+        "file_kept"
+      ],
+      "where": {
+        "fact": "media_type",
+        "starts_with": [
+          "video/",
+          "audio/",
+          "image/"
+        ]
+      }
+    },
+    {
+      "surface": "trillion.decisions",
+      "tools": [
+        "start_decision"
+      ]
+    },
+    {
+      "surface": "trillion.workshop",
+      "tools": [
+        "save_tool"
+      ]
+    },
+    {
+      "surface": "trillion.activity",
+      "tools": "every"
+    },
+    {
+      "surface": "trillion.pursuits",
+      "source": "space_unread",
+      "badge_kind": "notification"
+    }
+  ],
+  "strip": {
+    "surface": "trillion.home",
+    "count": 8,
+    "tools": [
+      "file_kept",
+      "start_decision",
+      "save_tool",
+      "post_to_community"
+    ]
+  },
+  "looks": {
+    "start_decision": {
+      "icon": "Scale",
+      "type_label": "Decision"
+    },
+    "save_tool": {
+      "icon": "Wrench",
+      "type_label": "Tool"
+    },
+    "post_to_community": {
+      "icon": "MessagesSquare",
+      "type_label": "Post"
+    }
+  },
+  "reconcile_after_ms": 1500,
+  "badge_events": {
+    "space_seen": {
+      "removes_from": "trillion.pursuits"
+    },
+    "ai_activity": {
+      "adds_to": "trillion.activity"
+    },
+    "space_item_withdrawn": {
+      "removes_from": "trillion.pursuits"
+    }
+  }
+}
