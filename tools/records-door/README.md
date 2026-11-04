@@ -86,8 +86,7 @@ A row asks for the door in its invoke, with one rights item per record kind:
 | `read-data/lists-door.mjs` | `listsOverDoor(door)`: a person's lists over this door, as a Trillion list keeps them (the list `list:<id>` of type `list`, each row `record:<row type>:<row id>` of type `record:<row type>`): find, ensure, save, read, and putRows, which merges each row over what it holds and writes conditionally on what was read. |
 | `read-data/write-batches.mjs` | `writeBatches(records, { rows, bytes })`: records in order as writes that each fit one door message (at most `rows` records and `bytes` bytes of JSON, counted by `measure` when given; a larger record alone), since a write over the 64 KiB message is refused whole. Pure, so a page bundles it too. |
 | `read-data/whole-file.mjs` | `readWholeFile(door, name, { readBytes, mostBytes })`: one of the person's files read whole through the run's door (`find_file`, then `read_file` page by page) as `{ title, size, bytes }`, bytes null past `mostBytes`; `writeWholeFile(door, name, bytes, { mediaType })`: bytes kept as one of the person's files in pieces that each fit one door message (`write_file_start`, `write_file_piece`, `write_file_finish`). For a tool that hands a file to a program on the computer and keeps what it made. |
-| `test/fake-door.mjs` | A stand-in door on loopback: records in memory, bearer and rights checks, cut pages (by rows, or with `pageBytes` by the bytes of the rows shown, as the engine's door cuts them), a request body over `mostRequestBytes` refused with 413, byte pages, busy answers, event-stream answers, saved write receipts. |
-| `test/run-row.mjs` | `runRow(row, input, { records })`: runs a row's argv the way the container does (`/opt/<folder>` laid on `tools/<folder>`), with the fake door on the row's descriptor and exactly the row's rights. Kept only for the ten tests that still hand a row its stdin verbatim; every other test runs rows with `test-helpers/run-a-row.mjs` (`answerOf`), which packs a row's files at their own places and fills its stdin as the engine does. |
+| `test/fake-door.mjs` | A stand-in door on loopback, which `test-helpers/run-a-row.mjs` starts with exactly a row's rights for every row test: records in memory, bearer and rights checks, cut pages (by rows, or with `pageBytes` by the bytes of the rows shown, as the engine's door cuts them), a request body over `mostRequestBytes` refused with 413, byte pages, busy answers, event-stream answers, saved write receipts. |
 | `test/records-door.test.mjs` | The client and the driver against the fake door. |
 
 ## Dependencies
@@ -95,10 +94,10 @@ A row asks for the door in its invoke, with one rights item per record kind:
 **Depends on:** Node, and `tools/content-identity` (the BLAKE3 check of joined byte pages).
 
 **Depended on by:**
-- `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`, `tools/person-list`, `tools/how-someone-does-their-thing` (its voice rows): their rows pack this folder, and their tests use `test/run-row.mjs`;
+- `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`, `tools/person-list`, `tools/how-someone-does-their-thing` (its voice rows): their rows pack this folder, and their tests run those rows with `test-helpers/run-a-row.mjs`, which seeds `test/fake-door.mjs`;
 - `tools/meaning-search` and `tools/documents-as-list-rows`: their rows pack this folder and read the person's files with `door.files`;
 - `tools/read-a-list-view`: its door joins byte pages with `read-data/byte-pages.mjs`, and its refresh cuts writes with `read-data/write-batches.mjs`;
 - `tools/decide-with-a-method`: its rows pack this folder, and a decision too large for one write is cut with `read-data/write-batches.mjs`.
 - `tools/listen-for-a-while` and `tools/audio-transcription`: a recording to hear is read with `read-data/whole-file.mjs`.
 - `tools/watch-my-sources` and the tools that read a person's lists: they reach the person's lists through `read-data/lists-door.mjs`;
-- `tools/record-graph`: its rows pack this folder, `relate` cuts its writes with `read-data/write-batches.mjs`, and its tests use `test/fake-door.mjs` and `test/run-row.mjs`.
+- `tools/record-graph`: its rows pack this folder, `relate` cuts its writes with `read-data/write-batches.mjs`, and its tests use `test/fake-door.mjs` and run its rows with `test-helpers/run-a-row.mjs`.
