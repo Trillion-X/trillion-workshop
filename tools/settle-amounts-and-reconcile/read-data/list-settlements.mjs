@@ -35,9 +35,11 @@
 //   makeSettlements({ lists, now? }) → { propose, settle, unsettle, position, checkBalance,
 //                                          closeReconciliation, checkReconciliation, undoReconciliation }
 //   handleSettlementRequest(lists, action, input) → Response   (POST /lists/<list>/settlement/<action>)
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
 import data from './list-settlements.json' with { type: 'json' };
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
+/** BLAKE3-256 of the bytes as 64 hex digits, from the one content-identity owner (its `1f:` prefix dropped). */
+const blake3Hex = bytes => makeHashCodeHexFromBytes(bytes).slice(3);
 
 export class SettlementError extends Error {}
 
@@ -47,7 +49,7 @@ const fill = (template, values) => String(template).replace(/\{(\w+)\}/g, (_, na
 const say = (key, values = {}) => new SettlementError(fill(data.words[key], values));
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
-const identity = (...parts) => bytesToHex(blake3(new TextEncoder().encode(JSON.stringify(parts))));
+const identity = (...parts) => blake3Hex(new TextEncoder().encode(JSON.stringify(parts)));
 const idsOf = value => (Array.isArray(value) ? value.filter(item => typeof item === 'string') : typeof value === 'string' && value ? [value] : []);
 
 export const unitsOf = value => (typeof value === 'number' && Number.isFinite(value) ? Math.round(value * data.scale) : null);
