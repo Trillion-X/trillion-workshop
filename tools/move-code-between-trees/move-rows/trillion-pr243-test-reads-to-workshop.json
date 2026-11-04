@@ -1,0 +1,34 @@
+{
+  "id": "move:trillion-pr243-test-reads-to-workshop",
+  "about": "Files a carried PR #243 test's code reads by its address, which the import closure does not follow, so no lane carried them: they come byte for byte from the tag old-trillion-before-worker-retire to the place the moved code reads them. docs/pr243-deleted-tests.json names the tests they let run.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "calls": [
+    {
+      "id": "made-up-owner-name",
+      "means": "This repository is public and holds made-up data only: a real person's first name used as a test's sample owner becomes a made-up one. Nothing else in the file changes.",
+      "find": "'Jibran'",
+      "replace": "'Sam Example'"
+    }
+  ],
+  "groups": [
+    {
+      "id": "wake-stopped-chats-rules",
+      "owner": [
+        "harness/wake-stopped-chats.json"
+      ],
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer",
+      "joins_tool": "the rules file its wake-stopped-chats handler reads by its address (harness/wake-stopped-chats.json): the handler moved, the file it reads did not, so the handler and its test stopped at ENOENT"
+    }
+  ]
+}
