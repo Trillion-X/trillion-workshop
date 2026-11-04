@@ -1,0 +1,160 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-new-names",
+        "id": "tool:check-new-names",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "label": "Check the names a change brings in",
+        "job": "Check the folder and file names a change brings into a repository against the person's naming rules, and say which name holds a codename, a status, a time or a technical metaphor, with the word and why",
+        "description": "Give rules: { words: [{ why, words }], patterns: [{ why, pattern }], passes: [outside names such as a product or a file format], repositories?: [owner/name] }, and optionally range: from..to (two commits of the granted repository; without it, its staged index). Only names the change brings in are judged: each added or renamed file, and each folder of its path the base tree did not hold. A name is read as words (split at - _ . and spaces and where lower case meets upper case, its extension left out); a word in passes is never refused, otherwise the first word listed in words or matching a pattern fails the name with that row's why. Returns valid, judged (how many names) and refused [{ path, name, word, why }].",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "rules"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rules": {
+              "type": "object",
+              "required": [
+                "words"
+              ],
+              "properties": {
+                "words": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "why",
+                      "words"
+                    ],
+                    "properties": {
+                      "why": {
+                        "type": "string"
+                      },
+                      "words": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "patterns": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "why",
+                      "pattern"
+                    ],
+                    "properties": {
+                      "why": {
+                        "type": "string"
+                      },
+                      "pattern": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "passes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "repositories": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "range": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "valid",
+            "judged",
+            "refused"
+          ],
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "judged": {
+              "type": "integer"
+            },
+            "refused": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "word",
+                  "why"
+                ]
+              }
+            },
+            "unjudged": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/check-new-names",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/check-new-names/do-work/check-new-names.mjs",
+            "--root",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            },
+            "--input-on-stdin"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "check-new-names",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/check-new-names"
+            }
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}

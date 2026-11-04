@@ -1,0 +1,52 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-NEW-NAMES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "naming check as a list row, 2026-11-03",
+  "message_multihash": "1f:f7ea1d546c775d5a8969c12268ec82385ce18a025e9203c98d468cf280609e1f",
+  "quote": "It applies generic-naming.md rules 1 and 4: no codename, status, time or metaphor word in a folder or file name in trillion-rust, trillion-workshop or trillion-apps, and external product names pass."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "refuse a commit or push that brings in a folder or file name a new reader cannot point at: a codename, a status, a time or a technical metaphor, by word lists the caller gives",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/check-new-names/do-work/check-new-names.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "proof": {
+  "search": {
+   "phrasings": [
+    "refuse a commit or push that brings in a folder or file name a new reader cannot point at: a codename, a status, a time or a technical metaphor, by word lists the caller gives",
+    "check new file and folder names against word lists",
+    "refuse codenames in file names"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "judgedRepository"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "b1ebfb9dddabf62318cb6a0ba5639875121527c3"
+    },
+    {
+     "repository": "trillion",
+     "commit": "a7f1f9a0a84ea399d0b964d3e7a201609884648f"
+    },
+    {
+     "repository": "trillion-rust",
+     "commit": "fff31e4b29e5ed8540d2e0dceee5346c02d2f784"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/check-new-names/test/check-new-names.test.mjs"
+  ]
+ }
+}
