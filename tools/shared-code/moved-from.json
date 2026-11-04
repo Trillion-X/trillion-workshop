@@ -363,6 +363,14 @@
       "identity": "1f:ec21e99351b39172b1dd186747128da6753a6f150c4b28c3bd39058b5dc25b3e"
     },
     {
+      "from": "src/new-work.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/src/new-work.mjs",
+      "source_identity": "1f:2f27b617f92c8290079496d5ac835778eaec3f52467511ed93e1307c223db1f5",
+      "identity": "1f:ec21e99351b39172b1dd186747128da6753a6f150c4b28c3bd39058b5dc25b3e",
+      "reused": true
+    },
+    {
       "from": "src/note-text-index.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/note-text-index.json",
@@ -375,6 +383,14 @@
       "to": "tools/shared-code/src/offer-allocation.mjs",
       "source_identity": "1f:0162c22e5195c07d25eccfebccdb23bd545db3ca4f63ab0126090bc6ee2fb171",
       "identity": "1f:0162c22e5195c07d25eccfebccdb23bd545db3ca4f63ab0126090bc6ee2fb171"
+    },
+    {
+      "from": "src/offer-allocation.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/src/offer-allocation.mjs",
+      "source_identity": "1f:0162c22e5195c07d25eccfebccdb23bd545db3ca4f63ab0126090bc6ee2fb171",
+      "identity": "1f:0162c22e5195c07d25eccfebccdb23bd545db3ca4f63ab0126090bc6ee2fb171",
+      "reused": true
     },
     {
       "from": "src/offer-rows.mjs",
@@ -594,6 +610,14 @@
       "to": "tools/shared-code/src/seen-marks.mjs",
       "source_identity": "1f:47565d0d109dbe86cfbe79d0aaa81cbc992c3874b84fa7ae782770f819c46f54",
       "identity": "1f:d7bebcbdc0913b1728b985d784ed430c54d905171fabfc1dffa1fa99068584e8"
+    },
+    {
+      "from": "src/seen-marks.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/src/seen-marks.mjs",
+      "source_identity": "1f:47565d0d109dbe86cfbe79d0aaa81cbc992c3874b84fa7ae782770f819c46f54",
+      "identity": "1f:d7bebcbdc0913b1728b985d784ed430c54d905171fabfc1dffa1fa99068584e8",
+      "reused": true
     },
     {
       "from": "src/server-instruction-paragraphs.mjs",
@@ -853,6 +877,13 @@
       "to": "tools/shared-code/test/namespace-worker-vars.test.mjs",
       "source_identity": "1f:13b2003e30758544eeadca881d2940e6d10307f575096ad6ce67bbf646edc290",
       "identity": "1f:13b2003e30758544eeadca881d2940e6d10307f575096ad6ce67bbf646edc290"
+    },
+    {
+      "from": "test/new-work.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/test/new-work.test.mjs",
+      "source_identity": "1f:662da12e63d901e83c2d9f1bd7d0bfaa5c425d58b6640ceafe920d070092042d",
+      "identity": "1f:d490a072a93828c76239b5d42d06e9c94901237c25495c286fb1485832c6b12b"
     }
   ]
 }
