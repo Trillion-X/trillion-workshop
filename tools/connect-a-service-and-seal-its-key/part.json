@@ -12,7 +12,6 @@
     "read-data/read-service-connection-options.ts",
     "read-data/grant-requirements.ts",
     "records.json",
-    "read-data/calendar-connection-options.ts",
-    "read-data/public-door-rows.mjs"
+    "read-data/calendar-connection-options.ts"
   ]
 }

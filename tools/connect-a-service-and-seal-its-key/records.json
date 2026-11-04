@@ -4488,46 +4488,7 @@
      "below": 300
     },
     "steps_a_person_must_do": [],
-    "notes": "This note owns HALF of a deploy, and saying which half is the point. A deploy is two halves: produce an artifact, then cause a target to run it. This note owns the second half only. It can move a machine onto an artifact that already exists, and it cannot bring one into being. The second half belongs here because it is an instance of reaching an outside thing and asking it to change state, which this file already owns for every other outside thing, so a deploy-shaped package would have been a second copy of this mechanism wearing a vendor's name. Nothing here is Fly-specific except the addresses, which are DATA: another host with an HTTP API is another row in this file and no code anywhere changes, which is the provider-neutral deployment algebra rather than a promise of one. The agent guard forbids a HAND deploy, meaning a typed command with no owner; this is the declared operation it points at instead. MEASURED 2026-09-04: nothing in the package set produced a container image, a sweep for Dockerfile, docker build, buildpack and oci-archive returned zero producers, and the missing piece was named exactly, a sibling container-image row on the generic artifact owner native-artifact, where macOS is one named artifact kind rather than a branch. ✅ THAT HALF NOW EXISTS, 2026-09-20: native-artifact/do-work/project-container-image-layer.mjs reads the same file manifests the other artifact kinds read, selects by output prefix, reports every unselected entry rather than dropping it, and stops at a build context, which the generic deployment owner then deploys. The prediction written here held, so the sentence is kept rather than replaced: it is the record of a gap being named before it was filled. What this note says about ITSELF is unchanged and still the point: it moves a machine onto an artifact and cannot bring one into being, so the two halves stay separate owners.",
-    "rents_a_host": {
-     "notes": "What the public door's lease (scripts/portable-host-lease.mjs) reads to rent and release one machine through the requests above.",
-     "base": "https://api.machines.dev/v1",
-     "vault_key": "fly-api-token",
-     "error_code_at": "error",
-     "move_ready": false,
-     "not_ready_because": "A Fly Machine has no public IPv4 of its own (the address belongs to the app) and takes no root SSH key, so the door setup cannot run on it yet.",
-     "placement": {
-      "size": "shared-cpu-2x",
-      "location": "iad",
-      "image": "ubuntu:24.04",
-      "which_app": null
-     },
-     "fill": {
-      "region": "{location}",
-      "config": {
-       "image": "{image}",
-       "guest": {
-        "cpu_kind": "shared",
-        "cpus": 2,
-        "memory_mb": 4096
-       },
-       "metadata": {
-        "trillion-lease": "{name}"
-       }
-      }
-     },
-     "host": {
-      "find": "list_machines",
-      "create": "create_machine",
-      "read": "read_machine",
-      "remove": "destroy_machine",
-      "id_is": "which_machine",
-      "id_pattern": "^[0-9a-f]{14}$",
-      "owner_at": "config.metadata.trillion-lease",
-      "address_at": "private_ip"
-     },
-     "access_key": null
-    }
+    "notes": "This note owns HALF of a deploy, and saying which half is the point. A deploy is two halves: produce an artifact, then cause a target to run it. This note owns the second half only. It can move a machine onto an artifact that already exists, and it cannot bring one into being. The second half belongs here because it is an instance of reaching an outside thing and asking it to change state, which this file already owns for every other outside thing, so a deploy-shaped package would have been a second copy of this mechanism wearing a vendor's name. Nothing here is Fly-specific except the addresses, which are DATA: another host with an HTTP API is another row in this file and no code anywhere changes, which is the provider-neutral deployment algebra rather than a promise of one. The agent guard forbids a HAND deploy, meaning a typed command with no owner; this is the declared operation it points at instead. MEASURED 2026-09-04: nothing in the package set produced a container image, a sweep for Dockerfile, docker build, buildpack and oci-archive returned zero producers, and the missing piece was named exactly, a sibling container-image row on the generic artifact owner native-artifact, where macOS is one named artifact kind rather than a branch. ✅ THAT HALF NOW EXISTS, 2026-09-20: native-artifact/do-work/project-container-image-layer.mjs reads the same file manifests the other artifact kinds read, selects by output prefix, reports every unselected entry rather than dropping it, and stops at a build context, which the generic deployment owner then deploys. The prediction written here held, so the sentence is kept rather than replaced: it is the record of a gap being named before it was filled. What this note says about ITSELF is unchanged and still the point: it moves a machine onto an artifact and cannot bring one into being, so the two halves stay separate owners."
    },
    "payload_text": null,
    "payload_base64": null,
@@ -4645,98 +4606,7 @@
       "method": "DELETE"
      }
     },
-    "source": "https://docs.hetzner.cloud/ (Written from the provider's documented API; the session that wrote it could not reach the docs host or any account, so no live call has checked it.)",
-    "rents_a_host": {
-     "notes": "What the public door's lease (scripts/portable-host-lease.mjs) reads to rent and release one server and its key through the requests above.",
-     "base": "https://api.hetzner.cloud/v1",
-     "vault_key": "hetzner-api-token",
-     "error_code_at": "error.code",
-     "move_ready": true,
-     "placement": {
-      "size": "cpx21",
-      "location": "ash",
-      "image": "ubuntu-24.04"
-     },
-     "fill": {
-      "server_type": "{size}",
-      "key_name": "{name}-access",
-      "labels": {
-       "trillion-lease": "{name}"
-      }
-     },
-     "host": {
-      "find": "find_servers_by_name",
-      "list_at": "servers",
-      "create": "create_server",
-      "created_at": "server",
-      "read": "read_server",
-      "found_at": "server",
-      "remove": "delete_server",
-      "id_is": "server_id",
-      "id_pattern": "^[0-9]+$",
-      "owner_at": "labels.trillion-lease",
-      "address_at": "public_net.ipv4.ip"
-     },
-     "access_key": {
-      "create": "add_ssh_key",
-      "read": "read_ssh_key",
-      "found_at": "ssh_key",
-      "remove": "delete_ssh_key",
-      "id_is": "ssh_key_id",
-      "id_at": "ssh_key.id"
-     }
-    }
-   },
-   "payload_text": null,
-   "payload_base64": null,
-   "remove": false
-  },
-  {
-   "type": "record",
-   "address": "package::service-connections::host-you-already-run::own-box",
-   "path": [
-    "current-item",
-    "published-record"
-   ],
-   "payload": {
-    "kind": "host-you-already-run",
-    "id": "own-box",
-    "name": "Your own box over SSH",
-    "rents_a_host": {
-     "notes": "Set placement.address to the box's public IPv4. Renting adopts that address; releasing forgets it and never touches the box.",
-     "base": null,
-     "move_ready": true,
-     "placement": {
-      "address": null
-     }
-    }
-   },
-   "payload_text": null,
-   "payload_base64": null,
-   "remove": false
-  },
-  {
-   "type": "record",
-   "address": "package::service-connections::public-door-placement::current",
-   "path": [
-    "current-item",
-    "published-record"
-   ],
-   "payload": {
-    "kind": "public-door-placement",
-    "id": "current",
-    "hosting_provider": "hetzner",
-    "dns_provider": "cloudflare",
-    "hostname": "app.gettrillion.ai",
-    "server_id": null,
-    "address": null,
-    "dns_record": null,
-    "lease_file": null,
-    "unknown_because": "The live lease and DNS receipts are kept in the private deployment home on the Mac; this row was written from a cloud checkout that cannot read them. The move operation fills every field.",
-    "proof": {
-     "health": "/healthz",
-     "download": "/download/Trillion.dmg"
-    }
+    "source": "https://docs.hetzner.cloud/ (Written from the provider's documented API; the session that wrote it could not reach the docs host or any account, so no live call has checked it.)"
    },
    "payload_text": null,
    "payload_base64": null,
@@ -17740,15 +17610,6 @@
       "https://developers.cloudflare.com/analytics/graphql-api/",
       "https://developers.cloudflare.com/workers/platform/pricing/"
      ]
-    },
-    "points_a_name": {
-     "notes": "The DNS edit token the public door's cut-over (scripts/portable-dns-cutover.mjs) and certificates (scripts/portable-tls.mjs) use; a separate token from the usage-reading one this connection holds. Those owners speak Cloudflare's zones, dns_records and workers shape and the Cloudflare certbot plugin; another DNS row needs its own adapter there.",
-     "base": "https://api.cloudflare.com/client/v4",
-     "vault_key": "cloudflare-api-token",
-     "acme": {
-      "certbot_plugin": "dns-cloudflare",
-      "package": "python3-certbot-dns-cloudflare"
-     }
     }
    },
    "payload_text": null,
