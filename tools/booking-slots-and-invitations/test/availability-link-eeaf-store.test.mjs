@@ -1,15 +1,23 @@
+// The booking-link tool's own logic (tools/booking-slots-and-invitations/do-work/availability-link-eeaf-store.mjs) over the
+// records a tool reaches through the door: interval probes, collisions, paging, counts and rollback. The records are the
+// Workshop's in-memory stand-in (tools/records-door/test-support/records-fake.mjs), not a store: what these tests prove
+// is the tool's logic over the answers the door gives. Moved from old trillion test/availability-link-eeaf-store.test.mjs
+// (tag old-trillion-before-worker-retire); the cases that proved the old JS record engine itself (cold reopen, strict
+// model admission, erasure cascade, the EEAF backend refusing erase) are the engine's and are named with their Rust
+// owners in tools/booking-slots-and-invitations/README.md, Tests.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtempSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
-import { tmpdir } from 'node:os';
-import { eeafStore } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs';
-import { openRecords, setRecordEngine } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
 import { availabilityLinkEeafStore } from '../do-work/availability-link-eeaf-store.mjs';
 import { identityOf } from '../../shared-code/src/typed-operation-contract.mjs';
-import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { createAvailabilityLinkOwner } from '../do-work/availability-link-owner.ts';
-import { readAt } from '../../record-log/do-work/record-time.mjs';
+import { recordsFake } from '../../records-door/test-support/records-fake.mjs';
+
+// The tool's declared indexes, as old trillion src/record-indexes.json declared them.
+const INDEXES = [
+  { type: 'availability-reservation-hold', name: 'calendar-end', where: [{ path: ['state'], not: ['released'] }], paths: [['calendar_identity'], ['occupied_end_sort_key']] },
+  { type: 'availability-reservation', name: 'by-link', paths: [['link_id']] },
+  { type: 'availability-reservation', name: 'link-grant-held', where: [{ path: ['state'], not: ['cancelled', 'failed'] }], paths: [['link_id'], ['grant_ref']] },
+];
 
 const identity = value => identityOf(value);
 const calendar = (overrides = {}) => ({ source_id: 'google-calendar', connection_id: 'connection:a', calendar_id: 'primary', connected_at: '2026-10-01T00:00:00.000Z', ...overrides });
@@ -21,23 +29,13 @@ const reservation = (id, linkId, selectedCalendar, start, end, extra = {}) => ({
   created_at: '2026-10-14T00:00:00.000Z', updated_at: '2026-10-14T00:00:00.000Z', ...extra,
 });
 
-function fixture(t, { identityFor = identity, path = ':memory:', engine = 'record-log', strict = false } = {}) {
-  const host = sqliteHost(path);
-  if (engine === 'eeaf') setRecordEngine(host.sql, 'eeaf');
-  const priorStrict = process.env.RECORD_MODEL_STRICT;
-  if (strict) process.env.RECORD_MODEL_STRICT = '1';
-  let eeaf;
-  try { eeaf = openRecords(host.sql, { transaction: host.transaction, hash: identity }); }
-  finally {
-    if (priorStrict === undefined) delete process.env.RECORD_MODEL_STRICT;
-    else process.env.RECORD_MODEL_STRICT = priorStrict;
-  }
+function fixture(t, { identityFor = identity } = {}) {
+  const records = recordsFake({ indexes: INDEXES });
   const idsCalls = [];
-  const observedEeaf = Object.create(eeaf);
-  observedEeaf.ids = (type, options) => { idsCalls.push({ type, options }); return eeaf.ids(type, options); };
-  const store = availabilityLinkEeafStore({ eeaf: observedEeaf, sql: host.sql, transaction: host.transaction, identity: identityFor });
-  t.after(() => { try { host.db.close(); } catch {} });
-  return { host, eeaf, store, idsCalls };
+  const observed = Object.create(records);
+  observed.ids = (type, options) => { idsCalls.push({ type, options }); return records.ids(type, options); };
+  const store = availabilityLinkEeafStore({ records: observed, transaction: records.transaction, identity: identityFor });
+  return { records, store, idsCalls };
 }
 
 test('reservations collide across links on the exact same calendar incarnation and honor half-open interval edges', t => {
@@ -74,7 +72,7 @@ test('interval query includes both occupied intervals while a move is pending', 
   assert.deepEqual(store.queryReservations({ calendar: selected, from_ms: 300, to_ms: 400, limit: 10 }).reservations, []);
 });
 
-test('SQLite interval index finds pending holds through every exact co-host incarnation', t => {
+test('the interval index finds pending holds through every exact co-host incarnation', t => {
   const { store } = fixture(t);
   const primary = calendar(), cohost = cohostCalendar();
   store.writeReservation(reservation('cohost-pending', 'link:a', primary, 100, 200, {
@@ -89,7 +87,7 @@ test('SQLite interval index finds pending holds through every exact co-host inca
   assert.equal(requested.reservations[0].host_calendars.length, 2);
 });
 
-test('SQLite holds keep original and pending host sets independently indexed during a move', t => {
+test('holds keep original and pending host sets independently indexed during a move', t => {
   const { store } = fixture(t);
   const primary = calendar(), oldCohost = cohostCalendar(), nextCohost = cohostCalendar({ connection_id: 'connection:next' });
   store.writeReservation(reservation('host-set-move', 'link:a', primary, 100, 200, {
@@ -123,8 +121,8 @@ test('over-limit interval reads fail closed without returning a partial free-tim
   assert.deepEqual(store.queryReservations({ calendar: selected, from_ms: 100, to_ms: 300, limit: 2 }), { reservations: [], complete: false });
 });
 
-test('link paging uses EEAF before cursors and retains immutable update history', t => {
-  const { store, idsCalls, eeaf } = fixture(t);
+test('link paging uses before cursors and a change is one write', t => {
+  const { store, idsCalls, records } = fixture(t);
   for (const id of ['a', 'b', 'c']) store.writeLink(link(id));
   const first = store.listLinks({ limit: 2 });
   assert.deepEqual(first.links.map(row => row.id), ['c', 'b']);
@@ -134,69 +132,10 @@ test('link paging uses EEAF before cursors and retains immutable update history'
   assert.equal(second.next_cursor, null);
   assert.deepEqual(idsCalls.map(call => call.options.before), [undefined, 'availability-link:b']);
 
-  const priorHistory = eeaf.lastLogId();
+  const prior = records.changes();
   store.writeLink({ ...link('b'), title: 'updated' });
-  const laterHistory = eeaf.lastLogId();
-  assert.notEqual(laterHistory, priorHistory, 'the shared record owner appends immutable history when the link changes');
+  assert.equal(records.changes(), prior + 1, 'a changed link is one write to the shared records (its history is the engine\'s)');
   assert.equal(store.readLink('b').title, 'updated');
-});
-
-for (const engine of ['record-log', 'eeaf']) test(`${engine} availability originals, reservations, links and indexed holds survive cold reopen`, t => {
-  const directory = mkdtempSync(join(tmpdir(), 'availability-eeaf-'));
-  const path = join(directory, 'resource.sqlite');
-  const firstHost = sqliteHost(path);
-  if (engine === 'eeaf') setRecordEngine(firstHost.sql, 'eeaf');
-  const firstEeaf = openRecords(firstHost.sql, { transaction: firstHost.transaction, hash: identity });
-  const first = availabilityLinkEeafStore({ eeaf: firstEeaf, sql: firstHost.sql, transaction: firstHost.transaction, identity });
-  const selected = calendar();
-  const savedLink = link('cold', selected);
-  const cohost = cohostCalendar();
-  const savedReservation = reservation('cold', 'cold', selected, 100, 200, { state: 'pending', host_calendars: [selected, cohost],
-    pending_host_calendars: [selected, cohost], pending_operation_id: 'availability-operation:cold' });
-  const operation = { id: 'availability-operation:cold', identity: 'op-identity', request_key: 'original', kind: 'reserve',
-    link_id: savedLink.id, reservation_id: savedReservation.id, input_identity: 'input-identity', state: 'pending',
-    created_at: savedLink.created_at, updated_at: savedLink.updated_at, effect_input: { link: savedLink, reservation: savedReservation } };
-  firstHost.transaction(() => {
-    first.writeLink(savedLink);
-    first.writeReservation(savedReservation);
-    first.writeOperation(operation);
-  });
-  firstHost.db.close();
-
-  const reopenedHost = sqliteHost(path);
-  t.after(() => { try { reopenedHost.db.close(); } catch {} rmSync(directory, { recursive: true, force: true }); });
-  const reopenedEeaf = openRecords(reopenedHost.sql, { transaction: reopenedHost.transaction, hash: identity });
-  const reopened = availabilityLinkEeafStore({ eeaf: reopenedEeaf, sql: reopenedHost.sql, transaction: reopenedHost.transaction, identity });
-  assert.deepEqual(reopened.readLink('cold'), savedLink);
-  assert.deepEqual(reopened.readReservation(savedReservation.id), savedReservation);
-  assert.deepEqual(reopened.readOperation(operation.id), operation);
-  assert.deepEqual(reopened.queryReservations({ calendar: selected, from_ms: 150, to_ms: 160, limit: 10 }).reservations.map(row => row.id), [savedReservation.id]);
-  assert.deepEqual(reopened.queryReservations({ calendar: cohost, calendars: [cohost], from_ms: 150, to_ms: 160, limit: 10 }).reservations.map(row => row.id), [savedReservation.id]);
-  assert.deepEqual(reopened.readReservation(savedReservation.id).host_calendars, [selected, cohost]);
-  assert.equal(reopenedEeaf.engine(), engine === 'eeaf' ? 'eeaf' : 'record-log');
-});
-
-for (const engine of ['record-log', 'eeaf']) test(`${engine} availability rows index exact current holds`, t => {
-  const { store, eeaf } = fixture(t, { engine, strict: true });
-  const selected = calendar(), savedLink = link(`strict-${engine}`, selected);
-  const savedReservation = reservation(`strict-${engine}`, savedLink.id, selected, 100, 200, {
-    recipient: { name: 'Private recipient', email: 'guest@example.test' },
-  });
-  store.writeLink(savedLink);
-  store.writeReservation(savedReservation);
-  store.writeOperation({ id: `availability-operation:${engine}`, identity: `identity:${engine}`, request_key: 'strict',
-    kind: 'reserve', link_id: savedLink.id, reservation_id: savedReservation.id, input_identity: 'input', state: 'pending',
-    created_at: savedLink.created_at, updated_at: savedLink.updated_at });
-  assert.equal(eeaf.engine(), engine === 'eeaf' ? 'eeaf' : 'record-log');
-  if (engine === 'record-log') {
-    assert.throws(() => eeaf.write([{ id: `availability-link:invalid-${engine}`, type: 'availability-link',
-      value: { ...savedLink, unsupported_private_copy: 'must not enter the shared schema' } }], { actor: { by: 'test' } }), /property|schema|model/i,
-    'strict model admission rejects undeclared availability fields');
-  }
-
-  const holdIds = eeaf.ids('availability-reservation-hold');
-  assert.equal(holdIds.length, 1);
-  assert.equal(store.queryReservations({ calendar: selected, from_ms: 100, to_ms: 200, limit: 10 }).reservations.length, 1);
 });
 
 test('one-millisecond interval boundaries remain exact at current dates', t => {
@@ -207,8 +146,8 @@ test('one-millisecond interval boundaries remain exact at current dates', t => {
   assert.equal(store.queryReservations({ calendar: calendar(), from_ms: start + 1, to_ms: start + 2, limit: 5 }).reservations.length, 0);
 });
 
-for (const engine of ['record-log', 'eeaf']) test(`${engine} multi-record rollback also clears uncommitted EEAF cache entries`, t => {
-  const { store, eeaf } = fixture(t, { engine });
+test('a multi-record write that rolls back leaves no link, reservation or hold', t => {
+  const { store, records } = fixture(t);
   assert.throws(() => store.transaction(() => {
     store.writeLink(link('rolled-back'));
     store.writeReservation(reservation('rolled-back', 'rolled-back', calendar(), 100, 200));
@@ -216,61 +155,11 @@ for (const engine of ['record-log', 'eeaf']) test(`${engine} multi-record rollba
   }), /commit refused/);
   assert.equal(store.readLink('rolled-back'), null);
   assert.equal(store.readReservation('availability-reservation:rolled-back'), null);
-  assert.deepEqual(eeaf.ids('availability-link'), []);
+  assert.deepEqual(records.ids('availability-link'), []);
+  assert.deepEqual(records.ids('availability-reservation-hold'), []);
 });
 
-test('record-log erasure cascades through availability reservations, holds and private operation inputs', t => {
-  const { store, eeaf } = fixture(t, { engine: 'record-log' });
-  const selected = calendar(), savedLink = link('erase-link', selected);
-  const savedReservation = reservation('erase-reservation', savedLink.id, selected, 100, 200, {
-    recipient: { name: 'Private recipient', email: 'guest@example.test' },
-  });
-  const operation = { id: 'availability-operation:erase', identity: 'immutable-identity', request_key: 'immutable-request',
-    kind: 'reserve', link_id: savedLink.id, reservation_id: savedReservation.id, input_identity: 'immutable-input-identity',
-    state: 'completed', external_event_id: 'private-calendar-event', created_at: savedLink.created_at, updated_at: savedLink.updated_at,
-    effect_input: { link: savedLink, reservation: savedReservation },
-    effect_binding: { task_id: 'task:retained', tool_id: 'calendar:create', request_key: 'workshop:original',
-      input: { attendees: [{ email: 'guest@example.test' }], calendar_id: 'primary' } } };
-  store.transaction(() => {
-    store.writeLink(savedLink);
-    store.writeReservation(savedReservation);
-    store.writeOperation(operation);
-  });
-  const operationRecordId = `availability-operation:${operation.id}`;
-  const beforeErasure = readAt(eeaf, operationRecordId, new Date(Date.now() + 60000).toISOString());
-  assert.deepEqual(beforeErasure.value.effect_binding.input, operation.effect_binding.input, 'the history owner opens live private inputs under this record identity');
-  assert.equal(eeaf.erase(`availability-link:${savedLink.id}`, { actor: { by: 'privacy-erasure-test' } }).erased,
-    `availability-link:${savedLink.id}`);
-  assert.equal(store.readLink(savedLink.id), null);
-  assert.equal(store.readReservation(savedReservation.id), null);
-  assert.deepEqual(store.queryReservations({ calendar: selected, from_ms: 100, to_ms: 200, limit: 10 }),
-    { reservations: [], complete: true });
-  assert.equal(store.readOperation(operation.id), null, 'cascaded erasure removes the current operation record');
-  const operationRemoval = eeaf.log({ record_id: operationRecordId }).at(-1);
-  assert.ok(operationRemoval, 'the shared record log keeps the operation removal envelope');
-  const redactedHistory = readAt(eeaf, operationRecordId, operationRemoval.id);
-  assert.equal(redactedHistory.type, 'availability-operation');
-  assert.equal(redactedHistory.value.identity, operation.identity);
-  assert.equal(redactedHistory.value.request_key, operation.request_key);
-  assert.equal(redactedHistory.value.state, operation.state);
-  assert.equal(redactedHistory.value.effect_binding.task_id, operation.effect_binding.task_id);
-  assert.equal(redactedHistory.value.effect_binding.request_key, operation.effect_binding.request_key);
-  assert.ok(redactedHistory.value.effect_binding.input === undefined || redactedHistory.value.effect_binding.input === null);
-  assert.equal(eeaf.erasureKeysHeld(operationRecordId), 0, 'no historical projection version keeps a usable operation key');
-  assert.ok(redactedHistory.value.effect_input === undefined || redactedHistory.value.effect_input === null);
-  assert.ok(redactedHistory.value.external_event_id === undefined || redactedHistory.value.external_event_id === null);
-  assert.equal(JSON.stringify(redactedHistory.value).includes('guest@example.test'), false);
-  assert.equal(JSON.stringify(redactedHistory.value).includes('private-calendar-event'), false);
-});
-
-test('decomposed EEAF records expose no physical erasure operation', t => {
-  const { eeaf } = fixture(t, { engine: 'eeaf' });
-  assert.equal(typeof eeaf.erase, 'function');
-  assert.throws(() => eeaf.erase('availability-link:any'), /do not answer erase/,
-    'the legacy decomposed backend is not silently treated as having completed record-log erasure');
-});
-
-test('two link owners serialize competing holds through their actual shared EEAF resource', async t => {
+test('two link owners serialize competing holds through their shared records', async t => {
   const { store } = fixture(t); let next = 0;
   const make = () => createAvailabilityLinkOwner({ store, transaction: store.transaction,
     current: () => {}, assertCurrentCommit: () => {}, authorizeRecipient: () => ({ identity: 'recipient:a' }), assertRecipientCommit: () => {},
@@ -298,7 +187,7 @@ test('one reservation across multiple hosts uses a distinct-reservation bound, r
 });
 
 test('a share grant\'s held bookings on one link are counted through their declared index, never by a scan', t => {
-  const { store, eeaf } = fixture(t);
+  const { store, records } = fixture(t);
   const selected = calendar();
   store.writeLink(link('link:a', selected));
   store.writeLink(link('link:b', selected));
@@ -308,8 +197,7 @@ test('a share grant\'s held bookings on one link are counted through their decla
   store.writeReservation(reservation('cancelled', 'link:a', selected, 500, 600, { ...mine, state: 'cancelled' }));
   store.writeReservation(reservation('elsewhere', 'link:b', selected, 700, 800, mine));
   store.writeReservation(reservation('another-grant', 'link:a', selected, 900, 1000, { grant_ref: 'grant:purchase-2' }));
-  for (let step = 0; step < 20 && !eeaf.indexReady('availability-reservation', 'link-grant-held'); step += 1) eeaf.maintain();
-  assert.equal(eeaf.indexReady('availability-reservation', 'link-grant-held'), true);
+  assert.equal(records.indexReady('availability-reservation', 'link-grant-held'), true);
   assert.equal(store.countGrantReservations({ link_id: 'link:a', grant_ref: 'grant:purchase-1', limit: 10 }), 2);
   assert.equal(store.countGrantReservations({ link_id: 'link:a', grant_ref: 'grant:purchase-1', limit: 1 }), 1, 'the count stops at its limit');
   store.writeReservation(reservation('booked', 'link:a', selected, 100, 200, { ...mine, state: 'cancelled' }));
