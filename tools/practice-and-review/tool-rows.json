@@ -644,7 +644,8 @@
     "maker": "maker:practice-and-review",
     "provenance": {
      "source": "the app's practice tool, as cards kept in the person's records over this folder's review schedule"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"operation": "add", "prompt": "A sample word", "answer": "Its sample meaning", "deck": "sample-deck"}}]
    }
   }
  ]

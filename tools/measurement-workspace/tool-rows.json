@@ -15,7 +15,7 @@
       "description": "Shows the account's saved measurement Lists with a live overview, run history, provider and operation filters, versioned forecasts, billed records, source revisions, retries and errors. It keeps units, currencies, scenarios and measured, assumed and unknown values distinct. It includes no private measurements in the screen code.",
       "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
       "output_schema": { "type": "object", "required": ["screen", "opens"], "properties": { "screen": { "type": "string" }, "opens": { "type": "string" } } },
-      "invoke": { "kind": "container", "workdir": "/work", "stdout": "json", "internet": false, "argv": ["node", "main.mjs"] },
+      "invoke": {"kind": "container", "workdir": "/work", "stdout": "json", "internet": false, "argv": ["node", "main.mjs"], "files": {"package_files": [{"package": "measurement-workspace", "paths": ["main.mjs", "DATA.json"], "at": "/work"}]}},
       "result_selector": "$",
       "verify": [{ "kind": "sample-run", "input": {}, "output_selector": "$.screen", "contains": "Cost measurements" }],
       "screen": {

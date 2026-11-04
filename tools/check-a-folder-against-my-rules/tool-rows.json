@@ -80,7 +80,8 @@
             }
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"rules": [{"kind": "source-file-rule", "id": "no-fixme-marker", "why": "a fixme marker left in a file means unfinished work was shipped", "scope": {"path_matches": "\\.txt$"}, "violation": {"unit": {"split": "\\n"}, "forbidden": "FIXME"}, "message": "a fixme marker"}]}, "files": [{"grant": "read-a-folder", "path": "notes/todo.txt", "text": "Water the plants\nFIXME the sample line\n"}]}]
       }
     },
     {
@@ -132,7 +133,8 @@
             }
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"files": ["src/keys.mjs"]}, "files": [{"grant": "change-a-folder", "path": "src/keys.mjs", "text": "export const SEPARATED = \"a\u0001b\";\n"}]}]
       }
     }
   ]

@@ -113,7 +113,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"apps": ["Messages"], "minutes": 1e-05}, "stand_in_programs": {"shortcuts": "exit 0", "osascript": "exit 0", "kill": "exit 0", "pmset": "exit 0", "lsappinfo": "exit 0", "ps": "exit 0", "plutil": "exit 0", "open": "exit 0"}}]
       }
     },
     {
@@ -206,7 +207,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {}, "stand_in_programs": {"shortcuts": "exit 0", "plutil": "exit 0", "open": "exit 0"}}]
       }
     },
     {
@@ -295,7 +297,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {}}]
       }
     },
     {
@@ -388,7 +391,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"on": false}, "stand_in_programs": {"shortcuts": "exit 0", "plutil": "exit 0", "open": "exit 0"}}]
       }
     }
   ]

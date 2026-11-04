@@ -393,7 +393,8 @@
               }
             }
           ]
-        }
+        },
+        "verify": [{"kind": "sample-run", "input": {"mapping": "{grant:read-a-folder}/mapping.json", "source_type": "sample-source", "source_prefix": "sample-source:"}, "files": [{"grant": "read-a-folder", "path": "shelf-lists.json", "text": "{\"lists\": [{\"id\": \"stores\", \"value\": {\"label\": \"Stores\", \"row_type\": \"stores\", \"title_field\": \"name\", \"fields\": [{\"id\": \"name\", \"label\": \"Name\", \"kind\": \"text\"}]}}], \"views\": []}"}, {"grant": "read-a-folder", "path": "stores.json", "text": "{\"stores\": [{\"id\": \"corner\", \"values\": {\"name\": \"Corner Store\"}}]}"}, {"grant": "read-a-folder", "path": "mapping.json", "text": "{\"lists_file\": {\"root\": \"here\", \"path\": \"shelf-lists.json\"}, \"by\": \"sample-build\", \"confidence\": \"medium\", \"limits\": {\"text_chars\": 120, \"basis_sources\": 10, \"per_command\": 3}, \"sources\": [{\"name\": \"stores\", \"list\": \"stores\", \"kind\": \"rows\", \"rows\": {\"file\": {\"root\": \"here\", \"path\": \"stores.json\"}, \"path\": \"stores\"}, \"id\": {\"path\": \"id\"}, \"values\": {\"...\": {\"path\": \"values\"}}}]}"}]}]
       }
     },
     {
@@ -540,7 +541,8 @@
         "maker": "maker:export-records-as-list-rows",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
-        "provenance": { "source": "Written for the Workshop: the records:write sender that writes only what an account lacks" }
+        "provenance": { "source": "Written for the Workshop: the records:write sender that writes only what an account lacks" },
+        "verify": [{"kind": "sample-run", "input": {"payload": {"commands": [{"input": {"records": [{"id": "sample-list:row-1", "type": "sample-row", "value": {"title": "Sample row"}}]}}]}, "target_type": "sample-row", "target_prefix": "sample-list:"}}]
       }
     }
   ]

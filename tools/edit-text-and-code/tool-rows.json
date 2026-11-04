@@ -52,7 +52,8 @@
             }
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"file": "notes/greeting.txt", "find": "Hello world", "replace": "Hello there"}, "files": [{"grant": "change-a-folder", "path": "notes/greeting.txt", "text": "Hello world\nSecond line\n"}]}]
       }
     },
     {
@@ -182,7 +183,8 @@
             }
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"edits": [{"file": "src/a.txt", "find": "alpha", "replace": "apple"}, {"file": "src/b.txt", "find": "beta", "replace": "banana"}]}, "files": [{"grant": "change-a-folder", "path": "src/a.txt", "text": "alpha one\n"}, {"grant": "change-a-folder", "path": "src/b.txt", "text": "beta two\n"}]}]
       }
     }
   ]

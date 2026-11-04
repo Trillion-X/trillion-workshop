@@ -108,16 +108,7 @@
     "provenance": {
      "source": "the research-workspace package's feed reader"
     },
-    "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "url": "https://example.com"
-      },
-      "output_selector": "$.subject_ref",
-      "contains": "https://example.com"
-     }
-    ]
+    "verify": [{"kind": "sample-run", "input": {"url": "https://example.com"}, "output_selector": "$.subject_ref", "contains": "https://example.com", "shape_read_at": "2026-11-03", "replies": [{"request": {"method": "GET", "url": "https://example.com/"}, "status": 200, "headers": {"content-type": "application/atom+xml"}, "body": "<?xml version=\"1.0\" encoding=\"utf-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><title>Sample feed</title><entry><id>sample-entry-1</id><title>First sample post</title><link href=\"https://example.com/first\"/><published>2026-11-01T00:00:00Z</published><summary>A made-up summary.</summary></entry></feed>"}]}]
    }
   },
   {
@@ -221,7 +212,8 @@
     "maker": "maker:research-a-creator-or-topic",
     "provenance": {
      "source": "the research-workspace package's public web search reader"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"query": "sample bread guide"}, "shape_read_at": "2026-11-03", "replies": [{"request": {"method": "GET", "url": "https://html.duckduckgo.com/html/"}, "status": 200, "headers": {"content-type": "text/html"}, "body": "<div class=\"result\"><a class=\"result__a\" href=\"//duckduckgo.com/l/?uddg=https%3A%2F%2Fbakery.example%2Fguide\">Sample <b>Bread</b> Guide</a><a class=\"result__snippet\">A made-up snippet.</a></div>"}]}]
    }
   },
   {
@@ -896,7 +888,8 @@
     "maker": "maker:research-a-creator-or-topic",
     "provenance": {
      "source": "a polite listing and caption queue run with yt-dlp (Unlicense, https://github.com/yt-dlp/yt-dlp)"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"seeds": ["@samplechannel"], "newest": 1, "caption_languages": ["en.*"], "budget_seconds": 1}, "stand_in_programs": {"yt-dlp": "exit 1"}}]
    }
   },
   {
@@ -1114,7 +1107,8 @@
     "maker": "maker:research-a-creator-or-topic",
     "provenance": {
      "source": "the library's fetch-posts script, as a polite queue over a public post mirror (a third-party service the settings name)"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"links": ["https://x.com/sampleuser/status/1234567890"]}, "shape_read_at": "2026-11-03", "replies": [{"request": {"method": "GET", "url": "https://api.fxtwitter.com/sampleuser/status/1234567890"}, "status": 200, "headers": {"content-type": "application/json"}, "body": "{\"code\": 200, \"message\": \"OK\", \"tweet\": {\"id\": \"1234567890\", \"url\": \"https://x.com/sampleuser/status/1234567890\", \"text\": \"A made-up post.\", \"created_at\": \"Sun Nov 01 00:00:00 +0000 2026\", \"created_timestamp\": 1793491200, \"lang\": \"en\", \"author\": {\"screen_name\": \"sampleuser\"}, \"likes\": 3, \"retweets\": 1, \"replies\": 0, \"views\": 40}}"}]}]
    }
   },
   {
@@ -1278,7 +1272,8 @@
     "maker": "maker:research-a-creator-or-topic",
     "provenance": {
      "source": "the rows-over-held-rows writer of the harvest tools, used for a prospect list whose fields are data"
-    }
+    },
+    "verify": [{"kind": "sample-run", "input": {"key": "bakery.example", "found": {"name": "Sample Bakery", "url": "https://bakery.example"}}}]
    }
   }
  ]
