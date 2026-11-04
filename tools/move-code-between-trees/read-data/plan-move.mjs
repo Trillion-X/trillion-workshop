@@ -41,6 +41,13 @@ export function planMove(row, source, destination) {
   const readAsRows = path => asRows.some(glob => globMatches(path, glob));
   const swaps = row.calls ?? [];
   const detectors = row.provider_calls ?? [];
+  // A detector match the row names as no provider call (a parameter called env holding the process environment, say):
+  // the exact text in that source file, with the reason. Every other match still holds its group.
+  const notProviderCalls = row.not_provider_calls ?? [];
+  for (const item of notProviderCalls) {
+    if (!item?.file || !item?.id || !item?.found || !item?.why) throw new MoveRefusal('row_incomplete', 'Each not_provider_calls row names file, id, found (the exact matched text) and why it is no provider call.');
+  }
+  const notProviderCall = (path, hit) => notProviderCalls.some(item => item.file === path && item.id === hit.id && item.found === hit.found);
   const shared = row.destination?.shared_folder;
   if (!shared) throw new MoveRefusal('row_incomplete', 'The move row names no destination.shared_folder: say which folder holds files more than one group imports.');
   const packageName = row.destination?.package;
@@ -156,7 +163,7 @@ export function planMove(row, source, destination) {
       if (rowsRead.length) plan.reads_rows = [...new Set(rowsRead)];
       const swapped = swapCalls(text(path), swaps);
       plan.swaps = swapped.hits;
-      const left = providerCallsLeft(swapped.text, detectors);
+      const left = providerCallsLeft(swapped.text, detectors).filter(hit => !notProviderCall(path, hit));
       for (const hit of left) for (const id of owners) byId.get(id).held.push(`${to}:${hit.line} still calls ${hit.id} (${hit.found}); add a swap row for it in calls`);
     }
     files.set(path, plan);

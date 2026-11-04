@@ -1,0 +1,12 @@
+{
+  "_what": "What the listener says about a listening (tools/listen-for-a-while/read-data/meeting-ledger.mjs, run from read-data/listen-for-a-while.mjs). `liveness`: a listening whose last heartbeat is older than stale_after_ms is reported finished, with no sweep. `false_text`: words a hearing model makes up out of silence; a line that is only one of them (at most max_words words) is left out. `job_states`: the typed states of a notes job with one plain sentence each and the controls each allows.",
+  "liveness": { "stale_after_ms": 180000 },
+  "false_text": { "max_words": 8, "phrases": ["thanks for watching", "thank you for watching", "please subscribe", "subtitles by the amara.org community", "you"] },
+  "job_states": {
+    "waiting": { "says": "Listening has not heard enough yet to make notes.", "controls": ["stop"] },
+    "noting": { "says": "A model on this Mac is making the notes.", "controls": ["stop"] },
+    "noted": { "says": "The notes are made.", "controls": ["ask_again", "propose_tasks"] },
+    "failed": { "says": "The notes could not be made: {why}", "controls": ["ask_again"] },
+    "stopped": { "says": "Listening stopped before notes were made.", "controls": ["ask_again"] }
+  }
+}

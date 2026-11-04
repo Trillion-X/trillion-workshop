@@ -1,0 +1,95 @@
+
+
+/* In a wide split pane the preview's viewport-height cap can otherwise leave
+   an oversized black letterbox around the actual video. Keep the frame at the
+   media's natural ratio, centered within its available pane width, and use the
+   current screen look for any remaining surface around the picture. */
+
+.mw-library-filters :is(select,input){min-height:32px;width:100%;max-width:none;padding:5px 8px;border:1px solid var(--line,#e9e7e4);border-radius:7px;background:var(--surface,#fff);color:var(--text,#232323);font:inherit}
+
+.coss-selection-marquee{position:fixed;z-index:1000;pointer-events:none;border:1px solid var(--accent,#7662dd);border-radius:4px;background:color-mix(in srgb,var(--accent,#7662dd) 15%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--surface,#fff) 70%,transparent)}
+
+/* A bar the shared action row does not shape keeps its own surface; a shaped one takes the row's (action-row.css). */
+
+.mw-inline-action :is(select,input){width:100%;min-width:0;box-sizing:border-box;min-height:36px;padding:7px 9px;border:1px solid var(--line,#e9e7e4);border-radius:8px;background:var(--surface,#fff);color:var(--text,#232323);font:inherit}
+
+@media(max-width:700px){.mw-library-filters :is(select,input){width:100%;max-width:none}}
+
+/* Two-pane creation workspace: existing assistant-ui Thread and selectable media
+   surfaces retain their own behavior. Stack on narrow screens. */
+
+body>#editor{margin-left:var(--rail,0px);width:calc(100vw - var(--rail,0px));padding:24px 16px 72px;box-sizing:border-box}
+
+body:has(#editor.active) .shell main{width:calc(100vw - var(--rail) - 32px);max-width:none}
+@media(max-width:700px){body>#editor{margin-left:0;width:100%;padding-top:56px}}
+
+@keyframes source-editor-launch-progress{0%{transform:translateX(-120%)}100%{transform:translateX(260%)}}
+
+:is(.coss-work-panel,.source-editor-page) .source-editor-settings .source-editor-fields>label:has(>.coss-select-host){margin:0}
+
+.media-crop-stage { position:relative; width:100%; overflow:hidden; background:#171717; border-radius:8px; touch-action:none; }
+.media-crop-stage video { display:block; width:100%; height:100%; object-fit:contain; }
+.media-crop-window { position:absolute; border:2px solid white; box-shadow:0 0 0 100vmax #0009; cursor:grab; touch-action:none; background:linear-gradient(to right,transparent 33%,#fff7 33%,#fff7 33.4%,transparent 33.4%,transparent 66%,#fff7 66%,#fff7 66.4%,transparent 66.4%),linear-gradient(to bottom,transparent 33%,#fff7 33%,#fff7 33.4%,transparent 33.4%,transparent 66%,#fff7 66%,#fff7 66.4%,transparent 66.4%); }
+.media-crop-window:active { cursor:grabbing; }
+.media-crop-window:focus-visible { outline:3px solid #e4ae4e; outline-offset:2px; }
+.live-composition{min-width:0;display:grid;gap:8px}
+.live-composition-frame{container-type:inline-size;position:relative;overflow:hidden;background:#000;margin:auto;border-radius:12px;max-height:52vh}
+
+.live-composition-layer{position:absolute;transform:translate(-50%,-50%)}
+.live-composition-layer img,.live-composition-layer video{display:block;width:100%;height:auto;max-height:none!important}
+/* not-a-panel: darkens the edges of the video being edited, part of the picture, not the screen's chrome. */
+.live-composition-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse,transparent 35%,#0009)}
+.live-composition-controls{position:relative;min-height:76px;background:#252525;border-radius:10px;color:#fff}
+.live-composition>audio{display:none}
+.live-composition-lut{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.live-composition-frame>[role=alert]{position:absolute;top:0;background:#fff;color:#922;padding:12px;z-index:5}
+.live-adjustment-layer{position:absolute;z-index:10;pointer-events:none}
+
+.live-object-picker span{position:absolute;transform:translate(-50%,-50%);width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#138457;color:white;box-shadow:0 0 0 2px white;font:16px var(--font-primary,sans-serif)}.live-object-picker span.excluded{background:#b83239}
+
+.coss-media-card[data-quiet]{position:relative}
+.coss-ui .coss-media-preview-action{position:absolute;right:8px;top:8px;z-index:2;width:30px;height:30px;padding:6px;border-radius:50%;opacity:0;background:var(--surface,#fff);color:var(--text,#222);box-shadow:0 1px 5px #0002}
+.coss-media-card:hover .coss-media-preview-action,.coss-media-card:focus-within .coss-media-preview-action{opacity:1}
+.coss-media-card[data-quiet] .coss-media-open[data-no-poster]{padding:8px 40px 8px 32px;min-height:48px}
+.coss-media-card[data-quiet] .coss-media-open strong{font-size:13px;line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media(hover:none){.coss-ui .coss-media-preview-action{opacity:1}}
+
+.canvas-placement-preview{position:absolute;transform:translate(-50%,-50%);pointer-events:none;outline:2px dashed #a999ff;opacity:.85;box-shadow:0 0 0 1px #2228}
+.canvas-placement-preview img,.canvas-placement-preview video{display:block;width:100%;height:auto;max-height:none!important;pointer-events:none}
+.canvas-audio-placement{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:12px 16px;border-radius:8px;background:#222d;color:white;pointer-events:none;z-index:40;font-size:13px}
+.spatial-layer{cursor:move;touch-action:none;outline:1px solid transparent}.spatial-layer[data-selected],.spatial-layer:focus-visible{outline:2px solid #a999ff}.spatial-layer img,.spatial-layer video{user-select:none;-webkit-user-drag:none}
+.spatial-layer-resize{position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;border:2px solid #fff;border-radius:3px;background:#7662dd;cursor:nwse-resize;touch-action:none;z-index:2}
+.spatial-layer-resize:focus-visible{outline:2px solid #222;outline-offset:2px}
+
+.context-inspector-tabs [hidden],.coss-record-editor-row[hidden]{display:none!important}
+
+.coss-record-precision{grid-column:1/-1}.coss-record-precision>summary{font-size:12px;color:var(--text-muted,#666);cursor:pointer}.coss-record-precision>label{display:grid;gap:4px;margin-block:10px}
+
+.coss-record-range{width:100%;min-width:0;cursor:pointer;accent-color:var(--foreground,#333)}
+
+.coss-ui .coss-choice:has(.choice-insert){padding:0;margin:0!important;display:block}
+.coss-ui .choice-insert{width:100%;justify-content:flex-start;text-align:left;white-space:normal}
+
+/* The selected recording scrolls inside its own split pane. The transcript
+   follows that pane's width, not the desktop window width. */
+.mw-clip-surface {
+  /* Loading, playing and unavailable states share one pane inset. */
+  padding: var(--balsa-inset-md, 16px);
+  min-height: 0;
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  container-type: inline-size;
+}
+
+/* The editor can occupy a split pane inside a wide desktop window. Its
+   columns must respond to that pane, not the window-wide media queries above. */
+
+/* Timed layers use the shared record editor; the inspector only spaces them. */
+.timed-layer-editor{display:grid;gap:12px;min-width:0}
+.timed-layer-editor>button{justify-self:start}
+.timed-layer-empty{margin:0;font-size:13px;color:var(--text-muted,#666)}
+.timed-layer-editor textarea{font:inherit}

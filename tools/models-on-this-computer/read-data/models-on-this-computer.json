@@ -1,0 +1,149 @@
+{
+  "_what": "The models this computer serves, read by read-data/models-on-this-computer.mjs (tool:ask-a-model and tool:get-free-models). A conversation ({ messages }) goes to the first `chat` row whose server answers, in the OpenAI chat-completions shape (Ollama serves it; keep_alive is how long the server keeps the model loaded after a call, so the next one does not wait for it to load); `jobs` name, for a kind of work, the chat rows to try and its token limit, time limit and answer format (`default` when the input names no job). A yes-or-no question about some words ({ state, questions }) goes to the first `classify` row that answers: a small classifier taking { state, questions } and answering probabilities, or, for a row whose `ask` is \"chat\", a chat model asked each question with the row's `prompt` and its probability of answering yes read from its own word probabilities (yesShare). `wired` maps a decision that was measured to the one classify row that answers it. A server that is not running is skipped; none answering is said in words. Nothing leaves this computer but the answer. `server` is the local model server (Ollama): `models` lists what it has, `pull` gets a model by its name (an Ollama name, or a Hugging Face model as hf.co/<repo>:<quantisation>). `offer` are the models offered for this computer by tool:get-free-models: each with the job it does, how much memory it needs to run well (min_memory_gb) and its download size; a model fits when the computer has that memory and the size plus `disk_spare_gb` free. Its `model` names match the `chat` and `classify` rows, so a model got here answers at once. A new local server or model is a row here.",
+  "most_tokens": 4096,
+  "retry_after_seconds": 60,
+  "server": {
+    "models": "http://127.0.0.1:11434/api/tags",
+    "pull": "http://127.0.0.1:11434/api/pull",
+    "pull_minutes": 120
+  },
+  "disk_spare_gb": 10,
+  "chat": [
+    {
+      "id": "ollama-qwen2.5-14b",
+      "url": "http://127.0.0.1:11434/v1/chat/completions",
+      "model": "qwen2.5:14b-instruct",
+      "keep_alive": "30m",
+      "timeout_seconds": 45
+    },
+    {
+      "id": "ollama-gemma3-4b",
+      "url": "http://127.0.0.1:11434/v1/chat/completions",
+      "model": "gemma3:4b",
+      "keep_alive": "30m",
+      "timeout_seconds": 40
+    },
+    {
+      "id": "ollama-judge-qwen2.5-14b",
+      "url": "http://127.0.0.1:11435/v1/chat/completions",
+      "model": "qwen2.5:14b-instruct",
+      "keep_alive": "30m",
+      "timeout_seconds": 45,
+      "num_ctx": 16384
+    },
+    {
+      "id": "ollama-awareness-4b",
+      "url": "http://127.0.0.1:11435/v1/chat/completions",
+      "model": "gemma3:4b",
+      "keep_alive": -1,
+      "timeout_seconds": 120,
+      "num_ctx": 16384
+    }
+  ],
+  "jobs": {
+    "default": {
+      "models": [
+        "ollama-gemma3-4b",
+        "ollama-qwen2.5-14b"
+      ],
+      "most_tokens": 1024
+    },
+    "explicit-selection": {
+      "models": [
+        "ollama-gemma3-4b"
+      ],
+      "most_tokens": 300,
+      "timeout_seconds": 25
+    },
+    "file-organization": {
+      "models": [
+        "ollama-gemma3-4b"
+      ],
+      "most_tokens": 300,
+      "timeout_seconds": 25
+    },
+    "awareness": {
+      "models": [
+        "ollama-awareness-4b"
+      ],
+      "most_tokens": 2400,
+      "timeout_seconds": 120,
+      "response_format": {
+        "type": "json_object"
+      }
+    },
+    "check-judge": {
+      "models": [
+        "ollama-judge-qwen2.5-14b"
+      ],
+      "most_tokens": 512
+    },
+    "outcome-judge": {
+      "models": [
+        "ollama-gemma3-4b"
+      ],
+      "most_tokens": 512
+    },
+    "meeting-notes": {
+      "models": [
+        "ollama-gemma3-4b"
+      ],
+      "most_tokens": 1500,
+      "timeout_seconds": 60,
+      "response_format": {
+        "type": "json_object"
+      }
+    },
+    "site-articles": {
+      "models": [
+        "ollama-gemma3-4b"
+      ],
+      "most_tokens": 6000,
+      "timeout_seconds": 1500
+    }
+  },
+  "classify": [
+    {
+      "id": "ollama-qwen2.5-14b-yes-no",
+      "ask": "chat",
+      "url": "http://127.0.0.1:11434/v1/chat/completions",
+      "model": "qwen2.5:14b-instruct",
+      "keep_alive": "30m",
+      "prompt": "Answer with one word: yes or no.",
+      "timeout_seconds": 20,
+      "_measured": "2026-10-05 on 24 spoken requests (send, text, tell, call, book, remind, buy, order, pay, schedule, find, note, ask someone to) and 40 lines heard in a room (TV, chatter, cheering, fragments): 24 of 24 and 0 of 40, about 1.8 s a line while the Mac was busy; decider-2b on the same lines could not separate them (requests from 0.30, room lines up to 0.39, moving between repeats)."
+    },
+    {
+      "id": "decider-2b",
+      "url": "http://127.0.0.1:8099/v1/systemone",
+      "timeout_seconds": 15
+    }
+  ],
+  "offer": [
+    {
+      "id": "small-chat",
+      "model": "gemma3:4b",
+      "job": "Quick answers and checks on any Mac",
+      "min_memory_gb": 8,
+      "size_gb": 3.3
+    },
+    {
+      "id": "strong-chat",
+      "model": "qwen2.5:14b-instruct",
+      "job": "Careful answers, and telling requests from room chatter",
+      "min_memory_gb": 16,
+      "size_gb": 9
+    }
+  ],
+  "wired": {
+    "first-match-fit": "ollama-qwen2.5-14b-yes-no",
+    "outreach-message-grounded": "ollama-qwen2.5-14b-yes-no"
+  },
+  "words": {
+    "none": "No model on this computer answered in time.",
+    "too_big": "This Mac does not have the memory or free space for it.",
+    "not_offered": "That model is not one offered for this Mac.",
+    "no_server": "The model server is not running on this computer. Download it from ollama.com, open it, and ask again.",
+    "needs_input": "Give messages (a conversation) or state and questions (a question about some words)."
+  }
+}

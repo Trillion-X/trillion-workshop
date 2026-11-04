@@ -1,0 +1,414 @@
+{
+  "_what": "Settings for do-work/trillion.mjs (moved from Trillion-X/trillion harness/trillion.json), the `trillion` command any AI with a shell runs to see the person's AIs and their AI jobs, run their Workshop tools and hand and take work. Every command is one call of the engine's one MCP tool `engine.tool` (run_resource_operation {address, method, request_key, input}) at the account's door; nothing here decides work. The door is the Mac app's local door when the app `mac_app` names declares one on this computer (local-door.mjs reads its computer-reader.json and private adoption descriptor), else `origin`; --origin or TRILLION_ORIGIN name one. whoami reads the account from MCP initialize (`engine.account_meta` in result._meta). `engine` names what the engine serves: `records` (records:read and records:write of this AI's own `ai_type` record, records:history of a job) and `tools` (the Workshop tools:list and tools:run), and how many pages a list may take. `work` is the one table of the AI-job commands: each names the Workshop work tool (tools/hand-work-to-ais) that does it, and a claim is that tool's conditioned write, never one made here. `words` are every refusal: a refusal names the door, and only `no_credential` and `sign_in_ended` say to log in. The account key is the existing one: the Keychain item `keychain_item` the Trillion Mac app keeps, or, where there is no Keychain, `key_file` (0600). With no key, `login` signs in once in the browser (OAuth with PKCE to a loopback address at `origin`) and keeps that sign-in (access and refresh tokens) in the Keychain item `grant.keychain_item`, or the 0600 file `grant.file` in `state_folder`; it is renewed at /oauth/token `grant.refresh_before_seconds` before it ends and is used at the public door. `who` shows the AIs tool:see-my-ais answers that were seen within `who.seen_within_days` (all of them with --all), grouped by owner (the record's `owner`, else the account the door answers for; yours first) and then by name, one line per AI with its ready chats beneath (every chat with --all), and says how many it hid; liveness is the tool's, computed when read, never stored. An AI's name is the formula title field of the person's list `who.ai_list`, evaluated by `who.formula_tool` over the stored values in one call; it is never built or stored here, and a missing list is said by name. `install` is where `setup` copies this program and the link it puts on PATH. `skills` are the instruction files `setup` writes for each AI app, one row per app: `folder` under the home folder (or `home_variable`), the file under it, and `detect` (paths whose presence says the app is on this computer). `agents` name the AI running the command from its environment; `session_env` are the variables that app sets to one value per chat session, in order (Claude Code sets CLAUDE_CODE_SESSION_ID, Codex sets CODEX_THREAD_ID; the Cursor agent sets only CURSOR_AGENT=1 for its commands, so a Cursor chat has no session and keeps the computer id). `agent_id` builds the id: `session` when a session variable is set (its last `session_chars` letters and digits, the random end of a UUID v4 or v7), else `computer`; --as or TRILLION_AGENT replace it. `most_chars` is the longest agent id Trillion keeps (src/agents.mjs reads agent_id as trimmed text of at most 200 characters and cuts a longer one, so a longer one is refused here). A job taken under the computer id before sessions were added is still finished, released or said stuck under the id that took it (held.json says which). `agent_card` and `ai_record` shape this AI's own `ai` record, which publish writes conditioned on the value just read (a person's edit made meanwhile is kept), facts only: `owner` the account the door answered for, `app` and `model` from the running app's `agents` row (`model_env`, else the setting `model_config` names in the app's own config file, with `model_suffix` removed), `provider` from the model's family (else the row's), `computer` the computer's own name (`computer_name`: the system program per platform, with the duplicate counter `strip` removes), `where` the repository (the last part of the origin remote, else the top folder's name) and branch, and `working_on` the title of the job it holds (`working_on`, `working_on_more`) or null. `live.seen_at` is set to now on every write, and serve writes it again every `serve.contact_seconds`. `send_note` is what `send` says about when the receiver sees the job.",
+  "origin": "https://app.gettrillion.ai",
+  "mac_app": "/Applications/Trillion.app",
+  "keychain_item": "trillion-agent-work-key",
+  "keychain_account": "trillion",
+  "key_file": "~/.trillion/cli/key",
+  "state_folder": "~/.trillion/cli",
+  "made_key_file": "made-key.json",
+  "connection": {
+    "schema": "trillion.connection/v1",
+    "file": "connection.json",
+    "recipes": [
+      {
+        "id": "claude-code",
+        "label": "Claude Code",
+        "guide": {
+          "client": "claude-code",
+          "path": "/docs",
+          "stage": "add"
+        }
+      },
+      {
+        "id": "http",
+        "label": "Any program that sends HTTP",
+        "template": "POST {mcp_url} with the header Authorization: Bearer ${key_env}"
+      },
+      {
+        "id": "cli",
+        "label": "Any AI with a shell",
+        "template": "trillion setup  (then: trillion call TOOL JSON)"
+      }
+    ]
+  },
+  "held_file": "held.json",
+  "client_name": "Trillion command line",
+  "scope": "decisions",
+  "sign_in_wait_seconds": 600,
+  "call_timeout_seconds": 120,
+  "retry_seconds": [
+    2,
+    5,
+    15
+  ],
+  "install": {
+    "folder": "~/.trillion/cli/program",
+    "files": [
+      "trillion.mjs",
+      "trillion.json",
+      "trillion-skill.md",
+      "ag-ui-agent.mjs",
+      "ag-ui-wire.mjs",
+      "local-door.mjs"
+    ],
+    "link": "~/.local/bin/trillion",
+    "owner_file": "install-owner.json"
+  },
+  "skill_name": "trillion-cli",
+  "skills": [
+    {
+      "id": "claude-code",
+      "label": "Claude Code",
+      "folder": ".claude",
+      "home_variable": "CLAUDE_CONFIG_DIR",
+      "file": "skills/trillion-cli/SKILL.md",
+      "detect": [
+        ".claude"
+      ]
+    },
+    {
+      "id": "codex",
+      "label": "Codex",
+      "folder": ".codex",
+      "home_variable": "CODEX_HOME",
+      "file": "skills/trillion-cli/SKILL.md",
+      "detect": [
+        ".codex"
+      ]
+    },
+    {
+      "id": "cursor",
+      "label": "Cursor",
+      "folder": ".cursor",
+      "file": "skills/trillion-cli/SKILL.md",
+      "detect": [
+        ".cursor"
+      ]
+    }
+  ],
+  "agents": [
+    {
+      "agent": "claude-code",
+      "harness": "Claude Code",
+      "env": [
+        "CLAUDECODE",
+        "CLAUDE_CODE_SESSION_ID"
+      ],
+      "session_env": [
+        "CLAUDE_CODE_SESSION_ID"
+      ],
+      "app": "Claude Code",
+      "provider": "Anthropic",
+      "model_env": [
+        "ANTHROPIC_MODEL"
+      ],
+      "model_config": {
+        "folder": ".claude",
+        "home_variable": "CLAUDE_CONFIG_DIR",
+        "file": "settings.json",
+        "format": "json",
+        "key": "model"
+      }
+    },
+    {
+      "agent": "codex",
+      "harness": "Codex",
+      "env": [
+        "CODEX_THREAD_ID",
+        "CODEX_SESSION_ID"
+      ],
+      "session_env": [
+        "CODEX_THREAD_ID",
+        "CODEX_SESSION_ID"
+      ],
+      "app": "Codex",
+      "provider": "OpenAI",
+      "model_config": {
+        "folder": ".codex",
+        "home_variable": "CODEX_HOME",
+        "file": "config.toml",
+        "format": "toml",
+        "key": "model"
+      }
+    },
+    {
+      "agent": "cursor",
+      "harness": "Cursor",
+      "env": [
+        "CURSOR_AGENT",
+        "CURSOR_TRACE_ID"
+      ],
+      "app": "Cursor"
+    },
+    {
+      "agent": "gemini",
+      "harness": "Gemini CLI",
+      "env": [
+        "GEMINI_CLI"
+      ],
+      "app": "Gemini CLI",
+      "provider": "Google"
+    },
+    {
+      "agent": "opencode",
+      "harness": "opencode",
+      "env": [
+        "OPENCODE"
+      ],
+      "app": "opencode"
+    }
+  ],
+  "fallback_agent": {
+    "agent": "terminal",
+    "harness": "Terminal",
+    "app": "Terminal"
+  },
+  "agent_id": {
+    "computer": "{agent}-on-{computer}",
+    "session": "{agent}-{session}-on-{computer}",
+    "session_chars": 12,
+    "most_chars": 200
+  },
+  "agent_card": {
+    "where": "a terminal on this computer",
+    "where_in_repository": "repository {repository}, branch {branch}, in a terminal on this computer",
+    "no_branch": "none (detached)",
+    "place_chars": 100,
+    "doing_chars": 120,
+    "working_on": "{doing}",
+    "working_on_more": "{doing} (and {more} more)"
+  },
+  "send_note": {
+    "any": "Any of your AIs can take it. An AI in a terminal sees it the next time it runs trillion work or trillion take, or at once while trillion serve runs there; an AI app sees it when it next reads its Trillion work.",
+    "to": "{to} sees it the next time it runs trillion work or trillion take, or at once while trillion serve runs for it."
+  },
+  "serve": {
+    "contact_seconds": 60,
+    "run_timeout_minutes": 30,
+    "result_chars": 20000
+  },
+  "wait": {
+    "poll_seconds": 20,
+    "finished_states": [
+      "done",
+      "failed",
+      "finished",
+      "withdrawn"
+    ]
+  },
+  "update": {
+    "owned": "This trillion command is kept up to date by {owner}. {hint} It does not update itself.",
+    "owner_unreadable": "{file} is there but could not be read, so nothing was changed. Update it by the program that put it there.",
+    "unowned": "This trillion command updates only when `trillion setup` is run from a newer copy of the program; it never fetches code by itself."
+  },
+  "ag_ui": {
+    "_what": "`trillion serve --ag-ui URL` (ag-ui-agent.mjs): any AG-UI agent at URL runs each job this AI takes. tools: the Trillion tools the agent is offered as AG-UI frontend tools; each call it makes of one is made by this program as this AI. max_turns: the most runs of the agent one job gets (each answered tool call starts the next). run_seconds: the longest one run is waited for. quiet_seconds: the longest the agent may send nothing while it is waited on (a silence watchdog; time spent running its tools here does not count). answer_chars: the most characters of a tool's answer given back to the agent. max_frame_chars and max_events bound what one run may send. context is the ambient line every run is given ({handoff_id}). words: what is recorded when something goes wrong, in plain words.",
+    "tools": [
+      "search",
+      "read_handoff",
+      "find_agents",
+      "hand_off",
+      "read_activity",
+      "list_lists",
+      "read_list",
+      "put_list_rows",
+      "list_files",
+      "read_file",
+      "write_file",
+      "record_effect"
+    ],
+    "max_turns": 12,
+    "run_seconds": 600,
+    "quiet_seconds": 120,
+    "answer_chars": 20000,
+    "max_frame_chars": 1000000,
+    "max_events": 20000,
+    "context_description": "The job",
+    "context": "This is the person's job {handoff_id} in their Trillion. Your answer is recorded as its result. To use what is in their Trillion, call the tools you are given; each call is made as you, for this job.",
+    "words": {
+      "agent_refused": "The AG-UI agent answered {status}.",
+      "run_failed": "The AG-UI agent's run failed: {error}",
+      "interrupted": "The AG-UI agent stopped to ask for something.",
+      "cancelled": "The AG-UI agent cancelled its run.",
+      "no_words": "The AG-UI agent finished without saying anything.",
+      "not_offered": "{tool} is not a tool offered here. Use only the tools you were given.",
+      "tool_failed": "{tool} did not work: {error}",
+      "too_many_turns": "The AG-UI agent called tools for {turns} runs without answering, so the job was given back."
+    }
+  },
+  "engine": {
+    "tool": "run_resource_operation",
+    "protocol_version": "2025-06-18",
+    "account_meta": "ai.gettrillion/account",
+    "records": "@own-records",
+    "list": "records:list",
+    "read": "records:read",
+    "history": "records:history",
+    "tools": "@workshop-tools",
+    "tools_list": "tools:list",
+    "tools_run": "tools:run",
+    "ai_type": "ai",
+    "job_type": "ai-job",
+    "page_limit": 100,
+    "most_pages": 1000,
+    "history_limit": 20,
+    "write": "records:write"
+  },
+  "work": {
+    "_what": "Each AI-job command runs one Workshop work tool (trillion-workshop tools/hand-work-to-ais) with tools:run at @workshop-tools: `tools` names the tool for who (ais), send, work (see), take and every move (change); `actions` maps a move command to the action tool:change-an-ai-job takes; `publish_after` are the commands after which this AI writes its own ai record again (what it holds changed, or it just sent work).",
+    "tools": {
+      "ais": "tool:see-my-ais",
+      "send": "tool:hand-a-job-to-an-ai",
+      "see": "tool:see-ai-work",
+      "take": "tool:take-an-ai-job",
+      "change": "tool:change-an-ai-job"
+    },
+    "actions": {
+      "finish": "finish",
+      "fail": "fail",
+      "stuck": "stuck",
+      "unstuck": "unstuck",
+      "release": "release",
+      "withdraw": "withdraw",
+      "remove": "remove"
+    },
+    "publish_after": [
+      "send",
+      "take",
+      "finish",
+      "fail",
+      "release"
+    ]
+  },
+  "work_list_limit": 20,
+  "words": {
+    "no_credential": "This computer has no Trillion key or sign-in. Run trillion login (or trillion setup) first.",
+    "sign_in_ended": "This computer's sign-in to Trillion has ended. Run trillion login to sign in again.",
+    "refused": "{door} refused this computer's credential.",
+    "refused_key_at_door": "{door} does not admit this computer's key yet{local}.",
+    "local_door_named": "; the key works at this computer's local door {mcp}",
+    "local_door": "the Mac app's local door {mcp}",
+    "public_door": "the public door {mcp}",
+    "named_door": "the door {mcp}",
+    "missing_route": "{door} does not serve {route}.",
+    "unreachable": "{door} could not be reached ({why}).",
+    "no_account": "{door} answered initialize without naming an account.",
+    "pager_stuck": "{method} answered a page it already gave ({next}), so its pages would never end.",
+    "too_many_pages": "{method} answered more than {pages} pages.",
+    "more_jobs": "More jobs: trillion work --limit N, or --status, --to, --from, --taker.",
+    "no_jobs": "No AI jobs.",
+    "sent": "Sent {id}.",
+    "sent_before": "{id} was sent before; here it is as it now is.",
+    "took": "Took {id}.",
+    "take_lost": "Another AI ({taker}) moved {id} first.",
+    "another_ai": "another AI",
+    "take_gone": "{id} is gone.",
+    "nothing_to_take": "No waiting job you may take.",
+    "moved": "{id}: {from} -> {to}.",
+    "not_moved": "{id} was not moved ({reason}); here it is as it now is.",
+    "published": "Wrote {id}.",
+    "not_published": "This AI's record was not written: {why}",
+    "not_finished": "Not finished after {seconds} seconds; read it later with trillion work {id}.",
+    "refused_code": "{door} refused it ({code}).",
+    "codes": {
+      "_what": "Plain words for the engine refusal codes a person meets most; any other code is said with refused_code.",
+      "workshop_tool_unknown": "{tool} is not in this account's Workshop yet ({door}).",
+      "original_command_conflict": "The record changed meanwhile, so nothing was written ({door})."
+    }
+  },
+  "grant": {
+    "keychain_item": "trillion-cli-sign-in",
+    "file": "sign-in.json",
+    "refresh_before_seconds": 60
+  },
+  "client_version": "2",
+  "computer_name": {
+    "programs": {
+      "darwin": [
+        "/usr/sbin/scutil",
+        "--get",
+        "ComputerName"
+      ]
+    },
+    "strip": " \\(\\d+\\)$"
+  },
+  "model_suffix": "\\[[^\\]]*\\]$",
+  "model_families": [
+    {
+      "prefix": "claude",
+      "family": "Claude",
+      "provider": "Anthropic"
+    },
+    {
+      "prefix": "gpt",
+      "family": "GPT",
+      "provider": "OpenAI"
+    },
+    {
+      "prefix": "gemini",
+      "family": "Gemini",
+      "provider": "Google"
+    },
+    {
+      "prefix": "grok",
+      "family": "Grok",
+      "provider": "xAI"
+    },
+    {
+      "prefix": "llama",
+      "family": "Llama",
+      "provider": "Meta"
+    },
+    {
+      "prefix": "mistral",
+      "family": "Mistral",
+      "provider": "Mistral AI"
+    },
+    {
+      "prefix": "qwen",
+      "family": "Qwen",
+      "provider": "Alibaba"
+    },
+    {
+      "prefix": "deepseek",
+      "family": "DeepSeek",
+      "provider": "DeepSeek"
+    }
+  ],
+  "who": {
+    "seen_within_days": 3,
+    "no_name": "An AI with no app, model or computer recorded ({kind})",
+    "unknown_kind": "kind unknown",
+    "hidden": "{count} more chats not seen in {days} days; trillion who --all shows them.",
+    "none": "No AI on this account was seen lately.",
+    "you": "Yours (account {account})",
+    "owner": "Account {account}",
+    "unknown_owner": "Owner unknown",
+    "account_chars": 8,
+    "ai_line": "{name}  {ready} of {chats} chats ready{seen}",
+    "seen": "  last seen {at}",
+    "ai_list": "list:ais",
+    "formula_kind": "formula",
+    "formula_tool": "tool:evaluate-a-formula",
+    "no_list": "No list {list} names your AIs: its title field must be a formula field. Make the list, or ask Trillion to, and run trillion who again.",
+    "no_names": "{tool} did not answer one name per AI."
+  },
+  "ai_record": {
+    "_what": "This AI's own ai record, written by publish through @own-records records:write conditioned on the value just read. A new record starts from `new`; `write_tries` writes are tried when another write changed it meanwhile (the engine answers one of `changed_codes`).",
+    "new": {
+      "kind": "cli",
+      "can": [
+        "any"
+      ],
+      "live": {
+        "how": "heartbeat",
+        "minutes": 60
+      }
+    },
+    "write_tries": 3,
+    "changed_codes": [
+      "original_command_conflict"
+    ]
+  }
+}

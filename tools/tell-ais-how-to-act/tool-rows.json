@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "tell-ais-how-to-act-tool-rows",
-  "what_this_is": "The Workshop row for the tell-ais-how-to-act folder: read the rows an AI is told when it first connects. The rows themselves are rows.json, served by the door; this tool only reads them back.",
+  "what_this_is": "The Workshop row for the tell-ais-how-to-act folder: read the rows an AI is told when it first connects. The rows themselves are rows.json, served by the door; this tool only reads them back. A second row keeps the standing instructions as one marked block in an AI harness's own instruction file on the person's computer.",
   "records": [
     {
       "payload": {
@@ -36,6 +36,82 @@
         "maker": "maker:tell-ais-how-to-act",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-trillion-in-your-instructions",
+        "label": "Keep Trillion's standing instructions in my AI's own instruction file (runs on your computer)",
+        "job": "Put, check or take out Trillion's standing instructions as one marked block in my AI harness's own global instruction file, leaving every other line of it as it was",
+        "description": "Reads, writes or removes one marked block in a harness's own global instruction file (Claude Code's CLAUDE.md, Codex's AGENTS.md, Gemini CLI's GEMINI.md; where each is, and its home variable, is a row of read-data/harness-instruction-files.json). inspect answers absent, present, outdated or blocked (markers that are not one start followed by one end) and writes nothing; apply writes or replaces only the block and twice changes nothing; remove takes out only the block. Every byte outside the block is kept, a symbolic link is written through to its target, and the file keeps its mode. A hosted app with no file is answered with the control it has, never written. `text` is the current words; without it the copy in read-data/standing-instructions.json is used.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "harness",
+            "action"
+          ],
+          "properties": {
+            "harness": {
+              "type": "string",
+              "description": "The harness row id (claude-code, codex, gemini-cli, or a hosted app's id)."
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "inspect",
+                "apply",
+                "remove"
+              ]
+            },
+            "text": {
+              "type": "string",
+              "description": "The standing words to keep; leave out to use this tool's copy."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "schema",
+            "report"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string"
+            },
+            "observed_at": {
+              "type": "string"
+            },
+            "text_from": {
+              "type": "string"
+            },
+            "report": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "node tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs < {input.json}",
+          "needs": [
+            "node 22 or later"
+          ],
+          "say": "This runs on the person's own computer from the root of the Workshop checkout, and changes a file in their home folder. Run inspect first and tell the person what apply would change; apply or remove only when they asked for it. Write the input as JSON to a file and pass it on standard input. Report the status and the file's path."
+        },
+        "maker": "maker:tell-ais-how-to-act",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from Trillion-X/trillion harness/standing-instructions.mjs and the input check of computer/harness-instructions.mjs (record:library:rea:F-0572)"
+        }
       }
     }
   ]

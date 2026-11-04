@@ -1,0 +1,40 @@
+{
+  "what_this_is": "Devices that can push their files to the receiver, and the exact screens and values that set each one up. A device is found by the model id it writes into its own files (a Sony clip's embedded Device modelName). Adding a device is a row here, never a code change. A row with `model_ids: []` is any camera that can send by FTP: it is wanted once the person turns the receiver on, its clips are done when a complete file arrives from this computer's address, and its words are its own `setup_words` (the steps list stays empty). A device's `setup_words`, when it has one, are the words the person sees for setting that device, and a row with no `setup_words` falls back to the receiver's generic words. A value is either text shown as is, or {\"from\": \"receiver\", \"key\": ...} filled from this computer's receiver (host, port, user, password).",
+  "devices": [
+    {
+      "model_ids": ["ILCE-7M4"],
+      "name": "Sony α7 IV",
+      "how_it_sends": "Each movie is sent to an FTP server automatically once it is recorded, in the background while you keep shooting; files that could not be sent go when the connection comes back.",
+      "sources": [
+        "https://helpguide.sony.net/di/ftp_2110/v1/en/contents/TP1000657885.html",
+        "https://helpguide.sony.net/di/ftp_2110/v1/en/contents/TP1000657890.html",
+        "https://helpguide.sony.net/ilc/2110/v1/en/contents/TP1000653558.html"
+      ],
+      "setup_words": "Set the camera to Server 1 with auto transfer on, on the same Wi-Fi",
+      "steps": [
+        { "where": ["MENU", "Network", "Wi-Fi", "Access Point Set."], "value": { "text": "the same Wi-Fi network as this computer" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "Server Setting", "Server 1", "Display Name"], "value": { "text": "TRILLION" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "Server Setting", "Server 1", "Destination Settings", "Host Name"], "value": { "from": "receiver", "key": "host" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "Server Setting", "Server 1", "Destination Settings", "Secure Protocol"], "value": { "text": "On" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "Server Setting", "Server 1", "Destination Settings", "Root Certificate Error"], "value": { "text": "Connect" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "Server Setting", "Server 1", "Destination Settings", "Port"], "value": { "from": "receiver", "key": "port" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "Server Setting", "Server 1", "Directory Settings", "Same File Name"], "value": { "text": "Does Not Overwrite" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "Server Setting", "Server 1", "User Info Settings", "User"], "value": { "from": "receiver", "key": "user" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "Server Setting", "Server 1", "User Info Settings", "Password"], "value": { "from": "receiver", "key": "password" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "Server Setting"], "value": { "text": "Server 1" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "FTP Function"], "value": { "text": "On" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "Auto FTP Transfer"], "value": { "text": "On" } },
+        { "where": ["MENU", "Network", "FTP Transfer", "FTP Transfer Func.", "Auto FTP Target", "Movie"], "value": { "text": "All" } }
+      ]
+    },
+    {
+      "model_ids": [],
+      "name": "Any camera that can send by FTP",
+      "short_name": "camera",
+      "how_it_sends": "The camera sends each recorded clip to an FTP server by itself.",
+      "sources": [],
+      "setup_words": "Turn on FTP sending in the camera's network menu and point it at the address shown",
+      "steps": []
+    }
+  ]
+}

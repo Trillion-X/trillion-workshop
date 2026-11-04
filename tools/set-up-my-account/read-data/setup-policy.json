@@ -1,0 +1,624 @@
+{
+  "schema": "trillion.setup-policy/v1",
+  "version": 1,
+  "goal": "Reach a fully functioning personal setup with the least human effort and the shortest time to a checked useful result.",
+  "principles": [
+    "The person supplies direction, observations, preferences and permissions that only they can give. The system owns implementation, maintenance, recovery and verification within the authority granted.",
+    "Question each proposed requirement, delete work that does not contribute to the result, simplify what remains, accelerate independent work, and automate the repeated mechanism.",
+    "Discover and reuse the person's existing state before asking anything. Copy the functioning behavior, adapting the configuration to this person's actual devices, sources and pursuits.",
+    "Continue every authorized machine-doable step. Keep missing capability, unknown state, failure and necessary human input distinct. Never turn an unimplemented automation into a silent omission.",
+    "Use the shared workflow engine and responsibility classifier. A prompt, installed setting, recorded task, or schema admission is intermediate; read the real result.",
+    "Use existing authority and supported access. Preserve deliberate stops, provider choices, spending limits and private scope. Do not disable a host's safeguards or start new paid automation as a side effect of setup."
+  ],
+  "workflow": {
+    "default_for": "setup",
+    "request_key": "account-setup:v1",
+    "inventory_step": "discover",
+    "configuration_step": "configure",
+    "verification_step": "verify-outcome",
+    "input": {
+      "goal": "Configure and verify this person's full Trillion experience with minimal human work, using existing capabilities and respecting their chosen devices, sources, authority and budgets.",
+      "required_components": [
+        "identity",
+        "pursuits",
+        "connections",
+        "devices",
+        "ai-connection",
+        "notifications",
+        "capture-shortcuts",
+        "automation",
+        "agent-delivery",
+        "harness",
+        "source-intake",
+        "first-result"
+      ]
+    },
+    "recheck_request_prefix": "account-setup:recheck:v1"
+  },
+  "requirements": [
+    {
+      "id": "identity",
+      "title": "Add your name",
+      "acceptance": "Use verified account data and this person's own profile/history first. Preserve first and last names as given; never invent a legal name by splitting an email. Ask only for missing facts that an enabled capability actually needs. A phone is verified by its existing account owner before it is used for sign-in or messages.",
+      "applicability": "required",
+      "evidence": {
+        "kind": "profile"
+      },
+      "complete_here": {
+        "action": "setup/complete",
+        "label": "Save your name",
+        "fields": [
+          { "name": "given_name", "label": "First name", "required": true, "free_text_because": "The person's own first name for their account, given as they write it; it is what their own row is named by, never a pick of someone else." },
+          { "name": "family_name", "label": "Last name", "required": true, "free_text_because": "The person's own last name for their account, given as they write it; it is what their own row is named by, never a pick of someone else." },
+          { "name": "offering", "label": "What you can offer people", "required": false, "free_text_because": "What the person can give others, in their own words; their first matches are the people who seek it (src/network-first-matches.mjs)." },
+          { "name": "seeking", "label": "Who you want to meet", "required": false, "free_text_because": "Who and what the person wants to meet, in their own words; their first matches are the people who offer it (src/network-first-matches.mjs)." }
+        ],
+        "writes": { "method": "PUT", "path": "/network/profile", "body": { "name": "{given_name} {family_name}", "given_name": "{given_name}", "family_name": "{family_name}", "offering": "{offering}", "seeking": "{seeking}" } },
+        "missing": "Enter your first name and last name.",
+        "said": "Your name is saved."
+      },
+      "checks": [
+        {
+          "id": "name",
+          "label": "Name on your account",
+          "of": "owned.profile",
+          "where": [
+            {
+              "field": "name",
+              "exists": true
+            }
+          ],
+          "pick": "{name}",
+          "found": "{names}[ {as_of}]",
+          "missing": "No name is saved yet."
+        },
+        {
+          "id": "first",
+          "label": "First name",
+          "of": "owned.profile",
+          "where": [
+            {
+              "field": "given_name",
+              "exists": true
+            }
+          ],
+          "pick": "{given_name}",
+          "found": "{names}[ {as_of}]",
+          "missing": "No first name is saved. Add it below.",
+          "open": {
+            "label": "Add your first and last name",
+            "screen": "trillion.network"
+          }
+        },
+        {
+          "id": "last",
+          "label": "Last name",
+          "of": "owned.profile",
+          "where": [
+            {
+              "field": "family_name",
+              "exists": true
+            }
+          ],
+          "pick": "{family_name}",
+          "found": "{names}[ {as_of}]",
+          "missing": "No last name is saved. Add it below.",
+          "open": {
+            "label": "Add your first and last name",
+            "screen": "trillion.network"
+          }
+        }
+      ],
+      "live": true,
+      "audience": "person_only",
+      "done_text": "Your name is saved."
+    },
+    {
+      "id": "pursuits",
+      "title": "Tell Trillion what you are pursuing",
+      "place": {"address":"/pursuits","label":"Add a pursuit"},
+      "acceptance": "Read existing pursuits and reachable authorized history before asking. Fill specific pursuits from cited evidence; ask the smallest unanswered question and preserve corrections.",
+      "applicability": "required",
+      "evidence": {
+        "kind": "pursuit-record"
+      },
+      "complete_here": {
+        "action": "setup/complete",
+        "label": "Add a pursuit",
+        "until_done": true,
+        "fields": [
+          { "name": "title", "label": "What you are pursuing", "required": true },
+          { "name": "now", "label": "Where it is now", "required": true },
+          { "name": "after", "label": "Where it should get to", "required": true }
+        ],
+        "writes": { "method": "PUT", "path": "/pursuits", "body": { "pursuits": [{ "title": "{title}", "now": "{now}", "after": "{after}" }] } },
+        "missing": "Name the pursuit, where it is now, and where it should get to.",
+        "said": "Your pursuit is saved."
+      },
+      "checks": [
+        {
+          "id": "active",
+          "label": "What you are pursuing",
+          "of": "owned.pursuits",
+          "where": [
+            {
+              "field": "status",
+              "not": "ended"
+            }
+          ],
+          "pick": "{title|short}",
+          "found": "{count} saved.[ {as_of}]",
+          "missing": "No pursuit is saved yet.",
+          "items": {"rest": "hide", "add": {"label": "Add a pursuit", "open": "/pursuits"}, "open": {"label": "Open", "address": "/spaces/", "field": "space_id"}}
+        }
+      ],
+      "live": true,
+      "audience": "person_only",
+      "done_text": "Trillion knows what you are pursuing."
+    },
+    {
+      "id": "connections",
+      "title": "Connect your existing accounts",
+      "place": {"address":"/connections","label":"Connect an account","label_done":"Your accounts"},
+      "acceptance": "Inventory the current host's exposed connectors and the account's Trillion connections. Reuse supported authorization and discover the correct service tools. Do not make the person list services you can inspect or transfer credentials without an authorized supported path.",
+      "applicability": "discover",
+      "evidence": {
+        "kind": "connected-service"
+      },
+      "checks": [
+        {
+          "id": "connected",
+          "label": "Accounts connected",
+          "of": "owned.connections",
+          "where": [
+            {
+              "field": "status",
+              "is": "connected"
+            }
+          ],
+          "pick": ["{label}", "{service}", "{vendor}"],
+          "found": "{count} connected.",
+          "missing": "No account is connected yet.",
+          "items": {"logo": "domain", "rest": "hide", "add": {"label": "Add an account", "open": "/connections"}}
+        },
+        {
+          "id": "readable",
+          "label": "Accounts Trillion can read",
+          "of": "components.event_intake.evidence.sources",
+          "where": [
+            {
+              "field": "state",
+              "not": "pending"
+            }
+          ],
+          "expect": "some",
+          "optional": true,
+          "pick": "{label}",
+          "found": "Reading {count} of {total}.",
+          "missing": "Trillion starts reading them by itself."
+        }
+      ],
+      "live": true,
+      "audience": "person_only",
+      "done_text": "Your accounts are connected."
+    },
+    {
+      "id": "devices",
+      "title": "Put Trillion on your phone and computer",
+      "place": {"address":"/devices","label":"Add a device"},
+      "acceptance": "Discover the person's actual devices and supported apps. Install and sign in with available permitted capabilities. Carry unsupported platforms as explicit product gaps. Do not assume everyone has the founder's devices or require an app for a device they do not own.",
+      "applicability": "discover",
+      "scope_from": "computers",
+      "evidence": {
+        "applicable_if_declared": [
+          "device_ids"
+        ]
+      },
+      "checks": [
+        {
+          "id": "installed",
+          "label": "Trillion apps installed",
+          "of": "devices",
+          "where": [
+            {
+              "field": "installed",
+              "is": true
+            }
+          ],
+          "pick": [
+            "{title}",
+            "{id}"
+          ],
+          "found": "{count} installed.",
+          "missing": "None installed yet.",
+          "items": {"rest": "hide", "add": {"label": "Add a device", "open": "/devices"}}
+        }
+      ],
+      "live": true,
+      "audience": "optional",
+      "done_text": "Trillion is installed on your devices."
+    },
+    {
+      "id": "ai-connection",
+      "title": "Connect your AIs to Trillion",
+      "place": {"address":"/ai","label":"Connect an AI"},
+      "acceptance": "Verify a real authorized Trillion read from the AI app the person selected. A copied prompt or tool listing alone does not prove the rest of setup.",
+      "applicability": "required",
+      "checks": [
+        {
+          "id": "apps",
+          "label": "AIs connected",
+          "of": "ai.apps",
+          "pick": "{name}",
+          "found": "{count} connected.",
+          "missing": "No AI has connected to Trillion yet.",
+          "items": {"logo": "domain", "add": {"label": "Connect another AI", "open": "/ai"}}
+        }
+      ],
+      "live": true,
+      "audience": "person_only",
+      "done_text": "Your AI is connected to Trillion."
+    },
+    {
+      "id": "notifications",
+      "title": "Allow Trillion to notify you",
+      "place": {"address":"/notification-settings","label":"Allow notifications","label_done":"Your notification settings"},
+      "acceptance": "Prepare the actual notification permission request on the applicable device. Read the registration and permission back; a settings page opened is not success. Only the OS gesture or permission that the host cannot perform belongs to the person.",
+      "applicability": "discover",
+      "scope_from": "computers",
+      "evidence": {
+        "applicable_if_declared": [
+          "notification_routes"
+        ]
+      },
+      "checks": [
+        {
+          "id": "allowed",
+          "label": "Devices that can notify you",
+          "of": "notification_devices",
+          "where": [
+            {
+              "field": "can_show",
+              "is": "allowed"
+            }
+          ],
+          "pick": [
+            "{label}",
+            "{name}",
+            "{id}"
+          ],
+          "found": "Allowed on your devices.",
+          "missing": "No device is allowed to show notifications yet."
+        }
+      ],
+      "live": true,
+      "audience": "optional",
+      "done_text": "Trillion can notify you."
+    },
+    {
+      "id": "capture-shortcuts",
+      "title": "Add shortcuts for capturing things",
+      "acceptance": "Use applicable share extensions, desktop/menu bar, widgets, Siri or shortcuts and current sources. Guide only the device-owned placement/tap the AI cannot perform; do not claim that an iPhone widget was installed remotely.",
+      "applicability": "discover",
+      "scope_from": "computers",
+      "checks": [
+        {
+          "id": "apps",
+          "label": "Trillion apps to capture from",
+          "of": "devices",
+          "where": [
+            {
+              "field": "installed",
+              "is": true
+            }
+          ],
+          "pick": [
+            "{title}",
+            "{id}"
+          ],
+          "found": "{count} to capture from.",
+          "missing": "No Trillion app is installed to capture from yet.",
+          "items": {"rest": "hide"}
+        }
+      ],
+      "live": true,
+      "audience": "optional",
+      "done_text": "Capture shortcuts are added."
+    },
+    {
+      "id": "automation",
+      "title": "Turn on scheduled work and reacting to events",
+      "acceptance": "Read and prepare the existing runtime defaults, event rules, schedules and alarm. Preserve deliberate pauses, removals, user edits, budgets and provider choices; do not create duplicate hourly loops.",
+      "applicability": "required",
+      "runtime_components": [
+        "defaults",
+        "timed_work",
+        "event_intake"
+      ],
+      "checks": [
+        {
+          "id": "ran",
+          "label": "Scheduled work that ran",
+          "of": "components.defaults.evidence.rows",
+          "where": [
+            {
+              "field": "kind",
+              "is": "schedule"
+            },
+            {
+              "field": "last_run.at",
+              "within_hours": 72
+            }
+          ],
+          "pick": "{label}",
+          "found": "{count} ran in the last 3 days.",
+          "missing": "No scheduled work has run in the last 3 days. Your AI starts the clock again.",
+          "items": {"rest": "hide"}
+        },
+        {
+          "id": "defaults",
+          "optional": true,
+          "label": "Standard automations",
+          "of": "components.defaults",
+          "where": [
+            {
+              "field": "state",
+              "is": "ready"
+            }
+          ],
+          "found": "In place.",
+          "missing": "Not all in place yet."
+        },
+        {
+          "id": "timed",
+          "optional": true,
+          "label": "Timed work",
+          "of": "components.timed_work",
+          "where": [
+            {
+              "field": "state",
+              "is": "ready"
+            }
+          ],
+          "found": "The clock is running.",
+          "missing": "Not running cleanly. See what is held back below."
+        },
+        {
+          "id": "held",
+          "optional": true,
+          "label": "Work waiting to run",
+          "of": "components.timed_work.evidence.failed",
+          "expect": "none",
+          "pick": [
+            "{id|short}: {error|short}",
+            "{label|short}: {error|short}",
+            "{error|short}"
+          ],
+          "found": "Nothing is held back.",
+          "missing": "Some timed work is waiting to run again. Your AI tries it again by itself."
+        },
+        {
+          "id": "events",
+          "optional": true,
+          "label": "Listening for events",
+          "of": "components.event_intake.evidence.sources",
+          "where": [
+            {
+              "field": "state",
+              "in": [
+                "listening",
+                "stopped"
+              ]
+            }
+          ],
+          "expect": "all",
+          "pick": "{label}",
+          "found": "Listening to {count}.",
+          "found_empty": "No connected account needs listening.",
+          "missing": "Listening to {count} of {total}. Trillion starts the rest by itself."
+        }
+      ],
+      "live": true,
+      "audience": "ai",
+      "done_text": "Timed work and listening for events are running."
+    },
+    {
+      "id": "agent-delivery",
+      "title": "Let your AI pick up work from Trillion",
+      "acceptance": "Use the real current conversation identity where the host provides it. Publish the agent and check actual delivery or a supported scheduled pickup. A registered card without a working delivery/pickup path is pending.",
+      "applicability": "required",
+      "evidence": {
+        "kind": "agent-pickup"
+      },
+      "checks": [
+        {
+          "id": "receiving",
+          "label": "AIs that can receive work",
+          "of": "components.agents.evidence.agents",
+          "where": [
+            {
+              "field": "takes_work",
+              "is": true
+            }
+          ],
+          "pick": "{name}",
+          "found": "{count} of your AIs take work.",
+          "missing": "No AI is set up to receive work right now."
+        },
+        {
+          "id": "finished",
+          "label": "Work finished in the last 7 days",
+          "of": "owned.records.finished",
+          "optional": true,
+          "pick": "{name}",
+          "found": "{count} of your AIs finished work.",
+          "missing": "No work finished in the last 7 days.",
+          "items": {"logo": "domain", "status": "{count} done", "rest": "hide"}
+        }
+      ],
+      "live": true,
+      "audience": "ai",
+      "done_text": "Your AI can receive work from Trillion."
+    },
+    {
+      "id": "harness",
+      "title": "Install Trillion on the computer your AI runs on",
+      "acceptance": "For a local supported harness, use the shared installer and inspect its actual hook evidence, transcript capture and session registration. Where the host has no hooks, use its supported standing instructions and report that capability honestly. Never invent a source ID or claim a hook ran because its config exists.",
+      "applicability": "discover",
+      "scope_from": "computers",
+      "evidence": {
+        "kind": "local-harness-report"
+      },
+      "checks": [
+        {
+          "id": "computers",
+          "label": "Your computer",
+          "of": "computers",
+          "where": [
+            {
+              "field": "reported_at",
+              "within_hours": 72
+            }
+          ],
+          "pick": "{name}",
+          "found": "A computer reported in during the last 3 days.",
+          "missing": "No computer has reported in the last 3 days.",
+          "optional": true
+        },
+        {
+          "id": "hooks",
+          "label": "Conversations kept by your computer",
+          "of": "owned.records.recorded",
+          "pick": "{name}",
+          "found": "Kept from {count} of your AIs in the last 7 days.",
+          "missing": "No conversation was kept from your computer in the last 7 days. Your AI installs the hook where it runs.",
+          "items": {"logo": "domain", "status": "{count} kept", "rest": "hide"}
+        }
+      ],
+      "live": true,
+      "audience": "ai",
+      "done_text": "Trillion is set up on the computer your AI runs on."
+    },
+    {
+      "id": "source-intake",
+      "title": "Bring your information into Trillion",
+      "acceptance": "Discover sources the person actually uses, check permissions, start supported authorized imports and observe a real source item in this account. Preserve scope, provenance, duplicate protection and deletions. Show an unavailable or failed source as such rather than empty or completed.",
+      "applicability": "discover",
+      "evidence": {
+        "kind": "source-arrival"
+      },
+      "checks": [
+        {
+          "id": "arrival",
+          "label": "Arrived in the last 7 days",
+          "of": "owned.records.arrived",
+          "pick": "{name}",
+          "found": "Your information is arriving.",
+          "missing": "Nothing arrived in the last 7 days. Your AI connects your sources and checks that something arrives.",
+          "items": {"status": "{count} this week", "rest": "hide"}
+        },
+        {
+          "id": "listening",
+          "label": "Accounts being listened to",
+          "of": "components.event_intake.evidence.sources",
+          "where": [
+            {
+              "field": "state",
+              "is": "listening"
+            }
+          ],
+          "pick": "{label}",
+          "optional": true,
+          "found": "Listening to {count}.",
+          "missing": "Trillion starts listening by itself."
+        },
+        {
+          "id": "mac",
+          "label": "Reading on your computer",
+          "of": "computers",
+          "spread": "sources",
+          "where": [
+            {
+              "field": "state",
+              "is": "reading"
+            }
+          ],
+          "pick": "{label}",
+          "optional": true,
+          "found": "Reading {count} on your computer.",
+          "missing": "Nothing is being read on a computer yet.",
+          "items": {"rest": "hide"}
+        }
+      ],
+      "live": true,
+      "audience": "ai",
+      "done_text": "Your information is coming into Trillion."
+    },
+    {
+      "id": "first-result",
+      "title": "Run one test of the whole flow",
+      "acceptance": "Observe a harmless authorized input arriving, the intended work being picked up, a concrete checked result appearing in the person's current surface, and durable continuity on a resumed read. Keep the original input and result identities; a queued job or a passing schema is not this proof.",
+      "applicability": "required",
+      "checks": [
+        {
+          "id": "loop",
+          "label": "Work that came back done",
+          "of": "owned.records.finished",
+          "pick": "{name}",
+          "found": "Work went through Trillion and came back done.",
+          "missing": "No work has come back done yet. Your AI sends one harmless job through and checks the result."
+        }
+      ],
+      "live": true,
+      "audience": "ai",
+      "done_text": "A test through the whole loop passed."
+    }
+  ],
+  "ai_domains": [
+    {"product": "Claude", "domain": "claude.ai"},
+    {"product": "ChatGPT", "domain": "chatgpt.com"},
+    {"product": "Codex", "domain": "openai.com"},
+    {"product": "Gemini", "domain": "gemini.google.com"},
+    {"product": "Grok", "domain": "grok.com"},
+    {"product": "Cursor", "domain": "cursor.com"},
+    {"product": "Muse", "domain": "meta.ai"}
+  ],
+  "words": {
+    "finished_elsewhere": "This step is finished on its own screen.",
+    "handoff_title": "Let your AI finish setup",
+    "handoff_body": "Your AI can connect what you already use, prepare the apps and permissions, and check that work keeps moving. It will ask you only for a detail or device action it cannot handle.",
+    "handoff_action": "Finish setup with my AI",
+    "continuation": "After the connection works, call start_setup immediately and continue its saved workflow. Do not stop at confirming the MCP connection. Complete the machine-doable work now, show only necessary human actions, and read_setup again to check the actual result.",
+    "in_progress": "Your AI is completing setup. Checks update from what actually works.",
+    "unknown": "Still being set up.",
+    "as_of": "(as of {at|time})",
+    "ai_only_line": "Your AI runs one test through the whole loop once the rest of setup is in place. You do not need to do anything for it.",
+    "waiting": "Your AI will check this and complete what it can. Any step that needs you will appear in your AI conversation.",
+    "connected_title": "Your AI is connected: {apps|few}",
+    "connected_title_unnamed": "Your AI is connected",
+    "connected_unnamed_ai": "An AI app",
+    "connected_body": "Open it and ask it to continue Trillion setup. It resumes the saved setup and keeps every verified result.",
+    "connected_action": "Copy setup continuation",
+    "waiting_step": "Your AI is setting this up.",
+    "plain": {
+      "still": "Still being set up.",
+      "internal": [
+        "SQLITE_\\w*",
+        "database table",
+        "\\b(?:error|exception|traceback|stack trace|ECONN\\w*|ETIMEDOUT)\\b",
+        "\\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}\\b",
+        "\\b(?:agent|user|acct|src|conn|run)_[A-Za-z0-9]{6,}\\b",
+        "claude-code",
+        "codex-mcp-client",
+        "-mcp-client\\b",
+        "drive keeper",
+        "release owner",
+        "TestFlight",
+        "\\bApple (?:did|does|has|records|recorded|confirm)",
+        "public-link",
+        "recruitment",
+        "beta access"
+      ]
+    }
+  }
+}

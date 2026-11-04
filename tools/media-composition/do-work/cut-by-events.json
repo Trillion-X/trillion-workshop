@@ -1,0 +1,91 @@
+{
+  "_what": "How detected events become the parts of a recording that are kept (cut-by-events.mjs). `rules` has one row per event kind: `before` and `after` are the seconds kept around the event's time, `min_confidence` (optional) is a floor for that kind. A kind with no row follows `unknown_kind`: `drop` removes it, `default` uses `default_rule`. Windows closer than `merge_gap_s` become one; a window shorter than `min_window_s` is dropped. Confidence decides what is done with an event: at or above `act_at` it is kept, from `ask_at` up to `act_at` it is returned in `asked` for the person to confirm, below `ask_at` it is abstained and said so. An event with no confidence follows `unscored`: `act` keeps it, `abstain` drops it. A new kind of event (a serve, a goal, a laugh) is a new row; a different detector is a new row in `detectors`. Word, filler and long-pause cuts from a transcript are not here: adopt-visual-content's auto-edit is their single owner (cut-the-action.mjs calls it). A `stream` detector row names a row of `streams`: its encoder turns the recording into feature frames, its core carries a baseline from frame to frame (src/stream-core.mjs) and its heads, rows of their own, say what happened; retuning or swapping a head touches neither the encoder nor the core.",
+  "unknown_kind": "drop",
+  "default_rule": {
+    "before": 1,
+    "after": 2
+  },
+  "rules": [
+    {
+      "kind": "stroke",
+      "before": 1.5,
+      "after": 2.5
+    },
+    {
+      "kind": "serve",
+      "before": 2,
+      "after": 3,
+      "within_frame": true
+    },
+    {
+      "kind": "point-end",
+      "before": 3,
+      "after": 1.5,
+      "min_confidence": 0.6
+    }
+  ],
+  "merge_gap_s": 1,
+  "min_window_s": 0.5,
+  "unscored": "act",
+  "act_at": 0.8,
+  "ask_at": 0.5,
+  "detectors": [
+    {
+      "id": "sound-and-motion",
+      "program": "find-action-moments.mjs",
+      "event_kind": "stroke",
+      "note": "No weights: the loudness rise and the picture change, ranked by find-action-moments.mjs.",
+      "export": "findActionMoments",
+      "moments_key": "moments",
+      "confidence_field": "strength"
+    },
+    {
+      "id": "adaptive",
+      "stream": "sound-and-motion",
+      "note": "No weights: a running baseline of the loudness rise and the picture change; a frame well above what the recording has been like so far is an event. The heads are rows of `streams`."
+    },
+    {
+      "id": "local-model",
+      "job": "local-model-job:detect-events",
+      "note": "A model the person's Mac serves answers for stretches of the recording; which model is a row in records/local-model-records.json.",
+      "events_key": "events"
+    }
+  ],
+  "words": {
+    "no_events": "No event was kept, so nothing is cut.",
+    "abstained": "{count} event(s) were left out because they were not certain enough.",
+    "asked": "{count} event(s) need the person to say yes before they are kept.",
+    "other_device": "The event came from a device that is not in this session."
+  },
+  "streams": {
+    "sound-and-motion": {
+      "encoder": {
+        "module": "./stream-features.mjs",
+        "export": "featureFrames",
+        "step_s": 0.1
+      },
+      "features": [
+        "sound",
+        "motion"
+      ],
+      "core": {
+        "alpha": 0.05,
+        "floor": 0.0025,
+        "warmup_frames": 20
+      },
+      "heads": [
+        {
+          "kind": "stroke",
+          "weights": {
+            "sound": 1,
+            "motion": 0.25
+          },
+          "z_min": 3,
+          "z_full": 6,
+          "refractory_s": 1
+        }
+      ],
+      "note": "The core keeps a smoothed mean and variance per feature (alpha is how fast it forgets). A head adds its weighted deviations; at z_min an event is made, at z_full it is certain; refractory_s keeps one hit from being many events."
+    }
+  }
+}

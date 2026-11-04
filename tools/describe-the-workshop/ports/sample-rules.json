@@ -1,0 +1,59 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WORKSHOP-SAMPLE-RULES-FROM-THE-WORKSHOP-SERVICE",
+  "status": "BASELINED",
+  "directive": {
+    "message_multihash": "1f:28cf72855070bb9f618975a90fd90f707f4cda825c03eb0f6f04dad696d95381",
+    "quote": "product shouldn't exist anymore; i want a quick mv so it can be done super fast super quick now"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "d52540c7cb2b3c55c8c801407dc1f06479f8a495",
+      "path_multihash": "1f:59ce38553556dd8e82bd0281330358de70af9fb5b6c82218c7809cd348f78e9b",
+      "multihash": "1f:d4d6f86a4ebb3d41fe2da3fee708ffde0ef9454044f7cef6c666c2891eccc546",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T18:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/describe-the-workshop/read-data/workshop-sample-rules.mjs",
+      "baseline_commit_message": "describe-the-workshop: the Workshop describe and its sample rules, moved byte for byte from trillion src/workshop.mjs:1625-1655 (describeTool) and src/workshop-sample-rules.mjs; their DATA from trillion-rust product/workshop-sample-rules.json and product/renamed-tools.json"
+    }
+  ],
+  "preserve": [
+    "no executor, placement or tool is named in code: the rules are DATA rows keyed by the placement's executor",
+    "a sample that does not declare a safety its rule allows never runs; a dry-run sample turns on the tool's own boolean dry-run input"
+  ],
+  "allowed_deltas": [
+    "none: the file moves byte for byte beside its DATA"
+  ],
+  "banned_substitutions": [
+    "a rewritten sample rule",
+    "a sample rule named in code"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:d4d6f86a4ebb3d41fe2da3fee708ffde0ef9454044f7cef6c666c2891eccc546",
+    "target_multihash_at_baseline": "1f:d4d6f86a4ebb3d41fe2da3fee708ffde0ef9454044f7cef6c666c2891eccc546",
+    "commit": "2219c4a",
+    "recorded_at": "2026-11-03T23:30:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 1,
+    "required_mechanisms": [
+      "export const sampleRuleOf",
+      "export function unsafeSample"
+    ],
+    "test_refs": [
+      "tools/describe-the-workshop/test/describe.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  },
+  "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}

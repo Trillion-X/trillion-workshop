@@ -1,0 +1,836 @@
+{
+ "_what": "Make pictures and sounds: the style rows (media-generation-style) and the makers they run (media-maker). One runner, do-work/make-pictures-and-sounds.mjs, turns a style into files; records/workshop-media-generation-tool-records.json lists every style here as its own Workshop tool (tool:make-<style>), and the editor's Make panel (src/workspace/media-edit/make-panel.tsx) lists them from this file. A style says what it makes (makes, and the file kind: media_type, extension), what it needs (input_schema: a recording and a moment, a line of text; frames: how many frames of that recording it looks at and how far apart; made_from: other styles' results, made from the same input), how many it makes by default (count), its prompt, and which maker runs it. A maker runs_as an http request that answers with base64 bytes (its key is read from the file the style's credential_mounts places, named by connection, never written here) or a program run in the container. An http maker that Trillion can also pay for names `through_trillion`: the Workshop tool that sends the same request through Trillion's own account at a gateway (`tool`) and that tool's input besides the maker's request body (`input`); a run with no connected account of the person's sends there, through the relay its container is given, and each call is taken from their Trillion credit. A value reference is { value: [path...] } into { prompt, settings, images, inputs, output }; a path part is a key, an index, \"*\" (first match) or { any_of: [keys] }. Adding a style or a maker is a row here, never code.",
+ "things": [
+  {
+   "address": "package::media-composition::media-maker::google-ai-image",
+   "payload": {
+    "kind": "media-maker",
+    "runs_as": "http",
+    "label": "Google AI images",
+    "concurrency": 4,
+    "timeout_ms": 180000,
+    "key": {
+     "connection": {
+      "connection_id": "service_connection:google",
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     },
+     "placement": {
+      "kind": "header",
+      "name": "x-goog-api-key"
+     }
+    },
+    "through_trillion": {
+     "tool": "tool:treg:google-ai.image-gen.gemini-3-1-flash-image",
+     "input": {
+      "path": {
+       "model": {
+        "value": [
+         "settings",
+         "model"
+        ]
+       }
+      }
+     }
+    },
+    "settings": {
+     "model": "gemini-3.1-flash-image",
+     "aspect": "16:9"
+    },
+    "request": {
+     "method": "POST",
+     "url": [
+      "https://generativelanguage.googleapis.com/v1beta/models/",
+      {
+       "value": [
+        "settings",
+        "model"
+       ]
+      },
+      ":generateContent"
+     ],
+     "body": {
+      "contents": [
+       {
+        "parts": [
+         {
+          "text": {
+           "value": [
+            "prompt"
+           ]
+          }
+         },
+         {
+          "each": [
+           "images"
+          ],
+          "item": {
+           "inline_data": {
+            "mime_type": {
+             "value": [
+              "item",
+              "media_type"
+             ]
+            },
+            "data": {
+             "value": [
+              "item",
+              "base64"
+             ]
+            }
+           }
+          }
+         }
+        ]
+       }
+      ],
+      "generationConfig": {
+       "responseModalities": [
+        "IMAGE"
+       ],
+       "imageConfig": {
+        "aspectRatio": {
+         "value": [
+          "settings",
+          "aspect"
+         ]
+        }
+       }
+      }
+     }
+    },
+    "response": {
+     "base64_path": [
+      "candidates",
+      0,
+      "content",
+      "parts",
+      "*",
+      {
+       "any_of": [
+        "inlineData",
+        "inline_data"
+       ]
+      },
+      "data"
+     ],
+     "media_type_path": [
+      "candidates",
+      0,
+      "content",
+      "parts",
+      "*",
+      {
+       "any_of": [
+        "inlineData",
+        "inline_data"
+       ]
+      },
+      {
+       "any_of": [
+        "mimeType",
+        "mime_type"
+       ]
+      }
+     ],
+     "error_path": [
+      "error",
+      "message"
+     ]
+    }
+   }
+  },
+  {
+   "address": "package::media-composition::media-maker::google-ai-sound",
+   "payload": {
+    "kind": "media-maker",
+    "runs_as": "http",
+    "label": "Google AI music and sound",
+    "concurrency": 2,
+    "timeout_ms": 240000,
+    "key": {
+     "connection": {
+      "connection_id": "service_connection:google",
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     },
+     "placement": {
+      "kind": "header",
+      "name": "x-goog-api-key"
+     }
+    },
+    "through_trillion": {
+     "tool": "tool:treg:google-ai.music-gen.lyria-3-clip",
+     "input": {
+      "path": {
+       "model": {
+        "value": [
+         "settings",
+         "model"
+        ]
+       }
+      }
+     }
+    },
+    "settings": {
+     "model": "lyria-3-clip-preview"
+    },
+    "request": {
+     "method": "POST",
+     "url": [
+      "https://generativelanguage.googleapis.com/v1beta/models/",
+      {
+       "value": [
+        "settings",
+        "model"
+       ]
+      },
+      ":generateContent"
+     ],
+     "body": {
+      "contents": [
+       {
+        "parts": [
+         {
+          "text": {
+           "value": [
+            "prompt"
+           ]
+          }
+         }
+        ]
+       }
+      ]
+     }
+    },
+    "response": {
+     "base64_path": [
+      "candidates",
+      0,
+      "content",
+      "parts",
+      "*",
+      {
+       "any_of": [
+        "inlineData",
+        "inline_data"
+       ]
+      },
+      "data"
+     ],
+     "media_type_path": [
+      "candidates",
+      0,
+      "content",
+      "parts",
+      "*",
+      {
+       "any_of": [
+        "inlineData",
+        "inline_data"
+       ]
+      },
+      {
+       "any_of": [
+        "mimeType",
+        "mime_type"
+       ]
+      }
+     ],
+     "error_path": [
+      "error",
+      "message"
+     ]
+    }
+   }
+  },
+  {
+   "address": "package::media-composition::media-maker::cut-out-a-person",
+   "payload": {
+    "kind": "media-maker",
+    "runs_as": "process",
+    "label": "Cut out in the container",
+    "concurrency": 1,
+    "timeout_ms": 300000,
+    "settings": {
+     "model_path": "/opt/models/u2net-human-seg/u2net_human_seg.onnx"
+    },
+    "command": [
+     "python3",
+     "do-work/cut-out-a-person.py",
+     {
+      "value": [
+       "images",
+       0,
+       "path"
+      ]
+     },
+     {
+      "value": [
+       "output",
+       "path"
+      ]
+     },
+     {
+      "value": [
+       "settings",
+       "model_path"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-maker::place-on-background",
+   "payload": {
+    "kind": "media-maker",
+    "runs_as": "process",
+    "label": "Place on a background",
+    "concurrency": 2,
+    "timeout_ms": 120000,
+    "command": [
+     "ffmpeg",
+     "-y",
+     "-loglevel",
+     "error",
+     "-i",
+     {
+      "value": [
+       "images",
+       0,
+       "path"
+      ]
+     },
+     "-i",
+     {
+      "value": [
+       "images",
+       1,
+       "path"
+      ]
+     },
+     "-filter_complex",
+     "[1:v]format=rgba,eq=contrast=1.25:saturation=1.35:gamma=0.95,colorchannelmixer=aa=1.4[fgc];[fgc][0:v]scale2ref=w=oh*mdar:h=ih*0.95[fg][bg];[bg][fg]overlay=x=(W-w)*0.62:y=H-h:format=auto,format=rgb24",
+     "-frames:v",
+     "1",
+     {
+      "value": [
+       "output",
+       "path"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::thumbnail-about-the-video",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "A thumbnail about the video",
+    "short_label": "Thumbnail",
+    "about": "Makes a bold thumbnail about your video's topic.",
+    "icon": "Image",
+    "makes": "thumbnail",
+    "media_type": "image/png",
+    "extension": ".png",
+    "maker": "google-ai-image",
+    "count": 4,
+    "job": "Make a bold thumbnail picture about a video's topic, with no text, and keep it in your files",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "topic"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "topic": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2000,
+       "description": "What the video is about, in a few words"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 12,
+       "description": "How many to make (default 4)"
+      }
+     }
+    },
+    "prompt": [
+     "A bold, high-contrast YouTube thumbnail image, no text, one dominant subject, dramatic lighting, shows this idea in one striking extreme scene: ",
+     {
+      "value": [
+       "inputs",
+       "topic"
+      ]
+     }
+    ],
+    "description": "Make a bold thumbnail picture about a video's topic, with no text, and keep it in your files. Each result is a new file kept in your files; the recording itself is never changed.",
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::striking-picture-of-you",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "A striking picture of you from the video",
+    "short_label": "Striking picture of you",
+    "about": "Makes a striking thumbnail of you from a frame of your video.",
+    "icon": "UserRound",
+    "makes": "thumbnail",
+    "media_type": "image/png",
+    "extension": ".png",
+    "maker": "google-ai-image",
+    "count": 4,
+    "job": "Make a striking thumbnail of the person in a recording, keeping their face, from frames of the video and a topic",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video",
+      "topic"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The recording to take the frame from: its identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "at": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Seconds into the recording for the frame (default: its sharpest, best-lit moment)"
+      },
+      "topic": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2000,
+       "description": "What the video is about, in a few words"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 12,
+       "description": "How many to make (default 4)"
+      }
+     }
+    },
+    "frames": {
+     "count": 3,
+     "spread_seconds": 3
+    },
+    "settings": {
+     "model": "gemini-3-pro-image"
+    },
+    "prompt": [
+     "These pictures are frames of ONE person from a video at different moments; use them only to learn their face. Make ONE striking YouTube thumbnail showing them once, about: ",
+     {
+      "value": [
+       "inputs",
+       "topic"
+      ]
+     },
+     ". Keep their exact face and likeness so it clearly looks like them, natural and realistic, not idealized. Bold lighting and contrast, a clean background that fits the topic, lots of space on one side for a title. Only one person in the picture. No text."
+    ],
+    "description": "Make a striking thumbnail of the person in a recording, keeping their face, from frames of the video and a topic. Each result is a new file kept in your files; the recording itself is never changed.",
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::enhanced-frame",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "This frame, enhanced",
+    "short_label": "Enhance a frame",
+    "about": "Turns one frame of your video into a sharp, well-lit picture.",
+    "icon": "Sparkles",
+    "makes": "thumbnail",
+    "media_type": "image/png",
+    "extension": ".png",
+    "maker": "google-ai-image",
+    "count": 2,
+    "job": "Take one frame of a recording and make it a sharp, well-lit, vivid picture that keeps the people and composition",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The recording to take the frame from: its identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "at": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Seconds into the recording for the frame (default: its sharpest, best-lit moment)"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 12,
+       "description": "How many to make (default 2)"
+      }
+     }
+    },
+    "frames": {
+     "count": 1,
+     "spread_seconds": 0
+    },
+    "prompt": [
+     "Enhance this exact frame into a sharp, well-lit, vivid photo: fix exposure, sharpen, richer color, flattering light. Keep the composition, the people and their likeness exactly the same. No text."
+    ],
+    "description": "Take one frame of a recording and make it a sharp, well-lit, vivid picture that keeps the people and composition. Each result is a new file kept in your files; the recording itself is never changed.",
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::pencil-portrait",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "A pencil portrait from the video",
+    "short_label": "Pencil portrait",
+    "about": "Draws a black-and-white pencil portrait of you from your video.",
+    "icon": "PencilLine",
+    "makes": "thumbnail",
+    "media_type": "image/png",
+    "extension": ".png",
+    "maker": "google-ai-image",
+    "count": 2,
+    "job": "Draw a black-and-white pencil portrait of the person in a recording, with room above for a title",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The recording to take the frame from: its identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "at": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Seconds into the recording for the frame (default: its sharpest, best-lit moment)"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 12,
+       "description": "How many to make (default 2)"
+      }
+     }
+    },
+    "frames": {
+     "count": 3,
+     "spread_seconds": 3
+    },
+    "settings": {
+     "model": "gemini-3-pro-image"
+    },
+    "prompt": [
+     "These pictures are frames of ONE person at different moments; use them only to learn their face. Draw ONE refined black-and-white graphite pencil portrait of them at a balanced medium tone. Keep their exact face and likeness, natural and realistic, calm closed-mouth expression. Place them in the lower portion with a large empty white margin above for a title. Pure white background, monochrome graphite only, only one person, no text."
+    ],
+    "description": "Draw a black-and-white pencil portrait of the person in a recording, with room above for a title. Each result is a new file kept in your files; the recording itself is never changed.",
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::cut-out",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "Cut the person out",
+    "short_label": "Cut out",
+    "about": "Cuts you out of a frame of your video.",
+    "icon": "Scissors",
+    "makes": "cut-out",
+    "media_type": "image/png",
+    "extension": ".png",
+    "maker": "cut-out-a-person",
+    "count": 1,
+    "job": "Cut the person out of one frame of a recording and keep them as a picture with a transparent background",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The recording to take the frame from: its identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "at": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Seconds into the recording for the frame (default: its sharpest, best-lit moment)"
+      }
+     }
+    },
+    "frames": {
+     "count": 1,
+     "spread_seconds": 0
+    },
+    "description": "Cut the person out of one frame of a recording and keep them as a picture with a transparent background. Each result is a new file kept in your files; the recording itself is never changed."
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::background-about-the-video",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "A background about the video",
+    "short_label": "Background",
+    "about": "Makes a wide background picture about your video's topic.",
+    "icon": "ImagePlus",
+    "makes": "background",
+    "media_type": "image/png",
+    "extension": ".png",
+    "maker": "google-ai-image",
+    "count": 1,
+    "job": "Make a dramatic wide background picture about a video's topic, with no people and no text",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "topic"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "topic": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2000,
+       "description": "What the video is about, in a few words"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 12,
+       "description": "How many to make (default 1)"
+      }
+     }
+    },
+    "prompt": [
+     "A dramatic wide background image for a YouTube thumbnail, no people, no text, one striking scene that shows this idea, darker on the left and right edges: ",
+     {
+      "value": [
+       "inputs",
+       "topic"
+      ]
+     }
+    ],
+    "description": "Make a dramatic wide background picture about a video's topic, with no people and no text. Each result is a new file kept in your files; the recording itself is never changed.",
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::cut-out-on-a-new-background",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "You, cut out on a new background",
+    "short_label": "New background",
+    "about": "Cuts you out of a frame and puts you on a new background.",
+    "icon": "PictureInPicture2",
+    "makes": "thumbnail",
+    "media_type": "image/png",
+    "extension": ".png",
+    "maker": "place-on-background",
+    "count": 2,
+    "job": "Cut the person out of a recording's frame and place them on a new background made about the video's topic",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video",
+      "topic"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The recording to take the frame from: its identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      },
+      "at": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Seconds into the recording for the frame (default: its sharpest, best-lit moment)"
+      },
+      "topic": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2000,
+       "description": "What the video is about, in a few words"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 12,
+       "description": "How many to make (default 2)"
+      }
+     }
+    },
+    "made_from": [
+     {
+      "name": "background",
+      "style": "background-about-the-video"
+     },
+     {
+      "name": "subject",
+      "style": "cut-out"
+     }
+    ],
+    "description": "Cut the person out of a recording's frame and place them on a new background made about the video's topic. Each result is a new file kept in your files; the recording itself is never changed.",
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::sound-effect",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "A sound effect",
+    "short_label": "Sound effect",
+    "about": "Makes a sound effect from a description.",
+    "icon": "Zap",
+    "makes": "sound effect",
+    "media_type": "audio/mpeg",
+    "extension": ".mp3",
+    "maker": "google-ai-sound",
+    "count": 2,
+    "job": "Make a sound effect from a description of the sound",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "sound"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "sound": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2000,
+       "description": "The sound, described in a few words"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 12,
+       "description": "How many to make (default 2)"
+      }
+     }
+    },
+    "prompt": [
+     "A short sound effect, no music, no melody, no voice: ",
+     {
+      "value": [
+       "inputs",
+       "sound"
+      ]
+     }
+    ],
+    "description": "Make a sound effect from a description of the sound. Each result is a new file kept in your files; the recording itself is never changed.",
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::music",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "Music",
+    "short_label": "Music",
+    "about": "Makes instrumental music for your video from a mood.",
+    "icon": "AudioLines",
+    "makes": "music",
+    "media_type": "audio/mpeg",
+    "extension": ".mp3",
+    "maker": "google-ai-sound",
+    "count": 2,
+    "job": "Make a piece of instrumental music for a video from a mood or style",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "mood"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "mood": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2000,
+       "description": "The mood or style of the music"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 12,
+       "description": "How many to make (default 2)"
+      }
+     }
+    },
+    "prompt": [
+     "Instrumental background music for a video, no vocals: ",
+     {
+      "value": [
+       "inputs",
+       "mood"
+      ]
+     }
+    ],
+    "description": "Make a piece of instrumental music for a video from a mood or style. Each result is a new file kept in your files; the recording itself is never changed.",
+    "connection_id": "service_connection:google",
+    "credential_mounts": [
+     {
+      "field_id": "api_key",
+      "mount_path": "/run/connections/google/api_key"
+     }
+    ]
+   }
+  }
+ ]
+}

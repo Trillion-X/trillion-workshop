@@ -1,0 +1,16 @@
+{
+  "_what": "Native messaging hosts that follow an extension's presence (computer/follow-presence.mjs). `hosts`: each host Trillion offers to a browser extension, by the name the extension asks for (`name`), the extension's store id (`extension_id`), the program the browser starts (`path`, a program of Trillion's own) and the words the browser shows (`description`). `browsers`: each browser by the app that shows it is installed (`app`), the folder its profiles live in (`profiles`, under which `<profile>/Extensions/<id>` means the extension is there) and the folder it reads host files from (`hosts_in`, under `profiles`). A host file is written only in a browser whose profiles hold its extension, and taken away again, through the install ledger, from a browser that no longer holds it, only while the file is still the one written. With no host listed nothing is written anywhere; a new host or browser is one row.",
+  "state_file_name": "followed-presence.json",
+  "origin_template": "chrome-extension://{extension_id}/",
+  "hosts": [],
+  "browsers": [
+    { "id": "chrome", "app": "/Applications/Google Chrome.app", "profiles": "~/Library/Application Support/Google/Chrome", "hosts_in": "NativeMessagingHosts" },
+    { "id": "brave", "app": "/Applications/Brave Browser.app", "profiles": "~/Library/Application Support/BraveSoftware/Brave-Browser", "hosts_in": "NativeMessagingHosts" },
+    { "id": "edge", "app": "/Applications/Microsoft Edge.app", "profiles": "~/Library/Application Support/Microsoft Edge", "hosts_in": "NativeMessagingHosts" }
+  ],
+  "words": {
+    "wrote": "This computer: {browser} can now reach {host}, because it holds the extension.",
+    "withdrew": "This computer: {browser} no longer holds the extension, so {host} was taken away.",
+    "changed": "This computer: {path} was changed by someone else, so it was left alone."
+  }
+}

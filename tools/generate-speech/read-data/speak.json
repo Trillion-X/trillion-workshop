@@ -1,0 +1,176 @@
+{
+  "_what": "How read-data/speak.mjs (tool:say-with-a-voice-model and tool:voices) speaks in a natural voice made by a speech model on the person's own computer. Nothing goes to a paid service. `programs` are the programs that run a speech model, tried in order (the one the person gave as `speech_python`, else the first whose `check` program is found on `search_path`, else on PATH); `run` starts do-work/speak-with-mlx.py once for each request, in the run's own folder. `engines` are the speech models: `takes` says what makes the voice (a person's `reference` recording and its exact words, or a model's own `speaker`). `voices` are the voices every person has without making one, each kept as a row of the person's own Voices list the first time their voices are listed. A person's own voices, which voice they chose and every speed are rows of their own lists (`lists.voices` and `lists.places`, kept through the run's records door), with each reference recording in `person.folder` of their files. A place with no voice uses the chosen voice; a place with no speed uses its voice's speed, else `speed.default`, always within `speed.min` and `speed.max`. A sound is made at its natural pace and answered with the place's speed, which the player applies with the pitch kept. A voice is said with the voice asked for, else the person's chosen one, else each of `voices` in order; when none can run, the answer is an error with every reason. `make` picks a reference from any recording of the person: the stretch, between `window.shortest_seconds` and `window.longest_seconds` long and nearest `window.best_seconds`, that starts after a pause and ends where a sentence ends with a pause after it, heard with `make.hear_model`, because a reference cut mid-sentence makes a model say its last words before the text. `loudness` brings every voice to one level. `keep` is where a said sound is kept in the person's files, so any of their devices plays it. Moved from the product repo's computer/speak.json, the speech-program and speech-engine rows of records/speech-engine-records.json, the Voices and places lists of src/voices.json and the speed scale of parts/ui/show/speed-control/speeds.json.",
+  "voices": [
+    {
+      "id": "neutral",
+      "label": "A calm neutral voice",
+      "engine": "kokoro",
+      "speaker": "af_heart"
+    }
+  ],
+  "person": {
+    "folder": "/Voice",
+    "own_label": "Your own voice"
+  },
+  "programs": [
+    {
+      "id": "mlx-audio",
+      "label": "mlx-audio on this computer",
+      "search_path": ["/opt/homebrew/anaconda3/bin", "~/anaconda3/bin", "~/miniconda3/bin", "~/miniforge3/bin", "/opt/homebrew/Caskroom/miniconda/base/bin", "/opt/homebrew/bin", "/usr/local/bin"],
+      "check": ["python3", "-c", "import mlx_audio, soundfile"],
+      "run": ["python3", "{here}/../do-work/speak-with-mlx.py", "once"]
+    }
+  ],
+  "engines": [
+    {
+      "id": "qwen3-tts",
+      "label": "Qwen3-TTS",
+      "model": "mlx-community/Qwen3-TTS-12Hz-1.7B-Base-bf16",
+      "takes": "reference",
+      "produced_by": "Qwen3-TTS 1.7B on this computer"
+    },
+    {
+      "id": "kokoro",
+      "label": "Kokoro",
+      "model": "mlx-community/Kokoro-82M-bf16",
+      "takes": "speaker",
+      "lang_code": "a",
+      "produced_by": "Kokoro 82M on this computer"
+    }
+  ],
+  "most_seconds": 300,
+  "loudness": {
+    "rms_dbfs": -20,
+    "peak": 0.89
+  },
+  "longest_text": 2000,
+  "make": {
+    "hear_model": "mlx-community/whisper-large-v3-turbo",
+    "fade_seconds": 0.03,
+    "window": {
+      "pause_before_seconds": 0.2,
+      "pause_after_seconds": 0.2,
+      "shortest_seconds": 5,
+      "longest_seconds": 12,
+      "best_seconds": 9,
+      "sentence_ends": [".", "?", "!"],
+      "trailing_off": ["...", "…"]
+    }
+  },
+  "keep": {
+    "folder": "/Voice/Said",
+    "name": "{time} {voice}.wav",
+    "media_type": "audio/wav"
+  },
+  "lists": {
+    "voices": {
+      "id": "voices",
+      "label": "Voices",
+      "icon": "AudioLines",
+      "about": "The voices Trillion can speak to you in, and how fast each one talks. The one marked Chosen speaks wherever a place names no voice.",
+      "row_type": "voice",
+      "title_field": "label",
+      "fields": [
+        {"id": "label", "label": "Voice", "kind": "text"},
+        {
+          "id": "chosen",
+          "label": "Chosen",
+          "kind": "choice",
+          "choices": ["Chosen"]
+        },
+        {"id": "speed", "label": "Speed", "kind": "number"},
+        {"id": "engine", "label": "Made by", "kind": "text"},
+        {
+          "id": "speaker",
+          "label": "Speaker",
+          "kind": "text",
+          "free_text_because": "The speech engine's own speaker id the voice is made with (one of the engine's built-in speakers), written by the device that makes the voice, not a person."
+        },
+        {"id": "reference", "label": "Recording it speaks from", "kind": "file"},
+        {"id": "reference_text", "label": "Words in that recording", "kind": "text"},
+        {"id": "made_from", "label": "Made from", "kind": "file"},
+        {"id": "made_at", "label": "Made", "kind": "date"}
+      ]
+    },
+    "places": {
+      "id": "where-trillion-speaks",
+      "label": "Where Trillion speaks",
+      "icon": "Volume2",
+      "about": "Each place Trillion talks to you or for you, the voice it uses there and how fast. A place with no voice uses your chosen voice; one with no speed uses that voice's speed.",
+      "row_type": "speaking-place",
+      "title_field": "label",
+      "fields": [
+        {"id": "label", "label": "Place", "kind": "text"},
+        {
+          "id": "voice",
+          "label": "Voice",
+          "kind": "link",
+          "links_to": "voices"
+        },
+        {"id": "speed", "label": "Speed", "kind": "number"}
+      ],
+      "starters": [
+        {
+          "id": "said-out-loud",
+          "values": {
+            "label": "Things said out loud"
+          }
+        },
+        {
+          "id": "calls",
+          "values": {
+            "label": "Calls"
+          }
+        },
+        {
+          "id": "voice-messages",
+          "values": {
+            "label": "Voice messages"
+          }
+        },
+        {
+          "id": "podcasts",
+          "values": {
+            "label": "Podcasts"
+          }
+        },
+        {
+          "id": "posts",
+          "values": {
+            "label": "Posts"
+          }
+        },
+        {
+          "id": "car",
+          "values": {
+            "label": "In the car"
+          }
+        },
+        {
+          "id": "coaching",
+          "values": {
+            "label": "Coaching"
+          }
+        }
+      ]
+    }
+  },
+  "speed": {
+    "min": 0.1,
+    "max": 16,
+    "default": 1
+  },
+  "words": {
+    "needs_text": "Give the words to say.",
+    "too_long": "That is more than {most} characters to say at once; split it.",
+    "no_program": "This computer has no speech model program (mlx-audio), so it cannot make a natural voice.",
+    "no_voice": "No voice could be made on this computer: {why}",
+    "unknown_voice": "There is no voice {voice}. The voices are {voices}.",
+    "made": "Your voice was made from {seconds} seconds of {name}: \"{text}\".",
+    "chosen": "Trillion now speaks in {label}.",
+    "removed": "{label} was removed.",
+    "keeps_one": "A voice every person has cannot be removed.",
+    "needs_recording": "Give a recording of the person speaking (a file in their Trillion files) to make their voice from.",
+    "unknown_place": "There is no place {place}. The places are {places}."
+  }
+}

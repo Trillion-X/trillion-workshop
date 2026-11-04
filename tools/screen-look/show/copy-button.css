@@ -1,0 +1,10 @@
+/* The shared copy button (parts/ui/show/copy-button/CopyButton.tsx), on the workspace tokens: the mark and the words
+   each stack their states in one grid cell so the button keeps its size while they cross-fade. */
+.copy-button-control {display:inline-flex;align-items:center;position:relative}
+.copy-mark {display:inline-grid;width:14px;height:14px;flex-shrink:0}
+.copy-mark:not([data-idle-shown]) {width:auto}
+.copy-mark-layer {grid-area:1/1;width:14px;height:14px}
+.copy-words {display:inline-grid;position:relative}
+.copy-words-layer {grid-area:1/1;white-space:nowrap}
+.copy-status[role=status] {position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.copy-status[role=alert] {font-size:12px;line-height:1.5;color:var(--color-destructive);max-width:28em;margin-inline-start:8px}
