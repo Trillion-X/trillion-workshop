@@ -74,34 +74,34 @@ test('refusals name the problem; choices list every strategy and lock from DATA'
   assert.deepEqual(shiftChoices().strategies.map(item => item.id), data.strategies.map(item => item.id));
 });
 
-test('Calendar tasks of a task list move through the owner, finished work stays, and undo puts them back', () => {
+test('Calendar tasks of a task list move through the owner, finished work stays, and undo puts them back', async () => {
   const store = localStore(':memory:');
   try {
     const lists = makeLists({ eeaf: store.eeaf });
-    const { collection } = changeCalendarTask(lists, { action: 'create_collection', request_key: 'launch', title: 'Launch' });
-    const make = (key, due, start_on) => changeCalendarTask(lists, { action: 'create', request_key: key, title: key, duration_minutes: 30, collection_id: collection.id, due, ...(start_on ? { start_on } : {}) }).task;
-    const one = make('design', '2026-11-06', '2026-11-02');
-    const two = make('build', '2026-11-13', '2026-11-09');
-    const three = make('ship', '2026-11-20T17:00:00.000Z', '2026-11-16');
-    make('undated');
-    changeCalendarTask(lists, { action: 'complete', task_id: one.id });
+    const { collection } = await changeCalendarTask(lists, { action: 'create_collection', request_key: 'launch', title: 'Launch' });
+    const make = async (key, due, start_on) => (await changeCalendarTask(lists, { action: 'create', request_key: key, title: key, duration_minutes: 30, collection_id: collection.id, due, ...(start_on ? { start_on } : {}) })).task;
+    const one = await make('design', '2026-11-06', '2026-11-02');
+    const two = await make('build', '2026-11-13', '2026-11-09');
+    const three = await make('ship', '2026-11-20T17:00:00.000Z', '2026-11-16');
+    await make('undated');
+    await changeCalendarTask(lists, { action: 'complete', task_id: one.id });
 
-    const preview = shiftCalendarTasks(lists, { collection_id: collection.id, strategy: 'shift', end: '2026-11-27', today: '2026-11-10', dry_run: true });
+    const preview = await shiftCalendarTasks(lists, { collection_id: collection.id, strategy: 'shift', end: '2026-11-27', today: '2026-11-10', dry_run: true });
     assert.deepEqual(preview.moved.sort(), [three.id, two.id].sort());
-    assert.equal(readCalendarTasks(lists).tasks.find(task => task.id === three.id).due, '2026-11-20T17:00:00.000Z', 'a dry run writes nothing');
+    assert.equal((await readCalendarTasks(lists)).tasks.find(task => task.id === three.id).due, '2026-11-20T17:00:00.000Z', 'a dry run writes nothing');
 
-    const done = shiftCalendarTasks(lists, { collection_id: collection.id, strategy: 'shift', lock: 'started', end: '2026-11-27', today: '2026-11-10' });
-    const after = Object.fromEntries(readCalendarTasks(lists).tasks.map(task => [task.id, [task.start_on, task.due]]));
+    const done = await shiftCalendarTasks(lists, { collection_id: collection.id, strategy: 'shift', lock: 'started', end: '2026-11-27', today: '2026-11-10' });
+    const after = Object.fromEntries((await readCalendarTasks(lists)).tasks.map(task => [task.id, [task.start_on, task.due]]));
     assert.deepEqual(after[one.id], ['2026-11-02', '2026-11-06'], 'finished work stays');
     assert.deepEqual(after[two.id], ['2026-11-09', '2026-11-13'], 'started work stays under the started lock');
     assert.deepEqual(after[three.id], ['2026-11-23', '2026-11-27T17:00:00.000Z'], 'the time of a due date is kept');
     assert.deepEqual(done.moved, [three.id]);
 
     assert.ok(done.undo?.rows?.length, 'the owner\'s own undo comes back');
-    changeCalendarTask(lists, done.undo);
-    assert.deepEqual(readCalendarTasks(lists).tasks.find(task => task.id === three.id).due, '2026-11-20T17:00:00.000Z');
-    assert.throws(() => shiftCalendarTasks(lists, { end: '2026-12-01' }), /Choose a task list/);
-    assert.throws(() => shiftCalendarTasks(lists, { task_ids: ['nobody'], end: '2026-12-01' }), /None of those tasks has a due date/);
+    await changeCalendarTask(lists, done.undo);
+    assert.deepEqual((await readCalendarTasks(lists)).tasks.find(task => task.id === three.id).due, '2026-11-20T17:00:00.000Z');
+    await assert.rejects(async () => await shiftCalendarTasks(lists, { end: '2026-12-01' }), /Choose a task list/);
+    await assert.rejects(async () => await shiftCalendarTasks(lists, { task_ids: ['nobody'], end: '2026-12-01' }), /None of those tasks has a due date/);
   } finally { store.close?.(); }
 });
 
@@ -110,8 +110,8 @@ test('the route and tools move a plan and list the choices', async () => {
   const store = localStore(':memory:');
   try {
     const lists = makeLists({ eeaf: store.eeaf });
-    const { collection } = changeCalendarTask(lists, { action: 'create_collection', request_key: 'trip', title: 'Trip' });
-    const task = changeCalendarTask(lists, { action: 'create', request_key: 'book', title: 'Book', duration_minutes: 30, collection_id: collection.id, due: '2026-11-06', start_on: '2026-11-02' }).task;
+    const { collection } = await changeCalendarTask(lists, { action: 'create_collection', request_key: 'trip', title: 'Trip' });
+    const task = (await changeCalendarTask(lists, { action: 'create', request_key: 'book', title: 'Book', duration_minutes: 30, collection_id: collection.id, due: '2026-11-06', start_on: '2026-11-02' })).task;
     const call = async (path, body) => {
       const response = await handleDateShiftRequest(lists, new Request(`https://person${path}`, body === undefined ? {} : { method: 'POST', body: JSON.stringify(body) }));
       return { status: response.status, body: await response.json() };
@@ -121,7 +121,7 @@ test('the route and tools move a plan and list the choices', async () => {
     assert.deepEqual((await tools[1].run()).strategies.map(item => item.id), data.strategies.map(item => item.id));
     const moved = await tools[0].run({ collection_id: collection.id, strategy: 'shift', lock: 'none', end: '2026-11-13' });
     assert.deepEqual(moved.moved, [task.id]);
-    assert.equal(readCalendarTasks(lists).tasks[0].due, '2026-11-13');
+    assert.equal((await readCalendarTasks(lists)).tasks[0].due, '2026-11-13');
     assert.equal((await call('/calendar/task-shift', { collection_id: collection.id, strategy: 'teleport', end: '2026-11-20' })).status, 400);
     assert.equal(isDateShiftPath('/calendar/task-shift') && !isDateShiftPath('/calendar/tasks'), true);
   } finally { store.close?.(); }

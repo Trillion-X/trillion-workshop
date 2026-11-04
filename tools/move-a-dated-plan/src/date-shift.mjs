@@ -172,13 +172,13 @@ export const shiftChoices = () => ({
 });
 
 const MOST_TASKS = 500;
-function plannedTasks(lists, { collection_id, task_ids }) {
+async function plannedTasks(lists, { collection_id, task_ids }) {
   const wanted = Array.isArray(task_ids) && task_ids.length ? new Set(task_ids) : null;
   if (!wanted && (typeof collection_id !== 'string' || !collection_id.trim())) throw new DateShiftError(say('not_a_plan'));
   const found = [];
   let cursor;
   do {
-    const page = readCalendarTasks(lists, cursor ? { cursor } : {});
+    const page = await readCalendarTasks(lists, cursor ? { cursor } : {});
     found.push(...page.tasks.filter(task => (wanted ? wanted.has(task.id) : task.collection_id === collection_id)));
     cursor = page.page.complete ? undefined : page.page.next_cursor;
   } while (cursor && found.length < MOST_TASKS);
@@ -190,9 +190,9 @@ function plannedTasks(lists, { collection_id, task_ids }) {
  * start_on (else its due date) to its due date. today (YYYY-MM-DD) says which stages have started. With dry_run the answer
  * is the plan and nothing is written. Otherwise answers { moved, tasks, undo } where undo is the owner's restore input.
  */
-export function shiftCalendarTasks(lists, input = {}, options = {}) {
+export async function shiftCalendarTasks(lists, input = {}, options = {}) {
   const today = dayOf(input.today ?? new Date((options.now ?? Date.now)()).toISOString());
-  const tasks = plannedTasks(lists, input).filter(task => dayOf(task.due) !== null);
+  const tasks = (await plannedTasks(lists, input)).filter(task => dayOf(task.due) !== null);
   if (!tasks.length) throw new DateShiftError(say('none_dated'));
   const byId = new Map(tasks.map(task => [task.id, task]));
   const stages = tasks.map(task => {
@@ -209,7 +209,7 @@ export function shiftCalendarTasks(lists, input = {}, options = {}) {
     const task = byId.get(stage.id);
     // A due date that carries a time keeps its time of day.
     const dueTail = typeof task.due === 'string' && task.due.length > 10 ? task.due.slice(10) : '';
-    const result = changeCalendarTask(lists, { action: 'update', task_id: stage.id, start_on: dateOf(stage.start), due: `${dateOf(stage.end)}${dueTail}` });
+    const result = await changeCalendarTask(lists, { action: 'update', task_id: stage.id, start_on: dateOf(stage.start), due: `${dateOf(stage.end)}${dueTail}` });
     if (result.undo?.rows) undoRows.push(...result.undo.rows);
   }
   return { moved: plan.moved, tasks: shown, start: dateOf(plan.start), end: dateOf(plan.end), ...(undoRows.length ? { undo: { action: 'restore', rows: undoRows } } : {}) };
@@ -222,7 +222,7 @@ export async function handleDateShiftRequest(lists, request) {
     if (request.method === 'POST') {
       const input = await request.json().catch(() => null);
       if (!input || typeof input !== 'object') throw new DateShiftError(data.words.not_a_plan);
-      return Response.json(shiftCalendarTasks(lists, input));
+      return Response.json(await shiftCalendarTasks(lists, input));
     }
     return Response.json({ error: 'Method not allowed.' }, { status: 405 });
   } catch (error) {

@@ -54,16 +54,16 @@ export const namesWritten = (list, rows) => rows.some(row => Object.keys(row?.va
 
 export function makeNamingFields({ lists, eeaf, rules: given = rules }) {
   const actor = { by: 'naming-fields' };
-  const all = () => lists.all().lists;
-  const rowsOf = id => lists.read(id).rows;
+  const all = async () => (await lists.all()).lists;
+  const rowsOf = async id => (await lists.read(id)).rows;
 
-  function candidates() {
-    const kept = all();
+  async function candidates() {
+    const kept = await all();
     // Each name to the rows that hold it, per list: { name → Map(list id → Set(row id)) }.
     const names = new Map();
     const rowsByList = new Map();
     for (const list of kept) {
-      const rows = rowsOf(list.id);
+      const rows = await rowsOf(list.id);
       rowsByList.set(list.id, rows);
       for (const row of rows) for (const name of valuesOf(row.values?.[list.title_field])) {
         const key = norm(name);
@@ -105,14 +105,14 @@ export function makeNamingFields({ lists, eeaf, rules: given = rules }) {
     return out;
   }
 
-  function linkField({ list_id, field_id, links_to, make }) {
-    if (make && !lists.find(links_to)) lists.ensure(make, { actor });
-    const target = lists.find(links_to);
+  async function linkField({ list_id, field_id, links_to, make }) {
+    if (make && !await lists.find(links_to)) await lists.ensure(make, { actor });
+    const target = await lists.find(links_to);
     const byName = new Map();
     // A name two rows share links to the first of them, in id order, never to a new third one.
-    for (const row of [...rowsOf(links_to)].sort((a, b) => a.id.localeCompare(b.id))) for (const name of valuesOf(row.values?.[target.title_field])) if (!byName.has(norm(name))) byName.set(norm(name), row.id);
-    const source = lists.find(list_id);
-    const rows = rowsOf(list_id).filter(row => valuesOf(row.values?.[field_id]).length);
+    for (const row of [...await rowsOf(links_to)].sort((a, b) => a.id.localeCompare(b.id))) for (const name of valuesOf(row.values?.[target.title_field])) if (!byName.has(norm(name))) byName.set(norm(name), row.id);
+    const source = await lists.find(list_id);
+    const rows = (await rowsOf(list_id)).filter(row => valuesOf(row.values?.[field_id]).length);
     // Names no row has yet get a row in the target list, named by the value as it was first written.
     const missing = new Map();
     for (const row of rows) for (const value of valuesOf(row.values[field_id])) if (!byName.get(norm(value)) && !missing.has(norm(value))) missing.set(norm(value), value.trim());
@@ -122,27 +122,28 @@ export function makeNamingFields({ lists, eeaf, rules: given = rules }) {
     const holdersOfName = new Map();
     for (const row of rows) for (const value of valuesOf(row.values[field_id])) holdersOfName.set(norm(value), [...(holdersOfName.get(norm(value)) ?? []), row.id]);
     const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const namedIn = target.fields.filter(field => field.links_to).map(field => {
-      const over = lists.find(field.links_to);
-      const titles = rowsOf(field.links_to).flatMap(row => valuesOf(row.values?.[over.title_field]).map(title => title.trim())
+    const namedIn = [];
+    for (const field of target.fields.filter(field => field.links_to)) namedIn.push(await (async () => {
+      const over = await lists.find(field.links_to);
+      const titles = (await rowsOf(field.links_to)).flatMap(row => valuesOf(row.values?.[over.title_field]).map(title => title.trim())
         .filter(title => title.length >= rules.least_title_chars)
         .map(title => ({ id: row.id, pattern: new RegExp(`(?<![\\p{L}\\p{N}])${escape(title)}(?![\\p{L}\\p{N}])`, 'iu') })));
       return { field, titles };
-    });
+    })());
     const linksOf = name => Object.fromEntries(namedIn.map(({ field, titles }) => {
       const own = holdersOfName.get(norm(name)) ?? [];
       const self = id => field.links_to === list_id && own.length === 1 && own[0] === id;
       return [field.id, [...new Set(titles.filter(title => title.pattern.test(name) && !self(title.id)).map(title => title.id))]];
     }).filter(([, ids]) => ids.length));
     for (let at = 0; at < made.length; at += data.limits.rows_per_write) {
-      const kept = lists.putRows(links_to, { rows: made.slice(at, at + data.limits.rows_per_write).map(name => ({ values: { [target.title_field]: name, ...linksOf(name) } })) }, { actor }).kept;
+      const kept = (await lists.putRows(links_to, { rows: made.slice(at, at + data.limits.rows_per_write).map(name => ({ values: { [target.title_field]: name, ...linksOf(name) } })) }, { actor })).kept;
       for (const row of kept) byName.set(norm(row.values[target.title_field]), row.id);
     }
     const { id: _id, rows: _rows, ...definition } = source;
-    lists.save({ id: list_id, ...definition, fields: source.fields.map(field => field.id === field_id
+    await lists.save({ id: list_id, ...definition, fields: source.fields.map(field => field.id === field_id
       ? { id: field.id, label: field.label, kind: 'link', links_to } : field) }, { actor });
     const moved = rows.map(row => ({ id: row.id, values: { [field_id]: [...new Set(valuesOf(row.values[field_id]).map(value => byName.get(norm(value))).filter(Boolean))] } }));
-    for (let at = 0; at < moved.length; at += data.limits.rows_per_write) lists.putRows(list_id, { rows: moved.slice(at, at + data.limits.rows_per_write) }, { actor });
+    for (let at = 0; at < moved.length; at += data.limits.rows_per_write) await lists.putRows(list_id, { rows: moved.slice(at, at + data.limits.rows_per_write) }, { actor });
     return { list_id, field_id, links_to, rows: moved.length, made: made.length };
   }
 
@@ -153,9 +154,9 @@ export function makeNamingFields({ lists, eeaf, rules: given = rules }) {
       const mark = eeaf.read(MARK);
       return mark?.due === true ? Math.max(now, (mark.looked_at ?? 0) + rules.every_minutes * 60_000) : null;
     },
-    step(now = Date.now()) {
-      const [next] = candidates();
-      if (next) return linkField(next);
+    async step(now = Date.now()) {
+      const [next] = await candidates();
+      if (next) return await linkField(next);
       eeaf.write([{ id: MARK, type: rules.mark_type, value: { due: false, looked_at: now } }], { actor });
       return null;
     },

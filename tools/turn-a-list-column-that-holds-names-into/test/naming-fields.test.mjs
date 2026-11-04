@@ -30,9 +30,9 @@ test('a field whose words name another list\'s rows becomes a link to them, and 
   await lists.save({ id: 'crm', label: 'CRM', fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'company', label: 'Company', kind: 'text' }] });
   await lists.putRows('crm', { rows: [{ id: 'c1', values: { name: 'Ann', company: 'Acme' } }, { id: 'c2', values: { name: 'Bo', company: ' acme ' } }, { id: 'c3', values: { name: 'Cy', company: 'Globex' } }] });
   assert.ok(naming.nextAt(0) !== null, 'a change marks the lists');
-  const found = naming.candidates().map(c => [c.list_id, c.field_id, c.links_to]).sort();
+  const found = (await naming.candidates()).map(c => [c.list_id, c.field_id, c.links_to]).sort();
   assert.deepEqual(found, [['crm', 'company', 'companies'], ['formats', 'serves', 'pillars']]);
-  while (naming.step(0)) { /* one field a step */ }
+  while (await naming.step(0)) { /* one field a step */ }
   assert.equal(naming.nextAt(0), null, 'nothing left: the mark is cleared');
   const formats = await lists.read('formats');
   assert.deepEqual(formats.list.fields.find(f => f.id === 'serves'), { id: 'serves', label: 'Serves', kind: 'link', links_to: 'pillars' });
@@ -58,7 +58,7 @@ test('a field read by its words never moves, and nothing runs until a change mar
   await lists.save({ id: 'posts', label: 'Posts', fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'pillar', label: 'Pillar', kind: 'choice', choices: ['One', 'Two'] }],
     views: [{ id: 'ones', label: 'Ones', rules: { kind: 'group', combinator: 'and', rules: [{ field: 'pillar', operator: 'is', value: 'One' }] } }] });
   await lists.putRows('posts', { rows: [{ id: 'x', values: { name: 'a', pillar: 'One' } }, { id: 'y', values: { name: 'b', pillar: 'Two' } }] });
-  assert.deepEqual(naming.candidates(), []);
+  assert.deepEqual(await naming.candidates(), []);
 });
 
 test('a field that says what it names moves whatever its words are, and a made row links the people its words name', async () => {
@@ -74,7 +74,7 @@ test('a field that says what it names moves whatever its words are, and a made r
   const crm = await lists.find('crm');
   const { id: _id, ...definition } = crm;
   await lists.save({ id: 'crm', ...definition, fields: crm.fields.map(field => field.id === 'company' ? { ...field, label: 'How you know them', names: { list: relationships } } : field) });
-  while (naming.step(0)) { /* one field a step */ }
+  while (await naming.step(0)) { /* one field a step */ }
   const read = await lists.read('crm');
   assert.deepEqual(read.list.fields.find(field => field.id === 'company'), { id: 'company', label: 'How you know them', kind: 'link', links_to: 'relationships' });
   const made = (await lists.read('relationships')).rows;

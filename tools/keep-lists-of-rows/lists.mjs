@@ -120,7 +120,7 @@ import { backlinks, duplicateRows, fileReferences, joinAnswers, mergeRows, planR
 import { documentsFolderOf, readDocumentTypes, saveDocumentTypes } from '../documents-as-list-rows/document-properties.mjs';
 import { exportListFiles, importListFiles } from '../query-and-change-list-rows/src/list-plain-files.mjs';
 import { aggregateRows } from '../query-and-change-list-rows/src/list-aggregates.mjs';
-import { isSourceId, pathIdsOf, planPath, sourceNamespacesOf, withPathValues } from '../query-and-change-list-rows/src/list-paths.mjs';
+import { isSourceId, pathIdsOf, planPath, planPathAhead, sourceNamespacesOf, withPathValues } from '../query-and-change-list-rows/src/list-paths.mjs';
 import { fieldsWritten, noteRecordsWriting } from '../keep-and-wake-ai-sessions-on-this-computer/src/live-keys.mjs';
 import { bindParameters, parametersOf } from '../query-and-change-list-rows/src/list-view-parameters.mjs';
 import { listFilters, viewsWithFiltersExpanded } from '../query-and-change-list-rows/src/list-filters.mjs';
@@ -2331,7 +2331,8 @@ export async function readThroughView(lists, id, viewId, { filterRows, ruleKindO
   const namespaces = sourceNamespacesOf(answer.list.row_sources);
   const viewIds = pathIdsOf(view);
   const sourced = viewIds.filter(path => isSourceId(path, namespaces));
-  const paths = viewIds.filter(path => !sourced.includes(path)).map(path => planPath(answer.list, path, slug => lists.find(slug), viewId));
+  const paths = [];
+  for (const path of viewIds.filter(path => !sourced.includes(path))) paths.push(await planPathAhead(answer.list, path, slug => lists.find(slug), viewId));
   const sourceFields = sourced.length ? (await lists.sourceFields?.(answer.list, sourced)) ?? [] : [];
   // The shared form of a field (website~key) the view names is worked out for the rows being shown (src/list-identity.mjs).
   const named = JSON.stringify(view);

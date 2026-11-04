@@ -21,8 +21,8 @@ const listed = async lists => (await lists.all()).lists.map(list => [list.id, li
 test('a starting list reads as its DATA, shaped as save keeps it, and stores nothing', async () => {
   const { store, lists } = held();
   const saved = open();
-  saved.lists.save({ ...own });
-  assert.deepEqual(await lists.find(own.id), saved.lists.find(own.id), 'the same list a save of the DATA keeps');
+  await saved.lists.save({ ...own });
+  assert.deepEqual(await lists.find(own.id), await saved.lists.find(own.id), 'the same list a save of the DATA keeps');
   assert.equal(store.eeaf.read(`list:${own.id}`), null, 'no list record is kept');
   assert.equal(store.eeaf.lastLogId(), null, 'nothing at all is written');
   assert.ok(await lists.has(own.id));
@@ -52,6 +52,6 @@ test('once kept, a change to the DATA never alters it; a store that holds no sta
   assert.equal((await lists.find(own.id)).label, own.label);
   assert.ok(!(await lists.find(own.id)).fields.some(field => field.id === 'added_later'));
   const other = open();
-  assert.equal(other.lists.find(own.id), null);
+  assert.equal(await other.lists.find(own.id), null);
   assert.deepEqual(await listed(other.lists), []);
 });
