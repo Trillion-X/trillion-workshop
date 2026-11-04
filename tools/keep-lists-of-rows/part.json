@@ -5,10 +5,6 @@
     "read-data/configuration-values.mjs",
     "source-data/view-time-units.json",
     "read-data/metric-aggregation.ts",
-    "show/offer-views-to-every-list.tsx",
-    "show/VisualDatabaseSurface.tsx",
-    "show/LazyOwnerBoundVisualDatabaseSurface.tsx",
-    "show/OwnerBoundVisualDatabaseSurface.tsx",
     "show/use-addressed-cell-expression-owner.ts",
     "do-work/addressed-cell-read-projection.ts",
     "read-data/visual-database.ts",
@@ -22,7 +18,6 @@
     "source-data/published-for-every-consumer.json",
     "source-data/views-offered-to-every-list.json",
     "read-data/schedule-bars.ts",
-    "show/views/ScheduleView.tsx",
     "source-data/schedule-zoom-levels.json"
   ]
 }
