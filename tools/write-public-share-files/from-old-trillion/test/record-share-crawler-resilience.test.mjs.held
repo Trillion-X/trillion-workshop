@@ -1,0 +1,146 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { answerRecordShare, crawlerRefusal } from '../src/record-share-pages.mjs';
+import { crawlerDocumentKey } from '../src/crawler-document-key.mjs';
+
+const origin = 'https://app.gettrillion.ai';
+const locations = body => [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
+
+function fakeCache() {
+  const held = new Map();
+  return {
+    held,
+    match: async request => { const copy = held.get(request.url); return copy ? copy.clone() : undefined; },
+    put: async (request, response) => { held.set(request.url, response); },
+  };
+}
+
+// `behaviour[name]` is 'slow' (never answers), 'refuse' (throws), 'private' (owner says not listed) or a public share.
+function fixture(behaviour, documentCache = fakeCache()) {
+  const stats = { admissions: 0 };
+  const kv = {
+    list: async ({ prefix }) => ({ keys: Object.keys(behaviour).map(name => ({ name: prefix + name })), list_complete: true }),
+    get: async key => key.startsWith('record-share-link:') ? { person_ref: 'owner' } : null,
+  };
+  const shareOwnerFor = async ({ code }) => ({
+    listedShare: async name => {
+      stats.admissions++;
+      const how = behaviour[code];
+      if (how === 'slow') return new Promise(() => {});
+      if (how === 'refuse') throw Object.assign(new Error('Network connection lost.'), { status: 503 });
+      if (how === 'private') return null;
+      return { name, title: name, changed: '2026-10-05', copy: { title: name, preview: { fields: [] } } };
+    },
+  });
+  const waiting = [];
+  const ctx = { waitUntil: promise => { waiting.push(promise); } };
+  const open = (path, method = 'GET') => answerRecordShare(new Request(origin + path, { method }), { env: {}, kv, origin, shareOwnerFor, documentCache, ctx });
+  return { open, stats, documentCache, settle: () => Promise.all(waiting.splice(0)) };
+}
+
+const key = crawlerDocumentKey('/share/sitemap.xml').url;
+async function ageKept(documentCache, ms, { entries = true } = {}) {
+  const kept = await documentCache.held.get(key).clone().json();
+  kept.built -= ms;
+  kept.attempted -= ms;
+  if (entries) for (const entry of Object.values(kept.shares)) entry.at -= ms;
+  documentCache.held.set(key, new Response(JSON.stringify(kept), { status: 200 }));
+}
+
+test('a sick owner is left out of a first sitemap within the owner deadline instead of holding the crawler', async () => {
+  const { open } = fixture({ 'a-page': 'public', 'b-page': 'slow', 'c-page': 'refuse', 'd-page': 'private', 'e-page': 'public' });
+  const started = Date.now();
+  const response = await open('/share/sitemap.xml');
+  assert.ok(Date.now() - started < 4000, 'answered inside a few seconds');
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('retry-after'), '60');
+  const body = await response.text();
+  assert.deepEqual(locations(body).sort(), [origin + '/share/a-page', origin + '/share/e-page']);
+  assert.doesNotMatch(body, /b-page|c-page|d-page/, 'only shares an owner admitted as public are listed');
+});
+
+test('when no owner answers and nothing was kept, the builder refuses with a typed retryable failure and the route answers an empty 503 with Retry-After', async () => {
+  const { open } = fixture({ 'a-page': 'slow', 'b-page': 'refuse' });
+  const started = Date.now();
+  const refused = await open('/share/sitemap.xml').then(() => null, error => error);
+  assert.ok(Date.now() - started < 4000);
+  assert.equal(refused.status, 503);
+  assert.equal(refused.failure_code, 'service-busy');
+  assert.equal(refused.retry_after_ms, 60000);
+  for (const [path, tag] of [['/share/sitemap.xml', /<urlset[^>]*>\s*<\/urlset>/], ['/share/llms.txt', /^# /]]) {
+    const response = crawlerRefusal(refused, path);
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get('retry-after'), '60');
+    const body = await response.text();
+    assert.match(body, tag);
+    assert.deepEqual(locations(body), []);
+  }
+  assert.equal(crawlerRefusal(new Error('something else'), '/share/sitemap.xml'), null, 'any other failure keeps its own path');
+});
+
+test('a fresh kept document reads no owner, and a revoked link leaves it at once, inside the fresh window', async () => {
+  const behaviour = { 'a-page': 'public', 'b-page': 'public' };
+  const { open, stats } = fixture(behaviour);
+  const first = await (await open('/share/sitemap.xml')).text();
+  assert.deepEqual(locations(first).sort(), [origin + '/share/a-page', origin + '/share/b-page']);
+  assert.equal(stats.admissions, 2);
+  for (let again = 0; again < 5; again++) assert.equal(await (await open('/share/sitemap.xml')).text(), first);
+  assert.equal(stats.admissions, 2, 'crawler hits inside the fresh window read no owner');
+  delete behaviour['b-page'];
+  const after = await (await open('/share/sitemap.xml')).text();
+  assert.deepEqual(locations(after), [origin + '/share/a-page']);
+  assert.equal(stats.admissions, 2, 'and the revoked link cost no owner read');
+});
+
+test('a sick owner keeps its last-known entry for a bounded time; an owner that says not listed removes it', async () => {
+  const behaviour = { 'a-page': 'public', 'b-page': 'public' };
+  const { open, stats, documentCache, settle } = fixture(behaviour);
+  const first = await (await open('/share/sitemap.xml')).text();
+  await ageKept(documentCache, 3600_000);
+  behaviour['b-page'] = 'refuse';
+  assert.equal(await (await open('/share/sitemap.xml')).text(), first, 'the last good document answers at once');
+  await settle();
+  assert.equal(stats.admissions, 4, 'one refresh ran after the response');
+  assert.deepEqual(locations(await (await open('/share/sitemap.xml')).text()).sort(), [origin + '/share/a-page', origin + '/share/b-page'], 'the refusing owner kept its entry');
+  assert.equal(stats.admissions, 4, 'no second refresh inside the retry window');
+
+  await ageKept(documentCache, 3600_000);
+  behaviour['b-page'] = 'private';
+  await open('/share/sitemap.xml');
+  await settle();
+  assert.deepEqual(locations(await (await open('/share/sitemap.xml')).text()), [origin + '/share/a-page'], 'only an owner that answered "not listed" removes it');
+});
+
+test('a sick owner is not trusted past the last-known bound', async () => {
+  const behaviour = { 'a-page': 'public', 'b-page': 'public' };
+  const { open, documentCache, settle } = fixture(behaviour);
+  await open('/share/sitemap.xml');
+  await ageKept(documentCache, 2 * 86400_000);
+  behaviour['b-page'] = 'refuse';
+  await open('/share/sitemap.xml');
+  await settle();
+  assert.deepEqual(locations(await (await open('/share/sitemap.xml')).text()), [origin + '/share/a-page']);
+});
+
+test('one share document and its HEAD answer a retry when its owner is unavailable and 404 when it is not listed', async () => {
+  const { open } = fixture({ 'a-page': 'slow', 'b-page': 'private', 'c-page': 'public' });
+  assert.equal((await open('/share/sitemap.xml?part=share&name=a-page', 'HEAD')).status, 503);
+  assert.equal((await open('/share/sitemap.xml?part=share&name=b-page', 'HEAD')).status, 404);
+  assert.equal((await open('/share/sitemap.xml?part=share&name=c-page', 'HEAD')).status, 200);
+  assert.equal((await open('/share/sitemap.xml?part=share&name=a-page')).status, 503);
+  assert.equal((await open('/share/sitemap.xml?part=share&name=b-page')).status, 404);
+});
+
+test('an owner that cannot answer is named in one warning line with its error, never its values', async () => {
+  const lines = [];
+  const original = console.warn;
+  console.warn = (...line) => lines.push(JSON.stringify(line));
+  try {
+    const { open } = fixture({ 'a-page': 'public', 'c-page': 'refuse' });
+    await open('/share/sitemap.xml');
+  } finally { console.warn = original; }
+  assert.equal(lines.length, 1);
+  assert.match(lines[0], /listed share owner unavailable/);
+  assert.match(lines[0], /Network connection lost/);
+  assert.match(lines[0], /c-page/);
+});

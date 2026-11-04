@@ -1,0 +1,18 @@
+{
+  "_what": "The certificate authority that lets this computer's capture proxy read the secure traffic of programs the person points at it (computer/capture-ca.mjs). It is made on this computer, once, and is never shared: the private key stays in a 0600 file under `folder`. It expires after `ca_days` and is made again when fewer than `renew_days` remain; the leaf certificate for each site is short-lived (`leaf_days`). Programs trust it only if the person trusts it (`trust.argv`); nothing here trusts it by itself.",
+  "folder": ".trillion/capture",
+  "openssl": "/usr/bin/openssl",
+  "curve": "prime256v1",
+  "ca_days": 365,
+  "renew_days": 30,
+  "leaf_days": 30,
+  "common_name": "Trillion capture on this computer",
+  "trust": { "program": "/usr/bin/security", "argv": ["add-trusted-cert", "-r", "trustRoot", "-k", "{keychain}", "{pem}"], "keychain": "Library/Keychains/login.keychain-db" },
+  "words": {
+    "made": "Made this computer's capture certificate authority; it expires {expires}.",
+    "kept": "The capture certificate authority is in force until {expires}.",
+    "renewed": "The capture certificate authority was about to expire and was made again; trust it again to keep capturing.",
+    "bad_host": "{host} is not a host name or address a certificate can be made for.",
+    "openssl_failed": "The certificate could not be made: {error}"
+  }
+}

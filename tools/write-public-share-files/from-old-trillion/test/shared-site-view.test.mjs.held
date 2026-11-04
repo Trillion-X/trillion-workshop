@@ -1,0 +1,36 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { sharedSiteAssetAddress, sharedSiteViewPolicy, sharedSiteViewResponse } from '../src/shared-site-view.mjs';
+const root = 'https://app.example.test/share/private/view/';
+test('selected site paths stay within the same grant; source bytes cannot execute in the account origin', async () => {
+  assert.equal(sharedSiteAssetAddress('/assets/picture.png', 'index.html', root), root + 'assets/picture.png');
+  assert.equal(sharedSiteAssetAddress('../about.html', 'pages/index.html', root), root + 'about.html');
+  for (const address of ['https://outside.example/private', '//outside.example/private', 'javascript:alert(1)', 'file:///private', '/private/../.hidden'])
+    assert.equal(sharedSiteAssetAddress(address, 'index.html', root), null);
+  const bytes = new TextEncoder().encode('PRIVATE EXACT SOURCE');
+  const response = sharedSiteViewResponse(new Request(root + 'index.html?format=source'), { bytes, path: 'index.html', media_type: 'text/html' }, root);
+  assert.deepEqual(new Uint8Array(await response.arrayBuffer()), bytes);
+  assert.match(response.headers.get('content-type'), /^text\/plain/);
+  assert.equal(response.headers.get('cache-control'), 'private, no-store');
+  const policy = sharedSiteViewPolicy(root);
+  for (const required of ["script-src 'none'", "connect-src 'none'", "form-action 'none'", "base-uri 'none'", 'sandbox']) assert.ok(policy.includes(required));
+  assert.throws(() => sharedSiteViewResponse(new Request(root + 'index.html'), { bytes, path: 'index.html', media_type: 'text/html' }, root, null), /unavailable/);
+});
+
+test('static site navigation and styles retain the admitted access code on the same grant', async () => {
+  const code = 'private code+&?';
+  const address = new URL(sharedSiteAssetAddress('../about.html?edition=current#section', 'pages/index.html', root, code));
+  assert.equal(address.pathname, '/share/private/view/about.html');
+  assert.equal(address.searchParams.get('edition'), 'current');
+  assert.equal(address.searchParams.get('access_code'), code);
+  assert.equal(address.hash, '#section');
+  assert.equal(sharedSiteAssetAddress('https://outside.example/image.png', 'index.html', root, code), null);
+  const bytes = new TextEncoder().encode('body { background: url("../assets/picture.png"); }');
+  const request = new Request(root + 'styles/main.css?access_code=' + encodeURIComponent(code));
+  const response = sharedSiteViewResponse(request, { bytes, path: 'styles/main.css', media_type: 'text/css' }, root);
+  const css = await response.text();
+  const asset = new URL(css.match(/url\("([^\"]+)"\)/)[1]);
+  assert.equal(asset.pathname, '/share/private/view/assets/picture.png');
+  assert.equal(asset.searchParams.get('access_code'), code);
+  assert.equal(response.headers.get('referrer-policy'), 'no-referrer');
+});

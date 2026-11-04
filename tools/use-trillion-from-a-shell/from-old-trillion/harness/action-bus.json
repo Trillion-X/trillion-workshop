@@ -1,0 +1,33 @@
+{
+  "_what": "The only actions `trillion action SERVICE ACTION 'JSON'` can reach (harness/action-bus.mjs): an AI that can run a shell names a service and an action, and the account runs the Workshop tool the row names on this person's computer through run_tool, with the person's key, so every check the tool and the account make still applies. Nothing outside this list is reachable and nothing here is a shell command. A new action is one row under its service; a service the person's computer does not carry answers in words from the account.",
+  "services": {
+    "listening": {
+      "label": "Listening on this computer",
+      "actions": {
+        "rules": { "tool_id": "tool:recording-rules", "what": "set, list and remove recording rules and rights, turn the notice and private mode on or off" },
+        "dictate": { "tool_id": "tool:dictate", "what": "turn what was said into clean text and put it where the person is typing" }
+      }
+    },
+    "meetings": {
+      "label": "Meetings",
+      "actions": {
+        "read-link": { "tool_id": "tool:read-meeting-link", "what": "read a meeting link into its service, id and time" },
+        "open-link": { "tool_id": "tool:open-meeting-link", "what": "open a meeting link in the app that handles it" }
+      }
+    },
+    "capture": {
+      "label": "Screen and sound capture",
+      "actions": {
+        "exclusions": { "tool_id": "tool:capture-exclusion", "what": "list and change what a capture leaves out" },
+        "hear-sources": { "tool_id": "tool:hear-sources", "what": "list and choose the sounds a recording hears" },
+        "suggest-zooms": { "tool_id": "tool:suggest-zooms", "what": "suggest where a recording should zoom" }
+      }
+    }
+  },
+  "words": {
+    "say_the_service": "Name the service and the action: trillion action SERVICE ACTION 'JSON'. Run trillion actions to list them.",
+    "unknown_service": "No service called {service}. The services are: {services}.",
+    "unknown_action": "{service} has no action called {action}. Its actions are: {actions}.",
+    "not_an_object": "The input is one JSON object, for example '{\"action\":\"list\"}'."
+  }
+}

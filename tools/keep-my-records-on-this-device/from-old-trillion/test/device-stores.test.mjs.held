@@ -1,0 +1,114 @@
+// test/device-stores.test.mjs
+//
+// Everything the Trillion programs keep on a Mac is a row (computer/device-stores.json); the engine finds drift and puts
+// it right (computer/device-stores.mjs) on a pretend home: a loose mode, a missing folder, a changed link, an expired file,
+// an unlisted path and unsealed content. It never reads file contents and never deletes what no row names.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { chmodSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { makeDeviceStores, storeSettings } from '../computer/device-stores.mjs';
+
+const NOW = Date.parse('2026-10-19T12:00:00Z');
+const homeWith = () => mkdtempSync(join(tmpdir(), 'stores-'));
+const write = (home, relative, text, mode) => { const path = join(home, relative); mkdirSync(join(path, '..'), { recursive: true }); writeFileSync(path, text); chmodSync(path, mode); return path; };
+const settingsWith = (rows, roots = ['.trillion']) => ({ ...storeSettings(), roots, rows });
+const modeOf = path => (lstatSync(path).mode & 0o777).toString(8);
+
+test('the shipped rows are well formed: unique ids, known kinds, octal modes, a receipt row', () => {
+  const { rows, receipt } = storeSettings();
+  assert.equal(new Set(rows.map(row => row.id)).size, rows.length);
+  for (const row of rows) {
+    assert.ok(['file', 'dir', 'link'].includes(row.kind), row.id);
+    assert.ok(['secret', 'content', 'settings', 'cache'].includes(row.holds), row.id);
+    for (const mode of [row.mode, row.child_mode].filter(Boolean)) assert.match(mode, /^0[0-7]{3}$/);
+  }
+  assert.ok(rows.some(row => row.path === receipt));
+});
+
+test('audit finds a loose mode, unlisted path and unsealed content; repair tightens the mode and leaves the rest as reported', () => {
+  const home = homeWith();
+  const messages = write(home, '.trillion/record-every-message/a.json', 'private words', 0o644);
+  chmodSync(join(home, '.trillion/record-every-message'), 0o755);
+  write(home, '.trillion/strange/unknown.txt', 'x', 0o644);
+  const stores = makeDeviceStores({ home, now: () => NOW, settings: settingsWith(storeSettings().rows.filter(row => row.kind !== 'link')) });
+  const first = stores.audit();
+  assert.equal(first.counts.wrong_mode, 2);
+  assert.equal(first.counts.unlisted, 1);
+  assert.equal(first.counts.plaintext_content, 1);
+  assert.match(first.problems.find(p => p.problem === 'unlisted').said, /no row says what it holds/);
+  const done = stores.repair();
+  assert.equal(done.repaired.length, 2);
+  assert.equal(modeOf(messages), '600');
+  assert.equal(modeOf(join(home, '.trillion/record-every-message')), '700');
+  assert.equal(readFileSync(messages, 'utf8'), 'private words', 'the content was not touched');
+  assert.ok(existsSync(join(home, '.trillion/strange/unknown.txt')), 'an unlisted path is reported, never deleted');
+  const after = stores.audit();
+  assert.equal(after.counts.wrong_mode, undefined);
+  const receipt = JSON.parse(readFileSync(join(home, '.trillion/device-stores-receipt.json'), 'utf8'));
+  assert.equal(receipt.repaired.length, 2);
+  assert.ok(receipt.still.some(p => p.problem === 'unlisted'));
+  assert.equal(modeOf(join(home, '.trillion/device-stores-receipt.json')), '600');
+});
+
+test('a row\'s retention deletes only what has outlived it, and only beneath that row', () => {
+  const home = homeWith();
+  const old = write(home, '.trillion/cache/old.bin', 'o', 0o600), fresh = write(home, '.trillion/cache/fresh.bin', 'f', 0o600), other = write(home, '.trillion/other/old.bin', 'o', 0o600);
+  const long = new Date(NOW - 40 * 86_400_000);
+  utimesSync(old, long, long); utimesSync(other, long, long);
+  const rows = [{ id: 'cache', path: '.trillion/cache', kind: 'dir', holds: 'cache', what: 'c', mode: '0700', child_mode: '0600', retention_days: 30 },
+    { id: 'other', path: '.trillion/other', kind: 'dir', holds: 'cache', what: 'o', mode: '0700', child_mode: '0600' }];
+  const stores = makeDeviceStores({ home, now: () => NOW, settings: settingsWith(rows) });
+  assert.deepEqual(stores.audit().problems.filter(p => p.problem === 'expired').map(p => p.path), [old]);
+  stores.repair();
+  assert.equal(existsSync(old), false);
+  assert.ok(existsSync(fresh) && existsSync(other));
+});
+
+test('a link row is remade when missing or wrong, and a real file in its place is left alone', () => {
+  const home = homeWith();
+  write(home, '.trillion/cli/program/trillion.mjs', '#!/usr/bin/env node', 0o755);
+  const rows = [{ id: 'link', path: '.local/bin/trillion', kind: 'link', link_target: '.trillion/cli/program/trillion.mjs', holds: 'settings', what: 'PATH link' }];
+  const stores = makeDeviceStores({ home, now: () => NOW, settings: settingsWith(rows, []) });
+  assert.equal(stores.audit().problems[0].problem, 'wrong_link');
+  stores.repair();
+  assert.equal(readlinkSync(join(home, '.local/bin/trillion')), join(home, '.trillion/cli/program/trillion.mjs'));
+  assert.equal(stores.audit().ok, true);
+  const wrong = join(home, '.local/bin/trillion');
+  mkdirSync(join(home, '.elsewhere'), { recursive: true });
+  require_unlink(wrong); symlinkSync(join(home, '.elsewhere'), wrong);
+  assert.equal(stores.audit().problems[0].problem, 'wrong_link');
+  stores.repair();
+  assert.equal(readlinkSync(wrong), join(home, '.trillion/cli/program/trillion.mjs'));
+  require_unlink(wrong); writeFileSync(wrong, 'someone else\'s file');
+  stores.repair();
+  assert.equal(readFileSync(wrong, 'utf8'), 'someone else\'s file');
+});
+
+import { unlinkSync } from 'node:fs';
+function require_unlink(path) { unlinkSync(path); }
+
+test('the Mac host audits the stores at start in a worker, keeps the counts, and repairs nothing it was not told to', async () => {
+  const { macTools, settingsOf } = await import('../computer/mac-tools.mjs');
+  const { existsSync, readFileSync, mkdirSync, writeFileSync, chmodSync, statSync } = await import('node:fs');
+  const home = mkdtempSync(join(tmpdir(), 'stores-start-'));
+  mkdirSync(join(home, '.trillion'), { recursive: true });
+  writeFileSync(join(home, '.trillion', 'installed-programs.json'), '{}', { mode: 0o644 });
+  chmodSync(join(home, '.trillion', 'installed-programs.json'), 0o644);
+  const realHome = process.env.HOME;
+  process.env.HOME = home;
+  const shipped = settingsOf();
+  const row = shipped.on_start.find(item => item.module === './device-stores.mjs');
+  assert.ok(row, 'the host starts the audit');
+  const host = macTools({ settings: { ...shipped, on_start: [row] }, call: async () => ({}), connect: () => ({ addEventListener() {}, close() {} }), timers: { setTimeout, setInterval: () => {} }, execute: async () => ({}) });
+  try {
+    await host.begin();
+    const file = join(home, '.trillion', 'device-stores-audit.json');
+    for (let waited = 0; !existsSync(file) && waited < 100; waited += 1) await new Promise(done => setTimeout(done, 50));
+    const audit = JSON.parse(readFileSync(file, 'utf8'));
+    assert.equal(audit.ok, false);
+    assert.equal(audit.counts.wrong_mode, 1);
+    assert.equal(statSync(join(home, '.trillion', 'installed-programs.json')).mode & 0o777, 0o644, 'an audit at start changes no mode');
+  } finally { process.env.HOME = realHome; await host.stop(); }
+});

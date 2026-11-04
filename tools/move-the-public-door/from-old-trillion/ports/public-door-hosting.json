@@ -1,0 +1,29 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PUBLIC-DOOR-HOSTING",
+  "status": "VERIFIED",
+  "directive": {
+    "quote": "The hosting providers (Hetzner, Fly Machines, own-box) and the DNS provider (Cloudflare) extend their existing service-connections rows.",
+    "message_multihash": "1f:20b3b490c82706db7396206de40d00b0c47b8b16b276d8f9f2f832c4aac89547"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    { "path": "test/portable-host-lease.test.mjs", "multihash": "1f:f228dfb1c35f26ac4536d1c7d427681e6f9acfd60f83ddbe8889bd5a3e189641", "ownership": "repository-owned" }
+  ],
+  "targets": [
+    { "path": "scripts/portable-host-lease.mjs" },
+    { "path": "parts/service-connections/records.json" }
+  ],
+  "preserve": [
+    "The Hetzner lease behaviour the six unchanged tests in the source pin: one lease owns one server and key, retry reuses it, a foreign relabelled host is never removed, a retained service has no deletion deadline, a lost create answer reconciles only the labelled host, deadline cleanup retries, and paths outside the row's requests are refused before any network call with no credential in errors."
+  ],
+  "allowed_deltas": [
+    "Hetzner's paths, bodies and answer paths move from the client into the hetzner service-connections rows (instrument_requests plus rents_a_host); the client sends only those requests."
+  ],
+  "banned_substitutions": [
+    "No second provider registry outside parts/service-connections/records.json.",
+    "No credential value in any row; credentials by vault name only."
+  ],
+  "baseline": { "copied_before_adaptation": false, "note": "The source test file is unchanged; the client was hetznerLeaseClient in scripts/portable-host-lease.mjs on main." },
+  "proof": { "test_refs": ["test/portable-host-lease.test.mjs", "test/public-door.test.mjs"], "note": "Fake fetch and fake request only; nothing ran against a real account." }
+}

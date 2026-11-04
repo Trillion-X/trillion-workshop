@@ -1,0 +1,109 @@
+// test/mac-copy-retry.test.mjs
+// The Mac's copy of the person's records (computer/device-copy.mjs start) tries a settle the store could not answer
+// again by itself, each time later (device-copy.json failed_retry_ms), and settles once the store answers; one settle
+// runs at a time.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import settings from '../computer/device-copy.json' with { type: 'json' };
+
+test('a settle the store was too busy for is tried again by itself, later each time', async () => {
+  const home = mkdtempSync(join(tmpdir(), 'mac-copy-'));
+  const saved = { HOME: process.env.HOME, fetch: globalThis.fetch, WebSocket: globalThis.WebSocket };
+  try {
+    process.env.HOME = home;
+    const { start } = await import('../computer/device-copy.mjs');
+    const waits = [];
+    const due = [];
+    const timers = { setTimeout: (fn, ms) => { waits.push(ms); due.push(fn); return due.length; } };
+    globalThis.WebSocket = class { addEventListener(kind, fn) { if (kind === 'open') queueMicrotask(fn); } };
+    let calls = 0;
+    globalThis.fetch = async () => { calls += 1; return calls <= 2 ? Response.json({ error: 'The service was busy for a moment; send this again.' }, { status: 503 }) : Response.json({}); };
+    const lines = [];
+    const copy = start({ key: 'k', origin: 'https://store.invalid', log: line => lines.push(line), timers });
+    await new Promise(resolve => setTimeout(resolve, 20));
+    while (due.length) { due.shift()(); await new Promise(resolve => setTimeout(resolve, 50)); }
+    copy.close();
+    assert.equal(calls, 3);
+    assert.deepEqual(waits.slice(1).map(ms => Math.round(ms / 1000)), settings.failed_retry_ms.slice(0, 2).map(ms => ms / 1000));
+    assert.deepEqual(lines.map(line => Object.keys(line)[0]), ['device_copy_settle_failed', 'device_copy_settle_failed', 'device_copy_settled']);
+  } finally {
+    process.env.HOME = saved.HOME;
+    globalThis.fetch = saved.fetch;
+    globalThis.WebSocket = saved.WebSocket;
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test('one settle runs at a time, and revisions arriving during it ride in one settle after it', async () => {
+  const home = mkdtempSync(join(tmpdir(), 'mac-copy-'));
+  const saved = { HOME: process.env.HOME, fetch: globalThis.fetch, WebSocket: globalThis.WebSocket };
+  try {
+    process.env.HOME = home;
+    const { start } = await import('../computer/device-copy.mjs');
+    const due = [];
+    const timers = { setTimeout: fn => { due.push(fn); return due.length; } };
+    let socket;
+    globalThis.WebSocket = class { constructor() { socket = this; this.on = {}; } addEventListener(kind, fn) { this.on[kind] = fn; if (kind === 'open') queueMicrotask(fn); } };
+    let open = 0;
+    let most = 0;
+    let release;
+    let calls = 0;
+    globalThis.fetch = async () => { calls += 1; open += 1; most = Math.max(most, open); if (calls === 1) await new Promise(resolve => { release = resolve; }); open -= 1; return Response.json({}); };
+    const copy = start({ key: 'k', origin: 'https://store.invalid', log: () => {}, timers });
+    await new Promise(resolve => setTimeout(resolve, 20));
+    due.shift()();
+    await new Promise(resolve => setTimeout(resolve, 20));
+    for (let n = 0; n < 5; n += 1) socket.on.message();
+    assert.equal(due.length, 0, 'nothing more is scheduled while a settle runs');
+    release();
+    await new Promise(resolve => setTimeout(resolve, 50));
+    assert.equal(due.length, 1, 'the revisions that arrived ride in one settle after it');
+    due.shift()();
+    await new Promise(resolve => setTimeout(resolve, 50));
+    copy.close();
+    assert.equal(most, 1);
+    assert.equal(calls, 2);
+  } finally {
+    process.env.HOME = saved.HOME;
+    globalThis.fetch = saved.fetch;
+    globalThis.WebSocket = saved.WebSocket;
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test('a revision naming the last record the last settle already covered starts no settle', async () => {
+  const home = mkdtempSync(join(tmpdir(), 'mac-copy-'));
+  const saved = { HOME: process.env.HOME, fetch: globalThis.fetch, WebSocket: globalThis.WebSocket };
+  try {
+    process.env.HOME = home;
+    const { start } = await import('../computer/device-copy.mjs');
+    const due = [];
+    const timers = { setTimeout: fn => { due.push(fn); return due.length; } };
+    let socket;
+    globalThis.WebSocket = class { constructor() { socket = this; this.on = {}; } addEventListener(kind, fn) { this.on[kind] = fn; if (kind === 'open') queueMicrotask(fn); } };
+    let calls = 0;
+    globalThis.fetch = async () => { calls += 1; return Response.json({}); };
+    const copy = start({ key: 'k', origin: 'https://store.invalid', log: () => {}, timers });
+    const frame = records => ({ data: JSON.stringify({ revision: 'r', heads: { records } }) });
+    const run = async () => { while (due.length) { due.shift()(); await new Promise(resolve => setTimeout(resolve, 30)); } };
+    await new Promise(resolve => setTimeout(resolve, 20));
+    await run();
+    socket.on.message(frame(90));
+    await run();
+    const settled = calls;
+    for (let n = 0; n < 10; n += 1) socket.on.message(frame(90));
+    assert.equal(due.length, 0, 'ten revisions at the head already covered ask for nothing');
+    socket.on.message(frame(91));
+    await run();
+    copy.close();
+    assert.ok(calls > settled, 'a new head settles again');
+  } finally {
+    process.env.HOME = saved.HOME;
+    globalThis.fetch = saved.fetch;
+    globalThis.WebSocket = saved.WebSocket;
+    rmSync(home, { recursive: true, force: true });
+  }
+});
