@@ -1,0 +1,13 @@
+{
+  "schema": "trillion.native-space-source-release/v1",
+  "read_operations": [
+    "spaceItems",
+    "spaceFile",
+    "readSpaceRecord",
+    "readSpaceAssignment",
+    "boardRecords",
+    "spaceResponses",
+    "spaceEvents",
+    "spaceBriefs"
+  ]
+}

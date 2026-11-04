@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/workflow-actor-policy.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/require-that-a-workflow-steps-ai-answer-comes/src/workflow-actor-policy.mjs",
+      "source_identity": "1f:6c21bf4e388c66fdc180e99153b63c6b7d88c4324f6972066f9961b29bfbb247",
+      "identity": "1f:6c21bf4e388c66fdc180e99153b63c6b7d88c4324f6972066f9961b29bfbb247"
+    }
+  ]
+}

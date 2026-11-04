@@ -1,0 +1,97 @@
+{
+  "_what": "Links a person saved somewhere else, kept in their Trillion files, read by src/saved-links.mjs. Each place they come from is one row: `browser_files` are a browser's own saved-items file the person (or their AI, or Trillion on their computer) hands in, decoded by the shape its row describes; `service_lists` are lists a connected service keeps, read through that service's Workshop tools page by page. Every place's links land in `folder`, one file per group (`file_name`), as JSON: { saved_from, group, updated_at, links: [{ title, url, folder?, saved_at?, key?, ... }] }. Adding a browser or a service is one row here and, for a service, its tools in parts/service-connections/records.json; nothing in the code names one.",
+  "folder": "/Saved links",
+  "file_name": "{saved_from} - {group}.json",
+  "media_type": "application/json",
+  "browser_files": {
+    "arc-sidebar": {
+      "label": "Arc",
+      "about": "Arc keeps every space's pinned tabs and folders, and the favorites along the top, in one file on the Mac: ~/Library/Application Support/Arc/StorableSidebar.json. Its lists alternate a key and its value. The tabs under Today are open tabs, not saved ones, so only pinned items and favorites are kept.",
+      "recognize": ["sidebar", "containers"],
+      "containers": ["sidebar", "containers"],
+      "nodes": { "field": "items", "pairs": true },
+      "groups": {
+        "field": "spaces",
+        "pairs": true,
+        "title": [["title"]],
+        "untitled": "Space",
+        "roots": { "field": "containerIDs", "pairs": true, "keep": ["pinned"] }
+      },
+      "extra_roots": [
+        { "field": "topAppsContainerIDs", "pairs": true, "group": "Favorites" }
+      ],
+      "children": ["childrenIds"],
+      "title": [["title"], ["data", "tab", "savedTitle"]],
+      "link": { "when": ["data", "tab"], "url": ["data", "tab", "savedURL"] },
+      "folder": { "when": ["data", "list"] },
+      "saved_at": { "path": ["createdAt"], "seconds_since": "2001-01-01T00:00:00Z" },
+      "source": { "kind": "hand-typed", "from": "the StorableSidebar.json Arc 1.x writes, read on the owner's Mac", "read_on": "2026-09-29" }
+    }
+  },
+  "service_lists": {
+    "x-bookmarks": {
+      "label": "X",
+      "group": "Bookmarks",
+      "about": "X lists a person's bookmarks newest first, 100 to a page, and keeps no time a bookmark was made, so the newest one Trillion has seen is where the next read stops. X hands out at most the 800 most recent.",
+      "tool": { "title": "Save my X bookmarks", "description": "Saves this person's X (Twitter) bookmarks into their Trillion files (/Saved links/X - Bookmarks.json, newest first), keeping every one already saved. Leave since out to save every bookmark X hands out (its newest 800); give since, the newest id a read returned, to save only the ones made after it and get them back as items. Trillion also does this by itself every 30 minutes once X is connected, handing each new bookmark to the person's rules. Needs X connected on the Connections screen; list_connections says whether it is.", "since": "The newest bookmark id an earlier read returned", "job": "save my X bookmarks" },
+      "account": { "tool_id": "tool:x-find_my_account", "id": ["data", "id"] },
+      "account_field": "user_id",
+      "first_page": { "tool_id": "tool:x-list_bookmarks" },
+      "more_pages": { "tool_id": "tool:x-list_more_bookmarks", "token_field": "pagination_token" },
+      "next_token": ["meta", "next_token"],
+      "max_pages": 8,
+      "items": {
+        "list": ["data"],
+        "key": ["id"],
+        "lookups": [{ "as": "author", "list": ["includes", "users"], "key": ["id"], "by": ["author_id"] }],
+        "fields": {
+          "title": ["text"],
+          "author": ["author", "username"],
+          "author_name": ["author", "name"],
+          "posted_at": ["created_at"]
+        },
+        "url": { "template": "https://x.com/{author}/status/{key}", "otherwise": "https://x.com/i/web/status/{key}" }
+      },
+      "source": { "kind": "hand-typed", "from": "https://docs.x.com/x-api/bookmarks/get-bookmarks", "read_on": "2026-09-29" }
+    },
+    "x-likes": {
+      "label": "X",
+      "group": "Likes",
+      "about": "X lists the posts a person liked newest first, 100 to a page, and keeps no time a like was made, so the newest one Trillion has seen is where the next read stops.",
+      "tool": { "title": "Save the posts I liked on X", "description": "Saves the posts this person liked on X (Twitter) into their Trillion files (/Saved links/X - Likes.json, newest first), keeping every one already saved. Leave since out to save every like X hands out; give since, the newest id a read returned, to save only the ones liked after it and get them back as items. Trillion also does this by itself every 30 minutes once X is connected, handing each new like to the person's rules. Needs X connected on the Connections screen with likes allowed; list_connections says whether it is.", "since": "The newest liked post id an earlier read returned", "job": "save the posts I liked on X" },
+      "account": { "tool_id": "tool:x-find_my_account", "id": ["data", "id"] },
+      "account_field": "user_id",
+      "first_page": { "tool_id": "tool:x-list_likes" },
+      "more_pages": { "tool_id": "tool:x-list_more_likes", "token_field": "pagination_token" },
+      "next_token": ["meta", "next_token"],
+      "max_pages": 32,
+      "items": {
+        "list": ["data"],
+        "key": ["id"],
+        "lookups": [{ "as": "author", "list": ["includes", "users"], "key": ["id"], "by": ["author_id"] }],
+        "fields": {
+          "title": ["text"],
+          "author": ["author", "username"],
+          "author_name": ["author", "name"],
+          "posted_at": ["created_at"]
+        },
+        "url": { "template": "https://x.com/{author}/status/{key}", "otherwise": "https://x.com/i/web/status/{key}" }
+      },
+      "source": { "kind": "hand-typed", "from": "https://docs.x.com/x-api/users/get-liked-posts", "read_on": "2026-10-03" }
+    }
+  },
+  "url_providers": {
+    "_what": "Which place a pasted address belongs to: one row per provider, found by the address's host (the host itself or any name under it). `connection` is the vendor of its service-connection record in parts/service-connections/records.json, which is the one home of how it signs in: the token exchange happens on the server with the sealed client values, and only the NAMES of those values are ever read here. `lists` are the `service_lists` ids that provider can be read through. A provider with no row is not read yet; adding one is a row, once its connection and tools exist.",
+    "x": {
+      "label": "X",
+      "hosts": ["x.com", "twitter.com"],
+      "connection": "x",
+      "lists": ["x-bookmarks", "x-likes"],
+      "source": { "kind": "hand-typed", "from": "the x service-connection record's domain and the service_lists above", "read_on": "2026-10-19" }
+    }
+  },
+  "url_provider_words": {
+    "no_url": "Give url: the address you pasted.",
+    "none": "No registered provider handles {url}. Registered: {known}."
+  }
+}

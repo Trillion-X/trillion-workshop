@@ -1,0 +1,83 @@
+{
+  "comment": "What this service sells, as references into the trillion package set's DATA: the offer rows and review codes it offers, the lifecycle that turns payment effects into access, and the admission descriptor payment events go through. Adding an offer to the ladder is one id here plus its row in commercial-offer-records. An offer row with `for_sale: false` is retired: it stays listed so what people already bought from it keeps working (their access, their bookings, old Buy links answer), but nobody new is shown it or can pay for it, and the next paid-plan setup turns its payment link off. An offer row with `apply_path` is bought by applying there first; its Buy goes to that page. Price tests are this service's own price experiments (records/service-price-experiments.json starts them; tool:run-price-experiments on the operator account changes them; kept in the service's book, src/record-book.mjs), whose arms are offer rows named here (an arm is usually a variant of the offer it tests, `variant_of`); `upgrade_surface` names the experiment surface whose arm the free plan's upgrade line quotes. `kept_access` is the access that keeps a person's decisions, notes and next steps (the paid plan and the session with Avery grant it; without it a decision is kept nowhere, src/free-run.mjs); `others_access` shows how other people's similar decisions turned out. `tool_spend_access` is the access the Trillion credit offer grants: paid tool calls are charged from it (src/credit.mjs). Stripe objects made before a rename keep the metadata they were made with: `retire_links_where` names that earlier metadata so the next setup retires those links, and an offer row's `earlier_ids` are the ids those objects still carry.",
+  "owner": "trillion",
+  "offer_ids": [
+    "offer:trillion-free",
+    "offer:trillion",
+    "offer:trillion-spot-150",
+    "offer:trillion-spot-50",
+    "offer:trillion-margin-50",
+    "offer:trillion-start-free",
+    "offer:trillion-ten-today",
+    "offer:trillion-five-today",
+    "offer:trillion-two-today",
+    "offer:trillion-member",
+    "offer:trillion-team",
+    "offer:own-space-for-life",
+    "offer:one-on-one-with-Avery",
+    "offer:session-with-Avery",
+    "offer:trillion-credit",
+    "offer:hosted-site-monthly-900",
+    "offer:hosted-site-monthly-1900"
+  ],
+  "public_page": {
+    "comment": "The offers the public page (the landing's price cards, GET /billing/offers) shows a visitor who is not signed in, in this order. Every other offer in offer_ids is still sold, on the account page and through the person's AI.",
+    "offer_ids": [
+      "offer:trillion-free",
+      "offer:trillion",
+      "offer:trillion-spot-150",
+      "offer:trillion-spot-50",
+      "offer:trillion-margin-50",
+      "offer:trillion-start-free",
+      "offer:trillion-ten-today",
+      "offer:trillion-five-today",
+      "offer:trillion-two-today",
+      "offer:one-on-one-with-Avery"
+    ]
+  },
+  "adjustment_ids": [
+    "checkout-code-adjustment:trillion-review-2026"
+  ],
+  "lifecycle": "capability-effect-lifecycle.payment-provider",
+  "access_fold_limits": {
+    "max_effects": 50000,
+    "max_episodes": 4096,
+    "max_bytes": 4194304,
+    "max_response_bytes": 1048576
+  },
+  "admission_descriptor": "signed-event-effects.payment-provider-event-accepted.v1",
+  "access_index_limits": {
+    "rebuild_rows": 64,
+    "rebuild_bytes": 1048576,
+    "event_bytes": 65536
+  },
+  "webhook_events": [
+    "checkout.session.completed",
+    "checkout.session.async_payment_succeeded",
+    "invoice.paid",
+    "customer.subscription.deleted",
+    "charge.refunded",
+    "checkout.session.expired",
+    "invoice.payment_failed",
+    "customer.subscription.trial_will_end",
+    "charge.dispute.created"
+  ],
+  "retire_links_where": [
+    {
+      "app": "needle-mover"
+    },
+    {
+      "owner": "needle-mover"
+    }
+  ],
+  "history_access": "access:decision-history",
+  "kept_access": "access:decision-kept",
+  "others_access": "access:others-outcomes",
+  "upgrade_surface": "paid-plan",
+  "tool_spend_access": "access:tool-spend",
+  "split_first_month_words": {
+    "_what": "A plan whose first month is split (its price option's `charges`: some at checkout, the rest a week later): what the buyer is told after paying, and the line on the credit that takes the checkout part off the first renewal (src/payment.mjs splitFirstMonth).",
+    "pays": "{today} today and {rest} next week, then {every} each {interval}. Stripe has your card for the subscription.",
+    "credit": "What you paid at checkout, taken off your first month"
+  }
+}

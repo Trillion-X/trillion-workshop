@@ -1,0 +1,139 @@
+{
+  "what_this_is": "Every invitation to a pursuit, as DATA for src/space-invitation.mjs: the invite link's own page (its address is src/space-settings.json invites.join_address) in each state it can be in, the welcome after joining, the email, the text message and the link-preview card. Words fill {inviter}, {invitee}, {space}, {people}, {date} and {link} from the pursuit, the person who made the invite and the person it is for; a word that has nothing to fill it uses its `_unnamed` twin. `people` says who is in the pursuit by how many names are known and how many more there are (`one`, `one_and_one`, `one_and_more`, `two`, `two_and_one`, `two_and_more`, `three`), with {first}, {second}, {third} and {rest}. The email is sent and drawn by the one sender (src/mail-sender.mjs, src/mail-settings.json), from its address and in its colours. `card_roles` names, for each colour role and face the link-preview card reads, the workspace look's variable it comes from (src/page-look.mjs). `text_senders` are the ways a text can go out through the inviter's own connected accounts: each runs its `tool_id` with { to, text } (the tool another builder owns); a sender whose tool is not there yet leaves the text for the inviter's AI to send. `card` is the link preview's size and how long a made picture is kept. `names_shown` caps the faces a page, email or card draws. Every word is in the pursuit's own name, and `email.sender` is the name the email comes from. Who the people in a pursuit are decides whether a plan is ever named (src/space-membership-kinds.json): a pursuit of a business's members or customers names no plan or price (whoever runs it decides what joining costs, src/community.mjs mayJoin); a team pursuit's page says in `open.fine_team` that joining it comes with a paid plan or a seat its owner pays for, and to a signed-in reader whom that does not cover it shows the invite's own `needs_plan` words (Network.invitePreview) with `page.needs_plan`'s one button.",
+  "welcome_path": "/invite/welcome",
+  "names_shown": 5,
+  "card_roles": {
+    "--surface-base": "--bg-primary",
+    "--ink": "--text-primary",
+    "--thread": "--accent-primary",
+    "--grey-strong": "--text-secondary",
+    "--grey-soft": "--border-secondary",
+    "--font-primary": "--font-primary",
+    "--font-display": "--font-display"
+  },
+  "card": {
+    "width": 1200,
+    "height": 630,
+    "keep_days": 30
+  },
+  "text_senders": [
+    {
+      "id": "imessage",
+      "label": "iMessage",
+      "tool_id": "tool:send-an-imessage"
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp",
+      "tool_id": "tool:send-a-whatsapp-message"
+    }
+  ],
+  "people": {
+    "one": "{first} is in it",
+    "one_and_one": "{first} and one other are in it",
+    "one_and_more": "{first} and {rest} others are in it",
+    "two": "{first} and {second} are in it",
+    "two_and_one": "{first}, {second} and one other are in it",
+    "two_and_more": "{first}, {second} and {rest} others are in it",
+    "three": "{first}, {second} and {third} are in it"
+  },
+  "page": {
+    "site_name": "{space}",
+    "open": {
+      "title": "{inviter} invited you to {space}",
+      "title_unnamed": "You're invited to {space}",
+      "heading": "{inviter} invited you to join {space}",
+      "heading_unnamed": "You're invited to join {space}",
+      "join": "Join {space}",
+      "sign_up": "Join {space}",
+      "sign_in": "I already have an account",
+      "fine": "This invite works once, for you, until {date}.",
+      "fine_team": "Joining a team pursuit comes with a paid Trillion plan, or a seat {inviter} pays for. This invite works once, for you, until {date}.",
+      "fine_team_unnamed": "Joining a team pursuit comes with a paid Trillion plan, or a seat the person who runs it pays for. This invite works once, for you, until {date}.",
+      "body": "Where the people in {space} work on the same things together."
+    },
+    "already_member": {
+      "title": "You're already in {space}",
+      "heading": "You're already in {space}",
+      "body": "Everything in it is waiting for you.",
+      "open": "Open {space}"
+    },
+    "used": {
+      "title": "This invite was already used",
+      "heading": "This invite was already used",
+      "body": "Each invite works once. Ask {inviter} to send you a new one.",
+      "body_unnamed": "Each invite works once. Ask the person who sent it for a new one."
+    },
+    "expired": {
+      "title": "This invite has ended",
+      "heading": "This invite has ended",
+      "body": "It ended on {date}. Ask {inviter} to send you a new one.",
+      "body_unnamed": "It ended on {date}. Ask the person who sent it for a new one."
+    },
+    "revoked": {
+      "title": "This invite was taken back",
+      "heading": "This invite was taken back",
+      "body": "{inviter} took this invite back. If that's a surprise, ask them for a new one.",
+      "body_unnamed": "The person who sent it took it back. If that's a surprise, ask them for a new one."
+    },
+    "unknown": {
+      "title": "This invite link doesn't work",
+      "heading": "This invite link doesn't work",
+      "body": "Check that you have the whole link, or ask the person who sent it for a new one."
+    },
+    "needs_plan": {
+      "action": "See plans",
+      "href": "/plan"
+    },
+    "failed": "That didn't go through. Try again."
+  },
+  "welcome": {
+    "title": "Welcome to {space}",
+    "heading": "Welcome to {space}",
+    "body": "Two quick things and you're ready.",
+    "connect": {
+      "heading": "Connect your AI",
+      "body": "Bring the AI you already use, like ChatGPT or Claude, so it can help in {space}.",
+      "action": "Connect your AI"
+    },
+    "name": {
+      "heading": "Say your name",
+      "body": "This is the name people in {space} see next to what you add.",
+      "label": "Your name",
+      "save": "Save my name",
+      "saved": "Saved. People in {space} see you as {name}."
+    },
+    "open": "Open {space}"
+  },
+  "email": {
+    "subject": "{inviter} invited you to {space}",
+    "subject_unnamed": "You're invited to {space}",
+    "preheader": "Join {space}.",
+    "greeting": "Hi {invitee},",
+    "greeting_unnamed": "Hi,",
+    "lead": "**{inviter}** invited you to join **{space}**.",
+    "lead_unnamed": "You're invited to join **{space}**.",
+    "action": "Join {space}",
+    "footer": [
+      "This invite works once, for you. It ends on {date}.",
+      "If you weren't expecting it, you can ignore this email."
+    ],
+    "sender": "{inviter} from {space}",
+    "sender_unnamed": "{space}"
+  },
+  "text": {
+    "named": "Hi {invitee}, come join me in {space}: {link}",
+    "unnamed": "Hi! Come join me in {space}: {link}"
+  },
+  "card_words": {
+    "detail": "{inviter} invited you",
+    "detail_unnamed": "You're invited"
+  },
+  "sent": {
+    "email": "Emailed the invitation to {to}.",
+    "no_email": "No email address was given, so no email was sent.",
+    "text": "Texted the invitation to {to} through {through}.",
+    "text_by_ai": "Send this text to {to} yourself: {through} is not connected for sending yet.",
+    "no_text": "No phone number was given, so no text was sent."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/work-sharing.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy/src/work-sharing.mjs",
+      "source_identity": "1f:b0fa333529e5ca63ed53b86930febf940cc78543f7d37f957f10201c3b2c17ba",
+      "identity": "1f:8efd58d2975f1a26e1c0acd02d37479a51028eae9ec65663d50f6efc2174cbd1"
+    },
+    {
+      "from": "test/sharing-work-routes.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy/test/sharing-work-routes.test.mjs",
+      "source_identity": "1f:bc9e45014f1e390d810c43a9420630e4df7e5283ef45de0b74b07e08f93a400d",
+      "identity": "1f:bc9e45014f1e390d810c43a9420630e4df7e5283ef45de0b74b07e08f93a400d"
+    }
+  ]
+}

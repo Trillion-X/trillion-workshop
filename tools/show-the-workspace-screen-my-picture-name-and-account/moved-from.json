@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/workspace-page.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-the-workspace-screen-my-picture-name-and-account/src/workspace-page.mjs",
+      "source_identity": "1f:bc09929f06d4f3dda175f0a07deb37924ed6f18492d9d3fffbafdb89ec3a7243",
+      "identity": "1f:9d6771d1b79eb853d1610a2106de1547c62fc9bbfe80eb0225f0dcccf9073c98"
+    },
+    {
+      "from": "src/workspace/meeting-review.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-the-workspace-screen-my-picture-name-and-account/src/workspace/meeting-review.json",
+      "source_identity": "1f:060b7322baa980e56a21722ca1d0daf3e3306c2c52d62a54e30c590ec11d0648",
+      "identity": "1f:060b7322baa980e56a21722ca1d0daf3e3306c2c52d62a54e30c590ec11d0648"
+    }
+  ]
+}

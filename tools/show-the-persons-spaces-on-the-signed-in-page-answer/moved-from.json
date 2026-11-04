@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/work-spaces.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/src/work-spaces.mjs",
+      "source_identity": "1f:9bf68312848b913d7890afb3ab76025873b5806a53c60ed3215a6c1a85f43c16",
+      "identity": "1f:9bf68312848b913d7890afb3ab76025873b5806a53c60ed3215a6c1a85f43c16"
+    },
+    {
+      "from": "test/work-spaces.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/test/work-spaces.test.mjs",
+      "source_identity": "1f:8f54e7912f6f2541d75c5d3f843aa9c30e5db78dd29f5fb1f12c5e28fcbe0287",
+      "identity": "1f:8f54e7912f6f2541d75c5d3f843aa9c30e5db78dd29f5fb1f12c5e28fcbe0287"
+    }
+  ]
+}

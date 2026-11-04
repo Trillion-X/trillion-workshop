@@ -1,0 +1,1273 @@
+{
+  "schema": "trillion.space-permission-rules",
+  "effects": [
+    {
+      "id": "allow",
+      "label": "Allowed",
+      "outcome": "allow",
+      "strength": 1
+    },
+    {
+      "id": "deny",
+      "label": "Denied",
+      "outcome": "deny",
+      "strength": 2
+    }
+  ],
+  "about": "Who may do what in a space, as DATA evaluated by the shared src/rule-decisions.mjs owner. Every check in a space states one `action` and the facts about the person asking and the thing they act on; each rule is { id, effect, says (what it means, as the space shows it), refuses (a deny's words to the person it stops; the action's own `refused` words when left out), who, actions, when, until? }, where `who` is one of `who_kinds` (a member type is the id in the member's `role` in that space, `member` when it has none; in a group or project the spaces screens own the ids as DATA, in a community they are its configured roles, whose `may` lists read as the fact `type_may`), `actions` lists the action ids it covers (every action when left out) and `when` is an optional rule tree over those facts in the formula engine's shape (parts/formula-engine/rules/compile-rules.mjs; comparisons from rule-operators.json). Effects and their precedence are declared below; a deny outranks an allow, and without a winning allow the action is refused with its own `refused` words. A rule holds when its who, actions and when all hold; `until` expires it. A rule that is not finished refuses everything in its space. `default_rules` is what every space and community follows until someone replaces its rules (a space with no rules of its own reads these, so a change here reaches every such space); `retired_default_identities` are the BLAKE3 identities of earlier starting rules, and a space still holding one of those exactly goes back to following `default_rules`; the rules may be replaced by whoever the space's own rules let do `change_rules`. `facts` are what a rule may name; `__policy_rule_id` is reserved by the evaluator. A new action is one row in `actions` and a check that names it; a new fact is one row in `facts` and the value the check hands in. A fact's `values` (or `values_from`: `actions`, `member_types` or `members`, read from the space) are what a rule may compare it with, as the rule builder offers them. An action's `offered_on` says where a screen asks whether the person may do it: `space` (once per space read, as `may`) or `item` (once per thing, as the thing's `may`). Mandatory invariant_rules are evaluated before selected Space rules. They rely on actual admitted source authority; a Space cannot retain another account’s private source by removing its membership or changing its rules.",
+  "facts": [
+    {
+      "id": "action",
+      "kind": "choice",
+      "label": "What they do",
+      "values_from": "actions"
+    },
+    {
+      "id": "is_member",
+      "kind": "choice",
+      "label": "They are in the pursuit now",
+      "values": [
+        {
+          "value": true,
+          "label": "Yes"
+        },
+        {
+          "value": false,
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "is_owner",
+      "kind": "choice",
+      "label": "They started the pursuit",
+      "values": [
+        {
+          "value": true,
+          "label": "Yes"
+        },
+        {
+          "value": false,
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "member_type",
+      "kind": "choice",
+      "label": "Their member type here",
+      "values_from": "member_types"
+    },
+    {
+      "id": "member_types",
+      "kind": "tags",
+      "label": "Their member type and inherited types",
+      "values_from": "member_types"
+    },
+    {
+      "id": "person",
+      "kind": "choice",
+      "label": "Who they are",
+      "values_from": "members"
+    },
+    {
+      "id": "holds_link",
+      "kind": "choice",
+      "label": "They hold an open invite link to the pursuit",
+      "values": [
+        {
+          "value": true,
+          "label": "Yes"
+        },
+        {
+          "value": false,
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "made_it",
+      "kind": "choice",
+      "label": "They put the thing there",
+      "values": [
+        {
+          "value": true,
+          "label": "Yes"
+        },
+        {
+          "value": false,
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "maker_is_member",
+      "kind": "choice",
+      "label": "Whoever put the thing there is still in the pursuit",
+      "values": [
+        {
+          "value": true,
+          "label": "Yes"
+        },
+        {
+          "value": false,
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "thing_origin",
+      "kind": "choice",
+      "label": "Where the thing came from",
+      "values": [
+        {
+          "value": "private",
+          "label": "Shared from their Trillion"
+        },
+        {
+          "value": "space",
+          "label": "Written in the pursuit"
+        },
+        {
+          "value": "import",
+          "label": "From a chat export"
+        }
+      ]
+    },
+    {
+      "id": "is_community",
+      "kind": "choice",
+      "label": "The pursuit is a community",
+      "values": [
+        {
+          "value": true,
+          "label": "Yes"
+        },
+        {
+          "value": false,
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "takes_invitations",
+      "kind": "choice",
+      "label": "This community admits invited people",
+      "values": [
+        {
+          "value": true,
+          "label": "Yes"
+        },
+        {
+          "value": false,
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "owner_shares_here",
+      "kind": "choice",
+      "label": "Its owner shares it here",
+      "values": [
+        {
+          "value": true,
+          "label": "Yes"
+        },
+        {
+          "value": false,
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "events_by",
+      "kind": "choice",
+      "label": "Who the community lets put events on (owner or members)",
+      "values": [
+        {
+          "value": true,
+          "label": "Yes"
+        },
+        {
+          "value": false,
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "type_may",
+      "kind": "choice",
+      "label": "Their member type's own list says they may",
+      "values": [
+        {
+          "value": true,
+          "label": "Yes"
+        },
+        {
+          "value": false,
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "admitted_private_source_owner",
+      "kind": "choice",
+      "label": "They currently own the private contribution",
+      "values": [
+        {
+          "value": true,
+          "label": "Yes"
+        },
+        {
+          "value": false,
+          "label": "No"
+        }
+      ]
+    }
+  ],
+  "who_kinds": [
+    {
+      "kind": "anyone",
+      "label": "Anyone",
+      "needs": null
+    },
+    {
+      "kind": "any_member",
+      "label": "Any member",
+      "needs": null,
+      "fact": "is_member",
+      "value": true
+    },
+    {
+      "kind": "anyone_with_link",
+      "label": "Anyone with the link",
+      "needs": null,
+      "fact": "holds_link",
+      "value": true
+    },
+    {
+      "kind": "member_type",
+      "label": "Members of a type",
+      "needs": "member_type",
+      "fact": "member_types",
+      "operator": "has_any_of",
+      "member": true
+    },
+    {
+      "kind": "person",
+      "label": "One person",
+      "needs": "person",
+      "fact": "person",
+      "member": true
+    }
+  ],
+  "actions": [
+    {
+      "id": "read_space",
+      "label": "Read the pursuit",
+      "refused": "You are not a member of that pursuit."
+    },
+    {
+      "id": "describe_space",
+      "label": "Change its description and picture",
+      "refused": "A community is described in its own settings.",
+      "offered_on": "space"
+    },
+    {
+      "id": "make_invite",
+      "label": "Make invite links",
+      "refused": "A community is joined by its own rules, not by an invite link.",
+      "offered_on": "space"
+    },
+    {
+      "id": "revoke_invite",
+      "label": "Revoke an invite link",
+      "refused": "You made no invite link with that id in this pursuit."
+    },
+    {
+      "id": "join_with_invite",
+      "label": "Join with an invite link",
+      "refused": "This invite link is used, revoked or has expired. Ask a member for a new one."
+    },
+    {
+      "id": "invite_person",
+      "label": "Invite someone from the network",
+      "refused": "Only a member can invite people into it.",
+      "offered_on": "space"
+    },
+    {
+      "id": "add_items",
+      "label": "Write and share things",
+      "refused": "You are not a member of that pursuit.",
+      "offered_on": "space"
+    },
+    {
+      "id": "withdraw_item",
+      "label": "Take a thing back",
+      "refused": "Only the member who put an item in a pursuit can withdraw it.",
+      "offered_on": "item"
+    },
+    {
+      "id": "hide_item",
+      "label": "Hide or show a thing",
+      "refused": "You cannot hide or show that here.",
+      "offered_on": "item"
+    },
+    {
+      "id": "name_self",
+      "label": "Choose the name they show",
+      "refused": "You are not a member of that pursuit."
+    },
+    {
+      "id": "read_file",
+      "label": "Open a shared file",
+      "refused": "The member who brought this file in has left the pursuit, so it can no longer be read."
+    },
+    {
+      "id": "watch_items",
+      "label": "Be told of new things",
+      "refused": "You are not a member of that pursuit."
+    },
+    {
+      "id": "run_write_tool",
+      "label": "Run a tool that changes things",
+      "refused": "This pursuit does not let tools that change things run here."
+    },
+    {
+      "id": "put_agent_to_work",
+      "label": "Put an agent to work",
+      "refused": "You are not a member of that pursuit.",
+      "offered_on": "space"
+    },
+    {
+      "id": "withdraw_agent",
+      "label": "Stop an agent",
+      "refused": "You have no agent with that id in this pursuit."
+    },
+    {
+      "id": "hand_work",
+      "label": "Hand work to agents and take it",
+      "refused": "You are not a member of that pursuit.",
+      "offered_on": "space"
+    },
+    {
+      "id": "read_rules",
+      "label": "See who may do what",
+      "refused": "You are not a member of that pursuit."
+    },
+    {
+      "id": "see_when_members_are_busy",
+      "label": "See when the others are busy",
+      "refused": "This pursuit's rules do not let you see when its members are busy.",
+      "offered_on": "space"
+    },
+    {
+      "id": "set_member_type",
+      "label": "Give people their type",
+      "refused": "You cannot change people's types in this pursuit.",
+      "offered_on": "space"
+    },
+    {
+      "id": "remove_member",
+      "label": "Take someone out",
+      "refused": "You cannot take people out of this pursuit.",
+      "offered_on": "space"
+    },
+    {
+      "id": "change_rules",
+      "label": "Change who may do what",
+      "refused": "Only the person who started this pursuit can change who may do what in it.",
+      "offered_on": "space"
+    },
+    {
+      "id": "put_on_events",
+      "label": "Put events on",
+      "refused": "Only the person who runs this community, or someone they let, puts events on."
+    },
+    {
+      "id": "remove_posts",
+      "label": "Remove posts",
+      "refused": "Only its writer, or someone who may remove posts, can remove this."
+    },
+    {
+      "id": "set_roles",
+      "label": "Give people roles",
+      "refused": "Only the person who runs this community, or someone they let, gives people roles."
+    },
+    {
+      "id": "send_digests",
+      "label": "Send email digests",
+      "refused": "Only the person who runs this community, or someone they let, sends its digests."
+    },
+    {
+      "id": "change_community",
+      "label": "Change what the pursuit has on",
+      "refused": "Only someone this pursuit's rules let change what it has on can do that.",
+      "offered_on": "space"
+    },
+    {
+      "id": "hand_over",
+      "label": "Hand the community over",
+      "refused": "Only the person who runs this community can hand it over."
+    }
+  ],
+  "default_rules": [
+    {
+      "id": "outsiders",
+      "effect": "deny",
+      "says": "Nobody outside the pursuit reads or changes anything in it.",
+      "refuses": "You are not a member of that pursuit.",
+      "who": {
+        "kind": "anyone"
+      },
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "is_member",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                false
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "action",
+            "operator": "is_none_of",
+            "params": {
+              "values": [
+                "join_with_invite",
+                "invite_person"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "members",
+      "effect": "allow",
+      "says": "Everyone in the pursuit reads it, writes and shares in it, names themselves, invites people, puts agents to work, hands them work and sees these rules.",
+      "who": {
+        "kind": "any_member"
+      },
+      "actions": [
+        "read_space",
+        "add_items",
+        "name_self",
+        "watch_items",
+        "put_agent_to_work",
+        "hand_work",
+        "read_rules",
+        "invite_person"
+      ]
+    },
+    {
+      "id": "members-see-when-busy",
+      "effect": "allow",
+      "says": "Everyone in a group or project sees when the others are busy (only the times, never what is on their calendar), for each member who lets their calendar be used here.",
+      "who": {
+        "kind": "any_member"
+      },
+      "actions": [
+        "see_when_members_are_busy"
+      ],
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "is_community",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                false
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "members-describe-and-invite",
+      "effect": "allow",
+      "says": "Everyone in a group or project changes its description and picture and makes invite links.",
+      "who": {
+        "kind": "any_member"
+      },
+      "actions": [
+        "describe_space",
+        "make_invite"
+      ],
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "is_community",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                false
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "invitation-community-invite",
+      "effect": "allow",
+      "says": "The person who runs an invitation-only community can invite people with a link.",
+      "who": {
+        "kind": "any_member"
+      },
+      "actions": [
+        "make_invite"
+      ],
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "is_owner",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                true
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "takes_invitations",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                true
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "own-things",
+      "effect": "allow",
+      "says": "Whoever put a thing, an invite link or an agent in the pursuit takes it back, and hides or shows the things they put there.",
+      "who": {
+        "kind": "any_member"
+      },
+      "actions": [
+        "withdraw_item",
+        "hide_item",
+        "revoke_invite",
+        "withdraw_agent"
+      ],
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "made_it",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                true
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "shared-files",
+      "effect": "allow",
+      "says": "Everyone in the pursuit opens its shared files; a file brought in from a chat opens while whoever brought it in is still here.",
+      "who": {
+        "kind": "any_member"
+      },
+      "actions": [
+        "read_file"
+      ],
+      "when": {
+        "kind": "group",
+        "combinator": "or",
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "thing_origin",
+            "operator": "is_none_of",
+            "params": {
+              "values": [
+                "import"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "maker_is_member",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                true
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "invite-links",
+      "effect": "allow",
+      "says": "An invite link lets someone in while whoever made it is still here.",
+      "who": {
+        "kind": "anyone_with_link"
+      },
+      "actions": [
+        "join_with_invite"
+      ],
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "maker_is_member",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                true
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "starter-changes-rules",
+      "effect": "allow",
+      "says": "Whoever started the pursuit changes who may do what in it, gives people their type, takes people out, and hides or shows anything in it.",
+      "who": {
+        "kind": "any_member"
+      },
+      "actions": [
+        "change_rules",
+        "set_member_type",
+        "remove_member",
+        "hide_item"
+      ],
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "is_owner",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                true
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "community-runner",
+      "effect": "allow",
+      "says": "Whoever runs a community puts events on, removes posts, gives roles, sends digests, changes its settings and hands it over.",
+      "who": {
+        "kind": "any_member"
+      },
+      "actions": [
+        "put_on_events",
+        "remove_posts",
+        "set_roles",
+        "send_digests",
+        "make_invite",
+        "change_community",
+        "hand_over"
+      ],
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "is_owner",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                true
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "members-put-on-events",
+      "effect": "allow",
+      "says": "In a community whose settings let members put events on, every member does.",
+      "who": {
+        "kind": "any_member"
+      },
+      "actions": [
+        "put_on_events"
+      ],
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "events_by",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "members"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "roles-may",
+      "effect": "allow",
+      "says": "A member whose role lets them put events on, remove posts, give roles or send digests does it.",
+      "who": {
+        "kind": "any_member"
+      },
+      "actions": [
+        "put_on_events",
+        "remove_posts",
+        "set_roles",
+        "send_digests"
+      ],
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "type_may",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                true
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "retired_default_identities": [
+    "396f500543b827b08d1ddea38968305a2aa7bba051eb15ada6ed32dadc83f839",
+    "4fda226bc6f6843adb5832dceea2c66e7a4c30e89d1980fc9f7a1a872b2ba2db",
+    "c8c05952396eac9b7ed07d2876e372f07c4a817adca4bc3de857a884000ec71e",
+    "0c481ce62c75679bfcecd5fb849beb1d0cbb60c3b3d78e1ccc107c2b3eaf6e11",
+    "783217f73247f9431efd096832d633bab29abf9ba8b4b97ad2b26dcde57fc517",
+    "5ca459a2e38703ad2b27dfc06a24d44e9ce6d9d8b3ed10c39661e674dbe45b69",
+    "d952780f4478864943e8f2cc440166b6d53c1bcf4d4fa3634d1e8d48634a7635",
+    "6b9906fe42afa26862d914e64d32d84025bc4cb72d0f3ef54a23104264d5c7d6"
+  ],
+  "default_rules_by_label": {
+    "project": [
+      {
+        "id": "outsiders",
+        "effect": "deny",
+        "says": "Nobody outside the pursuit reads or changes anything in it.",
+        "refuses": "You are not a member of that pursuit.",
+        "who": {
+          "kind": "anyone"
+        },
+        "when": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "is_member",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  false
+                ]
+              }
+            },
+            {
+              "kind": "rule",
+              "field": "action",
+              "operator": "is_none_of",
+              "params": {
+                "values": [
+                  "join_with_invite",
+                  "invite_person"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "everyone-reads",
+        "effect": "allow",
+        "says": "Everyone in the pursuit reads it, is told of new things, names themselves and sees these rules.",
+        "who": {
+          "kind": "any_member"
+        },
+        "actions": [
+          "read_space",
+          "watch_items",
+          "name_self",
+          "read_rules"
+        ]
+      },
+      {
+        "id": "members-see-when-busy",
+        "effect": "allow",
+        "says": "Everyone in a group or project sees when the others are busy (only the times, never what is on their calendar), for each member who lets their calendar be used here.",
+        "who": {
+          "kind": "any_member"
+        },
+        "actions": [
+          "see_when_members_are_busy"
+        ],
+        "when": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "is_community",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  false
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "contributors-take-part",
+        "effect": "allow",
+        "says": "Contributors write and share, invite people, change its description and picture, and put AIs to work.",
+        "who": {
+          "kind": "member_type",
+          "member_type": "contributor"
+        },
+        "actions": [
+          "add_items",
+          "invite_person",
+          "make_invite",
+          "describe_space",
+          "put_agent_to_work",
+          "hand_work"
+        ]
+      },
+      {
+        "id": "own-things",
+        "effect": "allow",
+        "says": "Whoever put a thing, an invite link or an agent in the pursuit takes it back, and hides or shows the things they put there.",
+        "who": {
+          "kind": "any_member"
+        },
+        "actions": [
+          "withdraw_item",
+          "hide_item",
+          "revoke_invite",
+          "withdraw_agent"
+        ],
+        "when": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "made_it",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  true
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "shared-files",
+        "effect": "allow",
+        "says": "Everyone in the pursuit opens its shared files; a file brought in from a chat opens while whoever brought it in is still here.",
+        "who": {
+          "kind": "any_member"
+        },
+        "actions": [
+          "read_file"
+        ],
+        "when": {
+          "kind": "group",
+          "combinator": "or",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "thing_origin",
+              "operator": "is_none_of",
+              "params": {
+                "values": [
+                  "import"
+                ]
+              }
+            },
+            {
+              "kind": "rule",
+              "field": "maker_is_member",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  true
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "invite-links",
+        "effect": "allow",
+        "says": "An invite link lets someone in while whoever made it is still here.",
+        "who": {
+          "kind": "anyone_with_link"
+        },
+        "actions": [
+          "join_with_invite"
+        ],
+        "when": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "maker_is_member",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  true
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "members-put-on-events",
+        "effect": "allow",
+        "says": "When the pursuit lets everyone put events on, every member does.",
+        "who": {
+          "kind": "any_member"
+        },
+        "actions": [
+          "put_on_events"
+        ],
+        "when": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "events_by",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  "members"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "owners",
+        "effect": "allow",
+        "says": "Owners do everything: they change who can do what, give people their type, and take back or hide anything.",
+        "who": {
+          "kind": "member_type",
+          "member_type": "owner"
+        }
+      }
+    ],
+    "group": [
+      {
+        "id": "outsiders",
+        "effect": "deny",
+        "says": "Nobody outside the pursuit reads or changes anything in it.",
+        "refuses": "You are not a member of that pursuit.",
+        "who": {
+          "kind": "anyone"
+        },
+        "when": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "is_member",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  false
+                ]
+              }
+            },
+            {
+              "kind": "rule",
+              "field": "action",
+              "operator": "is_none_of",
+              "params": {
+                "values": [
+                  "join_with_invite",
+                  "invite_person"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "everyone-reads",
+        "effect": "allow",
+        "says": "Everyone in the pursuit reads it, is told of new things, names themselves and sees these rules.",
+        "who": {
+          "kind": "any_member"
+        },
+        "actions": [
+          "read_space",
+          "watch_items",
+          "name_self",
+          "read_rules"
+        ]
+      },
+      {
+        "id": "members-see-when-busy",
+        "effect": "allow",
+        "says": "Everyone in a group or project sees when the others are busy (only the times, never what is on their calendar), for each member who lets their calendar be used here.",
+        "who": {
+          "kind": "any_member"
+        },
+        "actions": [
+          "see_when_members_are_busy"
+        ],
+        "when": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "is_community",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  false
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "members-take-part",
+        "effect": "allow",
+        "says": "Members write and share, invite people, change its description and picture, and put AIs to work.",
+        "who": {
+          "kind": "member_type",
+          "member_type": "member"
+        },
+        "actions": [
+          "add_items",
+          "invite_person",
+          "make_invite",
+          "describe_space",
+          "put_agent_to_work",
+          "hand_work"
+        ]
+      },
+      {
+        "id": "guests-take-part",
+        "effect": "allow",
+        "says": "Guests write and share, and hand work to AIs.",
+        "who": {
+          "kind": "member_type",
+          "member_type": "guest"
+        },
+        "actions": [
+          "add_items",
+          "hand_work"
+        ]
+      },
+      {
+        "id": "own-things",
+        "effect": "allow",
+        "says": "Whoever put a thing, an invite link or an agent in the pursuit takes it back, and hides or shows the things they put there.",
+        "who": {
+          "kind": "any_member"
+        },
+        "actions": [
+          "withdraw_item",
+          "hide_item",
+          "revoke_invite",
+          "withdraw_agent"
+        ],
+        "when": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "made_it",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  true
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "shared-files",
+        "effect": "allow",
+        "says": "Everyone in the pursuit opens its shared files; a file brought in from a chat opens while whoever brought it in is still here.",
+        "who": {
+          "kind": "any_member"
+        },
+        "actions": [
+          "read_file"
+        ],
+        "when": {
+          "kind": "group",
+          "combinator": "or",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "thing_origin",
+              "operator": "is_none_of",
+              "params": {
+                "values": [
+                  "import"
+                ]
+              }
+            },
+            {
+              "kind": "rule",
+              "field": "maker_is_member",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  true
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "invite-links",
+        "effect": "allow",
+        "says": "An invite link lets someone in while whoever made it is still here.",
+        "who": {
+          "kind": "anyone_with_link"
+        },
+        "actions": [
+          "join_with_invite"
+        ],
+        "when": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "maker_is_member",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  true
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "members-put-on-events",
+        "effect": "allow",
+        "says": "When the pursuit lets everyone put events on, every member does.",
+        "who": {
+          "kind": "any_member"
+        },
+        "actions": [
+          "put_on_events"
+        ],
+        "when": {
+          "kind": "group",
+          "combinator": "and",
+          "rules": [
+            {
+              "kind": "rule",
+              "field": "events_by",
+              "operator": "is_any_of",
+              "params": {
+                "values": [
+                  "members"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "owners",
+        "effect": "allow",
+        "says": "Owners do everything: they change who can do what, give people their type, and take back or hide anything.",
+        "who": {
+          "kind": "member_type",
+          "member_type": "owner"
+        }
+      }
+    ]
+  },
+  "invariant_rules": [
+    {
+      "id": "private-source-owner-revocation",
+      "effect": "allow",
+      "says": "The current private source owner can take their own contribution back.",
+      "actions": [
+        "withdraw_item"
+      ],
+      "when": {
+        "kind": "rule",
+        "field": "admitted_private_source_owner",
+        "operator": "is_any_of",
+        "params": {
+          "values": [
+            true
+          ]
+        }
+      }
+    }
+  ]
+}
