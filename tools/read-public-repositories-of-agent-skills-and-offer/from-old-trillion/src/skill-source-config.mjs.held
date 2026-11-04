@@ -1,0 +1,62 @@
+// Published skill repository definitions are inert source DATA. Git protocol,
+// import screening/licences and engine budgets retain their existing owners.
+import bootstrap from '../records/skill-sources.json' with {type:'json'};
+import {sourceProblems,addressOf,makeSkillSources} from './skill-sources.mjs';
+import {resolveMarketplaceContentSource} from './marketplace-content-sources.mjs';
+import rules from '../records/skill-import-rules.json' with {type:'json'};
+import licenceClasses from 'trillion-workshop/licence-classes.json' with {type:'json'};
+const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+const fail=message=>Object.assign(new Error(message),{status:503,code:'marketplace_content_source_unavailable'});
+
+export function composeSkillSourceConfig(config) {
+  if(!object(config?.kinds)||!Array.isArray(config.hosts)||!Array.isArray(config.sources))throw fail('Current skill-source sections require a kinds map, hosts array and sources array.');
+  for(const [id,kind] of Object.entries(config.kinds)) {
+    if(!object(kind)||typeof kind.entry!=='string'||!kind.entry||kind.entry.length>200||/[\\/]/.test(kind.entry)||['.','..'].includes(kind.entry))
+      throw fail(`The skill-source kind ${id} has no valid entry filename.`);
+  }
+  const hosts=new Set();
+  for(const host of config.hosts) {
+    if(!object(host)||typeof host.id!=='string'||!host.id||hosts.has(host.id))throw fail('Current skill-source hosts require distinct identities.');
+    hosts.add(host.id);
+    for(const field of ['refs','archive','page','repository_page']) {
+      let address;
+      try {address=new URL(addressOf(host[field],{owner:'owner',repository:'repository',commit:'a'.repeat(40),path:'path'}));}catch{}
+      if(!address||address.protocol!=='https:'||address.username||address.password)throw fail(`The skill-source host ${host.id} has no public HTTPS ${field} template.`);
+    }
+  }
+  // Intentional withdrawal of hosts/templates removes dependent defaults. It
+  // does not turn an unavailable read into a fallback or choose another host.
+  if(!config.hosts.length||!Object.keys(config.kinds).length)return {...config,sources:[]};
+  const seen=new Set();
+  for(const source of config.sources) {
+    const problems=sourceProblems({...source,kind:source?.kind??config.default_kind},config.hosts,config.kinds);
+    if(problems.length)throw fail(`The default skill repository ${source?.id??'(unnamed)'} is invalid: ${problems.join(' ')}`);
+    if(seen.has(source.id))throw fail(`The default skill repository ${source.id} is declared more than once.`);
+    seen.add(source.id);
+  }
+  return config;
+}
+
+/** Only these exact inventory sections are Marketplace content. default_kind,
+ * check/forget/archive limits, protocol and import rules remain source-owned. */
+export async function resolveSkillSourceConfig(env,{read,current,resolveSection=resolveMarketplaceContentSource}={}) {
+  const sections=[['kinds','/kinds',{}],['hosts','/hosts',[]],['sources','/sources',[]]];
+  const values=await Promise.all(sections.map(async([key,pointer,withdrawn])=>{
+    const selected=await resolveSection(env,{file:'records/skill-sources.json',pointer},bootstrap[key],{read,current});
+    return [key,selected.found?selected.value:withdrawn];
+  }));
+  return composeSkillSourceConfig({...bootstrap,...Object.fromEntries(values)});
+}
+
+/** The same canonical source reader, local to the resource/person already
+ * serving the consumer. Defaults resolve through edge KV, never everyone. */
+export function configuredSkillSources({env,sql,fetchImpl,now}) {
+  const openLicences=new Set(licenceClasses.records.map(record=>record.payload)
+    .filter(item=>rules.open_licences.classes.includes(item.id)).flatMap(item=>item.licences));
+  return makeSkillSources({sql,fetchImpl,config:()=>resolveSkillSourceConfig(env),rules,openLicences,...(now?{now}:{})});
+}
+
+// Source-only/local callers retain the original bootstrap contract. Runtime
+// mounts explicitly supply the current section resolver; avoid eager evaluation
+// through the skill-row/workflow module cycle.
+export default bootstrap;

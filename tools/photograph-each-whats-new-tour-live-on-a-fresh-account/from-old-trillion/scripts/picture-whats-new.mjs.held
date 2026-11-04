@@ -1,0 +1,93 @@
+// Gives each what's-new tour a picture of what it shows, taken live: on a fresh proof account, the tour is started and
+// walked to its last step that points at something (or its last step), and that moment (the screen with the tour's
+// card beside what it points at, or the screen alone when the step sits in the middle) is kept as src/workspace/walkthroughs/pictures/<tour id>.webp and named for its tour in
+// src/workspace/walkthroughs/pictures/pictures.json (a tour's own `picture` field, when it has one, wins over it).
+// The build serves the pictures at /workspace/whats-new/ and src/whats-new-rows.mjs puts each on its row, so
+// gettrillion.ai/changelog shows every change with its picture.
+//   node scripts/picture-whats-new.mjs [origin] [tour id ...]     (default: every what's-new tour without a picture)
+// A tour that already names a picture is left as it is; name it to take its picture again. The account is deleted
+// when the browser closes.
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import sharp from 'sharp';
+import { browserWithPasskeyDevice, createAccount } from './passkey-account.mjs';
+
+const origin = (process.argv[2] ?? 'https://app.gettrillion.ai').replace(/\/$/, '');
+const named = new Set(process.argv.slice(3));
+const tourDir = new URL('../src/workspace/walkthroughs/', import.meta.url);
+const pictureDir = new URL('pictures/', tourDir);
+mkdirSync(pictureDir, { recursive: true });
+const picturesFile = new URL('pictures.json', pictureDir);
+const pictures = existsSync(picturesFile) ? JSON.parse(readFileSync(picturesFile, 'utf8')) : {};
+const WIDTH = 1280;
+const HEIGHT = 800;
+const SETTLE_MS = 2500;
+
+const files = readdirSync(tourDir).filter(file => /^whats-new-\d{4}-\d{2}-\d{2}.*\.json$/.test(file)).sort();
+const wanted = files.map(file => ({ file, tour: JSON.parse(readFileSync(new URL(file, tourDir), 'utf8')) }))
+  .filter(({ tour }) => (named.size ? named.has(tour.id) : !tour.picture && !pictures[tour.id]));
+process.stdout.write(`${wanted.length} tours to picture\n`);
+
+const dialog = page => page.locator('[role="dialog"]').last();
+const endAnyTour = async page => {
+  for (let pass = 0; pass < 4; pass += 1) {
+    const button = page.getByRole('button', { name: /^(End tour|Got it|Skip tour)$/ }).first();
+    if (!(await button.isVisible().catch(() => false))) return;
+    await button.click().catch(() => {});
+    await page.waitForTimeout(400);
+  }
+};
+const ask = (page, id) => page.evaluate(walkthroughId => window.dispatchEvent(new CustomEvent('bitfield:walkthrough-event', {
+  detail: { event_kind: 'walkthrough-requested', walkthrough_id: walkthroughId }, cancelable: true,
+})), id);
+const advanceLabel = (tour, step, index) => {
+  const own = (step.nav?.buttons ?? []).find(button => button.role === 'advance' || button.role === 'done');
+  if (own) return own.label;
+  if ((step.nav?.buttons ?? []).length) return null;
+  return index === tour.steps.length - 1 ? 'Done' : 'Next';
+};
+// The step whose moment shows the change best: the last one that points at something, else the last one.
+const shownStep = tour => [...tour.steps].reverse().find(step => step.target_ref || step.target_preparation) ?? tour.steps.at(-1);
+
+const device = await browserWithPasskeyDevice();
+let kept = 0;
+try {
+  const page = device.page;
+  page.setDefaultNavigationTimeout(90000);
+  await page.setViewportSize({ width: WIDTH, height: HEIGHT });
+  await createAccount(page, origin, { makeKey: false });
+  for (const { tour } of wanted) {
+    await page.goto(`${origin}/home`, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle').catch(() => {});
+    await page.waitForTimeout(1500);
+    await endAnyTour(page);
+    await ask(page, tour.id);
+    const target = shownStep(tour);
+    let reached = false;
+    for (const [index, step] of tour.steps.entries()) {
+      await page.waitForTimeout(SETTLE_MS);
+      if (step === target) { reached = true; break; }
+      const label = advanceLabel(tour, step, index);
+      const button = label ? dialog(page).getByRole('button', { name: label, exact: true }).first() : null;
+      if (!button || !(await button.isVisible().catch(() => false))) break;
+      await button.click().catch(() => {});
+    }
+    const card = await dialog(page).innerText({ timeout: 1500 }).catch(() => '');
+    if (!reached || !card || card.includes('Finding the next step')) { process.stdout.write(`skip ${tour.id}: the step did not show\n`); await endAnyTour(page); continue; }
+    const name = `${tour.id}.webp`;
+    // A step that points at something is kept with its card beside it; a step shown in the middle dims the screen it
+    // opened, so that screen is kept without the card, as the person sees it once the tour ends.
+    if (!target.target_ref) { await endAnyTour(page); await page.waitForTimeout(1200); }
+    const png = await page.screenshot();
+    await sharp(png).webp({ quality: 82 }).toFile(new URL(name, pictureDir).pathname);
+    const payload = target.content?.payload ?? {};
+    const alt = [payload.title, payload.body].filter(Boolean).join(': ') || tour.summary;
+    pictures[tour.id] = { src: name, alt, width: WIDTH, height: HEIGHT };
+    writeFileSync(picturesFile, `${JSON.stringify(Object.fromEntries(Object.entries(pictures).sort(([a], [b]) => a.localeCompare(b))), null, 2)}\n`);
+    kept += 1;
+    process.stdout.write(`kept ${name}\n`);
+    await endAnyTour(page);
+  }
+} finally {
+  await device.browser.close();
+}
+process.stdout.write(`${kept} pictures kept in ${pictureDir.pathname}\n`);

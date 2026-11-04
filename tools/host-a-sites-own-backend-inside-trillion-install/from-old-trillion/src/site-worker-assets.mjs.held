@@ -1,0 +1,27 @@
+import { publicAppFileEntry, readPublicAppObject } from './public-app-file-store.mjs';
+import { publicAppFilePath, publicAppMediaType } from 'trillion-workshop/tools/shared-code/src/public-app-files.mjs';
+
+/** Resolve a Worker-owned asset first, then the installed site's existing file. */
+export async function serveSiteWorkerAsset(request, env, props, route) {
+  if (!['GET', 'HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405 });
+  let path;
+  try { path = publicAppFilePath(new URL(request.url).pathname); }
+  catch { return new Response('Not found', { status: 404 }); }
+
+  let entry = props?.assets?.[path];
+  let legacyKey;
+  if (!entry && route) {
+    entry = await publicAppFileEntry(env, route.files, path);
+    legacyKey = route.snapshot_version
+      ? `public-app/${route.installation_id}/versions/${route.snapshot_version}/${path}`
+      : `public-app/${route.installation_id}/${path}`;
+  }
+  if (!entry) return new Response('Not found', { status: 404 });
+
+  const object = await readPublicAppObject(env, entry, legacyKey);
+  if (!object) return new Response('File unavailable', { status: 503 });
+  return new Response(request.method === 'HEAD' ? null : object.body, {
+    headers: { 'content-type': entry.media_type ?? publicAppMediaType(path),
+      'cache-control': 'public, max-age=3600', 'x-content-type-options': 'nosniff' },
+  });
+}

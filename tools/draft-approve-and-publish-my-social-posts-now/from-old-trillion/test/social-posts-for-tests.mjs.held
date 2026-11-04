@@ -1,0 +1,80 @@
+// A person's posts (src/social-posts.mjs) with stand-in publishers and no network, for the tests of the posts owner.
+import { localStore, sqliteHost } from '../src/local-store.mjs';
+import { recordLogStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs';
+import { RECORD_MODEL } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
+import { makeSocialPosts } from '../src/social-posts.mjs';
+import settings from '../src/social-posts.json' with { type: 'json' };
+import { connectedAccountRef } from '@opencoredev/social-sdk';
+
+export const TOKEN = 'tok-secret-value-1234567890';
+export const places = [
+  { kind: 'post-place', platform: 'first-place', label: 'First Place', adapter: 'stand-in', connection_vendor: 'first-vendor',
+    options: { auth: { accessToken: { held: 'access_token' }, userId: { plain: 'user_id' } }, origins: [{ service_origin: true }], version: { value: '7' } },
+    account: { plain: 'user_id' }, hosts: ['api.first.example'], media_from: 'address', default_settings: { visibility: 'public' } },
+  { kind: 'post-place', platform: 'second-place', label: 'Second Place', adapter: 'stand-in', connection_vendor: 'second-vendor',
+    options: { auth: { accessToken: { held: 'access_token' }, userId: { plain: 'user_id' } } },
+    account: { plain: 'user_id' }, hosts: ['api.second.example'], media_from: 'bytes', default_settings: {} },
+  { kind: 'post-place', platform: 'third-place', label: 'Third Place', adapter: 'stand-in', connection_vendor: 'third-vendor',
+    options: {}, account: { plain: 'user_id' }, hosts: [], media_from: 'address', default_settings: {} },
+];
+
+// A publisher shaped like the SDK's: it sends one request with the token it was given, and answers with what `plan`
+// says for its account. Every request that reaches the network is recorded in `sent`.
+export function world({ plan = {} } = {}) {
+  const sent = [];
+  const built = [];
+  const send = async (url, init) => { sent.push({ url, authorization: init.headers.get('authorization'), body: init.body }); return new Response('{}', { status: 200 }); };
+  const publishers = {
+    'stand-in': options => {
+      built.push(options);
+      return {
+        async publish({ targets, content, idempotencyKey }) {
+          const account = targets[0].account;
+          const outcome = (plan[account.accountId] ?? []).shift() ?? { state: 'published', url: `https://${account.platform}.example/p/${account.accountId}`, post: { postId: `p-${account.accountId}` } };
+          if (outcome.throws) throw outcome.throws;
+          const host = outcome.host ?? options.hostOverride ?? `api.${account.platform.split('-')[0]}.example`;
+          // A place that refuses before taking anything (a sign-in it no longer accepts) answers without a send.
+          if (outcome.state !== 'failed') await options.fetch(`https://${host}/publish?key=${idempotencyKey}`, { method: 'POST', headers: { Authorization: `Bearer ${options.auth.accessToken}` }, body: JSON.stringify({ text: content.text, media: content.media ?? null, options: targets[0].options ?? null }) });
+          return { status: 'complete', outcomes: [{ targetIndex: 0, account, observedAt: 'now', ...outcome }] };
+        },
+        async getDelivery() { return { state: 'published', url: 'https://second.example/p/late', post: { postId: 'late' } }; },
+      };
+    },
+  };
+  const sdk = { createSocial: ({ backend }) => ({ posts: { publish: request => backend.publish(request), getDelivery: ref => backend.getDelivery(ref) } }), connectedAccountRef };
+  return { sent, built, send, publishers, sdk };
+}
+
+export function posts({ plan, connections, plain, clock = '2026-09-29T17:00:00Z', laters, schedule = null, formats = [], madeWith = {}, strictModel = false, judge, decisions, repliedSince, threadEnds, keepEdit } = {}) {
+  const strictHost = strictModel ? sqliteHost(':memory:') : null;
+  const store = strictHost ? { eeaf: recordLogStore(strictHost.sql, { transaction: strictHost.transaction, model: RECORD_MODEL, strict_model: true }) } : localStore(':memory:');
+  const w = world({ plan });
+  let at = Date.parse(clock);
+  const scheduled = laters ?? [];
+  const owner = makeSocialPosts({
+    eeaf: store.eeaf, settings, places, publishing: async () => ({ publishers: w.publishers, sdk: w.sdk }), send: w.send,
+    connections: async () => connections ?? [
+      { connection_id: 'first-vendor', vendor: 'first-vendor', account_label: 'me on first', can_send: true },
+      { connection_id: 'second-vendor', vendor: 'second-vendor', can_send: true },
+      { connection_id: 'unrelated', vendor: 'somewhere-else', can_send: true },
+    ],
+    plainFields: async id => (plain ?? { 'first-vendor': { user_id: 'u-first' }, 'second-vendor': { user_id: 'u-second' } })[id] ?? null,
+    heldValue: async (id, field) => (field === 'access_token' ? `${TOKEN}-${id}` : null),
+    connectLink: async vendor => (vendor === 'third-vendor' ? { connect_url: 'https://service.example/work/connect/third-vendor?ticket=t' } : null),
+    formatOf: id => formats.find(format => format.id === id) ?? null,
+    files: {
+      results: async (identity, kind) => madeWith[identity]?.[kind],
+      locate: async ref => (ref === '/Media/clip.mp4' || ref === '1f:clip' ? { identity: '1f:clip', name: '/Media/clip.mp4', media_type: 'video/mp4', byte_length: 1234 } : null),
+      publicAddress: async (identity, seconds) => `https://service.example/namespace/bytes/${identity}?lease=${seconds}`,
+      open: async () => ({ stream: () => new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array([1, 2, 3])); controller.close(); } }) }),
+    },
+    later: async request => { scheduled.push(request); await schedule?.(request); },
+    serviceOrigin: () => 'https://service.example',
+    now: () => new Date((at += 1000)),
+    ...(judge ? { judge } : {}), ...(decisions ? { decisions } : {}), ...(repliedSince ? { repliedSince } : {}), ...(threadEnds ? { threadEnds } : {}), ...(keepEdit ? { keepEdit } : {}),
+  });
+  return { owner, store, ...w, scheduled, close: () => strictHost?.db.close() };
+}
+
+export const draftBoth = owner => owner.draft({ caption: 'A forehand drill that fixed my serve', media: '/Media/clip.mp4', destinations: ['first-vendor', 'second-vendor'], link: 'https://site.example/start' }, { app: 'Claude' });
+

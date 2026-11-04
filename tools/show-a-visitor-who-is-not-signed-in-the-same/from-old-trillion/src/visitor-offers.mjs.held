@@ -1,0 +1,76 @@
+// The offers a visitor who is not signed in is shown, and the mark that keeps them on the same price.
+//
+// The mark (`nm_visitor`) is set for the parent domain of the service's primary address, so every page on that
+// domain (the landing at the apex, this service's account page) reads the same mark and so shows the same arm of
+// each price experiment. An address outside that domain keeps a mark of its own.
+import { assignArms, benefitWords, notePricesShown, offersShownTo, readPaymentConfig, saleOffers, upgradeArm } from './payment.mjs';
+import { freePriceWords, isComparedPlan, planFeatures, recommendedPlanId } from './plan-comparison.mjs';
+import sales from '../../../sales/src/sales.json' with { type: 'json' };
+import { VISITOR_COOKIE, newVisitor, visitorOf } from './visitor-mark.mjs';
+import { hostWithin } from '../parts/http-client/do-work/same-origin.mjs';
+
+const YEAR_SECONDS = 60 * 60 * 24 * 365;
+
+/** The domain the mark is shared across for `origin`: the primary address's parent, when `origin` is inside it. */
+export function sharedCookieDomain(origin, primary) {
+  const parent = new URL(primary).hostname.split('.').slice(1).join('.');
+  return parent.includes('.') && hostWithin(origin, parent) ? parent : null;
+}
+
+/** The Set-Cookie values that keep `visitor` for `origin`. A mark kept only for this one address before the shared
+ * one existed is cleared, so the browser holds a single mark and every page reads the same one. */
+export function visitorCookies(visitor, origin, primary) {
+  const base = `${VISITOR_COOKIE}=${visitor}; Secure; SameSite=Lax; Path=/; Max-Age=${YEAR_SECONDS}`;
+  const domain = sharedCookieDomain(origin, primary);
+  if (!domain) return [`${base}; HttpOnly`];
+  return [`${VISITOR_COOKIE}=; Secure; SameSite=Lax; Path=/; Max-Age=0; HttpOnly`, `${base}; HttpOnly; Domain=${domain}`];
+}
+
+/** The offers `visitor` is shown, exactly as the account page prices them: every page that quotes a plan's name or
+ * price reads it from here, so a price experiment or an edited offer row changes all of them at once. */
+export function offersForVisitor(visitor, config) {
+  const arms = assignArms(visitor, config);
+  // A plan (plan-comparison.json `compares`) carries its line for every feature; the paid plan this visitor is
+  // shown is the recommended one; any other offer carries its own benefits.
+  // Only the offers the public page names (sales.json `public_page`), in its order.
+  const listed = sales.public_page.offer_ids;
+  const shown = offersShownTo(arms, null, config).filter(offer => listed.includes(offer.id)).sort((a, b) => listed.indexOf(a.id) - listed.indexOf(b.id));
+  const recommended = recommendedPlanId(shown, upgradeArm(arms));
+  return shown.map(offer => ({
+    id: offer.id, label: offer.label, summary: offer.summary, benefits: (offer.benefits ?? []).map(benefitWords),
+    // A price test's arm names the offer it is a version of, so a page that sells that offer finds this visitor's arm.
+    ...(offer.variant_of ? { variant_of: offer.variant_of } : {}),
+    price_visibility: offer.apply_path ? 'after-acceptance' : 'public',
+    // The offer's own button words, and the lines its card adds under a plan's feature lines.
+    ...(offer.action_label ? { action_label: offer.action_label } : {}),
+    ...(offer.card_notes?.length ? { notes: offer.card_notes } : {}),
+    // An application offer is quoted after the host accepts the applicant. Keep its configured
+    // price private until then; the application link is the public action for this offer.
+    options: offer.apply_path ? [] : (offer.price_options ?? []).map(option => ({ id: option.id, label: option.label, amount_cents: option.amount_cents, currency: option.currency, interval: option.interval ?? null })),
+    ...(isComparedPlan(offer) ? { features: planFeatures(offer) } : {}),
+    ...(isComparedPlan(offer) && !(offer.price_options ?? []).some(option => option.amount_cents > 0) ? { free_price: freePriceWords() } : {}),
+    recommended: offer.id === recommended,
+  }));
+}
+
+/** The offers `visitor` is shown, each with where it is bought (`href`): a paid offer straight to checkout, one bought by
+ * applying first to its application; the free plan has none, it is the account. The
+ * landing's price cards and the page where an account is made read the same list. */
+export function offersToBuy(visitor, config, primary) {
+  // A paid offer's Buy goes straight to checkout (/buy/<offer>); the account is made by the payment (src/worker.mjs buyNow).
+  const paid = offer => offer.options.some(option => option.amount_cents > 0);
+  // An offer bought by applying first opens its application instead.
+  const applies = new Map(saleOffers().filter(offer => offer.apply_path).map(offer => [offer.id, offer.apply_path]));
+  return offersForVisitor(visitor, config).map(offer => (applies.has(offer.id) ? { ...offer, href: `${primary}${applies.get(offer.id)}` } : paid(offer) ? { ...offer, href: `${primary}/buy/${encodeURIComponent(offer.id)}` } : offer));
+}
+
+/** GET /billing/offers: the offers this visitor is shown; an offer with its own `href` is bought there, the rest on `account`. */
+export async function visitorOffers(request, env, origin, primary) {
+  const visitor = visitorOf(request) ?? newVisitor();
+  const config = await readPaymentConfig(env);
+  const offers = offersToBuy(visitor, config, primary);
+  await notePricesShown(env, config, assignArms(visitor, config), visitor, request.headers.get('user-agent') ?? '');
+  const headers = new Headers({ 'content-type': 'application/json', 'cache-control': 'private, no-store' });
+  for (const cookie of visitorCookies(visitor, origin, primary)) headers.append('set-cookie', cookie);
+  return new Response(JSON.stringify({ account: `${primary}/account`, connect: `${primary}/`, offers }), { headers });
+}

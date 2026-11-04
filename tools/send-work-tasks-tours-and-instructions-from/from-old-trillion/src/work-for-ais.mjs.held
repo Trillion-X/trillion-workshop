@@ -1,0 +1,296 @@
+// src/work-for-ais.mjs
+//
+// Purpose
+//   The one way Trillion HQ sends work, tasks, tours and instructions to customers' AIs: one person, a group, an A/B
+//   test group or everyone, bounded in time, set off by an event. A row of work (src/work-for-ais.json) says who it is for
+//   (a formula-engine `when` tree over the account facts), when (window), what sets it off (trigger) and what the AI does
+//   (job). When an account's AI connects or answers a tool call, the rows that hold for THAT account become one ordinary
+//   handoff for whichever of its AIs takes it first (src/agents.mjs hand_off, once_per the row), so it shows in
+//   pending_handoffs and is finished with finish_work. New-account setup is the first row, nothing more.
+//
+// Non-negotiable invariants
+//   1. Rows are data. Nothing here names a row, a cohort, a plan or a tour. Audiences are evaluated by the existing
+//      formula-engine row filter (filterRowsByRules), never by a second interpreter.
+//   2. A row reaches an account only by that account's own connection: facts and delivery are per account, and no
+//      path here lists or scans accounts.
+//   3. One handoff per (account, row): the handoff's once_per is the row id, so delivering again, from another AI or
+//      another isolate, returns the same job.
+//   4. Resolution is cached per account for cache_seconds and the rows themselves for rows_cache_seconds; a connection
+//      inside the cache costs nothing. Overlapping calls share one account delivery and one shared-row read.
+//   5. Only the operator account writes rows (the route refuses everyone else); anyone's AI only ever receives its own.
+//
+import settings from './work-for-ais.json' with { type: 'json' };
+import setupSettings from './setup-steps.json' with { type: 'json' };
+import { observerBucket } from '../parts/choose-per-observer/read-data/score-candidates.ts';
+import { hostOf } from './resource-host.mjs';
+import { limitSaid } from './limits.mjs';
+
+export class WorkForAisError extends Error {}
+
+const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+const iso = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
+export const SHIPPED_ROWS = settings.rows;
+export const KEY = 'work-row:';
+const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
+
+/** The row as kept, or an error in plain words. Nothing outside the row's own fields is kept. */
+export function checkedRow(row, rules = settings) {
+  const { words, limits, triggers } = rules;
+  // A row over a cap says which cap and why (src/limits.json), not only that the row is wrong.
+  if (object(row)) {
+    for (const [value, key] of [[row.id, 'id_chars'], [row.job, 'job_chars'], [row.said, 'said_chars']]) {
+      if (typeof value === 'string' && value.length > limits[key]) throw new WorkForAisError(limitSaid(`work-for-ais.${key}`, limits[key], value.length));
+    }
+  }
+  if (!object(row) || typeof row.id !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(row.id) || row.id.length > limits.id_chars
+    || typeof row.job !== 'string' || !row.job.trim() || row.job.length > limits.job_chars
+    || (row.said != null && (typeof row.said !== 'string' || row.said.length > limits.said_chars))) throw new WorkForAisError(words.bad_row);
+  const trigger = row.trigger ?? rules.default_trigger;
+  if (!Object.hasOwn(triggers, trigger)) throw new WorkForAisError(fill(words.bad_trigger, { triggers: Object.keys(triggers).join(', ') }));
+  const priority = row.priority ?? rules.default_priority;
+  if (!Number.isInteger(priority) || priority < 0 || priority > 9) throw new WorkForAisError(words.bad_priority);
+  const window = row.window ?? {};
+  if (!object(window) || (window.from != null && !iso(window.from)) || (window.until != null && !iso(window.until))
+    || (window.from != null && window.until != null && Date.parse(window.from) >= Date.parse(window.until))) throw new WorkForAisError(words.bad_window);
+  if (row.audience != null && (!object(row.audience) || row.audience.kind !== 'group')) throw new WorkForAisError(words.bad_audience);
+  return { id: row.id, ...(row.said ? { said: row.said } : {}), job: row.job.trim(), ...(row.audience ? { audience: row.audience } : {}),
+    ...(window.from || window.until ? { window: { ...(window.from ? { from: window.from } : {}), ...(window.until ? { until: window.until } : {}) } } : {}),
+    trigger, priority };
+}
+
+/** The rows in force: shipped rows, replaced by a kept row with the same id, less any row ended. */
+export function rowsInForce(shipped, kept) {
+  const byId = new Map(shipped.map(row => [row.id, row]));
+  for (const row of kept) byId.set(row.id, row);
+  return [...byId.values()].filter(row => !row.ended_at);
+}
+
+/** Whether `nowMs` is inside the row's window (a missing end of the window is open). */
+export function inWindow(row, nowMs) {
+  const from = row.window?.from ? Date.parse(row.window.from) : -Infinity;
+  const until = row.window?.until ? Date.parse(row.window.until) : Infinity;
+  return nowMs >= from && nowMs < until;
+}
+
+/** The facts an audience reads for one account (settings.facts). Read from the account's own record, never from an editable one. */
+export function accountFacts({ accountId, plan = 'free', offers = null, capabilities = null, createdAt = null, context = null, setupIncluded = false, setupDone = false, operator = false, attributes = null }) {
+  const policy = setupSettings.policy;
+  return {
+    ...tagAttributes(attributes), account_id: accountId, plan, offers, capabilities, created_at: Number.isFinite(createdAt) ? createdAt : null,
+    cohorts: Array.isArray(context?.cohorts) ? context.cohorts : [], experiments: Array.isArray(context?.experiments) ? context.experiments : [],
+    bucket: accountId ? observerBucket(`${policy.bucket_epoch}:${accountId}`, policy.bucket_count) : null,
+    setup_included: setupIncluded === true, setup_done: setupDone === true, ai_connected: true, operator: operator === true,
+  };
+}
+
+/** The account's creation time (ms) that its audience reads: the date its context record gives, else the date its store first
+ *  saw it, or else the earliest of its sign-up passkeys once found. `passkeys()` is read only when neither date is known, and
+ *  `found` is that passkey date for the caller to keep, so the worker and the account's own store read one answer. */
+export async function createdAtFor({ context = null, known = null, firstSeen = null, passkeys }) {
+  const made = Date.parse(context?.created_at);
+  if (Number.isFinite(made)) return { createdAt: made, found: null };
+  if (Number.isFinite(firstSeen) && known) return { createdAt: firstSeen, found: null };
+  const found = Math.min(...(await passkeys().catch(() => [])).map(passkey => Date.parse(passkey?.created_at)).filter(Number.isFinite));
+  return Number.isFinite(found) ? { createdAt: found, found } : { createdAt: firstSeen, found: null };
+}
+
+/** The facts the work rows' audiences read of one account: its own work facts (`workFacts()` → { created_at, created_known,
+ *  plan, setup_included, setup_done, operator }), its context row, and a creation date found in its sign-up passkeys when
+ *  none is known yet, kept with `noteCreated(ms)`. */
+export async function deliveryFacts({ accountId, workFacts, context = null, passkeys, noteCreated = null }) {
+  const mine = await workFacts();
+  const { createdAt, found } = await createdAtFor({ context, known: mine.created_known, firstSeen: mine.created_at, passkeys });
+  if (found !== null && noteCreated) await noteCreated(found);
+  return accountFacts({ accountId, plan: mine.plan, createdAt, context, setupIncluded: mine.setup_included, setupDone: mine.setup_done, operator: mine.operator });
+}
+
+/** The account fields a rule's audience may name (the same list the work rows read). */
+export const ACCOUNT_RULE_FIELDS = settings.facts;
+
+/** The tags the operator declares and keeps per account (the show-rules record's `attributes`): tags fields after the fixed facts.
+ *  A declaration that repeats a fixed fact, or is not a tags kind, is not a field. */
+export function declaredAccountTags(declared) {
+  const fixed = new Set(ACCOUNT_RULE_FIELDS.map(fact => fact.id));
+  return (Array.isArray(declared) ? declared : []).filter(fact => fact?.kind === 'tags' && typeof fact.id === 'string' && !fixed.has(fact.id));
+}
+
+/** The fields an audience may name for an account: the fixed facts, then the declared tags. */
+export const accountRuleFields = declared => [...ACCOUNT_RULE_FIELDS, ...declaredAccountTags(declared)];
+
+// The owner's kept tags per account, as lists of ids only; a fixed fact of the same name is set after these, so it is never overwritten.
+const tagAttributes = attributes => Object.fromEntries(Object.entries(attributes && typeof attributes === 'object' ? attributes : {})
+  .filter(([, ids]) => Array.isArray(ids) && ids.every(id => typeof id === 'string')));
+
+/** The events that hold for this account right now, from its facts. */
+export function triggersFor(facts, nowMs, rules = settings) {
+  const fresh = Number.isFinite(facts.created_at) && nowMs - facts.created_at <= rules.new_account_hours * 3600000;
+  return ['connect', ...(fresh ? ['account-created'] : []), ...(facts.setup_done ? [] : ['setup-unfinished'])];
+}
+
+/** The handoff for one row (src/agents.mjs hand_off), once per row for the account whose AI it is handed to. */
+export function handoffFor(row, rules = settings) {
+  return { job: row.job, ...(row.said ? { said: row.said } : {}), priority: row.priority ?? rules.default_priority,
+    once_per: `${rules.handoff.once_per_prefix}${row.id}`, input: { [rules.handoff.input_key]: { row: row.id, trigger: row.trigger ?? rules.default_trigger } } };
+}
+
+/** The rows that hold for one account's facts at one time, highest priority first. `matches(tree, fields, facts)` is the
+ *  formula-engine row filter over one row. */
+export async function rowsFor({ rows, facts, nowMs, matches, rules = settings }) {
+  const triggers = new Set(triggersFor(facts, nowMs, rules));
+  const held = [];
+  for (const row of rows) {
+    if (!triggers.has(row.trigger ?? rules.default_trigger) || !inWindow(row, nowMs)) continue;
+    if (row.audience && !(await matches(row.audience, rules.facts, facts))) continue;
+    held.push(row);
+  }
+  return held.sort((a, b) => (b.priority ?? rules.default_priority) - (a.priority ?? rules.default_priority) || (a.id < b.id ? -1 : 1));
+}
+
+/** Delivery for accounts as they connect. `rowsNow(context)` gives the rows in force, `factsOf(accountId, context)` that
+ *  account's facts, `matches(tree, fields, facts, context)` the row filter, `handOff(accountId, handoff, context)` (answering { live: true } when held for an hour only) makes
+ *  the handoff in that account's own store; `context` is whatever the connecting call hands deliver (its environment and
+ *  stores). Each is asked for the connecting account only. Returns deliver(accountId, context) → the row ids newly handed. */
+export function makeWorkDelivery({ rowsNow, factsOf, matches, handOff, now = Date.now, rules = settings }) {
+  const accounts = new Map();
+  const running = new Map();
+  let kept = null;
+  let readingRows = null;
+  const rows = async context => {
+    if (kept && now() - kept.at <= rules.rows_cache_seconds * 1000) return kept.rows;
+    readingRows ??= Promise.resolve().then(async () => {
+      const at = now();
+      const rows = await rowsNow(context);
+      kept = { at, rows };
+      return rows;
+    }).finally(() => { readingRows = null; });
+    return readingRows;
+  };
+  const deliver = async (accountId, context) => {
+    const entry = accounts.get(accountId);
+    if (entry && now() - entry.at < rules.cache_seconds * 1000) return [];
+    const handed = entry?.handed ?? new Set();
+    const nowMs = now();
+    const facts = await factsOf(accountId, context);
+    const due = (await rowsFor({ rows: await rows(context), facts, nowMs, matches: (tree, fields, row) => matches(tree, fields, row, context), rules })).filter(row => !handed.has(row.id));
+    const done = [];
+    for (const row of due) {
+      // A plan that keeps nothing holds the work an hour in memory ({ live: true }): not remembered as handed, so once it has run out an unfinished account is handed it again.
+      const made = await handOff(accountId, handoffFor(row, rules), context);
+      if (!made?.live) handed.add(row.id);
+      done.push(row.id);
+    }
+    // Remembered only once every handoff was made: a failure leaves the account to be tried again at its next call.
+    accounts.set(accountId, { at: nowMs, handed });
+    if (accounts.size > 5000) accounts.delete(accounts.keys().next().value);
+    return done;
+  };
+  return {
+    deliver(accountId, context = {}) {
+      // A slow background delivery can overlap many tool replies. Keep one run per account;
+      // the handoff owner's once_per still fences retries and other Worker instances.
+      if (running.has(accountId)) return running.get(accountId);
+      const work = Promise.resolve().then(() => deliver(accountId, context))
+        .finally(() => { if (running.get(accountId) === work) running.delete(accountId); });
+      running.set(accountId, work);
+      return work;
+    },
+  };
+}
+
+/** One row's own owner (src/book-handlers.mjs 'work-row', one record book per row id): it keeps the row and publishes
+ *  it for every Worker under KEY{id} in the edge store, where rowsNow reads it. Operations: read { id }, save { row },
+ *  end { id, earlier } (earlier: the row in force being ended, a shipped one included). */
+export function makeWorkRow({ list, put, kv, now = () => new Date(), rules = settings }) {
+  const held = () => list('row')[0] ?? null;
+  const publish = async row => { await kv.put(`${KEY}${row.id}`, JSON.stringify(row)); return row; };
+  const own = id => { if (held() && held().id !== id) throw new WorkForAisError('This book keeps another row of work.'); };
+  return {
+    async run(operation, input = {}) {
+      if (operation === 'save') {
+        const checked = checkedRow(input.row, rules);
+        own(checked.id);
+        const row = { ...checked, saved_at: now().toISOString() };
+        put('row', row);
+        return publish(row);
+      }
+      if (operation === 'end') {
+        own(input.id);
+        const earlier = held() ?? input.earlier;
+        if (!earlier || earlier.id !== input.id) throw new WorkForAisError(rules.words.nothing_to_end);
+        const row = { ...earlier, ended_at: now().toISOString() };
+        put('row', row);
+        return publish(row);
+      }
+      if (operation === 'read') { own(input.id); return held(); }
+      throw new WorkForAisError('Work for AIs can be listed, saved or ended.');
+    },
+  };
+}
+
+/** The kept rows every Worker reads: each published by its own row's book. */
+export async function readWorkRows(kv) {
+  const rows = [];
+  let cursor;
+  do {
+    const page = await kv.list({ prefix: KEY, ...(cursor ? { cursor } : {}) });
+    for (const key of page.keys) { const row = await kv.get(key.name, 'json'); if (row) rows.push(row); }
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  return rows;
+}
+
+/** The operations on the rows (src/person-store.mjs /work-for-ais, the operator's only): list, save, end, each save or
+ *  end reaching the row's own book. */
+export function workRowsOf(env, { now = () => new Date(), rules = settings } = {}) {
+  const book = id => hostOf(env, { kind: 'record-book', key: workRowBookName(id) });
+  const kept = () => readWorkRows(env.APP_KV);
+  return {
+    async list() { const rows = await kept(); return { shipped: SHIPPED_ROWS, kept: rows, in_force: rowsInForce(SHIPPED_ROWS, rows) }; },
+    async save({ row } = {}) {
+      const checked = checkedRow(row, rules);
+      const rows = await kept();
+      // A row whose window has ended reaches no one again; it is let go so it never holds a place. A kept row with a
+      // shipped row's id stays, since letting it go would bring the shipped row back.
+      const at = now().getTime();
+      const shipped = new Set(SHIPPED_ROWS.map(item => item.id));
+      let holding = rows.length;
+      for (const item of rows) if (item.window?.until && Date.parse(item.window.until) <= at && !shipped.has(item.id) && item.id !== checked.id) { await env.APP_KV.delete(`${KEY}${item.id}`); holding -= 1; }
+      if (!rows.some(item => item.id === checked.id) && holding >= rules.limits.rows) throw new WorkForAisError(`${rules.words.too_many} ${limitSaid('work-for-ais.rows', rules.limits.rows, holding)}`);
+      return book(checked.id).run('work-row', 'save', { row });
+    },
+    async end({ id } = {}) {
+      const earlier = (await kept()).find(row => row.id === id) ?? SHIPPED_ROWS.find(row => row.id === id);
+      if (!earlier) throw new WorkForAisError(rules.words.nothing_to_end);
+      return book(id).run('work-row', 'end', { id, earlier });
+    },
+  };
+}
+export const workRowBookName = id => `work-row:${id}`;
+/** The answer to one request on the rows (src/person-store.mjs /work-for-ais): refused for every account but the operator's,
+ *  else `run(operation, input)` (workRowsOf: each row's own book) read or changed. Returns { status, body }. */
+export async function answerWorkRequest({ operator, request, run, rules = settings }) {
+  if (operator !== true) return { status: 403, body: { error: rules.words.operator_only } };
+  try { const { operation, ...input } = request ?? {}; return { status: 200, body: await run(operation, input) }; }
+  catch (error) { return { status: 400, body: { error: String(error?.message ?? error) } }; }
+}
+export const workRowOperations = ['list', 'save', 'end'];
+
+/** The operator's /work-for-ais and /work-for-ais/read (POST only): refused for every other account, else the rows are listed,
+ *  saved or ended through workRowsOf (each row's own book). The read has its own path, so it is never told apart by a body. */
+export async function handleWorkForAisRequest(request, { env, operator }) {
+  const path = new URL(request.url).pathname;
+  const answer = await answerWorkRequest({ operator, request: path === '/work-for-ais/read' ? { operation: 'list' } : await request.json().catch(() => ({})),
+    run: (operation, input) => { if (!workRowOperations.includes(operation)) throw new WorkForAisError('Work for AIs can be listed, saved or ended.'); return workRowsOf(env)[operation](input); } });
+  return Response.json(answer.body, { status: answer.status });
+}
+
+// The operator's tools. The route refuses every other account (src/person-store.mjs /work-for-ais).
+export const workForAisTools = call => [
+  { name: 'read_work_for_ais', description: 'Operator only. Reads the work Trillion HQ sends to customers\' AIs: rows that ship with the service, rows added since, and the rows in force. Each row: id, said (words the person may see), job (what their AI does), audience (a formula-engine rule group over account facts: account_id, plan, created_at, cohorts, experiments, bucket 0 to 99, setup_included, setup_done, ai_connected, operator; none means everyone), window { from, until }, trigger (connect, account-created or setup-unfinished) and priority 0 to 9.', inputSchema: { type: 'object', properties: {} }, run: () => call('/work-for-ais/read', { operation: 'list' }) },
+  { name: 'send_work_to_ais', description: 'Operator only. Sends work to customers\' AIs: row { id, job, said, audience, window, trigger, priority } adds it or replaces the row with that id, and end_id ends a row. Each customer\'s AI is handed it once, when it connects, as an ordinary handoff to take_work and finish_work. Leave audience out for everyone; an A/B group is a bucket range, for example a rule on bucket between 0 and 49. Any other account is refused.', inputSchema: { type: 'object', properties: { row: { type: 'object', required: ['id', 'job'], properties: { id: { type: 'string' }, job: { type: 'string' }, said: { type: 'string' }, audience: { type: 'object' }, window: { type: 'object', properties: { from: { type: 'string', format: 'date-time' }, until: { type: 'string', format: 'date-time' } } }, trigger: { type: 'string', enum: Object.keys(settings.triggers) }, priority: { type: 'integer', minimum: 0, maximum: 9 } } }, end_id: { type: 'string' } } }, run: input => call('/work-for-ais', input?.end_id ? { operation: 'end', id: input.end_id } : { operation: 'save', row: input?.row }) },
+];
+
+export const workForAisAnnotations = {
+  read_work_for_ais: { title: 'Read the work sent to customers\' AIs', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  send_work_to_ais: { title: 'Send work to customers\' AIs', readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+};

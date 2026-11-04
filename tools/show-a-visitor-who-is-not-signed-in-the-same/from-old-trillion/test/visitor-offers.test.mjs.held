@@ -1,0 +1,62 @@
+import { offerRows } from '../../../decide-which-subscription-and-billing-profile-a-purchase/src/offer-rows.mjs';
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { offersForVisitor, sharedCookieDomain, visitorCookies, visitorOffers } from '../src/visitor-offers.mjs';
+import { visitorOf } from '../src/visitor-mark.mjs';
+import { saleOffers } from '../src/payment.mjs';
+import started from '../records/service-price-experiments.json' with { type: 'json' };
+import sales from '../../../sales/src/sales.json' with { type: 'json' };
+
+const PRIMARY = 'https://trillion.example.com';
+
+test('the mark is shared across the primary address and its parent domain, and nowhere else', () => {
+  assert.equal(sharedCookieDomain(PRIMARY, PRIMARY), 'example.com');
+  assert.equal(sharedCookieDomain('https://example.com', PRIMARY), 'example.com');
+  assert.equal(sharedCookieDomain('https://trillion.someone.workers.dev', PRIMARY), null);
+  assert.equal(sharedCookieDomain('https://a.com', 'https://a.com'), null);
+});
+
+test('setting the shared mark clears the one kept for this address only', () => {
+  const [clear, keep] = visitorCookies('ab'.repeat(16), PRIMARY, PRIMARY);
+  assert.match(clear, /^nm_visitor=; .*Max-Age=0/);
+  assert.doesNotMatch(clear, /Domain=/);
+  assert.match(keep, new RegExp(`^nm_visitor=${'ab'.repeat(16)};.*Domain=example\\.com`));
+  assert.equal(visitorCookies('ab'.repeat(16), 'https://trillion.someone.workers.dev', PRIMARY).length, 1);
+});
+
+test('a malformed mark is skipped for a well-formed one', () => {
+  const good = 'cd'.repeat(16);
+  assert.equal(visitorOf(new Request('https://x', { headers: { cookie: `nm_visitor=nope; nm_visitor=${good}` } })), good);
+  assert.equal(visitorOf(new Request('https://x', { headers: { cookie: 'nm_visitor=nope' } })), null);
+});
+
+test('the public page shows exactly the offers sales.json names for it, in that order: the free plan, the paid plan and the session', async () => {
+  const env = { APP_KV: { get: async () => null, list: async () => ({ keys: [], list_complete: true }) } };
+  const response = await visitorOffers(new Request(`${PRIMARY}/billing/offers`), env, PRIMARY, PRIMARY);
+  const { offers } = await response.json();
+  // With no price test running, the plan's test arms (variants of it, src/offer-rows.mjs) are not shown beside it.
+  const variants = new Set(offerRows.records.filter(offer => offer.variant_of).map(offer => offer.id));
+  assert.deepEqual(offers.map(offer => offer.id), sales.public_page.offer_ids.filter(id => !variants.has(id)));
+  assert.ok(sales.offer_ids.some(id => !sales.public_page.offer_ids.includes(id)), 'other offers stay on sale off the public page');
+  // An application card (an offer with an apply path) is the operator's own program, which is not in the shipped
+  // public page, so this rule is checked only when a card is on the page.
+  const application = offers.find(offer => offer.price_visibility === 'after-acceptance');
+  if (application) {
+    assert.deepEqual(application.options, [], 'an application card does not publish its configured offer price');
+    assert.match(application.href, /\/apply$/);
+    assert.doesNotMatch(JSON.stringify(application), /1,?500|150000/);
+  }
+});
+
+test('a visitor on an arm of the plan\'s price test is shown that arm named as a version of the plan', () => {
+  const plan = started.experiments.find(row => row.arms?.some(arm => arm.offer_id === 'offer:trillion'));
+  const experiment = { id: plan.experiment_id, surface: plan.surface, state: 'running', arms: plan.arms.map(arm => ({ id: arm.offer_id, offer_id: arm.offer_id, weight: arm.weight ?? 1 })) };
+  const config = { links: saleOffers().flatMap(offer => (offer.price_options ?? []).map(option => ({ price_option_id: option.id, url: `https://buy.stripe.com/${option.id}` }))), price_experiments: [experiment] };
+  const seen = new Set();
+  for (let at = 0; at < 60; at += 1) {
+    const plans = offersForVisitor(`visitor-${at}`, config).filter(offer => offer.id === 'offer:trillion' || offer.variant_of === 'offer:trillion');
+    assert.equal(plans.length, 1, 'every visitor is shown exactly one version of the plan, findable by the plan\'s id');
+    seen.add(plans[0].id);
+  }
+  assert.ok(seen.size > 1, 'visitors land on different arms');
+});

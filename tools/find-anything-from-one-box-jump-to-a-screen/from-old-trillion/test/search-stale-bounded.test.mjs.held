@@ -1,0 +1,118 @@
+// test/search-stale-bounded.test.mjs
+// Whether search has work waiting is asked on every scheduler arm and every search, so it must cost the same however
+// large a backlog or an index is: existence seeks, never a group or a walk of the queue (src/search.mjs staleLanes,
+// src/record-search-index.mjs stale), and record text catch-up reads only what the log says changed.
+import assert from 'node:assert/strict';
+import { recordFeedWriter } from "../../../shared-code/src/search-feed.mjs";
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { recordSearchIndex } from '../src/record-search-index.mjs';
+import { makeSearch } from '../src/search.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+
+// A handle that counts statements and the rows each hands back.
+function counted() {
+  const host = sqliteHost(':memory:');
+  const seen = [];
+  const sql = { exec(query, ...params) { const cursor = host.sql.exec(query, ...params); seen.push({ query, params, rows: cursor.toArray().length }); return cursor; } };
+  return { ...host, sql, seen, take: () => seen.splice(0) };
+}
+// A search owner always runs over a person's store, which holds the files and their results (src/person-store.mjs).
+function searchOver(sql) {
+  const files = namespaceStore(sql);
+  resultsStore(sql, identity => files.identitiesOf(identity));
+  return makeSearch({ sql });
+}
+const cost = seen => ({ statements: seen.length, rows: seen.reduce((sum, read) => sum + read.rows, 0) });
+const lane = { id: 'messages', record_type: 'message', text_paths: ['$.text'] };
+const valueAt = (value, path) => value[path.slice(2)];
+
+async function recordsOf(count) {
+  const host = counted();
+  const { eeaf } = decisionStore(host.sql, { transaction: host.transaction });
+  eeaf.write(Array.from({ length: count }, (_, n) => ({ id: `m${String(n).padStart(6, '0')}`, type: 'message', value: { text: `hello world ${n}` } })));
+  const index = recordSearchIndex({ sql: host.sql, records: recordFeedWriter(eeaf), transaction: host.transaction, lanes: [lane], valueAt });
+  for (let wake = 0; wake < 1000 && (await index.stale()).size; wake += 1) await index.catchUp(500);
+  return { ...host, eeaf, index };
+}
+
+test('record text stale() and behind() cost the same over N and 4N changed records still queued', async () => {
+  const measured = [];
+  for (const count of [200, 800]) {
+    const { sql, index, take } = await recordsOf(10);
+    sql.exec("INSERT INTO search_record_changed (lane, identity) WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < ?) SELECT 'messages', 'queued' || i FROM n", count);
+    take();
+    assert.equal((await index.stale()).size, 1, 'a queued record makes the lane stale');
+    const stale = cost(take());
+    (await index.behind());
+    const behind = cost(take());
+    measured.push({ count, stale, behind });
+  }
+  assert.deepEqual(measured[1].stale, measured[0].stale, `stale() over 4N equals N: ${JSON.stringify(measured)}`);
+  assert.deepEqual(measured[1].behind, measured[0].behind, `behind() over 4N equals N: ${JSON.stringify(measured)}`);
+  assert.ok(measured[0].stale.rows <= 2, 'stale() reads the lanes\' state rows, never the queue');
+});
+
+test('record text stale() asks the queue by its key, never by a scan', async () => {
+  const { sql, index, take } = await recordsOf(5);
+  take();
+  (await index.stale());
+  const asked = take().find(read => /search_record_changed/.test(read.query));
+  assert.ok(asked, 'stale() asks whether the queue holds anything');
+  const plan = sql.exec(`EXPLAIN QUERY PLAN ${asked.query}`, ...asked.params).toArray().map(row => row.detail).join('\n');
+  assert.doesNotMatch(plan, /SCAN (search_record_changed|search_record_seen)\b/, plan);
+});
+
+test('a catch-up wake over a log with nothing new reads the same over N and 4N indexed records', async () => {
+  const measured = [];
+  for (const count of [100, 400]) {
+    const { index, take } = await recordsOf(count);
+    take();
+    await index.catchUp(50);
+    measured.push({ count, ...cost(take()) });
+  }
+  assert.equal(measured[1].statements, measured[0].statements, `statements: ${JSON.stringify(measured)}`);
+  assert.ok(measured[1].rows <= measured[0].rows, `rows: ${JSON.stringify(measured)}`);
+});
+
+test('a changed record is picked up once and a deleted one is removed, with the rest left alone', async () => {
+  const { eeaf, index, take } = await recordsOf(60);
+  eeaf.write([{ id: 'm000007', type: 'message', value: { text: 'something brand new' } }]);
+  take();
+  await index.catchUp(50);
+  const wake = take();
+  assert.deepEqual(index.candidates(lane, ['brand']).map(row => row.id), ['m000007']);
+  assert.equal(wake.filter(read => /FROM search_record_seen WHERE lane = \? AND identity = \?/.test(read.query)).length, 1, 'the log named one record, so one record was looked up');
+  assert.equal((await index.stale()).size, 0);
+  eeaf.write([{ id: 'm000007', type: 'message', value: null }]);
+  await index.catchUp(50);
+  assert.deepEqual(index.candidates(lane, ['brand']).map(row => row.id).filter(id => id === 'm000007'), []);
+});
+
+test('nothing is missed when the store starts again over the same data', async () => {
+  const first = await recordsOf(40);
+  first.eeaf.write([{ id: 'm000003', type: 'message', value: { text: 'written before the reset' } }]);
+  const again = recordSearchIndex({ sql: first.sql, records: recordFeedWriter(first.eeaf), transaction: first.transaction, lanes: [lane], valueAt });
+  assert.equal((await again.stale()).size, 1, 'the kept log position still sees the write');
+  for (let wake = 0; wake < 20 && (await again.stale()).size; wake += 1) await again.catchUp(50);
+  assert.equal((await again.stale()).size, 0);
+  assert.deepEqual(again.candidates(lane, ['reset']).map(row => row.id), ['m000003']);
+});
+
+test('search lanes: stale() over N and 4N queued results costs the same, and a drained queue is not stale', async () => {
+  const measured = [];
+  for (const count of [200, 800]) {
+    const { sql, take } = counted();
+    const search = searchOver(sql);
+    sql.exec("INSERT INTO search_changed (lane, identity) WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < ?) SELECT 'contents-words', 'q' || i FROM n", count);
+    take();
+    assert.ok((await search.stale()) >= 1, 'queued results make the account stale');
+    measured.push({ count, stale: cost(take()) });
+  }
+  assert.deepEqual(measured[1].stale, measured[0].stale, `stale() over 4N equals N: ${JSON.stringify(measured)}`);
+  const { sql } = counted();
+  const search = searchOver(sql);
+  assert.equal((await search.stale()), 0, 'nothing queued, nothing stale');
+});

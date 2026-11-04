@@ -1,0 +1,119 @@
+// src/service-records.mjs
+//
+// Purpose: the operator account's records that every account reads (src/service-records.json: the show rules it gives,
+// its per-account setup context, the device releases, the client programs it hosts, the service brand), published by
+// their one owner into the service's edge store (Workers KV, APP_KV). Every reader reads its own region's copy, so no
+// Durable Object stands on the read path: not the operator's store, which used to answer every account's rule
+// decision, setup screen and AI connection (2026-10-14: it refused writes for a day), and not one shared service
+// object either, which would only move that funnel.
+//
+// Non-Negotiable Invariants:
+//   1. Only a label src/service-records.json names, or one starting with one of its prefixes, is published or read.
+//   2. One record is one versioned key, service-record:{label} holding { label, value, identity, at }. Its one owner
+//      publishes the value it read at `at`; a publication no newer than the kept one, or with the same identity,
+//      writes nothing, so a late arrival never brings back an older value.
+//   3. A label never published reads as null: the reader shows its own empty state. Nothing asks the owner instead.
+//   4. A reader keeps a read for read_seconds in its isolate and asks KV with the same edge cache time (at least KV's
+//      30-second floor); a failed read is never kept.
+//
+//   isServiceRecordLabel(label) → boolean
+//   serviceRecordKey(label) → the KV key
+//   publishServiceRecords(kv, [{ label, value, at }]) → { published }
+//   serviceRecord(env, label, { seconds, now }) → value | null
+//   forgetServiceRecord(label)                    the next read in this isolate goes to KV
+//   wantServiceRecordRefresh(env, label, window) → whether this is the window's first want
+//   makeServiceRefresh({ list, put }) → { run('want', { label, window }) → { first } }
+import settings from './service-records.json' with { type: 'json' };
+import { workspaceValueIdentity } from '../../../set-up-my-account/read-data/conflicts.mjs';
+import { hostOf } from './resource-host.mjs';
+
+const KEY = 'service-record:';
+const KV_FLOOR_SECONDS = 30;
+export const serviceRecordSettings = settings;
+/** What the operator's earlier store still publishes: every label and prefix except the workspace records its own
+ *  records resource writes and publishes itself (own_record_sources, not derived), whose store copy stopped at the carry. */
+export function operatorStorePublished() {
+  const owned = Object.entries(settings.own_record_sources ?? {}).filter(([label]) => !label.startsWith('_') && !Object.hasOwn(settings.derived ?? {}, label));
+  const labels = new Set(owned.map(([label]) => label)), prefixes = new Set(owned.flatMap(([, source]) => source.workspace_prefixes ?? []));
+  return { labels: settings.labels.filter(label => !labels.has(label)), prefixes: settings.prefixes.filter(prefix => !prefixes.has(prefix)) };
+}
+export const isServiceRecordLabel = label => typeof label === 'string' && label.length > 0
+  && (settings.labels.includes(label) || settings.prefixes.some(prefix => label.startsWith(prefix)));
+const checked = label => {
+  if (!isServiceRecordLabel(label)) throw new Error('The service keeps no record by that name.');
+  return label;
+};
+export const serviceRecordKey = label => KEY + checked(label);
+
+export async function publishServiceRecords(kv, records) {
+  if (!kv) throw new Error('This deploy has no edge store to publish the service records to.');
+  if (!Array.isArray(records) || !records.length || records.length > settings.publish_most) throw new Error(`Publish between 1 and ${settings.publish_most} records at a time.`);
+  let published = 0;
+  for (const record of records) {
+    const key = serviceRecordKey(record?.label);
+    if (!Number.isFinite(record.at)) throw new Error('Each published record needs the time it was read.');
+    const value = record.value ?? null;
+    const identity = workspaceValueIdentity(value);
+    const before = await kv.get(key, { type: 'json' });
+    if (before && (before.at > record.at || before.identity === identity)) continue;
+    await kv.put(key, JSON.stringify({ label: record.label, value, identity, at: record.at }));
+    forgetServiceRecord(record.label);
+    published += 1;
+  }
+  return { published };
+}
+
+// Kept per KV binding, so two services (or two tests) never read each other's records.
+const readsByBinding = new WeakMap();
+const bindings = new Set();
+export function serviceRecord(env, label, { seconds = settings.read_seconds, now = Date.now } = {}) {
+  const kv = env?.APP_KV;
+  if (!isServiceRecordLabel(label) || !kv) return Promise.resolve(null);
+  if (!readsByBinding.has(kv)) { readsByBinding.set(kv, new Map()); bindings.add(new WeakRef(kv)); }
+  const kept = readsByBinding.get(kv);
+  const found = kept.get(label);
+  if (found && (found.reading || now() - found.at < seconds * 1000)) return found.reading ?? Promise.resolve(found.value);
+  const reading = Promise.resolve()
+    .then(() => kv.get(serviceRecordKey(label), { type: 'json', cacheTtl: Math.max(KV_FLOOR_SECONDS, seconds) }))
+    .then(record => record?.value ?? null);
+  kept.set(label, { reading });
+  reading.then(value => { if (kept.get(label)?.reading === reading) kept.set(label, { at: now(), value }); },
+    () => { if (kept.get(label)?.reading === reading) kept.delete(label); });
+  return reading;
+}
+
+export function forgetServiceRecord(label) {
+  for (const ref of bindings) {
+    const binding = ref.deref();
+    if (!binding) { bindings.delete(ref); continue; }
+    readsByBinding.get(binding)?.delete(label);
+  }
+}
+
+// A record its owner refreshes on demand (a device release's observation, src/device-distribution.mjs) is asked for
+// once per refresh window across every reader: this isolate asks the label's own refresh owner (one record book per
+// label, src/book-handlers.mjs 'service-refresh') once per window, and only the first asker of a window wakes the owner.
+const wanted = new Map();
+export async function wantServiceRecordRefresh(env, label, window) {
+  const key = `${serviceRecordKey(label)}|${window}`;
+  if (wanted.has(key)) return false;
+  wanted.set(key, true);
+  if (wanted.size > 200) wanted.delete(wanted.keys().next().value);
+  const book = hostOf(env, { kind: 'record-book', key: `service-refresh:${label}` });
+  return Boolean((await book.run('service-refresh', 'want', { label, window }))?.first);
+}
+
+/** The refresh owner of one record (src/book-handlers.mjs 'service-refresh'): the first `want` of each window wins. */
+export function makeServiceRefresh({ list, put }) {
+  return {
+    run(operation, input = {}) {
+      if (operation !== 'want') throw new Error('A service record refresh can only be wanted.');
+      const label = checked(input.label);
+      if (!Number.isSafeInteger(input.window)) throw new Error('A wanted refresh names its window.');
+      const before = list('wanted').find(row => row.label === label);
+      if (before && before.window >= input.window) return { first: false };
+      put('wanted', { label, window: input.window });
+      return { first: true };
+    },
+  };
+}

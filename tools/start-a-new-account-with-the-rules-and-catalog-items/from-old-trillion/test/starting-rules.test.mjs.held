@@ -1,0 +1,320 @@
+// Rules every account gets by itself (src/starting-rules.mjs, records/starting-rules.json), read from the deploy and
+// never copied into the store (src/shipped-defaults.mjs): what arrives through the one door (src/inbound.mjs) reaches an
+// AI through the trigger engine and the workflow engine, with no rule written by hand; every connected account brings
+// one rule per event its event source declares, and Trillion listens; a rule the person turned off stays off and one
+// they removed never comes back; an account that kept copies from before keeps only its changes.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { sqliteHost } from '../src/local-store.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { makeAutomations } from '../src/automations.mjs';
+import { makeEventRules } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/events.mjs';
+import { overlayFacts, overlayRecords } from '../src/shipped-defaults.mjs';
+import { messages } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
+import { inbound } from '../src/inbound.mjs';
+import { keptAsChanges, shippedAutomations, shippedEventRules, startingRules } from '../src/starting-rules.mjs';
+import { recipeProblems } from '../../../write-a-job-done-in-several-steps-have/from-old-trillion/src/workflows.mjs.held';
+import { readToolData } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
+import { sharedWorkshopPayloads } from '../scripts/workshop-rows.mjs';
+import startingRuleRows from '../records/starting-rules.json' with { type: 'json' };
+import workflowRecipes from '../records/workflow-recipe-records.json' with { type: 'json' };
+import eventSourceRows from '../records/workshop-event-source-records.json' with { type: 'json' };
+import { builtInToolsForTests } from './engine-tools-for-tests.mjs';
+import { inProcessMcp } from './in-process-mcp.mjs';
+
+const sources = eventSourceRows.records.map(record => record.payload);
+
+// One person's store as a Durable Object holds it: records and event rules read through the shipped defaults exactly as
+// src/person-store.mjs wires them, the event rules (src/events.mjs) over facts kept in memory.
+function person({ connections = [], data = startingRuleRows } = {}) {
+  const { sql, transaction } = sqliteHost(':memory:');
+  const runs = [];
+  let automations = null;
+  const store = decisionStore(sql, { transaction, watch: { active: () => automations.watching(), changed: records => automations.changed(records) } });
+  const kept = new Map();
+  const facts = {
+    read: async name => structuredClone(kept.get(name) ?? null),
+    list: async prefix => [...kept].filter(([name]) => name.startsWith(prefix)).map(([, value]) => structuredClone(value)),
+    write: async (name, value) => { kept.set(name, structuredClone(value)); },
+    reset: async name => { kept.delete(name); },
+  };
+  const eventRules = makeEventRules({
+    workshop: { run: async () => { throw new Error('no tool runs here'); } },
+    workflows: { recipeOf: async () => ({}), start: async () => ({ run_id: 'run_event' }) },
+    facts: overlayFacts(facts, async () => shippedEventRules(data, connections, sources), { prefix: 'event-rule:', nameOf: rule => `event-rule:${rule.rule_id}`, ignore: ['set_at'] }),
+    routes: {}, sources: async () => sources, settleMs: 0,
+  });
+  const records = overlayRecords(store.eeaf, shippedAutomations(data), { ignore: ['set_at', 'revision'] });
+  automations = makeAutomations({
+    eeaf: records, sql, builtIn: builtInToolsForTests, partition: 'person:test', eventRules: () => eventRules,
+    check: async () => {},
+    run: async (then, input, request_key) => {
+      const earlier = runs.find(item => item.request_key === request_key);
+      if (earlier) return earlier.reply;
+      const reply = { run_id: `run_${runs.length + 1}` };
+      runs.push({ then, input, request_key, reply });
+      return reply;
+    },
+  });
+  const listened = [];
+  const starting = startingRules({
+    data,
+    connections: async () => connections,
+    sources: async () => sources,
+    listening: async () => listened,
+    listen: async source_id => { listened.push(source_id); },
+  });
+  const door = inbound({ kept: messages(store.eeaf), eeaf: store.eeaf, arrivalsOf: () => [] });
+  const eventRule = async rule_id => (await eventRules.list()).rules.find(rule => rule.rule_id === rule_id);
+  return { store, records, automations, eventRules, eventRule, facts: kept, rawFacts: facts, runs, listened, starting, door };
+}
+
+const note = { route: 'Apple Notes', source_id: 'x-coredata://note/p42', title: 'Dinner', text: 'Book the Tally dinner for Friday', at: '2026-09-28T09:00:00Z' };
+
+test('what arrives through the door reaches an AI by itself: the starting rule starts the hand-off workflow once, with the job and every detail', { timeout: 900_000 }, async () => {
+  const p = person();
+  const received = p.door.receive(note);
+  await p.automations.settled();
+  assert.equal(p.runs.length, 1);
+  const [run] = p.runs;
+  assert.deepEqual(run.then, { workflow_id: 'workflow:hand-to-an-agent' });
+  assert.match(run.input.job, /wrote this in Apple Notes, titled "Dinner"/);
+  assert.match(run.input.job, /Book the Tally dinner for Friday$/);
+  assert.equal(run.input.arrived.route, 'Apple Notes');
+  assert.equal(run.input.arrived.message_id, received.message_id);
+  assert.equal(run.input.arrived.from_person, true);
+  p.door.receive({ ...note });
+  await p.automations.settled();
+  assert.equal(p.runs.length, 1, 'a carrier resending the same note starts nothing new');
+  assert.deepEqual(p.store.eeaf.ids('trigger-rule'), [], 'the rule that ran was never copied into the store');
+});
+
+test('a starting rule the person turned off stays off, and one they removed is never set up again', { timeout: 900_000 }, async () => {
+  const p = person();
+  await p.automations.setRule({ rule_id: 'starting:arrivals', enabled: false });
+  p.door.receive(note);
+  await p.automations.settled();
+  assert.equal(p.runs.length, 0, 'an off rule hands nothing to anyone');
+  assert.equal((await p.automations.listRules()).rules.find(rule => rule.rule_id === 'starting:arrivals').enabled, false);
+  await p.automations.setRule({ rule_id: 'starting:arrivals', enabled: true });
+  // Every edited rule version now retains set_by (automations.mjs): switching a
+  // default back on restores its exact behavior while keeping that AI attribution.
+  assert.deepEqual(p.store.eeaf.ids('trigger-rule'), ['trigger-rule:starting:arrivals']);
+  assert.deepEqual(p.store.eeaf.read('trigger-rule:starting:arrivals'),
+    JSON.parse(JSON.stringify({ ...p.records.shipped('trigger-rule:starting:arrivals'), set_by: 'ai' })),
+    'the only retained change is who set this version; the shipped behavior is restored');
+  await p.automations.removeRule({ rule_id: 'starting:arrivals' });
+  assert.equal((await p.automations.listRules()).rules.some(rule => rule.rule_id === 'starting:arrivals'), false);
+  assert.deepEqual(p.store.eeaf.read('default-change:trigger-rule:starting:arrivals').removed, true, 'its removal is the one thing kept');
+  const reset = await p.automations.resetDefault({ rule_id: 'starting:arrivals' });
+  assert.equal(reset.made_by, 'trillion', 'put back, Trillion\'s version is there again');
+  assert.equal(reset.enabled, true);
+});
+
+test('each connected account brings one rule per event its source declares, and Trillion listens; an unconnected one brings nothing', async () => {
+  const p = person({ connections: [{ vendor: 'instagram', status: 'connected' }, { vendor: 'linear', status: 'connected' }, { vendor: 'facebook-messenger', status: 'needs_reconnect' }] });
+  const { problems } = await p.starting.ensure();
+  assert.deepEqual(problems, []);
+  const instagram = sources.find(source => source.connects_with?.vendor === 'instagram');
+  const ids = (await p.automations.listRules()).rules.map(rule => rule.rule_id);
+  assert.deepEqual(ids.filter(id => id.startsWith('starting:events:')).sort(), instagram.events.map(event => `starting:${instagram.id}:${event.name}`).sort());
+  assert.deepEqual(p.listened, [instagram.id]);
+  const comment = await p.eventRule(`starting:${instagram.id}:comment`);
+  assert.deepEqual(comment.when ?? { source_id: comment.source_id, event: comment.event }, { source_id: instagram.id, event: 'comment' });
+  assert.equal(comment.then.workflow_id, 'workflow:hand-to-an-agent');
+  assert.match(comment.then.input.job, /A new comment arrived on Comments and messages on an Instagram professional account/);
+  assert.deepEqual(comment.then.input.arrived.text, { fill: { from: 'event', field: 'text' } }, 'every field the source declares is filled from the event');
+  assert.ok(!ids.some(id => id.includes('facebook')), 'a connection that needs signing in again brings nothing yet');
+  assert.equal(p.facts.size, 0, 'none of them is written into the store');
+});
+
+test('a connected Gmail account and a connected Notion account each bring their starting rules, and Trillion starts reading both', async () => {
+  // The rows as the Worker admits them (parts/ai-tool-catalog), not only as written.
+  const admitted = readToolData((await sharedWorkshopPayloads()).payloads.map(payload => ({ payload }))).event_sources;
+  const byVendor = vendor => admitted.find(source => source.connects_with?.vendor === vendor);
+  const gmail = byVendor('google-account');
+  const notion = byVendor('notion');
+  assert.equal(gmail?.id, 'events:gmail', 'the Gmail source is admitted and belongs to the Google account connection');
+  assert.equal(notion?.id, 'events:notion', 'the Notion source is admitted and belongs to the Notion connection');
+  const p = person({ connections: [{ vendor: 'google-account', status: 'connected' }, { vendor: 'notion', status: 'connected' }] });
+  const { problems } = await p.starting.ensure();
+  assert.deepEqual(problems, []);
+  assert.deepEqual((await p.automations.listRules()).rules.map(rule => rule.rule_id).filter(id => id.startsWith('starting:events:')).sort(), ['starting:events:gmail:mail', 'starting:events:notion:page-added', 'starting:events:notion:page-edited']);
+  assert.deepEqual([...p.listened].sort(), ['events:gmail', 'events:notion']);
+  const mail = await p.eventRule('starting:events:gmail:mail');
+  assert.equal(mail.then.workflow_id, 'workflow:hand-to-an-agent');
+  for (const field of ['message_id', 'from', 'subject', 'text']) assert.deepEqual(mail.then.input.arrived[field], { fill: { from: 'event', field } }, `the mail's ${field} reaches the AI, read in full after listing`);
+  const edited = await p.eventRule('starting:events:notion:page-edited');
+  for (const field of ['page_id', 'address', 'edited_at']) assert.deepEqual(edited.then.input.arrived[field], { fill: { from: 'event', field } });
+  await p.starting.ensure();
+  assert.deepEqual([...p.listened].sort(), ['events:gmail', 'events:notion'], 'listened to once');
+});
+
+test('every event source names the connection it belongs to, so connecting the account is all it takes', () => {
+  for (const source of sources) assert.equal(typeof source.connects_with?.vendor, 'string', `${source.id} names its connection`);
+});
+
+test('the hand-off workflow is a valid shipped workflow that hands the job, word for word, to whichever AI takes it first', async () => {
+  const row = workflowRecipes.records.find(record => record.id === 'hand-to-an-agent').payload;
+  assert.deepEqual(recipeProblems(row), []);
+  const handed = new Map();
+  const agents = {
+    handOff: async ({ job, to_agent, input, request_key }) => { handed.set(request_key, { handoff_id: `h-${handed.size + 1}`, job, to_agent, input, state: 'open' }); return { handoff_id: handed.get(request_key).handoff_id }; },
+    read: async ({ handoff_id }) => [...handed.values()].find(item => item.handoff_id === handoff_id),
+  };
+  const { tool } = inProcessMcp({ agents });
+  const started = (await tool('start_workflow', { workflow_id: 'workflow:hand-to-an-agent', input: { job: 'Book the Tally dinner for Friday', arrived: { route: 'Email', message_id: 'message:1' } }, request_key: 'a1' })).data;
+  assert.equal(handed.size, 1);
+  const [only] = handed.values();
+  assert.equal(only.to_agent, null, 'no agent named: whichever takes it first');
+  assert.equal(only.input.do, 'Book the Tally dinner for Friday');
+  assert.deepEqual(only.input.arrived, { route: 'Email', message_id: 'message:1' });
+  assert.equal(started.state, 'working');
+  Object.assign(only, { state: 'finished', result: { done: 'Booked for Friday 8pm' } });
+  assert.equal((await tool('read_workflow_run', { run_id: started.run_id })).data.state, 'finished');
+});
+
+// Trillion's defaults (records/starting-rules.json): every one is marked made by Trillion, names the settings it
+// stands behind, and runs, stops and changes exactly like the person's own rules and schedules.
+test('every default is marked made by Trillion and carries the settings it backs; the person\'s own rule is theirs', { timeout: 900_000 }, async () => {
+  const p = person();
+  const rules = (await p.automations.listRules()).rules;
+  const schedules = (await p.automations.listSchedules()).schedules;
+  for (const row of startingRuleRows.every_account) {
+    const shown = row.schedule_id ? schedules.find(item => item.schedule_id === row.schedule_id) : rules.find(item => item.rule_id === row.rule_id);
+    assert.ok(shown, `${row.schedule_id ?? row.rule_id} is set up`);
+    assert.equal(shown.made_by, 'trillion');
+    assert.ok(Array.isArray(row.backs) && row.backs.length, `${row.schedule_id ?? row.rule_id} names what it backs`);
+    assert.deepEqual(shown.backs, row.backs);
+  }
+  await p.automations.setRule({ rule_id: 'mine', when: { recorded: 'message' }, then: { tool_id: 'tool:x', input: {} } });
+  assert.equal((await p.automations.listRules()).rules.find(rule => rule.rule_id === 'mine').made_by, 'you');
+  await p.automations.setRule({ rule_id: 'starting:tell-your-ais', label: 'Tell my AIs', when: { recorded: 'decision-made' }, then: { tool_id: 'tool:tell-your-ais-about-a-decision', input: {} } });
+  const edited = (await p.automations.listRules()).rules.find(rule => rule.rule_id === 'starting:tell-your-ais');
+  assert.equal(edited.label, 'Tell my AIs', 'the person\'s words are kept');
+  assert.equal(edited.made_by, 'trillion', 'an edited default is still Trillion\'s default');
+  assert.deepEqual(edited.backs, startingRuleRows.every_account.find(row => row.rule_id === 'starting:tell-your-ais').backs, 'an edit keeps what it backs');
+  assert.equal(edited.changed_from_default, true, 'the list says the person changed it');
+  assert.deepEqual(p.store.eeaf.ids('trigger-rule').filter(id => id.startsWith('trigger-rule:starting:')), ['trigger-rule:starting:tell-your-ais'], 'only the person\'s change is kept');
+});
+
+test('a decision made reaches the tell-your-AIs default once; turned off, nothing is told', { timeout: 900_000 }, async () => {
+  const p = person();
+  const made = { case_id: 'case_1', generation: 1, app: 'Claude', from_reader: 'app:claude', at: '2026-09-28T10:00:00Z' };
+  p.store.eeaf.write([{ id: 'decision-made:case_1:1', type: 'decision-made', value: made }], { actor: { by: 'trillion' } });
+  await p.automations.settled();
+  const told = p.runs.filter(run => run.then.tool_id === 'tool:tell-your-ais-about-a-decision');
+  assert.equal(told.length, 1);
+  assert.deepEqual(told[0].input, { case_id: 'case_1', from_reader: 'app:claude', app: 'Claude' });
+  await p.automations.setRule({ rule_id: 'starting:tell-your-ais', enabled: false });
+  p.store.eeaf.write([{ id: 'decision-made:case_2:1', type: 'decision-made', value: { ...made, case_id: 'case_2' } }], { actor: { by: 'trillion' } });
+  await p.automations.settled();
+  assert.equal(p.runs.filter(run => run.then.tool_id === 'tool:tell-your-ais-about-a-decision').length, 1, 'an off default tells nobody');
+});
+
+test('the check-results default is a daily schedule: off, the alarm never wakes for it; its time edited, it runs then; removed, it never returns', { timeout: 900_000 }, async () => {
+  const id = 'starting:check-results';
+  // The clock returns due schedules plus the earliest future one. Isolate this schedule so another shipped
+  // default's earlier wake cannot hide it from the on/off assertion.
+  const p = person({ data: { ...startingRuleRows, every_account: startingRuleRows.every_account.filter(row => row.schedule_id === id) } });
+  const wakesFor = async () => (await p.automations.clockSource.data()).schedules.some(schedule => schedule.schedule_id === id);
+  const shown = async () => (await p.automations.listSchedules()).schedules.find(item => item.schedule_id === id);
+  assert.equal(await wakesFor(), true);
+  assert.match((await shown()).next_run_at, /T00:00:00/);
+  await p.automations.setSchedule({ schedule_id: id, enabled: false });
+  assert.equal(await wakesFor(), false, 'an off default is never handed to the alarm');
+  assert.equal((await shown()).next_run_at, null);
+  await p.automations.setSchedule({ schedule_id: id, enabled: true });
+  const every = { unit: 'day', at: '07:30', time_zone: 'UTC' };
+  await p.automations.setSchedule({ schedule_id: id, label: (await shown()).label, every, then: { tool_id: 'tool:check-results-that-are-due', input: {} } });
+  assert.match((await shown()).next_run_at, /T07:30:00/, 'the edited time is when it runs next');
+  assert.equal((await shown()).made_by, 'trillion');
+  await p.automations.removeSchedule({ schedule_id: id });
+  assert.equal(await shown(), undefined, 'a removed default never comes back');
+  assert.equal(await wakesFor(), false);
+});
+
+// Accounts set up before the defaults shipped kept copies of them, each with a made-by-trillion mark.
+const copyOf = (p, row, value) => p.store.eeaf.write([{ id: `trigger-rule:${row.rule_id}`, type: 'trigger-rule', value }, { id: `made-by-trillion:rule:${row.rule_id}`, type: 'made-by-trillion', value: { rule_id: row.rule_id, at: '2026-09-01T00:00:00Z' } }], { actor: { by: 'trillion' } });
+
+test('historical default actions never erase an edited trigger or dispatch', async () => {
+  const p = person();
+  const base = startingRuleRows.every_account.find(row => row.rule_id === 'starting:arrivals');
+  const changes = [
+    { when: { recorded: 'message', where: [{ field: 'speaker', equals: 'person' }] } },
+    { match_condition: { conditions: [{ changed: true }] } },
+    { dispatch: { target: 'own-target', output_template: {} } },
+    { backs: [{ screen: 'own-screen', item: 'own-item' }] },
+    { enabled: false, is_active: false },
+  ];
+  const data = { ...startingRuleRows, every_account: changes.map((_, index) => ({ ...base, rule_id: `historical-edited-${index}` })) };
+  const shipped = shippedAutomations(data);
+  const originals = [];
+  for (const [index, change] of changes.entries()) {
+    const row = data.every_account[index];
+    const value = { ...shipped.get(`trigger-rule:${row.rule_id}`).value, default: undefined, then: base.earlier_then.at(-1), ...change };
+    copyOf(p, row, value);
+    originals.push(value);
+  }
+  const answer = await keptAsChanges({ data, records: p.store.eeaf, facts: p.rawFacts, connected: [], rows: sources });
+  assert.equal(answer.deleted, 0);
+  assert.equal(answer.kept, changes.length);
+  for (const [index, row] of data.every_account.entries()) assert.deepEqual(p.store.eeaf.read(`trigger-rule:${row.rule_id}`), JSON.parse(JSON.stringify({ ...originals[index], default: true })));
+});
+
+test('an account\'s kept copies become its changes once: Trillion\'s words (current or earlier, in any key order) go, the person\'s stay', { timeout: 900_000 }, async () => {
+  const p = person({ connections: [{ vendor: 'instagram', status: 'connected' }] });
+  const reversed = value => Array.isArray(value) ? value.map(reversed)
+    : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).reverse().map(key => [key, reversed(value[key])])) : value;
+  const arrivals = startingRuleRows.every_account.find(item => item.rule_id === 'starting:arrivals');
+  const tell = startingRuleRows.every_account.find(item => item.rule_id === 'starting:tell-your-ais');
+  const asked = startingRuleRows.every_account.find(item => item.rule_id === 'starting:asked');
+  const shipped = shippedAutomations(startingRuleRows);
+  copyOf(p, arrivals, reversed({ ...shipped.get('trigger-rule:starting:arrivals').value, default: undefined, then: arrivals.earlier_then.at(-1), set_at: '2026-09-01T00:00:00Z' }));
+  copyOf(p, tell, { ...shipped.get('trigger-rule:starting:tell-your-ais').value, default: undefined, set_at: '2026-09-01T00:00:00Z' });
+  copyOf(p, asked, { ...shipped.get('trigger-rule:starting:asked').value, default: undefined, label: 'Hand my presses on', set_at: '2026-09-02T00:00:00Z' });
+  p.store.eeaf.write([{ id: 'schedule:starting:check-results', type: 'schedule', value: { ...shipped.get('schedule:starting:check-results').value, default: undefined, starts_on: '2026-09-01', scan_from: '2026-10-04', set_at: '2026-09-01T00:00:00Z' } },
+    { id: 'schedule-removed:starting:brief-me-on-my-goals', type: 'schedule-removed', value: { schedule_id: 'starting:brief-me-on-my-goals', removed_at: '2026-09-03T00:00:00Z' } }], { actor: { by: 'trillion' } });
+  const instagram = sources.find(source => source.connects_with?.vendor === 'instagram');
+  const comment = (await p.eventRule(`starting:${instagram.id}:comment`));
+  p.facts.set(`event-rule:${comment.rule_id}`, { ...comment, default: undefined, set_at: '2026-09-01T00:00:00Z' });
+  p.store.eeaf.write([{ id: `made-by-trillion:rule:${comment.rule_id}`, type: 'made-by-trillion', value: { rule_id: comment.rule_id } }], { actor: { by: 'trillion' } });
+
+  const moved = await keptAsChanges({ data: startingRuleRows, records: p.store.eeaf, facts: p.rawFacts, connected: [{ vendor: 'instagram', status: 'connected' }], rows: sources });
+  p.records.refresh();
+  assert.deepEqual(moved, { deleted: 4, kept: 1, removed: 1 });
+  assert.deepEqual(p.store.eeaf.ids('trigger-rule'), ['trigger-rule:starting:asked'], 'only the rule the person changed is kept');
+  assert.deepEqual(p.store.eeaf.ids('made-by-trillion'), [], 'the marks are gone');
+  assert.deepEqual(p.store.eeaf.ids('schedule'), []);
+  assert.equal(p.store.eeaf.read('schedule-state:starting:check-results').scan_from, '2026-10-04', 'where the schedule was up to is kept');
+  assert.equal(p.facts.has(`event-rule:${comment.rule_id}`), false, 'the untouched event rule copy is gone');
+  const rules = (await p.automations.listRules()).rules;
+  assert.deepEqual(rules.find(rule => rule.rule_id === 'starting:arrivals').then, shipped.get('trigger-rule:starting:arrivals').value.then, 'Trillion\'s current words');
+  const theirs = rules.find(rule => rule.rule_id === 'starting:asked');
+  assert.equal(theirs.label, 'Hand my presses on');
+  assert.equal(theirs.made_by, 'trillion');
+  assert.equal(rules.find(rule => rule.rule_id === `starting:${instagram.id}:comment`).made_by, 'trillion');
+  const schedules = (await p.automations.listSchedules()).schedules;
+  assert.equal(schedules.some(item => item.schedule_id === 'starting:brief-me-on-my-goals'), false, 'a removed default stays removed');
+  assert.equal(schedules.find(item => item.schedule_id === 'starting:check-results').made_by, 'trillion');
+});
+
+test('a default Trillion changes reaches an account that never touched it with nothing written', { timeout: 900_000 }, async () => {
+  const changed = structuredClone(startingRuleRows);
+  changed.every_account.find(row => row.rule_id === 'starting:tell-your-ais').label = 'Tell your other AIs what you decided';
+  const before = person();
+  assert.notEqual((await before.automations.listRules()).rules.find(rule => rule.rule_id === 'starting:tell-your-ais').label, 'Tell your other AIs what you decided');
+  const after = person({ data: changed });
+  assert.equal((await after.automations.listRules()).rules.find(rule => rule.rule_id === 'starting:tell-your-ais').label, 'Tell your other AIs what you decided');
+  assert.deepEqual(after.store.eeaf.ids('trigger-rule'), []);
+});
+
+test('the store\'s field reads pass through the shipped defaults for a kind that ships none, and refuse one that does', () => {
+  const { sql, transaction } = sqliteHost(':memory:');
+  const store = decisionStore(sql, { transaction });
+  const records = overlayRecords(store.eeaf, shippedAutomations(startingRuleRows), { ignore: ['set_at', 'revision'] });
+  store.eeaf.write([{ id: 'arrival:one', type: 'arrival', value: { route: 'email', at: '2026-10-06T08:00:00Z', title: 'A note' } }], { actor: { by: 'test' } });
+  assert.deepEqual(records.fields.newestPerGroup('arrival', { group: 'route', order: 'at', fields: ['title'] }).map(row => row.id), ['arrival:one']);
+  const shippedKind = [...shippedAutomations(startingRuleRows).values()][0].type;
+  assert.throws(() => records.fields.after(shippedKind, 'at', '2026-01-01T00:00:00Z', []), /has shipped values/);
+});

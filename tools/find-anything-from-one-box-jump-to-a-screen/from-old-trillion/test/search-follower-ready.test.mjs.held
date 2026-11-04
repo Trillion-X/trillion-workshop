@@ -1,0 +1,105 @@
+// test/search-follower-ready.test.mjs
+// The search follower (src/search-follower.mjs) is ready once it is within one wake of the store (src/search.mjs backlog),
+// not only when nothing at all waits. On the busiest account a record is written between any two wakes; its follower was
+// never ready, so that person's search answered from the store's frozen index and missed what they saved that day
+// (2026-10-10). A follower still walking a backlog is not ready, and a ready one finds a record written while it worked.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { makeSearch } from '../src/search.mjs';
+import { recordFeedWriter, searchFeedWriter } from '../../../shared-code/src/search-feed.mjs';
+import { searchFollower } from '../src/search-follower.mjs';
+import search from '../../../shared-code/src/search.json' with { type: 'json' };
+import personWork from '../../../shared-code/src/person-work.json' with { type: 'json' };
+
+function person() {
+  const { sql } = sqliteHost(':memory:');
+  const files = namespaceStore(sql);
+  resultsStore(sql, identity => files.identitiesOf(identity));
+  const { eeaf } = decisionStore(sql);
+  return { sql, eeaf };
+}
+const follower = writer => searchFollower({ sql: sqliteHost(':memory:').sql, records: recordFeedWriter(writer.eeaf), results: searchFeedWriter(writer.sql) });
+const finish = async (writer, next, question) => {
+  const asked = await next.indexFor(question, {});
+  if (!asked) return null;
+  return makeSearch({ sql: writer.sql, eeaf: writer.eeaf, index: false, embed: null }).finish(question, {}, asked.partial);
+};
+
+// The store's records as the follower reads them through its RPCs, while the store keeps writing: each call for the
+// newest log id lets one more write land first, as the busiest account's store does while the follower awaits it.
+function busyRecords(writer) {
+  const records = recordFeedWriter(writer.eeaf);
+  let written = 0;
+  return { ...records, lastLogId: () => { writer.eeaf.write([{ id: `busy-${written}`, type: 'message', value: { text: `busy write ${written}` } }]); written += 1; return records.lastLogId(); } };
+}
+
+test('a follower whose store writes during every wake becomes ready and finds what was written', async () => {
+  const writer = person();
+  for (let n = 0; n < 20; n += 1) writer.eeaf.write([{ id: `m${n}`, type: 'message', value: { text: `plain note ${n}` } }]);
+  const next = searchFollower({ sql: sqliteHost(':memory:').sql, records: busyRecords(writer), results: searchFeedWriter(writer.sql) });
+  let step = null;
+  for (let wake = 0; wake < 30; wake += 1) { step = await next.work(); if (step.ready) break; }
+  assert.equal(step.ready, true, 'the follower is ready while the store keeps writing');
+  assert.equal(step.more, true, 'a write landed during the wake, so the follower wakes again for it');
+  writer.eeaf.write([{ id: 'm-today', type: 'message', value: { text: 'kiln firing tonight' } }]);
+  await next.work();
+  const answer = await finish(writer, next, 'kiln');
+  assert.ok(answer, 'a ready follower answers');
+  assert.deepEqual(answer.results.map(result => result.id), ['record:m-today'], 'a record written while the store stays busy is found');
+});
+
+test('a follower still walking more than one wake of records is not ready', async () => {
+  const writer = person();
+  for (let n = 0; n < 400; n += 1) writer.eeaf.write([{ id: `m${String(n).padStart(3, '0')}`, type: 'message', value: { text: `plain note ${n}` } }]);
+  const next = follower(writer);
+  // The service's current wake admits 5000 values. Hold this fixture to a ten-value wake so the
+  // 400 recorded changes are a real backlog, rather than assuming the former service pacing.
+  const valuesPerWake=personWork.concerns.search.values_per_wake;
+  personWork.concerns.search.values_per_wake=10;
+  let first;
+  try { first=await next.work(); }
+  finally { personWork.concerns.search.values_per_wake=valuesPerWake; }
+  assert.equal(first.ready, false, 'more than one admitted wake of records remains, so the follower is not ready');
+  assert.ok(first.waiting, `a follower that is not ready says what waits: ${JSON.stringify(first.waiting)}`);
+  assert.equal(await next.indexFor('plain', {}), null, 'and it does not answer');
+});
+
+test('while a result lane is still being built, a whole record lane answers from the follower and the building lane is named', async () => {
+  const writer = person();
+  const files = namespaceStore(writer.sql);
+  const results = resultsStore(writer.sql, identity => files.identitiesOf(identity));
+  const own = n => `1f:${n.toString(16).padStart(64, '0')}`, drive = n => `12:${n.toString(16).padStart(64, '0')}`;
+  const rows = [];
+  for (let n = 0; n < 300; n += 1) {
+    writer.sql.exec("INSERT INTO namespace_files (identity, byte_length, media_type, origin, key, part_bytes, stored_at, checked_at) VALUES (?, 10, 'video/mp4', 'small', 'k', 10, 'now', 'now')", own(n));
+    files.addAliases(own(n), [drive(n)]);
+    rows.push({ identity: drive(n), kind: 'transcript', value: { text: `pottery lesson ${n}` } });
+  }
+  results.put(rows);
+  writer.eeaf.write([{ id: 'm-today', type: 'message', value: { text: 'kiln firing tonight' } }]);
+  const next = follower(writer);
+  // A wake derives a bounded number of bytes (src/search.json catch_up.bytes_per_wake). Held to about 40 transcripts a wake
+  // here, two wakes leave the lane truly still building. (It assumed 50 values a wake before 2026-10-19.)
+  const bytesPerWake = search.catch_up.bytes_per_wake;
+  search.catch_up.bytes_per_wake = 40 * JSON.stringify({ text: 'pottery lesson 100' }).length;
+  let lanes;
+  try {
+    await next.work();
+    await next.work();
+    lanes = await next.lanesFor('kiln', {});
+  } finally { search.catch_up.bytes_per_wake = bytesPerWake; }
+  assert.ok(lanes.building.includes('transcript-words'), `300 transcripts take more than two wakes to derive: building ${JSON.stringify(lanes.building)}`);
+  assert.ok(!lanes.building.includes('messages'), 'one message is walked in a wake, so the messages lane is whole');
+  assert.equal(lanes.ready, false, 'the follower is not ready while a lane is being built');
+  assert.equal(await next.indexFor('kiln', {}), null, 'indexFor still answers only a ready follower');
+  const finisher = makeSearch({ sql: writer.sql, eeaf: writer.eeaf, index: false, embed: null });
+  const frozen = { answered: [], unavailable: [], pending: [], still_reading: {} };
+  const merged = finisher.fromBuilding(lanes.partial, { ...frozen, answered: lanes.partial.answered.map(() => []) }, lanes.building, {});
+  const answer = await finisher.finish('kiln', {}, merged);
+  assert.deepEqual(answer.results.map(result => result.id), ['record:m-today'], 'the message written today is found through the whole lane');
+  assert.equal(answer.still_reading['transcript-words'], 1, 'the lane still being built is named still reading');
+});

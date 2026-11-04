@@ -1,0 +1,84 @@
+// test/search-cold-start-flat.test.mjs
+//
+// A person's store starts again often, and each start made its search read every vector it keeps before the first wake did
+// anything: the list of lanes that keep vectors was SELECT DISTINCT lane over the whole (lane, bucket) index, and each lane's
+// size was COUNT(*) over its entries (51k on a heavy account, rows read for each). The wake itself is a counted number of
+// results (test/search-catch-up-writes-changes-only.test.mjs); this holds the start in front of it to the same bar: the
+// first wake after a start, over one changed result, reads the same with four times as many vectors kept.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { costingHost, flat } from './store-cost-for-tests.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { makeSearch } from '../src/search.mjs';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+
+const hex = (digit, index) => (digit + index.toString(16)).padEnd(64, digit);
+const own = index => `1f:${hex('a', index)}`;
+const half = values => {
+  const bits = new Uint16Array(values.map(value => {
+    const f = new Float32Array([value]), i = new Uint32Array(f.buffer)[0];
+    const sign = (i >>> 16) & 0x8000, exponent = ((i >>> 23) & 0xff) - 127 + 15, fraction = (i >>> 13) & 0x3ff;
+    return value === 0 ? sign : sign | (exponent << 10) | fraction;
+  }));
+  return Buffer.from(bits.buffer).toString('base64');
+};
+const speech = (index, other = 0) => ({ chunks: [{ t: 6, v: half([Math.sin(index), Math.cos(index), (index % 7) / 7]), text: 'x' }], other });
+// Small enough that the lane is indexed (trained and given buckets) at the sizes the test keeps.
+const config = { ...settings, vector_index: { ...settings.vector_index, min_vectors: 100, sample: 100, assign_page: 100 } };
+
+async function firstWakeAfterAStart(kept) {
+  const store = costingHost();
+  const files = namespaceStore(store.sql);
+  const results = resultsStore(store.sql, id => files.identitiesOf(id));
+  const { eeaf } = decisionStore(store.host.sql);
+  const asked = [];
+  const spy = { exec: (query, ...values) => { asked.push(query); return store.sql.exec(query, ...values); } };
+  const open = sql => makeSearch({ sql, eeaf, embed: null, runTool: async () => ({ state: 'failed' }), config });
+  let search = open(store.sql);
+  for (let at = 1; at <= kept; at += 1) results.put([{ identity: own(at), kind: 'speech-vectors', value: speech(at) }]);
+  for (let wake = 0; wake < 500 && (await search.stale()); wake += 1) await search.catchUp(50);
+  assert.ok(!(await search.stale()), 'caught up');
+  // The store starts again; one result then changes in a field the lane does not read.
+  results.put([{ identity: own(1), kind: 'speech-vectors', value: speech(1, 1) }]);
+  asked.length = 0;
+  let cost;
+  cost = await store.measure(async () => { search = open(spy); (await search.stale()); await search.catchUp(50); });
+  return { cost, asked };
+}
+
+test('the first wake after a start reads the same with 4 times as many vectors kept', async () => {
+  const small = await firstWakeAfterAStart(150);
+  const large = await firstWakeAfterAStart(600);
+  console.log(`first wake after a start: read ${small.cost.read} and written ${small.cost.written} over 150 vectors, read ${large.cost.read} and written ${large.cost.written} over 600`);
+  assert.deepEqual(flat(small.cost, large.cost), [], `a start over 4 times the vectors read ${large.cost.read} against ${small.cost.read}: ${large.cost.worst.slice(0, 3).map(item => `${item.read} by ${item.query}`).join('; ')}`);
+});
+
+test('a start does not count the vectors a lane keeps, and the count follows the lane as it changes', async () => {
+  const { asked } = await firstWakeAfterAStart(300);
+  assert.deepEqual(asked.filter(query => /COUNT\(\*\)[^;]*FROM search_vectors\b/i.test(query)), [], 'no count of a lane\'s entries');
+  assert.deepEqual(asked.filter(query => /SELECT DISTINCT lane FROM search_vectors/i.test(query)), [], 'no walk of every entry for the lanes');
+
+  const store = costingHost();
+  const files = namespaceStore(store.sql);
+  const results = resultsStore(store.sql, id => files.identitiesOf(id));
+  const { eeaf } = decisionStore(store.host.sql);
+  const open = () => makeSearch({ sql: store.sql, eeaf, embed: null, runTool: async () => ({ state: 'failed' }), config });
+  let search = open();
+  const kept = () => store.host.sql.exec('SELECT COUNT(*) AS n FROM search_vectors').toArray()[0].n;
+  const counted = () => store.host.sql.exec("SELECT n FROM search_vector_counts WHERE lane = 'speech-meaning'").toArray()[0]?.n;
+  const drain = async () => { for (let wake = 0; wake < 200 && (await search.stale()); wake += 1) await search.catchUp(50); };
+  for (let at = 1; at <= 130; at += 1) results.put([{ identity: own(at), kind: 'speech-vectors', value: speech(at) }]);
+  await drain();
+  search = open();
+  (await search.stale());
+  assert.equal(counted(), kept());
+  // A result that gains a vector, one that goes, and a store that starts again between them.
+  results.put([{ identity: own(1), kind: 'speech-vectors', value: { chunks: [...speech(1).chunks, ...speech(2).chunks] } }]);
+  await drain();
+  search = open();
+  results.put([{ identity: own(2), kind: 'speech-vectors', value: { chunks: [] } }]);
+  await drain();
+  assert.equal(counted(), kept(), 'the kept count is what the lane keeps');
+});

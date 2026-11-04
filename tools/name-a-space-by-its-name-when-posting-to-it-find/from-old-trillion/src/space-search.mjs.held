@@ -1,0 +1,66 @@
+// src/space-search.mjs
+//
+// PURPOSE
+//   Finding items by their words in a pursuit (read_space with `query`, GET /spaces/<id>/items?query=), as the asker
+//   may read them. Slite filters its search index by who asks (restrictedTo, writerIds, archived on every indexed
+//   document, F-0113); here the rows are the space's own items and the asker's view of each one is what decides: the
+//   words matched are the words of the item as thingsAsSeenBy gives it to this reader.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. A word is matched against an item only as the asker sees it: a hidden thing's words reach only a reader who may show it
+//      again, a withdrawn item is never found, and a shared private copy is read from its current source, so a search
+//      never finds words its reader could not read, and a result never carries more than the plain read of the item would.
+//   2. The stored columns only choose candidates (every word must be in the title or body, or the item's words come from
+//      its private source); the answer is decided on the item as seen, so a candidate that does not read as a match is dropped.
+//   3. A call walks at most `search.scan_batches` pages of candidates (src/space-settings.json); when that does not fill
+//      a page it answers what it has with next_before, so the caller goes on and no call grows with the space.
+//   4. The same words and the same cursor give the same page on every shard, so the merge of shard answers
+//      (src/space-shard-routing.mjs) puts the newest first and stays correct.
+import settings from './space-settings.json' with { type: 'json' };
+
+const LIMITS = settings.search;
+const escapeLike = word => word.replace(/[\\%_]/g, character => `\\${character}`);
+
+/** The distinct lower-cased words of a query (at most `terms_most`, each cut to `term_chars_most`), or null when it has none. */
+export function searchWords(query) {
+  if (typeof query !== 'string') return null;
+  const words = [...new Set(query.toLowerCase().split(/\s+/).map(word => [...word].slice(0, LIMITS.term_chars_most).join('')).filter(Boolean))].slice(0, LIMITS.terms_most);
+  return words.length ? words : null;
+}
+
+/** The SQL that picks candidates: every word is in the title or body, or the words are the private source's own. */
+export function candidateClause(words) {
+  const every = words.map(() => "(lower(COALESCE(title, '')) LIKE ? ESCAPE '\\' OR lower(COALESCE(body, '')) LIKE ? ESCAPE '\\')").join(' AND ');
+  return { sql: `((origin = 'private' AND source_ref IS NOT NULL) OR (${every}))`, args: words.flatMap(word => { const like = `%${escapeLike(word)}%`; return [like, like]; }) };
+}
+
+/** Whether an item as the asker sees it holds every word. */
+export const readsAs = (item, words) => {
+  const text = `${item.title ?? ''} ${item.body ?? ''}`.toLowerCase();
+  return words.every(word => text.includes(word));
+};
+
+export const spaceSearchMethods = {
+  async searchSpaceItems({ space, relay, access, nameOf, size, kind, before, words }) {
+    const clause = candidateClause(words);
+    const found = [];
+    let cursor = before ? String(before) : null, more = false;
+    for (let batch = 0; batch < LIMITS.scan_batches && found.length < size; batch += 1) {
+      const rows = this.sql.exec(`SELECT * FROM space_items WHERE space_id = ? AND anchor_record IS NULL AND withdrawn_at IS NULL${kind ? ' AND kind = ?' : ''}${cursor ? ' AND added_at || id < ?' : ''} AND ${clause.sql} ORDER BY added_at || id DESC LIMIT ?`,
+        ...[space.id, ...(kind ? [String(kind)] : []), ...(cursor ? [cursor] : []), ...clause.args, size + 1]).toArray();
+      const page = rows.slice(0, size);
+      const seen = await this.thingsAsSeenBy(space, relay, page, nameOf);
+      let used = 0;
+      for (const item of seen) {
+        used += 1;
+        if (readsAs(item, words)) found.push(item);
+        if (found.length >= size) break;
+      }
+      if (used) cursor = `${page[used - 1].added_at}${page[used - 1].id}`;
+      more = used < rows.length;
+      if (!more) break;
+    }
+    this.assertSpaceAccessUnchanged(space.id, relay, access);
+    return { space_id: space.id, items: this.withReactions(found, relay, nameOf), next_before: more ? cursor : null };
+  },
+};

@@ -1,0 +1,52 @@
+// src/setup-week.mjs
+//
+// What Trillion actually did for a person in the last week, read from the records themselves with bounded reads: the
+// AIs that finished work handed to them, the AIs whose conversations a hook kept through the carrier door, and what
+// arrived (files, and the person's own words kept by those hooks). The setup evidence shows it beside each step
+// (src/native-setup.mjs).
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. Bounded: at most 200 finished jobs (their projected fields only), 500 kept words per hook app, and the files
+//      counted by storedSince (at most the newest 1000).
+//   2. Each row is { name, domain, count, at }; a row with nothing in it is left out, so an empty list means nothing
+//      happened. A failed read rejects the whole answer, so it reads unknown, never empty.
+
+import setupPolicy from './setup-policy.json' with { type: 'json' };
+import { harnessWithin, transcriptHookApps } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/harnesses.mjs';
+import { messages } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
+
+const DAY_MS = 86_400_000;
+
+/**
+ * agents: the account's agents ({ recentWork }); records: its EEAF ({ fields, ... } as messages() reads it);
+ * storedSince(since): { count, at } of files kept at or after `since`; now: ms.
+ * → { since, finished, recorded, arrived }
+ */
+export async function setupWeek({ agents, records, storedSince, now = Date.now() }) {
+  const since = new Date(now - 7 * DAY_MS).toISOString();
+  const domainOf = row => (row ? setupPolicy.ai_domains.find(item => item.product === row.product)?.domain ?? null : null);
+  const tally = new Map();
+  const add = (key, name, domain, at) => {
+    const seen = tally.get(key) ?? { name, domain, count: 0, at: null };
+    tally.set(key, { ...seen, count: seen.count + 1, at: !seen.at || String(at) > seen.at ? String(at) : seen.at });
+  };
+  const { work, agents: cards } = agents.recentWork({ limit: 200, states: ['finished'], projection: { fields: ['state', 'taken_by', 'finished_at'], presence: [['result', 'withdrawn_by']] } });
+  const names = new Map(cards.map(agent => [agent.agent_id, agent.name]));
+  for (const job of work) {
+    if (job.state !== 'finished' || !job.taken_by || (job.field_presence?.[0] ?? (job.result?.withdrawn_by !== undefined)) || String(job.finished_at ?? '') < since) continue;
+    const row = harnessWithin(names.get(job.taken_by) ?? job.taken_by);
+    if (row) add(`finished:${row.app}`, row.app, domainOf(row), job.finished_at);
+  }
+  const kept = messages(records, { fields: records.fields });
+  for (const app of transcriptHookApps()) {
+    const row = harnessWithin(app);
+    for (const message of kept.capturedTurns({ app, speaker: 'person', road: 'carrier_door', since, limit: 500 })) {
+      add(`recorded:${app}`, app, domainOf(row), message.at);
+      add('arrived:words', 'Your words', null, message.at);
+    }
+  }
+  const stored = await storedSince(since);
+  const files = stored?.count ? { name: 'Files', domain: null, count: stored.count, at: stored.at } : null;
+  const of = prefix => [...tally.entries()].filter(([key]) => key.startsWith(prefix)).map(([, row]) => row).sort((a, b) => b.count - a.count);
+  return { since, finished: of('finished:'), recorded: of('recorded:'), arrived: [...(files ? [files] : []), ...of('arrived:')] };
+}

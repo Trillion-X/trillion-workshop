@@ -1,0 +1,32 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {sqliteHost} from '../src/local-store.mjs';
+import {decisionStore,identityOf,canonical} from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import {makeSearch} from '../src/search.mjs';
+import {searchFeedWriter} from '../../../shared-code/src/search-feed.mjs';
+import {ensureSearchChangeQueue,resultsStore} from '../src/namespace-results.mjs';
+const tables=host=>host.sql.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='namespace_results'").toArray();
+const triggers=host=>host.sql.exec("SELECT name FROM sqlite_master WHERE type='trigger' AND name LIKE 'search_result_%' ORDER BY name").toArray().map(row=>row.name);
+test('native record search and its erasure index open without creating or requiring a local Namespace',t=>{
+ const host=sqliteHost(':memory:');t.after(()=>host.db.close());const records=decisionStore(host.sql,{transaction:host.transaction}).eeaf;
+ const id='message:cold-search-source';records.write([{id,type:'message',value:{text:'Canonical cold record',speaker:'person'}}]);
+ const search=makeSearch({sql:host.sql,eeaf:records,transaction:host.transaction,follows:true,triggers:null});
+ assert.deepEqual(tables(host),[]);assert.deepEqual(triggers(host),[]);
+ assert.equal(searchFeedWriter(host.sql).pageNow,undefined,'a missing local source is not an empty page');
+ assert.ok(host.sql.exec('SELECT 1 FROM search_backfill LIMIT 1').toArray().length,'result backfill remains pending without its actual source');
+ assert.doesNotThrow(()=>search.forgetRecord(id));assert.equal(records.read(id).text,'Canonical cold record');
+ assert.deepEqual(tables(host),[]);
+});
+test('later real Namespace results installation adds all original change triggers and keeps insert update delete notifications',t=>{
+ const host=sqliteHost(':memory:');t.after(()=>host.db.close());ensureSearchChangeQueue(host.sql);
+ assert.deepEqual(tables(host),[]);const results=resultsStore(host.sql);
+ assert.deepEqual(triggers(host),['search_result_delete','search_result_insert','search_result_update']);
+ host.sql.exec('INSERT INTO search_result_lanes VALUES(?,?,?)','fixture-summary','summary','{}');
+ const id=identityOf(canonical({source:'actual fixture bytes'}));
+ results.merge(id,'summary',{text:'original'});
+ assert.deepEqual(host.sql.exec('SELECT lane,identity FROM search_changed').toArray().map(row=>({...row})),[{lane:'fixture-summary',identity:id}]);
+ host.sql.exec('DELETE FROM search_changed');results.merge(id,'summary',{text:'changed'});
+ assert.equal(host.sql.exec('SELECT identity FROM search_changed').one().identity,id);
+ host.sql.exec('DELETE FROM search_changed');host.sql.exec('DELETE FROM namespace_results WHERE identity=?',id);
+ assert.equal(host.sql.exec('SELECT identity FROM search_changed').one().identity,id);
+});

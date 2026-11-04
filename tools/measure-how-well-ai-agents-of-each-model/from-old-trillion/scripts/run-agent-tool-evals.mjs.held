@@ -1,0 +1,333 @@
+#!/usr/bin/env node
+// scripts/run-agent-tool-evals.mjs
+//
+// Purpose
+//   Measures how well AI agents use Trillion's MCP tools. Each task (test/fixtures/agent-tool-eval-tasks.json, measurement fixtures no account runs) is a plain job
+//   with a starting state, run by each model on each harness it is given (scripts/agent-tool-eval-models.json) against
+//   one disposable account on the live service, and graded by reading the records the job should have left behind. It
+//   reports, per task and per model, success, steps, tool errors, calls off the task's path and calls that changed
+//   something they should not, time and tokens.
+//
+//     /tmp/mac-test-lock.zsh node scripts/run-agent-tool-evals.mjs --models gpt-6.1-sol,claude-sonnet-5-5 --tasks all --runs 1 --out DIR
+//     node scripts/run-agent-tool-evals.mjs --report DIR       print the table again from a finished run's rows
+//
+// Non-negotiable invariants
+//   0. It starts only under /tmp/mac-test-lock.zsh (MAC_TEST_LOCK_HOLDER names a live process; --report is exempt), one model and
+//      a few tasks per ticket. On SIGTERM or SIGINT it starts no further job, stops the agent in hand, closes the browser (which
+//      deletes the accounts it made) and exits.
+//   1. One disposable account (scripts/passkey-account.mjs, given the paid plan the way the other proofs are) holds every
+//      run; the browser that made it deletes it when this process ends. No real person's account is touched.
+//   2. The agent's only tools are the account's own MCP tools, through the policy proxy that records each call
+//      (scripts/customer-mcp-proxy.mjs). Tools that reach outside the account stay refused unless a task names them.
+//   3. The grade comes from the grader's own reads after the run (scripts/agent-tool-eval-core.mjs), never from what the
+//      agent said. The tasks, graders and tool classes are DATA; this file names none of them.
+//   4. Every finished run is appended to rows.jsonl before the next starts, so an interrupted run loses nothing.
+import { spawn } from 'node:child_process';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { homedir } from 'node:os';
+import { pathToFileURL } from 'node:url';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { browserWithPasskeyDevice, createAccount, newPasskeyPage } from './passkey-account.mjs';
+import { grantPaidPlan } from './paid-proof-account.mjs';
+import { proofAccountKeyHooks } from './customer-proof-access.mjs';
+import { openMcpProxy } from './customer-mcp-proxy.mjs';
+import { buildCodexArgs, customerModelCommand, customerModelProcessEnvironment } from './customer-conversation-core.mjs';
+import { captureFrom, countCalls, lockHolderProblem, recordOf, failureKindOf, fillValues, gradeCheck, outcomeAfterWork, outcomeOf, runTag, summarizeRuns } from './agent-tool-eval-core.mjs';
+
+const here = new URL('.', import.meta.url).pathname;
+const readJson = name => JSON.parse(readFileSync(join(here, name), 'utf8'));
+
+const flag = (name, fallback = null) => { const at = process.argv.indexOf(`--${name}`); return at >= 0 ? process.argv[at + 1] : fallback; };
+const pause = ms => new Promise(done => setTimeout(done, ms));
+const say = text => process.stderr.write(`${new Date().toLocaleTimeString()} ${text}\n`);
+
+// `deps` is for a test's stand-ins: the browser, the sign-up, the plan grant and the key hooks (with a temporary folder).
+export async function makeAccount(origin, settings, deps = {}) {
+  const { openBrowser = browserWithPasskeyDevice, signUp = createAccount, freshPage = newPasskeyPage, grantPlan = grantPaidPlan, hooks = proofAccountKeyHooks() } = deps;
+  let lastError = null;
+  // Each account's key is kept as a mode-600 file the moment it exists and removed only once its deletion is shown to
+  // complete, so an account whose cleanup fails can still be reached (scripts/customer-proof-access.mjs).
+  for (let attempt = 1; attempt <= settings.account_attempts && !stopping; attempt += 1) {
+    let browser = null;
+    try {
+      const device = await openBrowser({ handleSignals: false, onAccountCleanup: hooks.onAccountCleanup });
+      browser = device.browser;
+      // A sign-up whose passkey step never finishes is asked again on a fresh page of the same browser before another browser
+      // is waited for (the shared browser slot is the slow part).
+      let page = device.page;
+      let key = null;
+      for (let tries = 1; key === null; tries += 1) {
+        try { key = await signUp(page, origin, { onCreated: hooks.onCreated }); } catch (error) {
+          if (tries >= settings.sign_up_tries) throw error;
+          say(`sign-up try ${tries} did not finish; asking again on a fresh page`);
+          page = (await freshPage(browser)).page;
+        }
+      }
+      await grantPlan(key, origin, settings.paid_plan_credential);
+      return { key, browser };
+    } catch (error) {
+      lastError = error;
+      say(`account attempt ${attempt} failed: ${String(error.message).split('\n')[0]}`);
+      await browser?.close().catch(() => {});
+    }
+  }
+  throw lastError ?? new Error('Stopped before an account was made.');
+}
+
+/** Waits until the account's own stores answer, the way a new person's first minutes go; returns the milliseconds it took. */
+async function waitUntilReady(proxy, settings) {
+  const started = Date.now();
+  while (Date.now() - started < settings.ready_wait_ms && !stopping) {
+    const answers = [];
+    for (const probe of settings.ready_probes) answers.push(await proxy.callTool(probe.tool, probe.arguments, { allowError: true }).catch(error => ({ error: String(error.message) })));
+    const text = JSON.stringify(answers);
+    if (!settings.platform_error_patterns.some(pattern => new RegExp(pattern, 'i').test(text)) && !answers.some(answer => answer?.error)) return Date.now() - started;
+    await pause(5000);
+  }
+  return null;
+}
+
+/** Runs the task's seed calls through a fixture proxy; returns the first platform or tool failure, or null. */
+async function seed(task, values, fixture) {
+  for (const step of fillValues(task.seed ?? [], values)) {
+    try {
+      const reply = await fixture.callTool(step.tool, step.arguments, { allowError: true });
+      const failed = reply?.error || reply?.isError;
+      if (failed) return `seed ${step.tool}: ${JSON.stringify(reply.error ?? reply).slice(0, 300)}`;
+    } catch (error) { return `seed ${step.tool}: ${String(error.message).slice(0, 300)}`; }
+  }
+  return null;
+}
+
+function agentPrompt(settings, job) {
+  return `${settings.agent_preamble}\n\n${job}`;
+}
+
+/** The token that lets the codex harness reach the local model proxy, read from the owner's config into this process only. */
+function proxyTokenFor(provider) {
+  const config = readFileSync(join(process.env.CODEX_HOME?.trim() || join(homedir(), '.codex'), 'config.toml'), 'utf8');
+  const block = config.split(/^\[/m).find(part => part.startsWith(`model_providers.${provider}]`));
+  const token = /experimental_bearer_token\s*=\s*"([^"]+)"/.exec(block ?? '')?.[1];
+  if (!token) throw new Error(`The Codex config holds no bearer token for ${provider}.`);
+  return token;
+}
+
+function runProcess(command, args, { env, cwd, timeoutMs, stdin = null }) {
+  return new Promise(done => {
+    const child = spawn(command, args, { env, cwd, stdio: [stdin == null ? 'ignore' : 'pipe', 'pipe', 'pipe'] });
+    children.add(child);
+    child.once('close', () => children.delete(child));
+    let stdout = '', stderr = '', timedOut = false;
+    const stop = setTimeout(() => { timedOut = true; child.kill('SIGTERM'); setTimeout(() => child.kill('SIGKILL'), 5000); }, timeoutMs);
+    child.stdout.on('data', bytes => { stdout += bytes; });
+    child.stderr.on('data', bytes => { stderr += bytes; });
+    child.on('error', error => { clearTimeout(stop); done({ code: -1, stdout, stderr: String(error.message), timedOut }); });
+    child.on('close', code => { clearTimeout(stop); done({ code, stdout, stderr, timedOut }); });
+    if (stdin != null) child.stdin.end(stdin);
+  });
+}
+
+/** Tokens a harness reported, from its own event stream; null when it reported none. */
+function usageFrom(harness, stdout) {
+  const lines = stdout.split('\n').filter(line => line.startsWith('{')).map(line => { try { return JSON.parse(line); } catch { return null; } }).filter(Boolean);
+  if (harness === 'claude') {
+    const last = lines.filter(line => line.type === 'result').at(-1);
+    return last ? { input_tokens: last.usage?.input_tokens ?? null, output_tokens: last.usage?.output_tokens ?? null, cost_usd: last.total_cost_usd ?? null, turns: last.num_turns ?? null, final: last.result ?? '' } : null;
+  }
+  const done = lines.filter(line => line.type === 'turn.completed').at(-1);
+  const message = lines.filter(line => line.item?.type === 'agent_message').at(-1);
+  return done ? { input_tokens: done.usage?.input_tokens ?? null, output_tokens: done.usage?.output_tokens ?? null, cost_usd: null, turns: null, final: message?.item?.text ?? '' } : null;
+}
+
+/** The wording a worktree's source gives every tool and the server's opening instructions, to show beside the service's own. */
+async function wordsOf(worktree) {
+  const { makeTools, serverInstructionsNow } = await import(pathToFileURL(join(resolve(worktree), 'src/tools.mjs')).href);
+  const tools = makeTools({ call: async () => ({}), askPerson: async () => ({}) });
+  return { tools: Object.fromEntries(tools.map(tool => [tool.name, { description: tool.description, inputSchema: tool.inputSchema }])), instructions: serverInstructionsNow() };
+}
+
+/** One agent working one job against the account, through a recording proxy. */
+async function runAgent({ model, prompt, origin, key, directory, settings, allowedOpenWorld, toolWords, serverInstructions }) {
+  const calls = [];
+  const events = [];
+  const observations = [];
+  const proxy = await openMcpProxy({ origin, key, record: event => events.push(event), observations, guardExternalEffects: true, allowedOpenWorld, toolWords, serverInstructions, actor: 'product', timeoutMs: settings.tool_timeout_ms });
+  mkdirSync(directory, { recursive: true });
+  const started = Date.now();
+  let result;
+  try {
+    if (model.harness === 'claude') {
+      const config = join(directory, 'mcp.json');
+      writeFileSync(config, JSON.stringify({ mcpServers: { trillion: { type: 'http', url: `http://127.0.0.1:${proxy.port}/mcp` } } }));
+      const args = ['-p', prompt, '--model', model.model, '--output-format', 'stream-json', '--verbose', '--mcp-config', config, '--strict-mcp-config',
+        '--tools', '', '--allowedTools', 'mcp__trillion', '--permission-mode', 'bypassPermissions', '--setting-sources', '', '--no-session-persistence', '--disable-slash-commands'];
+      result = await runProcess(settings.claude_command.replace('~', homedir()), args, { env: { ...process.env, ENABLE_TOOL_SEARCH: 'true' }, cwd: directory, timeoutMs: settings.run_timeout_ms });
+    } else {
+      const outputPath = resolve(directory, 'final.txt');
+      const env = customerModelProcessEnvironment({ cwd: directory, env: process.env });
+      const args = buildCodexArgs({ model: model.model, cwd: directory, outputPath, mcpPort: proxy.port, prompt, effort: model.effort ?? 'low' });
+      if (model.provider) {
+        const at = args.indexOf('--');
+        const provider = model.provider;
+        args.splice(at, 0, '-c', `model_provider="${provider}"`, '-c', `model_providers.${provider}.name="${provider}"`, '-c', `model_providers.${provider}.base_url="${model.base_url}"`,
+          '-c', `model_providers.${provider}.wire_api="responses"`, '-c', `model_providers.${provider}.env_key="EVAL_MODEL_PROXY_KEY"`);
+        env.EVAL_MODEL_PROXY_KEY = proxyTokenFor(provider);
+      }
+      result = await runProcess(customerModelCommand(process.env), args, { env, cwd: directory, timeoutMs: settings.run_timeout_ms });
+    }
+  } finally {
+    await proxy.close();
+  }
+  const seconds = (Date.now() - started) / 1000;
+  // The harness's own event stream is kept beside the run, so a run that did nothing can be read afterwards.
+  writeFileSync(join(directory, 'trace.jsonl'), result.stdout);
+  for (const observation of observations) calls.push({ tool: observation.tool, result: observation.content, duration_ms: observation.duration_ms });
+  const tools = proxy.policy()?.safeReadTools;
+  const usage = usageFrom(model.harness, result.stdout);
+  // A model the harness could not reach (no plan for it, no such model) never saw a tool: the run is blocked, not failed.
+  const unreachable = result.code !== 0 && !calls.length
+    ? result.stdout.split('\n').filter(line => line.startsWith('{')).map(line => { try { return JSON.parse(line); } catch { return null; } })
+      .map(event => event?.type === 'turn.failed' ? event.error?.message : event?.type === 'result' && event.is_error ? event.result : null).find(Boolean) ?? null
+    : null;
+  const stalled = result.timedOut && !calls.length ? 'the harness made no tool call before its time limit' : null;
+  return { calls, unreachable: unreachable ?? stalled, seconds, exit: result.code, timed_out: result.timedOut, usage, stderr_tail: result.stderr.slice(-400), stdout_tail: result.stdout.slice(-600), blocked_calls: events.filter(event => event.type === 'tool_call_blocked').map(event => event.tool),
+    // What the connection saw, kept when the agent made no call, so a run that found no tools can be told from one that did not look.
+    transport: calls.length ? undefined : events.slice(0, 20).map(event => ({ type: event.type, method: event.method, reason: event.reason, error: event.error, status: event.status, ready: event.ready, declared: event.declared_count })), read_only_tools: tools ? [...tools] : [] };
+}
+
+/** Waits until the task's seed can be read back (the service keeps some lists a moment behind a write); returns what is still missing, or null. */
+const unreadableSeeds = new Set();
+async function waitForSeed(task, values, verifier, settings) {
+  if (!task.ready_when) return null;
+  const [check] = fillValues([task.ready_when], values);
+  // A seed that stayed unreadable for one run is looked for again only briefly by the next: the account is the same.
+  const deadline = Date.now() + (unreadableSeeds.has(task.id) ? settings.seed_recheck_ms : settings.seed_visible_wait_ms);
+  let last = null;
+  do {
+    const graded = await grade({ grader: [check] }, values, verifier);
+    if (graded.checks.every(result => result.ok)) return null;
+    last = graded.checks.flatMap(result => result.said).join('; ');
+    await pause(4000);
+  } while (Date.now() < deadline && !stopping);
+  unreadableSeeds.add(task.id);
+  return last;
+}
+
+/** The grader's reads, in order, through a read-only proxy; every check says whether it passed. */
+async function grade(task, values, verifier) {
+  const checks = [];
+  let blocked = false;
+  for (const check of fillValues(task.grader, values)) {
+    let read;
+    try {
+      const reply = await verifier.callTool(check.read.tool, check.read.arguments ?? {}, { allowError: true });
+      read = reply?.error || reply?.isError ? { error: JSON.stringify(reply.error ?? reply).slice(0, 300) } : { record: recordOf(reply) };
+    } catch (error) { read = { error: String(error.message).slice(0, 300) }; }
+    const result = gradeCheck(check, read);
+    checks.push(result.ok ? result : { ...result, read_was: JSON.stringify(read.record ?? read.error).slice(0, 400) });
+  }
+  return { checks, blocked };
+}
+
+export function reportTable(rows) {
+  const lines = [];
+  const header = ['name', 'runs', 'blocked', 'success_rate', 'interval_95', 'steps', 'errors', 'off_path', 'wrong_tool_writes', 'seconds', 'cost_usd'];
+  const table = summary => [`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`, ...summary.map(row => `| ${header.map(name => row[name] ?? '').join(' | ')} |`)].join('\n');
+  const compared = new Set(rows.map(row => row.variant)).size > 1;
+  lines.push('## By task', table(summarizeRuns(rows, 'task')), '', '## By model', table(summarizeRuns(rows, 'model')), '', '## By task and model', table(summarizeRuns(rows, row => `${row.task} / ${row.model}`)));
+  if (compared) lines.push('', '## By tool words', table(summarizeRuns(rows, 'variant')), '', '## By task and tool words', table(summarizeRuns(rows, row => `${row.task} / ${row.variant}`)), '', '## By model and tool words', table(summarizeRuns(rows, row => `${row.model} / ${row.variant}`)));
+  return lines.join('\n');
+}
+
+// A hang-up (the shell that started this run ended) never stops a run; an interrupt or terminate stops it after the job in hand.
+let stopping = false;
+const children = new Set();
+process.on('SIGHUP', () => say('hang-up ignored'));
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => {
+  stopping = true;
+  say(`${signal}: stopping; the agent in hand is stopped, the accounts are cleaned up, then this exits`);
+  for (const child of children) child.kill('SIGTERM');
+});
+
+async function main() {
+  const refused = lockHolderProblem(process.env, pid => { try { process.kill(pid, 0); return true; } catch (error) { return error.code === 'EPERM'; } });
+  if (refused && !flag('report')) { process.stderr.write(`${refused}\n`); process.exitCode = 2; return; }
+  const reportOnly = flag('report');
+  if (reportOnly) {
+    const rows = readFileSync(join(reportOnly, 'rows.jsonl'), 'utf8').trim().split('\n').map(line => JSON.parse(line));
+    console.log(reportTable(rows));
+    return;
+  }
+  const tasksFile = readJson(flag('tasks-file', '../test/fixtures/agent-tool-eval-tasks.json'));
+  const modelsFile = readJson('agent-tool-eval-models.json');
+  const settings = { ...tasksFile.settings, ...modelsFile.settings };
+  const wantedTasks = flag('tasks', 'all');
+  const tasks = tasksFile.tasks.filter(task => wantedTasks === 'all' || wantedTasks.split(',').includes(task.id));
+  const wantedModels = flag('models', 'all');
+  const models = modelsFile.models.filter(model => wantedModels === 'all' || wantedModels.split(',').includes(model.id));
+  const runs = Number(flag('runs', '1'));
+  // --words-from <worktree> runs every job twice, once with the tool words the service lists (before) and once with the
+  // words in that worktree's source (after), in turn and in one account, so the two are compared on the same days.
+  const wordsFrom = flag('words-from');
+  const variants = wordsFrom ? [{ id: 'before', words: null }, { id: 'after', words: await wordsOf(wordsFrom) }] : [{ id: 'live', words: null }];
+  const origin = flag('origin', 'https://app.gettrillion.ai');
+  const out = resolve(flag('out', join('/private/tmp', `agent-tool-evals-${Date.now()}`)));
+  mkdirSync(out, { recursive: true });
+  const rowsPath = join(out, 'rows.jsonl');
+  // A public name or an id outlives the account that made it for a while, so every invocation tags its runs with its own start.
+  const session = bytesToHex(blake3(new TextEncoder().encode(`${Date.now()}-${process.pid}`))).slice(0, 6);
+  say(`${tasks.length} tasks x ${models.length} models x ${runs} runs -> ${out}`);
+
+  const { key, browser } = await makeAccount(origin, settings);
+  try {
+    const openWorld = [...new Set(tasks.flatMap(task => task.open_world_tools ?? []))];
+    // One proxy sets the starting state and reads the grader's records. It names exactly the tools the tasks' seeds and
+    // graders use (a read the service does not mark read-only, such as read_workflow_run, is named the same way).
+    const named = [...new Set(tasks.flatMap(task => [...(task.seed ?? []).map(step => step.tool), ...task.grader.map(check => check.read.tool), ...(task.ready_when ? [task.ready_when.read.tool] : [])]))];
+    const fixture = await openMcpProxy({ origin, key, record: () => {}, observations: [], fixtureTools: [...named, ...settings.ready_probes.map(probe => probe.tool)], actor: 'fixture_setup', timeoutMs: settings.tool_timeout_ms });
+    const verifier = fixture;
+    const catalog = await fixture.listTools();
+    const annotations = Object.fromEntries(catalog.map(tool => [tool.name, tool.annotations ?? {}]));
+    const readyMs = await waitUntilReady(verifier, settings);
+    say(readyMs == null ? 'the account never answered all its stores; runs will report what is blocked' : `account ready after ${Math.round(readyMs / 1000)} s`);
+    writeFileSync(join(out, 'run.json'), JSON.stringify({ started_at: new Date().toISOString(), origin, tools_listed: catalog.length, ready_ms: readyMs, tasks: tasks.map(task => task.id), models: models.map(model => model.id), runs }, null, 1));
+
+    for (let attempt = 1; attempt <= runs && !stopping; attempt += 1) {
+      for (const task of tasks) {
+        if (stopping) break;
+        for (const model of models) for (const variant of attempt % 2 ? variants : [...variants].reverse()) {
+          if (stopping) break;
+          const tag = runTag(`${session}-${model.id}-${variant.id}`, task.id, attempt);
+          // `short` is eight characters of this run's identity, for a name that must stay short (a public page name).
+          const values = { run: tag, short: bytesToHex(blake3(new TextEncoder().encode(tag))).slice(0, 8), ...(task.values ?? {}) };
+          const row = { task: task.id, area: task.area, variant: variant.id, model: model.id, harness: model.harness, attempt, tag, at: new Date().toISOString() };
+          const seedFailure = await seed(task, values, fixture) ?? await waitForSeed(task, values, verifier, settings).then(missing => (missing ? `the seed never became readable (${missing})` : null));
+          if (seedFailure) {
+            Object.assign(row, { outcome: 'blocked', blocked_by: seedFailure, steps: 0, errors: 0, off_path: 0, wrong_tool_writes: 0, seconds: 0 });
+          } else {
+            const ran = await runAgent({ model, prompt: agentPrompt(settings, fillValues(task.job, values)), origin, key, directory: join(out, 'runs', tag), settings, allowedOpenWorld: openWorld, toolWords: variant.words?.tools ?? null, serverInstructions: variant.words?.instructions ?? null });
+            const counts = countCalls({ calls: ran.calls, task, settings, annotations });
+            const graded = await grade(task, { ...values, ...captureFrom(ran.calls, task.capture) }, verifier);
+            const wrote = ran.calls.some(call => annotations[call.tool]?.readOnlyHint !== true);
+            const outcome = outcomeAfterWork(outcomeOf(graded.checks, { blocked: graded.blocked || Boolean(ran.unreachable) }), wrote);
+            Object.assign(row, { outcome, ...(ran.unreachable ? { blocked_by: `model not reachable: ${String(ran.unreachable).slice(0, 200)}` } : {}), failure: failureKindOf({ outcome, counts, calls: ran.calls, annotations }), ...counts, seconds: Math.round(ran.seconds), exit: ran.exit, timed_out: ran.timed_out, input_tokens: ran.usage?.input_tokens ?? null, output_tokens: ran.usage?.output_tokens ?? null, cost_usd: ran.usage?.cost_usd ?? null, final: (ran.usage?.final ?? '').slice(0, 400), checks: graded.checks, blocked_calls: ran.blocked_calls, transport: ran.transport, stderr_tail: ran.exit === 0 ? undefined : ran.stderr_tail, stdout_tail: ran.exit === 0 ? undefined : ran.stdout_tail,
+              calls: ran.calls.map(call => ({ tool: call.tool, failed: Boolean(call.result?.isError || call.result?.error), ms: call.duration_ms, said: JSON.stringify(call.result).slice(0, 240) })) });
+          }
+          appendFileSync(rowsPath, `${JSON.stringify(row)}\n`);
+          say(`${task.id} / ${model.id} / ${variant.id} #${attempt}: ${row.outcome} (${row.steps} steps, ${row.errors} errors, ${row.off_path} off path, ${row.seconds} s)`);
+        }
+      }
+    }
+    await fixture.close();
+  } finally {
+    await browser.close().catch(error => say(`cleanup: ${String(error.message).split('\n')[0]}`));
+  }
+  const rows = existsSync(rowsPath) ? readFileSync(rowsPath, 'utf8').trim().split('\n').map(line => JSON.parse(line)) : [];
+  const table = reportTable(rows);
+  writeFileSync(join(out, 'report.md'), `${table}\n`);
+  console.log(table);
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) await main();

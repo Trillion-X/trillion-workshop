@@ -1,0 +1,153 @@
+// The Posts and posting calendar screens' road (src/work-posts.mjs): the calendar span reaches the store's calendar
+// read, a page's draft carries words, a new time and places (and, for a new draft, its selected file), writes come only from this
+// service's pages, and every call is the person's own.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { handleWorkPosts, isWorkPostsPath } from '../src/work-posts.mjs';
+import { PERSON_APP } from '../src/activity.mjs';
+import { makeSocialPosts, handlePostsRequest } from '../../../draft-approve-and-publish-my-social-posts-now/from-old-trillion/src/social-posts.mjs.held';
+import { sqliteHost } from '../src/local-store.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import postSettings from '../src/social-posts.json' with { type: 'json' };
+
+const ORIGIN = 'https://app.example';
+function person() {
+  const seen = [];
+  return { seen, fetch: async request => { seen.push({ url: request.url, app: request.headers.get('x-trillion-app'), body: request.method === 'POST' ? await request.json() : null }); return Response.json({ ok: true }); } };
+}
+const call = (store, path, { method = 'GET', body, origin = ORIGIN } = {}) => {
+  const url = new URL(`${ORIGIN}${path}`);
+  return handleWorkPosts(new Request(url, { method, headers: { origin, 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}) }), { person: store, origin: ORIGIN, url });
+};
+
+test('the calendar span reaches the store\'s calendar read, as the person', async () => {
+  const store = person();
+  assert.ok(isWorkPostsPath('/work/api/posts/calendar'));
+  await call(store, '/work/api/posts/calendar?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z&extra=1');
+  assert.deepEqual(store.seen, [{ url: 'https://person/posts/calendar?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z', app: PERSON_APP, body: null }]);
+});
+
+test('a page edits a post caption, time and places while retaining its file; a new draft carries words, file, time and places', async () => {
+  const store = person();
+  await call(store, '/work/api/posts/draft', { method: 'POST', body: { post_id: 'post:a', scheduled_for: '2026-10-05T15:00:00.000Z', time_zone: 'America/New_York', caption: 'changed words', destinations: ['x'], media: '/Media/a.mp4' } });
+  await call(store, '/work/api/posts/draft', { method: 'POST', body: { post_id: 'post:a', scheduled_for: null, time_zone: null } });
+  await call(store, '/work/api/posts/draft', { method: 'POST', body: { caption: 'my first post', scheduled_for: null, time_zone: null, destinations: [], media: '/Media/a.mp4', link: 'https://x.example' } });
+  await call(store, '/work/api/posts/approve', { method: 'POST', body: { post_id: 'post:a', scheduled_for: 'ignored' } });
+  assert.deepEqual(store.seen.map(item => [item.url, item.body]), [
+    ['https://person/posts/draft', { post_id: 'post:a', caption: 'changed words', scheduled_for: '2026-10-05T15:00:00.000Z', time_zone: 'America/New_York', destinations: ['x'] }],
+    ['https://person/posts/draft', { post_id: 'post:a', scheduled_for: null, time_zone: null }],
+    ['https://person/posts/draft', { caption: 'my first post', media: '/Media/a.mp4', scheduled_for: null, time_zone: null, destinations: [] }],
+    ['https://person/posts/approve', { post_id: 'post:a' }],
+  ]);
+});
+
+test('where a post can go is read by name only, as the person', async () => {
+  const store = person();
+  await call(store, '/work/api/posts/destinations');
+  assert.deepEqual(store.seen, [{ url: 'https://person/posts/destinations?links=no', app: PERSON_APP, body: null }]);
+});
+
+test('a write from another page, or a verb not offered, never reaches the store', async () => {
+  const store = person();
+  assert.equal((await call(store, '/work/api/posts/draft', { method: 'POST', body: { post_id: 'post:a' }, origin: 'https://elsewhere.example' })).status, 403);
+  assert.equal((await call(store, '/work/api/posts/connect', { method: 'POST', body: { post_id: 'post:a' } })).status, 404);
+  assert.equal((await call(store, '/work/api/posts/approve', { method: 'POST', body: { scheduled_for: 'x' } })).status, 400, 'only a draft may name no post');
+  assert.equal((await call(store, '/work/api/posts/draft', { method: 'POST', body: { post_id: 7, caption: 'x' } })).status, 400, 'a post named wrongly is not a new one');
+  assert.equal(store.seen.length, 0);
+});
+
+// Exercise the real HTTP forwarding and draft owner over independent account record stores. Only the Files
+// locator is a stand-in: each account sees its own file map, with no shared fallback or real provider requests.
+function accountPosts(t, ownedFiles = []) {
+  const host = sqliteHost(':memory:');
+  t.after(() => host.db.close());
+  const records = decisionStore(host.sql, { transaction: host.transaction }).eeaf;
+  const files = new Map(ownedFiles.flatMap(file => [[file.identity, file], [file.name, file]]));
+  const lookedUp = [], forwarded = [];
+  const posts = makeSocialPosts({ eeaf: records, settings: postSettings, places: [], connections: async () => [],
+    files: { locate: async ref => { lookedUp.push(ref); return files.get(ref) ?? null; } },
+  });
+  const person = { fetch: async request => {
+    forwarded.push({ app: request.headers.get('x-trillion-app'), origin: request.headers.get('x-trillion-origin'), input: await request.clone().json() });
+    return handlePostsRequest(posts, request);
+  } };
+  return { records, posts, person, lookedUp, forwarded };
+}
+const clip = { identity: '1f:owned-clip', name: '/Media/clip.mp4', media_type: 'video/mp4', byte_length: 1234 };
+const savedClip = { identity: clip.identity, name: clip.name, media_type: clip.media_type };
+
+for (const media of [clip.identity, clip.name]) test(`a selected file (${media}) survives the new-draft HTTP boundary and owner validation`, async t => {
+  const account = accountPosts(t, [clip]);
+  const response = await call(account.person, '/work/api/posts/draft', { method: 'POST', body: { caption: '', media, destinations: [], link: 'https://ignored.example', media_facts: { duration_seconds: 999 }, status: 'posted', source: { kind: 'anything', id: 'foreign' } } });
+  const answer = await response.json();
+  assert.equal(response.status, 200, JSON.stringify(answer));
+  assert.deepEqual(answer.post.media, savedClip, 'a media-only draft retains the selected file');
+  assert.deepEqual(account.records.read(answer.post.post_id).media, savedClip, 'the saved record contains the checked file identity');
+  assert.equal(answer.post.status, 'draft');
+  assert.equal(answer.post.link, null); assert.equal(answer.post.source, null);
+  assert.deepEqual(account.forwarded, [{ app: PERSON_APP, origin: ORIGIN, input: { caption: '', media, destinations: [] } }], 'unrelated fields do not reach the owner');
+  assert.ok(account.lookedUp.includes(media), 'the owner looked up the submitted file in this account');
+});
+
+test('missing and other-account files fail through the draft owner without saving a caption-only fallback', async t => {
+  const a = accountPosts(t, [clip]);
+  const foreign = { identity: '1f:other-account-clip', name: '/Media/other-account.mp4', media_type: 'video/mp4' };
+  const b = accountPosts(t, [foreign]);
+  assert.deepEqual((await b.posts.draft({ media: foreign.identity })).post.media, foreign, 'the foreign reference is a real file to its own account');
+  for (const media of ['/Media/missing.mp4', foreign.identity, foreign.name]) {
+    const response = await call(a.person, '/work/api/posts/draft', { method: 'POST', body: { caption: 'Keep my selected file', media } });
+    const answer = await response.json();
+    assert.equal(response.status, 400, JSON.stringify(answer));
+    assert.match(answer.error, /not in your files/);
+    assert.ok(a.lookedUp.includes(media));
+    assert.deepEqual(a.records.ids(postSettings.record_type), [], 'no draft was written after failed file validation');
+  }
+});
+
+test('ordinary text drafts still save without file lookup and wrong-origin media writes reach no owner', async t => {
+  const account = accountPosts(t, [clip]);
+  const response = await call(account.person, '/work/api/posts/draft', { method: 'POST', body: { caption: 'Just words', destinations: [] } });
+  const answer = await response.json();
+  assert.equal(response.status, 200, JSON.stringify(answer));
+  assert.equal(answer.post.caption, 'Just words'); assert.equal(answer.post.media, null);
+  assert.equal(account.records.read(answer.post.post_id).caption, 'Just words');
+  assert.deepEqual(account.lookedUp, []);
+  const before = account.records.ids(postSettings.record_type);
+  const denied = await call(account.person, '/work/api/posts/draft', { method: 'POST', origin: 'https://elsewhere.example', body: { caption: 'Unauthorized', media: clip.identity } });
+  assert.equal(denied.status, 403);
+  assert.equal(account.forwarded.length, 1, 'the unauthorized write never reached the person store');
+  assert.deepEqual(account.records.ids(postSettings.record_type), before);
+});
+
+test('an existing post saves human caption edits and its schedule while retaining its media', async t => {
+  const account = accountPosts(t, [clip]);
+  const existing = (await account.posts.draft({ caption: 'Original words', media: clip.identity })).post;
+  const response = await call(account.person, '/work/api/posts/draft', { method: 'POST', body: { post_id: existing.post_id, caption: 'Human edited words', media: '/Media/missing.mp4', scheduled_for: '2099-10-10T12:00:00Z', time_zone: 'UTC', destinations: [], link: 'https://ignored.example' } });
+  const answer = await response.json();
+  assert.equal(response.status, 200, JSON.stringify(answer));
+  assert.equal(answer.post.caption, 'Human edited words');
+  assert.equal(account.records.read(existing.post_id).caption, 'Human edited words');
+  assert.equal(answer.post.status, 'draft', 'editing the words does not publish or retain approval');
+  assert.deepEqual(answer.post.media, savedClip);
+  assert.equal(answer.post.scheduled_for, '2099-10-10T12:00:00.000Z');
+  assert.equal(answer.post.time_zone, 'UTC');
+  assert.deepEqual(account.records.read(existing.post_id).media, savedClip);
+  assert.ok(!account.lookedUp.includes('/Media/missing.mp4'), 'the replacement never reached file validation');
+  assert.deepEqual(account.forwarded[0].input, { post_id: existing.post_id, caption: 'Human edited words', scheduled_for: '2099-10-10T12:00:00Z', time_zone: 'UTC', destinations: [] });
+  const removal = await call(account.person, '/work/api/posts/draft', { method: 'POST', body: { post_id: existing.post_id, media: null, destinations: [] } });
+  assert.equal(removal.status, 200);
+  assert.deepEqual((await removal.json()).post.media, savedClip, 'existing-post media removal is also excluded');
+});
+
+test('an approval pressed by the signed-in person says so to the store; a look-only or viewer page cannot', async () => {
+  const seen = [];
+  const store = { fetch: async request => { seen.push(request.headers.get('x-trillion-typed-on-signed-in-screen')); return Response.json({ ok: true }); } };
+  const press = (viewer, verb = 'approve') => {
+    const url = new URL(`${ORIGIN}/work/api/posts/${verb}`);
+    return handleWorkPosts(new Request(url, { method: 'POST', headers: { origin: ORIGIN, 'content-type': 'application/json', 'x-trillion-typed-on-signed-in-screen': 'yes' }, body: JSON.stringify({ post_id: 'post:a' }) }), { person: store, origin: ORIGIN, url, viewer });
+  };
+  await press(false);
+  assert.equal((await press(true)).status, 403, 'a look-only or viewer page writes nothing');
+  await press(false, 'check');
+  assert.deepEqual(seen, ['yes', null], 'only an approval carries the person\'s press, and never one the browser sent');
+});

@@ -1,0 +1,70 @@
+// test/space-shareable.test.mjs
+// The share picker's own things (GET /spaces/shareable, src/space-shareable.mjs), answered at the account's own records
+// by its Space carrier (src/person-spaces.mjs over src/native-spaces-owner.mjs): only the kinds space-settings.json lets
+// out, newest first, a page at a time, messages from the account's message records only when it keeps them, and only for
+// a sign-in that reaches the private Trillion.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import settings from '../src/space-settings.json' with { type: 'json' };
+import sales from '../../../sales/src/sales.json' with { type: 'json' };
+import { shareablePage } from '../src/space-shareable.mjs';
+import { handleSpacesRequest } from '../src/person-spaces.mjs';
+import { isOwnResourceConsumerCall } from '../src/own-resource-compatibility.mjs';
+
+const keeps = { capabilities: [sales.kept_access] };
+const noMessages = () => assert.fail('an account that keeps no messages is not read for them');
+
+test('the shareable listing holds only the kinds space-settings.json lets out, newest first, a page at a time', () => {
+  const pursuits = Array.from({ length: settings.page.default + 2 }, (_, index) => ({ id: `pursuit:${index}`, title: `Goal ${index}`, now: 'here', recorded_at: `2026-09-${String(index + 1).padStart(2, '0')}T00:00:00Z`, why_it_matters: 'private words' }));
+  const summaries = [{ case_id: 'case:1', goal: 'Pick a venue', decision: 'The barn', status: 'decided', created_at: '2026-10-05T00:00:00Z' }];
+  const screen = { summaries, pursuits, access: { capabilities: [], secret: true } };
+  const first = shareablePage({ screen, messagesPage: noMessages }).body;
+  assert.deepEqual(first.kinds, Object.keys(settings.share_from_private));
+  assert.equal(first.items.length, settings.page.default);
+  assert.deepEqual(first.items[0], { kind: 'decision', record_id: 'case:1', title: 'Pick a venue', detail: 'The barn', at: '2026-10-05T00:00:00Z' });
+  assert.deepEqual(first.items[1], { kind: 'pursuit', record_id: `pursuit:${pursuits.length - 1}`, title: `Goal ${pursuits.length - 1}`, detail: 'here', at: pursuits.at(-1).recorded_at });
+  assert.ok(!JSON.stringify(first).includes('private words') && !JSON.stringify(first).includes('secret'));
+  const second = shareablePage({ screen, messagesPage: noMessages }, { after: first.next_after }).body;
+  assert.deepEqual(second.items.map(item => item.record_id), ['pursuit:2', 'pursuit:1', 'pursuit:0']);
+  assert.equal(second.next_after, null);
+  assert.deepEqual(shareablePage({ screen, messagesPage: noMessages }, { kind: 'decision' }).body.items.map(item => item.record_id), ['case:1']);
+  assert.equal(shareablePage({ screen, messagesPage: noMessages }, { kind: 'contact' }).status, 400);
+});
+
+test('the shareable listing includes the account\'s message records and pages by the last visible time and id', () => {
+  const pursuits = Array.from({ length: settings.page.default }, (_, index) => ({ id: `pursuit:${index}`, title: `Goal ${index}`, recorded_at: `2026-09-${String(index + 1).padStart(2, '0')}T00:00:00Z` }));
+  const screen = { summaries: [], pursuits, access: keeps };
+  const pages = [];
+  const messagesPage = query => {
+    pages.push(query);
+    return { items: query.before ? [] : [{ record_id: 'message:2026-10-01T00:00:00.000Z:abc', title: 'Let’s decide', detail: 'person · Codex', at: '2026-10-01T00:00:00.000Z' }], next_before: null };
+  };
+  const first = shareablePage({ screen, messagesPage }).body;
+  assert.deepEqual(first.items[0], { kind: 'message', record_id: 'message:2026-10-01T00:00:00.000Z:abc', title: 'Let’s decide', detail: 'person · Codex', at: '2026-10-01T00:00:00.000Z' });
+  assert.match(first.next_after, /^space-share:/);
+  assert.deepEqual(pages, [{ before: undefined, limit: 100 }]);
+  const second = shareablePage({ screen, messagesPage }, { after: first.next_after }).body;
+  assert.deepEqual(second.items.map(item => item.record_id), ['pursuit:0']);
+  assert.equal(second.next_after, null);
+  const onlyMessages = shareablePage({ screen, messagesPage }, { kind: 'message' }).body;
+  assert.deepEqual(onlyMessages.items.map(item => item.record_id), ['message:2026-10-01T00:00:00.000Z:abc']);
+  assert.equal(onlyMessages.next_after, null);
+});
+
+test('the Space carrier answers it at the account\'s own records, only to a sign-in reaching the private Trillion', async () => {
+  for (const path of ['/work/api/spaces/shareable', '/mcp/api/spaces/shareable']) assert.equal(isOwnResourceConsumerCall(path, undefined, 'GET'), true, path);
+  const asked = [];
+  const host = { network: () => ({}), relay: () => 'relay_me',
+    workScreen: async () => { asked.push('screen'); return { summaries: [], pursuits: [{ id: 'pursuit:a', title: 'Goal', recorded_at: '2026-10-01T00:00:00Z' }], access: keeps }; },
+    shareableMessages: query => { asked.push(['messages', query]); return { items: [], next_before: null }; } };
+  const ask = reach => handleSpacesRequest(host, new Request('https://app.gettrillion.ai/spaces/shareable?kind=pursuit', { headers: { 'x-trillion-reach': JSON.stringify(reach) } }));
+  const answered = await ask({ private: true, spaces: 'all' });
+  assert.equal(answered.status, 200);
+  assert.deepEqual((await answered.json()).items.map(item => item.record_id), ['pursuit:a']);
+  assert.deepEqual(asked, ['screen'], 'a pursuit listing reads no message page');
+  asked.length = 0;
+  const refused = await ask({ private: false, spaces: ['membership_1'] });
+  assert.equal(refused.status, 400);
+  assert.match((await refused.json()).error, /reaches only your pursuits/);
+  assert.deepEqual(asked, [], 'a sign-in without the private Trillion reads none of it');
+});

@@ -1,0 +1,85 @@
+// test/work-media-session.test.mjs
+//
+// The media editor's session, versions and track check as routes (src/work-media-session.mjs, reached through src/work-media.mjs):
+// a command is logged before its state is answered and a reopened session replays exactly (undo included), a bad command or path is
+// refused, versions publish beside the original with the default chosen and refusals in words, tracks out of step are named, and
+// every write needs the service's own origin and a signed-in person.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { handleWorkMedia, isWorkMediaPath } from '../src/work-media.mjs';
+import rules from '../../../shared-code/src/work-media-session.json' with { type: 'json' };
+
+const ORIGIN = 'https://app.test';
+function account() {
+  const facts = new Map();
+  const person = { fact: async (key) => (facts.has(key) ? structuredClone(facts.get(key)) : null), setFact: async (key, value) => { facts.set(key, structuredClone(value)); } };
+  const call = async (method, path, body, { origin = ORIGIN, userId = 'u1' } = {}) => {
+    const url = new URL(`${ORIGIN}${path}`);
+    const request = new Request(url, { method, headers: { origin, 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}) });
+    const answer = await handleWorkMedia(request, { person, userId, origin: ORIGIN, url, env: {} });
+    return { status: answer.status, body: await answer.json() };
+  };
+  return { facts, person, call };
+}
+
+test('the three routes are media routes', () => {
+  for (const path of ['/work/api/media/session', '/work/api/media/versions', '/work/api/media/alignment']) assert.equal(isWorkMediaPath(path), true);
+});
+
+test('a command is logged, undo and redo are logged too, and a reopened session replays to the same state', async () => {
+  const { call, facts } = account();
+  await facts.set('media_edit:e1', { title: 'Draft', clips: [{ identity: 'a' }] });
+  const one = await call('POST', '/work/api/media/session', { id: 'e1', command: { type: 'set', path: ['title'], value: 'Final' } });
+  assert.deepEqual([one.status, one.body.state.title, one.body.seq], [200, 'Final', 1]);
+  await call('POST', '/work/api/media/session', { id: 'e1', command: { type: 'insert', path: ['clips'], index: 1, value: { identity: 'b' } } });
+  const undone = await call('POST', '/work/api/media/session', { id: 'e1', undo: true });
+  assert.equal(undone.body.state.clips.length, 1);
+  const reopened = await call('GET', '/work/api/media/session?id=e1');
+  assert.deepEqual(reopened.body, undone.body);
+  const redone = await call('POST', '/work/api/media/session', { id: 'e1', redo: true });
+  assert.equal(redone.body.state.clips.length, 2);
+  assert.equal(facts.get('media_edit:e1').title, 'Draft', 'the saved edit is read, never overwritten by the log');
+});
+
+test('a snapshot every N commands keeps the log short and the replay exact', async () => {
+  const { call, facts } = account();
+  for (let index = 1; index <= 25; index += 1) await call('POST', '/work/api/media/session', { id: 'e2', command: { type: 'set', path: ['n'], value: index } });
+  assert.ok(facts.has('media_session_snapshot:e2'));
+  assert.ok(facts.get('media_session_log:e2').length < 25);
+  assert.equal((await call('GET', '/work/api/media/session?id=e2')).body.state.n, 25);
+});
+
+test('a command DATA does not name, a missing field, a poisoned path and a foreign origin are refused; signed out is 401', async () => {
+  const { call } = account();
+  const bad = [{ type: 'explode', path: ['a'] }, { type: 'set', path: ['a'] }, { type: 'set', path: ['__proto__', 'x'], value: 1 }, { type: 'set', path: [], value: 1 }];
+  for (const command of bad) assert.equal((await call('POST', '/work/api/media/session', { id: 'e3', command })).status, 400, JSON.stringify(command));
+  assert.equal((await call('POST', '/work/api/media/session', { id: 'e3', command: { type: 'set', path: ['a'], value: 1 } }, { origin: 'https://evil.test' })).status, 403);
+  assert.equal((await call('POST', '/work/api/media/session', { id: 'e3', command: { type: 'set', path: ['a'], value: 1 } }, { userId: '' })).status, 401);
+  assert.equal(({}).polluted, undefined);
+});
+
+test('versions: publish beside the original, choose the default, refuse a too-soon publish and a default removal in words', async () => {
+  const { call } = account();
+  const made = await call('POST', '/work/api/media/versions', { id: 'r1', action: 'publish', seconds: 30, version: { id: 'v1', label: 'Short cut' }, make_default: true });
+  assert.equal(made.status, 200);
+  assert.equal(made.body.state.default_id, 'v1');
+  const soon = await call('POST', '/work/api/media/versions', { id: 'r1', action: 'publish', seconds: 30, version: { id: 'v2', label: 'Another' } });
+  assert.deepEqual([soon.status, soon.body.code], [409, 'TOO_SOON']);
+  assert.match(soon.body.message, /moment ago/);
+  assert.equal((await call('POST', '/work/api/media/versions', { id: 'r1', action: 'remove', version_id: 'v1' })).body.code, 'DEFAULT');
+  assert.equal((await call('POST', '/work/api/media/versions', { id: 'r1', action: 'default', version_id: 'original' })).body.state.default_id, null);
+  const read = await call('GET', '/work/api/media/versions?id=r1&version=v1');
+  assert.equal(read.body.served.id, 'v1');
+  assert.equal((await call('POST', '/work/api/media/versions', { id: 'r1', action: 'nonsense' })).status, 400);
+  assert.equal((await call('POST', '/work/api/media/versions', { id: 'r1', action: 'remove', version_id: 'original' })).body.code, 'ORIGINAL');
+});
+
+test('tracks out of step are measured and the furthest out is named; a bad body is refused', async () => {
+  const { call } = account();
+  const tracks = [{ id: 'screen', wall_clock_ms: 1000, first_timestamp_ms: 1000 }, { id: 'mic', wall_clock_ms: 1010, first_timestamp_ms: 1400 }];
+  const out = await call('POST', '/work/api/media/alignment', { tracks });
+  assert.equal(out.body.in_step, false);
+  assert.equal(out.body.worst, 'mic');
+  assert.equal((await call('POST', '/work/api/media/alignment', { tracks: [] })).status, 400);
+  assert.equal((await call('POST', '/work/api/media/alignment', { tracks: Array.from({ length: rules.most_tracks + 1 }, (_, i) => ({ id: String(i), wall_clock_ms: 1, first_timestamp_ms: 1 })) })).status, 400);
+});

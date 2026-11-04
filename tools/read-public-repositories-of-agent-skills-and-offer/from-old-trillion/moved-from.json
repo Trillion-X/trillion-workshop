@@ -1,0 +1,48 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/skill-rows.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-public-repositories-of-agent-skills-and-offer/from-old-trillion/src/skill-rows.mjs.held",
+      "source_identity": "1f:a596985b7017a0565d69fb8de31309626c8b5651502153c53591199e57799603",
+      "identity": "1f:1c2096cf40f7472ddbf17ff3fc60a7f23b1a286ca8b545100cc1cac0cb1bc585",
+      "held": true
+    },
+    {
+      "from": "src/skill-source-config.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-public-repositories-of-agent-skills-and-offer/from-old-trillion/src/skill-source-config.mjs.held",
+      "source_identity": "1f:ab167423d14549e87229f536aa6a0ccd8c362d93b7d8283c8f8adf7827df8661",
+      "identity": "1f:ab167423d14549e87229f536aa6a0ccd8c362d93b7d8283c8f8adf7827df8661",
+      "held": true
+    },
+    {
+      "from": "src/skill-sources.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-public-repositories-of-agent-skills-and-offer/from-old-trillion/src/skill-sources.mjs.held",
+      "source_identity": "1f:493f352f99b0283de3549b17288d15dfd2b62976dae359ef1339e91bc6e4b57a",
+      "identity": "1f:494e90c97b16bc22c394e309b63e2a9788901eabdd287177f7d5214a5ffbde4f",
+      "held": true
+    },
+    {
+      "from": "test/skill-sources-root.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-public-repositories-of-agent-skills-and-offer/from-old-trillion/test/skill-sources-root.test.mjs.held",
+      "source_identity": "1f:549d34afd083d66c6bcfc065e23db3ab779d370d3b52fbba4d558174f32ea1a2",
+      "identity": "1f:5165cb8dfbab55069acf02be38a19f5adf84dd708a52d2ff9b190365617bb366",
+      "held": true
+    },
+    {
+      "from": "test/skill-sources.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-public-repositories-of-agent-skills-and-offer/from-old-trillion/test/skill-sources.test.mjs.held",
+      "source_identity": "1f:2717bc1294a13ceccdb761ea4913d33697cfc1a1666a3e58fe7d4fa7f60aaa00",
+      "identity": "1f:e6d7dedc75147fa786633eda8d6cfee4fd16d45203cd0e2c6dc04d4deb0e84ad",
+      "held": true
+    }
+  ]
+}

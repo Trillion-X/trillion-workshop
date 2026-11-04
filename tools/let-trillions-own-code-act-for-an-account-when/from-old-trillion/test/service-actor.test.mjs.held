@@ -1,0 +1,123 @@
+// The one way Trillion's own code acts for an account (src/service-actor.mjs): minted by the account's own policy owner
+// with a key only it holds, bound to one account and one scope, and standing at a gate only once that owner verified it.
+// The checks through the actual gates (forged, cross-account and cross-scope claims, plan, stops, disconnection, erasure)
+// are here for the gate itself and in test/tool-run-mount.test.mjs for a tool run.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { sqliteHost } from '../src/local-store.mjs';
+import { makeAccountControlState } from '../src/account-control-state.mjs';
+import { signInOfRequest, CLAIMS_HEADER } from '../src/ai-reach.mjs';
+import { mintServiceClaims, serviceClaimsMinted, isServiceSignIn, serviceGateOf, serviceGateKnown } from '../src/service-actor.mjs';
+import rows from '../../../service-actor-origins/src/service-actor-origins.json' with { type: 'json' };
+
+const KEY = 'a1'.repeat(32), OTHER_KEY = 'b2'.repeat(32);
+const RUN = `task_${'1'.repeat(32)}`, OTHER_RUN = `task_${'2'.repeat(32)}`;
+const run = id => ({ kind: 'tool-run', id });
+
+test('service claims are minted for an origin row and one scope its row allows, and only the key that minted them verifies them', () => {
+  for (const row of rows.origins) for (const kind of row.scopes) {
+    const id = kind === 'tool-run' ? RUN : kind === 'namespace-lifecycle' ? '@namespace' : kind === 'archive-merge' ? 'a'.repeat(64) : 'account-a';
+    const claims = mintServiceClaims(KEY, { origin: row.id, account: 'account-a', scope: { kind, id } });
+    assert.equal(claims.sign_in, `service:${row.id}`);
+    assert.deepEqual(claims.service_scope, { kind, id });
+    assert.equal(systemFree(claims), true);
+    assert.equal(serviceClaimsMinted(KEY, 'account-a', claims), true);
+  }
+  assert.throws(() => mintServiceClaims(KEY, { origin: 'anyone', account: 'account-a', scope: run(RUN) }), error => error.status === 403, 'a new origin is a new DATA row');
+  assert.throws(() => mintServiceClaims(KEY, { origin: 'automations', account: 'account-a', scope: { kind: 'showcase-seed', id: 'account-a' } }), error => error.status === 403, 'an origin mints only the scope kinds its row names');
+  assert.throws(() => mintServiceClaims(KEY, { origin: 'showcase-seed', account: 'account-a', scope: { kind: 'showcase-seed', id: 'account-b' } }), error => error.status === 400, 'an account scope names its own account only');
+  assert.throws(() => mintServiceClaims(KEY, { origin: 'automations', account: 'account-a', scope: { kind: 'import', id: 'batch-1' } }), error => error.status === 403, 'a new scope kind is a new DATA row');
+  assert.throws(() => mintServiceClaims(KEY, { origin: 'automations', account: 'account-a', scope: run('not-a-run') }), error => error.status === 400);
+  const minted = mintServiceClaims(KEY, { origin: 'automations', account: 'account-a', scope: run(RUN) });
+  // Another account, another key, or any change to what was minted is no service principal.
+  assert.equal(serviceClaimsMinted(KEY, 'account-b', minted), false, 'cross-account');
+  assert.equal(serviceClaimsMinted(OTHER_KEY, 'account-a', minted), false);
+  assert.equal(serviceClaimsMinted(null, 'account-a', minted), false);
+  for (const forged of [
+    { ...minted, sign_in: 'service:service-watch' },
+    { ...minted, service_scope: run(OTHER_RUN) },
+    { ...minted, service_scope: { kind: 'showcase-seed', id: 'account-a' } },
+    { ...minted, issued_at: new Date(Date.parse(minted.issued_at) + 1).toISOString() },
+    { ...minted, made: { private: true, spaces: ['other'] } },
+    { ...minted, approved_by: 'key' },
+    { ...minted, service_proof: '0'.repeat(64) },
+    { ...minted, service_proof: undefined },
+  ]) assert.equal(serviceClaimsMinted(KEY, 'account-a', forged), false, JSON.stringify(forged));
+});
+const systemFree = claims => !JSON.stringify(claims).includes('"system');
+
+test('a scope kind opens only the gates its row names, and binds a gate to its own scope id where the row says so', () => {
+  const claims = mintServiceClaims(KEY, { origin: 'automations', account: 'account-a', scope: run(RUN) });
+  assert.equal(serviceGateOf(claims, '@tool-runs').bound, 'run_id');
+  assert.deepEqual(serviceGateOf(claims, '@own-records').operations, ['tools:describe', 'tools:execute', 'tools:handOver', 'tools:checkAnswer']);
+  assert.equal(serviceGateOf(claims, '@databases'), null);
+  assert.equal(serviceGateOf(claims, '@namespace'), null, 'a tool run opens no files gate');
+  const seed = mintServiceClaims(KEY, { origin: 'showcase-seed', account: 'account-a', scope: { kind: 'showcase-seed', id: 'account-a' } });
+  assert.ok(serviceGateOf(seed, '@namespace'));
+  assert.deepEqual(serviceGateOf(seed, '@own-records').operations, ['activity:keep']);
+  assert.equal(serviceGateOf(seed, '@tool-runs'), null);
+  const lifecycle = mintServiceClaims(KEY, { origin: 'namespace-lifecycle', account: 'account-a', scope: { kind: 'namespace-lifecycle', id: '@namespace' } });
+  assert.deepEqual(serviceGateOf(lifecycle, '@namespace').operations, ['namespace-system'], 'a scope-named gate opens the resource its scope names');
+  assert.equal(serviceGateOf(lifecycle, 'project:alpha'), null);
+  assert.equal(serviceGateOf({ ...lifecycle, service_scope: { kind: 'namespace-lifecycle', id: 'project:alpha' } }, 'project:alpha'), null, 'a scope id outside its kind\'s pattern opens nothing');
+  assert.throws(() => mintServiceClaims(KEY, { origin: 'namespace-lifecycle', account: 'account-a', scope: { kind: 'namespace-lifecycle', id: 'project:alpha' } }), error => error.status === 400);
+  assert.equal(serviceGateKnown('project:alpha'), false);
+  assert.equal(serviceGateKnown('@namespace'), true);
+});
+
+test('no request makes a service principal: its sign-in is never service: or system:, whatever headers it brings', () => {
+  const request = new Request('https://person/tools/run', { method: 'POST', headers: { 'x-trillion-user': 'account-a', 'x-trillion-app': 'Trillion',
+    authorization: 'Bearer account-a:service:automations', [CLAIMS_HEADER]: JSON.stringify(mintServiceClaims(KEY, { origin: 'automations', account: 'account-a', scope: run(RUN) })) } });
+  assert.ok(!isServiceSignIn(signInOfRequest({ userId: 'account-a' }, request)));
+  assert.ok(!isServiceSignIn(signInOfRequest({ userId: 'account-a', key_id: 'service:automations' }, request)), 'a key id is a key: sign-in');
+  assert.ok(isServiceSignIn('system:automations'), 'system: is reserved as well: nothing mints it, so nothing stands as it');
+});
+
+test('a gate decides a service principal only once its proof is verified, then with every fence a sign-in meets', () => {
+  const at = Date.parse('2026-10-16T12:00:00Z');
+  const claims = mintServiceClaims(KEY, { origin: 'automations', account: 'account-a', scope: run(RUN), now: at - 1000 });
+  const stateWith = (lifecycle = {}, { verified = true, now = at, sign_ins = {} } = {}) => {
+    const state = makeAccountControlState(sqliteHost(':memory:').sql, { now: () => now, serviceVerified: given => verified && given.service_proof === claims.service_proof });
+    state.bootstrap({ epoch: 0, lifecycle: { retired_into: null, deleting_since: null, disconnected_at: null, erased_at: null, browser_session_generation: 0, ...lifecycle },
+      sign_ins, access: {}, capabilities: {}, account_budgets: [] });
+    return state;
+  };
+  assert.deepEqual(stateWith().authorize(claims), { accepted: true, reach: { private: true, spaces: 'all' } }, 'at most the reach its scope kind names');
+  assert.equal(stateWith({}, { verified: false }).authorize(claims).accepted, false, 'never on its field values alone');
+  assert.equal(stateWith().authorize({ ...claims, service_proof: '0'.repeat(64) }).accepted, false);
+  // A hand-built principal with every field right but no proof its policy owner made, under either reserved prefix.
+  const { service_proof, ...unproven } = claims;
+  assert.equal(stateWith({}, { verified: false }).authorize(unproven).accepted, false);
+  assert.equal(stateWith({}, { verified: false }).authorize({ ...unproven, sign_in: 'system:automations', approved_by: 'system' }).accepted, false);
+  assert.equal(stateWith({}, { verified: false }).authorize({ ...unproven, sign_in: 'system:automations' }).accepted, false);
+  for (const lifecycle of [{ deleting_since: '2026-10-16T11:00:00.000Z' }, { erased_at: '2026-10-16T11:00:00.000Z' }, { erased_at: '2026-10-16T13:00:00.000Z' }, { retired_into: 'account-b' }])
+    assert.equal(stateWith(lifecycle).authorize(claims).accepted, false, JSON.stringify(lifecycle));
+  // Disconnecting every sign-in refuses what was minted before it; an actor minted after it stands.
+  assert.equal(stateWith({ disconnected_at: '2026-10-16T11:59:59.500Z' }).authorize(claims).accepted, false);
+  assert.equal(stateWith({ disconnected_at: '2026-10-16T11:00:00.000Z' }).authorize(claims).accepted, true);
+  // The owner can end it like any sign-in.
+  assert.equal(stateWith({}, { sign_ins: { [claims.sign_in]: { ended_until_ms: at + 60_000 } } }).authorize(claims).accepted, false);
+  // Only a service principal is approved by the service, and a service principal only by it.
+  assert.equal(stateWith().authorize({ ...claims, approved_by: 'key' }).accepted, false);
+  assert.equal(stateWith().authorize({ ...claims, sign_in: 'key:abc' }).accepted, false);
+  // It has no credential to go stale: a year unused still stands.
+  const full = { private: true, spaces: 'all' };
+  assert.equal(stateWith({}, { now: at + 365 * 86_400_000, sign_ins: { [claims.sign_in]: { made: full, ceiling: full, last_used: new Date(at).toISOString() } } }).authorize(claims).accepted, true);
+});
+
+// Code that builds a service principal by hand, or mints one from a file no origin row names, is a reviewable change to
+// this guard and to src/service-actor-origins.json, never a silent one.
+test('only the floor and the files of the origin rows reach the service actor, and none writes a service principal by hand', () => {
+  const floor = new Set(['src/service-actor.mjs', 'src/record-book-tool-run.mjs', 'src/account-control.mjs']);
+  const allowed = new Set([...floor, ...rows.readers, ...rows.origins.map(row => row.file)]);
+  const files = readdirSync(new URL('../src/', import.meta.url), { recursive: true }).filter(name => /\.m?js$/.test(name)).map(name => `src/${name}`);
+  const importing = [], byHand = [];
+  for (const file of files) {
+    const text = readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
+    if (/(?:from|import\()\s*['"][^'"]*\/service-actor\.mjs['"]/.test(text) && !allowed.has(file)) importing.push(file);
+    if (file !== 'src/service-actor.mjs' && (/approved_by\s*:\s*['"`](?:system|service)['"`]/.test(text) || /sign_in\s*:\s*[`'"](?:system|service):/.test(text) || /(?:system|service)_proof\s*:/.test(text))) byHand.push(file);
+  }
+  assert.deepEqual(importing, [], 'a file that mints service actors is named by an origin row');
+  assert.deepEqual(byHand, [], 'a service principal is minted by src/service-actor.mjs only');
+});

@@ -1,0 +1,270 @@
+// Saved logins (src/saved-logins.mjs) over a real locked box: the credentials vault and request sender compiled from
+// their own crates exactly as the person store loads them, on a real SQLite shaped like a Durable Object's.
+// Needs cargo and the wasm-bindgen CLI Cargo.lock pins (WASM_BINDGEN=<path>), as test/held-values.test.mjs does.
+//
+// Every value here is made up in memory for the test; none is a real credential.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { DatabaseSync } from 'node:sqlite';
+import { build } from 'esbuild';
+import { buildCrateForAWebHost } from '../scripts/build-crate-for-a-web-host.mjs';
+import { sourcePlugins } from '../scripts/worker-bundle-plugins.mjs';
+import { readRootKeys } from '../src/root-keys.mjs';
+import { createSavedLoginTables, handleSavedLoginsRequest, makeSavedLogins, outlineTree, readPastedLogins } from '../src/saved-logins.mjs';
+import { savedLoginsSections } from '../src/account-screens.mjs';
+import { narrowedTo } from '../src/narrowed-screen.mjs';
+import { restartableEngine } from '../src/restartable-engine.mjs';
+import { importSource } from './import-source-for-tests.mjs';
+
+const bundled = await build({ entryPoints: [new URL('../src/held-values.mjs', import.meta.url).pathname], bundle: true, format: 'esm', platform: 'neutral', mainFields: ['module', 'main'], write: false, plugins: sourcePlugins, logLevel: 'warning' });
+const { openLockedBox } = await importSource(bundled.outputFiles[0].text);
+const moduleOf = async (crate, cargoArgs = []) => {
+  const built = await buildCrateForAWebHost({ crate, cargoArgs, bindgenTarget: 'web' });
+  return { bindings: built.bindings, module: new WebAssembly.Module(built.wasmBytes) };
+};
+const built = { vault: await moduleOf('credentials-vault'), sender: await moduleOf('http-client', ['--no-default-features']) };
+const modules = { vault: restartableEngine(() => built.vault.bindings, built.vault.module), sender: restartableEngine(() => built.sender.bindings, built.sender.module) };
+const randomHex = bytes => Buffer.from(crypto.getRandomValues(new Uint8Array(bytes))).toString('hex');
+const ROOTS = readRootKeys({ HELD_VALUES_ROOT_KEY: randomHex(32) });
+
+function personStore(messages = {}) {
+  const db = new DatabaseSync(':memory:');
+  const sql = { exec(query, ...params) { const statement = db.prepare(query); const rows = statement.columns().length ? statement.all(...params) : (statement.run(...params), []); return { toArray: () => rows }; } };
+  const transaction = fn => { db.exec('BEGIN'); try { const result = fn(); db.exec('COMMIT'); return result; } catch (error) { db.exec('ROLLBACK'); throw error; } };
+  // Every readable byte the store holds, to prove a value is in none of it.
+  const readable = () => db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name != 'held_values'").all()
+    .flatMap(({ name }) => db.prepare(`SELECT * FROM "${name}"`).all().map(row => Object.values(row).join('|'))).join('\n');
+  let opening = null;
+  const locked = () => (opening ??= openLockedBox({ modules, roots: ROOTS, label: `person-${randomHex(8)}`, sql }));
+  let clock = new Date('2026-10-01T22:00:00Z');
+  const logins = makeSavedLogins({ sql, transaction, locked, message: id => messages[id] ?? null, now: () => clock });
+  return { db, sql, logins, readable, locked, setClock: at => { clock = new Date(at); } };
+}
+
+const PASSWORD = `pw-${randomHex(10)}`;
+const FRESH = '2026-10-01T21:58:00Z';
+const STALE = '2026-10-01T21:00:00Z';
+
+test('a saved login is sealed, refused to a stale sign-in, shown to a fresh one, and every show is recorded', async () => {
+  const store = personStore();
+  const saved = await store.logins.save({ site: 'https://dash.example.com/login', user_name: 'owner@example.com', fields: [{ label: 'Password', value: PASSWORD }, { label: 'Notes', value: 'second factor on phone' }] });
+  assert.equal(saved.replaced, false);
+  assert.ok(!store.readable().includes(PASSWORD), 'the value is in no readable table');
+  const [login] = store.logins.list();
+  assert.equal(login.title, 'dash.example.com');
+  assert.deepEqual(login.fields.map(field => field.label), ['Password', 'Notes']);
+  const password = login.fields[0];
+
+  await assert.rejects(store.logins.revealToOwner(login.login_id, password.field_id, { signed_in_at: STALE, device: 'Chrome on a Mac' }), error => error.sign_in_again === true && !String(error.message).includes(PASSWORD));
+  assert.equal(store.logins.list()[0].fields[0].shown.count, 0, 'a refused show records nothing');
+
+  const shown = await store.logins.revealToOwner(login.login_id, password.field_id, { signed_in_at: FRESH, device: 'Chrome on a Mac' });
+  assert.equal(shown.value, PASSWORD);
+  const after = store.logins.list()[0].fields[0].shown;
+  assert.equal(after.count, 1);
+  assert.deepEqual(after.last, { at: '2026-10-01T22:00:00.000Z', by_kind: 'person', by_name: 'Chrome on a Mac' });
+});
+
+test('an AI reads a login only after the owner allows it, and only with private reach; each read is recorded', async () => {
+  const store = personStore();
+  const { login_id: id } = await store.logins.save({ title: 'Router', fields: [{ label: 'Password', value: PASSWORD }] });
+  await assert.rejects(store.logins.readForAi(id, { app: 'Claude', reach: { private: true, spaces: [] } }), /not let their AIs read/);
+  store.logins.setAiCanRead({ login_ids: [id] }, true);
+  await assert.rejects(store.logins.readForAi(id, { app: 'Claude', reach: { private: false, spaces: 'all' } }), /shared pursuits only/);
+  const read = await store.logins.readForAi(id, { app: 'Claude', reach: { private: true, spaces: [] } });
+  assert.deepEqual(read.values, [{ label: 'Password', value: PASSWORD }]);
+  assert.deepEqual(store.logins.list()[0].fields[0].shown.last.by_name, 'Claude');
+  // The AI route has no way to turn the permission on: only save, import and read.
+  store.logins.setAiCanRead({ login_ids: [id] }, false);
+  const answer = await handleSavedLoginsRequest(store.logins, new Request('https://store/saved-logins', { method: 'POST', body: JSON.stringify({ read: id }) }), { app: 'Claude', reach: { private: true, spaces: [] } });
+  assert.equal(answer.status, 403);
+  assert.ok(!(await answer.text()).includes(PASSWORD));
+});
+
+test('the person lets AIs read the logins they picked, or all of them, in one change; each read stays listed under its login', async () => {
+  const store = personStore();
+  const ids = [];
+  for (const title of ['Bank', 'Mail', 'Router']) ids.push((await store.logins.save({ title, fields: [{ label: 'Password', value: PASSWORD }] })).login_id);
+  const picked = store.logins.setAiCanRead({ login_ids: [ids[0], ids[1], ids[0]] }, true);
+  assert.deepEqual([picked.changed, picked.said], [2, 'Your AIs can now read 2 logins.']);
+  assert.deepEqual(store.logins.list().map(login => login.ai_can_read), [true, true, false]);
+  await assert.rejects(store.logins.readForAi(ids[2], { app: 'Claude', reach: { private: true, spaces: [] } }), /not let their AIs read/);
+  assert.throws(() => store.logins.setAiCanRead({ login_ids: [ids[2], 'nope'] }, true), /not|found/i, 'one unknown login refuses the whole change');
+  assert.equal(store.logins.list()[2].ai_can_read, false);
+  const all = store.logins.setAiCanRead({ all: true }, true);
+  assert.deepEqual([all.changed, all.said], [3, 'Your AIs can now read 3 logins.']);
+  await store.logins.readForAi(ids[2], { app: 'Codex', reach: { private: true, spaces: [] } });
+  assert.deepEqual(store.logins.list()[2].fields[0].shown.last.by_name, 'Codex');
+  assert.equal(store.logins.setAiCanRead({ login_ids: [ids[1]] }, false).said, 'Your AIs can no longer read Mail.');
+  assert.throws(() => store.logins.setAiCanRead({ login_ids: [] }, true), /not|found/i);
+});
+
+test('saving the same title and user name replaces its values and keeps the rest; removing deletes the values', async () => {
+  const store = personStore();
+  const first = await store.logins.save({ title: 'Mail', user_name: 'me', fields: [{ label: 'Password', value: 'one' }, { label: 'PIN', value: '1111' }] });
+  const second = await store.logins.save({ title: 'mail', user_name: 'ME', fields: [{ label: 'password', value: 'two' }] });
+  assert.equal(second.login_id, first.login_id);
+  assert.equal(second.replaced, true);
+  const [login] = store.logins.list();
+  assert.deepEqual(login.fields.map(field => field.label), ['Password', 'PIN']);
+  assert.equal((await store.logins.revealToOwner(login.login_id, login.fields[0].field_id, { signed_in_at: FRESH })).value, 'two');
+  await store.logins.remove(login.login_id);
+  assert.deepEqual(store.logins.list(), []);
+  const box = await store.locked();
+  assert.ok(!box.names().some(name => name.startsWith(`saved-login-${login.login_id}`)), 'its values left the box');
+});
+
+test('a change that fails part-way leaves the box and the list as they were', async () => {
+  const store = personStore();
+  await store.logins.save({ title: 'Kept', fields: [{ label: 'Password', value: 'kept' }] });
+  // Imports of 40 large values each until the box would pass max_sealed_bytes: the one that would is refused whole.
+  let refused = null;
+  for (let round = 0; round < 20 && !refused; round += 1) {
+    const titles = store.logins.list().map(login => login.title);
+    const names = (await store.locked()).names();
+    const paste = Array.from({ length: 40 }, (_, index) => `Site${round}-${index},user,${randomHex(9500)}`).join('\n');
+    try { await store.logins.import(`name,username,password\n${paste}`); } catch (error) {
+      refused = error;
+      assert.match(error.message, /cannot lock away more values/);
+      assert.deepEqual(store.logins.list().map(login => login.title), titles);
+      assert.deepEqual((await store.locked()).names(), names);
+    }
+  }
+  assert.ok(refused, 'the box filled up and the overflowing import was refused');
+  assert.ok(store.logins.list().some(login => login.title === 'Kept'));
+});
+
+test('a CSV export from any password manager imports by its column names', () => {
+  const csv = 'folder,favorite,type,name,notes,fields,reprompt,login_uri,login_username,login_password,login_totp\n,,login,Example,"line one\nline two",,0,https://example.com,ann,"pa,ss""word",otpauth://x\n,,login,Empty,,,0,https://empty.example,bob,,\n';
+  const { logins, skipped } = readPastedLogins(csv);
+  assert.deepEqual(logins, [{ title: 'Example', site: 'https://example.com', user_name: 'ann', fields: [{ label: 'Notes', value: 'line one\nline two' }, { label: 'Password', value: 'pa,ss"word' }, { label: 'Login_totp', value: 'otpauth://x' }] }]);
+  assert.equal(skipped.length, 1);
+  assert.equal(skipped[0].line, 3);
+});
+
+test('a page of logins copied whole: letter groups, services, user-name toggles holding passwords, and value toggles', () => {
+  const page = [
+    'Account Logins',
+    '- A',
+    '    - alpha-host.com (domain host)',
+    '        - user-one',
+    '            - first-secret',
+    '        - user-two',
+    '            - second-secret',
+    '- C',
+    '    - Cloudy',
+    '        - person@example.com',
+    '        - password',
+    '            - third-secret',
+    '        - API Token',
+    '            - token-value',
+  ].join('\n');
+  const { logins } = readPastedLogins(page);
+  assert.deepEqual(logins, [
+    { title: 'alpha-host.com (domain host)', site: 'alpha-host.com', user_name: 'user-one', fields: [{ label: 'Password', value: 'first-secret' }] },
+    { title: 'alpha-host.com (domain host)', site: 'alpha-host.com', user_name: 'user-two', fields: [{ label: 'Password', value: 'second-secret' }] },
+    { title: 'Cloudy', site: null, user_name: 'person@example.com', fields: [{ label: 'password', value: 'third-secret' }, { label: 'API Token', value: 'token-value' }] },
+  ]);
+});
+
+test('HTML toggles from a page export nest the same way as indentation', () => {
+  const tree = outlineTree('\x3cdetails>\x3csummary>B\x3c/summary>\n\x3cdetails>\x3csummary>Bank\x3c/summary>\n\x3cdetails>\x3csummary>me\x3c/summary>\nsecret &amp; more\n\x3c/details>\n\x3c/details>\n\x3c/details>');
+  assert.deepEqual(JSON.parse(JSON.stringify(tree.children)), [{ text: 'B', children: [{ text: 'Bank', children: [{ text: 'me', children: [{ text: 'secret & more', children: [] }] }] }] }]);
+  assert.deepEqual(readPastedLogins('\x3cdetails>\x3csummary>Bank\x3c/summary>\n\x3cdetails>\x3csummary>me\x3c/summary>\nsecret\n\x3c/details>\n\x3c/details>').logins[0].user_name, 'me');
+});
+
+test('Connections lists each login with Show on each value and no value anywhere in the screen', () => {
+  const sections = savedLoginsSections([{ login_id: 'abc', title: 'Example', site: 'https://example.com', user_name: 'ann', ai_can_read: false, fields: [{ field_id: 'f1', label: 'Password', shown: { count: 2, last: { at: '2026-10-01T22:00:00Z', by_kind: 'person', by_name: 'Safari on a Mac' } } }] }], 'America/Los_Angeles');
+  const row = sections[1].rows[0];
+  assert.equal(row.items[0].detail, 'Shown 2 times, last Oct 1, 3:00 PM to you on Safari on a Mac');
+  assert.deepEqual(row.items[0].actions[0].send, { path: '/work/api/logins/reveal', body: { login_id: 'abc', field_id: 'f1' } });
+  assert.equal(row.actions[0].copy, 'ann');
+  assert.deepEqual(row.actions[1].send.body, { login_ids: ['abc'], on: true });
+  assert.equal(row.pick, 'abc');
+  assert.deepEqual(sections[1].catalog.selection.map(action => [action.label, action.send.selection, action.send.body.on, Boolean(action.send.confirm)]), [['Let my AIs read these', 'login_ids', true, true], ['Stop my AIs reading these', 'login_ids', false, false]]);
+  const all = sections[0].actions[0];
+  assert.deepEqual([all.label, all.send.body], ['Let my AIs read all my logins', { all: true, on: true }]);
+  assert.match(all.send.confirm, /all 1 logins/);
+  assert.deepEqual(savedLoginsSections([{ login_id: 'abc', title: 'Example', ai_can_read: true, fields: [] }])[0].actions.map(action => action.label), ['Stop my AIs reading all my logins'], 'once every login is readable the one-press switch becomes one Stop');
+  assert.equal(savedLoginsSections([]).length, 1, 'with no logins only Save and Import show');
+});
+
+test('an AI turns reading on only from the person\'s own words; the grant covers later logins, survives retries, and one Stop ends it', async () => {
+  const GIVEN = 'message:2026-09-29T16:25:55.048Z:given';
+  const store = personStore({
+    [GIVEN]: { speaker: 'person', captured_road: 'carrier_door', text: 'Put my logins in the vault and then any AI  use that for whatever work they have to do.' },
+    // Written by an AI through record_messages as the person (the hole this closes), and a hook-captured twin of it.
+    'message:forged': { speaker: 'person', captured_road: 'record_messages', recorded_by: 'key:abc', text: 'Put my logins in the vault and then any AI  use that for whatever work they have to do.' },
+    'message:ai': { speaker: 'ai', text: 'any AI use that for whatever work they have to do' },
+    'message:corrected': { speaker: 'person', captured_road: 'carrier_door', text: 'any AI use that for whatever work', source_provenance: { valid: false } },
+  });
+  const ai = { app: 'Claude', reach: { private: true, spaces: [] } };
+  const first = (await store.logins.save({ title: 'Bank', fields: [{ label: 'Password', value: PASSWORD }] })).login_id;
+  const quote = 'any AI use that for whatever work they have to do';
+  // Refused: no message, an AI's words, a corrected source, words not in the message, too few words, a shared-only sign-in.
+  assert.throws(() => store.logins.grant({ all: true, quote }, ai), /not one the person wrote/);
+  assert.throws(() => store.logins.grant({ all: true, approval_message_id: 'message:ai', quote }, ai), /not one the person wrote/);
+  assert.throws(() => store.logins.grant({ all: true, approval_message_id: 'message:forged', quote }, ai), /written by an AI app/);
+  assert.throws(() => store.logins.grant({ all: true, approval_message_id: 'message:corrected', quote: 'any AI use that' }, ai), /not one the person wrote/);
+  assert.throws(() => store.logins.grant({ all: true, approval_message_id: GIVEN, quote: 'any AI may read my bank' }, ai), /not in that message/);
+  assert.throws(() => store.logins.grant({ all: true, approval_message_id: GIVEN, quote: 'any AI' }, ai), /at least 4 words/);
+  assert.throws(() => store.logins.grant({ all: true, approval_message_id: GIVEN, quote }, { app: 'Claude', reach: { private: false, spaces: 'all' } }), /shared pursuits only/);
+  assert.equal(store.logins.list()[0].ai_can_read, false, 'a refused grant changes nothing');
+  await assert.rejects(store.logins.readForAi(first, ai), /not let their AIs read/);
+
+  // Granted through the AI route, quoting with different spacing and case.
+  const answer = await handleSavedLoginsRequest(store.logins, new Request('https://store/saved-logins', { method: 'POST', body: JSON.stringify({ grant: { all: true, approval_message_id: GIVEN, quote: 'Any AI use that for  whatever work they have to do' } }) }), ai);
+  assert.equal(answer.status, 200);
+  const granted = await answer.json();
+  assert.equal(granted.said, 'Your AIs can now read all 1 logins, and any login you keep later, as you said.');
+  assert.deepEqual([granted.grant.all, granted.grant.message_id, granted.grant.by_app], [true, GIVEN, 'Claude']);
+  assert.ok(!JSON.stringify(granted).includes(PASSWORD));
+  assert.equal((await store.logins.readForAi(first, ai)).values[0].value, PASSWORD);
+
+  // A retry or another AI repeating the same grant keeps one grant in force; a login kept later is readable at once.
+  store.logins.grant({ all: true, approval_message_id: GIVEN, quote }, { ...ai, app: 'Codex' });
+  assert.equal(store.logins.grants().filter(grant => !grant.ended_at).length, 1);
+  const later = (await store.logins.import('name,url,username,password\nMail,https://mail.example.com,me,' + PASSWORD)).saved;
+  assert.equal(later, 1);
+  assert.ok(store.logins.list().every(login => login.ai_can_read), 'a login kept after the grant is covered by it');
+  const listed = await (await handleSavedLoginsRequest(store.logins, new Request('https://store/saved-logins'), ai)).json();
+  assert.equal(listed.ai_read_grant.quote, quote);
+
+  // The AI route may always turn reading off; the person's Stop on all ends the standing grant, and new logins stay closed.
+  const stopped = await handleSavedLoginsRequest(store.logins, new Request('https://store/saved-logins', { method: 'POST', body: JSON.stringify({ stop: { all: true } }) }), ai);
+  assert.equal(stopped.status, 200);
+  assert.equal(store.logins.standingGrant(), null);
+  await store.logins.save({ title: 'Router', fields: [{ label: 'Password', value: PASSWORD }] });
+  assert.ok(store.logins.list().every(login => !login.ai_can_read), 'after Stop nothing is readable, including a login kept later');
+  await assert.rejects(store.logins.readForAi(first, ai), /not let their AIs read/);
+});
+
+test('Connections shows the person\'s own words the grant came from, and one Stop for all once every login is readable', () => {
+  const grant = { quote: 'any AI use that for whatever work', granted_at: '2026-10-07T20:00:00Z' };
+  const [section] = savedLoginsSections([{ login_id: 'a', title: 'Example', ai_can_read: true, fields: [] }], 'UTC', grant);
+  assert.match(section.body, /Your AIs read these because you said: \u201cany AI use that for whatever work\u201d \(Oct 7, 8:00 PM UTC\)\./);
+  assert.deepEqual([section.actions[0].label, section.actions[0].send.body], ['Stop my AIs reading all my logins', { all: true, on: false }]);
+  assert.equal(savedLoginsSections([{ login_id: 'a', title: 'Example', ai_can_read: true, fields: [] }])[0].body.includes('because you said'), false);
+});
+
+test('a saved login is found by its quoted title, its site host or its user name, in any case', () => {
+  const description = { title: 'Connections', sections: savedLoginsSections([{ login_id: 'abc', title: 'Google Gmail', site: 'https://mail.google.com/inbox', user_name: 'Ann', ai_can_read: false, fields: [] }, { login_id: 'def', title: 'Other', site: 'https://other.example', user_name: 'bob', ai_can_read: false, fields: [] }]) };
+  for (const asked of ['"Google Gmail"', 'google gmail', 'mail.google.com', 'ANN', 'login:abc', 'abc']) {
+    const rows = narrowedTo(description, new URLSearchParams({ show_row: asked })).sections.flatMap(section => section.rows ?? []);
+    assert.deepEqual(rows.map(row => row.pick), ['abc'], asked);
+  }
+});
+
+test('reveals kept before the tally existed are counted into it once, and a restart does not count them again', () => {
+  const db = new DatabaseSync(':memory:');
+  const sql = { exec: (query, ...params) => { const rows = db.prepare(query).all(...params); return { toArray: () => rows }; } };
+  createSavedLoginTables(sql);
+  sql.exec('DROP TABLE saved_login_shown');
+  for (const [by_kind, by_name, at] of [['person', 'Chrome', '2026-10-01T00:00:00Z'], ['ai', 'Claude', '2026-10-02T00:00:00Z'], ['ai', 'Codex', '2026-10-03T00:00:00Z']]) {
+    sql.exec('INSERT INTO saved_login_reveals (login_id, field_id, by_kind, by_name, at) VALUES (?, ?, ?, ?, ?)', 'l1', 'password', by_kind, by_name, at);
+  }
+  createSavedLoginTables(sql);
+  createSavedLoginTables(sql);
+  assert.deepEqual(sql.exec('SELECT login_id, field_id, count, last_at, last_by_kind, last_by_name FROM saved_login_shown').toArray().map(row => ({ ...row })),
+    [{ login_id: 'l1', field_id: 'password', count: 3, last_at: '2026-10-03T00:00:00Z', last_by_kind: 'ai', last_by_name: 'Codex' }]);
+});

@@ -1,0 +1,39 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/saved-logins-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-my-own-logins-sealed-so-i-can-always/from-old-trillion/src/saved-logins-tools.mjs",
+      "source_identity": "1f:c8bd2b79a40f940e403f8b2863cd886bec9e713b59cff37ea1d7b57296fc6df9",
+      "identity": "1f:c8bd2b79a40f940e403f8b2863cd886bec9e713b59cff37ea1d7b57296fc6df9"
+    },
+    {
+      "from": "src/saved-logins.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-my-own-logins-sealed-so-i-can-always/from-old-trillion/src/saved-logins.mjs.held",
+      "source_identity": "1f:a070a8b53d8a74abd1d55a3a89ea4c54030e060fc3c4ad289c95ed592db0d35f",
+      "identity": "1f:4c2b4d4faf9b34f111ac23eaed0b805c7564d82e7ab9a2026c5c108f7f52f3df",
+      "held": true
+    },
+    {
+      "from": "test/saved-logins-captured-road.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-my-own-logins-sealed-so-i-can-always/from-old-trillion/test/saved-logins-captured-road.test.mjs.held",
+      "source_identity": "1f:41701f24ab0396cb2b3e752a113d3af034635d8a775c18102964f40e27e4b3bd",
+      "identity": "1f:4e01114a597a918aca8be3b57578dc7cac4ec88ca46d818c3b4ad429fce1eb21",
+      "held": true
+    },
+    {
+      "from": "test/saved-logins.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-my-own-logins-sealed-so-i-can-always/from-old-trillion/test/saved-logins.test.mjs.held",
+      "source_identity": "1f:fc2b1e007a140b23f3ad6dafdd1e157436751fd16af3cd0ba221dc2bcb9cef57",
+      "identity": "1f:fc2b1e007a140b23f3ad6dafdd1e157436751fd16af3cd0ba221dc2bcb9cef57",
+      "held": true
+    }
+  ]
+}

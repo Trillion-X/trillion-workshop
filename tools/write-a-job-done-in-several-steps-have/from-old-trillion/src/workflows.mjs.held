@@ -1,0 +1,1386 @@
+// Workflows: a job done in several steps, run by the workflow engine (crates/workflow-core, reached only as the
+// Workshop tool tool:run-workflow-definition, run in process by src/built-in-tools.mjs), with this person's AI, agents and Workshop tools answering its steps and every answer kept.
+//
+// A workflow is DATA (a row of kind "workflow-recipe"): its job in plain words, an input schema, and either ordered
+// `steps` or an engine `definition` ({ steps, edges }: the step graph workflow-core runs, with branches, parallel
+// steps, loops and checks). Ordered steps become an engine definition here (`definitionOf`), so every workflow runs
+// on the one engine:
+//   - a step the AI does becomes an `ask` named "ai": its answer is the output the AI sends with submit_workflow_step;
+//   - a step with `run_tool: { tool_id, input }` becomes an `ask` named by the tool id: this person's Workshop runs it
+//     wherever the tool lives (Trillion's compute or a web address);
+//   - an `ask` named "agent:<agent_id>" is handed to that agent of this account, and its finished result is the answer
+//     ("agent:" with no id hands it to the agent its input names in `to_agent`, and with none, to whichever of the
+//     account's agents takes it first, so a rule can aim the same workflow at one agent by its input alone; its input's
+//     `said`, when given, is the work as the person sees it, kept on the handoff apart from the job the AI reads; its
+//     `once_per`, when given, names the item the work is about, so every run about that item reaches one handoff; its
+//     `case_id` is the decision the work is worked through);
+//   - a step's `checks` become a `check` step over its output (crates/workflow-core/src/executor/checks.rs): subset-of,
+//     covers, mentioned-in, excludes-words, distinct-at-least, exists.
+// Every answer must also fit the shape its step declares (`submit`, a JSON Schema) before the engine is given it.
+//
+// The engine runs a definition from the start each time something changes (a run starts, an output is sent, the run is
+// read), and this host answers every ask it answered before with the answer it kept. When Trillion could not reach a step
+// at all (the engine's `dispatch_failed`, or the engine itself unreachable, and the failure contract says a later try
+// gets past it: src/failure.mjs `tries_again_later`), nothing about the step was decided, so the run does not fail: it
+// waits at that step, tries again (src/workflow-interruptions.json), and after enough tries in a row shows as stuck
+// until a read reaches it or it is resumed. An ask whose answer is not there
+// yet (the AI has not sent it, a tool is still working or failed, an agent has not finished) is answered
+// "not-answered-yet": the engine pauses there, and the run waits at that step. Nothing polls: reading the run asks
+// again. An answer is kept only when the engine got past it, so an output its checks refuse is never kept; a refused
+// tool output leaves the step waiting for the tool to run again or for output sent instead.
+//
+// Recipes come from four places, like Workshop tools: the rows the deploy ships (records/workflow-recipe-records.json,
+// where the workflow:skill- rows are made from agent skill folders by scripts/skills-to-workflows.mjs),
+// skills read from public repositories at their source (`sourced`: src/skill-sources.mjs through the shared pool,
+// records/skill-sources.json, each row carrying its licence, author, repository, commit and page under `source`),
+// this account's own saved recipes, and recipes other accounts published. A run keeps a copy of the recipe it started
+// with and that copy's BLAKE3 identity, so changing or withdrawing a recipe never changes a run already under way.
+// Each tool step also keeps the version of the tool it was written for (src/workflow-step-versions.mjs): a newer
+// release runs only while the step's contract is unchanged, and otherwise the step waits for upgrade_workflow_steps.
+//
+// A recipe may name `made_from`: the workflows it was made from (another account's published workflow an AI changed
+// for its own person, or a skill row it started from). That is the only edge kept; a workflow's variations are every
+// row that names it, read from the shelf each time, so the graph grows as AIs save variations and is never written twice.
+import { withActionCompleteness, actionCompletenessProblems } from './action-completeness.mjs';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { schemaProblems } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
+import { sourceProblems } from '../../../read-public-repositories-of-agent-skills-and-offer/from-old-trillion/src/skill-sources.mjs.held';
+import skillSources from '../../../read-public-repositories-of-agent-skills-and-offer/from-old-trillion/src/skill-source-config.mjs.held';
+import { finishedRuns, learnedRecipe, learnedSettings, learnedWords, publicShape } from '../../../learn-a-workflow-from-a-job/src/learned-workflows.mjs';
+import { failureOf } from '../../../tweak-live-controls/failure.mjs';
+import { withoutSecrets } from '../../../learn-a-workflow-from-a-job/src/scheduler.mjs';
+import { publishedWorkflowRow } from '../../../leave-a-makers-private-starting-values-out/src/published-workflow-privacy.mjs';
+import { MATCHED_BY_WORDS, wordShare, wordsOf } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/meaning-or-words.mjs';
+import interruptions from '../../../workflow-interruptions/src/workflow-interruptions.json' with { type: 'json' };
+import { actorPolicyProblems, actorAdmissionProblems, submittedActorEvidence } from '../../../require-that-a-workflow-steps-ai-answer-comes/src/workflow-actor-policy.mjs';
+import { authoringNotes } from '../../../shared-code/src/workflow-authoring-guidance.mjs';
+import { compareToPin, pinProblems, pinnedRecipe, runsKeepWords, stepVersionsOf, upgradeNeeded, upgradedRecipe, withoutPins } from '../../../shared-code/src/workflow-step-versions.mjs';
+
+const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+const nonempty = value => typeof value === 'string' && value.trim().length > 0;
+function canonical(value) {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  if (object(value)) return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonical(value[key])}`).join(',')}}`;
+  return JSON.stringify(value ?? null);
+}
+// One step's output is kept as one stored value, and a hosted store keeps values under 2 MB.
+const MAX_STEP_BYTES = 1_500_000;
+const identityOf = value => '1f:' + bytesToHex(blake3(new TextEncoder().encode(canonical(value))));
+// The reply of unpublish_workflow: one shape for its call and for its readback once the call is gone.
+export const unpublishedWorkflowReply = workflow_id => ({ workflow_id, published: false, visible_to: 'only the account that saved it' });
+export const workflowRecipeIdentity = identityOf;
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+const bytesOf = value => encoder.encode(JSON.stringify(value ?? null));
+const valueOf = bytes => (bytes === undefined || bytes === null ? {} : JSON.parse(decoder.decode(bytes)));
+// What an ask whose answer is not there yet is answered: workflow-core's NOT_ANSWERED_YET.
+const notYet = detail => bytesOf({ $kind: 'not-answered-yet', ...detail });
+
+// A refusal the caller can act on: every problem at once, and the call that will work.
+export class WorkflowError extends Error {
+  constructor(message, { problems = null, next_call = null } = {}) { super(message); this.problems = problems; this.next_call = next_call; }
+}
+
+const CHECK_KINDS = ['subset-of', 'covers', 'mentioned-in', 'excludes-words', 'distinct-at-least', 'exists'];
+const CATALOGS = ['workflow', 'tool', 'list-row', 'record'];
+const ROOTS = ['this', 'input', 'steps'];
+const PATH_FIELDS = ['path', 'of', 'in'];
+const STEP_ID = /^[a-z0-9][a-z0-9_-]*$/;
+
+// Every problem with one list of check rules (the engine's `check` step config), for step `stepId` whose earlier
+// steps are `earlier`.
+function checkProblems(checks, name, stepId, earlier) {
+  const problems = [];
+  for (const [at, check] of (checks ?? []).entries()) {
+    const where = `${name}.checks[${at}]`;
+    if (!object(check) || !CHECK_KINDS.includes(check.kind)) { problems.push(`${where}.kind must be one of: ${CHECK_KINDS.join(', ')}.`); continue; }
+    if (!nonempty(check.says)) problems.push(`${where}.says must say, in plain words, what the check asks for.`);
+    for (const field of PATH_FIELDS) {
+      if (check[field] === undefined) continue;
+      const paths = Array.isArray(check[field]) && Array.isArray(check[field][0]) ? check[field] : [check[field]];
+      for (const path of paths) if (!Array.isArray(path) || !ROOTS.includes(path[0]) || path.some(key => typeof key !== 'string')) problems.push(`${where}.${field} must be a list of keys starting with ${ROOTS.map(root => `"${root}"`).join(', ')}.`);
+      else if (path[0] === 'steps' && (path[1] === stepId || !earlier.has(path[1]))) problems.push(`${where}.${field} reads step "${path[1]}", which is not an earlier step.`);
+    }
+    if (!Array.isArray(check.path)) problems.push(`${where}.path is required.`);
+    if (check.kind === 'subset-of' && !Array.isArray(check.of)) problems.push(`${where}.of is required.`);
+    if (check.kind === 'covers' && !Array.isArray(check.of) && !Array.isArray(check.values)) problems.push(`${where} needs of or values.`);
+    if (check.kind === 'mentioned-in' && !Array.isArray(check.in)) problems.push(`${where}.in is required.`);
+    if (check.kind === 'excludes-words' && !(Array.isArray(check.words) && check.words.length && check.words.every(nonempty))) problems.push(`${where}.words must list the words to keep out.`);
+    if (check.kind === 'distinct-at-least' && !(Number.isInteger(check.count) && check.count > 0)) problems.push(`${where}.count must be a whole number above 0.`);
+    if (check.kind === 'exists' && !CATALOGS.includes(check.catalog)) problems.push(`${where}.catalog must be one of: ${CATALOGS.join(', ')}.`);
+  }
+  return problems;
+}
+
+// What is wrong with a recipe row, every problem at once. A recipe that passes can be run by any account.
+export function recipeProblems(recipe) {
+  const problems = [];
+  if (!object(recipe)) return ['The workflow must be an object.'];
+  if (!/^workflow:[a-z0-9][a-z0-9-]*$/.test(recipe.id ?? '')) problems.push('id must be "workflow:" followed by lowercase letters, numbers and dashes.');
+  if (!nonempty(recipe.job)) problems.push('job must say in plain words what the workflow gets done.');
+  if (recipe.made_from !== undefined && !(Array.isArray(recipe.made_from) && recipe.made_from.every(id => /^workflow:[a-z0-9][a-z0-9-]*$/.test(id ?? '')) && !recipe.made_from.includes(recipe.id))) problems.push('made_from must list the ids of the workflows this one was made from ("workflow:..."), never its own id.');
+  if (recipe.input_schema !== undefined && !(object(recipe.input_schema) && recipe.input_schema.type === 'object')) problems.push('input_schema must be a JSON Schema with "type": "object".');
+  if (recipe.definition !== undefined) return [...problems, ...definitionProblems(recipe.definition)];
+  if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return [...problems, 'steps (or definition) must list at least one step.'];
+  const seen = new Set();
+  const actorAsks = new Map(recipe.steps.map(step => [step?.id, { name: step?.run_tool?.tool_id ?? 'ai', policy: step?.actor_policy }]));
+  recipe.steps.forEach((step, index) => {
+    const name = `steps[${index}]`;
+    if (!object(step)) { problems.push(`${name} must be an object.`); return; }
+    if (!STEP_ID.test(step.id ?? '')) problems.push(`${name}.id must be lowercase letters, numbers, dashes or underscores.`);
+    else if (seen.has(step.id)) problems.push(`${name}.id "${step.id}" is used twice.`);
+    seen.add(step.id);
+    if (!nonempty(step.do)) problems.push(`${name}.do must say what to do in this step.`);
+    if (!(object(step.submit) && step.submit.type === 'object')) problems.push(`${name}.submit must be a JSON Schema with "type": "object" for what the step hands back.`);
+    if (step.run_tool !== undefined && !(object(step.run_tool) && /^tool:/.test(step.run_tool.tool_id ?? '') && (step.run_tool.input === undefined || object(step.run_tool.input)))) problems.push(`${name}.run_tool must be { tool_id: "tool:...", input: { field: value, or { "from": path } } }.`);
+    else if (step.run_tool !== undefined) problems.push(...pinProblems(step.run_tool.pinned, `${name}.run_tool.pinned`));
+    problems.push(...checkProblems(step.checks, name, step.id, seen));
+    problems.push(...actorPolicyProblems(step.actor_policy, { name, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && seen.has(id) }));
+  });
+  return problems;
+}
+
+// What is wrong with an engine definition written directly: { steps: [{ id, kind, config }], edges: [{ from, to, kind }] }.
+// The engine decides everything else when it runs; this names what would make every run of it fail.
+function definitionProblems(definition) {
+  if (!object(definition) || !Array.isArray(definition.steps) || definition.steps.length === 0) return ['definition must be { steps: [...], edges: [...] } with at least one step.'];
+  const problems = [];
+  const ids = new Set();
+  definition.steps.forEach((step, index) => {
+    const name = `definition.steps[${index}]`;
+    if (!object(step) || !/^[a-z0-9][a-z0-9_#-]*$/.test(step.id ?? '') || !nonempty(step.kind)) { problems.push(`${name} must have an id (lowercase letters, numbers, dashes, underscores or #) and a kind.`); return; }
+    if (ids.has(step.id)) problems.push(`${name}.id "${step.id}" is used twice.`);
+    ids.add(step.id);
+    if (step.kind === 'ask' && !nonempty(step.config?.name)) problems.push(`${name}.config.name must say who answers: "ai", a tool id, or "agent:<agent_id>".`);
+    if (step.kind === 'ask') problems.push(...pinProblems(step.config?.context?.pinned, `${name}.config.context.pinned`));
+    if (step.kind === 'ask' && step.config?.name === 'ai' && !(nonempty(step.config.input?.do) && object(step.config.input?.submit) && step.config.input.submit.type === 'object')) problems.push(`${name}.config.input must say what the AI does (do) and the shape it hands back (submit, a JSON Schema with "type": "object").`);
+    if (step.kind === 'check') {
+      if (!nonempty(step.config?.subject)) problems.push(`${name}.config.subject must name the step whose output is checked.`);
+      if (!Array.isArray(step.config?.rules)) problems.push(`${name}.config.rules must list the checks.`);
+      else problems.push(...checkProblems(step.config.rules, name, step.config.subject, new Set(definition.steps.map(item => item?.id).filter(id => id !== step.config.subject))));
+    }
+  });
+  if (!Array.isArray(definition.edges ?? [])) problems.push('definition.edges must be a list of { from, to, kind }.');
+  for (const [index, edge] of (definition.edges ?? []).entries()) if (!object(edge) || !ids.has(edge.from) || !ids.has(edge.to)) problems.push(`definition.edges[${index}] must join two steps of the definition.`);
+  const actorAsks = new Map(definition.steps.filter(step => step?.kind === 'ask').map(step => [step.id, { name: step.config?.name, policy: step.config?.context?.actor_policy }]));
+  const precedes = (from, to) => {
+    const visited = new Set(), pending = [from];
+    while (pending.length) {
+      const id = pending.pop();
+      if (visited.has(id)) continue;
+      visited.add(id);
+      for (const edge of Array.isArray(definition.edges) ? definition.edges : []) if (edge?.from === id) {
+        if (edge.to === to) return true;
+        pending.push(edge.to);
+      }
+    }
+    return false;
+  };
+  for (const step of definition.steps.filter(step => step?.kind === 'ask')) problems.push(...actorPolicyProblems(step.config?.context?.actor_policy, {
+    name: `definition.steps.${step.id}.config.context`, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && actorAsks.has(id) && precedes(id, step.id),
+  }));
+  return problems;
+}
+
+// A tool input written with { "from": path } (the first value there) or { "all_from": path } (every value there),
+// as the engine's bindings of the values at a path.
+function bindingsOf(template) {
+  if (Array.isArray(template)) return template.map(bindingsOf);
+  if (!object(template)) return template;
+  const pathKeys = Object.keys(template);
+  const optionalPath = pathKeys.length === 2 && template.omit_if_missing === true && pathKeys.includes('omit_if_missing');
+  if (Array.isArray(template.from) && (pathKeys.length === 1 || optionalPath)) return { $kind: 'binding', values: template.from, ...(optionalPath ? { omit_if_missing: true } : {}) };
+  if (Array.isArray(template.all_from) && (pathKeys.length === 1 || optionalPath)) return { $kind: 'binding', values: template.all_from, take: 'all', ...(optionalPath ? { omit_if_missing: true } : {}) };
+  return Object.fromEntries(Object.entries(template).map(([key, value]) => [key, bindingsOf(value)]));
+}
+
+// A recipe row as the engine definition it runs as. Every ask carries, as its context, what a person or AI reading the
+// run sees of that step, so the host can name the step and check an answer's shape whoever answers it.
+export function definitionOf(row) {
+  const shell = { id: row.id, name: row.label ?? row.id, kind: 'workflow', is_active: true, version: 1 };
+  if (row.definition) {
+    return {
+      ...shell, edges: row.definition.edges ?? [],
+      steps: row.definition.steps.map(step => (step.kind === 'ask' ? { ...step, config: { ...step.config, context: { ...(object(step.config.context) ? step.config.context : {}), step_id: step.id } } } : step)),
+    };
+  }
+  const steps = [];
+  const edges = [];
+  let last = null;
+  for (const step of row.steps) {
+    const shown = { step_id: step.id, title: step.title ?? step.id, do: step.do, submit: step.submit, checks: (step.checks ?? []).map(check => check.says), ...(step.actor_policy ? { actor_policy: step.actor_policy } : {}), ...(step.run_tool?.pinned ? { pinned: step.run_tool.pinned } : {}) };
+    steps.push({ id: step.id, kind: 'ask', config: { name: step.run_tool?.tool_id ?? 'ai', input: step.run_tool ? bindingsOf(step.run_tool.input ?? {}) : { do: step.do, submit: step.submit, checks: shown.checks }, context: shown } });
+    if (last) edges.push({ from: last, to: step.id, kind: 'always' });
+    last = step.id;
+    if (step.checks?.length) {
+      steps.push({ id: `${step.id}#checks`, kind: 'check', config: { subject: step.id, rules: step.checks } });
+      edges.push({ from: last, to: `${step.id}#checks`, kind: 'always' });
+      last = `${step.id}#checks`;
+    }
+  }
+  return { ...shell, steps, edges };
+}
+
+// The asks of a row in the order they are written: the steps a run shows as done or left.
+// The steps a run waits on and keeps an answer for: its asks, and its waits (answered once their time has passed).
+const asksOf = row => definitionOf(row).steps.filter(step => step.kind === 'ask' || step.kind === 'wait');
+const stepTitlesOf = row => asksOf(row).map(step => step.config.context?.title ?? step.id);
+const toolIdsOf = row => asksOf(row).map(step => step.config.name).filter(name => typeof name === 'string' && name.startsWith('tool:'));
+
+// shared:     () → recipe rows the deploy ships (payloads).
+// store:      { savedRecipes() → rows, putRecipe(row), putRecipeIfAbsent(row) → { inserted, row }, run(id) → run | null, putRun(run), runs({ before, limit }) → { cards, next } (or every run's card),
+//               output(run_id, key) → output, putOutput(run_id, key, output) }. Each admitted output is its own value.
+// builtIn:    the Workshop tools this Worker runs in process (src/built-in-tools.mjs): { run(tool_id, input, host) };
+//               tool:run-workflow-definition runs the engine with this host's ask and read.
+// market:     every account's shared recipes, when the host has one: { published() → [{ row, maker }], publish({ row, maker }),
+//               unpublish({ id, maker }) → boolean }.
+// maker:      this account's opaque identity in the market.
+// tools:      the Workshop, when the host has one: { run({ tool_id, input, request_key }) → task, read({ task_id }) → task,
+//               describe({ tool_id }) }. An ask named by a tool id runs through it.
+// agents:     this account's agents, when the host has them: { handOff({ job, to_agent, input, request_key }) → { handoff_id },
+//               read({ handoff_id }) → { state, result } }. An ask named "agent:<agent_id>" is handed to that agent.
+// similarity: meaning search, when the host has it: (text, { id: description }) → { id: similarity 0..1 } | null. Without
+//               it, or when it answers null (meaning cannot be had now, src/meaning-or-words.mjs), shared words are counted,
+//               and find says so when meaning was expected.
+// similar_at_least: { meaning, words }: how close another workflow's job must be to be named as doing the same job.
+// spaced:     the workflows other members shared into the spaces this account is in, read as each owner keeps them now:
+//               () → [{ row, space_id, space_title, by }]. A member's AI finds and runs them like its own, so a skill learned
+//               in a space reaches everyone there with no other step, and the owner's later improvement reaches them too.
+/** How a kept run stands: `{ state, error? }`, the error only when it ended neither working nor finished. */
+// What find_workflow and the Marketplace card say about a workflow's lineage: its origins by name, and how many
+// variations were made from it, each only when there is one.
+// Where a workflow found through a space came from and how it was learned, so a member's AI can see who learned it and
+// from what run.
+function spaceWords({ row, space }) {
+  return {
+    ...(space ? { space: { space_id: space.space_id, title: space.title, shared_by: space.by } } : {}),
+    ...(row.learned_from ? { learned_from: row.learned_from, version: row.version ?? 1, ...(row.versions?.length ? { earlier_versions: row.versions.length } : {}) } : {}),
+  };
+}
+
+function lineageWords({ made_from, variations }) {
+  return {
+    ...(made_from.length ? { made_from: made_from.map(item => item.workflow_id), made_from_labels: made_from.map(item => item.label) } : {}),
+    ...(variations.length ? { variation_count: variations.length } : {}),
+  };
+}
+
+export function runState(run) {
+  // working, finished, failed, or stuck: Trillion could not reach a step stuck_after_tries times in a row.
+  const state = run.state ?? (run.finished_at ? 'finished' : 'working');
+  return { state, ...(state !== 'working' && state !== 'finished' && run.error ? { error: run.error } : {}) };
+}
+
+// The ask workflow-core sends a wait it cannot hold under (crates/workflow-core automation.rs WAIT_ASK).
+const WAIT_ASK = 'wait';
+// When a wait condition is over, in ms, measured from when it was first asked; null for a wait on an event only.
+function waitOver(condition, askedMs) {
+  if (condition?.type === 'until') { const at = Date.parse(condition.datetime); return Number.isFinite(at) ? at : null; }
+  if (condition?.type === 'duration') return askedMs + Math.max(Number(condition.secs) || 0, 0) * 1000;
+  if (condition?.type === 'race') {
+    const times = (condition.conditions ?? []).map(inner => waitOver(inner, askedMs)).filter(at => at !== null);
+    return times.length ? Math.min(...times) : null;
+  }
+  return null;
+}
+
+// Where a row came from, as every place that lists workflows shows it: its licence, author, original page,
+// repository and the commit it was read at. Null for a row that names none of them.
+const SOURCE_FACTS = ['licence', 'author', 'url', 'repository', 'commit', 'read_from'];
+export function sourceFacts(row) {
+  const facts = Object.fromEntries(SOURCE_FACTS.filter(key => nonempty(row?.source?.[key])).map(key => [key, row.source[key]]));
+  return Object.keys(facts).length ? facts : null;
+}
+
+// pause:      (ms) → a promise that settles after ms; how a pass waits before trying an unreachable step again.
+export function makeWorkflows({ shared, sourced = null, sourceReads = null, sourceConfig = skillSources, spaced = null, store, builtIn, market = null, maker = null, tools = null, agents = null, similarity = null, similar_at_least = { meaning: 0.85, words: 0.5 }, now = () => new Date(), pause = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
+  // Serialize only a run's local transitions, never a tool or agent's work. A stop can therefore be kept while a
+  // dispatched call is in flight, and an older pass cannot overwrite it or dispatch another effect afterward.
+  const runChanges = new Map();
+  const activePasses = new Map();
+  async function changeRun(run_id, change) {
+    const before = runChanges.get(run_id) ?? Promise.resolve();
+    const changed = before.catch(() => {}).then(change);
+    runChanges.set(run_id, changed);
+    try { return await changed; }
+    finally { if (runChanges.get(run_id) === changed) runChanges.delete(run_id); }
+  }
+  const startedWork = (...runs) => {
+    const entries = new Map();
+    for (const run of runs) {
+      for (const kept of run.withdrawal?.started_work ?? []) entries.set(`${kept.kind}:${kept.step_id}`, kept);
+      for (const [step_id, task] of Object.entries(run.tool_runs ?? {})) {
+        if (!task.task_id && !task.request_key) continue;
+        entries.set(`tool:${step_id}`, { kind: 'tool', step_id, tool_id: task.tool_id, state: task.state,
+          ...(task.request_key ? { request_key: task.request_key } : {}), ...(task.task_id ? { task_id: task.task_id, next_call: { tool: 'read_task', arguments: { task_id: task.task_id } } } : {}) });
+      }
+      for (const [step_id, handoff] of Object.entries(run.handoffs ?? {})) {
+        if (!handoff.handoff_id && !handoff.request_key) continue;
+        entries.set(`agent:${step_id}`, { kind: 'agent', step_id, state: run.waiting?.find(step => step.step_id === step_id)?.agent?.state ?? handoff.state ?? 'unknown',
+          ...(handoff.request_key ? { request_key: handoff.request_key } : {}), ...(handoff.handoff_id ? { handoff_id: handoff.handoff_id, next_call: { tool: 'read_handoff', arguments: { handoff_id: handoff.handoff_id } } } : {}) });
+      }
+    }
+    return [...entries.values()];
+  };
+  // The permission to begin and the invocation are one short transition; awaiting the external result is outside it.
+  async function launchWhileRunning(run, prepare, invoke) {
+    const launched = await changeRun(run.run_id, async () => {
+      if ((await store.run(run.run_id))?.withdrawal) return null;
+      prepare();
+      return { pending: Promise.resolve(invoke()) };
+    });
+    return launched ? await launched.pending : null;
+  }
+  // `spaces` true adds what other members shared into this account's spaces. Only a search for a job, a workflow not
+  // found anywhere else and learning read them, so opening Trillion (the whole-shelf listing, an automation's check)
+  // costs the same in any number of spaces.
+  async function everything({ spaces = false, workflow_id, made_from } = {}) {
+    const selection = { ...(workflow_id === undefined ? {} : { workflow_id }), ...(made_from === undefined ? {} : { made_from }) };
+    const rows = [];
+    const add = (original, from) => {
+      // Select before inspecting or decorating a body. Hosted readers also select before JSON.parse; legacy readers
+      // may ignore this optional query, so the same guard retains their exact validity and precedence behavior.
+      if (workflow_id !== undefined && original.id !== workflow_id || made_from !== undefined && !(Array.isArray(original.made_from) && original.made_from.includes(made_from))) return;
+      const row = withActionCompleteness(original);
+      if (!rows.some(item => item.row.id === row.id) && recipeProblems(row).length === 0) rows.push({ row, from });
+    };
+    const found = () => workflow_id !== undefined && rows.length > 0;
+    const accountRows = await store.savedRecipes(selection);
+    const removedAdoptions = new Set(accountRows.filter(row => row.status === 'deleted' && row.adopted_from?.kind === 'shipped-workflow' && row.adopted_from.workflow_id === row.id).map(row => row.id));
+    const saved = accountRows.filter(row => row.status !== 'deleted');
+    const adoptedById = new Map(saved.filter(row => row.adopted_from?.kind === 'shipped-workflow' && row.adopted_from.workflow_id === row.id).map(row => [row.id, row]));
+    const published = market ? await market.published(selection) : [];
+    const publishedAdoptions = new Map(published
+      .filter(item => item.row?.adopted_from?.kind === 'shipped-workflow' && item.row.adopted_from.workflow_id === item.row.id)
+      .map(item => [item.row.id, item]));
+    for (const row of await shared()) {
+      if (workflow_id !== undefined && row.id !== workflow_id) continue;
+      if (removedAdoptions.has(row.id)) continue;
+      const ownCandidate = adoptedById.get(row.id);
+      const publicCandidate = publishedAdoptions.get(row.id);
+      const adopted = ownCandidate && recipeProblems(withActionCompleteness(ownCandidate)).length === 0 ? ownCandidate : null;
+      const publicAdoption = publicCandidate && recipeProblems(withActionCompleteness(publicCandidate.row)).length === 0 ? publicCandidate : null;
+      const selected = adopted ?? publicAdoption?.row ?? row;
+      add(selected, adopted ? 'this account' : publicAdoption ? publicAdoption.maker === maker ? 'this account' : 'another account' : 'Trillion');
+    }
+    if (found()) return rows;
+    if (sourced) {
+      const own = await ownSources(), repositories = await sourced(own,selection);
+      if (canonical(await ownSources()) !== canonical(own)) throw new WorkflowError('Your skill repositories changed while their workflows were being read; read the current repositories again.');
+      for (const row of repositories) add(row,'a public repository');
+    }
+    if (found()) return rows;
+    for (const row of saved) add(row, 'this account');
+    if (found()) return rows;
+    for (const item of spaced && spaces ? await spaced(selection).catch(() => []) : []) {
+      const before = rows.length;
+      add(item.row, 'a space');
+      if (rows.length > before) rows[rows.length - 1].space = { space_id: item.space_id, title: item.space_title ?? null, by: item.by ?? null };
+    }
+    if (found()) return rows;
+    for (const { row, maker: by } of published) if (!removedAdoptions.has(row.id)) add(row, by === maker ? 'this account' : 'another account');
+    return rows;
+  }
+  // The public skill repositories this account's AI added for this account alone (records/skill-sources.json holds the
+  // ones every account sees).
+  const ownSources = async () => (store.savedSources ? (await store.savedSources()).filter(row => row.status !== 'deleted') : []);
+  // The default workflow a purpose names, so a caller (setup, taken work, a step left for the person) names what the work
+  // is for and never which workflow does it: the first of Trillion's own whose `default_for` lists it, otherwise a
+  // workflow this account can find whose own name is the purpose (every workflow claims its own name, so a row that
+  // predates `default_for`, shipped or published by anyone, still answers for it).
+  const workflowFor = async purpose => {
+    if (!nonempty(purpose)) throw new WorkflowError('Name the workflow_id, or the purpose of the default workflow to start.');
+    const row = (await shared()).find(item => Array.isArray(item.default_for) && item.default_for.includes(purpose));
+    if (row) return row.id;
+    const named = /^[a-z0-9][a-z0-9-]*$/.test(purpose) ? (await recipeById(`workflow:${purpose}`))?.row : null;
+    if (named) return named.id;
+    throw new WorkflowError(`No workflow is published for ${purpose}. find_workflow finds one for the job.`);
+  };
+  // A workflow that saves, to read as an example when one did not: the first of Trillion's own, chosen at run time.
+  const exampleCall = async () => { const row = (await shared())[0]; return row ? { next_call: { tool: 'describe_workflow', arguments: { workflow_id: row.id } } } : {}; };
+  async function selectedRecipe(workflow_id, spaces = false) {
+    if (!nonempty(workflow_id)) return null;
+    return (await everything({ workflow_id, spaces }))[0] ?? null;
+  }
+  async function recipeById(workflow_id, { spaces = true } = {}) {
+    return await selectedRecipe(workflow_id) ?? (spaced && spaces ? await selectedRecipe(workflow_id, true) : null);
+  }
+  async function recipe(workflow_id) {
+    const found = await recipeById(workflow_id);
+    if (!found) throw new WorkflowError(`There is no workflow ${workflow_id}.`, { next_call: { tool: 'find_workflow', arguments: { job: '(what needs doing)' } } });
+    return found;
+  }
+  const toolExists = async id => { if (!tools) return false; try { await tools.describe({ tool_id: id }); return true; } catch { return false; } };
+  // A tool's definition as this account reads it now: what a step's pin is made from and compared with. Null from a
+  // host that answers no definition; such a step keeps no pin and follows the tool as it is.
+  const describeTool = async id => {
+    const found = await tools.describe({ tool_id: id });
+    return object(found?.descriptor) ? found.descriptor : null;
+  };
+  // What the engine's `exists` checks read: { catalog, id } names a workflow or a Workshop tool this account can find,
+  // or a row of one of the person's lists ("<list id>/<row id>"), so a step can prove what it kept is a real row.
+  // For catalog "record", each value is a typed { id, type, fields } reference.
+  // The account reader compares its submitted fields with fresh owner facts;
+  // each recipe's submit schema must require the facts that step must verify.
+  const catalogs = {
+    workflow: async id => (await recipeById(id))?.row ?? null,
+    tool: async id => (await toolExists(id) ? { id } : null),
+    'list-row': async id => { const at = id.indexOf('/'); return at > 0 && store.listRow ? (await store.listRow(id.slice(0, at), id.slice(at + 1))) ?? null : null; },
+    record: async encoded => {
+      let reference;
+      try { reference = JSON.parse(encoded); } catch { return null; }
+      if (!store.recordReference) throw Object.assign(new Error('This workflow host cannot read typed record references.'), { code: 'record_reader_unavailable' });
+      return await store.recordReference(reference);
+    },
+  };
+  const publishedReply = (workflow_id, recipe_identity) => ({ workflow_id, published: true, recipe_identity, visible_to: 'every account\'s AI', next_call: { tool: 'unpublish_workflow', arguments: { workflow_id } } });
+  const adoptedReply = (workflow_id, recipe_identity) => ({ workflow_id, adopted: true, saved: true, published: true, visible_to: 'every account’s AI', recipe_identity });
+  const savedRow = async workflow_id => nonempty(workflow_id) ? (await store.savedRecipes({ workflow_id })).find(item => item.id === workflow_id && item.status !== 'deleted') ?? null : null;
+  const marketRowOf = async workflow_id => market && nonempty(workflow_id) ? (await market.published({ workflow_id })).find(item => item.row?.id === workflow_id && item.maker === maker)?.row ?? null : null;
+  async function publishAndVerify(workflow_id, row) {
+    if (!row) throw new WorkflowError(`${workflow_id} has no saved recipe to publish.`);
+    await market.publish({ row, maker });
+    const published = (await market.published({ workflow_id })).find(item => item.row?.id === workflow_id && item.maker === maker)?.row ?? null;
+    // Marketplace readback can yield to an account edit. Read local state after that awaited boundary.
+    const current = (await store.savedRecipes({ workflow_id })).find(item => item.id === workflow_id && item.status !== 'deleted') ?? null;
+    if (!current) throw new WorkflowError(`${workflow_id} disappeared from this account while it was being published.`);
+    if (identityOf(current) !== identityOf(row)) throw new WorkflowError(`${workflow_id} changed in this account while it was being published. Publish the current recipe explicitly.`);
+    if (!published || identityOf(published) !== identityOf(publishedWorkflowRow(current))) throw new WorkflowError(`${workflow_id} was sent to the Marketplace, but its published row did not read back as the saved recipe.`);
+    return { row: current, recipe_identity: identityOf(published) };
+  }
+
+  // How close each workflow's job is to `text`: by meaning when the host can embed, else the share of its words present
+  // (src/meaning-or-words.mjs). `stopped` is true when the host has meaning but it cannot be had now, so find says so.
+  const describeRow = row => `${row.label ?? ''}: ${row.job}`;
+  async function closeness(text, rows) {
+    const scores = similarity && rows.length >= 2 ? await similarity(text, Object.fromEntries(rows.map(({ row }) => [row.id, describeRow(row)]))) : null;
+    if (scores) return { stopped: false, rows: rows.map(item => ({ ...item, score: scores[item.row.id] ?? 0, by: 'meaning' })) };
+    const asked = wordsOf(text);
+    return { stopped: Boolean(similarity && rows.length >= 2), rows: rows.map(item => ({ ...item, score: wordShare(asked, `${describeRow(item.row)} ${stepTitlesOf(item.row).join(' ')}`), by: 'words' })) };
+  }
+  // Where a workflow came from and what was made from it: its made_from ids, and every row naming it in theirs.
+  const sayRow = ({ row, from }) => ({ workflow_id: row.id, label: row.label ?? row.id, made_by: from });
+  function lineageOf(row, rows) {
+    const made_from = (row.made_from ?? []).map(id => rows.find(item => item.row.id === id)).filter(Boolean).map(sayRow);
+    const variations = rows.filter(item => (item.row.made_from ?? []).includes(row.id)).map(sayRow);
+    return { made_from, variations };
+  }
+  async function selectedLineage(row, spaces) {
+    const made_from = [];
+    for (const id of row.made_from ?? []) {
+      const found = await selectedRecipe(id, spaces);
+      if (found) made_from.push(sayRow(found));
+    }
+    const variations = [];
+    for (const candidate of await everything({ made_from: row.id, spaces })) {
+      // A lower-precedence definition may name this origin while the definition actually selected for that ID does
+      // not. Resolve each related candidate through the same exact reader before reporting a lineage edge.
+      const found = await selectedRecipe(candidate.row.id, spaces);
+      if ((found?.row.made_from ?? []).includes(row.id)) variations.push(sayRow(found));
+    }
+    return { made_from, variations };
+  }
+  const isSimilar = item => item.score >= (item.by === 'meaning' ? similar_at_least.meaning : similar_at_least.words);
+
+  // Every problem with an answer's shape: its size, then the shape its step declares.
+  const shapeProblems = (output, submit) => (canonical(output).length > MAX_STEP_BYTES
+    ? ['The output is over 1.5 MB. Keep long documents as files (write_file) and name them in the output instead.']
+    : schemaProblems(output, submit ?? { type: 'object' }, 'output'));
+  // Which answer of a run an ask reaches: its step, or, when the same step asks again with other input (a loop),
+  // that step and this input.
+  const answerKeyOf = (run, step_id, payload) => {
+    const kept = run.done?.[step_id];
+    const payloadIdentity = identityOf(payload);
+    return !kept || kept.payload_identity === undefined || kept.payload_identity === payloadIdentity ? { key: step_id, payloadIdentity } : { key: `${step_id}~${payloadIdentity.slice(3, 19)}`, payloadIdentity };
+  };
+
+  // One run of the engine over a run, answering each ask from what the run kept, the output just sent (`sent`), the
+  // Workshop and the account's agents. Returns the run as it stands after, and what was refused of `sent`.
+  async function pass(run, sent = null) {
+    const current = await store.run(run.run_id);
+    if (current?.withdrawal || run.withdrawal) return { run: current?.withdrawal ? current : run, refused: null };
+    const next = { ...run, done: { ...(run.done ?? {}) }, tool_runs: { ...(run.tool_runs ?? {}) }, tool_attempts: { ...(run.tool_attempts ?? {}) }, handoffs: { ...(run.handoffs ?? {}) } };
+    const active = activePasses.get(run.run_id) ?? new Set();
+    active.add(next);
+    activePasses.set(run.run_id, active);
+    try { return await carry(run, next, sent); }
+    finally { active.delete(next); if (!active.size) activePasses.delete(run.run_id); }
+  }
+  async function carry(run, next, sent) {
+    // What one try of the engine answered and left waiting; each try starts them again.
+    let answered = new Map();
+    let waiting = [];
+    let withdrawn = null;
+    let readFailures = [];
+    let reachedActors = new Map(), actorRefusal = null;
+    const priorActor = id => reachedActors.has(id) ? reachedActors.get(id) : next.done[id]?.actor_evidence;
+    const priorAdmitted = id => reachedActors.has(id) || Object.hasOwn(next.done, id);
+    const shown = (name, payload, context) => ({ step_id: context.step_id, title: context.title ?? payload.title ?? context.step_id, do: context.do ?? payload.do, submit: context.submit ?? payload.submit ?? { type: 'object' }, checks: context.checks ?? payload.checks ?? [], asks: name, ...(context.actor_policy ? { actor_policy: context.actor_policy } : {}) });
+    const wait = (name, payload, context, extra = {}) => { waiting.push({ ...shown(name, payload, context), ...extra }); return notYet({ step_id: context.step_id }); };
+
+    // A wait the engine cannot hold (workflow-core's WAIT_ASK, payload { wait: condition }): a time is kept on the run
+    // the first time it is asked, measured from then, and answered once it has passed (keep-running reads the run again
+    // then); a wait for an event is answered by whoever submits that it happened, as any step is.
+    function answerWait(name, payload, context, key, payloadIdentity) {
+      const step_id = context.step_id;
+      const asked = next.waits_asked?.[step_id] ?? now().toISOString();
+      next.waits_asked = { ...(next.waits_asked ?? {}), [step_id]: asked };
+      const due = waitOver(payload.wait, Date.parse(asked));
+      if (due !== null && now().getTime() >= due) {
+        const output = { over_at: new Date(due).toISOString() };
+        answered.set(step_id, { key, payloadIdentity, output, evidence: {} });
+        return bytesOf(output);
+      }
+      return wait(name, payload, context, due === null ? {} : { waits_until: new Date(due).toISOString() });
+    }
+
+    async function answerFromTool(name, payload, context, key, payloadIdentity) {
+      const step_id = context.step_id;
+      if (!tools) return wait(name, payload, context, { tool_run: { tool_id: name, state: 'failed', error: 'This service runs no Marketplace tools here.' } });
+      const attempt = next.tool_runs[step_id];
+      if (attempt?.problems || (attempt && ['failed', 'for_you_to_run'].includes(attempt.state))) return wait(name, payload, context, { tool_run: attempt });
+      // A step pinned to the tool version it was written for runs on the tool as it is now only while the step's
+      // contract is unchanged (src/workflow-step-versions.mjs); otherwise it waits for its owner to upgrade it.
+      let ran_version = null;
+      if (!attempt && context.pinned) {
+        let descriptor = null;
+        try { descriptor = (await tools.describe({ tool_id: name }))?.descriptor ?? null; } catch { descriptor = null; }
+        if (descriptor) {
+          const compared = compareToPin(context.pinned, descriptor);
+          if (!compared.runs) return wait(name, payload, context, { tool_run: upgradeNeeded({ workflow_id: run.recipe.id, step_id, tool_id: name, compared }) });
+          if (compared.version_changed) ran_version = compared.current.version;
+        }
+      }
+      let task;
+      const request_key = attempt?.request_key ?? `${run.run_id}:${step_id}:${(next.tool_attempts[step_id] ?? 0) + 1}`;
+      try {
+        task = attempt
+          ? await tools.read({ task_id: attempt.task_id })
+          : await launchWhileRunning(run, () => {
+            next.tool_runs[step_id] = { tool_id: name, request_key, state: 'starting', ...(ran_version ? { ran_version } : {}) };
+          }, () => tools.run({ tool_id: name, input: payload, request_key }));
+        if (!task) return notYet({ step_id });
+      } catch (error) {
+        task = { task_id: attempt?.task_id ?? null, state: 'failed', error: String(error.message ?? error) };
+      }
+      if (!attempt) next.tool_attempts[step_id] = (next.tool_attempts[step_id] ?? 0) + 1;
+      const noted = { task_id: task.task_id, tool_id: name, request_key, state: task.state, ...((ran_version ?? attempt?.ran_version) ? { ran_version: ran_version ?? attempt.ran_version } : {}), ...(task.error ? { error: task.error } : {}), ...(task.cut_off === true ? { cut_off: true } : {}), ...(task.how ? { how: task.how } : {}), ...(task.runs_on ? { runs_on: task.runs_on } : {}) };
+      next.tool_runs[step_id] = noted;
+      if (task.state === 'completed') {
+        const problems = shapeProblems(task.output, context.submit);
+        if (!problems.length) {
+          answered.set(step_id, { key, payloadIdentity, output: task.output, evidence: { task_id: task.task_id, tool_id: name } });
+          return bytesOf(task.output);
+        }
+        noted.problems = problems;
+      }
+      return wait(name, payload, context, { tool_run: noted });
+    }
+
+    async function answerFromAgent(name, payload, context, key, payloadIdentity) {
+      const step_id = context.step_id;
+      if (!agents) return wait(name, payload, context, { agent: { state: 'failed', error: 'This service has no agents here.' } });
+      let handoff = next.handoffs[step_id];
+      if (!handoff?.handoff_id) {
+        const to_agent = name.slice('agent:'.length) || (nonempty(payload.to_agent) ? payload.to_agent.trim() : null);
+        // `once_per` names the item the work is about, so every run handing off the same item reaches one handoff;
+        // `case_id` is the decision behind it, and `priority` how soon it is taken (higher first). `run_id` names this run as
+        // one that waits on the handoff, so the handoff's finish carries this run on by itself, whichever runs share it.
+        const request_key = `${run.run_id}:${step_id}`;
+        const handed = await launchWhileRunning(run, () => {
+          next.handoffs[step_id] = { request_key, agent_id: to_agent ?? '', state: 'starting' };
+        }, () => agents.handOff({ job: context.do ?? payload.do ?? `Step ${step_id} of ${run.recipe.id}`, ...(nonempty(payload.said) ? { said: payload.said } : {}),
+          ...(nonempty(payload.once_per) ? { once_per: payload.once_per } : {}), ...(nonempty(payload.case_id) ? { case_id: payload.case_id } : {}),
+          ...(Number.isInteger(payload.priority) ? { priority: payload.priority } : {}),
+          to_agent, input: payload, request_key, run_id: run.run_id }));
+        if (!handed) return notYet({ step_id });
+        handoff = { handoff_id: handed.handoff_id, agent_id: to_agent ?? '', request_key };
+        next.handoffs[step_id] = handoff;
+      }
+      const read = await agents.read({ handoff_id: handoff.handoff_id });
+      handoff.state = read.withdrawal || read.result?.state === 'withdrawn' ? 'withdrawn' : read.state;
+      // A terminal withdrawal carries no successful answer, even when this step accepts any object.
+      // Older host adapters expose the terminal storage state, so retain the result-state guard too.
+      if (read.withdrawal || read.state === 'withdrawn' || read.result?.state === 'withdrawn') {
+        withdrawn ??= { handoff_id: handoff.handoff_id, step_id, ...(read.withdrawal ?? {}), reason: read.withdrawal?.reason ?? read.result?.reason ?? 'The requested work was withdrawn.' };
+        return notYet({ step_id });
+      }
+      if (read.state === 'finished') {
+        const problems = [...shapeProblems(read.result, context.submit), ...actorAdmissionProblems(context.actor_policy, read.actor_evidence, priorActor, priorAdmitted)];
+        if (!problems.length) {
+          answered.set(step_id, { key, payloadIdentity, output: read.result, evidence: { handoff_id: handoff.handoff_id, ...(read.actor_evidence ? { actor_evidence: read.actor_evidence } : {}) } });
+          reachedActors.set(step_id, read.actor_evidence ?? null);
+          return bytesOf(read.result);
+        }
+        return wait(name, payload, context, { agent: { ...handoff, state: 'finished', problems } });
+      }
+      return wait(name, payload, context, { agent: { ...handoff, state: read.state } });
+    }
+
+    const ask = async (name, payloadBytes, contextBytes) => {
+      const payload = valueOf(payloadBytes);
+      const context = valueOf(contextBytes);
+      if (withdrawn) return notYet({ step_id: context.step_id });
+      const { key, payloadIdentity } = answerKeyOf(next, context.step_id, payload);
+      if (next.done[key]) {
+        reachedActors.set(context.step_id, next.done[key].actor_evidence ?? null);
+        return bytesOf(await store.output(run.run_id, key));
+      }
+      if (sent && sent.step_id === context.step_id) {
+        const problems = context.actor_policy && name.startsWith('agent:')
+          ? ['This step requires the completed agent handoff; supplied output cannot replace its author evidence.']
+          : actorAdmissionProblems(context.actor_policy, sent.actor_evidence, priorActor, priorAdmitted);
+        if (problems.length) {
+          actorRefusal = problems;
+          return wait(name, payload, context, { actor_problems: problems });
+        }
+        answered.set(context.step_id, { key, payloadIdentity, output: sent.output, evidence: sent.actor_evidence ? { actor_evidence: sent.actor_evidence } : {}, sent: true });
+        reachedActors.set(context.step_id, sent.actor_evidence ?? null);
+        return bytesOf(sent.output);
+      }
+      if (name === 'ai') return wait(name, payload, context);
+      if (name === WAIT_ASK) return answerWait(name, payload, context, key, payloadIdentity);
+      if (name.startsWith('tool:')) return answerFromTool(name, payload, context, key, payloadIdentity);
+      if (name.startsWith('agent:')) return answerFromAgent(name, payload, context, key, payloadIdentity);
+      throw new Error(`Nobody here answers "${name}": an ask is answered by "ai", a tool id, or "agent:<agent_id>".`);
+    };
+    const read = async from => {
+      const { catalog, id } = JSON.parse(from);
+      try {
+        const found = await catalogs[catalog]?.(String(id));
+        if (found) return bytesOf(found);
+      } catch (error) {
+        // The compiled exists check turns every rejected read into "not found". Keep actual reader failures here,
+        // where their cause and retry policy are still known; a successful read of an absent row stays a real refusal.
+        if (readFailures.length < 8) readFailures.push({ catalog, id, error });
+        throw error;
+      }
+      throw new Error(`There is no ${catalog} ${id} here.`);
+    };
+
+    const definition = definitionOf(run.recipe);
+    // Nested action/loop steps are resolved only from workflow-core's in-memory
+    // definition store. Rebuild the transitively referenced recipe closure
+    // through this account's exact catalogue reader on every replay: this
+    // preserves read rights and lets current child DATA converge without
+    // changing the frozen root recipe for this run.
+    const definitionsForRun = async () => {
+      const definitions = new Map([[definition.id, definition]]);
+      const pending = [definition];
+      while (pending.length) {
+        const current = pending.pop();
+        const referenced = new Set();
+        for (const step of current.steps ?? []) {
+          const config = step?.config;
+          if (typeof config?.definition_id === 'string' && config.definition_id) referenced.add(config.definition_id);
+          for (const id of Array.isArray(config?.definition_refs) ? config.definition_refs : []) if (typeof id === 'string' && id) referenced.add(id);
+        }
+        for (const id of referenced) {
+          if (definitions.has(id)) continue;
+          // The current catalogue owns workflow recipe DAGs. Other definition
+          // kinds remain with their owning slot and follow the engine's
+          // existing missing-definition path.
+          if (!id.startsWith('workflow:')) continue;
+          let row;
+          try {
+            row = await catalogs.workflow?.(id) ?? null;
+          } catch (error) {
+            if (readFailures.length < 8) readFailures.push({ catalog: 'workflow', id, error });
+            throw error;
+          }
+          // Leave a genuinely absent or inaccessible child out of the preload;
+          // workflow-core then reports its ordinary DefinitionNotFound failure.
+          if (!row) continue;
+          const child = definitionOf(row);
+          definitions.set(child.id, child);
+          pending.push(child);
+        }
+      }
+      return [...definitions.values()];
+    };
+    // One try of the engine, and whether it stopped only because a step (or the engine) could not be reached.
+    const tryOnce = async () => {
+      answered = new Map();
+      waiting = [];
+      readFailures = [];
+      reachedActors = new Map();
+      actorRefusal = null;
+      try {
+        const definitions = await definitionsForRun();
+        const ran = await builtIn.run('tool:run-workflow-definition', { definitions, workflow_id: run.recipe.id, input: run.input ?? {}, partition: 'person' }, { ask, read });
+        if (ran.status === 'failed' && readFailures.length) {
+          const error = new Error(readFailures.map(item => `Could not read ${withoutSecrets(item.catalog)} ${JSON.stringify(withoutSecrets(item.id))}: ${withoutSecrets(item.error)}`).join(' | '));
+          error.failure_code = failureOf(readFailures.find(item => failureOf(item.error).tries_again_later)?.error ?? readFailures[0].error).code;
+          // Reuse the engine-interruption boundary below. No answer from this uncertain pass is admitted; outputs
+          // already admitted and the run's exact recipe remain unchanged, and real missing rows still fail checks.
+          throw error;
+        }
+        return { result: ran, interruption: interruptionIn(ran) };
+      } catch (error) {
+        const message = String(error?.message ?? error);
+        return { result: { status: 'failed', error_message: message, execution_context: { steps: {} } }, interruption: failureOf(error).tries_again_later ? { step_id: null, error: message } : null };
+      }
+    };
+    let { result, interruption } = await tryOnce();
+    // A stuck run read again tries once; any other pass waits and tries again while the step stays out of reach.
+    for (const ms of run.state === 'stuck' ? [] : interruptions.waits_ms) {
+      if (!interruption) break;
+      await pause(ms);
+      ({ result, interruption } = await tryOnce());
+    }
+    return await changeRun(run.run_id, async () => {
+      const stopped = await store.run(run.run_id);
+      if (stopped?.withdrawal) {
+        // A call launched before stop may now have returned its real task/handoff id. Keep that follow-up evidence,
+        // but admit no new step or successful result and never undo the stop with this older engine pass.
+        const withdrawal = { ...stopped.withdrawal, started_work: startedWork(stopped, next) };
+        const kept = { ...stopped, withdrawal };
+        if (canonical(withdrawal) !== canonical(stopped.withdrawal)) await store.putRun(kept);
+        return { run: kept, refused: null };
+      }
+      const steps = result.execution_context?.steps ?? {};
+      // A check that failed refuses the answer it checked; every other answer the engine got past is kept.
+      const refusals = new Map(definition.steps.filter(step => step.kind === 'check' && steps[step.id]?.status === 'failed').map(step => [step.config.subject, steps[step.id].output?.problems ?? [steps[step.id].error]]));
+      let refused = actorRefusal;
+      const at = now().toISOString();
+      for (const [step_id, answer] of answered) {
+        if (refusals.has(step_id)) {
+          if (answer.sent) refused = refusals.get(step_id);
+          else if (next.tool_runs[step_id]) next.tool_runs[step_id] = { ...next.tool_runs[step_id], problems: refusals.get(step_id) };
+          continue;
+        }
+        if (steps[step_id]?.status !== 'completed') continue;
+        await store.putOutput(run.run_id, answer.key, answer.output);
+        next.done[answer.key] = { admitted_at: at, output_identity: identityOf(answer.output), payload_identity: answer.payloadIdentity, ...answer.evidence };
+      }
+      // A wait whose time had passed by the time the engine reached it is held by the engine without asking; it is kept
+      // as the engine finished it.
+      for (const step of definition.steps) {
+        if (step.kind !== 'wait' || next.done[step.id] || steps[step.id]?.status !== 'completed') continue;
+        const output = steps[step.id].output ?? {};
+        await store.putOutput(run.run_id, step.id, output);
+        next.done[step.id] = { admitted_at: at, output_identity: identityOf(output) };
+      }
+      // A refused tool answer leaves its step waiting, shown with what the check found.
+      const stillWaiting = [...waiting, ...[...answered].filter(([step_id, answer]) => refusals.has(step_id) && !answer.sent).map(([step_id]) => ({ ...shownOf(definition, step_id), tool_run: next.tool_runs[step_id] }))];
+      const byOrder = (a, b) => definitionOrder(definition, a.step_id) - definitionOrder(definition, b.step_id);
+      if (withdrawn) {
+        // Use the existing non-success terminal state so health, run cards and keep-running agree.
+        next.state = 'failed';
+        next.withdrawal = withdrawn;
+        next.error = `Work ${withdrawn.handoff_id} was withdrawn: ${withdrawn.reason}`;
+        next.waiting = [];
+        delete next.interrupted;
+      } else if (interruption) {
+        // The step the run is at waits, marked so: the step it could not reach, or, when that step was admitted already
+        // (the engine asks every kept answer again) or the engine itself was not reached, the first step not done.
+        const tries = (run.interrupted?.tries ?? 0) + 1;
+        const since = run.interrupted?.since ?? at;
+        const reached = definition.steps.some(step => step.id === interruption.step_id && step.kind === 'ask') && !next.done[interruption.step_id];
+        const step_id = reached ? interruption.step_id : asksOf(run.recipe).find(step => !next.done[step.id])?.id ?? interruption.step_id;
+        next.state = tries >= interruptions.stuck_after_tries ? 'stuck' : 'working';
+        next.interrupted = { step_id, tries, since, last_at: at, error: interruption.error.slice(0, 600) };
+        const says = (next.state === 'stuck' ? interruptions.words.stuck : interruptions.words.interrupted).replaceAll('{tries}', String(tries));
+        next.waiting = [{ ...shownOf(definition, step_id), interrupted: { says, tries, since, error: next.interrupted.error } }, ...stillWaiting.filter(item => item.step_id !== step_id).sort(byOrder)];
+        if (next.state === 'stuck') next.error = says; else delete next.error;
+      } else {
+        const failedHere = result.status === 'failed' && ![...refusals.keys()].some(step_id => answered.has(step_id));
+        next.state = result.status === 'completed' ? 'finished' : failedHere ? 'failed' : 'working';
+        next.waiting = next.state === 'working' ? stillWaiting.sort(byOrder) : [];
+        delete next.interrupted;
+        if (next.state === 'failed') next.error = result.error_message ?? 'The workflow could not go on.'; else delete next.error;
+      }
+      if (next.state === 'finished') next.finished_at ??= at;
+      if (canonical({ ...next, waiting: null }) !== canonical({ ...run, waiting: null }) || canonical(next.waiting) !== canonical(run.waiting ?? [])) await store.putRun(next);
+      return { run: next, refused };
+    });
+  }
+  const definitionOrder = (definition, step_id) => definition.steps.findIndex(step => step.id === step_id);
+  // The step a failed run could not reach and the words it failed with, when that is all that stopped it: a step whose
+  // answerer was never reached (the engine's `dispatch_failed`) with a failure a later try gets past.
+  function interruptionIn(result) {
+    if (result?.status !== 'failed') return null;
+    for (const [step_id, step] of Object.entries(result.execution_context?.steps ?? {})) {
+      const cut = step?.status === 'failed' ? step.output?.dispatch_failed : null;
+      if (cut && failureOf({ message: cut.reason }).tries_again_later) return { step_id, error: String(cut.reason) };
+    }
+    return null;
+  }
+  function shownOf(definition, step_id) {
+    const step = definition.steps.find(item => item.id === step_id);
+    const context = step?.config?.context ?? {};
+    const input = step?.config?.input ?? {};
+    return { step_id, title: context.title ?? step_id, do: context.do ?? input.do, submit: context.submit ?? input.submit ?? { type: 'object' }, checks: context.checks ?? input.checks ?? [], asks: step?.config?.name, ...(context.actor_policy ? { actor_policy: context.actor_policy } : {}) };
+  }
+
+  const wholeOutputCall = (run_id, step_id) => ({ tool: 'read_workflow_run', arguments: { run_id, step_id } });
+  // Read one output at a time, retain only a bounded opening, and stop fetching outputs once the run's display budget
+  // is spent. Compact JSON avoids indentation multiplying the stored value's size. The admitted value is unchanged;
+  // its existing exact read remains available whether the display limit is per step or across the whole run.
+  function shownOutput(run_id, step_id, output, budget) {
+    if (output === undefined) return {};
+    const text = JSON.stringify(output);
+    if (text.length <= STEP_OUTPUT_SHOWN_CHARS && text.length <= budget.left) {
+      budget.left -= text.length;
+      return { output };
+    }
+    // A substring can retain its entire large backing string in V8. Round-trip only the bounded substring so the
+    // preview owns small backing storage, including an unchanged lone surrogate when the boundary splits a pair.
+    const preview = JSON.parse(JSON.stringify(text.slice(0, Math.min(STEP_OUTPUT_PREVIEW_CHARS, budget.left))));
+    budget.left -= preview.length;
+    return { output_preview: preview, output_characters: text.length, read_whole_output: wholeOutputCall(run_id, step_id) };
+  }
+
+  async function view(run) {
+    const asks = asksOf(run.recipe);
+    const step = run.waiting?.[0] ?? null;
+    const toolRun = step?.tool_run ?? null;
+    const next = !step ? null
+      : run.state === 'stuck' ? { tool: 'read_workflow_run', arguments: { run_id: run.run_id, resume: true }, note: 'Tries the step again from where the run stopped; every step done so far is kept.' }
+      : step.interrupted ? { tool: 'read_workflow_run', arguments: { run_id: run.run_id }, note: 'Trillion could not reach this step just now; reading the run tries it again. Nothing done so far is lost.' }
+      : step.waits_until ? { tool: 'read_workflow_run', arguments: { run_id: run.run_id }, note: `This step waits until ${step.waits_until}; Trillion reads the run again then, and so does reading it yourself after that time.` }
+      : toolRun?.state === 'working' || toolRun?.state === 'scheduled' || (step.agent && !step.agent.problems && step.agent.state !== 'failed') ? { tool: 'read_workflow_run', arguments: { run_id: run.run_id }, note: 'The tool is still working; read the run again later. Working is waiting, not failure.' }
+        : toolRun && (toolRun.problems || toolRun.state === 'failed') ? { tool: 'submit_workflow_step', arguments: { run_id: run.run_id, step_id: step.step_id, run_again: true }, note: 'Runs the tool again, or send output yourself instead.' }
+          : { tool: 'submit_workflow_step', arguments: { run_id: run.run_id, step_id: step.step_id, output: '(what this step asks for, in the shape of submit)' } };
+    const shownStep = item => ({ step_id: item.step_id, title: item.title, do: item.do, submit: item.submit, checks: item.checks, ...(item.actor_policy ? { actor_policy: item.actor_policy } : {}), ...(item.actor_problems ? { actor_problems: item.actor_problems } : {}), ...(item.asks?.startsWith('tool:') ? { runs_tool: item.asks } : {}), ...(item.asks?.startsWith('agent:') ? { handed_to: item.asks.slice('agent:'.length) } : {}), ...(item.tool_run ? { tool_run: item.tool_run } : {}), ...(item.agent ? { agent: item.agent } : {}), ...(item.interrupted ? { interrupted: item.interrupted } : {}), ...(item.waits_until ? { waits_until: item.waits_until } : {}) });
+    const done = [];
+    const budget = { left: RUN_OUTPUT_SHOWN_CHARS };
+    for (const item of asks) {
+      const kept = run.done[item.id];
+      if (!kept) continue;
+      const output = budget.left > 0
+        ? shownOutput(run.run_id, item.id, await store.output(run.run_id, item.id), budget)
+        : { read_whole_output: wholeOutputCall(run.run_id, item.id) };
+      done.push({ step_id: item.id, title: item.config.context?.title ?? item.id, admitted_at: kept.admitted_at,
+        ...(kept.task_id ? { task_id: kept.task_id, tool_id: kept.tool_id } : {}), ...(kept.handoff_id ? { handoff_id: kept.handoff_id } : {}), ...(kept.actor_evidence ? { actor_evidence: kept.actor_evidence } : {}), ...output });
+    }
+    const readWholeOutputs = done.filter(item => item.read_whole_output).map(item => item.read_whole_output);
+    return {
+      run_id: run.run_id,
+      workflow_id: run.recipe.id,
+      recipe_identity: run.recipe_identity,
+      state: run.state,
+      ...(run.withdrawal ? { withdrawal: run.withdrawal } : {}),
+      who_does_the_work: 'You, the AI, unless a step names a tool or an agent, which Trillion runs or hands the step to. Trillion runs the steps on its workflow engine, checks each output and keeps the evidence; no step is done until its output passes.',
+      input: run.input,
+      done,
+      ...(run.state === 'working' || run.state === 'stuck'
+        ? { step: shownStep(step), ...(run.waiting.length > 1 ? { also_waiting: run.waiting.slice(1).map(shownStep) } : {}), steps_left: asks.filter(item => !run.done[item.id]).length, next_call: next, ...(run.state === 'stuck' ? { error: run.error } : {}) }
+        : run.state === 'finished'
+          ? { finished_at: run.finished_at, result: Object.fromEntries(done.filter(item => Object.hasOwn(item, 'output')).map(item => [item.step_id, item.output])),
+            ...(readWholeOutputs.length ? { result_is_partial: true, read_whole_outputs: readWholeOutputs } : {}) }
+          : { error: run.error }),
+    };
+  }
+  async function runOf(run_id) {
+    const run = await store.run(run_id);
+    if (!run) throw new WorkflowError(`There is no run ${run_id} in this account.`);
+    return run;
+  }
+  const refusal = (step_id, problems) => new WorkflowError(`Step ${step_id} was not admitted. Fix these and submit it again: ${problems.join(' | ')}`, { problems });
+  // Carries a run on from its last admitted step, with every admitted output and the recipe version it started with:
+  // its count of unreachable tries starts again, and a stopped or stuck run is run once more. A run whose step really
+  // failed fails the same way again and says so.
+  async function resume(run_id) {
+    const run = await runOf(run_id);
+    if (run.withdrawal) throw new WorkflowError('This run stopped because its requested work was withdrawn. Start a new run explicitly; resuming cannot recreate that work.');
+    if (run.state === 'finished') throw new WorkflowError('This run is finished; there is nothing to carry on.');
+    const { interrupted: _tries, error: _error, ...kept } = run;
+    return await view((await pass({ ...kept, state: 'working' })).run);
+  }
+
+  return {
+    // Ranked by a job, at most 25 come back (10 unless limit says). With no job it is the whole shelf in id order, as
+    // many as limit asks (all of them when limit is left out), so a listing such as the Marketplace's sees every one.
+    // This account's own saved workflows whose screen is of `kind` (an interface of controls, src/made-controls.mjs):
+    // each one's id, name and screen, at most `limit` (1..500). Only this account's rows are read: the person's own made
+    // screens, for the screen their typed words pick (src/instant-screens.mjs).
+    async screens({ kind, limit = 200 } = {}) {
+      if (!nonempty(kind)) throw new WorkflowError('kind is required: the kind of screen, such as "controls".');
+      const most = Math.min(Math.max(Math.trunc(Number(limit)) || 1, 1), 500);
+      const rows = (await store.savedRecipes({})).filter(row => row.status !== 'deleted' && row.lifecycle !== 'archived' && object(row.screen) && row.screen.kind === kind);
+      return { workflows: rows.slice(0, most).map(row => ({ workflow_id: row.id, label: row.label ?? row.id, screen: row.screen })) };
+    },
+
+    async find({ job = '', limit } = {}) {
+      const all = await everything({ spaces: nonempty(job) });
+      // A learned workflow someone improved is found through its improvement; describe_workflow still reads it.
+      const improved = new Set(all.filter(item => item.row.learned_from).flatMap(item => item.row.made_from ?? []));
+      const rows = all.filter(item => !improved.has(item.row.id) && item.row.lifecycle !== 'archived');
+      const ranked = nonempty(job);
+      const close = ranked ? await closeness(job, rows) : { stopped: false, rows: rows.map(item => ({ ...item, score: 0 })) };
+      const scored = (ranked ? close.rows.filter(item => item.score > 0) : close.rows)
+        .sort((a, b) => b.score - a.score || a.row.id.localeCompare(b.row.id));
+      const asked = limit === undefined ? (ranked ? 10 : scored.length) : Math.max(Number(limit) || 10, 1);
+      return {
+        workflows: scored.slice(0, ranked ? Math.min(asked, 25) : asked).map(({ row, from, score, space }) => ({
+          workflow_id: row.id, label: row.label ?? row.id, job: row.job, made_by: from, steps: stepTitlesOf(row), closeness: Math.round(score * 1000) / 1000,
+          ...(row.lifecycle === 'stale' ? { stale: learnedWords('lifecycle_stale', { workflow_id: row.id, days: learnedSettings.lifecycle.stale_after_days }) } : {}),
+          ...(sourceFacts(row) ? { source: sourceFacts(row) } : {}),
+          ...lineageWords(lineageOf(row, all)),
+          ...spaceWords({ row, space }),
+          next_call: { tool: 'start_workflow', arguments: { workflow_id: row.id, input: '(matching input_schema)', request_key: '(any unique text)' } },
+        })),
+        ...(close.stopped ? { matched_by_words: MATCHED_BY_WORDS } : {}),
+        ...(scored.length ? {} : { note: 'No workflow here does this job yet. save_workflow keeps one you write, from a skill, a checklist or a process you already follow.' }),
+      };
+    },
+
+    // The recipe a workflow_id, or the purpose's default workflow, names: what a caller that needs only its id or input_schema
+    // reads. describe adds the lineage, which searches the public skill repositories over the network.
+    async recipeOf({ workflow_id: named, purpose }) {
+      return (await recipe(nonempty(named) || purpose === undefined ? named : await workflowFor(purpose))).row;
+    },
+
+    async describe({ workflow_id: named, purpose }) {
+      const workflow_id = nonempty(named) || purpose === undefined ? named : await workflowFor(purpose);
+      const { row, from, space } = await recipe(workflow_id);
+      // A row this account did not make shows where it came from as find does (sourceFacts): its maker's own notes on
+      // why it was made stay with its maker.
+      const shown = from === 'this account' || !row.source ? row : (({ source: _source, ...rest }) => (sourceFacts(row) ? { ...rest, source: sourceFacts(row) } : rest))(row);
+      const step_versions = tools ? await stepVersionsOf(row, describeTool) : [];
+      return { workflow: shown, made_by: from, recipe_identity: identityOf(row), ...(step_versions.length ? { step_versions } : {}), ...spaceWords({ row, space }), ...await selectedLineage(row, Boolean(space)) };
+    },
+
+    // Moves this account's saved workflow's tool steps (step_ids, or every one) to the tools as they are now, as a new
+    // saved version: runs already started keep the recipe they started with (src/workflow-step-versions.mjs).
+    async upgrade({ workflow_id, step_ids = [] } = {}) {
+      if (!tools) throw new WorkflowError('This service runs no Marketplace tools here, so no step can be upgraded.');
+      const row = await savedRow(workflow_id);
+      if (!row) throw new WorkflowError(`${workflow_id} is not a workflow this account saved. A workflow is upgraded by the account that saved it; describe_workflow shows which of its steps wait for an upgrade.`);
+      if (!Array.isArray(step_ids) || !step_ids.every(nonempty)) throw new WorkflowError('step_ids must list step ids of this workflow, or be left out to upgrade every tool step.');
+      const { row: upgradedRow, upgraded, problems, note } = await upgradedRecipe(row, describeTool, step_ids);
+      if (problems.length) throw new WorkflowError(`The workflow was not upgraded: ${problems.join(' ')}`, { problems, next_call: { tool: 'describe_workflow', arguments: { workflow_id } } });
+      if (!upgraded.length) return { workflow_id, upgraded: [], note, recipe_identity: identityOf(row) };
+      const candidate = { ...upgradedRow, saved_at: now().toISOString() };
+      const keptRow = await store.putRecipe(candidate, { expected_identity: identityOf(row) }) ?? candidate;
+      // A published copy is this account's earlier publish: it moves only when the owner publishes again.
+      const published = Boolean(await marketRowOf(workflow_id));
+      return { workflow_id, upgraded, recipe_identity: identityOf(keptRow), note: runsKeepWords(),
+        next_call: published ? { tool: 'publish_workflow', arguments: { workflow_id } } : { tool: 'describe_workflow', arguments: { workflow_id } } };
+    },
+
+    // Turns a finished job's run record into a workflow (src/learned-workflows.mjs) and keeps it as this account's:
+    // the closest learned workflow this account can see improves in place when it is this account's own, and gets this
+    // account's own improvement (made_from it) when someone shared it into a space. Returns what changed and the spaces
+    // the workflow already lives in, so the caller shares the new version where the old one was.
+    async learn({ job, runs, source = {}, id_suffix = null, onCommit = null }) {
+      if (!nonempty(job)) throw new WorkflowError('job is needed: what the work got done, in plain words.');
+      // Most finished jobs have no completed tool sequence to teach. Do not load every
+      // account, shared and Space workflow (or score them) for those jobs.
+      if (finishedRuns(runs).length < learnedSettings.min_tool_runs) {
+        return { learned: false, why: `Fewer than ${learnedSettings.min_tool_runs} tools ran and finished in this work, so there are no steps to keep.` };
+      }
+      const learned = (await everything({ spaces: true })).filter(item => item.row.learned_from);
+      const close = (await closeness(job, learned)).rows.filter(item => item.score >= learnedSettings.same_job_at_least[item.by])
+        .sort((a, b) => (a.from === 'this account' ? 0 : 1) - (b.from === 'this account' ? 0 : 1) || b.score - a.score);
+      const match = close[0] ?? null;
+      const mine = match?.from === 'this account' ? match.row : null;
+      const theirs = match && !mine ? match : null;
+      const made = learnedRecipe({
+        job, runs, source, earlier: mine, made_from: theirs?.row.id ?? null, now: now(), recipeIdentity: row => identityOf(row),
+        id: theirs ? `${theirs.row.id}-${String(id_suffix ?? 'mine').toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 8) || 'mine'}` : null,
+      });
+      if (!made) return { learned: false, why: `Fewer than ${learnedSettings.min_tool_runs} tools ran and finished in this work, so there are no steps to keep.` };
+      if (theirs && made.change === 'new' && JSON.stringify((theirs.row.steps ?? []).map(step => step.learned_tool).filter(Boolean)) === JSON.stringify(made.row.steps.map(step => step.learned_tool).filter(Boolean))) {
+        return { learned: true, workflow_id: theirs.row.id, change: 'same', version: theirs.row.version ?? 1, space: theirs.space ?? null };
+      }
+      if (made.change === 'same') return { learned: true, workflow_id: made.row.id, change: 'same', version: made.row.version ?? 1 };
+      const answer = row => ({ learned: true, workflow_id: row.id, change: theirs ? 'improved' : made.change, version: made.row.version, recipe_identity: identityOf(row), ...(theirs ? { improves: theirs.row.id, space: theirs.space ?? null } : {}) });
+      const saved = await this.save({ workflow: made.row }, { onCommit: typeof onCommit === 'function' ? row => onCommit(answer(row)) : null });
+      return { ...answer({ ...made.row, id: saved.workflow_id }), recipe_identity: saved.recipe_identity };
+    },
+
+    // Shares a learned job's generic shape (src/learned-workflows.mjs publicShape) with every account, by itself and only
+    // once its checks pass: it is saved as this account's own workflow and published in the same call, never before. A
+    // workflow anyone can already find that runs the same tools in the same order is used instead of a second copy; this
+    // account's own earlier shape of the same tools is replaced in place when its bindings changed.
+    // runs: the run record with each run's result; tools: { tool_id: { made_by, descriptor } }; job: the person's words.
+    async publishShape({ runs, tools: described = {}, job = '' }) {
+      if (!learnedSettings.publish.on) return { published: false, why: 'off' };
+      if (!market) return { published: false, why: 'This service has no shared place to publish workflows.' };
+      const shape = publicShape({ runs, tools: described, job, id_suffix: maker });
+      if (shape.refused) return { published: false, refused: shape.refused };
+      const order = JSON.stringify(shape.tools);
+      const listed = (await everything()).filter(item => JSON.stringify(toolIdsOf(item.row)) === order);
+      const other = listed.find(item => item.from !== 'this account' || item.row.id !== shape.row.id);
+      if (other && other.row.id !== shape.row.id) return { published: false, workflow_id: other.row.id, made_by: other.from, note: learnedWords('refused_duplicate', { workflow_id: other.row.id }) };
+      const earlier = listed.find(item => item.row.id === shape.row.id)?.row ?? null;
+      if (earlier && canonical(withoutPins(earlier.steps)) === canonical(withoutPins(shape.row.steps)) && canonical(earlier.input_schema) === canonical(shape.row.input_schema)) {
+        return { published: true, change: 'same', workflow_id: shape.row.id, note: learnedWords('shape_same_note', { workflow_id: shape.row.id }) };
+      }
+      const version = earlier ? (Number(earlier.version) || 1) + 1 : 1;
+      await this.save({ workflow: { ...shape.row, version } });
+      await this.publish({ workflow_id: shape.row.id });
+      return { published: true, change: earlier ? 'improved' : 'new', workflow_id: shape.row.id, version, note: learnedWords('shape_published_note', { workflow_id: shape.row.id }) };
+    },
+
+    // A learned workflow no run has used ages (DATA: learned-workflows.json lifecycle): stale, then archived, never deleted;
+    // a pinned one never ages. Called by the account's alarm; the latest use of each is read from the run cards, newest first.
+    async age() {
+      const life = learnedSettings.lifecycle, nowMs = now().getTime(), day = 86_400_000;
+      const candidates = (await store.savedRecipes()).filter(row => row.status !== 'deleted' && row.learned_from && row.pinned !== true && row.lifecycle !== 'archived');
+      if (!candidates.length) return { aged: [] };
+      const horizon = nowMs - life.archive_after_days * day;
+      const used = new Map();
+      let before = null, reached = false;
+      for (let page = 0; page < life.run_pages && !reached; page += 1) {
+        const read = await store.runs({ before, limit: 200 });
+        const cards = Array.isArray(read) ? read : read.cards;
+        for (const card of cards) {
+          const at = Date.parse(card.started_at);
+          if (Number.isFinite(at) && at < horizon) { reached = true; continue; }
+          if (Number.isFinite(at) && card.recipe?.id && !(used.get(card.recipe.id) >= at)) used.set(card.recipe.id, at);
+        }
+        before = Array.isArray(read) ? null : read.next;
+        if (before === null) reached = true;
+      }
+      if (!reached) return { aged: [], note: learnedWords('lifecycle_unreadable') };
+      const aged = [];
+      for (const row of candidates) {
+        const reference = Math.max(used.get(row.id) ?? 0, Date.parse(row.lifecycle_at ?? row.saved_at ?? '') || 0);
+        if (!reference) continue;
+        const idle = (nowMs - reference) / day;
+        const to = idle >= life.archive_after_days ? 'archived' : idle >= life.stale_after_days ? 'stale' : null;
+        if (!to || to === row.lifecycle) continue;
+        const entry = { at: now().toISOString(), from: row.lifecycle ?? 'active', to, recipe_identity: identityOf(row) };
+        await store.putRecipe({ ...row, lifecycle: to, lifecycle_at: entry.at, lifecycle_log: [...(row.lifecycle_log ?? []), entry].slice(-life.log_most) }, { expected_identity: identityOf(row) });
+        aged.push({ workflow_id: row.id, from: entry.from, to });
+      }
+      return { aged };
+    },
+
+    // Undoes the latest lifecycle change of one learned workflow: it is found again and its clock starts now.
+    async restore({ workflow_id }) {
+      const row = await savedRow(workflow_id);
+      if (!row) throw new WorkflowError(`${workflow_id} is not a workflow this account saved.`);
+      if (row.lifecycle !== 'stale' && row.lifecycle !== 'archived') throw new WorkflowError(learnedWords('lifecycle_not_aged', { workflow_id }));
+      const entry = { at: now().toISOString(), from: row.lifecycle, to: 'active', recipe_identity: identityOf(row) };
+      const { lifecycle: _was, ...rest } = row;
+      await store.putRecipe({ ...rest, lifecycle_at: entry.at, lifecycle_log: [...(row.lifecycle_log ?? []), entry].slice(-learnedSettings.lifecycle.log_most) }, { expected_identity: identityOf(row) });
+      return { workflow_id, restored: true, said: learnedWords('lifecycle_restored', { workflow_id }), next_call: { tool: 'start_workflow', arguments: { workflow_id, input: '(matching input_schema)', request_key: '(any unique text)' } } };
+    },
+
+    // One run per (workflow, request_key): the same key returns the run already started.
+    async start({ workflow_id: named, purpose, input = {}, request_key }) {
+      if (!nonempty(request_key)) throw new WorkflowError('request_key is required: any unique text, so sending the same start twice starts one run.');
+      const workflow_id = nonempty(named) || purpose === undefined ? named : await workflowFor(purpose);
+      const { row } = await recipe(workflow_id);
+      const run_id = `run:${identityOf({ workflow_id, request_key }).slice(3, 27)}`;
+      const earlier = await store.run(run_id);
+      if (earlier) return await view((await pass(earlier)).run);
+      if (row.action_completeness?.attachment_error) throw new WorkflowError(row.action_completeness.attachment_error);
+      const problems = schemaProblems(input, row.input_schema ?? { type: 'object' }, 'input');
+      if (problems.length) throw new WorkflowError(`The input does not fit this workflow: ${problems.join('; ')}.`, { problems });
+      const run = { run_id, request_key, recipe: row, recipe_identity: identityOf(row), input, done: {}, state: 'working', started_at: now().toISOString() };
+      await store.putRun(run);
+      return await view((await pass(run)).run);
+    },
+
+    // Admits one step's output only when it fits the step's shape and passes every check, then names the next step.
+    // For a step that runs a tool, run_again starts the tool again; output sent instead is checked like any other.
+    async submit({ run_id, step_id, output, run_again = false }, { reader = null } = {}) {
+      let { run } = await pass(await runOf(run_id));
+      if (run.state === 'finished') throw new WorkflowError('This run is finished; nothing more is taken.');
+      if (run.state === 'failed') throw new WorkflowError(`This run stopped: ${run.error}`);
+      if (run.state === 'stuck') throw new WorkflowError(run.error, { next_call: { tool: 'read_workflow_run', arguments: { run_id, resume: true } } });
+      if (run.done[step_id]) {
+        if (canonical(await store.output(run_id, step_id)) === canonical(output)) return await view(run);
+        throw new WorkflowError(`Step ${step_id} was already admitted with other output. The step now is ${run.waiting[0]?.step_id}.`, { next_call: (await view(run)).next_call });
+      }
+      const current = run.waiting.find(item => item.step_id === step_id);
+      if (!current) throw new WorkflowError(`The step now is ${run.waiting.map(item => item.step_id).join(' or ')}, not ${step_id}. Steps are done in order.`, { next_call: (await view(run)).next_call });
+      if (run_again) {
+        if (!current.asks?.startsWith('tool:')) throw new WorkflowError(`Step ${step_id} runs no tool; send its output.`);
+        const { [step_id]: _, ...others } = run.tool_runs ?? {};
+        // Workshop restarts only a pre-effect cut-off under its original request key. Ordinary failures get a new key.
+        const attempts = { ...(run.tool_attempts ?? {}) };
+        if (current.tool_run?.cut_off === true) attempts[step_id] = Math.max(0, (attempts[step_id] ?? 1) - 1);
+        return await view((await pass({ ...run, tool_runs: others, tool_attempts: attempts })).run);
+      }
+      const problems = shapeProblems(output, current.submit);
+      if (current.actor_policy && current.asks?.startsWith('agent:')) problems.push('This step requires the completed agent handoff; supplied output cannot replace its author evidence.');
+      else if (current.actor_policy && !submittedActorEvidence(reader)) problems.push('This step requires authenticated actor evidence from its actual author.');
+      if (!problems.length) {
+        const contract = run.recipe.action_completeness;
+        const inventory = contract && step_id === contract.proof_step ? await store.output(run_id, contract.inventory_step) : undefined;
+        problems.push(...actionCompletenessProblems(run.recipe, step_id, output, inventory));
+      }
+      if (problems.length) throw refusal(step_id, problems);
+      const after = await pass(run, { step_id, output, actor_evidence: submittedActorEvidence(reader) });
+      if (after.refused) throw refusal(step_id, after.refused);
+      if (after.run.interrupted && !after.run.done[step_id]) throw new WorkflowError(`Step ${step_id} was not kept: ${after.run.waiting[0]?.interrupted?.says ?? after.run.error} Send the same output again.`, { next_call: { tool: 'submit_workflow_step', arguments: { run_id, step_id, output: '(the same output)' } } });
+      return await view(after.run);
+    },
+
+    // Inspect the persisted run without advancing it or admitting a tool's output.
+    // view() reads only the stored recipe, state and previously admitted output.
+    async snapshot({ run_id }) {
+      return await view(await runOf(run_id));
+    },
+
+    // Reading a run runs it again, so a tool or agent that answered since is admitted now.
+    // With step_id, reads that admitted step's whole output instead; with resume, carries a stopped or stuck run on.
+    async read({ run_id, step_id, resume: resuming = false }) {
+      if (resuming) return await resume(run_id);
+      if (step_id !== undefined) {
+        const run = await runOf(run_id);
+        if (!run.done?.[step_id]) throw new WorkflowError(`Step ${step_id} of ${run_id} has no admitted output yet.`);
+        return { run_id, step_id, admitted_at: run.done[step_id].admitted_at, ...(run.done[step_id].actor_evidence ? { actor_evidence: run.done[step_id].actor_evidence } : {}), output: await store.output(run_id, step_id) };
+      }
+      return await view((await pass(await runOf(run_id))).run);
+    },
+
+    // Lost step submissions and stops read from the run they changed, never by passing the run again (view only reads):
+    // an admitted step with this output is that submission, answered as a repeat answers it; a step not admitted was
+    // never kept (a run again restarts a tool, so it cannot say); a stop is the run's kept withdrawal for this reason.
+    async submitOutcome({ run_id, step_id, output, run_again = false } = {}) {
+      const run = nonempty(run_id) ? await store.run(run_id) : null;
+      if (!run || run_again) return run ? { state: 'unknown' } : { state: 'aborted' };
+      if (!run.done?.[step_id]) return { state: 'aborted' };
+      return canonical(await store.output(run_id, step_id)) === canonical(output) ? { state: 'committed', result: await view(run) } : { state: 'unknown' };
+    },
+    async stopOutcome({ run_id, reason } = {}) {
+      const run = nonempty(run_id) ? await store.run(run_id) : null;
+      if (run?.withdrawal?.kind !== 'workflow-stop') return { state: 'aborted' };
+      return run.withdrawal.reason === String(reason ?? '').trim() ? { state: 'committed', result: { stopped: true, run: await view(run) } } : { state: 'unknown' };
+    },
+
+    // Stop the continuation itself, including a manual ask that has no handoff to withdraw. This does not cancel a
+    // dispatched tool, recall a sent effect, or claim the requested outcome happened. Its original evidence stays.
+    async stop({ run_id, reason }) {
+      if (!nonempty(reason) || reason.trim().length > 2000) throw new WorkflowError('reason must say why this workflow is stopping, in 1 to 2000 characters.');
+      const stopped = await changeRun(run_id, async () => {
+        const run = await runOf(run_id);
+        if (run.withdrawal) return run;
+        if (runState(run).state === 'finished') throw new WorkflowError('This run is already finished. Stopping cannot undo its result or effects.');
+        const next = { ...run, state: 'failed', waiting: [], error: `Workflow stopped: ${reason.trim()}`,
+          withdrawal: { kind: 'workflow-stop', at: now().toISOString(), reason: reason.trim(),
+            started_work: startedWork(run, ...(activePasses.get(run_id) ?? [])),
+            note: 'Workflow continuation is stopped. Previously started tools and agents are unchanged and may still finish or have effects; read their own records before making any claim about cancellation.' } };
+        delete next.interrupted;
+        await store.putRun(next);
+        return next;
+      });
+      return { stopped: true, run: await view(stopped) };
+    },
+
+    // One page of runs, newest written first; `before` is the `next` of the page before. A store that answers a plain list
+    // of every run (a test's) is shown whole. run_ids reads those runs instead of a page. outcome_fields names fields a
+    // caller shows (a list's own fields, src/work-item-rows.mjs): each run then also says its title and, under outcome,
+    // the latest value its done steps sent for each of them, read from those steps' kept outputs only.
+    async runs({ before = null, limit = null, run_ids = null, outcome_fields = null } = {}) {
+      const read = Array.isArray(run_ids) ? { cards: (await Promise.all(run_ids.slice(0, RUN_IDS_READ_MOST).map(id => store.run(id)))).filter(Boolean), next: null }
+        : await store.runs({ before, limit });
+      const page = Array.isArray(read) ? { cards: read, next: null } : read;
+      const outcomeOf = async run => {
+        const outcome = {};
+        if (!outcome_fields?.length) return outcome;
+        for (const step of asksOf(run.recipe)) {
+          if (!run.done?.[step.id]) continue;
+          const output = await store.output(run.run_id, step.id);
+          if (object(output)) for (const field of outcome_fields) if (output[field] !== undefined && output[field] !== null) outcome[field] = output[field];
+        }
+        return outcome;
+      };
+      return { runs: await Promise.all(page.cards.map(async run => {
+        const { state } = runState(run);
+        const card = { run_id: run.run_id, workflow_id: run.recipe.id, state, started_at: run.started_at, ...(state === 'working' || state === 'stuck' ? { step_now: run.waiting?.[0]?.step_id ?? null } : {}), ...(state === 'finished' ? { finished_at: run.finished_at } : state !== 'working' ? { error: run.error } : {}) };
+        if (!Array.isArray(outcome_fields)) return card;
+        const step = state === 'working' || state === 'stuck' ? asksOf(run.recipe).find(item => item.id === card.step_now) : null;
+        return { ...card, title: run.recipe.label ?? run.recipe.id, ...(step ? { step_title: step.config.context?.title ?? step.id } : {}), outcome: await outcomeOf(run) };
+      })), ...(page.next === null ? {} : { next: page.next }) };
+    },
+
+    // Keeps a workflow this account wrote, so any AI signed in to it can find and run it. Saving the same id replaces it.
+    // The reply names the workflows that already do a job this close, so a duplicate is merged instead of kept twice.
+    async save({ workflow }, { onCommit = null } = {}) {
+      const problems = recipeProblems(workflow);
+      if (problems.length) throw new WorkflowError(`The workflow was not saved: ${problems.join(' ')}`, { problems, ...(await exampleCall()) });
+      const before = (await store.savedRecipes({ workflow_id: workflow.id })).find(row => row.id === workflow.id) ?? null;
+      const existing = before?.status !== 'deleted' ? before : null;
+      const adopted = existing?.adopted_from?.kind === 'shipped-workflow' && existing.adopted_from.workflow_id === workflow.id
+        ? existing.adopted_from : null;
+      const { adopted_from: _callerAdoption, ...authoredWorkflow } = workflow;
+      if ((await shared()).some(row => row.id === workflow.id) && !adopted && !existing) throw new WorkflowError(`${workflow.id} is one of Trillion's own workflows. Save yours under another id, or adopt it into this account first.`);
+      for (const id of workflow.made_from ?? []) if (!(await catalogs.workflow(id))) throw new WorkflowError(`made_from names ${id}, which is not a workflow this account can find. find_workflow finds the one this was made from.`);
+      for (const tool_id of toolIdsOf(workflow)) if (!(await toolExists(tool_id))) throw new WorkflowError(`A step runs ${tool_id}, which is not a tool this account can find. find_tool_for_job finds one; save_tool keeps one you have.`);
+      const others = (await everything()).filter(item => item.row.id !== workflow.id);
+      const similar = (await closeness(`${workflow.label ?? ''}: ${workflow.job}`, others)).rows.filter(isSimilar).sort((a, b) => b.score - a.score).slice(0, 5);
+      // Each tool step keeps the version of the tool it was written for (src/workflow-step-versions.mjs).
+      const pinnedWorkflow = tools ? await pinnedRecipe(authoredWorkflow, describeTool) : authoredWorkflow;
+      // What the author could still improve (src/workflow-authoring-guidance.json); it never refuses the save.
+      const notes = await authoringNotes(pinnedWorkflow, tools ? describeTool : null);
+      const candidate = { ...pinnedWorkflow, kind: 'workflow-recipe', saved_at: now().toISOString(), ...(adopted ? { adopted_from: adopted } : {}) };
+      // An owner may capture the learned reply in the same transaction as its
+      // recipe. The callback is a host function, never customer-authored DATA.
+      // The reply is made from the kept row alone, so `onCommit` can keep it with the row (onCommit(row, reply)).
+      const reply = row => ({
+        workflow_id: row.id, saved: true, visible_to: 'every AI signed in to this account', recipe_identity: identityOf(row),
+        ...(notes.length ? { authoring_notes: notes } : {}),
+        ...(similar.length ? { similar_workflows: similar.map(({ row: other, from, score }) => ({ workflow_id: other.id, job: other.job, made_by: from, closeness: Math.round(score * 1000) / 1000 })), note: 'These already do a job this close. When one does the same job, improve that one (save_workflow with its id when it is this account\'s) instead of keeping two. When yours is a variation of one of them for this person, name it in made_from, so its origin shows yours among its variations.' } : {}),
+        next_call: { tool: 'start_workflow', arguments: { workflow_id: row.id, input: '(matching input_schema)', request_key: '(any unique text)' } },
+      });
+      const row = await store.putRecipe(candidate, { expected_identity: before == null ? null : identityOf(before), ...(typeof onCommit === 'function' ? { onCommit: kept => onCommit(kept, reply(kept)) } : {}) }) ?? candidate;
+      return reply(row);
+    },
+
+    // Copies one shipped workflow into this account under the same stable id, then publishes and verifies the exact
+    // account-owned row. The conditional store write preserves a pre-existing account recipe, and the marker makes
+    // this copy win over its shipped source without changing any run's immutable recipe snapshot.
+    async adopt({ workflow_id }) {
+      if (!nonempty(workflow_id)) throw new WorkflowError('workflow_id is required.');
+      if (!market) throw new WorkflowError('This service has no shared place to publish workflows.');
+      const source = (await shared()).find(row => row.id === workflow_id);
+      if (!source || recipeProblems(source).length) throw new WorkflowError(`${workflow_id} is not an adoptable shipped workflow.`);
+      const current = (await store.savedRecipes({ workflow_id })).find(row => row.id === workflow_id && row.status !== 'deleted') ?? null;
+      let row = current;
+      if (current && !(current.adopted_from?.kind === 'shipped-workflow' && current.adopted_from.workflow_id === workflow_id)) {
+        throw new WorkflowError(`${workflow_id} already has an account-owned workflow. It was left unchanged.`);
+      }
+      for (const id of source.made_from ?? []) if (!(await catalogs.workflow(id))) throw new WorkflowError(`The shipped workflow names ${id}, which is not a workflow this account can find.`);
+      if (!current) {
+        if (typeof store.putRecipeIfAbsent !== 'function') throw new WorkflowError('The workflow store cannot conditionally adopt a shipped workflow.');
+        const candidate = { ...source, kind: 'workflow-recipe', saved_at: now().toISOString(), adopted_from: {
+          kind: 'shipped-workflow', workflow_id, recipe_identity: identityOf(source),
+        } };
+        const problems = recipeProblems(candidate);
+        if (problems.length) throw new WorkflowError(`The shipped workflow cannot be adopted: ${problems.join(' ')}`, { problems });
+        for (const tool_id of toolIdsOf(candidate)) if (!(await toolExists(tool_id))) throw new WorkflowError(`A step runs ${tool_id}, which is not a tool this account can find.`);
+        const result = await store.putRecipeIfAbsent(candidate);
+        if (!result?.inserted) {
+          const raced = result?.row ?? (await store.savedRecipes({ workflow_id })).find(item => item.id === workflow_id && item.status !== 'deleted') ?? null;
+          if (!(raced?.status !== 'deleted' && raced?.adopted_from?.kind === 'shipped-workflow' && raced.adopted_from.workflow_id === workflow_id)) {
+            throw new WorkflowError(`${workflow_id} already has an account-owned workflow. It was left unchanged.`);
+          }
+          row = raced;
+        } else row = result.row ?? candidate;
+      }
+      const verified = await publishAndVerify(workflow_id, row);
+      return adoptedReply(workflow_id, verified.recipe_identity);
+    },
+
+    async publish({ workflow_id }) {
+      if (!market) throw new WorkflowError('This service has no shared place to publish workflows.');
+      const row = (await store.savedRecipes({ workflow_id })).find(item => item.id === workflow_id && item.status !== 'deleted');
+      if (!row) throw new WorkflowError(`${workflow_id} is not a workflow this account saved. Save it with save_workflow first.`);
+      const verified = await publishAndVerify(workflow_id, row);
+      return publishedReply(workflow_id, verified.recipe_identity);
+    },
+
+    // A lost publish or adopt is read from the Marketplace row this maker has for it, never sent again: the row the
+    // saved recipe publishes as is there (committed), no row is there and nothing was adopted (aborted), else unknown.
+    async publishOutcome({ workflow_id } = {}) {
+      const published = await marketRowOf(workflow_id);
+      if (!published) return { state: 'aborted' };
+      const current = await savedRow(workflow_id);
+      return current && identityOf(published) === identityOf(publishedWorkflowRow(current))
+        ? { state: 'committed', result: publishedReply(workflow_id, identityOf(published)) } : { state: 'unknown' };
+    },
+    async adoptOutcome({ workflow_id } = {}) {
+      const current = await savedRow(workflow_id);
+      const adopted = current?.adopted_from?.kind === 'shipped-workflow' && current.adopted_from.workflow_id === workflow_id;
+      const published = await marketRowOf(workflow_id);
+      if (!adopted) return published || current ? { state: 'unknown' } : { state: 'aborted' };
+      return published && identityOf(published) === identityOf(publishedWorkflowRow(current))
+        ? { state: 'committed', result: adoptedReply(workflow_id, identityOf(published)) } : { state: 'unknown' };
+    },
+
+    async unpublish({ workflow_id }) {
+      if (!market || !(await market.unpublish({ id: workflow_id, maker }))) throw new WorkflowError(`${workflow_id} is not a workflow this account published.`);
+      return unpublishedWorkflowReply(workflow_id);
+    },
+
+    // Whether this account's row for the workflow is on the Marketplace now (an unpublish's own effect is its absence).
+    async publishedByThisAccount({ workflow_id }) {
+      return Boolean(market) && (await market.published({ workflow_id })).some(item => item.row?.id === workflow_id && item.maker === maker);
+    },
+
+    // The public repositories whose skills are workflows here: every account's (records/skill-sources.json) and this
+    // account's own, each as last read (its commit, when, any failure, the skills it gave and the ones held back with
+    // why). `add` names one more repository for this account ({ host, owner, repository, branch, folder, kind }); `remove`
+    // takes one of this account's own away by id.
+    async sources({ add = null, remove = null } = {}) {
+      if (!store.savedSources) throw new WorkflowError('This service keeps no skill repositories.');
+      const config = typeof sourceConfig === 'function' ? await sourceConfig() : sourceConfig;
+      if (add) {
+        if (!object(add)) throw new WorkflowError('add must name a public repository.');
+        const row = { host: config.hosts[0]?.id, folder: '', ...add, id: String(add.id ?? `${add.owner}-${add.repository}`).toLowerCase().replace(/[^a-z0-9._-]+/g, '-') };
+        const problems = sourceProblems({...row,kind:row.kind??config.default_kind}, config.hosts, config.kinds);
+        if (problems.length) throw new WorkflowError(`This repository cannot be read: ${problems.join(' ')}`, { problems });
+        if (config.sources.some(item => item.id === row.id)) throw new WorkflowError(`${row.id} is already read for every account.`);
+        await store.putSource({ id: row.id, host: row.host, owner: row.owner, repository: row.repository, ...(row.branch ? { branch: row.branch } : {}), ...(row.kind ? { kind: row.kind } : {}), folder: row.folder, added_at: now().toISOString() });
+      }
+      if (remove) {
+        const row = (await ownSources()).find(item => item.id === remove);
+        if (!row) throw new WorkflowError(`${remove} is not a repository this account added.`);
+        await store.putSource({ ...row, status: 'deleted', removed_at: now().toISOString() });
+      }
+      const own = await ownSources();
+      const reads = sourceReads ? await sourceReads(own) : [];
+      if (canonical(await ownSources()) !== canonical(own)) throw new WorkflowError('Your skill repositories changed during this read; read the current repositories again.');
+      if (typeof sourceConfig === 'function' && canonical(await sourceConfig()) !== canonical(config))
+        throw new WorkflowError('The skill-source definitions changed during this read; read the current repositories again.');
+      const ownIds = new Set(own.map(row => row.id));
+      const shown = read => ({ id: read.source_id, commit: read.commit, read_at: read.read_at, checked_at:read.checked_at, ...(read.error ? { error: read.error } : {}), skills: read.skills ?? [], held: read.held ?? [] });
+      const readOf = (id,scope) => reads.find(read => read.source_id === id && (!read.scope || read.scope === scope)) ?? {source_id:id};
+      return {
+        every_account: config.sources.map(source => ownIds.has(source.id) ? {...source,overridden_by_account:true} : {...source,...shown(readOf(source.id,'default'))}),
+        yours: own.map(source => ({...source,...shown(readOf(source.id,'account'))})),
+        hosts: config.hosts.map(host => ({ id: host.id, label: host.label })),
+        kinds: Object.entries(config.kinds).map(([id, kind]) => ({ id, label: kind.label, becomes: kind.becomes })),
+      };
+    },
+
+    // Only a workflow this account saved; a published one is withdrawn with it. The row is kept marked deleted, so runs
+    // already started keep their version and no one finds or starts it again.
+    async remove({ workflow_id }) {
+      const row = (await store.savedRecipes({ workflow_id })).find(item => item.id === workflow_id && item.status !== 'deleted');
+      if (!row) throw new WorkflowError(`${workflow_id} is not a workflow this account saved.`);
+      if (market) await market.unpublish({ id: workflow_id, maker });
+      await store.putRecipe({ ...row, status: 'deleted', removed_at: now().toISOString() }, { expected_identity: identityOf(row) });
+      return { workflow_id, removed: true, visible_to: 'no one' };
+    },
+  };
+}
+
+// An output up to this many characters (as compact JSON) is shown whole within the run budget; otherwise its opening.
+const STEP_OUTPUT_SHOWN_CHARS = 16_000;
+const STEP_OUTPUT_PREVIEW_CHARS = 4_000;
+// Retained output text across one view; finished results reuse those same small values instead of fetching again.
+// Serialized responses can repeat a small value in done and result or escape preview characters. This character
+// budget is not a total response-byte or isolate-heap limit; stored evidence and engine reads remain unchanged.
+const RUN_OUTPUT_SHOWN_CHARS = 128_000;
+// The most runs one read by run_ids answers, a list page's own row ids.
+const RUN_IDS_READ_MOST = 100;
+
+const PATHS = { '/workflows/restore': 'restore', '/workflows/find': 'find', '/workflows/describe': 'describe', '/workflows/start': 'start', '/workflows/submit': 'submit', '/workflows/read': 'read', '/workflows/snapshot': 'snapshot', '/workflows/stop': 'stop', '/workflows/save': 'save', '/workflows/adopt': 'adopt', '/workflows/upgrade': 'upgrade', '/workflows/publish': 'publish', '/workflows/unpublish': 'unpublish', '/workflows/remove': 'remove', '/workflows/sources': 'sources' };
+export const isWorkflowPath = pathname => pathname === '/workflows' || pathname.startsWith('/workflows/');
+
+// The workflow routes, over standard Request and Response like the case and Workshop routes.
+export async function handleWorkflowRequest(workflows, request, { reportUnexpected = event => console.error(JSON.stringify(event)) } = {}) {
+  const url = new URL(request.url);
+  const reply = (value, status = 200) => Response.json(value, { status });
+  try {
+    // reads-ok: workflowRunCards.list caps the requested limit at LISTED_MOST (200).
+    if (request.method === 'GET' && url.pathname === '/workflows/runs') return reply(await workflows.runs({ before: url.searchParams.get('before'), limit: url.searchParams.get('limit') }));
+    const verb = request.method === 'POST' && PATHS[url.pathname];
+    if (!verb) return reply({ error: 'Not found' }, 404);
+    const raw = await request.text();
+    if (raw.length > 4_000_000) throw new WorkflowError('Request too large: send a step\'s evidence in parts of under 4 MB, or keep large files with write_file and name them.');
+    return reply(await workflows[verb](JSON.parse(raw || '{}'), { reader: request.headers.get('x-trillion-reader') || null }));
+  } catch (error) {
+    const expected = error instanceof WorkflowError || error instanceof SyntaxError;
+    let reference = null;
+    if (!expected) {
+      reference = crypto.randomUUID().replaceAll('-', '').slice(0, 16);
+      const error_class = error instanceof TypeError ? 'TypeError' : error instanceof ReferenceError ? 'ReferenceError' : error instanceof RangeError ? 'RangeError' : 'Error';
+      const headline = `${error?.name}: ${error?.message}`;
+      const stack = typeof error?.stack === 'string' && error.stack.startsWith(`${headline}\n`) ? error.stack.slice(headline.length + 1) : '';
+      const frames = stack.split('\n').filter(line => /^\s*at\s+/.test(line)).slice(0, 20);
+      reportUnexpected({ event: 'workflow_operation_failed', reference, operation: PATHS[url.pathname] ?? 'read', error_class, frames });
+    }
+    return reply({ error: String(error.message ?? error), ...(reference ? { code: 'workflow_internal_failure', reference } : {}), ...(error.problems ? { problems: error.problems } : {}), ...(error.next_call ? { next_call: error.next_call } : {}) }, expected ? 400 : 500);
+  }
+}

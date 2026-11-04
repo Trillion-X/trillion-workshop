@@ -1,0 +1,31 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/workshop-history-serialization.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/write-a-workshop-tasks-history-to-a-file-and-read/from-old-trillion/src/workshop-history-serialization.mjs",
+      "source_identity": "1f:cc6ecc786b9ca6290583361ae564f6968f295ca10891de2b3aea76d4f0ea812d",
+      "identity": "1f:cc6ecc786b9ca6290583361ae564f6968f295ca10891de2b3aea76d4f0ea812d"
+    },
+    {
+      "from": "src/workshop-task-history.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/write-a-workshop-tasks-history-to-a-file-and-read/from-old-trillion/src/workshop-task-history.mjs.held",
+      "source_identity": "1f:5ac5292b663f89992cbcbb8c030d9098cf223cd542b7096172e03d382fd74c13",
+      "identity": "1f:5ac5292b663f89992cbcbb8c030d9098cf223cd542b7096172e03d382fd74c13",
+      "held": true
+    },
+    {
+      "from": "test/workshop-history-serialization.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/write-a-workshop-tasks-history-to-a-file-and-read/from-old-trillion/test/workshop-history-serialization.test.mjs.held",
+      "source_identity": "1f:c35ec938a88c711177f2dc6596f51f0402787fc1cc90473e0c2caf80271f41ac",
+      "identity": "1f:72c3a8fdce2ff8a9bb2f61cf6a3d8d9f5946da9cfa683e2fce5e14db4c898e37",
+      "held": true
+    }
+  ]
+}

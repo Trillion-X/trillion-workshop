@@ -1,0 +1,343 @@
+// src/space-permissions.mjs
+//
+// Purpose: who may do what in a space (src/spaces.mjs), using the shared rule-decision owner and each space's own rules.
+// A check names the action and hands in the thing acted on; the facts about the person and the thing are rows the
+// formula engine filters (tool:filter-rows-by-rules, run in process through the Network's built-in tools), one row per
+// rule, so one engine call answers which rules hold. The rules are DATA: src/space-permission-rules.json holds the
+// facts a rule may name, who a rule can be about (anyone, any member, anyone with the link, a member type, one person),
+// the actions and the words each is refused with, and the rules every space starts with. A member's type is the `role`
+// of their membership row in that space; the ids are the spaces screens' own DATA.
+//
+// Non-Negotiable Invariants:
+//   1. Every permission decision in a space goes through `allowedInSpace`; no caller compares members, makers or
+//      labels itself.
+//   2. Fail-closed: a deny that holds wins, an allow that holds lets the person act, and when no rule holds the action
+//      is refused with its own words. A rule set that cannot be read, or holds a rule that is not finished, refuses
+//      everything in its space.
+//   3. A space's rules are seeded from the defaults the first time the space is checked, and kept as its own row;
+//      editing the defaults never changes a space that already has rules.
+//   4. Replacing the rules is itself the action `change_rules`, decided by the rules in force; a new set is kept only
+//      when every rule is finished and it still lets the person saving it change the rules again.
+//   5. The shared rule-decision owner builds one formula tree per distinct rule set and memoizes decisions by its full
+//      fact rows, so display and access rules use the same matching and lifetime path.
+//   6. A space that does not exist refuses like one the person is not in, so asking reveals nothing.
+//   8. Communities are spaces: their roles are member types (members.role, `member` when empty), what a role's
+//      configuration lets it do is the fact type_may, and the owner fact is whoever runs it now (memberships.created_by, which a hand-over moves). A row
+//      still holding earlier starting rules exactly (retired_default_identities, BLAKE3) is deleted on start-up, so
+//      that space starts again from today's.
+//   9. A decision is a pure function of the rules and facts handed to the shared rule-decision owner; its bounded
+//      result cache is keyed by that owner's immutable rule tree and complete fact rows.
+//   7. A record from someone's private Trillion carries its owner's choice for it (src/record-sharing.mjs) as the fact
+//      `owner_shares_here`; a thing its owner does not share in this space is refused before the space's rules are
+//      read, since no space's rules can let in what its owner keeps out.
+//
+import { captureSpaceCommit } from '../../../keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-commit-context.mjs';
+import {sharedNativeExecution} from './shared-native-execution-context.mjs';
+import permissions from '../../../space-permission-rules/src/space-permission-rules.json' with { type: 'json' };
+import { ownMemberTypesOf } from './space-member-types.mjs';
+import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { compileRules, ruleVocabulary } from '../parts/formula-engine/rules/compile-rules.mjs';
+import recordSharing from './record-sharing.json' with { type: 'json' };
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { decideRuleEffects } from './rule-decisions.mjs';
+import { hostOf } from './resource-host.mjs';
+
+const FILTER_TOOL = 'tool:filter-rows-by-rules';
+// Reuse an adapter for this Network and engine factory. Replacing an evaluator cannot reuse another's answers.
+const FILTERS = new WeakMap();
+const filterFor = owner => {
+  const source = owner.engines;
+  let held = FILTERS.get(owner);
+  if (held?.source !== source) {
+    held = { source, filter: input => source.call(owner).run(FILTER_TOOL, input) };
+    FILTERS.set(owner, held);
+  }
+  return held.filter;
+};
+const deadlineOf = (rules, at) => rules.reduce((deadline, rule) => {
+  const until = typeof rule.until === 'number' ? rule.until : rule.until == null ? Infinity : Date.parse(rule.until);
+  return Number.isFinite(until) && until > at ? Math.min(deadline, until) : deadline;
+}, Infinity);
+const AUTHOR_FIELDS = permissions.facts.map(({ id, kind }) => ({ id, kind }));
+const ACTIONS = new Map(permissions.actions.map(action => [action.id, action]));
+const EFFECTS = new Map((permissions.effects ?? []).map(effect => [effect.id, effect]));
+const vocabulary = ruleVocabulary(operators);
+const NOT_A_MEMBER = ACTIONS.get('read_space').refused;
+// The rules a space starts with, by its label (default_rules_by_label), else default_rules; one text per label.
+const STARTING_TEXT = new Map(Object.entries(permissions.default_rules_by_label ?? {}).map(([label, rules]) => [label, JSON.stringify(rules)]));
+const DEFAULT_TEXT = JSON.stringify(permissions.default_rules);
+// Earlier starting rules, by their BLAKE3 identity: a space still holding one exactly starts again from today's.
+const RETIRED = new Set(permissions.retired_default_identities ?? []);
+const identityOf = text => bytesToHex(blake3(new TextEncoder().encode(text)));
+const startingText = label => STARTING_TEXT.get(label) ?? DEFAULT_TEXT;
+
+const WHO = new Map(permissions.who_kinds.map(kind => [kind.kind, kind]));
+const condition = (field, operator, values) => ({ kind: 'rule', field, operator, params: { values } });
+
+// Who a rule is about, as conditions over the facts (who_kinds DATA): a fact that must be true, or one that must be
+// the id the rule names, and, for a named member type or person, being in the space now. null: `who` is not usable.
+function whoConditions(who) {
+  const kind = WHO.get(who?.kind);
+  if (!kind) return null;
+  if (!kind.fact) return [];
+  if (!kind.needs) return [condition(kind.fact, 'is_any_of', [kind.value])];
+  const id = who[kind.needs];
+  if (typeof id !== 'string' || !id.trim()) return null;
+  return [...(kind.member ? [condition('is_member', 'is_any_of', [true])] : []), condition(kind.fact, kind.operator ?? 'is_any_of', [id])];
+}
+
+// A rule's whole condition: its who, its actions and its when, all of which must hold (a tree the engine reads).
+function conditionOf(rule) {
+  const parts = [...(rule.who === undefined ? [] : whoConditions(rule.who) ?? []), ...(Array.isArray(rule.actions) ? [condition('action', 'is_any_of', rule.actions)] : []), ...(rule.when ? [rule.when] : [])];
+  return { kind: 'group', combinator: 'and', rules: parts };
+}
+
+const nodesOf = node => (node?.kind === 'group' ? [node, ...(node.rules ?? []).flatMap(nodesOf)] : [node]);
+
+/** Every reason a rule list cannot be kept, in plain words; empty when all of it is finished. */
+export const problemsWithRules = rules => ruleProblems(rules).map(problem => problem.says);
+
+/** The same reasons, each with the index of the rule it is about (null when it is about the whole list), so a screen
+ *  can show each beside its rule. */
+export function ruleProblems(rules) {
+  if (!Array.isArray(rules) || !rules.length || rules.length > 100) return [{ index: null, says: 'The rules are a list of 1 to 100 rules, each { id, effect, says, refuses?, who?, actions?, when? }.' }];
+  const problems = [];
+  const seen = new Set();
+  for (const [index, rule] of rules.entries()) {
+    const push = says => problems.push({ index, says });
+    const name = typeof rule?.id === 'string' && rule.id.trim() ? `The rule "${rule.id}"` : `Rule ${index + 1}`;
+    if (typeof rule?.id !== 'string' || !rule.id.trim() || rule.id.length > 80) push(`${name} needs an id of up to 80 characters.`);
+    else if (seen.has(rule.id)) push(`${name} is named twice.`);
+    seen.add(rule?.id);
+    if (!EFFECTS.has(rule?.effect)) push(`${name} needs effect ${[...EFFECTS.keys()].map(id => JSON.stringify(id)).join(' or ')}.`);
+    if (typeof rule?.says !== 'string' || !rule.says.trim() || rule.says.length > 300) push(`${name} needs says: what it means, in up to 300 characters.`);
+    if (rule?.refuses !== undefined && (typeof rule.refuses !== 'string' || !rule.refuses.trim() || rule.refuses.length > 300)) push(`${name} has refuses that is not words of up to 300 characters.`);
+    if (rule?.until !== undefined && rule.until !== null && !Number.isFinite(typeof rule.until === 'number' ? rule.until : Date.parse(rule.until))) push(`${name} has until that is not a date and time.`);
+    if (rule?.who !== undefined && !whoConditions(rule.who)) push(`${name} has who that is not one of: ${permissions.who_kinds.map(kind => (kind.needs ? `{ kind: "${kind.kind}", ${kind.needs} }` : `{ kind: "${kind.kind}" }`)).join(', ')}.`);
+    if (rule?.actions !== undefined && (!Array.isArray(rule.actions) || !rule.actions.length)) push(`${name} has actions that is not a list of one or more actions.`);
+    if (rule?.when !== undefined && rule.when?.kind !== 'group') { push(`${name} has when that is not a group of conditions.`); continue; }
+    const { incomplete } = compileRules(conditionOf(rule), { fields: AUTHOR_FIELDS, vocabulary });
+    if (incomplete.length) push(`${name} has ${incomplete.length === 1 ? 'a condition' : `${incomplete.length} conditions`} that ${incomplete.length === 1 ? 'is' : 'are'} not finished (a fact from ${AUTHOR_FIELDS.map(field => field.id).join(', ')}, a comparison and its values).`);
+    const unknown = nodesOf(conditionOf(rule)).filter(node => node?.field === 'action').flatMap(node => node.params?.values ?? []).filter(value => !ACTIONS.has(value));
+    if (unknown.length) push(`${name} names ${unknown.map(value => `"${value}"`).join(', ')}, which ${unknown.length === 1 ? 'is not an action' : 'are not actions'}; the actions are: ${[...ACTIONS.keys()].join(', ')}.`);
+  }
+  return problems;
+}
+
+/** A space's rules, plus why an invalid set refuses everything, if they do. */
+function ruleSetFrom(text) {
+  let rules;
+  try { rules = JSON.parse(text); } catch { return { text, rules: [], broken: 'The rules of this pursuit cannot be read, so nothing is allowed in it until they are set again.' }; }
+  const problems = problemsWithRules(rules);
+  if (problems.length) return { text, rules: Array.isArray(rules) ? rules : [], broken: `${problems[0]} Until it is, nothing is allowed in this space.` };
+  return { text, rules, broken: null };
+}
+
+// What each rule covers, in the actions' own words, for showing a rule to a person.
+function coverOf(rule) {
+  const named = nodesOf(conditionOf(rule)).filter(node => node?.field === 'action');
+  const labels = ids => ids.map(id => ACTIONS.get(id)?.label ?? id);
+  const only = named.filter(node => node.operator === 'is_any_of').flatMap(node => node.params?.values ?? []);
+  const except = named.filter(node => node.operator === 'is_none_of').flatMap(node => node.params?.values ?? []);
+  return { covers: only.length ? labels(only) : ['Everything'], except: labels(except) };
+}
+
+export const spacePermissionMethods = {
+  setUpSpacePermissions() {
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_rules (space_id TEXT PRIMARY KEY, rules TEXT NOT NULL, changed_at TEXT NOT NULL)');
+    for (const row of this.sql.exec('SELECT space_id, rules FROM space_rules').toArray()) {
+      if (RETIRED.has(identityOf(row.rules))) this.sql.exec('DELETE FROM space_rules WHERE space_id = ?', row.space_id);
+    }
+  },
+
+  // The space's rules in force, seeded from the defaults the first time it is checked.
+  spaceRuleSet(spaceId) {
+    let row = this.sql.exec('SELECT rules, changed_at FROM space_rules WHERE space_id = ?', spaceId).toArray()[0];
+    if (!row) {
+      const space = this.sql.exec('SELECT label, created_at FROM memberships WHERE id = ?', spaceId).toArray()[0];
+      // A content owner holds a read-only copy of the Space's policy. A Space whose rules were never seeded at its
+      // policy owner has the starting rules there too, so they are read here without writing; the policy owner
+      // seeds its own row the first time it checks.
+      if (this.contentPolicyTarget) row = { rules: startingText(space?.label), changed_at: space?.created_at ?? null };
+      else {
+        row = { rules: startingText(space?.label), changed_at: new Date().toISOString() };
+        this.sql.exec('INSERT OR IGNORE INTO space_rules (space_id, rules, changed_at) VALUES (?, ?, ?)', spaceId, row.rules, row.changed_at);
+      }
+    }
+    this.spaceRuleSets ??= new Map();
+    let set = this.spaceRuleSets.get(spaceId);
+    if (set?.text !== row.rules) {
+      set = ruleSetFrom(row.rules);
+      this.spaceRuleSets.set(spaceId, set);
+    }
+    return { ...set, changed_at: row.changed_at };
+  },
+
+  // The one decision: whether `relay` may do `action` in `space` under `set`, to `thing` ({ by, origin }, or null when
+  // the thing named is not there, which decides whether they may look in the space at all).
+  async decideInSpace(space, relay, action, thing, set = this.spaceRuleSet(space.id), { memberTypeOverride, memberTypesOverride, communityConfigOverride } = {}) {
+    // Mandatory source controls use real native admission, never a synthetic
+    // member fact. The physical writer still checks the exact item, current
+    // account, erasure and intent after this asynchronous decision.
+    const context=sharedNativeExecution()?.context,source=context?.commitment?.source_mutation;
+    let admittedSourceOwner=false;
+    if(context?.operation==='withdrawSpaceItem'&&context.permit_id&&context.quota_reservation?.lease
+      &&source?.kind==='private-copy-withdrawal'&&source.space_id===space.id&&context.commitment.resource===space.id
+      &&source.relay===relay&&thing?.by===relay&&thing.origin==='private'){
+      const gate=hostOf(this.env, { kind: 'account-control', key: `gate:${JSON.stringify([context.owner,context.claims.sign_in,context.resource])}` });
+      const current=await gate.readPrivateSourceContext({owner:context.owner,resource:context.resource,claims:context.claims});
+      admittedSourceOwner=current.accepted&&current.relay===relay;
+    }
+    const invariants=(permissions.invariant_rules??[]).filter(rule=>!rule.actions||rule.actions.includes(action));
+    if(invariants.length){
+      const facts={action,admitted_private_source_owner:admittedSourceOwner};
+      const decision=await decideRuleEffects({entries:invariants.map(rule=>({rule,when:conditionOf(rule),row:facts})),effects:permissions.effects,fields:AUTHOR_FIELDS,now:Date.now(),strict:true,filterRows:filterFor(this)});
+      if(decision.malformed||decision.incomplete.length)return {allowed:false,says:'The mandatory source controls cannot be verified.',rule:null};
+      const winner=decision.winners[0]?.rule,outcome=permissions.effects.find(effect=>effect.id===winner?.effect)?.outcome;
+      if(outcome)return {allowed:outcome==='allow',says:winner.says,rule:winner.id};
+    }
+    if (set.broken) return { allowed: false, says: set.broken, rule: null };
+    if (thing?.shared_here === false) return { allowed: false, says: recordSharing.refused.not_shared_here, rule: null };
+    const asked = thing === null ? 'read_space' : action;
+    const membership = relay ? this.sql.exec("SELECT role FROM members WHERE membership_id = ? AND relay = ? AND state = 'member'", space.id, relay).toArray()[0] : null;
+    const memberType = membership ? (relay === memberTypeOverride?.relay ? memberTypeOverride.type : membership.role || 'member') : null;
+    const memberTypes = membership ? this.memberTypeIdsOf(space, memberType, memberTypesOverride) : [];
+    // A community keeps what its roles may do in its configuration; its owner is the space's own (created_by, which a
+    // hand-over moves), as for every space.
+    const communityRow = this.sql.exec('SELECT config FROM communities WHERE id = ?', space.id).toArray()[0];
+    const config = communityConfigOverride === undefined ? (communityRow ? JSON.parse(communityRow.config) : null) : communityConfigOverride;
+    const owner = space.created_by;
+    const facts = {
+      action: asked,
+      admitted_private_source_owner: admittedSourceOwner,
+      is_member: Boolean(membership),
+      member_type: memberType,
+      member_types: memberTypes,
+      person: relay || null,
+      holds_link: thing?.link === true,
+      is_owner: Boolean(relay) && relay === owner,
+      // Who puts meetings on, unless the space says: everyone in a team, the owner in a community joined by its rules.
+      events_by: config?.events_by ?? (this.joinedByRules(space.id) ? 'owner' : 'members'),
+      type_may: memberTypes.some(typeId => config?.roles?.[typeId]?.may?.includes(asked)),
+      is_community: this.joinedByRules(space.id),
+      takes_invitations: Boolean(config?.join?.some(row => row.invited === true)),
+      made_it: thing?.by === undefined ? null : thing.by === relay,
+      maker_is_member: thing?.by ? this.isMemberNow(space.id, thing.by) : null,
+      thing_origin: thing?.origin ?? null,
+      owner_shares_here: thing?.shared_here ?? null,
+    };
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const at = Date.now();
+      const deadline = deadlineOf(set.rules, at);
+      const decision = await decideRuleEffects({
+        entries: set.rules.map(rule => ({ rule, when: conditionOf(rule), row: facts })),
+        effects: permissions.effects, fields: AUTHOR_FIELDS, now: at, strict: true,
+        filterRows: filterFor(this),
+      });
+      // A rule expiring while the engine answers changes the winning policy, even when SQL did not change.
+      if (Date.now() >= deadline) continue;
+      if (decision.malformed || decision.incomplete.length) return { allowed: false, says: 'The rules of this pursuit cannot be read, so nothing is allowed in it until they are set again.', rule: null };
+      const winner = decision.winners[0]?.rule;
+      const outcome = permissions.effects.find(effect => effect.id === winner?.effect)?.outcome;
+      if (outcome === 'deny') return { allowed: false, says: winner.refuses ?? ACTIONS.get(asked)?.refused ?? NOT_A_MEMBER, rule: winner.id };
+      if (outcome === 'allow') return { allowed: true, says: winner.says, rule: winner.id };
+      return { allowed: false, says: ACTIONS.get(asked)?.refused ?? NOT_A_MEMBER, rule: null };
+    }
+    return { allowed: false, says: 'Space permission expiry changed while this was checked. Try again.', rule: null };
+  },
+
+  // The space, when `relay` may do `action` in it; otherwise the refusal's own words are thrown. `thing` is what the
+  // action is done to ({ by: who put it there, origin, link: true when it is an open invite link the person holds }), null when the thing named is not in the space (the caller
+  // then says it is not there), or left out when the action is on the space itself.
+  spaceAccessState(spaceId, relay, thing) {
+    const space = this.sql.exec(`SELECT m.label, m.created_by, m.parent_id,
+      me.role AS member_role, me.state AS member_state, me.changed_at AS member_changed_at,
+      maker.role AS maker_role, maker.state AS maker_state, maker.changed_at AS maker_changed_at,
+      rules.rules, c.config FROM memberships m
+      LEFT JOIN members me ON me.membership_id = m.id AND me.relay = ?
+      LEFT JOIN members maker ON maker.membership_id = m.id AND maker.relay = ?
+      LEFT JOIN space_rules rules ON rules.space_id = m.id
+      LEFT JOIN communities c ON c.id = m.id WHERE m.id = ?`, relay ?? null, thing?.by ?? null, spaceId).toArray()[0] ?? null;
+    // Permission evaluation also reads the space's own member-type graph. Include it in the same local snapshot so an
+    // inheritance edit cannot race an awaited decision or read and leave the caller with stale access.
+    const memberTypes = ownMemberTypesOf(this.sql, spaceId);
+    return JSON.stringify({ space, memberTypes });
+  },
+
+  // Reads that await another store must not return a Space after its membership or rules changed.
+  // Comparing this local SQLite state is cheaper than running the rule engine a second time on every read.
+  assertSpaceAccessUnchanged(spaceId, relay, before, thing) {
+    if (before !== this.spaceAccessState(spaceId, relay, thing)) throw new Error('Space permissions changed while this was read. Try again.');
+  },
+
+  // Whether `relay` may know this space is there: a member, someone its rules let read it, or anyone at all when the
+  // space is open to everyone (src/community.mjs openToEveryone: listed by its configuration or readable by its rules).
+  // Anyone else is refused with the same words a space id that names nothing gets, so a refusal never tells a stranger
+  // a space exists.
+  async mayKnowSpace(space, relay, set) {
+    if (relay && this.sql.exec("SELECT 1 FROM members WHERE membership_id = ? AND relay = ? AND state = 'member'", space.id, relay).toArray().length) return true;
+    if ((await this.decideInSpace(space, relay, 'read_space', undefined, set)).allowed) return true;
+    return this.openToEveryone(space.id);
+  },
+
+  async allowedInSpace(spaceId, relay, action, thing) {
+    const id = String(spaceId ?? '');
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const space = this.sql.exec('SELECT id, label, title, about, created_by, created_at FROM memberships WHERE id = ?', id).toArray()[0];
+      if (!space) throw new Error(NOT_A_MEMBER);
+      const set = this.spaceRuleSet(id);
+      const before = this.spaceAccessState(id, relay, thing);
+      const deadline = deadlineOf(set.rules, Date.now());
+      const decided = await this.decideInSpace(space, relay, action, thing, set);
+      if (before !== this.spaceAccessState(id, relay, thing) || Date.now() >= deadline) continue;
+      if (!decided.allowed) throw new Error(await this.mayKnowSpace(space, relay, set) ? decided.says : NOT_A_MEMBER);
+      captureSpaceCommit(this, { spaceId: id, relay, thing, state: before, deadline });
+      return space;
+    }
+    throw new Error('Space permissions changed while this action was checked. Try again.');
+  },
+
+  // The rules of a space as a member reads them: each rule with what it covers, the facts and actions a rule may
+  // name, and whether this person may change them.
+  async readSpaceRules({ relay, space_id: spaceId }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_rules');
+    const set = this.spaceRuleSet(space.id);
+    const change = await this.decideInSpace(space, relay, 'change_rules');
+    const setMemberType = await this.decideInSpace(space, relay, 'set_member_type');
+    const nameOf = this.memberNames(space.id);
+    return {
+      space_id: space.id, changed_at: set.changed_at, as_started: set.text === startingText(space.label), may_change: change.allowed, may_set_member_type: setMemberType.allowed,
+      ...(set.broken ? { broken: set.broken } : {}),
+      rules: set.rules.map(rule => ({ ...rule, ...(set.broken ? {} : coverOf(rule)) })),
+      facts: permissions.facts, who_kinds: permissions.who_kinds.map(({ kind, label, needs }) => ({ kind, label, needs })), actions: permissions.actions.map(({ id, label }) => ({ id, label })),
+      // Who a rule can name: each current member by the id a rule's who uses, the name they show here and their type.
+      members: this.currentMembers(space.id).map(row => ({ member_id: row.relay, name: nameOf(row.relay), member_type: row.role })),
+      // The member types a rule can name here (src/space-member-types.mjs), in the order they are offered.
+      member_types: this.memberTypesOf(space),
+    };
+  },
+
+  // Replaces a space's rules (null puts back the ones every space starts with). Kept only when every rule is
+  // finished and the new rules still let the person saving them change the rules again.
+  async setSpaceRules({ relay, space_id: spaceId, rules }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'change_rules');
+    const text = rules === null ? startingText(space.label) : JSON.stringify(rules);
+    const problems = problemsWithRules(JSON.parse(text));
+    if (problems.length) throw new Error(`These rules cannot be kept: ${problems.join(' ')}`);
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const before = this.spaceAccessState(space.id, relay);
+      const candidate = ruleSetFrom(text);
+      const at = Date.now();
+      const deadline = Math.min(deadlineOf(this.spaceRuleSet(space.id).rules, at), deadlineOf(candidate.rules, at));
+      const current = await this.allowedInSpace(space.id, relay, 'change_rules');
+      const after = await this.decideInSpace(current, relay, 'change_rules', undefined, candidate);
+      if (before !== this.spaceAccessState(space.id, relay) || Date.now() >= deadline) continue;
+      if (!after.allowed) throw new Error('These rules would stop you changing them again. Keep a rule that lets you change who may do what.');
+      this.sql.exec('INSERT INTO space_rules (space_id, rules, changed_at) VALUES (?, ?, ?) ON CONFLICT(space_id) DO UPDATE SET rules = excluded.rules, changed_at = excluded.changed_at', space.id, text, new Date().toISOString());
+      this.spaceChanged(space.id);
+      return this.readSpaceRules({ relay, space_id: space.id });
+    }
+    throw new Error('Space permissions changed while these rules were checked. Try again.');
+  },
+};

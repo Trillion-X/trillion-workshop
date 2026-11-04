@@ -1,0 +1,31 @@
+// src/share-starting-action.mjs
+//
+// The action a share starts on, from the person's own rows: the site default of its first address that has one
+// (default_action_by_site, the longest host ending wins), else their first action. Pure (its one import, the shared
+// host rule, is pure too), so every place a share is started reads the same rule: the account (src/share-destinations.mjs), the Android share page
+// (src/phone-share.mjs) and the browser extension's popup, whose bundle must carry nothing that runs only on a server.
+
+import { hostWithin } from '../parts/http-client/do-work/same-origin.mjs';
+
+/** The action a share from `address` starts on: the longest matching host_suffix's action_id, or null. */
+export function actionForAddress(defaults, address) {
+  const matches = defaults.filter(row => hostWithin(address, row.host_suffix));
+  return matches.sort((a, b) => b.host_suffix.length - a.host_suffix.length)[0]?.action_id ?? null;
+}
+
+/** The action the site default of the share's first address that has one names, or null (no fallback to any action). */
+export function siteAction(addresses, actions, bySite) {
+  const id = addresses.map(address => actionForAddress(bySite, address)).find(Boolean);
+  return actions.find(action => action.id === id) ?? null;
+}
+
+/** The action a share starts on: the site default of its first address that has one, else the first action. */
+export function startingAction(addresses, actions, bySite) {
+  return siteAction(addresses, actions, bySite) ?? actions[0] ?? null;
+}
+
+/** The action a share that picked no place starts on (Trillion routes it itself): the site default when its address
+ *  has one, else the route-itself action (`routeItself`, null when the person turned it off), else the first action. */
+export function routingAction(addresses, actions, bySite, routeItself) {
+  return siteAction(addresses, actions, bySite) ?? routeItself ?? actions[0] ?? null;
+}

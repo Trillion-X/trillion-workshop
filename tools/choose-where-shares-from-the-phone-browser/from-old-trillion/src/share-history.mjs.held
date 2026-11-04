@@ -1,0 +1,97 @@
+// src/share-history.mjs
+//
+// PURPOSE
+//   What a person shared before, read where their Files can be read (this Worker): before the share list is answered
+//   (the shares_sent tool, GET /work/api/shares), every share a device kept in their Files without the delivery road
+//   (records/share-destination-starters.json kept_share_folders: the iPhone Share sheet keeps each share as
+//   /Shared from iPhone/<key>/share.json; an Android share is kept before it is sent) and that the list has not seen
+//   yet is read once and added to it. The list itself is the person store's (src/share-destinations.mjs history), so
+//   the Sharing screen, the iPhone and every AI read the same shares, from every device.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. One list: a kept share joins the person store's list by its folder and is never answered from here directly.
+//   2. Only folders the list has not seen are read, so a list that is up to date costs two folder listings.
+//   3. A kept folder that cannot be read is left for the next read, never added half-read.
+//
+// person: the person store stub ({ namespaceChildFolders(folder), namespaceListNames(folder, after, limit), fetch })
+// readText(name): the text of one file in the person's Files, or null
+
+import starters from '../records/share-destination-starters.json' with { type: 'json' };
+import { handleNamespaceApi } from './namespace.mjs';
+import { SHARES_PATH } from './share-destinations.mjs';
+
+const FILES_PER_SHARE = 20;
+const ADOPT_PER_READ = 200;
+const SHARE_FILE = 'share.json';
+
+const kindOf = mediaType => ['image', 'video', 'audio'].find(kind => String(mediaType ?? '').startsWith(`${kind}/`)) ?? 'file';
+
+async function personJson(person, path, body) {
+  const response = await person.fetch(new Request(`https://person${path}`, body === undefined
+    ? { method: 'GET' }
+    : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }));
+  const answer = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(answer.error ?? 'Trillion could not read what you shared.');
+  return answer;
+}
+
+/** One kept share folder as the share list keeps it: its share.json's items and words, and the files beside it
+ *  that the share.json does not already name. Null when the folder holds nothing to show. */
+export function keptShare(folder, from, { source, files }) {
+  const items = Array.isArray(source?.items) ? source.items.filter(item => item && typeof item === 'object') : [];
+  const named = new Set(items.map(item => item.file).filter(Boolean));
+  for (const file of files) {
+    if (file.name.endsWith(`/${SHARE_FILE}`) || !file.identity || named.has(file.identity)) continue;
+    items.push({ kind: kindOf(file.media_type), name: file.name.slice(folder.length + 1).replace(/^\d+-/, ''), file: file.identity });
+  }
+  if (!items.length) return null;
+  const newest = Math.max(0, ...files.map(file => Number(file.modified_at_ms) || 0));
+  const at = typeof source?.received_at === 'string' && !Number.isNaN(Date.parse(source.received_at)) ? source.received_at
+    : newest ? new Date(newest).toISOString() : null;
+  if (!at) return null;
+  return {
+    kept_in: folder, at, from, items: items.slice(0, 100),
+    own_words: typeof source?.own_words === 'string' ? source.own_words : null,
+    preview: source?.preview && typeof source.preview === 'object' ? source.preview : null,
+  };
+}
+
+/** Adds every kept share folder the list has not seen yet (invariants 1 to 3). */
+export async function adoptKeptShares({ person, readText }) {
+  const found = [];
+  for (const { folder, from } of starters.kept_share_folders) {
+    for (const inner of await person.namespaceChildFolders(folder)) found.push({ folder: inner, from });
+  }
+  if (!found.length) return 0;
+  const { folders } = await personJson(person, `${SHARES_PATH}/unknown`, { folders: found.map(row => row.folder) });
+  const unknown = new Set(folders);
+  const shares = [];
+  // A first read of a long history adds it a page at a time, so no one read waits on hundreds of files.
+  for (const { folder, from } of found.filter(row => unknown.has(row.folder)).slice(0, ADOPT_PER_READ)) {
+    try {
+      const files = (await person.namespaceListNames(folder, '', FILES_PER_SHARE)).names ?? [];
+      const text = files.some(file => file.name === `${folder}/${SHARE_FILE}`) ? await readText(`${folder}/${SHARE_FILE}`) : null;
+      const row = keptShare(folder, from, { source: text ? JSON.parse(text) : null, files });
+      if (row) shares.push(row);
+    } catch (error) {
+      console.error('a kept share could not be read:', folder, String(error?.message ?? error));
+    }
+  }
+  if (!shares.length) return 0;
+  return (await personJson(person, `${SHARES_PATH}/adopt`, { shares })).adopted;
+}
+
+/** The share list (GET /shares on the person store), after adding kept shares; `search` is the list's own query. */
+export async function sharesSent({ person, readText, search = '' }) {
+  const params = new URLSearchParams(search);
+  // Kept folders join the list when its first page is read, so every later page already holds them.
+  if (!params.get('before')) await adoptKeptShares({ person, readText });
+  return personJson(person, `${SHARES_PATH}${params.size ? `?${params}` : ''}`);
+}
+
+/** readText for one person: a kept file's words from their Files, through the namespace road every file read takes. */
+export const filesText = (env, userId, origin) => async name => {
+  const answer = await handleNamespaceApi(new Request(`${origin}/mcp/api/namespace/contents/read`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name }) }), env, userId, origin);
+  const file = await answer.json().catch(() => ({}));
+  return answer.ok && file.encoding === 'utf-8' ? file.content : null;
+};

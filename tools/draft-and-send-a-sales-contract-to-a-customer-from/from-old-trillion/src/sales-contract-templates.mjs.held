@@ -1,0 +1,28 @@
+// Starting agreements are inert Marketplace DATA. Selection never changes a
+// saved agreement, its price, entitlement snapshot or sharing authority.
+import bootstrap from '../records/sales-contract-template-records.json' with {type:'json'};
+import {resolveMarketplaceContentSource} from './marketplace-content-sources.mjs';
+
+const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+const text=value=>typeof value==='string'&&value.trim().length>0;
+const fail=()=>Object.assign(new Error('Sales contract templates need ordinary named terms and valid usage/access lists.'),{status:503,code:'sales_contract_templates_invalid'});
+const humanWords=id=>id.replace(/^[^:]+:/,'').replace(/[-_]+/g,' ');
+
+export async function salesContractTemplates(env,options={}){
+  const selected=await resolveMarketplaceContentSource(env,{file:'records/sales-contract-template-records.json',pointer:'/records'},bootstrap.records,options);
+  if(!selected.found)return [];
+  if(!Array.isArray(selected.value))throw fail();
+  const seen=new Set();
+  return selected.value.map(record=>{
+    const payload=record?.payload;
+    if(!object(payload)||!text(payload.id)||seen.has(payload.id)||!text(payload.label)||typeof payload.summary!=='string'||!object(payload.contract))throw fail();
+    seen.add(payload.id);
+    const terms=payload.contract,access=terms.access_grants??[],usage=terms.included_usage??[];
+    if(!Array.isArray(access)||access.some(id=>!text(id))||!Array.isArray(usage)||usage.some(row=>!object(row)||row.quantity!==undefined&&(!Number.isFinite(row.quantity)||row.quantity<0))||payload.known_terms!==undefined&&!Array.isArray(payload.known_terms)||payload.fields_to_agree!==undefined&&(!Array.isArray(payload.fields_to_agree)||payload.fields_to_agree.some(field=>!text(field))))throw fail();
+    const rules=[
+      ...usage.map((row,index)=>({type:'MeterUsage',label:String(row.service??`Included usage ${index+1}`),resource:String(row.service??'service'),metric:String(row.unit??'usage'),pricing_rules:{per_unit_cents:0,included_units:row.quantity??0}})),
+      ...access.map(id=>({type:'GrantAccess',label:humanWords(id),resource:id,condition:'conditional'})),
+    ];
+    return {id:payload.id,name:payload.label,description:payload.summary,rules,sourceTerms:{contract:structuredClone(terms),known_terms:structuredClone(payload.known_terms??[]),fields_to_agree:structuredClone(payload.fields_to_agree??[])}};
+  });
+}

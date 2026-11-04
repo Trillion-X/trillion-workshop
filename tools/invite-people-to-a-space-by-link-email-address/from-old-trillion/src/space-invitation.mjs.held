@@ -1,0 +1,262 @@
+// src/space-invitation.mjs
+//
+// Purpose
+//   One invitation to a space, the same everywhere it travels: the invite link's own page in each state it can be in,
+//   the welcome after joining, the email, the text message and the link-preview card. Every word is DATA
+//   (src/space-invitation.json) filled from what the invite link shows (Network.invitePreview, src/spaces.mjs); every
+//   tag is written by the shared parts (parts/ui/show/server-rendered-page for pages, parts/ui/show/document-page for
+//   the email and the card), so an invite looks like every other Trillion page and email. sendInvitation is the one
+//   road an AI or a screen invites someone by: it makes the link, writes the invitation, emails it, and sends the text
+//   through the inviter's own connected account when one can.
+//
+// Non-negotiable invariants
+//   1. Nothing here writes markup: pages are section DATA, the email and the card come from the shared parts.
+//   2. A name that is an email address is never shown as a name (an account named by its address would otherwise
+//      leak it onto a public page); it is left out and the words fall back to their `_unnamed` twin.
+//   3. The invite link is made in one place (the person's store, src/person-spaces.mjs inviteLink); this reads it.
+//   4. Colours are read from the workspace look (src/page-look.mjs) through the roles in DATA; the email is drawn and
+//      sent by the one sender (src/mail-sender.mjs), in its colours and from its address.
+//   5. Sending never throws: each channel answers { sent, said } in words a person can read.
+//
+import words from '../../../space-invitation/src/space-invitation.json' with { type: 'json' };
+import spaceSettings from './space-settings.json' with { type: 'json' };
+import { shareCardHtml } from '../../../organize-my-files/parts/ui/show/document-page/document-page-html.mjs';
+import { drawEmail } from './mail-sender.mjs';
+import { PAGE_LOOK } from '../../../draw-trillions-app-icon-in-every-size-from/src/page-look.mjs';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+
+const JOIN = spaceSettings.invites.join_address;
+const EMAIL_SHAPE = /^[^\s@<>()[\]\\,;:"]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)+$/i;
+
+/** A name fit to show: trimmed, never an email address, never the stand-in a space gives a nameless member. */
+export function shownName(name) {
+  const value = typeof name === 'string' ? name.trim().replace(/\s+/g, ' ') : '';
+  if (!value || /@/.test(value) || /^Member \d+$/.test(value)) return null;
+  return value.slice(0, 80);
+}
+
+// The template at `key`, or its `_unnamed` twin when a value it names is missing, filled from `values`.
+const PLACE = /\{(\w+)\}/g;
+function worded(block, key, values) {
+  const template = block[key];
+  const missing = typeof template === 'string' && [...template.matchAll(PLACE)].some(([, name]) => values[name] === null || values[name] === undefined || values[name] === '');
+  const chosen = missing && typeof block[`${key}_unnamed`] === 'string' ? block[`${key}_unnamed`] : template;
+  return typeof chosen === 'string' ? chosen.replace(PLACE, (whole, name) => (values[name] ?? whole)) : null;
+}
+
+/** The day an invite ends, as a person reads it ("October 7, 2026"). */
+export const dayWords = iso => new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(iso));
+
+/** Who is in the space, in one line: the names shown, and how many more there are. */
+export function peopleLine(names, count) {
+  const shown = names.map(shownName).filter(Boolean);
+  if (!shown.length) return null;
+  const [first, second, third] = shown;
+  const named = count === 3 && third ? 3 : Math.min(shown.length, 2);
+  const rest = Math.max(count - named, 0);
+  const key = named === 3 ? 'three' : `${named === 1 ? 'one' : 'two'}${rest === 0 ? '' : rest === 1 ? '_and_one' : '_and_more'}`;
+  return words.people[key].replace(PLACE, (whole, name) => ({ first, second, third, rest }[name] ?? whole));
+}
+
+// The faces a page, email or card draws: the named members (the inviter first), then a count of everyone else.
+function faces(space) {
+  const named = (space.member_names ?? []).slice(0, words.names_shown).map(name => ({ name: shownName(name) ?? '' })).filter(face => face.name);
+  return { faces: named, more: Math.max((space.members ?? 0) - named.length, 0), line: peopleLine(space.member_names ?? [], space.members ?? 0) };
+}
+
+/** The invite link's own address for a code, and the same with a part after it (`/card.png`, `/picture`). */
+export function inviteAddress(origin, code, part = '') {
+  const link = new URL(`${JOIN.path}${part}`, origin);
+  link.searchParams.set(JOIN.code_parameter, code);
+  return link.toString();
+}
+const picturePart = '/picture';
+const cardPart = '/card.png';
+export const INVITE_PARTS = Object.freeze({ page: JOIN.path, card: `${JOIN.path}${cardPart}`, picture: `${JOIN.path}${picturePart}`, welcome: words.welcome_path, code_parameter: JOIN.code_parameter });
+
+// The values every invitation word is filled from.
+const valuesOf = (preview, extra = {}) => ({
+  inviter: shownName(preview.inviter), space: preview.space?.title ?? '', date: preview.expires_at ? dayWords(preview.expires_at) : '', ...extra,
+});
+
+// ------------------------------------------------------------------------------------------------------------------
+// Colours: the link-preview card takes the workspace look's roles; the email's are the one sender's (src/mail-sender.mjs).
+// ------------------------------------------------------------------------------------------------------------------
+
+/** The card's palette: its own role names given the look's values. */
+export const cardPalette = (lookPalette = PAGE_LOOK.palette) => Object.fromEntries(Object.entries(words.card_roles).map(([role, variable]) => [role, lookPalette[variable]]).filter(([, value]) => typeof value === 'string'));
+
+// ------------------------------------------------------------------------------------------------------------------
+// The invite link's page.
+// ------------------------------------------------------------------------------------------------------------------
+
+const pictureAddress = (origin, code, space) => (space?.picture ? inviteAddress(origin, code, picturePart) : null);
+
+/**
+ * The page an invite link opens, as a description for the shared page shell (src/html-page.mjs).
+ * preview: what Network.invitePreview answered. signedIn: whether the reader is signed in. `failed`: joining just now
+ * did not go through. spaceAddress: id -> a space's workspace address (the Worker reads it from the screens' DATA).
+ * Returns { status, description }.
+ */
+export function invitationPage({ preview, origin, code, signedIn, spaceAddress, failed = false }) {
+  const page = words.page;
+  const fine = body => ({ emphasis: 'fine', body });
+  const values = valuesOf(preview);
+  const common = { robots: 'noindex', island: null, meta_description: '' };
+  if (preview.state === 'open' || preview.already_member) {
+    const space = preview.space;
+    const mark = { name: space.title, src: pictureAddress(origin, code, space), alt: space.title };
+    if (preview.already_member) {
+      const title = worded(page.already_member, 'title', values);
+      return { status: 200, description: { ...common, title, sections: [{ emphasis: 'welcome', heading_level: 1, mark, heading: title, body: worded(page.already_member, 'body', values), people: faces(space),
+        actions: [{ label: worded(page.already_member, 'open', values), href: spaceAddress(space.space_id), tone: 'primary' }] }] } };
+    }
+    const title = worded(page.open, 'title', values);
+    const description = space.description ?? worded(page.open, 'body', values);
+    const here = `${JOIN.path}?${JOIN.code_parameter}=${encodeURIComponent(code)}`;
+    // A team space whose kind does not cover this signed-in reader (src/space-membership-kinds.mjs): the way in is a
+    // plan, or a seat its owner pays for, so the page says so and its one button goes to the plans.
+    const needsPlan = signedIn && typeof preview.needs_plan === 'string' ? preview.needs_plan : null;
+    const actions = needsPlan
+      ? [{ label: page.needs_plan.action, href: page.needs_plan.href, tone: 'primary' }]
+      : signedIn
+      ? [{ label: worded(page.open, 'join', values), href: JOIN.path, post: { [JOIN.code_parameter]: code }, tone: 'primary' }]
+      : [
+        { label: worded(page.open, 'sign_up', values), href: `/account?${new URLSearchParams({ create: '', next: here })}`, tone: 'primary' },
+        { label: page.open.sign_in, href: `/account?${new URLSearchParams({ next: here })}`, tone: 'quiet' },
+      ];
+    const card = inviteAddress(origin, code, cardPart);
+    return { status: 200, description: {
+      ...common, title, meta_description: description,
+      share: { type: 'website', site_name: worded(page, 'site_name', values), title, description, url: inviteAddress(origin, code), image: card, image_alt: title },
+      sections: [
+        { emphasis: 'welcome', heading_level: 1, mark, heading: worded(page.open, 'heading', values), body: description, people: faces(space), actions,
+          ...(needsPlan ? { status: needsPlan } : failed ? { status: page.failed } : {}) },
+        fine(worded(page.open, space.members_are && page.open[`fine_${space.members_are}`] ? `fine_${space.members_are}` : 'fine', values)),
+      ],
+    } };
+  }
+  const state = page[preview.state] ? preview.state : 'unknown';
+  const title = worded(page[state], 'title', values);
+  return { status: state === 'unknown' ? 404 : 410, description: { ...common, title, sections: [
+    { emphasis: 'welcome', heading_level: 1, heading: worded(page[state], 'heading', values), body: worded(page[state], 'body', values) },
+  ] } };
+}
+
+/**
+ * The welcome after joining: connect an AI, say the name people see, open the space. `space` is what the person's
+ * store reads of it (GET /spaces/<id>); `yourName` the name they show there now; `saved` the name just saved;
+ * `connectAddress` where connecting an AI starts and `spaceAddress` (id -> address) where the space opens.
+ */
+export function welcomePage({ space, yourName, saved = null, connectAddress, spaceAddress }) {
+  const w = words.welcome;
+  const values = { space: space.title, name: saved ?? '' };
+  const names = (space.members ?? []).map(member => member.name);
+  const title = worded(w, 'title', values);
+  return { status: 200, description: { robots: 'noindex', island: null, meta_description: '', title, sections: [
+    { emphasis: 'welcome', heading_level: 1, mark: { name: space.title }, heading: worded(w, 'heading', values), body: w.body,
+      people: faces({ member_names: names, members: names.length }),
+      items: [
+        { heading: w.connect.heading, body: worded(w.connect, 'body', values), actions: [{ label: w.connect.action, href: connectAddress, tone: 'quiet' }] },
+        { heading: w.name.heading, body: worded(w.name, 'body', values) },
+      ],
+      choices: { href: words.welcome_path, values: { space: space.space_id }, fields: [{ name: 'name', label: w.name.label, placeholder: shownName(yourName) ?? '', max_length: 80 }], submit: { label: w.name.save, tone: 'quiet' } },
+      ...(saved ? { status: worded(w.name, 'saved', values) } : {}),
+      actions: [{ label: worded(w, 'open', values), href: spaceAddress(space.space_id), tone: 'primary' }] },
+  ] } };
+}
+
+// ------------------------------------------------------------------------------------------------------------------
+// The email, the text and the card.
+// ------------------------------------------------------------------------------------------------------------------
+
+/**
+ * The invitation email: { subject, shown, html, text }. `shown` is what the one sender draws (src/mail-sender.mjs);
+ * html and text are that drawing, returned so a caller sees the email exactly as it goes out.
+ */
+export function invitationEmail({ preview, url, invitee = null, origin, code }) {
+  const e = words.email;
+  const values = valuesOf(preview, { invitee: shownName(invitee) });
+  const space = preview.space;
+  const shown = {
+    preheader: worded(e, 'preheader', values),
+    markdown: [worded(e, 'greeting', values), worded(e, 'lead', values), space.description].filter(Boolean).join('\n\n'),
+    mark: { name: space.title, src: pictureAddress(origin, code, space), alt: space.title },
+    people: faces(space),
+    action: { label: worded(e, 'action', values), href: url },
+    footer_lines: e.footer.map(line => line.replace(PLACE, (whole, name) => (values[name] ?? whole))),
+  };
+  // It comes in the space's name: from its inviter in that space, with the space's name as its mark.
+  const sender = { sender_name: worded(e, 'sender', values), brand: { name: space.title } };
+  return { subject: worded(e, 'subject', values), shown, sender, ...drawEmail(shown, sender.brand) };
+}
+
+/** The text message, in the inviter's own voice, with the link (its preview is the card). */
+export function invitationText({ preview, url, invitee = null }) {
+  const values = { ...valuesOf(preview), invitee: shownName(invitee), link: url };
+  return worded(words.text, values.invitee ? 'named' : 'unnamed', values);
+}
+
+/**
+ * The link preview's card: { html, key }, where `key` names exactly what it shows, so a picture made once is kept for
+ * every link that would show the same card.
+ */
+export function invitationCard({ preview, origin, code }) {
+  const c = words.card_words;
+  const values = valuesOf(preview);
+  const space = preview.space;
+  const card = {
+    title: space.title, detail: [worded(c, 'detail', values), space.description].filter(Boolean).join('. '),
+    mark: { name: space.title, src: pictureAddress(origin, code, space) }, people: faces(space),
+    stylesheets: [new URL('/workspace/fonts.css', origin).toString()], palette: cardPalette(),
+  };
+  const shown = JSON.stringify({ ...card, mark: { name: card.mark.name, picture: space.picture?.item_id ?? null } });
+  return { html: shareCardHtml(card), key: bytesToHex(blake3(new TextEncoder().encode(shown))), width: words.card.width, height: words.card.height, keep_seconds: words.card.keep_days * 86400 };
+}
+
+// ------------------------------------------------------------------------------------------------------------------
+// Sending: the one road an invitation takes.
+// ------------------------------------------------------------------------------------------------------------------
+
+const said = (template, values) => template.replace(PLACE, (whole, name) => (values[name] ?? whole));
+
+/**
+ * Invite one person into a space: make the link, write the invitation, email it and text it.
+ *   invite:   { name?, email?, phone?, text_through?, days? } as the caller gave it
+ *   makeLink: (days, addressed) -> { invite_id, url, expires_at, code }   (the person's store, src/person-spaces.mjs);
+ *             addressed { email, phone } is who it is for, so it reaches them once their account proves it
+ *   preview:  code -> what the link shows                         (Network.invitePreview)
+ *   mail:     ({ to, subject, ...shown }, sender) -> { sent, error? }   (src/mail-sender.mjs sendMail; sender is the
+ *             sending row's own choices, { sender_name, brand }: the email comes in the space's name)
+ *   runTool:  { tool_id, input, key } -> { ok, error? }           (the person's own /tools/run; key: one send per invite)
+ * Returns the link, the email and the text as written, and what happened to each.
+ */
+export async function sendInvitation({ invite, origin, makeLink, preview, mail, runTool, verifyRecipient }) {
+  const email = typeof invite.email === 'string' && invite.email.trim() ? invite.email.trim() : null;
+  if (email && !EMAIL_SHAPE.test(email)) throw new Error(`${email} is not an email address.`);
+  const phone = typeof invite.phone === 'string' && invite.phone.trim() ? invite.phone.trim() : null;
+  // A text goes through the sender named, else the first one in DATA.
+  const through = invite.text_through ? words.text_senders.find(sender => sender.id === invite.text_through) : phone ? words.text_senders[0] : null;
+  if (invite.text_through && !through) throw new Error(`Texts can go through ${words.text_senders.map(sender => sender.id).join(' or ')}.`);
+  if (phone && through) {
+    if (typeof verifyRecipient !== 'function') throw new Error('The recipient cannot be checked against your contacts. Nothing was sent.');
+    verifyRecipient({ to: phone, recipient: invite.name });
+  }
+  const link = await makeLink(invite.days, { email, phone });
+  const shown = await preview(link.code);
+  const written = invitationEmail({ preview: shown, url: link.url, invitee: invite.name, origin, code: link.code });
+  const text = invitationText({ preview: shown, url: link.url, invitee: invite.name });
+  const emailed = email ? await mail({ to: email, subject: written.subject, ...written.shown, include_rendered: true }, written.sender, { invite_id: link.invite_id }) : null;
+  const texted = phone && through ? await runTool({ tool_id: through.tool_id, input: { to: phone, text }, key: `invite:${link.invite_id}:${through.id}` }) : null;
+  return {
+    invite_id: link.invite_id, url: link.url, expires_at: link.expires_at,
+    email: { to: email, subject: written.subject, provider: emailed?.rendered?.provider ?? null, provider_id: emailed?.id ?? null, from: emailed?.rendered?.from ?? null, reply_to: emailed?.rendered?.reply_to ?? null, execution_ref: emailed?.execution_ref ?? null, sent_ref: emailed?.sent_ref ?? null, origin: emailed?.kept_for_proof ? 'synthetic' : emailed?.sent ? 'real' : 'unknown', text: emailed?.rendered?.text ?? written.text, html: emailed?.rendered?.html ?? written.html, sent: Boolean(emailed?.sent),
+      ...(emailed?.source_capture ? { source_capture: emailed.source_capture } : {}),
+      said: !email ? words.sent.no_email : emailed.sent ? said(words.sent.email, { to: email }) : emailed.error },
+    text_message: { to: phone, body: text, through: through?.id ?? null, sent: Boolean(texted?.ok),
+      task_id: texted?.task_id ?? null, execution_ref: texted?.execution_ref ?? null, effect: texted?.effect ?? null,
+      ...(texted?.source_capture ? { source_capture: texted.source_capture } : {}),
+      said: !phone ? words.sent.no_text : texted?.ok ? said(words.sent.text, { to: phone, through: through.label }) : said(words.sent.text_by_ai, { to: phone, through: through.label }) },
+  };
+}

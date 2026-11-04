@@ -1,0 +1,8 @@
+# tools/tell-one-person-something-through-every-way-they/from-old-trillion/
+
+Files of old trillion whose job is this tool's (tell one person something through every way they chose to hear that kind of news, and stop when the thing it was about is settled). They are the bytes of tag `old-trillion-before-worker-retire` (b6ae0ebf81), moved here unchanged under their old paths, so they import each other as they did; only import paths differ, where a file they import is already in this repository. `moved-from.json` names each file's source path and commit and the BLAKE3 identity of its bytes there and here. Nothing here is wired into `tool-rows.json` yet: wiring a file is adapting it into this tool's own folders and rows, in a commit that names this receipt. A file that cannot load or pass here is held: its name ends in `.held` (the same bytes), and it runs again when what it imports is here.
+
+| Old path | Here | Status |
+|---|---|---|
+| `src/tell-the-person.mjs` | `src/tell-the-person.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/glance-feeds.json (at the tag, not moved here yet), src/tell-quiet-hours.json (at the tag, not moved here yet), src/marketplace-content-document.mjs (at the tag, not moved here yet) |
+| `test/tell-the-person.test.mjs` | `test/tell-the-person.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/tell-the-person.json (at the tag, not moved here yet), records/starting-rules.json (at the tag, not moved here yet), records/run-progress.json (at the tag, not moved here yet), records/glance-feeds.json (at the tag, not moved here yet) and 2 more |

@@ -1,0 +1,594 @@
+// src/work-workflows.mjs
+//
+// PURPOSE
+//   The Automations screens of the signed-in workspace (src/workspace/workflows-screen.tsx) read the person's
+//   triggers (rules), schedules, workflows and runs through this page's own session: the same person-side routes an AI
+//   uses (src/automations.mjs and src/workflows.mjs through the person's store). They say in plain words what sets each
+//   automation off and what it does, and turn one workflow, or one run of it, into the records the board draws
+//   (src/graph-board-source.mjs, parts/group/do-work/board-source.ts): every engine step with who answers it, where it
+//   stands and what it handed back.
+//
+//   GET  /work/api/workflows                     every trigger, schedule and workflow, and every run
+//   GET  /work/api/workflows/graph/<id>          one workflow (its id) or one run (a run id) as a graph
+//   GET  /work/api/workflows/board/<id>          one workflow or run as records the board draws (parts/group
+//                                                do-work/board-source.ts): a card per step with its words and, once
+//                                                it runs, its live state; a line per edge saying what flows along it
+//   POST /work/api/workflows/board-act?run=<run>  a step's action pressed on its card (Ask my AI, Try again)
+//   GET  /work/api/workflows/board-palette?q=<words>  what a workflow's board can add: the kinds of step always offered,
+//                                                and the Marketplace's tools for the words typed
+//   POST /work/api/workflows/board-add?workflow=<id>  a step added from the board ({ kind }): appended to the person's own
+//                                                workflow, or to their own copy of someone else's ({ id, workflow_id, copied })
+//   POST /work/api/workflows/board-edit?workflow=<id>  words changed on a step's card: the first line is the step's
+//                                                name, the rest what it does; kept when the workflow is this person's
+//   GET  /work/api/workflows/output/<run>/<step> one admitted step's whole output, as text
+//   GET  /work/api/workflows/automation/<id>     one trigger (rule_id) or schedule (schedule_id), to show and edit: its
+//                                                graph (when → then), and the input schema of what it runs
+//   GET  /work/api/workflows/preview/<id>        what a hover card draws: the title, what it says, and its steps as a board
+//                                                source (`automation:<id>` for a trigger or schedule, a workflow id)
+//   GET  /work/api/workflows/ai-edits/<id>       the changes the person asked their AI for on one trigger or schedule,
+//                                                each with the AI's answer once it came back
+//   GET  /work/api/workflows/history/<id>        what one trigger did: each time it fired, what set it off, how its
+//                                                run ended and what that run said it did (src/automations.mjs ruleHistory)
+//   GET  /work/api/workflows/sources             how each source that feeds the automations is doing (carriers such as
+//                                                Apple Notes and Voice Memos, connected accounts, schedules): what
+//                                                arrived, what the last arrival started and whether it worked
+//                                                (src/automations.mjs readHealth, tool:read-source-health)
+//   POST /work/api/workflows/<action>            set-rule, set-schedule, remove-rule, remove-schedule, run-now
+//                                                (the AI's set_rule, set_schedule, remove_rule, remove_schedule,
+//                                                run_now), start-workflow (the AI's start_workflow) and ask-ai: the
+//                                                change in plain words handed to whichever of the person's AIs takes
+//                                                it (hand_off), which answers with finish_work; the person reviews
+//                                                the answer and saves it with set-rule or set-schedule
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. Reads change nothing. Reading a run is the engine's own read, which admits an answer a tool or agent gave since
+//      (src/workflows.mjs read), exactly as an AI's read_workflow_run does. Every change is the person-side route the
+//      AI's own tool calls, so the plan checks and the rules' own checks hold for a press here too; a change comes only
+//      from this page's own origin.
+//   2. The graph is the definition the engine runs (definitionOf), so the screen and the engine never disagree on steps.
+//   3. Who answers a step and each state's words are DATA (src/workflow-looks.json); nothing here names a tool.
+//   4. What a step handed back is shown exactly as the engine kept it.
+//   5. An AI's answer to "change this" is never saved by itself: it comes back as a proposal the person reads and saves.
+import { graphAsBoardSource as sourceOfGraph, summaryOf } from './graph-board-source.mjs';
+import { definitionOf } from '../../../write-a-job-done-in-several-steps-have/from-old-trillion/src/workflows.mjs.held';
+import looks from './workflow-looks.json' with { type: 'json' };
+import { recordedWords } from './record-kind-words.mjs';
+import { AUTOMATION_TAB, automationOpenId } from './automation-open-id.mjs';
+
+const json = (value, status = 200) => Response.json(value, { status });
+// A refusal as the screen reads it: its words, and for a feature the plan does not include, which one.
+const refusal = error => ({ error: error.message, ...(error.upgrade_needed ? { upgrade_needed: true, feature: error.feature ?? null } : {}) });
+export const isWorkWorkflowsPath = path => path === '/work/api/workflows' || path.startsWith('/work/api/workflows/');
+
+// A press on the screen, as the person-side route the AI's own tool calls.
+const ACTIONS = {
+  'set-rule': body => ['/automations/rules', body],
+  'set-schedule': body => ['/automations/schedules', body],
+  'remove-rule': body => ['/automations/rules/remove', body],
+  'remove-schedule': body => ['/automations/schedules/remove', body],
+  'run-now': body => ['/automations/run-now', body],
+  'start-workflow': body => ['/workflows/start', { workflow_id: body.workflow_id, input: body.input ?? {}, request_key: `screen:${body.workflow_id}:${crypto.randomUUID()}` }],
+  'save-workflow': body => ['/workflows/save', { workflow: body.workflow }],
+  'remove-workflow': body => ['/workflows/remove', { workflow_id: body.workflow_id }],
+  'try-step-again': body => ['/workflows/submit', { run_id: body.run_id, step_id: body.step_id, run_again: true }],
+  'resume-run': body => ['/workflows/read', { run_id: body.run_id, resume: true }],
+};
+
+// ---- what sets an automation off, and what it does, in plain words ----
+const WEEKDAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+const title = word => word.charAt(0).toUpperCase() + word.slice(1);
+const listed = items => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`);
+const quoted = value => `'${value}'`;
+const plainKind = text => String(text).replace(/[-_]/g, ' ');
+
+function sayTest(test) {
+  const field = plainKind(test.field);
+  if (test.contains !== undefined) return `${field} mentions ${quoted(test.contains)}`;
+  if (test.equals !== undefined) return `${field} is ${quoted(test.equals)}`;
+  if (test.one_of !== undefined) return `${field} is ${listed(test.one_of.map(quoted)).replace(/ and /, ' or ')}`;
+  if (test.starts_with !== undefined) return `${field} starts with ${quoted(test.starts_with)}`;
+  return `${field} is filled in`;
+}
+
+/** What sets a rule off, in plain words ("When a message is recorded that mentions 'invoice'"). */
+export function sayWhen(when = {}) {
+  const where = (when.where ?? []).map(sayTest);
+  const also = where.length ? ` whose ${listed(where)}` : '';
+  if (when.source_id) {
+    const source = title(String(when.source_id).replace(/^events:/, ''));
+    const words = when.words?.length ? ` with ${listed(when.words.map(quoted)).replace(/ and /, ' or ')}` : '';
+    return `When a ${plainKind(when.event ?? 'event')} arrives on ${source}${words}`;
+  }
+  if (when.space_id) return `When ${when.kind ? `a ${plainKind(when.kind)}` : 'something'} is added to a space${also}`;
+  return `When ${recordedWords(when.recorded ?? 'record')}${also}`;
+}
+
+/** When a schedule runs, in plain words ("Every weekday at 09:00 (America/New_York)"). */
+export function sayEvery(schedule) {
+  if (schedule.once_at) return `Once, on ${new Date(schedule.once_at).toUTCString().replace(':00 GMT', ' UTC')}`;
+  const { unit, interval = 1, at, time_zone, on = [] } = schedule.every ?? {};
+  const zone = time_zone ? ` (${time_zone})` : '';
+  if (unit === 'day') return `Every ${interval === 1 ? 'day' : `${interval} days`} at ${at}${zone}`;
+  if (unit === 'hour' || unit === 'minute') {
+    const every = interval === 1 ? unit : `${interval} ${unit}s`;
+    return `Every ${every}${at && at !== '00:00' ? ` from ${at}` : ''}${zone}`;
+  }
+  const days = WEEKDAYS.filter(day => on.includes(day));
+  const named = days.length === 5 && days.every(day => WEEKDAYS.slice(0, 5).includes(day)) ? 'weekday'
+    : days.length === 7 ? 'day'
+    : listed(days.map(title));
+  return `${interval === 1 ? 'Every' : `Every ${interval} weeks on`} ${named} at ${at}${zone}`;
+}
+
+// What a then does, in the words of what it runs ("Transcribe an audio or video file"): its tool's or workflow's own
+// name, else its id in words.
+const idWords = id => { const words = String(id ?? '').replace(/^(tool|workflow):/, '').replace(/[-_]+/g, ' ').trim(); return words.charAt(0).toUpperCase() + words.slice(1); };
+const sayThen = (then, names) => (then?.workflow_id
+  ? names.workflows.get(then.workflow_id) ?? idWords(then.workflow_id)
+  : names.tools.get(then?.tool_id) ?? idWords(then?.tool_id));
+
+async function ask(person, method, path, body) {
+  const answer = await person.fetch(new Request(`https://person${path}`, { method, headers: { 'content-type': 'application/json' }, ...(method === 'GET' ? {} : { body: JSON.stringify(body ?? {}) }) }));
+  const value = await answer.json().catch(() => ({ error: 'The answer could not be read.' }));
+  // A plan refusal keeps its upgrade_needed and feature, so the screen shows the plan state, not a failure.
+  if (!answer.ok) throw Object.assign(new Error(value.error ?? 'This could not be read.'), { status: answer.status, ...(value.upgrade_needed ? { upgrade_needed: true, feature: value.feature ?? null } : {}) });
+  return value;
+}
+
+// Who answers one engine step, from the name its ask carries or the step's own kind.
+function whoOf(step) {
+  if (step.kind === 'ask') {
+    const name = String(step.config?.name ?? '');
+    const asker = looks.askers.find(row => name.startsWith(row.prefix));
+    const named = name.includes(':') ? name.slice(name.indexOf(':') + 1) : '';
+    return { icon: (asker ?? looks.other).icon, who: asker ? `${asker.who}${named ? ` (${named})` : ''}` : name };
+  }
+  return looks.kinds[step.kind] ?? looks.other;
+}
+
+// The JSON Schema of what an ask step hands back, as the engine checks it.
+const submitOf = step => step.config?.context?.submit ?? step.config?.input?.submit ?? null;
+// What a step hands on to the steps after it: each field of its answer and that field's kind in plain words
+// (workflow-looks.json value_kinds), so the line out of a step and its card say what flows along it.
+const valueKinds = looks.value_kinds;
+const kindOf = field => valueKinds[field?.type] ?? valueKinds.other;
+export const handsOf = step => Object.entries(submitOf(step)?.properties ?? {}).map(([name, field]) => ({ name: name.replace(/[-_]/g, ' '), kind: kindOf(field) }));
+const handsWords = hands => hands.map(hand => `${hand.name} (${hand.kind})`).join(', ');
+const lineWords = hands => (hands.length > 2 ? `${hands.slice(0, 2).map(hand => hand.name).join(', ')} ${valueKinds.more.replace('{n}', String(hands.length - 2))}` : hands.map(hand => hand.name).join(', '));
+const when = value => (value ? new Date(value).toUTCString().replace(' GMT', ' UTC') : null);
+
+// Where one step stands in a run, and what it says about it.
+function stateOf(step, run, askIds) {
+  if (!run) return { state: 'not-started' };
+  const done = new Map((run.done ?? []).map(item => [item.step_id, item]));
+  const subject = step.kind === 'check' ? step.config?.subject : step.id;
+  if (run.state === 'finished') return done.has(subject) || step.kind !== 'ask' ? { state: 'done', kept: done.get(subject) } : { state: 'not-yet' };
+  if (done.has(subject)) return { state: 'done', kept: done.get(subject) };
+  if (step.kind !== 'ask') return { state: 'not-yet' };
+  const waiting = [run.step, ...(run.also_waiting ?? [])].filter(Boolean).find(item => item.step_id === step.id);
+  if (run.state === 'failed') return askIds.find(id => !done.has(id)) === step.id ? { state: 'failed', problem: run.error } : { state: 'not-yet' };
+  if (!waiting) return { state: 'not-yet' };
+  if (waiting.interrupted) return { state: run.state === 'stuck' ? 'stuck' : 'interrupted', problem: waiting.interrupted.says };
+  const tool = waiting.tool_run;
+  if (tool) {
+    if (tool.problems?.length || tool.state === 'failed') return { state: 'failed', problem: tool.problems?.join(' ') ?? tool.error ?? 'The tool did not finish.' };
+    return { state: ['working', 'scheduled'].includes(tool.state) ? 'tool-working' : 'tool-waiting', problem: tool.how ?? null };
+  }
+  if (waiting.agent) return waiting.agent.problems || waiting.agent.state === 'failed' ? { state: 'failed', problem: waiting.agent.problems?.join(' ') ?? waiting.agent.error ?? null } : { state: 'agent-working' };
+  return { state: 'waiting-ai' };
+}
+
+// What can be done to a step from its card, by where it stands in a run: a step waiting on an AI is handed to one of
+// the person's AIs, a step that failed runs again. Matched by state, so a new state with an action is a row here.
+const STEP_ACTIONS = {
+  'waiting-ai': [{ id: 'hand-step', label: 'Ask my AI', icon: 'Sparkles' }],
+  failed: [{ id: 'try-step-again', label: 'Try again', icon: 'RotateCw' }],
+  stuck: [{ id: 'resume-run', label: 'Try again', icon: 'RotateCw' }],
+};
+
+/**
+ * One workflow, and optionally one run of it (the engine's read of it), as the step graph's steps and edges. A check
+ * on a step is drawn inside that step: a row on its card, and in the step's own graph (what it does, then each rule
+ * the check holds it to). Each step carries when it began (the run's start, or the latest step before it that was
+ * done) and when it was done. `starts` are the triggers and schedules that start this workflow, drawn before it.
+ */
+export function workflowGraph(workflow, run = null, starts = []) {
+  const definition = definitionOf(workflow);
+  const askIds = definition.steps.filter(step => step.kind === 'ask').map(step => step.id);
+  const titleOf = id => definition.steps.find(step => step.id === id)?.config?.context?.title ?? id;
+  const doneAt = new Map((run?.done ?? []).map(item => [item.step_id, item.admitted_at]));
+  // A check stands for its subject in the lines: what leads into the check leads from its subject.
+  const checks = definition.steps.filter(step => step.kind === 'check' && step.config?.subject);
+  const standsFor = new Map(checks.map(step => [step.id, step.config.subject]));
+  const end = id => standsFor.get(id) ?? id;
+  const seen = new Set();
+  const handsById = new Map(definition.steps.map(step => [step.id, handsOf(step)]));
+  const edges = definition.edges.flatMap(edge => {
+    const from = end(edge.from), to = end(edge.to), key = `${from}->${to}`;
+    if (from === to || seen.has(key)) return [];
+    seen.add(key);
+    // A branch says its condition; any other line is one line per kind of value flowing along it (a list, words, a
+    // number...), each saying which values, so the board draws it in that kind's colour from that kind's port.
+    if (edge.kind && edge.kind !== 'always') return [{ from, to, label: String(edge.label ?? edge.kind).replace(/[-_]/g, ' '), kind: 'branch' }];
+    const hands = handsById.get(from) ?? [];
+    const kinds = [...new Set(hands.map(hand => hand.kind))];
+    if (!kinds.length) return [{ from, to }];
+    return kinds.map(kind => ({ from, to, label: lineWords(hands.filter(hand => hand.kind === kind)), kind }));
+  });
+  const before = id => edges.filter(edge => edge.to === id).map(edge => edge.from);
+  const startedOf = id => {
+    const prior = before(id).map(from => doneAt.get(from)).filter(Boolean).sort().at(-1);
+    return prior ?? (before(id).length ? null : run?.started_at ?? null);
+  };
+  const shown = definition.steps.filter(step => !standsFor.has(step.id)).map(step => {
+    const { icon, who } = whoOf(step);
+    const context = step.config?.context ?? {};
+    const { state, kept, problem } = stateOf(step, run, askIds);
+    const output = kept?.output ?? (run?.state === 'finished' ? run.result?.[step.id] : undefined);
+    const own = checks.filter(check => check.config.subject === step.id).map(check => ({ check, ...stateOf(check, run, askIds) }));
+    const rules = own.flatMap(({ check, state: checkState }) => (check.config?.rules ?? []).map((rule, i) => ({ id: `${check.id}#${i}`, says: rule.says || `Check ${i + 1}`, state: checkState })));
+    const details = [
+      context.do ?? step.config?.input?.do ? { label: 'What it does', text: context.do ?? step.config.input.do } : null,
+      rules.length ? { label: 'What it is checked for', text: rules.map(rule => rule.says).join('\n') } : null,
+      { label: 'Who does it', text: who },
+      handsById.get(step.id)?.length ? { label: valueKinds.hands_on, text: handsWords(handsById.get(step.id)) } : null,
+      kept?.admitted_at ? { label: 'Done', text: when(kept.admitted_at) } : null,
+      problem ? { label: ['failed', 'stuck'].includes(state) ? 'What went wrong' : 'How it runs', text: problem } : null,
+    ].filter(Boolean);
+    const started_at = run && state !== 'not-yet' ? startedOf(step.id) : null;
+    const actions = ['working', 'failed', 'stuck'].includes(run?.state) ? STEP_ACTIONS[state] : undefined;
+    return {
+      id: step.id,
+      title: titleOf(step.id),
+      icon,
+      caption: who,
+      ...(context.do ?? step.config?.input?.do ? { does: context.do ?? step.config.input.do } : {}),
+      hands: handsById.get(step.id) ?? [],
+      state,
+      details,
+      ...(output !== undefined ? { output, ...(submitOf(step) ? { output_schema: submitOf(step) } : {}) } : {}),
+      evidence: output !== undefined ? null : kept?.output_preview ?? (kept?.tool_id ? `Answered by ${kept.tool_id}, run ${kept.task_id}.` : null),
+      ...(output === undefined && kept?.output_preview ? { evidence_partial: true } : {}),
+      ...(started_at ? { started_at } : {}),
+      ...(kept?.admitted_at ? { finished_at: kept.admitted_at } : {}),
+      ...(actions ? { actions } : {}),
+      ...(rules.length ? {
+        rows: rules.map(rule => ({ id: rule.id, label: rule.says, icon: looks.kinds.check.icon, state: rule.state })),
+        inner: {
+          steps: [
+            { id: `${step.id}#do`, title: titleOf(step.id), icon, caption: who, state, details: details.filter(detail => detail.label !== 'What it is checked for') },
+            ...rules.map(rule => ({ id: rule.id, title: rule.says, icon: looks.kinds.check.icon, caption: looks.kinds.check.who, state: rule.state, details: [{ label: 'What it checks', text: rule.says }] })),
+          ],
+          edges: rules.map(rule => ({ from: `${step.id}#do`, to: rule.id })),
+        },
+      } : {}),
+    };
+  });
+  // What starts it: each trigger and schedule that runs this workflow, joined to the steps nothing leads into.
+  const firsts = shown.filter(step => !before(step.id).length).map(step => step.id);
+  const kinds = looks.automation_kinds;
+  const startSteps = starts.map(start => ({
+    id: `start:${start.id}`,
+    title: start.name,
+    icon: kinds[start.kind]?.icon ?? 'Zap',
+    caption: start.says,
+    state: start.enabled ? 'on' : 'off',
+    details: [{ label: start.kind === 'schedule' ? 'When it runs' : 'What sets it off', text: start.says }],
+  }));
+  return {
+    steps: [...startSteps, ...shown],
+    edges: [...startSteps.flatMap(start => firsts.map(to => ({ from: start.id, to }))), ...edges],
+  };
+}
+
+// One workflow, or one run of it, or one trigger or schedule (`automation:<id>`), as the records the board draws
+// (parts/group/do-work/board-source.ts). A workflow's source key is the workflow's id, so a workflow and every run of it
+// share one board, and a run only adds each step's live state and what can be done to a step.
+async function boardSource(person, id) {
+  if (id.startsWith(AUTOMATION_TAB)) {
+    const one = await automation(person, id.slice(AUTOMATION_TAB.length));
+    return sourceOfGraph(`automation:${one.id}`, one.graph, one.graph.looks, () => true);
+  }
+  const run = id.startsWith('run:') ? await ask(person, 'POST', '/workflows/read', { run_id: id }) : null;
+  const workflowId = run ? run.workflow_id : id;
+  const [{ workflow }, starts] = await Promise.all([ask(person, 'POST', '/workflows/describe', { workflow_id: workflowId }), startsOf(person, workflowId).catch(() => [])]);
+  // Before a run, a step's state says nothing ("not reached yet"); a trigger or schedule's on or off always does.
+  return sourceOfGraph(workflowId, workflowGraph(workflow, run, starts), { ...looks.states, ...looks.automation_states }, step => Boolean(run) || step.id.startsWith('start:'));
+}
+
+// A step's action pressed on its card on the board (the same actions the run's screen offers on a step: STEP_ACTIONS).
+async function boardAct(person, runId, { id, action } = {}) {
+  const offered = new Set(Object.values(STEP_ACTIONS).flat().map(one => one.id));
+  if (!runId || typeof id !== 'string' || !offered.has(action)) throw Object.assign(new Error('Say which step and what to do.'), { status: 400 });
+  if (action === 'hand-step') return handStep(person, { run_id: runId, step_id: id });
+  const [path, body] = ACTIONS[action]({ run_id: runId, step_id: id });
+  return ask(person, 'POST', path, body);
+}
+
+// Words changed on a step's card on the board: the first line names the step, the rest says what it does. Kept only
+// for a workflow written as steps that is this person's own; anyone else's card goes back to the workflow's own words
+// on the next read, and the person saves their own copy from the workflow's screen.
+async function boardEdit(person, workflowId, { edits } = {}) {
+  if (!workflowId || !Array.isArray(edits)) throw Object.assign(new Error('Say which workflow and what changed.'), { status: 400 });
+  const { workflow, made_by } = await ask(person, 'POST', '/workflows/describe', { workflow_id: workflowId });
+  if (!Array.isArray(workflow.steps) || workflow.definition || looks.workflow_makers[made_by] !== 'you') return { kept: false };
+  const changed = new Map(edits.filter(edit => typeof edit?.id === 'string' && typeof edit?.text === 'string' && edit.text.trim()).map(edit => [edit.id, edit.text.trim()]));
+  if (!changed.size) return { kept: false };
+  const steps = workflow.steps.map(step => {
+    const text = changed.get(step.id);
+    if (!text) return step;
+    const [first, ...rest] = text.split('\n');
+    const words = rest.join('\n').trim();
+    // The card shows only the step's first sentence: the step's whole words change only when that line changed.
+    const does = words && (!step.do || words !== summaryOf(step.do)) ? { do: words } : {};
+    return { ...step, title: first.trim() || step.title, ...does };
+  });
+  await ask(person, 'POST', '/workflows/save', { workflow: { id: workflow.id, label: workflow.label, job: workflow.job, ...(workflow.input_schema ? { input_schema: workflow.input_schema } : {}), ...(workflow.made_from ? { made_from: workflow.made_from } : {}), steps } });
+  return { kept: true };
+}
+
+// What a workflow's board can add (its Add step palette): the kinds of step always offered (workflow-looks.json
+// board_palette), then, for the words typed, the Marketplace's tools for that job (the same find the AIs use).
+async function boardPalette(person, words) {
+  const palette = looks.board_palette;
+  const q = String(words ?? '').trim().toLowerCase();
+  const said = String(words ?? '').trim();
+  const steps = palette.steps.filter(row => row.takes_words || !q || `${row.label} ${row.detail}`.toLowerCase().includes(q))
+    .map(({ id, label, detail, icon, section, takes_words }) => ({ id, label, detail: takes_words && said ? said : detail, icon, section }));
+  const found = q ? await ask(person, 'POST', '/tools/find', { job: q, limit: palette.tools_shown }).catch(() => ({ candidates: [] })) : { candidates: [] };
+  const tools = (found.candidates ?? []).slice(0, palette.tools_shown).map(card => ({ id: card.tool_id, label: card.label ?? card.tool_id, ...(card.job ? { detail: card.job } : {}), icon: palette.tool_icon, section: palette.tools_section }));
+  return { rows: [...steps, ...tools] };
+}
+
+// A step added from the board's palette: a kind offered in board_palette, or a Marketplace tool (`tool:...`), added
+// after the last step. Kept in the person's own workflow; Trillion's or another account's is kept as the person's own
+// copy made from it (as the workflow's screen does), and the answer says which workflow to open.
+async function boardAdd(person, workflowId, { kind, words } = {}) {
+  if (!workflowId || typeof kind !== 'string' || !kind) throw Object.assign(new Error('Say which workflow and what to add.'), { status: 400 });
+  const { workflow, made_by } = await ask(person, 'POST', '/workflows/describe', { workflow_id: workflowId });
+  if (!Array.isArray(workflow.steps) || workflow.definition) throw Object.assign(new Error('This workflow is not written as steps, so a step cannot be added here. Ask your AI to change it.'), { status: 400 });
+  const offered = looks.board_palette.steps.find(row => row.id === kind);
+  let made;
+  const said = typeof words === 'string' ? words.trim() : '';
+  if (offered) made = { ...offered.step, ...(offered.takes_words && said ? { title: said.split(/[.!?\n]/)[0].slice(0, 80), do: said } : {}), submit: { type: 'object' } };
+  else if (kind.startsWith('tool:')) {
+    const { descriptor } = await ask(person, 'POST', '/tools/describe', { tool_id: kind });
+    if (!descriptor) throw Object.assign(new Error('That tool could not be found.'), { status: 400 });
+    const handsBack = descriptor.output_schema?.type === 'object' ? descriptor.output_schema : { type: 'object' };
+    made = { title: descriptor.label ?? kind, do: descriptor.job ?? descriptor.label ?? kind, submit: handsBack, run_tool: { tool_id: kind, input: {} } };
+  } else throw Object.assign(new Error('That cannot be added to a workflow.'), { status: 400 });
+  const base = made.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'step';
+  let id = base;
+  for (let n = 2; workflow.steps.some(step => step.id === id); n += 1) id = `${base}-${n}`;
+  const own = looks.workflow_makers[made_by] === 'you';
+  const saved = {
+    id: own ? workflow.id : `${workflow.id}-yours`, label: workflow.label, job: workflow.job,
+    ...(workflow.input_schema ? { input_schema: workflow.input_schema } : {}),
+    ...(own ? (workflow.made_from ? { made_from: workflow.made_from } : {}) : { made_from: [workflow.id] }),
+    steps: [...workflow.steps, { id, ...made }],
+  };
+  await ask(person, 'POST', '/workflows/save', { workflow: saved });
+  return { id, workflow_id: saved.id, copied: !own };
+}
+
+// The triggers and schedules that start one workflow, in plain words.
+async function startsOf(person, workflowId) {
+  const [rules, { schedules }] = await Promise.all([ask(person, 'GET', '/automations/rules'), ask(person, 'GET', '/automations/schedules')]);
+  return [
+    ...rules.rules.filter(rule => rule.then?.workflow_id === workflowId).map(rule => ({ id: rule.rule_id, kind: 'trigger', name: rule.label, says: sayWhen(rule.when), enabled: rule.enabled !== false })),
+    ...schedules.filter(schedule => schedule.then?.workflow_id === workflowId).map(schedule => ({ id: schedule.schedule_id, kind: 'schedule', name: schedule.label, says: sayEvery(schedule), enabled: schedule.enabled !== false })),
+  ];
+}
+
+// "Ask my AI" on a step waiting on an AI: the step handed to whichever of the person's AIs takes it first, once per
+// step of the run, with what to read and how to hand the step back.
+async function handStep(person, { run_id, step_id }) {
+  if (typeof run_id !== 'string' || typeof step_id !== 'string') throw Object.assign(new Error('Say which step of which run.'), { status: 400 });
+  const run = await ask(person, 'POST', '/workflows/read', { run_id });
+  const waiting = [run.step, ...(run.also_waiting ?? [])].filter(Boolean).find(item => item.step_id === step_id);
+  if (!waiting) throw Object.assign(new Error('This step is not waiting on an AI any more.'), { status: 409 });
+  const title = waiting.title ?? step_id;
+  const { handoff } = await ask(person, 'POST', '/handoffs', {
+    job: `Do the step "${title}" of the workflow run ${run_id}. Read the run with read_workflow_run { run_id: "${run_id}" }, do what the step asks (its do and submit say what and in what shape), and hand the step back with submit_workflow_step { run_id: "${run_id}", step_id: "${step_id}", output }. The run checks the output; when it refuses, fix what it names and send it again.`,
+    once_per: `workflow-step:${run_id}:${step_id}`,
+    said: `Do "${title}"`.slice(0, 300),
+    notice: `A workflow step is waiting: ${title}`.slice(0, 300),
+    input: { workflow_step: { run_id, step_id } },
+  });
+  return { handoff_id: handoff.handoff_id, state: handoff.state };
+}
+
+// A trigger or schedule as the step graph draws it: what sets it off, then what it does, in one line of two steps.
+function automationGraph({ kind, says, does, enabled }) {
+  const state = enabled ? 'on' : 'off';
+  const kinds = looks.automation_kinds;
+  return {
+    looks: looks.automation_states,
+    edges: [{ from: 'when', to: 'then' }],
+    steps: [
+      { id: 'when', title: says, icon: kinds[kind]?.icon ?? 'Zap', caption: kind === 'schedule' ? 'When it runs' : 'What sets it off', state, details: [{ label: kind === 'schedule' ? 'When it runs' : 'What sets it off', text: says }] },
+      { id: 'then', title: does, icon: 'Play', caption: 'What it does', state, details: [{ label: 'What it does', text: does }] },
+    ],
+  };
+}
+
+// What a then runs: its name, and the input schema its form is drawn from.
+async function thenTarget(person, then) {
+  if (then?.workflow_id) {
+    const { workflow } = await ask(person, 'POST', '/workflows/describe', { workflow_id: then.workflow_id }).catch(() => ({ workflow: null }));
+    return { name: workflow?.label ?? then.workflow_id, input_schema: workflow?.input_schema ?? null, names: { workflows: new Map([[then.workflow_id, workflow?.label ?? then.workflow_id]]), tools: new Map() } };
+  }
+  const { descriptor } = await ask(person, 'POST', '/tools/describe', { tool_id: then?.tool_id }).catch(() => ({ descriptor: null }));
+  return { name: descriptor?.label ?? then?.tool_id, input_schema: descriptor?.input_schema ?? null, names: { workflows: new Map(), tools: new Map([[then?.tool_id, descriptor?.label ?? then?.tool_id]]) } };
+}
+
+// The latest run each rule started (list_rules' recent runs, and the events that arrived with what each rule did).
+function lastRunsOf(listing) {
+  const last = new Map();
+  const note = (rule_id, at, run) => { if (rule_id && at && !(last.get(rule_id)?.at > at)) last.set(rule_id, { at, ...run }); };
+  for (const run of listing.recent_runs ?? []) note(run.rule_id, run.at, { task_id: run.task_id, run_id: run.run_id, status: run.status, ...(run.problem ? { problem: run.problem } : {}) });
+  for (const event of listing.recent_events ?? []) for (const rule of event.rules ?? []) if (rule.task_id || rule.run_id) note(rule.rule_id, event.at, { task_id: rule.task_id, run_id: rule.run_id });
+  return last;
+}
+
+// The workflows of the whole shelf (find with no job) that are this person's: the ones this account wrote, ran, or
+// set a trigger or schedule to start. The rest of the shelf is the Marketplace's. Automations' list and map both read it.
+function yoursOf(shelf, runs, rules, schedules) {
+  const used = new Set([...runs.map(run => run.workflow_id), ...rules.rules.map(rule => rule.then?.workflow_id), ...schedules.map(schedule => schedule.then?.workflow_id)]);
+  return shelf.filter(item => item.made_by === 'this account' || used.has(item.workflow_id));
+}
+
+async function listing(person) {
+  const [{ workflows: shelf }, { runs }, rules, { schedules }] = await Promise.all([
+    ask(person, 'POST', '/workflows/find', {}), ask(person, 'GET', '/workflows/runs'),
+    ask(person, 'GET', '/automations/rules'), ask(person, 'GET', '/automations/schedules'),
+  ]);
+  const toolIds = [...new Set([...rules.rules, ...schedules].map(item => item.then?.tool_id).filter(Boolean))];
+  const toolLabels = await Promise.all(toolIds.map(async toolId => {
+    const { descriptor } = await ask(person, 'POST', '/tools/describe', { tool_id: toolId }).catch(() => ({ descriptor: null }));
+    return [toolId, descriptor?.label ?? toolId];
+  }));
+  // Every workflow names the rules and schedules that run it; the list shows only this person's (yoursOf).
+  const names = { workflows: new Map(shelf.map(item => [item.workflow_id, item.label])), tools: new Map(toolLabels) };
+  const workflows = yoursOf(shelf, runs, rules, schedules);
+  const labelOf = id => names.workflows.get(id) ?? id;
+  const lastRuns = lastRunsOf(rules);
+  const lastWorkflowRun = id => runs.filter(run => run.workflow_id === id).map(run => run.started_at).sort().at(-1) ?? null;
+  return {
+    looks: looks.run_states,
+    kinds: looks.automation_kinds,
+    makers: looks.automation_makers,
+    automations: [
+      ...rules.rules.map(rule => ({ id: rule.rule_id, open_id: automationOpenId(rule.rule_id), kind: 'trigger', name: rule.label, when: sayWhen(rule.when), does: sayThen(rule.then, names), starts: rule.then?.workflow_id ?? null, enabled: rule.enabled !== false, made_by: rule.made_by, backs: rule.backs ?? [], last_run_at: lastRuns.get(rule.rule_id)?.at ?? null, last_problem: lastRuns.get(rule.rule_id)?.problem ?? null, next_run_at: null })),
+      ...schedules.map(schedule => ({ id: schedule.schedule_id, open_id: automationOpenId(schedule.schedule_id), kind: 'schedule', name: schedule.label, when: sayEvery(schedule), does: sayThen(schedule.then, names), starts: schedule.then?.workflow_id ?? null, enabled: schedule.enabled !== false, made_by: schedule.made_by, backs: schedule.backs ?? [], last_run_at: schedule.last_run?.at ?? schedule.ran_at ?? null, last_problem: schedule.last_run?.problem ?? null, next_run_at: schedule.next_run_at ?? null })),
+      ...workflows.map(workflow => ({ id: workflow.workflow_id, open_id: workflow.workflow_id, kind: 'workflow', name: workflow.label, when: 'When you or your AI start it', does: workflow.job, enabled: null, made_by: looks.workflow_makers[workflow.made_by], backs: [], last_run_at: lastWorkflowRun(workflow.workflow_id), last_problem: null, next_run_at: null })),
+    ],
+    workflows: workflows.map(({ workflow_id, label, job, made_by, steps }) => ({ workflow_id, label, job, made_by, steps: steps.length, runs: runs.filter(run => run.workflow_id === workflow_id).length })),
+    runs: runs.map(run => ({ ...run, label: labelOf(run.workflow_id) })).sort((a, b) => String(b.started_at).localeCompare(String(a.started_at))),
+  };
+}
+
+// One trigger or schedule as its own tab shows it: the plain words, and exactly what set_rule or set_schedule keep.
+async function automation(person, id) {
+  const [rules, { schedules }] = await Promise.all([ask(person, 'GET', '/automations/rules'), ask(person, 'GET', '/automations/schedules')]);
+  const rule = rules.rules.find(item => item.rule_id === id);
+  const schedule = rule ? null : schedules.find(item => item.schedule_id === id);
+  if (!rule && !schedule) throw Object.assign(new Error('This automation is not there any more.'), { status: 404 });
+  const then = (rule ?? schedule).then;
+  const target = await thenTarget(person, then);
+  const shown = rule
+    ? { kind: 'trigger', id, label: rule.label, enabled: rule.enabled !== false, says: sayWhen(rule.when), when: rule.when, then, last_run: lastRunsOf(rules).get(id) ?? null }
+    : { kind: 'schedule', id, label: schedule.label, enabled: schedule.enabled !== false, says: sayEvery(schedule), ...(schedule.every ? { every: schedule.every } : { once_at: schedule.once_at }), then, next_run_at: schedule.next_run_at ?? null, last_run: schedule.last_run ?? null };
+  const does = sayThen(then, target.names);
+  return { ...shown, does, input_schema: target.input_schema, graph: automationGraph({ ...shown, does }) };
+}
+
+// The small graph a hover card draws.
+async function preview(person, id) {
+  if (id.startsWith(AUTOMATION_TAB)) {
+    const one = await automation(person, id.slice(AUTOMATION_TAB.length));
+    return { title: one.label, says: `${one.says}. ${one.does}.`, source: sourceOfGraph(id, one.graph, one.graph.looks, () => true) };
+  }
+  const { workflow } = await ask(person, 'POST', '/workflows/describe', { workflow_id: id });
+  return { title: workflow.label ?? workflow.id, says: workflow.job ?? '', source: sourceOfGraph(id, workflowGraph(workflow, null), looks.states, () => false) };
+}
+
+// ---- "Edit with your AI": the change in plain words, handed to the person's AI; its answer comes back to review ----
+const AI_EDIT = 'automation_edit';
+async function askAi(person, { id, words }) {
+  if (typeof words !== 'string' || !words.trim()) throw Object.assign(new Error('Say what to change, in your own words.'), { status: 400 });
+  const one = await automation(person, id);
+  const current = { label: one.label, ...(one.kind === 'trigger' ? { when: one.when } : one.once_at ? { once_at: one.once_at } : { every: one.every }), then: one.then };
+  const tool = one.kind === 'trigger' ? 'set_rule' : 'set_schedule';
+  const { handoff } = await ask(person, 'POST', '/handoffs', {
+    job: `The person asked for a change to their ${one.kind} "${one.label}" (${one.kind === 'trigger' ? 'rule_id' : 'schedule_id'} ${id}): "${words.trim()}". `
+      + `Work out the new values and answer with finish_work, result { label, ${one.kind === 'trigger' ? 'when' : one.once_at ? 'once_at' : 'every'}, then } in the shape ${tool} takes, starting from input.${AI_EDIT}.current. `
+      + 'Do not save it: the person reads your answer on their Automations screen and saves it there.',
+    request_key: `${AI_EDIT}:${id}:${crypto.randomUUID()}`,
+    notice: `Change asked for on "${one.label}"`.slice(0, 300),
+    input: { [AI_EDIT]: { automation_id: id, kind: one.kind, asked: words.trim(), current, answer_with: tool } },
+  });
+  return { handoff_id: handoff.handoff_id, state: handoff.state };
+}
+
+async function aiEdits(person, id) {
+  const { handoffs } = await ask(person, 'POST', '/handoffs/read', {});
+  return {
+    edits: handoffs.filter(item => item.input?.[AI_EDIT]?.automation_id === id).map(item => {
+      const result = item.result && typeof item.result === 'object' && !Array.isArray(item.result) ? item.result : null;
+      return {
+        handoff_id: item.handoff_id, asked: item.input[AI_EDIT].asked, state: item.state, asked_at: item.handed_at, taken_by: item.taken_by,
+        answered_at: item.finished_at, summary: item.summary ?? null,
+        proposal: result && (result.then || result.when || result.every || result.once_at || result.label) ? result : null,
+        ...(item.result && !result ? { said: String(item.result) } : {}),
+      };
+    }),
+  };
+}
+
+export async function handleWorkWorkflows(request, { person, url }) {
+  const rest = url.pathname.slice('/work/api/workflows'.length);
+  if (request.method === 'POST') {
+    const name = rest.slice(1);
+    const action = ACTIONS[name];
+    if (!action && name !== 'ask-ai' && name !== 'hand-step' && name !== 'board-edit' && name !== 'board-act' && name !== 'board-add') return json({ error: 'Not found' }, 404);
+    if (request.headers.get('origin') !== url.origin) return json({ error: 'Not allowed.' }, 403);
+    try {
+      if (name === 'ask-ai') return json(await askAi(person, await request.json()));
+      if (name === 'hand-step') return json(await handStep(person, await request.json()));
+      if (name === 'board-act') return json(await boardAct(person, url.searchParams.get('run') ?? '', await request.json()));
+      if (name === 'board-edit') return json(await boardEdit(person, url.searchParams.get('workflow') ?? '', await request.json()));
+      if (name === 'board-add') return json(await boardAdd(person, url.searchParams.get('workflow') ?? '', await request.json()));
+      const [path, body] = action(await request.json());
+      return json(await ask(person, 'POST', path, body));
+    } catch (error) {
+      return json(refusal(error), error.status && error.status < 500 ? error.status : 400);
+    }
+  }
+  if (request.method !== 'GET') return json({ error: 'Not found' }, 404);
+  try {
+    if (rest === '') return json(await listing(person));
+    if (rest === '/sources') return json(await ask(person, 'GET', '/automations/health'));
+    const one = rest.match(/^\/automation\/([^/]+)$/);
+    if (one) return json(await automation(person, decodeURIComponent(one[1])));
+    const shown = rest.match(/^\/preview\/([^/]+)$/);
+    if (shown) return json(await preview(person, decodeURIComponent(shown[1])));
+    const edits = rest.match(/^\/ai-edits\/([^/]+)$/);
+    if (edits) return json(await aiEdits(person, decodeURIComponent(edits[1])));
+    const history = rest.match(/^\/history\/([^/]+)$/);
+    if (history) return json(await ask(person, 'GET', `/automations/rules/history?rule_id=${encodeURIComponent(decodeURIComponent(history[1]))}`));
+    const whole = rest.match(/^\/output\/([^/]+)\/([^/]+)$/);
+    if (whole) {
+      const { output } = await ask(person, 'POST', '/workflows/read', { run_id: decodeURIComponent(whole[1]), step_id: decodeURIComponent(whole[2]) });
+      return json({ output });
+    }
+    if (rest === '/board-palette') return json(await boardPalette(person, url.searchParams.get('q')));
+    const drawn = rest.match(/^\/board\/([^/]+)$/);
+    if (drawn) return json(await boardSource(person, decodeURIComponent(drawn[1])));
+    const opened = rest.match(/^\/graph\/([^/]+)$/);
+    if (!opened) return json({ error: 'Not found' }, 404);
+    const id = decodeURIComponent(opened[1]);
+    const run = id.startsWith('run:') ? await ask(person, 'POST', '/workflows/read', { run_id: id }) : null;
+    const workflowId = run ? run.workflow_id : id;
+    const [{ workflow, made_by, made_from = [], variations = [] }, starts] = await Promise.all([
+      ask(person, 'POST', '/workflows/describe', { workflow_id: workflowId }), startsOf(person, workflowId).catch(() => []),
+    ]);
+    return json({
+      workflow_id: workflowId,
+      title: workflow.label ?? workflow.id,
+      job: workflow.job,
+      made_by,
+      made_from: made_from.map(item => item.label),
+      variations: variations.length,
+      looks: { ...looks.states, ...looks.automation_states },
+      // A workflow written as steps in order (not as an engine definition) is edited from any of its views: the screen
+      // changes these steps and saves the whole workflow (save-workflow), as this person's own (a copy of anyone
+      // else's, made from it). `yours` says whether the save keeps its id.
+      ...(Array.isArray(workflow.steps) && !workflow.definition ? { written: { id: workflow.id, label: workflow.label, job: workflow.job, ...(workflow.input_schema ? { input_schema: workflow.input_schema } : {}), steps: workflow.steps }, yours: looks.workflow_makers[made_by] === 'you' } : {}),
+      run: run ? { run_id: run.run_id, state: run.state, ...(run.started_at ? { started_at: run.started_at } : {}), look: looks.run_states[run.state] ?? null, steps_left: run.steps_left ?? 0, ...(run.error ? { error: run.error } : {}), ...(run.finished_at ? { finished_at: run.finished_at } : {}) } : null,
+      ...workflowGraph(workflow, run, starts),
+    });
+  } catch (error) {
+    return json(refusal(error), error.status && error.status < 500 ? error.status : 500);
+  }
+}

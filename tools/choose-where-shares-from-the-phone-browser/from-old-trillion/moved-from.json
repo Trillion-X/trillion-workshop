@@ -1,0 +1,40 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/share-destinations.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-destinations.mjs.held",
+      "source_identity": "1f:7aa1fd56fc602dbbb8557061ca060918a944bcb47d44f657a24e52e5e2ce1279",
+      "identity": "1f:46f820616483c59f82a1735b72014d4245293bd3d9139287d3a7638d7c7df467",
+      "held": true
+    },
+    {
+      "from": "src/share-history.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-history.mjs.held",
+      "source_identity": "1f:d98c400b82f1c8e216a95b6e78ca19c7b12e983981e3affa39d9e7f4d79c8762",
+      "identity": "1f:d98c400b82f1c8e216a95b6e78ca19c7b12e983981e3affa39d9e7f4d79c8762",
+      "held": true
+    },
+    {
+      "from": "src/share-starting-action.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-starting-action.mjs.held",
+      "source_identity": "1f:584f0003e73fe14053c54a6e4ff6b1de5a5df4c02ab9f10b6edc0ac8b93ca70c",
+      "identity": "1f:584f0003e73fe14053c54a6e4ff6b1de5a5df4c02ab9f10b6edc0ac8b93ca70c",
+      "held": true
+    },
+    {
+      "from": "test/share-destinations.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/test/share-destinations.test.mjs.held",
+      "source_identity": "1f:b720cd6fea61febb8366169b849c87ff869b768364eeb36d5ffa774d800f8d5e",
+      "identity": "1f:9bd5914b4946c2a278feb3a9cb8c8bc5de479776106c779ae6b293bde3cfb207",
+      "held": true
+    }
+  ]
+}

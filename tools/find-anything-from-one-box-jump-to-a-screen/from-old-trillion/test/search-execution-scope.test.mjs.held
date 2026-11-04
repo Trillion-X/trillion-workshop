@@ -1,0 +1,107 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { searchFeedWriter } from '../../../shared-code/src/search-feed.mjs';
+import { makeSearch, frozenSearchLanes } from '../src/search.mjs';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+
+const options = { sources: ['files'], places: ['said', 'written'], matches: ['words-in-results'] };
+const voiceOptions = { sources: ['files'], places: ['said'], matches: ['words-in-results'] };
+const own = n => '1f:' + n.toString(16).padStart(64, '0');
+function fixture() {
+  const host = sqliteHost(':memory:');
+  namespaceStore(host.sql);
+  const results = resultsStore(host.sql);
+  const queries = [], rows = [];
+  let refuse = false;
+  const sql = { exec(query, ...params) { queries.push({ query, params }); return host.sql.exec(query, ...params); } };
+  const writer = searchFeedWriter(sql);
+  const source = { ...writer, row(identity, kind) { rows.push({ identity, kind }); if (refuse) throw Error('result source unavailable'); return writer.row(identity, kind); } };
+  const search = makeSearch({ sql, results: source, transaction: host.transaction });
+  const drain = async () => {
+    for (let n = 0; await search.stale(); n++) { assert.ok(n < 100); await search.catchUp(50); }
+  };
+  return { host, results, queries, rows, search, drain, refuse: value => { refuse = value; } };
+}
+
+test('frozen selection intersects building lanes with the current planned index lanes', () => {
+  assert.deepEqual(frozenSearchLanes(['messages', 'notes', 'transcript-words', 'file-names'], voiceOptions), ['transcript-words']);
+  assert.deepEqual(frozenSearchLanes(['messages', 'notes'], voiceOptions), []);
+  assert.deepEqual(frozenSearchLanes(['transcript-words', 'transcript-words'], voiceOptions), ['transcript-words']);
+});
+
+test('scoped frozen execution retains positional partials, required errors and follower answers', async () => {
+  const f = fixture();
+  try {
+    f.results.put([{ identity: own(1), kind: 'transcript', value: { text: 'violet locomotive arrives', segments: [{ start: 3, end: 5, text: 'violet locomotive arrives' }] } },
+      { identity: own(2), kind: 'note', value: { text: 'violet locomotive arrives in a note' } }]);
+    await f.drain();
+    const full = await f.search.indexSearch('violet locomotive', options);
+    f.rows.length = 0;
+    const scoped = await f.search.indexSearch('violet locomotive', options, ['transcript-words']);
+    const lanes = settings.lanes.filter(lane => options.sources.includes(lane.source) && options.places.includes(lane.place) && options.matches.includes(lane.match));
+    assert.equal(scoped.answered.length, full.answered.length);
+    for (let at = 0; at < lanes.length; at++) {
+      if (lanes[at].id === 'transcript-words') assert.deepEqual(scoped.answered[at], full.answered[at]);
+      else assert.equal(scoped.answered[at], null);
+    }
+    assert.ok(f.rows.length > 0 && f.rows.every(row => row.kind === 'transcript'));
+    const combined = f.search.fromBuilding(full, scoped, ['transcript-words'], options);
+    assert.deepEqual(combined.answered, full.answered);
+    assert.equal(combined.still_reading['transcript-words'], 1);
+    f.refuse(true);
+    const failed = await f.search.indexSearch('violet locomotive', options, ['transcript-words']);
+    assert.deepEqual(failed.unavailable.map(row => row.lane), ['transcript-words']);
+    assert.deepEqual(f.search.fromBuilding(full, failed, ['transcript-words'], options).unavailable, failed.unavailable);
+    f.refuse(false);
+    assert.deepEqual((await f.search.indexSearch('violet locomotive', options, ['transcript-words'])).answered, scoped.answered);
+  } finally { f.host.db.close(); }
+});
+
+test('empty internal execution performs no freshness or vocabulary queries and leaves planned positions empty', async () => {
+  const f = fixture();
+  try {
+    f.queries.length = 0;
+    const found = await f.search.indexSearch('violet locomotive', voiceOptions, []);
+    assert.deepEqual(found.answered, [null]);
+    assert.deepEqual(found.still_reading, {});
+    assert.deepEqual(found.unavailable, []);
+    assert.deepEqual(found.pending, []);
+    assert.deepEqual(f.queries, []);
+  } finally { f.host.db.close(); }
+});
+
+test('vocabulary counts are reused only within synchronous admission and fresh changes stay visible', async () => {
+  const f = fixture();
+  try {
+    f.results.put([{ identity: own(1), kind: 'transcript', value: { text: 'violet locomotive arrives', segments: [{ start: 3, end: 5, text: 'violet locomotive arrives' }] } }]);
+    await f.drain();
+    f.queries.length = 0;
+    const first = await f.search.indexSearch('violet locomotive arrives', voiceOptions);
+    const counts = () => f.queries.filter(row => row.query.includes('SUM(doc)'));
+    // SQLite offers fts5vocab in the supported local owner. Each unique term is
+    // counted once although absence and rarity both consume that count.
+    assert.equal(counts().length, 3);
+    assert.equal(first.answered[0].length, 1);
+    assert.equal(first.answered[0][0].timed, true);
+    f.queries.length = 0;
+    const empty = await f.search.indexSearch('', voiceOptions);
+    assert.deepEqual(empty.answered, [null]);
+    assert.equal(counts().length, 0);
+    f.results.put([{ identity: own(1), kind: 'transcript', value: { text: 'something entirely different' } }]);
+    f.queries.length = 0;
+    const pending = await f.search.indexSearch('violet locomotive arrives', voiceOptions);
+    assert.deepEqual(pending.answered[0], [], 'current source validation removes an obsolete index hit');
+    assert.equal(pending.still_reading['transcript-words'], 1);
+    assert.ok(pending.pending.some(row => row.lane === 'transcript-words'));
+    await f.drain();
+    f.queries.length = 0;
+    assert.deepEqual((await f.search.indexSearch('violet locomotive arrives', voiceOptions)).answered[0], []);
+    assert.equal(counts().length, 1, 'a missing first term retains the original early exit');
+    f.results.put([{ identity: own(1), kind: 'transcript', value: { text: 'violet locomotive arrives', segments: [{ start: 7, end: 9, text: 'violet locomotive arrives' }] } }]);
+    await f.drain();
+    assert.equal((await f.search.indexSearch('violet locomotive arrives', voiceOptions)).answered[0][0].start, 7, 'no count or source result persists across arrivals');
+  } finally { f.host.db.close(); }
+});

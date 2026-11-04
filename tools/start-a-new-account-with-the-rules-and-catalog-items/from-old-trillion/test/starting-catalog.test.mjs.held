@@ -1,0 +1,114 @@
+// test/starting-catalog.test.mjs
+//
+// Trillion's own tools, workflows, rules and event rules as Marketplace configurations: every shipped row is in exactly one
+// configuration or is core, a configuration holds at most 100, a configuration's id and every component's version are what the
+// owners compute now, the records file is what the generator writes now, and the catalog answers lazily with no pool.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { configurationOf } from '../../../see-what-an-account-has-installed/src/marketplace-configurations.mjs';
+import { indexManifest, startingComponent, startingConfiguration, startingConfigurations, startingManifest, startingRow } from '../src/starting-catalog.mjs';
+import { built, shippedComponents, startingSet } from '../scripts/build-starting-set.mjs';
+import kinds from '../src/marketplace-kinds.json' with { type: 'json' };
+
+const records = JSON.parse(readFileSync(new URL('../records/starting-set-records.json', import.meta.url), 'utf8'));
+const groups = JSON.parse(readFileSync(new URL('../records/starting-set-groups.json', import.meta.url), 'utf8'));
+const installable = [...kinds.kinds, ...kinds.installable].filter(kind => kind.install && (kind.published?.shelf || kind.published?.from === 'deploy')).map(kind => kind.id);
+
+test('every shipped row is in exactly one configuration or is core', async () => {
+  const shipped = await shippedComponents();
+  const core = new Set(records.core);
+  const held = new Map();
+  for (const configuration of records.configurations) for (const item of configuration.components) {
+    assert.ok(!held.has(item.id), `${item.id} is in two configurations`);
+    held.set(item.id, configuration.slug);
+  }
+  for (const item of shipped) {
+    assert.equal(held.has(item.id) !== core.has(item.id), true, `${item.id} must be in one configuration or be core, not both or neither`);
+  }
+  assert.equal(shipped.length, records.components.length);
+  assert.equal(held.size + core.size, shipped.length);
+  for (const id of records.pinned) assert.ok(held.has(id), `${id} is pinned but not in a configuration`);
+});
+
+test('a configuration holds at most 100 components and its id is the one the owner makes', () => {
+  for (const configuration of records.configurations) {
+    assert.ok(configuration.components.length >= 1 && configuration.components.length <= 100, configuration.slug);
+    const { id, version } = configurationOf({ slug: configuration.slug, title: configuration.title, description: configuration.description,
+      components: configuration.components }, installable);
+    assert.equal(configuration.id, id);
+    assert.equal(configuration.version, version);
+  }
+  assert.equal(new Set(records.configurations.map(configuration => configuration.slug)).size, records.configurations.length);
+  for (const slug of Object.keys(groups.configurations)) assert.match(slug, /^trillion-/);
+});
+
+test('every component version is what its owner computes now', async () => {
+  const now = new Map((await shippedComponents()).map(item => [item.id, item]));
+  for (const item of records.components) {
+    assert.equal(item.version, now.get(item.id).version, item.id);
+    assert.equal(item.kind, now.get(item.id).kind);
+  }
+  for (const configuration of records.configurations) for (const item of configuration.components) {
+    assert.equal(item.version, now.get(item.id).version);
+  }
+});
+
+test('the records file is exactly what the generator writes now', async () => {
+  assert.equal(await built(), readFileSync(new URL('../records/starting-set-records.json', import.meta.url), 'utf8'));
+});
+
+test('the generator refuses a row in no group, a group over 100 and a row shipped twice', async () => {
+  const shipped = await shippedComponents();
+  const extra = { kind: 'tool', id: 'tool:nobody-placed-this', version: '1f:x', title: 'x', description: 'x', source: 'unplaced-set', row: {} };
+  assert.throws(() => startingSet([...shipped, extra], groups), /tool:nobody-placed-this/);
+  const crowded = { ...groups, configurations: { ...groups.configurations, 'trillion-work': { ...groups.configurations['trillion-work'] } }, sets: { ...groups.sets, workflows: 'trillion-work' } };
+  assert.throws(() => startingSet(shipped, crowded), /over 100/);
+  assert.throws(() => startingSet([...shipped, shipped[0]], groups), /shipped twice/);
+});
+
+test('the catalog answers from the deploy with no pool and loads once', async () => {
+  const first = await startingManifest();
+  assert.equal(await startingManifest(), first, 'one index per isolate');
+  assert.deepEqual((await startingConfigurations()).map(row => row.id), records.configurations.map(row => row.id));
+  const [configuration] = await startingConfigurations();
+  assert.equal(configuration.made_by, 'Trillion');
+  assert.equal(configuration.follows, configuration.slug);
+  assert.equal((await startingConfiguration(configuration.id)).slug, configuration.slug);
+  assert.equal(await startingConfiguration('nothing@000'), null);
+  const [component] = configuration.components;
+  assert.equal((await startingComponent(component.kind, component.id)).version, component.version);
+  assert.equal(await startingComponent('workflow', component.id), null, 'kind must match');
+  assert.equal(await startingComponent('tool', 'tool:not-shipped'), null);
+});
+
+test('a component body is read from the deploy copy of the row, and an unknown one is null', async () => {
+  const seen = [];
+  const sources = Object.fromEntries(['tool', 'workflow', 'rule', 'event-rule-template'].map(kind => [kind, async ({ env }) => {
+    seen.push([kind, env]);
+    return records.components.filter(item => item.kind === kind).map(item => ({ id: item.id, label: item.title }));
+  }]));
+  for (const kind of ['tool', 'workflow', 'rule', 'event-rule-template']) {
+    const item = records.components.find(candidate => candidate.kind === kind);
+    assert.equal((await startingRow(kind, item.id, { env: { name: 'env' }, sources })).id, item.id);
+  }
+  assert.deepEqual(seen.map(([kind]) => kind), ['tool', 'workflow', 'rule', 'event-rule-template']);
+  assert.equal(await startingRow('tool', 'tool:not-shipped', { sources }), null);
+  assert.equal(seen.length, 4, 'an unknown id reads nothing');
+  assert.equal(await startingRow('module', records.components[0].id, { sources }), null);
+});
+
+test('the default readers find the shipped workflow, rule and event source rows', async () => {
+  for (const kind of ['workflow', 'rule', 'event-rule-template']) {
+    const item = records.components.find(candidate => candidate.kind === kind);
+    assert.equal((await startingRow(kind, item.id))?.id, item.id, kind);
+  }
+});
+
+test('an index of a small records file answers its members and core', () => {
+  const index = indexManifest({ core: ['tool:c'], pinned: ['tool:a'], configurations: [{ id: 'trillion-x@1', slug: 'trillion-x', title: 'X', description: 'x', version: '1f:1', components: [{ kind: 'tool', id: 'tool:a', version: '1f:a' }] }],
+    components: [{ kind: 'tool', id: 'tool:a', version: '1f:a', configuration: 'trillion-x' }, { kind: 'tool', id: 'tool:c', version: '1f:c', core: true }] });
+  assert.deepEqual(index.members('trillion-x@1'), ['tool:a']);
+  assert.equal(index.configurationBySlug('trillion-x').id, 'trillion-x@1');
+  assert.ok(index.core.has('tool:c') && index.pinned.has('tool:a') && index.ids.has('tool:c'));
+});

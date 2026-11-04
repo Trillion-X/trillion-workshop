@@ -1,0 +1,199 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { sqliteHost } from '../src/local-store.mjs';
+import { sharedWorkshopProjectionReader, sharedWorkshopProjectionPublisher, publishedIdentityKey } from '../src/shared-workshop-projection.mjs';
+import { toolTelemetry } from '../../../keep-the-tables-that-record-how-tools-are/from-old-trillion/src/tool-telemetry.mjs';
+import { publishedWorkflowRow } from '../../../leave-a-makers-private-starting-values-out/src/published-workflow-privacy.mjs';
+import {defaultMakers,defaultRows} from '../src/marketplace-defaults.mjs';
+function fixture(t){
+  const host=sqliteHost(':memory:');t.after(()=>host.db.close());
+  host.sql.exec('CREATE TABLE published_rows (shelf TEXT NOT NULL,id TEXT NOT NULL,maker TEXT NOT NULL,row TEXT NOT NULL,published_at TEXT NOT NULL,PRIMARY KEY(shelf,id))');
+  host.sql.exec('CREATE TABLE kept_source_tools (id TEXT PRIMARY KEY,row TEXT NOT NULL,kept_at TEXT NOT NULL)');
+  host.sql.exec('CREATE TABLE pool_facts (name TEXT PRIMARY KEY,value TEXT NOT NULL)');
+  const values=new Map(),kv={get:async key=>values.get(key)??null,put:async(key,value)=>{values.set(key,value);},delete:async key=>values.delete(key)};
+  const telemetry=toolTelemetry(host.sql,host.transaction);
+  const authority={sql:host.sql,ctx:{storage:{transactionSync:host.transaction}},env:{APP_KV:kv},
+    publishedValue:(shelf,item)=>({maker:item.maker,row:shelf==='workflow'?publishedWorkflowRow(JSON.parse(item.row)):JSON.parse(item.row)}),
+    toolStats:async ids=>telemetry.toolStats(ids)};
+  let publisher=sharedWorkshopProjectionPublisher(authority);
+  return {host,values,kv,telemetry,authority,reader:sharedWorkshopProjectionReader(kv),get publisher(){return publisher;},restart(){publisher=sharedWorkshopProjectionPublisher(authority);},
+    keep(shelf,row){host.transaction(()=>{host.sql.exec('INSERT OR REPLACE INTO published_rows VALUES(?,?,?,?,?)',shelf,row.id,'maker:owner',JSON.stringify(row),'2026-10-14T00:00:00Z');publisher.mark('shelf',shelf);});},
+    remove(shelf,id){host.transaction(()=>{host.sql.exec('DELETE FROM published_rows WHERE shelf=? AND id=?',shelf,id);publisher.mark('shelf',shelf);});},
+    async drain(){for(let step=0;step<100&&publisher.nextAt()!==null;step++)await publisher.step();assert.equal(publisher.nextAt(),null);},
+  };
+}
+
+test('initial bounded publication exposes every row only after a complete immutable snapshot, including empty shelves',async t=>{
+  const f=fixture(t),items=Array.from({length:131},(_,index)=>({id:`tool:${String(index).padStart(3,'0')}`,job:`Job ${index}`}));
+  for(const item of items)f.keep('tool',item);
+  await assert.rejects(f.reader.published('tool'),/complete Marketplace projection/);
+  await f.publisher.step();await assert.rejects(f.reader.published('tool'),/complete Marketplace projection/);
+  await f.drain();
+  assert.deepEqual((await f.reader.published('tool')).map(item=>item.row),items);
+  assert.deepEqual(await f.reader.published('tool-price'),[]);
+  assert.equal((await f.reader.publishedOne('tool','tool:130')).row.job,'Job 130');
+  assert.equal(await f.reader.publishedOne('tool','tool:absent'),null);
+});
+
+test('publish then withdraw before projection retains durable content-free adoption across restart and a lost acknowledgement',async t=>{
+  const f=fixture(t),shelf='fixture-template',row={id:'fixture:retired',private_text:'obsolete shipped words'};
+  const env={OPERATOR_ACCOUNT_ID:'fixture-owner',PERSON:{idFromName:()=>({toString:()=>'fixture-store'})},APP_KV:f.kv};
+  const maker=[...defaultMakers(env)][0];
+  f.host.transaction(()=>{f.publisher.remember(shelf,row.id,maker);f.publisher.mark('shelf',shelf);});
+  const put=f.kv.put;let lost=true;
+  f.kv.put=async(key,value)=>{await put(key,value);if(lost&&key.includes('published-identity')){lost=false;throw new Error('adoption acknowledgement lost');}};
+  await assert.rejects(f.publisher.step(),/acknowledgement lost/);
+  f.restart();await f.drain();
+  assert.equal(await f.reader.wasPublished(shelf,row.id,maker),true);
+  assert.deepEqual(await defaultRows(env,shelf,[row]),[]);
+  assert.equal([...f.values.values()].some(value=>value.includes(row.private_text)),false,'retirement evidence retains no shipped content');
+  const marker=publishedIdentityKey(shelf,row.id,maker);
+  assert.equal(marker.includes(row.id),false,'permanent evidence keys retain no plaintext publication identity');
+  assert.equal(marker.includes(maker),false,'permanent evidence keys retain no plaintext publisher identity');
+});
+
+test('lost KV publication acknowledgement and a cold publisher preserve complete discovery and report-only historical stats',async t=>{
+  const f=fixture(t);f.keep('tool',{id:'tool:original',job:'Original'});
+  f.telemetry.addToolReport({tool_id:'tool:report-only',report_key:'opaque-historical',revision:8,result:'met',answered_by:'person',attribution_basis:'trusted_person_source'});
+  const put=f.kv.put;let lost=true;
+  f.kv.put=async(key,value)=>{await put(key,value);if(lost){lost=false;throw new Error('KV acknowledgement lost');}};
+  await assert.rejects(f.publisher.step(),/acknowledgement lost/);
+  f.restart();await f.drain();
+  assert.equal((await f.reader.publishedOne('tool','tool:original')).row.job,'Original');
+  assert.equal((await f.reader.stats(['tool:report-only']))['tool:report-only'].reported_met,1);
+});
+
+test('a source changed between snapshot pages restarts its revision, withdrawal converges and obsolete bytes are removed',async t=>{
+  const f=fixture(t);
+  for(let index=0;index<67;index++)f.keep('tool',{id:`tool:${String(index).padStart(3,'0')}`,job:'Before'});
+  await f.publisher.step();
+  f.keep('tool',{id:'tool:000',job:'After'});f.remove('tool','tool:066');
+  await f.drain();
+  const rows=await f.reader.published('tool');assert.equal(rows.length,66);assert.equal(rows[0].row.job,'After');
+  assert.equal(await f.reader.publishedOne('tool','tool:066'),null);
+  const manifest=JSON.parse(f.values.get('workshop-projection:["shelf","tool"]'));
+  for(const key of f.values.keys())if(key.startsWith('workshop-projection:["page","tool",')||key.startsWith('workshop-projection:["item","tool",'))assert.ok(key.includes(manifest.version),'old immutable versions have no retained public bytes');
+});
+
+test('independent key propagation cannot manufacture absence or return a truncated catalogue',async t=>{
+  const f=fixture(t);f.keep('tool',{id:'tool:actual',job:'Actual'});await f.drain();
+  const manifest=JSON.parse(f.values.get('workshop-projection:["shelf","tool"]'));
+  f.values.delete(`workshop-projection:${JSON.stringify(['item','tool',manifest.version,'tool:actual'])}`);
+  assert.equal((await f.reader.publishedOne('tool','tool:actual')).row.job,'Actual','complete pages recover a missing point key');
+  f.values.delete(`workshop-projection:${JSON.stringify(['page','tool',manifest.version,0])}`);
+  await assert.rejects(f.reader.published('tool'),/complete Marketplace projection/);
+  await assert.rejects(f.reader.publishedOne('tool','tool:missing'),/complete Marketplace projection/);
+});
+
+test('only sanitized workflow rows enter independent discovery while their original private defaults stay with their authority',async t=>{
+  const f=fixture(t),privateWorkflow={id:'workflow:settings',screen:{kind:'controls',defaults:{api_key:'never publish'},fields:[{id:'title'}]}};
+  f.keep('workflow',privateWorkflow);await f.drain();
+  const row=(await f.reader.publishedOne('workflow',privateWorkflow.id)).row;
+  assert.equal(JSON.stringify(row).includes('never publish'),false);
+  assert.ok(JSON.parse(f.host.sql.exec('SELECT row FROM published_rows WHERE id=?',privateWorkflow.id).toArray()[0].row).screen.defaults.api_key);
+});
+
+
+test('all previously checked registry definitions survive initial projection carry and direct id discovery',async t=>{
+  const f=fixture(t);f.host.sql.exec('INSERT INTO kept_source_tools VALUES(?,?,?)','registry:model',JSON.stringify({id:'registry:model',job:'Checked registry tool',billing:{source:'registry'}}),'2026-10-13T00:00:00Z');
+  await f.drain();
+  assert.equal((await f.reader.publishedOne('@source-tools','registry:model')).row.job,'Checked registry tool');
+  assert.equal((await f.reader.published('@source-tools')).length,1);
+});
+
+test('catalogue point writes resume from their durable cursor within the existing scheduler stage budget',async t=>{
+  const f=fixture(t);
+  for(let index=0;index<20;index++)f.keep('tool',{id:`tool:budget-${String(index).padStart(2,'0')}`,job:'Bounded write'});
+  let points=0;const put=f.kv.put;
+  f.kv.put=async(key,value)=>{if(key.startsWith('workshop-projection:["item","tool",'))points++;return put(key,value);};
+  await f.publisher.step({left:()=>points<2?100:0});
+  assert.equal(points,2);await assert.rejects(f.reader.published('tool'),/complete Marketplace projection/);
+  f.restart();await f.drain();assert.equal((await f.reader.published('tool')).length,20);
+});
+
+test('a page put that spends the whole stage still advances the item cursor every step, and each page is put once',async t=>{
+  const f=fixture(t);
+  for(let index=0;index<70;index++)f.keep('workflow',{id:`workflow:spent-${String(index).padStart(2,'0')}`,label:'Spent stage',job:'Bounded write'});
+  let spent=false,pagePuts=0;const put=f.kv.put;
+  f.kv.put=async(key,value)=>{if(key.startsWith('workshop-projection:["page","workflow",')){pagePuts++;spent=true;}return put(key,value);};
+  for(let step=0;step<200&&f.publisher.nextAt()!==null;step++){spent=false;await f.publisher.step({left:()=>spent?0:100});}
+  assert.equal(f.publisher.nextAt(),null);
+  assert.equal((await f.reader.published('workflow')).length,70);
+  assert.equal(pagePuts,2,'one put for each of the two pages');
+});
+
+test('a shelf dropped before its manifest with nothing queued starts a fresh snapshot when the publisher opens again',async t=>{
+  const f=fixture(t);
+  for(let index=0;index<3;index++)f.keep('workflow',{id:`workflow:dropped-${index}`,label:'Dropped',job:'Bounded write'});
+  await f.drain();
+  // The live state: no manifest, no outbox row, the carry long done.
+  f.host.sql.exec("DELETE FROM pool_facts WHERE name='workshop-projection-manifest:workflow'");
+  f.values.delete('workshop-projection:["shelf","workflow"]');
+  f.host.sql.exec('DELETE FROM shared_workshop_projection_outbox');
+  await assert.rejects(f.reader.published('workflow'),/complete Marketplace projection/);
+  f.restart();
+  assert.notEqual(f.publisher.nextAt(),null,'the dropped shelf is queued again');
+  await f.drain();
+  assert.equal((await f.reader.published('workflow')).length,3);
+});
+
+test('historical account-bound learning contributes to the public definition without projecting private connection identities',async t=>{
+  const {boundToolId}=await import('../../../keep-and-wake-ai-sessions-on-this-computer/src/source-connection.mjs');
+  const f=fixture(t),publicId='tool:public-definition';
+  const privateId=boundToolId(publicId,'public-version',{connection_id:'service_connection:mail:private-account',connected_at:'2026-10-13T00:00:00Z',source_id:'private-source',control_revision:4,account:'private-person'});
+  f.telemetry.addToolRun({tool_id:privateId,state:'completed',contract_passed:true});
+  f.telemetry.addToolRun({tool_id:publicId,state:'completed',contract_passed:true});
+  f.telemetry.addToolReport({tool_id:privateId,report_key:'original-opaque-key',revision:3,result:'met',answered_by:'person',attribution_basis:'trusted_person_source'});
+  await f.drain();
+  const counts=(await f.reader.stats([publicId]))[publicId];assert.equal(counts.runs,2);assert.equal(counts.reported_met,1);assert.equal(counts.legacy_complete,true);
+  assert.equal(f.telemetry.toolStats([privateId])[privateId].runs,1,'original historical rows stay readable under their original identity');
+  const published=JSON.stringify([...f.values]);assert.equal(published.includes('private-'),false);assert.equal(published.includes('tool:bound-connection:'),false);
+  f.telemetry.addToolReport({tool_id:privateId,report_key:'original-opaque-key',revision:4,result:'failed',answered_by:'person',attribution_basis:'trusted_person_source'});
+  f.publisher.mark('stats',privateId);await f.drain();
+  assert.equal((await f.reader.stats([publicId]))[publicId].reported_failed,1);
+  assert.equal((await f.reader.stats([publicId]))[publicId].reported_met,0);
+});
+
+test('missing or failed shared statistics remain unknown while the resource keeps its measured local summary',async t=>{
+  const {readWorkshopStatistics}=await import('../src/native-workshop-telemetry.mjs');
+  const f=fixture(t),id='tool:local-evidence';
+  f.telemetry.addToolRun({tool_id:id,state:'completed',contract_passed:true});
+  const local=f.telemetry.toolStats;
+  const missing=(await readWorkshopStatistics({ids:[id],local,shared:async()=>({[id]:null})}))[id];
+  assert.equal(missing.runs,1);assert.equal(missing.basis,'resource_local');
+  assert.equal(missing.resource_local.coverage,'captured_resource_projections');
+  assert.deepEqual(missing.shared_evidence,{state:'unknown',reason:'not_published',counts:null});
+  const failed=(await readWorkshopStatistics({ids:[id],local,shared:async()=>{throw new Error('private credential details must stay out of the response');}}))[id];
+  assert.equal(failed.contract_passed,1);assert.equal(failed.resource_local.runs,1);
+  assert.deepEqual(failed.shared_evidence,{state:'unknown',reason:'projection_unavailable',counts:null});
+  assert.equal(JSON.stringify(failed).includes('private credential'),false);
+  const empty=(await readWorkshopStatistics({ids:['tool:no-local-runs'],local,shared:async()=>{throw new Error('unavailable');}}))['tool:no-local-runs'];
+  assert.equal(empty.resource_local.runs,0);assert.equal(empty.shared_evidence.counts,null,'local zero must not manufacture a measured global zero');
+});
+
+test('partial shared history stays explicitly partial and a published complete summary keeps its own basis and local evidence',async t=>{
+  const {readWorkshopStatistics}=await import('../src/native-workshop-telemetry.mjs');
+  const f=fixture(t),id='tool:published-evidence';f.telemetry.addToolRun({tool_id:id,state:'completed',contract_passed:true});await f.drain();
+  const complete=(await readWorkshopStatistics({ids:[id],local:f.telemetry.toolStats,shared:f.reader.stats}))[id];
+  assert.equal(complete.shared_evidence.state,'available');assert.equal(complete.shared_evidence.counts.runs,1);
+  assert.equal(complete.basis,'shared_projection');assert.equal(complete.resource_local.runs,1);
+  const partial=(await readWorkshopStatistics({ids:[id],local:f.telemetry.toolStats,shared:async()=>({[id]:{...complete.shared_evidence.counts,legacy_complete:false}})}))[id];
+  assert.equal(partial.shared_evidence.state,'partial');assert.equal(partial.legacy_complete,false);
+});
+
+test('native projection paging reads one immutable bounded part and preserves sparse search continuation',async t=>{
+ const f=fixture(t);for(let i=0;i<131;i++)f.keep('tool',{id:`tool:${String(i).padStart(3,'0')}`,job:i===130?'Needle':'Other'});
+ await f.drain();const reads=[],get=f.kv.get;f.kv.get=async key=>{reads.push(key);return get(key);};
+ const seen=[];let after=0,iterations=0;
+ do{
+  reads.length=0;const page=await f.reader.publishedPage('tool',{after,limit:30,query:'needle'});
+  assert.ok(reads.length<=2);assert.equal(page.total,null);seen.push(...page.rows);after=page.next;
+  assert.equal(page.complete,after===null);iterations++;
+ }while(after);
+ assert.ok(iterations>3);assert.deepEqual(seen.map(row=>row.row.id),['tool:130']);
+ reads.length=0;await assert.rejects(f.reader.publishedOne('tool','tool:absent',{bounded:true}),/complete Marketplace projection/);
+ assert.ok(reads.length<=2,'native absence does not crawl immutable pages');
+ const first=await f.reader.publishedPage('tool',{limit:30});assert.equal(first.total,131);
+ f.keep('tool',{id:'tool:new',job:'New'});await f.drain();
+ await assert.rejects(f.reader.publishedPage('tool',{after:first.next,limit:30}),/complete Marketplace projection/);
+});

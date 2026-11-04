@@ -1,0 +1,333 @@
+// src/share-inbox.mjs
+//
+// PURPOSE
+//   A share sent to Trillion (a link, video, file or words, from any device or AI) and a mail sent to a person's
+//   address is never lost because the person's store could not answer (the platform says "exceeded its memory
+//   limit", or it is resetting or busy). The Worker keeps the whole request at the edge, in APP_KV, answers that it
+//   was kept, and delivers it as soon as the store answers, with the same request_key, so a retry from the device and
+//   the replay from here together deliver it once.
+//
+//   share-inbox:<userId>:<key>            { body, path, kept_at, tries, kind?, headers?, files? }  kept 30 days
+//   share-inbox-has:<userId>              the marker that this account has something waiting (read on every later request)
+//   share-inbox-drain-after:<userId>      the time before which this account is not drained again
+//   share-inbox-refused:<userId>:<key>    what the store turned away for good, with its reason, kept as it was sent
+//
+//   Drains happen on any later signed-in request of the account (only when its marker exists) and on the shared
+//   pool's alarm (drainEverySharedInbox, src/pool.mjs): a Cron Trigger never ran on this service (see
+//   records/service-watch.json), so the alarm is the schedule.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. A request kept here is replayed word for word under the key it was kept with; a key the device did not send is
+//      made before keeping, so the replay and the device's later resend are the same delivery.
+//   2. A replay is deleted only when the store answered it (2xx and not "queued"). A store that is still down leaves it;
+//      nothing is dropped for a transient fault.
+//   3. What the store refuses for good (a 4xx) is moved to share-inbox-refused with its reason, never deleted
+//      silently, and the share list says "could not deliver: <reason>".
+//   4. Limits, times and words are DATA (records/share-inbox.json). A request larger than max_bytes is refused with a
+//      plain error, never half kept.
+//   5. Draining is throttled per account, and one failing entry stops the drain (the store is down for all of them).
+//   6. A share the account's use budget turned away for now (code 'use-budget-reached', answered 429 with when it runs
+//      again, src/metered-use.mjs) is kept like one a store could not answer: a 408 or 429 is a fault of the moment, never
+//      a refusal of the share. When that answer names when it runs again (retry_at, else Retry-After), the account is not
+//      drained before then, so the drain does not spend the budget it waits for; no time named, the throttle above holds.
+//
+import settings from '../records/share-inbox.json' with { type: 'json' };
+import { failureOf } from '../../../tweak-live-controls/failure.mjs';
+import { hostOf } from './resource-host.mjs';
+import { INBOUND_PATH, ownInbound } from './inbound-own-records.mjs';
+import { readShareInboxPresentation, inboxPresentationMetadata } from './share-inbox-presentation.mjs';
+
+const KEPT = 'share-inbox:';
+const HAS = 'share-inbox-has:';
+const AFTER = 'share-inbox-drain-after:';
+const REFUSED = 'share-inbox-refused:';
+const DRAIN_CURSOR = 'share-inbox-drain-cursor';
+const DAY = 86_400_000;
+// A reply that says "not now" and not "no": the request timed out or the account's use is used up for now.
+const NOT_NOW = [408, 429];
+
+/** Whether a reply status says the store did not answer now (5xx, 408 timed out, 429 use used up for now). */
+export const notNowStatus = status => Number(status) >= 500 || NOT_NOW.includes(Number(status));
+
+/** Whether an error says the person's store did not answer (a fault of the moment, not a refusal of this request): a
+ *  failure that tries again later (src/failure.mjs `tries_again_later`: the store resetting, busy, out of memory or its
+ *  use budget reached for now) or a reply status of the same kind. */
+export const storeDown = error => failureOf(error).tries_again_later === true || notNowStatus(error?.reply_status);
+
+/** When a refused answer says it runs again, in ms (clamped to settings.resume_wait_at_most_seconds from now), else null.
+ *  `source` is a failure (retry_at) or a Response (the body's retry_at, else Retry-After as seconds or a date). */
+async function resumeAtOf(source, now) {
+  let at = NaN;
+  if (typeof source?.headers?.get === 'function') {
+    const body = await source.clone().json().catch(() => null);
+    at = Date.parse(body?.retry_at ?? '');
+    if (!Number.isFinite(at)) {
+      const header = source.headers.get('retry-after');
+      at = header !== null && /^\d+$/.test(header.trim()) ? now + Number(header) * 1000 : Date.parse(header ?? '');
+    }
+  } else if (source) at = Date.parse(failureOf(source).retry_at ?? '');
+  if (!Number.isFinite(at) || at <= now) return null;
+  return Math.min(at, now + settings.resume_wait_at_most_seconds * 1000);
+}
+
+/** Holds the drain of this account until `at` (never earlier than a hold it already has). */
+async function holdDrainUntil(env, userId, at, now) {
+  const held = Number(await env.APP_KV.get(`${AFTER}${userId}`)) || 0;
+  if (at <= held) return;
+  await env.APP_KV.put(`${AFTER}${userId}`, String(at), { expirationTtl: Math.max(60, Math.ceil((at - now) / 1000)) });
+}
+
+/** A key that fits a KV name: as sent when short and plain, else a stable hash of it. */
+async function keyName(key) {
+  const sent = String(key);
+  if (sent.length <= 150 && /^[\w.@<>+=~-]+$/.test(sent)) return sent;
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(sent));
+  return `h-${[...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('').slice(0, 40)}`;
+}
+
+const secondsLeft = (keptAt, now) => Math.max(60, Math.ceil((Date.parse(keptAt) + settings.keep_days * DAY - now) / 1000));
+
+export class ShareInboxError extends Error {}
+
+/** Keeps one request at the edge; kept again under the same key it changes nothing. Returns { queued, request_key, words }.
+ *  entry: { key, path, body (text), headers?, kind?, files?, resumeAt? (ms: the account is not drained before it) }. Throws ShareInboxError when it is too large to hold. */
+export async function keepInEdge(env, userId, { key, path, body, headers = {}, kind = 'share', files = null, resumeAt = null }, now = Date.now()) {
+  const size = String(body).length + (files ?? []).reduce((sum, file) => sum + (file.base64?.length ?? 0), 0);
+  if (size > settings.max_bytes) {
+    const selected = await readShareInboxPresentation(env, ['too_big_words']);
+    throw Object.assign(new ShareInboxError(selected.values.too_big_words ?? 'share_inbox_too_big'),
+      { code: 'share_inbox_too_big', ...inboxPresentationMetadata(selected, ['too_big_words']) });
+  }
+  const name = `${KEPT}${userId}:${await keyName(key)}`;
+  if (await env.APP_KV.get(name) === null) {
+    const entry = { body, path, kept_at: new Date(now).toISOString(), tries: 0, request_key: String(key), ...(kind === 'share' ? {} : { kind }), headers, ...(files?.length ? { files } : {}) };
+    await env.APP_KV.put(name, JSON.stringify(entry), { expirationTtl: settings.keep_days * DAY / 1000 });
+  }
+  await env.APP_KV.put(`${HAS}${userId}`, '1', { expirationTtl: settings.mark_days * DAY / 1000 });
+  if (resumeAt) await holdDrainUntil(env, userId, resumeAt, now);
+  // Custody, marker and any retry hold are durable before optional words are
+  // read. A missing, invalid or stalled publication cannot turn this into a
+  // failed delivery acknowledgement or make a caller send new bytes again.
+  const selected = await readShareInboxPresentation(env, ['kept_words']);
+  return { queued: true, request_key: String(key),
+    ...(selected.values.kept_words === undefined ? { code: 'share_queued' } : { words: selected.values.kept_words }),
+    ...inboxPresentationMetadata(selected, ['kept_words']) };
+}
+
+/** The request as text and as an object with a request_key, or null when it is not a share this road can keep
+ *  (not an object, no list of things, or a `to` that is not a list: those are errors the store answers). */
+export function shareToKeep(text) {
+  let given;
+  try { given = JSON.parse(text); } catch { return null; }
+  if (!given || typeof given !== 'object' || Array.isArray(given)) return null;
+  if (!Array.isArray(given.items) || !given.items.length) return null;
+  if (given.to !== undefined && !Array.isArray(given.to)) return null;
+  const key = typeof given.request_key === 'string' && given.request_key.trim() ? given.request_key : `rk_${crypto.randomUUID()}`;
+  return { key, body: JSON.stringify({ ...given, request_key: key }) };
+}
+
+/** Sends a share to the store, or keeps it at the edge when the store does not answer.
+ *  send(text) -> Response (it may throw); headers are what the replay sends the store with. Answers 202
+ *  { queued: true, request_key, words } when kept, else the store's own answer. */
+export async function deliverOrKeep({ env, userId, text, path, headers, send, now }) {
+  let failure = null;
+  let response = null;
+  try { response = await send(text); } catch (error) { if (!storeDown(error)) throw error; failure = error; }
+  if (response && !notNowStatus(response.status)) return response;
+  const kept = shareToKeep(text);
+  if (!kept) { if (failure) throw failure; return response; }
+  try {
+    const resumeAt = await resumeAtOf(response ?? failure, now ?? Date.now());
+    return Response.json(await keepInEdge(env, userId, { key: kept.key, path, body: kept.body, headers, resumeAt }, now), { status: 202 });
+  } catch (error) {
+    if (!(error instanceof ShareInboxError)) throw error;
+    return Response.json({ error: error.message, ...(error.presentation ? { code: error.code, presentation: error.presentation } : {}) }, { status: 503 });
+  }
+}
+
+/** The same for a tool call (MCP deliver_share): the parsed answer, or { queued: true, request_key, words }. */
+export async function callOrKeep({ env, userId, path, input, headers, call, now }) {
+  try { return await call(); } catch (error) {
+    if (!storeDown(error)) throw error;
+    const kept = shareToKeep(JSON.stringify(input ?? {}));
+    if (!kept) throw error;
+    try { return await keepInEdge(env, userId, { key: kept.key, path, body: kept.body, headers, resumeAt: await resumeAtOf(error, now ?? Date.now()) }, now); } catch (inner) {
+      if (inner instanceof ShareInboxError) throw inner;
+      throw error;
+    }
+  }
+}
+
+/** Every request waiting for this account (shares and arrivals), oldest key order, with its KV name. */
+async function waiting(env, userId, prefix = KEPT, limit = settings.kept_per_drain) {
+  const found = await env.APP_KV.list({ prefix: `${prefix}${userId}:`, limit });
+  const rows = [];
+  for (const { name } of found.keys ?? []) {
+    const value = await env.APP_KV.get(name, 'json');
+    if (value) rows.push({ name, ...value });
+  }
+  return rows;
+}
+
+const putBack = (env, row, entry, now) => env.APP_KV.put(row.name, JSON.stringify(entry), { expirationTtl: secondsLeft(entry.kept_at, now) });
+
+const refusalOf = async response => {
+  const answer = await response.json().catch(() => ({}));
+  // This is evidence from the receiver, not replaceable presentation. Keep its
+  // exact string (including whitespace); a missing reason is a stable code.
+  return typeof answer?.error === 'string' && answer.error.trim()
+    ? { reason_code: 'receiver_refused', reason: answer.error }
+    : { reason_code: 'receiver_refused_without_reason' };
+};
+
+/** The default replay: an arrival's plan is checked by the same inbound actor before its attachment bytes are written. */
+export const replayThroughStore = env => {
+  const send = (entry, userId) => (entry.path === INBOUND_PATH ? ownInbound(env, userId) : hostOf(env, { kind: 'person', key: userId })).fetch(new Request(`https://person${entry.path}`, {
+    method: 'POST', headers: { ...(entry.headers ?? {}), 'content-type': 'application/json' }, body: entry.body,
+  }));
+  send.preflight = (entry, userId) => entry.path === INBOUND_PATH ? ownInbound(env, userId).preflight() : null;
+  return send;
+};
+
+/** An arrival's attachments, kept in the person's Files before the store takes the mail. */
+async function keepAttachments(env, userId, entry) {
+  if (!entry.files?.length) return;
+  const { keepStream } = await import('./namespace.mjs');
+  for (const file of entry.files) {
+    const bytes = Uint8Array.from(atob(file.base64), char => char.charCodeAt(0));
+    await keepStream(env, userId, { name: file.name, size: bytes.byteLength, open: async () => [bytes], media_type: file.media_type, identity: file.identity });
+  }
+}
+
+/** Replays what waits for this account, oldest first. Returns { delivered, refused, left }.
+ *  deliver(entry, userId) -> Response; inbound preflight runs before keepFile and before taking the arrival.
+ *  Throttled by share-inbox-drain-after unless `force`; stops at the first transient failure. */
+export async function drainShareInbox(env, userId, deliver = replayThroughStore(env), { now = Date.now(), force = false, keepFile = keepAttachments } = {}) {
+  const result = { delivered: 0, refused: 0, left: 0 };
+  if (!force) {
+    const after = Number(await env.APP_KV.get(`${AFTER}${userId}`));
+    if (after && after > now) return { ...result, throttled: true };
+  }
+  await env.APP_KV.put(`${AFTER}${userId}`, String(now + settings.drain_every_seconds * 1000), { expirationTtl: Math.max(60, settings.drain_every_seconds) });
+  const rows = (await waiting(env, userId)).sort((a, b) => String(a.kept_at).localeCompare(String(b.kept_at)));
+  for (const row of rows) {
+    const { name, ...entry } = row;
+    let outcome;
+    let resumeAt = null;
+    try {
+      let response = null, attachmentsKept = false;
+      if (entry.path === INBOUND_PATH) {
+        if (typeof deliver.preflight !== 'function') outcome = 'later';
+        else {
+          const preflight = await deliver.preflight(entry, userId);
+          if (!preflight) outcome = 'later';
+          else if (notNowStatus(preflight.status)) { outcome = 'later'; resumeAt = await resumeAtOf(preflight, now); }
+          else if (!preflight.ok) outcome = { ...await refusalOf(preflight), status: preflight.status };
+        }
+      }
+      if (outcome === undefined) {
+        if (entry.path === INBOUND_PATH && entry.files?.length) { await keepFile(env, userId, entry); attachmentsKept = true; }
+        response = await deliver(entry, userId);
+        if (notNowStatus(response.status)) { outcome = 'later'; resumeAt = await resumeAtOf(response, now); }
+        else if (response.ok) outcome = (await response.clone().json().catch(() => ({})))?.queued === true ? 'later' : 'delivered';
+        else {
+          outcome = { ...await refusalOf(response), status: response.status };
+          if (attachmentsKept) outcome.reason = `${outcome.reason ?? 'The arrival was refused.'} The attachments remain in Files: ${entry.files.map(file => file.name).join(', ')}.`;
+        }
+        if (outcome === 'delivered' && entry.path !== INBOUND_PATH) await keepFile(env, userId, entry);
+      }
+    } catch { outcome = 'later'; }
+    if (outcome === 'delivered') { await env.APP_KV.delete(name); result.delivered += 1; continue; }
+    const gaveUp = outcome === 'later' && entry.tries + 1 >= settings.give_up_after_tries;
+    if (outcome === 'later' && !gaveUp) {
+      await putBack(env, row, { ...entry, tries: entry.tries + 1 }, now);
+      if (resumeAt) await holdDrainUntil(env, userId, resumeAt, now);
+      result.left += 1;
+      break;
+    }
+    // Turned away for good (or waited too long): moved aside with its reason, as it was sent.
+    await env.APP_KV.put(name.replace(KEPT, REFUSED), JSON.stringify({ ...entry, refused_at: new Date(now).toISOString(), ...(gaveUp ? { reason_code: 'tries_exhausted' } : outcome) }), { expirationTtl: settings.keep_days * DAY / 1000 });
+    await env.APP_KV.delete(name);
+    result.refused += 1;
+  }
+  if (!(await env.APP_KV.list({ prefix: `${KEPT}${userId}:`, limit: 1 })).keys?.length) await env.APP_KV.delete(`${HAS}${userId}`);
+  return result;
+}
+
+/** On any later request of a signed-in account: replays what waits for it, in the background, only when its marker
+ *  exists. Never throws and never delays the request. */
+export function drainBehind(env, ctx, userId, deliver) {
+  if (!ctx?.waitUntil || !env?.APP_KV) return;
+  ctx.waitUntil((async () => {
+    if (await env.APP_KV.get(`${HAS}${userId}`) === null) return;
+    await drainShareInbox(env, userId, deliver ?? replayThroughStore(env));
+  })().catch(error => console.error('share inbox drain failed:', String(error?.message ?? error))));
+}
+
+/** The shared pool's alarm: every account with something waiting is drained (each throttled as any drain is). */
+export async function drainEverySharedInbox(env, { limit = 50, cursorStore = env.APP_KV } = {}) {
+  const cursor = await cursorStore.get(DRAIN_CURSOR);
+  const found = await env.APP_KV.list({ prefix: HAS, limit, ...(cursor ? { cursor } : {}) });
+  if (!found.list_complete && (!found.cursor || found.cursor === cursor)) throw new Error('The waiting inbox page did not advance.');
+  let drained = 0;
+  for (const { name } of found.keys ?? []) {
+    try { await drainShareInbox(env, name.slice(HAS.length)); drained += 1; } catch (error) { console.error('share inbox drain failed:', String(error?.message ?? error)); }
+  }
+  // The shared alarm resumes after this bounded page even when every account on it remains paused. Its durable
+  // storage owns the cursor; direct callers can use the same KV owner. A complete sweep wraps to the beginning.
+  if (found.list_complete) await cursorStore.delete(DRAIN_CURSOR);
+  else await cursorStore.put(DRAIN_CURSOR, found.cursor);
+  return drained;
+}
+
+/** What waits for this account as rows of the share list: kept shares ("waiting to deliver") and refused ones
+ *  ("could not deliver: <reason>"), newest first. Arrivals from mail are not shares and are left out. */
+export async function pendingShares(env, userId) {
+  // Read private rows independently of optional public presentation. In
+  // particular a content failure cannot reach sharesWithPending's empty-list
+  // catch or replace the receiver's original refusal evidence.
+  const [keptEntries, refusedEntries] = await Promise.all([
+    waiting(env, userId, KEPT, settings.listed_as_waiting),
+    waiting(env, userId, REFUSED, settings.listed_as_waiting),
+  ]);
+  const needed = new Set();
+  if (keptEntries.length) needed.add('waiting_status');
+  if (refusedEntries.length) needed.add('refused_status');
+  if (refusedEntries.some(entry => entry.reason_code === 'tries_exhausted')) needed.add('gave_up_reason');
+  if (refusedEntries.some(entry => entry.reason_code !== 'tries_exhausted' && typeof entry.reason !== 'string')) needed.add('no_reason');
+  const selected = await readShareInboxPresentation(env, [...needed]);
+  const row = (entry, pending) => {
+    let given = {};
+    try { given = JSON.parse(entry.body); } catch { /* a body that is not a share is not listed */ }
+    if (entry.kind && entry.kind !== 'share') return null;
+    // Old receipts with a reason but no reason_code retain their exact bytes.
+    const reasonCode = pending ? 'share_waiting' : entry.reason_code ?? 'receiver_refused';
+    const reasonField = reasonCode === 'tries_exhausted' ? 'gave_up_reason' : 'no_reason';
+    const reason = pending ? null : typeof entry.reason === 'string' ? entry.reason : selected.values[reasonField] ?? null;
+    const presentationFields = pending ? ['waiting_status'] : ['refused_status', ...(typeof entry.reason === 'string' ? [] : [reasonField])];
+    const status = pending ? selected.values.waiting_status ?? null
+      : selected.values.refused_status?.replaceAll('{reason}', () => reason ?? '') ?? null;
+    return { share_id: String(entry.request_key ?? given.request_key), at: entry.kept_at, from: typeof given.from === 'string' ? given.from : null,
+      items: Array.isArray(given.items) ? given.items : [], own_words: typeof given.own_words === 'string' ? given.own_words : null,
+      actions: [], sent_to: [], preview: null, kept_in: null, workflow_runs: [], status, pending,
+      inbox_state: pending ? 'waiting' : 'refused', reason_code: reasonCode, ...(pending ? {} : { reason, ...(entry.status === undefined ? {} : { receiver_status: entry.status }) }),
+      ...inboxPresentationMetadata(selected, presentationFields) };
+  };
+  return [...keptEntries.map(entry => row(entry, true)), ...refusedEntries.map(entry => row(entry, false))]
+    .filter(Boolean).sort((a, b) => b.at.localeCompare(a.at));
+}
+
+/** The share list with what still waits at the edge put at its top (first page only). A store that cannot be read
+ *  still answers with the waiting rows. read() -> the store's { shares, next_before }. */
+export async function sharesWithPending(env, userId, read, search = '') {
+  const first = !new URLSearchParams(search).get('before');
+  const pending = first ? await pendingShares(env, userId).catch(() => []) : [];
+  let answer;
+  try { answer = await read(); } catch (error) {
+    if (!pending.length) throw error;
+    return { shares: pending, next_before: null };
+  }
+  if (!pending.length) return answer;
+  const known = new Set((answer.shares ?? []).map(share => share.share_id));
+  return { ...answer, shares: [...pending.filter(share => !known.has(share.share_id)), ...(answer.shares ?? [])] };
+}

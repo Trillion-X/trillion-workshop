@@ -1,0 +1,154 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { handleWorkMedia, isWorkMediaPath } from '../src/work-media.mjs';
+import { recordedRuns } from './media-run-seam-for-tests.mjs';
+
+const ORIGIN = 'https://app.gettrillion.ai';
+const response = (method, path, { origin = ORIGIN, body } = {}) => new Request(`${ORIGIN}${path}`, {
+  method,
+  headers: { ...(origin ? { origin } : {}), ...(body === undefined ? {} : { 'content-type': 'application/json' }) },
+  ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+});
+const answer = async (request, person, runTool = null) => {
+  const url = new URL(request.url);
+  const result = await handleWorkMedia(request, { person, userId: 'signed-in-person', origin: ORIGIN, url, runTool });
+  return { status: result.status, body: await result.json() };
+};
+
+test("the signed-in Media paths bind their reads to this person's existing store owners", async () => {
+  const calls = [];
+  const person = {
+    mediaLibrary: async (revision, page) => { calls.push(['library', revision, ...(page ? [page] : [])]); return { revision: 'r2', rows: [] }; },
+    search: async (query, options) => { calls.push(['search', query, options]); return { question: query, results: [], unavailable: [] }; },
+    mediaNextEditRead: async () => { calls.push(['next-edit']); return { state: 'nothing-unused' }; },
+  };
+
+  assert.equal(isWorkMediaPath('/work/api/media/library'), true);
+  assert.equal(isWorkMediaPath('/work/api/search'), true);
+  assert.equal(isWorkMediaPath('/work/api/media/search'), false);
+  assert.equal(isWorkMediaPath('/work/api/media/next-edit'), true);
+  assert.equal(isWorkMediaPath('/work/api/media/library/other'), false);
+  assert.deepEqual(await answer(response('GET', '/work/api/media/library?revision=r1'), person), {
+    status: 200, body: { revision: 'r2', rows: [] },
+  });
+  assert.deepEqual(await answer(response('GET', '/work/api/media/library?limit=40&stored=true&after=cursor&revision=r1'), person), {
+    status: 200, body: { revision: 'r2', rows: [] },
+  });
+  assert.deepEqual(await answer(response('GET', '/work/api/search?q=serve%20toss&places=said,seen'), person), {
+    status: 200, body: { question: 'serve toss', results: [], unavailable: [] },
+  });
+  assert.deepEqual(await answer(response('GET', '/work/api/media/next-edit'), person), {
+    status: 200, body: { state: 'nothing-unused' },
+  });
+  assert.deepEqual(calls, [['library', 'r1', { after: null, stored: null, origin: null, unused: false, previews: true }], ['library', 'r1', { limit: '40', after: 'cursor', stored: true, origin: null, unused: false, previews: true }], ['search', 'serve toss', { places: ['said', 'seen'], sources: null, matches: null }], ['next-edit']]);
+});
+
+test('next-edit actions require this service origin and an object body', async () => {
+  const calls = [];
+  const person = { mediaNextEditAct: async input => { calls.push(input); return { state: 'not-now' }; } };
+
+  assert.deepEqual(await answer(response('POST', '/work/api/media/next-edit', { origin: 'https://elsewhere.example', body: { action: 'not-now' } }), person), {
+    status: 403, body: { error: 'Not allowed.' },
+  });
+  assert.deepEqual(await answer(response('POST', '/work/api/media/next-edit', { body: { action: 'not-now' } }), person), {
+    status: 200, body: { state: 'not-now' },
+  });
+  assert.deepEqual(calls, [{ action: 'not-now' }]);
+  const malformed = new Request(`${ORIGIN}/work/api/media/next-edit`, { method: 'POST', headers: { origin: ORIGIN, 'content-type': 'application/json' }, body: '[]' });
+  assert.deepEqual(await answer(malformed, person), { status: 400, body: { error: 'Send the Media action as an object.' } });
+});
+
+test('unsupported methods do not reach Media owners', async () => {
+  let called = false;
+  const person = { mediaLibrary: async () => { called = true; return { rows: [] }; } };
+  assert.deepEqual(await answer(response('POST', '/work/api/media/library', { body: {} }), person), {
+    status: 404, body: { error: 'Not found' },
+  });
+  assert.equal(called, false);
+});
+
+test('a saved edit is person-scoped and render sends its trimmed clips to the existing compositor', async () => {
+  const kept = new Map();
+  const calls = [];
+  const person = {
+    // The Worker reaches the store over RPC, so a fact read and a fact write each answer a promise.
+    fact: async key => kept.get(key),
+    setFact: async (key, value) => { kept.set(key, value); },
+    fetch: async () => Response.json({ error: 'the run is not asked of the store' }, { status: 500 }),
+    recordFileUse: async use => { uses.push(use); return { recorded: true }; },
+  };
+  const uses = [];
+  const clip = { identity: `1f:${'a'.repeat(64)}`, name: 'Opening', start: 2, end: 8, bytes: '/clip', media_type: 'video/mp4', look_stack: 'golden-hour' };
+  const caption = { id: 'caption-1', text: 'Opening words', start: 0, end: 3 };
+  const edit = { id: 'edit-1', title: 'Opening cut', ratio: '9:16', clips: [clip], captions: [caption], textOverlays: [{ ...caption, id: 'text-1' }], edl: { subtitles: { ass: 'timed captions' }, text_overlays: [{ text: 'Title', start: 0, end: 2 }], spine: { segments: [{ source: 'untrusted-source', in: 99, out: 100 }] } }, file: `1f:${'b'.repeat(64)}` };
+  assert.deepEqual(await answer(response('POST', '/work/api/media/edit', { body: edit }), person), { status: 200, body: { saved: true } });
+  assert.equal((await answer(response('GET', '/work/api/media/edit?id=edit-1'), person)).body.edit.clips[0].start, 2);
+  assert.deepEqual((await answer(response('GET', '/work/api/media/edit?id=edit-1'), person)).body.edit.captions, [caption]);
+  assert.deepEqual(await answer(response('POST', '/work/api/media/render', { origin: 'https://other.example', body: edit }), person), { status: 403, body: { error: 'Not allowed.' } });
+  assert.equal(calls.length, 0);
+  const renderRequest = response('POST', '/work/api/media/render', { body: edit });
+  renderRequest.headers.set('x-trillion-user', 'another-person');
+  assert.deepEqual(await answer(renderRequest, person, recordedRuns(calls)), { status: 200, body: { task_id: 'render-1', state: 'queued' } });
+  assert.equal(calls[0].body.tool_id, 'tool:render-an-edit');
+  assert.deepEqual(calls[0].body.input.edl.encode, { width: 1080, height: 1920 });
+  assert.deepEqual(calls[0].body.input.edl.spine.segments, [{ kind: 'clip', id: 'clip-0', source: clip.identity, in: 2, out: 8, look_stack: 'golden-hour' }]);
+  assert.equal(calls[0].body.input.edl.subtitles.ass, 'timed captions');
+  assert.deepEqual(calls[0].body.input.edl.text_overlays, edit.edl.text_overlays);
+  assert.ok(calls[0].header);
+  assert.equal(calls[0].user, 'signed-in-person', 'only the authenticated worker identity reaches the file resolver');
+  assert.deepEqual(uses, [{ file: clip.identity, kind: 'edited' }, { file: clip.identity, kind: 'edited' }], 'saving and rendering each keep the clip as edited on Recent');
+});
+
+test('shared edits validate every Space file identity and render only owner-resolved sources', async () => {
+  const identity = `1f:${'c'.repeat(64)}`;
+  const unusedIdentity = `1f:${'d'.repeat(64)}`;
+  const fileRequests = [];
+  const writes = [];
+  const runs = [];
+  const person = {
+    fetch: async request => {
+      const path = new URL(request.url).pathname;
+      if (/\/items\/[^/]+\/file$/.test(path)) {
+        const itemId = decodeURIComponent(path.split('/').at(-2));
+        fileRequests.push(itemId);
+        const result = itemId === 'item_c' ? { identity, url: 'https://leased.example/c.mp4' }
+          : itemId === 'item_d' ? { identity: unusedIdentity, url: 'https://leased.example/d.mp4' }
+            : { error: 'No shared file with that id in this space.' };
+        return Response.json(result, { status: result.error ? 404 : 200 });
+      }
+      if (path.includes('/records/')) { writes.push(await request.json()); return Response.json({ swapped: true, revision: 1 }); }
+      return Response.json({ error: 'the run is not asked of the store' }, { status: 500 });
+    },
+    recordFileUse: async () => ({ recorded: true }),
+  };
+  const clip = { identity, name: 'Shared opening', start: 1, end: 4, bytes: '/untrusted/private-path', media_type: 'video/mp4', shared_item_id: 'item_c' };
+  const edit = { id: 'shared-cut', title: 'Shared cut', ratio: '16:9', clips: [clip], shared_files: { [identity]: 'item_c', [unusedIdentity]: 'item_d' },
+    edl: { spine: { segments: [{ kind: 'clip', source: identity, in: 1, out: 4 }] }, image_overlays: [{ image_path: identity }] } };
+
+  const saved = await answer(response('POST', '/work/api/media/edit', { body: { ...edit, space_id: 'membership-1', expected_revision: null } }), person);
+  assert.deepEqual(saved, { status: 200, body: { saved: true, revision: 1 } });
+  assert.deepEqual(fileRequests, ['item_c', 'item_d'], 'even unused entries in the persisted file map are checked against the Space file owner');
+  assert.equal(writes[0].value.clips[0].bytes, '/work/api/spaces/membership-1/items/item_c/bytes');
+
+  fileRequests.length = 0;
+  const rendered = await answer(response('POST', '/work/api/media/render', { body: { ...edit, space_id: 'membership-1' } }), person, recordedRuns(runs, 'render-shared'));
+  assert.deepEqual(rendered, { status: 200, body: { task_id: 'render-shared', state: 'queued' } });
+  assert.deepEqual(fileRequests, ['item_c', 'item_d']);
+  assert.equal(runs[0].body.input.edl.spine.segments[0].source, 'https://leased.example/c.mp4');
+  assert.equal(runs[0].body.input.edl.image_overlays[0].image_path, 'https://leased.example/c.mp4');
+});
+
+test('the Recent list reads this person\'s uses, and keeping a use needs this service origin', async () => {
+  const calls = [];
+  const person = {
+    recentFiles: async query => { calls.push(['recent', query]); return { items: [], next_before: null }; },
+    recordFileUse: async use => { calls.push(['use', use]); if (use?.kind !== 'opened') throw new Error('Say what happened in one short word, such as opened, watched or edited.'); return { recorded: true }; },
+  };
+  assert.equal(isWorkMediaPath('/work/api/recent-files'), true);
+  assert.deepEqual(await answer(response('GET', '/work/api/recent-files?limit=20&before=2026-09-29T00:00:00.000Z'), person), { status: 200, body: { items: [], next_before: null } });
+  assert.deepEqual(await answer(response('POST', '/work/api/recent-files', { origin: 'https://elsewhere.example', body: { file: '/a.mp4', kind: 'opened' } }), person), { status: 403, body: { error: 'Not allowed.' } });
+  assert.deepEqual(await answer(response('POST', '/work/api/recent-files', { body: { file: '/a.mp4', kind: 'opened' } }), person), { status: 200, body: { recorded: true } });
+  assert.equal((await answer(response('POST', '/work/api/recent-files', { body: { file: '/a.mp4', kind: 'Opened twice' } }), person)).status, 400);
+  assert.deepEqual(await answer(response('DELETE', '/work/api/recent-files'), person), { status: 404, body: { error: 'Not found' } });
+  assert.deepEqual(calls.slice(0, 2), [['recent', { limit: '20', before: '2026-09-29T00:00:00.000Z' }], ['use', { file: '/a.mp4', kind: 'opened' }]]);
+});

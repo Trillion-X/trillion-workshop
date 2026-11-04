@@ -1,0 +1,75 @@
+import {sharedNativeExecution} from './shared-native-execution-context.mjs';
+import {sharedDependencyStub} from './shared-native-dependency-command.mjs';
+// Forward-only state carry from the former live room to the content authority.
+// Source bytes, revisions, deletion markers and attribution survive; an empty new
+// owner is never mistaken for the existing board. A lost response resumes the copy.
+export const BOARD_CARRY_TABLE = 'space_board_carry';
+export function setupBoardCarry(sql) {
+  sql.exec('CREATE TABLE IF NOT EXISTS space_board_carry (space_id TEXT PRIMARY KEY, transfer_id TEXT NOT NULL, after_address TEXT NOT NULL, state TEXT NOT NULL, total INTEGER NOT NULL DEFAULT 0)');
+}
+async function carrySpaceBoard(owner, spaceId) {
+  setupBoardCarry(owner.sql);
+  let held = owner.sql.exec('SELECT * FROM space_board_carry WHERE space_id = ?', spaceId).toArray()[0];
+  if (held?.state === 'retired') return;
+  if (!owner.env?.BOARD_ROOM) throw new Error('The existing board content owner is unavailable.');
+  if (held?.state === 'complete') {
+    await sharedDependencyStub(owner,`board-room:${spaceId}`,{spaceId,binding:'BOARD_ROOM',physicalId:spaceId}).finishSpaceBoardCarry({ space_id: spaceId, transfer_id: held.transfer_id, verified: held.total });
+    owner.sql.exec("UPDATE space_board_carry SET state = 'retired' WHERE space_id = ? AND transfer_id = ? AND state = 'complete'", spaceId, held.transfer_id);
+    return;
+  }
+  if (!held) {
+    // Persist the same transfer before calling the source: a lost freeze reply
+    // must never orphan a durable source fence under a different UUID.
+    owner.sql.exec("INSERT OR IGNORE INTO space_board_carry (space_id, transfer_id, after_address, state, total) VALUES (?, ?, '', 'preparing', -1)", spaceId, crypto.randomUUID());
+    held = owner.sql.exec('SELECT * FROM space_board_carry WHERE space_id = ?', spaceId).toArray()[0];
+  }
+  const transfer = held.transfer_id;
+  const room = sharedDependencyStub(owner,`board-room:${spaceId}`,{spaceId,binding:'BOARD_ROOM',physicalId:spaceId});
+  const source = await room.freezeSpaceBoard({ space_id: spaceId, transfer_id: transfer });
+  if (source.transfer_id !== transfer || !Number.isSafeInteger(source.total) || source.total < 0) throw new Error('The source board returned an invalid frozen snapshot.');
+  owner.sql.exec("UPDATE space_board_carry SET state = 'copying', total = ? WHERE space_id = ? AND transfer_id = ? AND state = 'preparing' AND total = -1", source.total, spaceId, transfer);
+  held = owner.sql.exec('SELECT * FROM space_board_carry WHERE space_id = ?', spaceId).toArray()[0];
+  if (held.transfer_id !== transfer || held.total !== source.total) throw new Error('The board carry changed while the source was frozen.');
+  while (!['complete', 'retired'].includes(held.state)) {
+    const page = await room.spaceBoardCopyPage({ space_id: spaceId, transfer_id: transfer, after: held.after_address, limit: 100 });
+    if (!Array.isArray(page.rows) || page.rows.length > 100 || page.rows.some(row => typeof row.address !== 'string' || row.address <= held.after_address || typeof row.value !== 'string' || typeof row.changed_at !== 'string' || typeof row.changed_by !== 'string')) throw new Error('The board source returned an invalid copy page.');
+    if (page.rows.some((row, index) => index > 0 && row.address <= page.rows[index - 1].address)) throw new Error('The board source returned an unordered or duplicate copy page.');
+    const parent=sharedNativeExecution()?.context;
+    if(!parent?.commitment.lifecycle)throw new Error('Board destination carry requires its admitted lifecycle parent.');
+    await owner.measureSharedLifecyclePage({space_id:spaceId,generation:parent.commitment.generation,source_address:parent.commitment.address,purpose:'legacy_board_destination_page',input:{transfer,after:held.after_address},limit:100,run:()=>owner.ctx.storage.transactionSync(() => {
+      const current = owner.sql.exec('SELECT * FROM space_board_carry WHERE space_id = ?', spaceId).toArray()[0];
+      if (['complete', 'retired'].includes(current.state) || current.after_address !== held.after_address) return;
+      for (const row of page.rows) {
+        // Replays verify exact retained bytes instead of replacing new data.
+        const found = owner.sql.exec('SELECT value, changed_at, changed_by FROM space_board_records WHERE space_id = ? AND address = ?', spaceId, row.address).toArray()[0];
+        if (found && (found.value !== row.value || found.changed_at !== row.changed_at || found.changed_by !== row.changed_by)) throw new Error('The destination board differs from the frozen source.');
+        owner.sql.exec('INSERT OR IGNORE INTO space_board_records (space_id, address, value, changed_at, changed_by) VALUES (?, ?, ?, ?, ?)', spaceId, row.address, row.value, row.changed_at, row.changed_by);
+        const kept = owner.sql.exec('SELECT value, changed_at, changed_by FROM space_board_records WHERE space_id = ? AND address = ?', spaceId, row.address).toArray()[0];
+        if (!kept || kept.value !== row.value || kept.changed_at !== row.changed_at || kept.changed_by !== row.changed_by) throw new Error('The board copy did not read back.');
+      }
+      if (page.next_after === null) {
+        const total = owner.sql.exec('SELECT COUNT(*) AS n FROM space_board_records WHERE space_id = ?', spaceId).toArray()[0].n;
+        if (total !== source.total) throw new Error('The destination board has missing or unrelated content.');
+        owner.sql.exec("UPDATE space_board_carry SET state = 'complete', after_address = ? WHERE space_id = ? AND transfer_id = ?", page.rows.at(-1)?.address ?? held.after_address, spaceId, transfer);
+      } else {
+        if (page.next_after !== page.rows.at(-1)?.address || page.next_after <= held.after_address) throw new Error('The board copy cursor did not advance.');
+        owner.sql.exec('UPDATE space_board_carry SET after_address = ? WHERE space_id = ? AND transfer_id = ?', page.next_after, spaceId, transfer);
+      }
+    })});
+    held = owner.sql.exec('SELECT * FROM space_board_carry WHERE space_id = ?', spaceId).toArray()[0];
+  }
+  if (held.state === 'retired') return;
+  await room.finishSpaceBoardCarry({ space_id: spaceId, transfer_id: transfer, verified: held.total });
+  owner.sql.exec("UPDATE space_board_carry SET state = 'retired' WHERE space_id = ? AND transfer_id = ? AND state = 'complete'", spaceId, transfer);
+}
+
+const carries = new WeakMap();
+export function ensureSpaceBoardCarried(owner, spaceId) {
+  let resources = carries.get(owner);
+  if (!resources) { resources = new Map(); carries.set(owner, resources); }
+  if (!resources.has(spaceId)) {
+    const running = carrySpaceBoard(owner, spaceId).finally(() => resources.delete(spaceId));
+    resources.set(spaceId, running);
+  }
+  return resources.get(spaceId);
+}

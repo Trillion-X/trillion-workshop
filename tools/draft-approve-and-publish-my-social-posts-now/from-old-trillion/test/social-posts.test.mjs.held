@@ -1,0 +1,532 @@
+// A person's posts (src/social-posts.mjs) with stand-in publishers and no network: drafting, approving, publishing
+// each destination once, plain words for failures, keys held until the moment of sending and only for the place's own
+// hosts, a time ahead handed to a schedule, and the tool a schedule or rule runs.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { localStore, sqliteHost } from '../src/local-store.mjs';
+import { recordLogStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs';
+import { RECORD_MODEL } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
+import { handlePostsRequest, heldFetch, makeSocialPosts } from '../src/social-posts.mjs';
+import { socialPostTools } from '../src/social-post-tools.mjs';
+import settings from '../src/social-posts.json' with { type: 'json' };
+import accountTools from '../../../keep-and-wake-ai-sessions-on-this-computer/records/workshop-account-tool-records.json' with { type: 'json' };
+import publishingTools from '../records/workshop-publishing-tool-records.json' with { type: 'json' };
+import { makeTools } from '../../../list-and-run-trillions-tools-for-any-ai/from-old-trillion/src/tools.mjs.held';
+import { connectedAccountRef, createSocial } from '@opencoredev/social-sdk';
+import { youtube } from '@opencoredev/social-sdk/youtube';
+import postPlaces from '../records/post-place-records.json' with { type: 'json' };
+
+import { TOKEN, draftBoth, places, posts, world } from './social-posts-for-tests.mjs';
+
+test('a post goes out only after approval, once per place, with the link tagged for each place', async () => {
+  const { owner, sent, store } = posts({ plan: { 'u-second': [{ state: 'failed', code: 'reconnect_required', message: 'token expired', retryDisposition: { kind: 'after-reconnect' } }] } });
+  const { post } = await draftBoth(owner);
+  assert.equal(post.status, 'draft');
+  await assert.rejects(owner.publish({ post_id: post.post_id }), /not approved yet/);
+  assert.equal(sent.length, 0, 'nothing is sent before approval');
+
+  assert.equal(owner.approve({ post_id: post.post_id }, { app: 'Claude' }).post.status, 'approved');
+  const first = await owner.publish({ post_id: post.post_id });
+  assert.equal(first.status, 'partial');
+  assert.equal(first.post.platform_urls['first-place'], 'https://first-place.example/p/u-first');
+  assert.deepEqual(first.post.errors, [{ platform: 'second-place', said: 'Second Place needs you to sign in again. Ask your AI for the Second Place connect link, sign in, then publish again.' }]);
+  assert.equal(sent.length, 1, 'the refused place never sent a request');
+  const words = JSON.parse(sent[0].body).text;
+  assert.match(words, /^A forehand drill that fixed my serve\n\nhttps:\/\/site\.example\/start\?/);
+  const tagged = new URL(words.split('\n\n')[1]);
+  assert.equal(tagged.searchParams.get('utm_source'), 'first-place');
+  assert.equal(tagged.searchParams.get('utm_content'), post.post_id);
+  assert.equal(JSON.parse(sent[0].body).options.visibility, 'public', 'the place row\'s settings go with the post');
+  assert.equal(JSON.parse(sent[0].body).media[0].source.url, 'https://service.example/namespace/bytes/1f:clip?lease=21600');
+
+  // Again: only the place that failed is sent to, under a new attempt; the place that has it is never sent it again.
+  const second = await owner.publish({ post_id: post.post_id });
+  assert.equal(second.status, 'posted');
+  assert.equal(sent.length, 2);
+  assert.match(sent[1].url, /key=post:[^:]+:second-vendor:1$/);
+  assert.equal((await owner.publish({ post_id: post.post_id })).said, 'This post is already published everywhere it was meant to go.');
+  assert.equal(sent.length, 2);
+
+  // The key reached the network only inside the request to the place's own host, and is kept nowhere.
+  assert.equal(sent[0].authorization, `Bearer ${TOKEN}-first-vendor`);
+  assert.ok(!JSON.stringify(store.eeaf.read(post.post_id)).includes(TOKEN), 'the post record never holds a key');
+});
+
+test('a publisher never sees the key: its options carry a stand-in and the connection\'s readable fields', async () => {
+  const { owner, built } = posts();
+  const { post } = await draftBoth(owner);
+  owner.approve({ post_id: post.post_id });
+  await owner.publish({ post_id: post.post_id });
+  assert.equal(built.length, 2);
+  assert.ok(built.every(options => !JSON.stringify(options).includes(TOKEN)));
+  assert.match(built[0].auth.accessToken, /^trillion-held-[0-9a-f]+$/);
+  assert.deepEqual([built[0].auth.userId, built[0].origins[0], built[0].version], ['u-first', 'https://service.example', '7']);
+});
+
+test('a key goes only to its place\'s own hosts: a request elsewhere is refused before anything is sent', async () => {
+  const { owner, sent } = posts({ plan: { 'u-first': [{ state: 'published', host: 'collector.evil.example' }] } });
+  const { post } = await owner.draft({ caption: 'hello', destinations: ['first-vendor'] });
+  owner.approve({ post_id: post.post_id });
+  const result = await owner.publish({ post_id: post.post_id });
+  assert.equal(result.status, 'failed');
+  assert.match(result.post.errors[0].said, /goes only to api\.first\.example, so nothing was sent to collector\.evil\.example/);
+  assert.equal(sent.length, 0);
+});
+
+test('a place whose outcome is not known is not sent again until it is named in resend', async () => {
+  const { owner, sent } = posts({ plan: { 'u-first': [{ state: 'unknown', reason: 'ambiguous-submission' }] } });
+  const { post } = await owner.draft({ caption: 'hello', destinations: ['first-vendor'] });
+  owner.approve({ post_id: post.post_id });
+  const first = await owner.publish({ post_id: post.post_id });
+  assert.equal(first.status, 'partial');
+  assert.match(first.post.errors[0].said, /It is not known whether First Place took the post/);
+  await owner.publish({ post_id: post.post_id });
+  assert.equal(sent.length, 1, 'not sent again by itself');
+  const resent = await owner.publish({ post_id: post.post_id, resend: ['first-vendor'] });
+  assert.equal(resent.status, 'posted');
+  assert.equal(sent.length, 2);
+});
+
+test('changing an approved post makes it a draft again; saving the same content changes nothing', async () => {
+  const { owner } = posts();
+  const { post } = await owner.draft({ caption: 'one', destinations: ['first-vendor'] });
+  owner.approve({ post_id: post.post_id });
+  assert.equal((await owner.draft({ post_id: post.post_id, caption: 'one' })).post.status, 'approved');
+  const changed = await owner.draft({ post_id: post.post_id, caption: 'two' });
+  assert.equal(changed.post.status, 'draft');
+  assert.match(changed.said, /draft again/);
+  await assert.rejects(owner.draft({ caption: 'x', destinations: ['unrelated'] }), /not an account this person can post to/);
+  await assert.rejects(owner.draft({ caption: 'x', destinations: ['first-vendor'], media: '/Media/missing.mp4' }), /is not in your files/);
+  await assert.rejects(owner.draft({ caption: 'x', destinations: ['first-vendor'], link: 'http://plain.example' }), /full https address/);
+  await assert.rejects(owner.draft({ caption: 'x', destinations: ['first-vendor'], time_zone: '+05:00' }), /not a time zone/, 'a post keeps a place\'s zone, never an offset');
+});
+
+test('a draft may go nowhere yet: it is kept, its check says where it can go, and it is approved only once it has a place', async () => {
+  // Nothing connected: the draft is kept, and its check names the places to connect, making no connect link.
+  const bare = posts({ connections: [] }).owner;
+  const lonely = await bare.draft({ caption: 'first words', scheduled_for: '2026-10-02T09:00:00-04:00' });
+  assert.equal(lonely.post.status, 'draft');
+  assert.deepEqual(lonely.post.destinations, []);
+  assert.match(lonely.said, /goes nowhere yet/);
+  assert.equal(lonely.ready.ready, false);
+  assert.equal(lonely.ready.said, 'Pick where it goes: connect First Place, Second Place or Third Place in Connections, then choose it here.');
+  assert.deepEqual(lonely.ready.pick_from.not_connected, [{ platform: 'first-place', label: 'First Place' }, { platform: 'second-place', label: 'Second Place' }, { platform: 'third-place', label: 'Third Place' }]);
+  assert.throws(() => bare.approve({ post_id: lonely.post.post_id }), /goes nowhere yet/);
+  assert.deepEqual(bare.calendar({ from: '2026-10-01T00:00:00Z', to: '2026-10-31T00:00:00Z' }).posts.map(item => item.post_id), [lonely.post.post_id], 'it sits on the calendar at its time');
+
+  // Accounts connected: the check names them; once one is picked, it can be approved.
+  const { owner } = posts();
+  const { post, ready } = await owner.draft({ caption: 'hello' });
+  assert.equal(ready.said, 'Pick where it goes: First Place (me on first) or Second Place.');
+  assert.deepEqual(ready.pick_from.connected.map(item => item.account_id), ['first-vendor', 'second-vendor']);
+  assert.equal((await owner.check({ post_id: post.post_id })).said, ready.said);
+  const placed = await owner.draft({ post_id: post.post_id, destinations: ['first-vendor'] });
+  assert.deepEqual(placed.post.destinations.map(item => item.account_id), ['first-vendor']);
+  assert.equal(owner.approve({ post_id: post.post_id }).post.status, 'approved');
+});
+
+test('a page lists where a post can go by name only, making no connect link', async () => {
+  const { owner } = posts({ connections: [] });
+  const named = await (await handlePostsRequest(owner, new Request('https://person/posts/destinations?links=no'))).json();
+  assert.deepEqual(named.not_connected.map(item => [item.label, item.connect_url ?? null]), [['First Place', null], ['Second Place', null], ['Third Place', null]]);
+  const linked = await (await handlePostsRequest(owner, new Request('https://person/posts/destinations'))).json();
+  assert.equal(linked.not_connected.find(item => item.platform === 'third-place').connect_url, 'https://service.example/work/connect/third-vendor?ticket=t');
+});
+
+test('a post whose time is ahead is handed to one schedule that runs the publish tool then', async () => {
+  const { owner, sent, scheduled } = posts();
+  const { post } = await owner.draft({ caption: 'later', destinations: ['first-vendor'], scheduled_for: '2026-10-02T09:00:00-04:00' });
+  owner.approve({ post_id: post.post_id });
+  const result = await owner.publish({ post_id: post.post_id });
+  assert.equal(result.status, 'scheduled');
+  assert.equal(sent.length, 0);
+  assert.deepEqual(scheduled.map(item => [item.post_id, item.at]), [[post.post_id, '2026-10-02T13:00:00.000Z']]);
+  await owner.publish({ post_id: post.post_id });
+  assert.equal(scheduled.length, 1, 'the same post is scheduled once');
+});
+
+test('the calendar holds each post at its time, a sent post when it was sent, and drafts with no time apart', async () => {
+  const { owner } = posts();
+  const early = (await owner.draft({ caption: 'early', destinations: ['first-vendor'], scheduled_for: '2026-10-02T09:00:00-04:00' })).post;
+  const late = (await owner.draft({ caption: 'late', destinations: ['first-vendor'], scheduled_for: '2026-10-20T18:30:00-04:00' })).post;
+  await owner.draft({ caption: 'next month', destinations: ['first-vendor'], scheduled_for: '2026-11-03T09:00:00-05:00' });
+  const loose = (await owner.draft({ caption: 'no time', destinations: ['first-vendor'] })).post;
+  const sent = (await owner.draft({ caption: 'now', destinations: ['first-vendor'] })).post;
+  owner.approve({ post_id: sent.post_id });
+  await owner.publish({ post_id: sent.post_id });
+  const october = owner.calendar({ from: '2026-09-27T00:00:00-04:00', to: '2026-11-01T00:00:00-04:00' });
+  assert.deepEqual(october.posts.map(post => [post.caption, post.at, post.can_move]), [
+    ['now', october.posts[0].sent_at, false],
+    ['early', '2026-10-02T13:00:00.000Z', true],
+    ['late', '2026-10-20T22:30:00.000Z', true],
+  ]);
+  assert.match(october.posts[0].at, /^2026-09-29T17:00/, 'a post sent without a time is on the day it was sent');
+  assert.deepEqual(october.unscheduled.map(post => post.post_id), [loose.post_id]);
+  assert.equal(october.from, '2026-09-27T04:00:00.000Z');
+  assert.ok(![early, late].some(post => october.unscheduled.some(item => item.post_id === post.post_id)));
+  assert.throws(() => owner.calendar({ from: '2026-10-02', to: '2026-10-01' }), /from before to/);
+  assert.throws(() => owner.calendar({ from: '2026-01-01T00:00:00Z', to: '2028-01-01T00:00:00Z' }), /at most \d+ days/);
+  const route = await handlePostsRequest(owner, new Request('https://person/posts/calendar?from=2026-10-01T00:00:00Z&to=2026-10-03T00:00:00Z'));
+  assert.deepEqual((await route.json()).posts.map(post => post.caption), ['early']);
+});
+
+test('moving a post set for later that nothing was sent for makes it a draft again, and its old time sends nothing', async () => {
+  const { owner, sent, scheduled } = posts();
+  const { post } = await owner.draft({ caption: 'later', destinations: ['first-vendor'], scheduled_for: '2026-10-02T09:00:00-04:00' });
+  owner.approve({ post_id: post.post_id });
+  await owner.publish({ post_id: post.post_id });
+  const moved = await owner.draft({ post_id: post.post_id, scheduled_for: '2026-10-05T11:00:00-04:00' });
+  assert.equal(moved.post.status, 'draft');
+  assert.equal(moved.post.scheduled_for, '2026-10-05T15:00:00.000Z');
+  assert.match(moved.said, /draft again/);
+  await assert.rejects(owner.publish({ post_id: post.post_id }), /not approved yet/, 'the old schedule firing now sends nothing');
+  owner.approve({ post_id: post.post_id });
+  await owner.publish({ post_id: post.post_id });
+  assert.deepEqual(scheduled.map(item => item.at), ['2026-10-02T13:00:00.000Z', '2026-10-05T15:00:00.000Z'], 'the same schedule is set again for the new time');
+  const untimed = await owner.draft({ post_id: post.post_id, scheduled_for: null });
+  assert.equal(untimed.post.scheduled_for, null, 'a post can lose its time');
+  const now = (await owner.draft({ caption: 'now', destinations: ['first-vendor'] })).post;
+  owner.approve({ post_id: now.post_id });
+  await owner.publish({ post_id: now.post_id });
+  assert.equal(sent.length, 1);
+  await assert.rejects(owner.draft({ post_id: now.post_id, scheduled_for: '2026-10-05T11:00:00-04:00' }), /cannot change/, 'a post already sent cannot move');
+});
+
+test('with no post named, the approved post that waited longest goes; with none waiting nothing is sent', async () => {
+  const { owner, sent } = posts();
+  assert.equal((await owner.publish({})).said, 'No approved post is waiting, so nothing was published.');
+  const older = (await owner.draft({ caption: 'older', destinations: ['first-vendor'] })).post;
+  const newer = (await owner.draft({ caption: 'newer', destinations: ['first-vendor'] })).post;
+  owner.approve({ post_id: older.post_id });
+  owner.approve({ post_id: newer.post_id });
+  assert.equal((await owner.publish({})).post_id, older.post_id);
+  assert.equal(JSON.parse(sent[0].body).text, 'older');
+  assert.equal((await owner.publish({ post_id: 'post:sample-check' })).said, 'There is no post post:sample-check in this Trillion, so nothing was published.');
+});
+
+test('a video goes as bytes to a place that takes bytes, and read_post asks where a copy on its way is now', async () => {
+  const { owner, sent } = posts({ plan: { 'u-second': [{ state: 'processing', delivery: { kind: 'delivery', version: 1, backend: 'default', deliveryId: 'd1', platform: 'second-place', accountId: 'u-second' } }] } });
+  const { post } = await owner.draft({ caption: 'bytes', media: '1f:clip', destinations: ['second-vendor'] });
+  owner.approve({ post_id: post.post_id });
+  const published = await owner.publish({ post_id: post.post_id });
+  assert.equal(published.status, 'scheduled');
+  assert.equal(JSON.parse(sent[0].body).media[0].source.kind, 'stream');
+  const read = await owner.read({ post_id: post.post_id });
+  assert.equal(read.post.status, 'posted');
+  assert.equal(read.post.platform_urls['second-place'], 'https://second.example/p/late');
+});
+
+test('where a person can post: each connected account, and a connect link for each place not connected yet', async () => {
+  const { owner } = posts({ plain: { 'first-vendor': { user_id: 'u-first' }, 'second-vendor': {} } });
+  const { destinations, not_connected: notConnected } = await owner.destinations();
+  assert.deepEqual(destinations.map(item => [item.account_id, item.platform, item.ready]), [['first-vendor', 'first-place', true], ['second-vendor', 'second-place', false]]);
+  assert.match(destinations[1].said, /does not say its user id/);
+  assert.deepEqual(notConnected, [{ platform: 'third-place', label: 'Third Place', connect_url: 'https://service.example/work/connect/third-vendor?ticket=t' }]);
+  assert.match((await owner.connect({ platform: 'third-place' })).tell_the_person, /connect Third Place/);
+  await assert.rejects(owner.connect({ platform: 'nowhere' }), /does not post to "nowhere"/);
+});
+
+test('the routes answer a refusal in plain words with the next call', async () => {
+  const { owner } = posts();
+  const { post } = await owner.draft({ caption: 'x', destinations: ['first-vendor'] });
+  const response = await handlePostsRequest(owner, new Request('https://person/posts/publish', { method: 'POST', body: JSON.stringify({ post_id: post.post_id }) }));
+  assert.equal(response.status, 400);
+  const body = await response.json();
+  assert.match(body.error, /not approved yet/);
+  assert.deepEqual(body.next_call, { tool: 'approve_post', arguments: { post_id: post.post_id } });
+  assert.equal((await (await handlePostsRequest(owner, new Request('https://person/posts'))).json()).posts.length, 1);
+});
+
+test('held fetch fills a stand-in in the address, a header and a text body, and passes other requests untouched', async () => {
+  const seen = [];
+  const fetcher = heldFetch({ standIns: new Map([['MARK', async () => 'va lue']]), hosts: ['api.example'], send: async (url, init) => { seen.push({ url, auth: init.headers.get('authorization'), body: init.body, redirect: init.redirect }); return new Response('ok'); } });
+  await fetcher('https://api.example/x?access_token=MARK', { method: 'POST', headers: { authorization: 'Bearer MARK' }, body: 'token=MARK' });
+  await fetcher('https://media.example/file', { method: 'GET' });
+  assert.deepEqual(seen, [{ url: 'https://api.example/x?access_token=va%20lue', auth: 'Bearer va lue', body: 'token=va lue', redirect: 'manual' }, { url: 'https://media.example/file', auth: null, body: undefined, redirect: 'follow' }]);
+  await fetcher('https://api.example/redirect', { headers: { authorization: 'Bearer MARK' }, redirect: 'follow' });
+  assert.equal(seen.at(-1).redirect, 'manual', 'a publisher cannot follow a redirect with the held value');
+});
+
+test('publish_post, the post tools and tool:publish-a-post are offered, and the tool\'s own sample sends nothing', async () => {
+  const names = makeTools({ call: async () => ({}) }).map(tool => tool.name);
+  for (const name of ['list_post_destinations', 'connect_post_destination', 'draft_post', 'approve_post', 'publish_post', 'read_post', 'list_posts', 'list_post_calendar']) assert.ok(names.includes(name), name);
+  const asked = [];
+  const calendarTool = makeTools({ call: async (...args) => { asked.push(args); return {}; } }).find(tool => tool.name === 'list_post_calendar');
+  await calendarTool.run({ from: '2026-10-01T00:00:00-04:00', to: '2026-11-01T00:00:00-04:00' });
+  assert.deepEqual(asked, [['/posts/calendar?from=2026-10-01T00%3A00%3A00-04%3A00&to=2026-11-01T00%3A00%3A00-04%3A00']]);
+  const calendarRow = publishingTools.records.map(record => record.payload).find(payload => payload.id === 'tool:read-post-calendar');
+  assert.deepEqual([calendarRow.invoke, calendarRow.screen.kind, calendarRow.screen.entry], [{ kind: 'account-action', action: 'read-post-calendar' }, 'app-entry', 'calendar']);
+  const check = calendarRow.verify[0];
+  assert.ok(posts().owner.calendar(check.input).from.includes(check.contains), 'the calendar tool\'s own sample answers');
+  const row = accountTools.records.map(record => record.payload).find(payload => payload.id === 'tool:publish-a-post');
+  assert.equal(row.invoke.action, 'publish-a-post');
+  const { owner, sent } = posts();
+  const sample = row.verify[0];
+  assert.ok((await owner.publish(sample.input)).said.includes(sample.contains));
+  assert.equal(sent.length, 0);
+});
+
+test('the real publishing client accepts a publisher built this way', () => {
+  // createSocial is the SDK's own; a backend with its methods is accepted without a network call.
+  const social = createSocial({ backend: { id: 'stand-in', capabilities: {}, publish: async () => ({}) } });
+  assert.equal(typeof social.posts.publish, 'function');
+});
+
+test('the real YouTube publisher streams a Namespace file in resumable pieces', async () => {
+  const size = 16 * 1024 * 1024 + 17;
+  const identity = `1f:${'ab'.repeat(32)}`;
+  const place = postPlaces.records.map(record => record.payload).find(record => record.platform === 'youtube');
+  const ranges = [];
+  let produced = 0;
+  let producedAtFirstPut = null;
+  let opens = 0;
+  const store = localStore(':memory:');
+  const owner = makeSocialPosts({
+    eeaf: store.eeaf, settings, places: [place], publishing: async () => ({ publishers: { youtube }, sdk: { createSocial, connectedAccountRef } }),
+    connections: async () => [{ connection_id: 'youtube-connection', vendor: 'youtube', can_send: true }],
+    plainFields: async () => ({ youtube_channel_id: 'proof-channel' }),
+    heldValue: async () => TOKEN,
+    connectLink: async () => null,
+    files: {
+      locate: async ref => ref === identity || ref === '/proof/video.mp4'
+        ? { identity, name: '/proof/video.mp4', media_type: 'video/mp4', byte_length: size } : null,
+      publicAddress: async () => { throw new Error('YouTube must receive the file stream, not a public address'); },
+      open: async () => {
+        opens += 1;
+        return { stream: () => new ReadableStream({
+          pull(controller) {
+            if (produced === size) return controller.close();
+            const length = Math.min(256 * 1024, size - produced);
+            controller.enqueue(new Uint8Array(length).fill(produced % 251));
+            produced += length;
+          },
+        }) };
+      },
+    },
+    later: async () => {}, serviceOrigin: () => 'https://service.example',
+    send: async (url, init) => {
+      const address = new URL(url);
+      assert.equal(address.host, 'www.googleapis.com');
+      assert.equal(new Headers(init.headers).get('authorization'), `Bearer ${TOKEN}`);
+      if (init.method === 'POST') return new Response(null, { status: 200, headers: { location: 'https://www.googleapis.com/upload/youtube/v3/videos?upload_id=proof' } });
+      const range = new Headers(init.headers).get('content-range');
+      ranges.push([range, init.body.byteLength]);
+      if (producedAtFirstPut === null) producedAtFirstPut = produced;
+      if (ranges.length <= 2) return new Response(null, { status: 308, headers: { range: `bytes=0-${ranges.length * 8 * 1024 * 1024 - 1}` } });
+      return Response.json({ id: 'proof-video', status: { uploadStatus: 'processed', privacyStatus: 'private' } });
+    },
+  });
+  const { post } = await owner.draft({
+    caption: 'A private stream test', media: identity, destinations: ['youtube-connection'],
+    settings_by_platform: { youtube: { title: 'Namespace stream test', visibility: 'private', madeForKids: false } },
+  });
+  owner.approve({ post_id: post.post_id });
+  const answer = await owner.publish({ post_id: post.post_id });
+  assert.equal(answer.status, 'posted');
+  assert.equal(opens, 1);
+  assert.ok(producedAtFirstPut < size, 'the next part is not read before the first upload request');
+  assert.deepEqual(ranges, [
+    [`bytes 0-8388607/${size}`, 8 * 1024 * 1024],
+    [`bytes 8388608-16777215/${size}`, 8 * 1024 * 1024],
+    [`bytes 16777216-${size - 1}/${size}`, 17],
+  ]);
+  assert.equal(produced, size);
+});
+
+test('a video drafted in a format that names its caption style is refused when it was captioned in another look', async () => {
+  const formats = [{ id: 'my_short_reel', label: 'My short reel', caption_style: 'white-words-light-up' }, { id: 'thread', label: 'Thread' }];
+  const yellow = posts({ formats, madeWith: { '1f:clip': { 'caption-style': { id: 'white-words-light-up', colours: { spoken: '#ffd400' } } } } });
+  await assert.rejects(yellow.owner.draft({ caption: 'Leverage is a ratio', media: '/Media/clip.mp4', format_id: 'my_short_reel' }),
+    /captions in White words light up with other colours or another font, but My short reel videos use White words light up\. Caption it again/);
+  const other = posts({ formats, madeWith: { '1f:clip': { 'caption-style': 'spoken-words' } } });
+  await assert.rejects(other.owner.draft({ caption: 'x', media: '/Media/clip.mp4', format_id: 'my_short_reel' }), /videos use White words light up/);
+  const unknown = posts({ formats, madeWith: { '1f:clip': { 'caption-style': 'neon-yellow' } } });
+  await assert.rejects(unknown.owner.draft({ caption: 'x', media: '/Media/clip.mp4', format_id: 'my_short_reel' }), /a caption style Trillion does not know/);
+  const right = posts({ formats, madeWith: { '1f:clip': { 'caption-style': 'white-words-light-up' } } });
+  assert.equal((await right.owner.draft({ caption: 'x', media: '/Media/clip.mp4', format_id: 'my_short_reel' })).post.status, 'draft');
+  // A format with no caption style, or a video with no kept caption style, is drafted as before.
+  assert.equal((await other.owner.draft({ caption: 'x', media: '/Media/clip.mp4', format_id: 'thread' })).post.status, 'draft');
+  assert.equal((await posts({ formats }).owner.draft({ caption: 'x', media: '/Media/clip.mp4', format_id: 'my_short_reel' })).post.status, 'draft');
+});
+
+test('the caption style is checked on the draft as kept, whichever of its video or format changed, and an unrecorded style is not a match', async () => {
+  const formats = [{ id: 'my_short_reel', label: 'My short reel', caption_style: 'white-words-light-up' }, { id: 'thread', label: 'Thread' }];
+  const other = posts({ formats, madeWith: { '1f:clip': { 'caption-style': 'spoken-words' } } });
+  const kept = (await other.owner.draft({ caption: 'x', media: '/Media/clip.mp4', format_id: 'thread' })).post;
+  assert.equal(kept.caption_style_check, null, 'a format with no caption style checks nothing');
+  await assert.rejects(other.owner.draft({ post_id: kept.post_id, format_id: 'my_short_reel' }), /videos use White words light up/,
+    'changing only the format to one with a caption style checks the video already on the draft');
+
+  const right = posts({ formats, madeWith: { '1f:clip': { 'caption-style': 'white-words-light-up' } } });
+  assert.equal((await right.owner.draft({ caption: 'x', media: '/Media/clip.mp4', format_id: 'my_short_reel' })).post.caption_style_check, 'matches');
+  const none = (await posts({ formats }).owner.draft({ caption: 'x', media: '/Media/clip.mp4', format_id: 'my_short_reel' })).post;
+  assert.equal(none.caption_style_check, 'not recorded', 'a video with no kept caption style is drafted but never reads as matching');
+});
+
+test('the strict post model accepts the actual formatted draft, approval and delivery lifecycle without accepting unknown or mistyped fields', async t => {
+  const run = posts({ strictModel: true, formats: [{ id: 'short-reel', label: 'Short reel', caption_style: 'white-words-light-up' }],
+    madeWith: { '1f:clip': { 'caption-style': 'white-words-light-up' } },
+    plan: { 'u-first': [{ state: 'processing', delivery: { kind: 'delivery', version: 1, backend: 'default', deliveryId: 'model-test', platform: 'first-place', accountId: 'u-first' } }] },
+  });
+  t.after(run.close);
+  const { owner, store, sent } = run;
+  const { post } = await owner.draft({ caption: 'My captioned clip', media: '/Media/clip.mp4', format_id: 'short-reel', destinations: ['first-vendor'] });
+  assert.equal(store.eeaf.read(post.post_id).caption_style_check, 'matches');
+  const approved = owner.approve({ post_id: post.post_id }, { app: 'this person' }).post;
+  assert.equal(store.eeaf.read(post.post_id).approved_at, approved.approved_at);
+  assert.equal(store.eeaf.read(post.post_id).approved_by, 'this person');
+  const result = await owner.publish({ post_id: post.post_id });
+  assert.equal(sent.length, 1, 'the strict model permits the pre-send delivery save');
+  const kept = store.eeaf.read(post.post_id);
+  assert.equal(typeof kept.sent_at, 'string');
+  assert.equal(typeof kept.deliveries, 'object');
+  assert.equal(kept.deliveries['first-vendor'].platform, 'first-place');
+  assert.equal(result.post.caption_style_check, 'matches');
+  const refreshed = await owner.read({ post_id: post.post_id });
+  assert.equal(refreshed.post.status, 'posted', 'delivery refresh persists the confirmed provider result under the strict model');
+  assert.equal(store.eeaf.read(post.post_id).deliveries['first-vendor'].platform_post_id, 'late');
+  const current = store.eeaf.read(post.post_id);
+  // Strictness remains a closed declaration with real value types, not an object-wide escape hatch.
+  assert.throws(() => store.eeaf.write([{ id: post.post_id, type: 'post', value: { ...current, invented_post_field: 'anything' } }]), error => error.code === 'model_undeclared' && error.property === 'invented_post_field');
+  for (const [field, value] of [['approved_at', 1], ['approved_by', {}], ['caption_style_check', {}], ['sent_at', 1], ['deliveries', 'anything']]) {
+    assert.throws(() => store.eeaf.write([{ id: post.post_id, type: 'post', value: { ...current, [field]: value } }]), error => error.code === 'model_refused' && error.property === field, field);
+  }
+  assert.deepEqual(store.eeaf.read(post.post_id), current, 'refused field mutations do not alter the saved post');
+});
+
+test('the strict post model also retains a draft whose caption style was not recorded', async t => {
+  const run = posts({ strictModel: true, formats: [{ id: 'short-reel', label: 'Short reel', caption_style: 'white-words-light-up' }] });
+  t.after(run.close);
+  const { post } = await run.owner.draft({ caption: 'My clip', media: '/Media/clip.mp4', format_id: 'short-reel' });
+  assert.equal(post.caption_style_check, 'not recorded');
+  assert.equal(run.store.eeaf.read(post.post_id).caption_style_check, 'not recorded');
+});
+
+test('post approval fences the exact reviewed content, destinations and release time before any send', async t => {
+  const f = posts({ strictModel: true });
+  t.after(f.close);
+  const { owner, sent, store } = f;
+  const input = { caption: 'Reviewed content', destinations: ['first-vendor'], scheduled_for: '2026-09-30T17:00:00Z',
+    settings_by_platform: { 'first-place': { title: 'Reviewed title' } } };
+  const { post } = await owner.draft(input);
+  const expected_values = structuredClone(post.approval_values);
+  assert.deepEqual(expected_values.destinations, ['first-vendor'], 'the owner exposes raw destination ids separately from delivery display');
+  for (const edit of [{ caption: 'Unreviewed words' }, { destinations: ['second-vendor'] },
+    { scheduled_for: '2026-10-01T17:00:00Z' }, { settings_by_platform: { 'first-place': { title: 'Unreviewed title' } } }]) {
+    await owner.draft({ ...input, ...edit, post_id: post.post_id });
+    assert.throws(() => owner.approve({ post_id: post.post_id, expected_values }), /changed after it was reviewed/);
+    assert.equal(store.eeaf.read(post.post_id).status, 'draft');
+    await assert.rejects(owner.publish({ post_id: post.post_id }), /approved/);
+  }
+  assert.equal(sent.length, 0);
+  const fresh = (await owner.read({ post_id: post.post_id })).post.approval_values;
+  assert.equal(owner.approve({ post_id: post.post_id, expected_values: fresh }).post.status, 'approved');
+  assert.equal(owner.approve({ post_id: post.post_id, expected_values: fresh }).post.status, 'approved', 'exact retry remains idempotent');
+  assert.throws(() => owner.approve({ post_id: post.post_id, expected_values }), /changed after it was reviewed/, 'already-approved status cannot bypass stale evidence');
+  assert.equal(store.eeaf.read(post.post_id).approved_at !== undefined, true, 'the strict model stores existing approval fields only');
+});
+
+test('the declared approval tool reaches the owner fence and rejects incomplete reviewed snapshots', async () => {
+  const f = posts(), { post } = await f.owner.draft({ caption: 'Exact post', destinations: ['first-vendor'] });
+  const approve = socialPostTools(async (path, input) => {
+    const response = await handlePostsRequest(f.owner, new Request(`https://person${path}`, { method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-trillion-app': 'reviewer' }, body: JSON.stringify(input) }));
+    return { status: response.status, body: await response.json() };
+  }).find(tool => tool.name === 'approve_post');
+  assert.equal(approve.inputSchema.properties.expected_values.type, 'object');
+  for (const expected_values of [null, {}, { caption: 'Exact post' }, { ...post.approval_values, invented: true }]) {
+    const refused = await approve.run({ post_id: post.post_id, expected_values });
+    assert.equal(refused.status, 400);
+    assert.equal(refused.body.next_call.tool, 'read_post');
+  }
+  assert.equal((await approve.run({ post_id: post.post_id, expected_values: post.approval_values })).body.post.approved_by, 'reviewer');
+  assert.equal(f.sent.length, 0, 'approval never publishes');
+});
+
+test('an edit during native timer installation cannot be overwritten or reapproved by the older schedule request', async t => {
+  let installed;
+  const entered = new Promise(resolve => { installed = resolve; });
+  let continueInstall;
+  const pending = new Promise(resolve => { continueInstall = resolve; });
+  const f = posts({ strictModel: true, schedule: async () => { installed(); await pending; } });
+  t.after(f.close);
+  const { post } = await f.owner.draft({ caption: 'Reviewed old post', destinations: ['first-vendor'], scheduled_for: '2026-10-02T13:00:00Z' });
+  f.owner.approve({ post_id: post.post_id, expected_values: post.approval_values });
+  const scheduling = f.owner.publish({ post_id: post.post_id });
+  const refused = assert.rejects(scheduling, /changed while its publication time was being set/);
+  await entered;
+  const current = await f.owner.draft({ post_id: post.post_id, caption: 'Fresh unreviewed content', scheduled_for: '2026-10-05T13:00:00Z' });
+  continueInstall();
+  await refused;
+  assert.deepEqual((await f.owner.read({ post_id: post.post_id })).post, current.post, 'the older schedule completion preserves the exact newer draft');
+  assert.equal(f.store.eeaf.read(post.post_id).status, 'draft');
+  assert.equal(f.scheduled.length, 1, 'the installed stale timer is retained as reality, not treated as current approval');
+  await assert.rejects(f.owner.publish({ post_id: post.post_id }), /not approved yet/, 'any stale timer that fires cannot send changed draft content');
+  assert.equal(f.sent.length, 0);
+});
+
+test('a post that reaches someone (a person its words name, or one found outside Trillion) is approved only by the person, on their own signed-in page', async () => {
+  const { owner, sent, store } = posts();
+  const reaches = [{ network: 'x', handle: 'proof_ana', profile_url: 'https://x.com/proof_ana', provenance: [{ source: 'Your X bookmarks', url: 'https://x.com/proof_ana/status/1', title: 'How we raised our seed round', posted_at: '2026-09-01T00:00:00Z' }] }];
+  const { post } = await owner.draft({ caption: '@proof_ana your seed round thread helped me. Would you talk about angel investors?', destinations: ['first-vendor'], reaches }, { app: 'Claude' });
+  assert.deepEqual(post.reaches, reaches, 'who the post contacts first, and where each was found, are kept and shown');
+  assert.deepEqual(post.approval_values.reaches, reaches, 'who it reaches is part of what is approved');
+  assert.throws(() => owner.approve({ post_id: post.post_id }, { app: 'Claude' }), error => error.message.includes('@proof_ana') && /approved only by the person/.test(error.message) && error.next_call?.tool === 'show_screen');
+  assert.equal(store.eeaf.read(post.post_id).status, 'draft');
+  await assert.rejects(owner.publish({ post_id: post.post_id }), /not approved yet/);
+  const named = (await owner.draft({ caption: 'Thanks @someone_else for the tip', destinations: ['first-vendor'] }, { app: 'Claude' })).post;
+  assert.throws(() => owner.approve({ post_id: named.post_id }, { app: 'Claude' }), /@someone_else/, 'naming a person reaches them, declared or not');
+  const perPlace = (await owner.draft({ caption: 'Plain words', caption_by_platform: { 'first-place': 'Plain words, cc @hidden_one' }, destinations: ['first-vendor'] }, { app: 'Claude' })).post;
+  assert.throws(() => owner.approve({ post_id: perPlace.post_id }, { app: 'Claude' }), /@hidden_one/, 'a place\'s own words count too');
+  const mail = (await owner.draft({ caption: 'Write to me at me@site.example', destinations: ['first-vendor'] }, { app: 'Claude' })).post;
+  assert.equal(owner.approve({ post_id: mail.post_id }, { app: 'Claude' }).post.status, 'approved', 'an email address names nobody to reach');
+  assert.equal(owner.approve({ post_id: post.post_id }, { app: 'You, in Trillion', by_person: true }).post.status, 'approved');
+  const changed = await owner.draft({ post_id: post.post_id, reaches: [{ ...reaches[0], handle: 'proof_bo', profile_url: 'https://x.com/proof_bo' }] }, { app: 'Claude' });
+  assert.equal(changed.post.status, 'draft', 'changing who it reaches needs approval again');
+  await assert.rejects(owner.draft({ caption: 'x', reaches: [{ handle: '' }] }), /reaches lists/);
+  await assert.rejects(owner.draft({ caption: 'x', reaches: [{ ...reaches[0], provenance: [] }] }), /reaches lists/, 'nobody is contacted without where they were found');
+  assert.equal(sent.length, 0);
+  const tools = socialPostTools(async () => ({}));
+  assert.equal(tools.find(tool => tool.name === 'draft_post').inputSchema.properties.reaches.items.required.includes('provenance'), true, 'an AI can say who a post reaches and where each was found');
+  assert.match(tools.find(tool => tool.name === 'approve_post').description, /approved only by the person/, 'and learns that only the person approves such a post');
+});
+
+test('the posts routes take the person\'s own approval only from the signed-in page road, never from a caller', async () => {
+  const { owner } = posts();
+  const { post } = await owner.draft({ caption: 'Hello @proof_ana', destinations: ['first-vendor'] });
+  const approve = headers => handlePostsRequest(owner, new Request('https://person/posts/approve', { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify({ post_id: post.post_id }) }));
+  const refused = await approve({ 'x-trillion-app': 'You, in Trillion' });
+  assert.equal(refused.status, 400, 'an app named like the person is still not the person\'s page');
+  assert.deepEqual((await refused.json()).next_call.tool, 'show_screen');
+  const pressed = await approve({ 'x-trillion-app': 'You, in Trillion', 'x-trillion-typed-on-signed-in-screen': 'yes' });
+  assert.equal((await pressed.json()).post.status, 'approved');
+});
+
+// Before a first message is shown to the person, the person's own computer checks that it says only what was found of
+// whoever it reaches and what the person seeks (src/decision-evals.json outreach-message-grounded, asked of the judge
+// it is wired to, with the words it was measured with). Not grounded: the draft is kept, says why, and the AI is told to
+// rewrite it before showing it. No computer answering: the post says it was not checked, and approval stays the person's.
+test('a first message is checked on the person\'s computer before it is shown, with the measured words and judge', async () => {
+  const decisions = { evals: [{ id: 'outreach-message-grounded', state: 'Saved: {found}\nSeeks: {seeking}\nMessage: {message}', question: 'Grounded?', means: { true: 'yes', false: 'no' }, wired: { judge: 'judge-a', act_at: 0.5 } }] };
+  const asked = [];
+  let p = 0.9;
+  const judge = async input => { asked.push(input); return p === null ? null : { answers: { verdict: { type: 'noul', noul: p } }, served_by: 'judge-a' }; };
+  const { owner } = posts({ judge, decisions });
+  const reaches = [{ network: 'x', handle: 'ana', profile_url: 'https://x.com/ana', sought: 'angel investors for a seed round', provenance: [{ source: 'Your X bookmarks', url: 'https://x.com/ana/status/1', title: 'How we raised our seed round' }] }];
+  const grounded = await owner.draft({ caption: '@ana your seed round thread helped me', destinations: ['first-vendor'], reaches });
+  assert.deepEqual(asked[0], { job: 'outreach-message-grounded', state: "Saved: a post titled 'How we raised our seed round'\nSeeks: angel investors for a seed round\nMessage: @ana your seed round thread helped me", questions: { verdict: { type: 'noul', instructions: 'Grounded?', criteria: { true: 'yes', false: 'no' } } } });
+  assert.deepEqual(grounded.post.grounded, { checked: true, grounded: true, by: 'judge-a', p: 0.9 });
+  p = 0.2;
+  const invented = await owner.draft({ caption: '@ana great to see you at dinner, send me your Sequoia intro', destinations: ['first-vendor'], reaches });
+  assert.deepEqual(invented.post.grounded, { checked: true, grounded: false, by: 'judge-a', p: 0.2 });
+  assert.match(invented.said, /@ana/);
+  assert.match(invented.said, /before you show it/);
+  assert.equal(invented.post.status, 'draft');
+  p = null;
+  assert.deepEqual((await owner.draft({ caption: '@ana hello again', destinations: ['first-vendor'], reaches })).post.grounded, { checked: false }, 'no computer answering: not checked, never called grounded');
+  asked.length = 0;
+  await owner.draft({ caption: 'A post that reaches nobody', destinations: ['first-vendor'] });
+  assert.equal(asked.length, 0, 'only a post that reaches someone is checked');
+  const unwired = posts({ judge, decisions: { evals: [{ ...decisions.evals[0], wired: undefined }] } });
+  assert.equal((await unwired.owner.draft({ caption: '@ana hi', destinations: ['first-vendor'], reaches })).post.grounded, undefined, 'a decision not wired asks nothing');
+});

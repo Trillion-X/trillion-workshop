@@ -1,0 +1,410 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { activityRow } from '../src/activity.mjs';
+import { hookKeptHarnessRecords, hostToolEvidence, localHarnessReport, nativeSourceReturn, setupCapabilityEvidence } from '../src/setup-capability-evidence.mjs';
+import { workResults } from '../src/work-results.mjs';
+import { readSetupReference, verifySetupEvidence } from '../../../walk-a-new-person-through-first-setup/from-old-trillion/src/setup-runtime.mjs.held';
+import { settings, runConfiguredHook, setup } from '../../../keep-and-wake-ai-sessions-on-this-computer/harness/setup.mjs';
+
+const at = delta => new Date(Date.parse('2026-10-08T12:00:00Z') + delta).toISOString();
+const identity = value => `1e:${bytesToHex(blake3(new TextEncoder().encode(JSON.stringify(value))))}`;
+const kept = (ref, kind, value) => ({ ref, kind, state: 'resolved', value, identity: identity(value) });
+const pair = { scope_id: 'computer-sources:test-computer', harness: 'claude-code' };
+const messageFor = report => kept('message:local-evidence', 'message', { app: 'Setup verification', conversation_id: 'setup-evidence:test',
+  speaker: 'ai', captured_road: 'mcp', recorded_at: at(2000), text: JSON.stringify({ schema: 'trillion.setup-local-evidence/v1', capability: 'harness', scope_id: pair.scope_id, report }) });
+
+function hostFixture(operation) {
+  // External host output is fixture evidence. The automatic result uses the production result owner below.
+  const rows = new Map();
+  const save = (ref, kind, value) => { rows.set(ref, kept(ref, kind, value)); return rows.get(ref); };
+  save('setting:owner_user_id', 'setting', { value: 'own-account' });
+  save('message:source', 'message', { conversation_id: 'host-source', source_ref: 'source-item-1', speaker: 'person',
+    at: at(-5000), recorded_at: at(-4000), captured_road: 'mcp', text: 'Read this harmless fixture item' });
+  save('arrival:source', 'arrival', { source_id: 'host-source', route: 'Fixture connector', at: at(-5000), message_id: 'message:source' });
+  save('agent:fixture-agent', 'agent', { agent_id: 'fixture-agent', takes_work: true, reach: { live: false }, delivery_configured: false });
+  const work = save('h_fixture', 'handoff', { handoff_id: 'h_fixture', state: 'finished', handed_at: at(-1000), taken_at: at(10), finished_at: at(20),
+    taken_by: 'fixture-agent', input: { arrived: { message_id: 'message:source', source_id: 'host-source' } },
+    result: { state: 'completed', outcome: 'The harmless fixture item was checked.' } });
+  workResults({ read: ref => rows.get(ref)?.value, settings: { app: 'Trillion', max_depth: 1, follow_ups_per_job: 1 }, followUp: () => {},
+    kept: { record({ messages }) { save('message:result', 'message', { ...messages[0], recorded_at: at(30), captured_road: 'work-result' }); return { ids: ['message:result'] }; } },
+  }).finished(work.value);
+  const envelope = { schema: 'trillion.setup-host-evidence/v1', operation, host: 'Fixture external host', tool: 'fixture actual tool',
+    tool_result_id: 'fixture-result-1', observed_at: at(1000), account_ref: 'setting:owner_user_id',
+    ...(operation === 'connector' ? { connector: { connection_id: 'host-connection-1', service: 'Fixture service', authorized: true,
+      source_id: 'host-source', arrival_ref: 'arrival:source', source_item_ref: 'source-item-1' } } : {
+      scheduled_pickup: { agent_id: 'fixture-agent', schedule: { id: 'host-schedule-1', enabled: true, next_run_at: at(60000) },
+        execution: { id: 'host-execution-1', state: 'completed', trigger: 'scheduled', started_at: at(0), finished_at: at(100), handoff_ref: 'h_fixture', result_ref: 'message:result' } } }) };
+  const message = save('message:host-evidence', 'message', { conversation_id: 'setup-evidence:fixture', speaker: 'ai',
+    at: at(1000), recorded_at: at(2000), captured_road: 'mcp', text: JSON.stringify(envelope) });
+  const inspect = () => { message.value.text = JSON.stringify(envelope); return hostToolEvidence(message, { operation, references: rows }); };
+  const capability = () => { inspect(); return setupCapabilityEvidence({ definition: { evidence: { kind: operation === 'connector' ? 'connected-service' : 'agent-pickup' } },
+    row: { state: 'verified', evidence_refs: [...rows.keys()] }, references: rows, readReference: ref => rows.get(ref), identity }); };
+  return { rows, envelope, message, inspect, capability };
+}
+
+async function observedInspector(t) {
+  const directory = mkdtempSync(join(tmpdir(), 'trillion-setup-proof-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const home = join(directory, 'home'), payload = join(directory, 'harness');
+  mkdirSync(home); mkdirSync(payload);
+  for (const file of settings.payload.required) writeFileSync(join(payload, file), file.endsWith('.mjs') ? 'export const harmlessFixture = true;\n' : '{}\n');
+  const options = { home, payload, platform: 'darwin', env: {}, harness: pair.harness,
+    execute: () => ({ status: 0, stdout: 'fixture host', stderr: '' }),
+    inspectPayload: () => ({ id: 'payload', status: 'ready', path: payload, runtime: process.execPath,
+      evidence: { kind: 'pinned-checkout', checkout: directory, commit: 'a'.repeat(40) } }),
+    // Host/payload identity is fixture data; the currently retained hook processes below really execute.
+    inspectRuntime: () => [{ id: 'chosen-ai', status: 'pending' }, { id: 'helper', status: 'pending' }],
+  };
+  const configured = await setup({ ...options, action: 'apply' });
+  assert.equal(configured.checks.filter(row => row.id.startsWith('ran-') && row.status === 'ready').length, 0);
+  for (const hook of settings.hooks) {
+    const execution = runConfiguredHook({ id: hook.id, harness: pair.harness, payload, home,
+      input: JSON.stringify({ hook_event_name: hook.event }), now: () => at(-1000) });
+    assert.equal(execution.status, 0);
+  }
+  return { configured, report: await setup({ ...options, action: 'inspect' }) };
+}
+
+test('current inspector output needs each retained hook execution; optional background worker does not force selection', async t => {
+  const { configured, report } = await observedInspector(t);
+  assert.equal(localHarnessReport(messageFor({ ...configured, action: 'inspect' }), pair).verified, false);
+  assert.equal(report.ready, false, 'the optional fixture worker is deliberately unselected');
+  const proof = localHarnessReport(messageFor(report), pair);
+  assert.equal(proof.verified, true, JSON.stringify(proof.problems));
+  assert.equal(proof.observations.length, settings.hooks.length);
+  assert.equal(proof.origin, 'agent-kept-local-inspector');
+  assert.equal(proof.whole_report_ready, false);
+  assert.match(proof.limits.join(' '), /does not prove a remote/);
+  const row = { id: 'harness', state: 'verified', scope_ids: [pair.scope_id], harness_scopes: [pair], evidence_refs: ['message:local-evidence'] };
+  const references = new Map([['message:local-evidence', messageFor(report)]]);
+  const result = setupCapabilityEvidence({ definition: { evidence: { kind: 'local-harness-report' } }, original: { harness_scopes: [pair] }, row, references });
+  assert.equal(result.verified, true); assert.equal(result.basis, 'structured_local_inspector_report');
+  row.harness_scopes = []; assert.equal(setupCapabilityEvidence({ definition: { evidence: { kind: 'local-harness-report' } }, original: { harness_scopes: [pair] }, row, references }).verified, false);
+});
+
+test('an applicable empty discovery can gain a configured harness only with its actual retained-hook proof', async t => {
+  const { report } = await observedInspector(t);
+  const message = messageFor(report);
+  const references = new Map([[message.ref, message], [pair.scope_id, kept(pair.scope_id, 'computer-sources', { computer_id: 'test-computer' })]]);
+  const inventory = { requirements: [{ id: 'harness', applicability: 'applicable', reason: 'The chosen local host still needs enrollment.', evidence_refs: [message.ref], scope_ids: [], harness_scopes: [] }] };
+  const configured = { id: 'harness', state: 'verified', observed: 'The real harmless hook processes were inspected.', evidence_refs: [message.ref], scope_ids: [pair.scope_id], harness_scopes: [pair] };
+  const configuration = { results: [structuredClone(configured)], remaining: [] }, output = { verified: [structuredClone(configured)], remaining: [] };
+  const options = { inventory, configuration, output, definitions: [{ id: 'harness', scope_from: 'computers', evidence: { kind: 'local-harness-report' } }],
+    required: ['harness'], readReference: ref => references.get(ref), readScope: () => ({ computers: [pair.scope_id] }), identity };
+  const check = overrides => verifySetupEvidence({ ...options, ...overrides });
+  assert.equal(check().capabilities[0].verified, true, JSON.stringify(check()));
+  assert.equal(check().capabilities[0].facts.reports[0].observations.length, settings.hooks.length);
+  assert.equal(check().verified, false, 'local execution never substitutes for the separate input/work/result/read loop');
+  assert.equal(check({ configuration: undefined }).capabilities[0].verified, false, 'a legacy policy still requires exact discovery');
+  const cases = [
+    ['retarget a discovered harness', value => { value.inventory.requirements[0].scope_ids = [pair.scope_id]; value.inventory.requirements[0].harness_scopes = [{ ...pair, harness: 'codex' }]; }],
+    ['omit configured pair in final', value => { value.output.verified[0].harness_scopes = []; }],
+    ['pair outside configured scope', value => { value.configuration.results[0].harness_scopes = [{ ...pair, scope_id: 'computer-sources:other' }]; }],
+    ['duplicate configured pair', value => { value.configuration.results[0].harness_scopes.push(pair); }],
+    ['change original applicability', value => { value.inventory.requirements[0].applicability = 'not-applicable'; }],
+    ['hide newly configured harness as not applicable', value => { value.inventory.requirements[0].applicability = 'not-applicable'; value.configuration.results[0].state = value.output.verified[0].state = 'not-applicable'; }],
+  ];
+  for (const [name, mutate] of cases) {
+    const value = structuredClone({ inventory, configuration, output }); mutate(value);
+    assert.equal(check(value).capabilities[0].verified, false, name);
+  }
+  const knownComputer = structuredClone(inventory); knownComputer.requirements[0].scope_ids = [pair.scope_id];
+  assert.equal(check({ inventory: knownComputer }).capabilities[0].verified, true, 'a current known computer may gain a new proven harness');
+  assert.equal(check({ inventory: knownComputer, readScope: () => ({ computers: [] }) }).capabilities[0].verified, false,
+    'adding a harness still requires current computer ownership even when discovery already named that scope');
+  const incomplete = structuredClone(report);
+  incomplete.checks = incomplete.checks.filter(row => row.id !== 'ran-notices');
+  references.set(message.ref, messageFor(incomplete));
+  assert.equal(check().capabilities[0].verified, false, 'a newly enrolled pair still needs every actual current hook execution');
+  references.set(message.ref, message);
+  const prose = kept('message:claim', 'message', { text: 'All configured', speaker: 'ai' }); references.set(prose.ref, prose);
+  const configOnlyClaim = structuredClone(configuration); configOnlyClaim.results[0].evidence_refs = [prose.ref];
+  assert.equal(check({ configuration: configOnlyClaim }).capabilities[0].verified, false, 'final proof cannot launder unsupported configuration evidence');
+});
+
+test('empty, config-only, stale, wrong-scope and generic-prose native claims are rejected', async t => {
+  const { report } = await observedInspector(t);
+  const changes = [
+    value => { value.checks = []; },
+    value => { value.checks = value.checks.filter(row => !row.id.startsWith('ran-')); },
+    value => { value.checks.find(row => row.id === 'ran-notices').status = 'pending'; },
+    value => { value.checks.find(row => row.id === 'ran-session').evidence.definition_hash = 'b'.repeat(64); },
+    value => { value.checks.find(row => row.id === 'ran-session').evidence.at = at(5000); },
+    value => { value.checks.find(row => row.id === 'ran-session').evidence.exit_code = 1; },
+    value => { value.checks.find(row => row.id === 'configuration').evidence.hooks.pop(); },
+    value => { value.checks.find(row => row.id === 'payload').evidence = { kind: 'some-app', identifier: 'invented' }; },
+    value => { value.action = 'apply'; },
+  ];
+  for (const change of changes) { const modified = structuredClone(report); change(modified); assert.equal(localHarnessReport(messageFor(modified), pair).verified, false); }
+  assert.equal(localHarnessReport(messageFor(report), { ...pair, scope_id: 'computer-sources:other' }).verified, false);
+  const claim = messageFor(report); claim.value.text = 'I set everything up'; assert.equal(localHarnessReport(claim, pair).verified, false);
+  const unattributed = messageFor(report); unattributed.value.speaker = 'person'; assert.equal(localHarnessReport(unattributed, pair).verified, false);
+  const withoutProvenance = messageFor(report); delete withoutProvenance.value.recorded_at; assert.equal(localHarnessReport(withoutProvenance, pair).verified, false);
+});
+
+test('Codex proof also requires the host’s distinct current trust inventory for every hook', async t => {
+  const { report } = await observedInspector(t);
+  report.harness = 'codex';
+  assert.equal(localHarnessReport(messageFor(report), { ...pair, harness: 'codex' }).verified, false);
+  report.checks.push(...settings.hooks.map(hook => ({ id: `host-${hook.id}`, status: 'ready', evidence: { key: `host-${hook.id}`, current_hash: `provider-hash-${hook.id}`, trust: 'trusted', enabled: true } })));
+  assert.equal(localHarnessReport(messageFor(report), { ...pair, harness: 'codex' }).verified, true);
+  report.checks.find(row => row.id === 'host-notices').evidence.enabled = false;
+  assert.equal(localHarnessReport(messageFor(report), { ...pair, harness: 'codex' }).verified, false);
+});
+
+// What the transcript hook (harness/record-every-message.mjs) keeps by itself for one Claude Code session: the person's
+// prompt through the carrier door (the message store sets that road) and an execution receipt read from the same
+// transcript, both sent with the hook's own sign-in.
+function hookKept() {
+  const prompt = kept('message:hook-prompt', 'message', { conversation_id: 'claude-code:session-1', app: 'Claude Code', speaker: 'person',
+    text: 'Finish my Trillion setup.', at: at(-2000), recorded_at: at(-1900), captured_road: 'carrier_door', recorded_by: 'key:hook', recorded_app: 'Claude Code' });
+  const receipt = kept('execution:hook-receipt', 'execution', { execution_ref: 'execution:hook-receipt', call_id: 'hook-receipt', operation: 'read_setup',
+    capture_kind: 'host_transcript', origin: 'unknown', captured_at: at(-1500), event_phase: 'returned', phase: 'recorded',
+    recorder: { reader: 'key:hook', basis: 'authenticated', app_basis: 'unknown' }, claimed: { app: 'Claude Code', conversation_id: 'claude-code:session-1', tool_call_id: 'toolu_1' } });
+  const references = new Map([[prompt.ref, prompt], [receipt.ref, receipt]]);
+  const row = { id: 'harness', state: 'verified', scope_ids: [pair.scope_id], harness_scopes: [pair], evidence_refs: [prompt.ref, receipt.ref] };
+  const inspect = () => setupCapabilityEvidence({ definition: { evidence: { kind: 'local-harness-report' } }, original: { harness_scopes: [pair] }, row, references });
+  return { prompt, receipt, references, row, inspect };
+}
+
+test('a harness whose chat its transcript hook records is proved by that hook’s own kept prompt and execution receipt', () => {
+  const fixture = hookKept();
+  // Before, only an AI-kept inspector message counted, and record_messages refuses a chat its transcript hook records.
+  assert.equal(localHarnessReport(fixture.prompt, pair).verified, false, 'the hook’s records are not an inspector report');
+  const result = fixture.inspect();
+  assert.equal(result.verified, true, JSON.stringify(result.problems));
+  assert.equal(result.basis, 'hook_kept_transcript_records');
+  const report = result.facts.reports[0];
+  assert.equal(report.origin, 'hook-kept-transcript-records');
+  assert.deepEqual(report.evidence_refs, [fixture.prompt.ref, fixture.receipt.ref]);
+  assert.deepEqual(report.observations.map(row => row.id), ['transcript'], 'only the transcript hook leaves account records');
+  assert.deepEqual(report.unobserved_hooks, settings.hooks.map(hook => hook.id).filter(id => id !== 'transcript'));
+  assert.match(report.limits.join(' '), /computer association/);
+  assert.equal(hookKeptHarnessRecords([...fixture.references.values()], { ...pair, harness: 'codex' }).verified, false, 'a Claude Code session never proves Codex');
+});
+
+test('hook-kept harness proof refuses a prompt or receipt the hook did not keep for that same session and sign-in', () => {
+  const changes = {
+    'prompt alone': f => { f.row.evidence_refs = [f.prompt.ref]; },
+    'receipt alone': f => { f.row.evidence_refs = [f.receipt.ref]; },
+    'prompt written with record_messages': f => { f.prompt.value.captured_road = 'unspecified'; },
+    'AI reply instead of the person’s words': f => { f.prompt.value.speaker = 'ai'; },
+    'another app’s chat': f => { f.prompt.value.app = 'Codex'; },
+    'receipt from another session': f => { f.receipt.value.claimed.conversation_id = 'claude-code:session-2'; },
+    'receipt recorded by another sign-in': f => { f.receipt.value.recorder.reader = 'key:someone-else'; },
+    'explicitly recorded receipt': f => { f.receipt.value.capture_kind = 'explicit_recording'; },
+    'correction of a receipt': f => { f.receipt.value.corrects = 'execution:earlier'; },
+    'receipt claims another app': f => { f.receipt.value.claimed.app = 'Codex'; },
+    'conversation outside the harness': f => { f.prompt.value.conversation_id = f.receipt.value.claimed.conversation_id = 'web:chat'; },
+    'unresolved receipt': f => { f.receipt.state = 'missing'; },
+    'no sign-in on the prompt': f => { delete f.prompt.value.recorded_by; },
+    'harness pair dropped': f => { f.row.harness_scopes = []; },
+  };
+  for (const [name, change] of Object.entries(changes)) { const fixture = hookKept(); change(fixture); assert.equal(fixture.inspect().verified, false, name); }
+});
+
+test('the hook’s kept records resolve through the account’s own record owner in a configured setup', () => {
+  const fixture = hookKept();
+  const records = new Map([...fixture.references.values()].map(ref => [ref.ref, { kind: ref.kind, value: ref.value }]));
+  records.set(pair.scope_id, { kind: 'computer-sources', value: { computer_id: 'test-computer', reported_at: at(0) } });
+  const readReference = ref => readSetupReference(ref, { record: id => records.get(id) ?? { kind: null, value: null } });
+  const row = { ...fixture.row, observed: 'The transcript hook kept this session’s prompt and tool receipt.' };
+  const inventory = { requirements: [{ id: 'harness', applicability: 'applicable', reason: 'Claude Code runs on this computer.', evidence_refs: [fixture.prompt.ref], scope_ids: [pair.scope_id], harness_scopes: [pair] }] };
+  const checked = verifySetupEvidence({ inventory, configuration: { results: [structuredClone(row)], remaining: [] }, output: { verified: [structuredClone(row)], remaining: [] },
+    definitions: [{ id: 'harness', scope_from: 'computers', evidence: { kind: 'local-harness-report' } }], required: ['harness'], readReference,
+    readScope: () => ({ computers: [pair.scope_id] }), identity });
+  assert.equal(checked.capabilities[0].verified, true, JSON.stringify(checked.capabilities[0].problems));
+  assert.equal(checked.capabilities[0].verification_basis, 'hook_kept_transcript_records');
+  records.delete(fixture.receipt.ref);
+  const missing = verifySetupEvidence({ inventory, configuration: { results: [structuredClone(row)], remaining: [] }, output: { verified: [structuredClone(row)], remaining: [] },
+    definitions: [{ id: 'harness', scope_from: 'computers', evidence: { kind: 'local-harness-report' } }], required: ['harness'], readReference,
+    readScope: () => ({ computers: [pair.scope_id] }), identity });
+  assert.equal(missing.capabilities[0].verified, false, 'a receipt that is not kept in this account proves nothing');
+});
+
+test('source intake reads the person’s words kept through the carrier door, as read_setup counts them arrived', () => {
+  const words = kept('message:door', 'message', { conversation_id: 'claude-code:session-1', app: 'Claude Code', speaker: 'person', text: 'Here is my note.',
+    at: at(0), recorded_at: at(100), captured_road: 'carrier_door', recorded_by: 'key:hook' });
+  const references = new Map([[words.ref, words]]);
+  const inspect = () => setupCapabilityEvidence({ definition: { evidence: { kind: 'source-arrival' } }, row: { state: 'verified', evidence_refs: [words.ref] }, references });
+  const result = inspect();
+  assert.equal(result.verified, true, JSON.stringify(result.problems));
+  assert.deepEqual(result.facts.arrivals, [{ ref: words.ref, source_id: 'claude-code:session-1', message_ref: words.ref, route: 'Claude Code', basis: 'carrier_door_message' }]);
+  assert.equal(result.facts.complete_history_inferred, false);
+  const changes = {
+    'a message an AI recorded': value => { value.captured_road = 'unspecified'; },
+    'a chat import': value => { value.captured_road = 'chat_import'; },
+    'an AI’s follow-up': value => { value.speaker = 'claude-code'; },
+    'generated context': value => { value.speaker = 'generated context'; },
+    'no record time': value => { delete value.recorded_at; },
+    'no conversation': value => { delete value.conversation_id; },
+  };
+  for (const [name, change] of Object.entries(changes)) {
+    const before = structuredClone(words.value); change(words.value);
+    assert.equal(inspect().verified, false, name);
+    words.value = before;
+  }
+  words.state = 'missing'; assert.equal(inspect().verified, false, 'a message not kept in this account proves nothing');
+});
+
+test('typed account capabilities do not accept an arbitrary owned original message as proof', () => {
+  const reference = kept('message:request', 'message', { text: 'Please set it all up', speaker: 'person' });
+  const references = new Map([[reference.ref, reference]]);
+  for (const kind of ['profile', 'pursuit-record', 'source-arrival', 'connected-service', 'agent-pickup', 'local-harness-report']) {
+    const result = setupCapabilityEvidence({ definition: { evidence: { kind } }, original: {}, row: { state: 'verified', evidence_refs: [reference.ref] }, references, readReference: () => null, identity });
+    assert.equal(result.verified, false, kind);
+  }
+});
+
+test('policy-declared device or notification scope cannot be omitted while a web-only empty scope stays valid', () => {
+  const reference = kept('message:inventory', 'message', { speaker: 'ai', text: 'The actual device inventory was inspected.' });
+  const references = new Map([[reference.ref, reference]]), row = { state: 'not-applicable', evidence_refs: [reference.ref] };
+  for (const field of ['device_ids', 'notification_routes', 'new-data-defined-scope']) {
+    const definition = { evidence: { applicable_if_declared: [field] } };
+    const inspect = original => setupCapabilityEvidence({ definition, original, row, references });
+    assert.equal(inspect({ [field]: [] }).verified, true, 'a legitimate empty discovered scope can be inapplicable');
+    const declared = inspect({ [field]: ['actual-discovered-item'] });
+    assert.equal(declared.verified, false, field); assert.match(declared.problems[0], /declared/);
+  }
+});
+
+test('profile checks keep automatic display names distinct from supplied or legal identity', () => {
+  const owner = kept('setting:owner_user_id', 'setting', { value: 'own-account' });
+  const profile = kept('setting:network_profile', 'setting', { value: { name: 'name from email', filled: { name: 'name from email' }, written: [] } });
+  const references = new Map([[owner.ref, owner], [profile.ref, profile]]), row = { state: 'verified', evidence_refs: [...references.keys()] };
+  const inspect = required_fields => setupCapabilityEvidence({ definition: { evidence: { kind: 'profile', required_fields } }, row, references });
+  const optional = inspect([]); assert.equal(optional.verified, true); assert.equal(optional.facts.name_origin, 'automatically-filled');
+  assert.equal(optional.facts.supplied_name_verified, false); assert.equal(optional.facts.legal_name_verified, false);
+  assert.equal(inspect(['name']).verified, false, 'an enabled feature that needs a supplied name cannot use an email-derived one');
+  profile.value.value.written.push('name'); assert.equal(inspect(['name']).verified, true);
+});
+
+test('pursuits, source intake and connections check the real record type and current owner state', () => {
+  const refs = [kept('pursuit:actual', 'pursuit', { title: 'Your specific project', now: 'An unfinished prototype', after: 'A shipped working product', status: 'active' }),
+    kept('arrival:actual', 'arrival', { source_id: 'actual-source', route: 'Notes', at: at(0), message_id: 'message:source' }),
+    kept('message:source', 'message', { recorded_at: at(100), captured_road: 'carrier' }),
+    kept('task_history', 'task', { state: 'working' }), kept('connection:service', 'connection', { status: 'connected', last_checked: { service_answered: 200 } })];
+  const references = new Map(refs.map(ref => [ref.ref, ref])), row = { state: 'verified', evidence_refs: [...references.keys()] };
+  const inspect = kind => setupCapabilityEvidence({ definition: { evidence: { kind } }, row, references });
+  assert.equal(inspect('pursuit-record').verified, true); refs[0].value.status = 'ended'; assert.equal(inspect('pursuit-record').verified, false);
+  assert.equal(inspect('source-arrival').verified, true); assert.deepEqual(inspect('source-arrival').facts.active_backlog_refs, ['task_history']);
+  assert.equal(inspect('source-arrival').facts.complete_history_inferred, false);
+  refs[1].value.message_id = 'message:missing'; assert.equal(inspect('source-arrival').verified, false);
+  assert.equal(inspect('connected-service').verified, true); refs[4].value.status = 'disconnected'; assert.equal(inspect('connected-service').verified, false);
+});
+
+test('agent proof pairs a real pickup with the registered AI and observed delivery', () => {
+  const agent = kept('agent:actual', 'agent', { agent_id: 'actual', takes_work: true, reach: { live: false } });
+  const work = kept('h_actual', 'handoff', { handoff_id: 'h_actual', state: 'finished', taken_by: 'actual', handed_at: at(-1000), taken_at: at(-100), finished_at: at(0) });
+  const references = new Map([[agent.ref, agent], [work.ref, work]]), row = { state: 'verified', evidence_refs: [...references.keys()] };
+  const inspect = () => setupCapabilityEvidence({ definition: { evidence: { kind: 'agent-pickup' } }, row, references, readReference: () => null, identity });
+  assert.equal(inspect().verified, false, 'manual pull alone does not establish ongoing delivery');
+  agent.value.reach.live = true; assert.equal(inspect().verified, true);
+  agent.value.reach.live = false; agent.value.delivery_configured = true; agent.value.last_delivered_at = at(-500);
+  assert.equal(inspect().verified, true);
+  agent.value.last_undelivered_at = at(500); assert.equal(inspect().verified, false);
+  agent.value.reach.live = true; work.value.taken_by = 'someone-else'; assert.equal(inspect().verified, false);
+});
+
+test('a native signed-return observation is rechecked against the exact owned transcript', () => {
+  const handoff = { handoff_id: 'h_native', state: 'finished', finished_at: at(0), input: { arrived: { source_id: 'claude-code:real-session' } },
+    result: { state: 'completed', outcome: 'A checked result' }, source_return: { verified: true, source_id: 'claude-code:real-session', message_id: 'message:native', transcript_message_id: 'native-message-1', verified_at: at(1000), outcome: 'A checked result' } };
+  const message = { speaker: 'ai', conversation_id: handoff.source_return.source_id, source_ref: 'native-message-1', text: 'h_native A checked result', at: at(500), recorded_at: at(600) };
+  const readReference = ref => ref === 'message:native' ? { kind: 'message', value: message } : null;
+  assert.equal(nativeSourceReturn(handoff, { readReference, identity }).verified, true);
+  handoff.result.state = 'pending'; assert.equal(nativeSourceReturn(handoff, { readReference, identity }).verified, false);
+  handoff.result.state = 'completed'; handoff.source_return.outcome = 'A different older result';
+  assert.equal(nativeSourceReturn(handoff, { readReference, identity }).verified, false);
+  handoff.source_return.outcome = handoff.result.outcome;
+  message.source_ref = 'different-native-message'; assert.equal(nativeSourceReturn(handoff, { readReference, identity }).verified, false);
+  assert.equal(nativeSourceReturn(handoff, { readReference: () => null, identity }).verified, false);
+});
+
+test('an authorized external connector with real source arrival avoids a duplicate account connection', () => {
+  const fixture = hostFixture('connector');
+  const proof = fixture.inspect();
+  assert.equal(proof.verified, true, JSON.stringify(proof.problems));
+  assert.equal(proof.basis, 'agent_kept_external_tool_evidence');
+  assert.equal(proof.facts.arrival_ref, 'arrival:source');
+  assert.match(proof.limits.join(' '), /cannot independently query/);
+  const capability = fixture.capability();
+  assert.equal(capability.verified, true); assert.deepEqual(capability.facts.connection_refs, []);
+  assert.equal(capability.basis, 'agent_kept_external_tool_evidence');
+  fixture.rows.set('connection:revoked', kept('connection:revoked', 'connection', { status: 'disconnected' }));
+  assert.equal(fixture.capability().verified, false, 'a current declared connection failure cannot be hidden by an external claim');
+});
+
+test('external connector evidence rejects prose, secrets fields, wrong ownership and missing actual source return', () => {
+  const changes = {
+    'missing actual tool identity': fixture => { delete fixture.envelope.tool_result_id; },
+    'wrong account ref': fixture => { fixture.envelope.account_ref = 'setting:other_user_id'; },
+    'missing account record': fixture => { fixture.rows.delete('setting:owner_user_id'); },
+    'extra credential field': fixture => { fixture.envelope.api_key = 'fixture-forbidden-field'; },
+    'arbitrary tool output': fixture => { fixture.envelope.connector.raw_output = { invented: true }; },
+    'authorization only proposed': fixture => { fixture.envelope.connector.authorized = false; },
+    'wrong source association': fixture => { fixture.envelope.connector.source_id = 'different-source'; },
+    'wrong source item': fixture => { fixture.envelope.connector.source_item_ref = 'different-item'; },
+    'missing real arrival': fixture => { fixture.rows.delete('arrival:source'); },
+    'missing linked message': fixture => { fixture.rows.delete('message:source'); },
+    'missing intake provenance': fixture => { delete fixture.rows.get('message:source').value.captured_road; },
+    'future observation': fixture => { fixture.envelope.observed_at = at(3000); },
+    'person attribution': fixture => { fixture.message.value.speaker = 'person'; },
+    'unobserved evidence owner': fixture => { fixture.message.state = 'unknown'; },
+  };
+  for (const [name, change] of Object.entries(changes)) { const fixture = hostFixture('connector'); change(fixture); assert.equal(fixture.inspect().verified, false, name); }
+  const prose = hostFixture('connector'); prose.message.value.text = 'The host connection is ready';
+  assert.equal(hostToolEvidence(prose.message, { operation: 'connector', references: prose.rows }).verified, false);
+  const notInThisRow = hostFixture('connector');
+  assert.equal(setupCapabilityEvidence({ definition: { evidence: { kind: 'connected-service' } },
+    row: { state: 'verified', evidence_refs: ['message:host-evidence'] }, references: notInThisRow.rows }).verified, false,
+  'linked proof is explicitly cited by this capability, not borrowed invisibly from another row');
+});
+
+test('an external scheduled execution can verify pickup without a paid provider or persistent live delivery', () => {
+  const fixture = hostFixture('scheduled-pickup');
+  const proof = fixture.inspect();
+  assert.equal(proof.verified, true, JSON.stringify(proof.problems));
+  assert.equal(proof.facts.work_ref, 'h_fixture'); assert.equal(proof.facts.execution_id, 'host-execution-1');
+  const capability = fixture.capability();
+  assert.equal(capability.verified, true, JSON.stringify(capability.problems));
+  assert.equal(capability.basis, 'agent_kept_external_tool_evidence');
+  assert.equal(capability.facts.pickups[0].delivery, null, 'the external schedule supplies the observed pickup path');
+});
+
+test('external pickup evidence rejects configuration-only timers, manual runs and unlinked or unfinished results', () => {
+  const changes = {
+    'timer only': fixture => { delete fixture.envelope.scheduled_pickup.execution; },
+    'disabled schedule': fixture => { fixture.envelope.scheduled_pickup.schedule.enabled = false; },
+    'no next run': fixture => { delete fixture.envelope.scheduled_pickup.schedule.next_run_at; },
+    'expired next run': fixture => { fixture.envelope.scheduled_pickup.schedule.next_run_at = at(-1); },
+    'manual execution': fixture => { fixture.envelope.scheduled_pickup.execution.trigger = 'manual'; },
+    'unobserved execution': fixture => { fixture.envelope.scheduled_pickup.execution.state = 'queued'; },
+    'execution before pickup': fixture => { fixture.envelope.scheduled_pickup.execution.finished_at = at(5); },
+    'execution after completion': fixture => { fixture.envelope.scheduled_pickup.execution.started_at = at(25); },
+    'unregistered worker': fixture => { fixture.rows.delete('agent:fixture-agent'); },
+    'disabled worker': fixture => { fixture.rows.get('agent:fixture-agent').value.takes_work = false; },
+    'different worker': fixture => { fixture.rows.get('h_fixture').value.taken_by = 'another-agent'; },
+    'withdrawn work': fixture => { fixture.rows.get('h_fixture').value.withdrawal = { at: at(100) }; },
+    'unfinished work': fixture => { fixture.rows.get('h_fixture').value.state = 'taken'; },
+    'pending outcome': fixture => { fixture.rows.get('h_fixture').value.result.state = 'pending'; },
+    'missing result': fixture => { fixture.rows.delete('message:result'); },
+    'edited result text': fixture => { fixture.rows.get('message:result').value.text = 'A generic success'; },
+    'wrong result source': fixture => { fixture.rows.get('message:result').value.source_ref = 'handoff:some-other-work'; },
+    'wrong conversation': fixture => { fixture.rows.get('message:result').value.conversation_id = 'unrelated'; },
+    'result before work': fixture => { fixture.rows.get('message:result').value.at = at(5); },
+    'missing original input': fixture => { fixture.rows.delete('message:source'); },
+  };
+  for (const [name, change] of Object.entries(changes)) { const fixture = hostFixture('scheduled-pickup'); change(fixture); assert.equal(fixture.inspect().verified, false, name); }
+});
+
+test('stopping a workflow records a successful stop action while retaining the failed nested workflow outcome', () => {
+  const row = activityRow({ tool: 'stop_workflow_run', input: { run_id: 'run:one', reason: 'Stop this setup' },
+    result: { stopped: true, run: { run_id: 'run:one', workflow_id: 'workflow:setup', state: 'failed', withdrawal: { kind: 'workflow-stop' } } }, at: at(0) });
+  assert.equal(row.ok, true); assert.equal(row.item, 'run:one'); assert.deepEqual(row.uses, ['workflow:setup']);
+  assert.equal(row.label, 'Stopped a workflow');
+});
