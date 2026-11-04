@@ -512,8 +512,9 @@
   {
    "path": "parts/ui/show/coss/ui/toast.tsx",
    "class": "app-screen",
-   "destination": "held: show-coss: web/parts/ui/show/show-rules/show-of.ts is already in the destination with other bytes",
-   "why": "parts/ui/show lane"
+   "destination": "trillion-apps:web/parts/ui/show/coss/ui/toast.tsx",
+   "why": "parts/ui/show lane",
+   "batch": "app-screens round 2 (trillion-apps PR #24)"
   },
   {
    "path": "parts/ui/show/display-mark/DisplayMark.tsx",
@@ -3006,8 +3007,9 @@
   {
    "path": "src/ai-apps-screen.mjs",
    "class": "app-screen",
-   "destination": "held: ai-apps-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
-   "why": "screen or page the app shows"
+   "destination": "trillion-apps:web/src/ai-apps-screen.mjs",
+   "why": "screen or page the app shows",
+   "batch": "app-screens round 2 (trillion-apps PR #24)"
   },
   {
    "path": "src/ai-clients.json",
@@ -3319,15 +3321,15 @@
   },
   {
    "path": "src/billing-screen.json",
-   "class": "app-screen",
-   "destination": "held: billing-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/price-and-sell-by-contract/src/billing-screen.json",
+   "why": "same bytes on main"
   },
   {
    "path": "src/billing-screen.mjs",
-   "class": "app-screen",
-   "destination": "held: billing-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
-   "why": "screen or page the app shows"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/billing-screen.mjs",
+   "why": "a file of the retired Worker host: Evidence: readBilling reads env.APP_KV itself, and reads src/screen-reads.mjs and src/payment.mjs, which call env.APP_KV. Nothing on trillion-apps, trillion-workshop or trillion-rust main imports it; its importers at the tag are Worker route files (src/account-routes.mjs, src/account-action-domain.mjs, src/billing-pricing-controls.mjs). Its words (src/billing-screen.json) and usage tree are home in trillion-workshop tools/price-and-sell-by-contract."
   },
   {
    "path": "src/billing-usage-tree.mjs",
@@ -3412,9 +3414,9 @@
   },
   {
    "path": "src/browser-pages.mjs",
-   "class": "app-screen",
-   "destination": "held: browser-pages: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
-   "why": "screen or page the app shows"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/browser-pages.mjs",
+   "why": "a file of the retired Worker host: Evidence: it names public apps through src/public-app-names.mjs, which reaches the retired src/resource-host.mjs and src/hosts/cloudflare/resource-host.mjs, then src/payment.mjs (env.APP_KV). Nothing on trillion-apps, trillion-workshop or trillion-rust main imports it; its importers at the tag are Worker route files (src/worker.mjs, retired)."
   },
   {
    "path": "src/browser-record-copy.mjs",
@@ -3439,9 +3441,9 @@
   },
   {
    "path": "src/business-screen.mjs",
-   "class": "app-screen",
-   "destination": "held: business-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
-   "why": "screen or page the app shows"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/business-screen.mjs",
+   "why": "a file of the retired Worker host: Evidence: readBusiness reads src/stored-checks.mjs and src/payment.mjs, which call env.APP_KV. Nothing on trillion-apps, trillion-workshop or trillion-rust main imports it; its importers at the tag are Worker route files (src/account-routes.mjs, src/account-action-domain.mjs). Its money words (src/money-reads.json) are home in trillion-workshop tools/money-reads."
   },
   {
    "path": "src/byte-range.mjs",
@@ -4302,15 +4304,15 @@
   },
   {
    "path": "src/drives-screen.json",
-   "class": "app-screen",
-   "destination": "held: drives-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
-   "why": "screen or page the app shows"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/drives-screen.json",
+   "why": "a file of the retired Worker host: Evidence: the words of src/drives-screen.mjs (retired), read by it and by Worker route files (src/account-routes.mjs, src/account-action-domain.mjs, src/native-media-account-actions.mjs, src/person-store.mjs). Nothing on any main reads it; the cloud space totals' words are home in trillion-workshop tools/connected-drives (work-cloud-space.json)."
   },
   {
    "path": "src/drives-screen.mjs",
-   "class": "app-screen",
-   "destination": "held: drives-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
-   "why": "screen or page the app shows"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/drives-screen.mjs",
+   "why": "a file of the retired Worker host: Evidence: it runs tools through src/tool-run-call.mjs, which reaches the retired src/resource-host.mjs and src/hosts/cloudflare/resource-host.mjs, then src/payment.mjs (env.APP_KV). Nothing on trillion-apps, trillion-workshop or trillion-rust main imports it; its importers at the tag are Worker route files (src/account-routes.mjs, src/account-action-domain.mjs, src/native-media-account-actions.mjs, src/person-store.mjs). Its cloud space read is home in trillion-workshop tools/show-the-persons-cloud-space-on-the-signed-in-page (work-cloud-space.mjs)."
   },
   {
    "path": "src/duplicate-work-fold.mjs",
@@ -5127,9 +5129,9 @@
   },
   {
    "path": "src/link-page-pages.mjs",
-   "class": "app-screen",
-   "destination": "held: link-page-pages: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
-   "why": "screen or page the app shows"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/link-page-pages.mjs",
+   "why": "a file of the retired Worker host: Evidence: it names people through src/person-names.mjs, which reaches the retired src/resource-host.mjs and src/hosts/cloudflare/resource-host.mjs, then src/payment.mjs (env.APP_KV). Nothing on trillion-apps, trillion-workshop or trillion-rust main imports it; its importers at the tag are Worker route files (src/worker.mjs, retired). The link page's words (src/link-page.json) and screen (src/link-page-screen.mjs) are home in trillion-apps web/src."
   },
   {
    "path": "src/link-page-screen.mjs",
@@ -7072,9 +7074,9 @@
   },
   {
    "path": "src/native-work-screen.mjs",
-   "class": "app-screen",
-   "destination": "held: native-work-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
-   "why": "screen or page the app shows"
+   "class": "home-exists",
+   "destination": "trillion-workshop:tools/decide-with-a-method/read-data/work-screen.mjs",
+   "why": "adapted port: its ports/work-screen.json names this file whole as the source it moved from, at the tag's bytes (1f:19cce609c6131ecd9c1c011f3bf92cd4dbab75e65b636fb3f377a71186c5f998)"
   },
   {
    "path": "src/native-workflow-learning.mjs",
@@ -7835,7 +7837,7 @@
   {
    "path": "src/presentation-content.mjs",
    "class": "app-screen",
-   "destination": "held: presentation-content: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
+   "destination": "held: presentation-content: src/marketplace-content-document.mjs reaches src/published-shelf-resource.mjs, which calls kv (env.APP_KV), and the move swaps no call; trillion-apps web/test/walkthroughs.test.mjs and web/test/marketplace-presentation-consumers.test.mjs import it at web/src/presentation-content.mjs",
    "why": "screen or page the app shows"
   },
   {
@@ -7866,9 +7868,9 @@
   },
   {
    "path": "src/privacy-screen.mjs",
-   "class": "app-screen",
-   "destination": "held: privacy-screen: web/src/hq-sharing.mjs:48 still calls kv (env.APP_KV); add a swap row for it in calls",
-   "why": "screen or page the app shows"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/privacy-screen.mjs",
+   "why": "a file of the retired Worker host: Evidence: privacyFacts reads the sharing choice through src/hq-sharing.mjs, which reads and writes env.APP_KV. Nothing on trillion-apps, trillion-workshop or trillion-rust main imports it; its importers at the tag are Worker route files (src/screen-reads.mjs, retired). The sharing choice is home in trillion-workshop tools/choose-whether-my-decisions-are-shared-show (sharing-choice.mjs)."
   },
   {
    "path": "src/private-method.mjs",
@@ -8923,15 +8925,15 @@
   },
   {
    "path": "src/screen-pictures.mjs",
-   "class": "app-screen",
-   "destination": "held: screen-pictures: web/src/screen-pictures.mjs:82 still calls kv (env.APP_KV); add a swap row for it in calls",
-   "why": "screen or page the app shows"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/screen-pictures.mjs",
+   "why": "a file of the retired Worker host: Evidence: drawOwnScreen draws with the Worker's Browser Rendering binding (env.BROWSER) and keeps its look sessions in env.APP_KV. Nothing on trillion-apps, trillion-workshop or trillion-rust main imports it; its importers at the tag are Worker route files (src/worker.mjs, retired; src/account-action-domain.mjs)."
   },
   {
    "path": "src/screen-reads.mjs",
-   "class": "app-screen",
-   "destination": "held: screen-reads: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
-   "why": "screen or page the app shows"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/screen-reads.mjs",
+   "why": "a file of the retired Worker host: Evidence: its reads call env.APP_KV directly (account name and phone, passkeys, sessions, sign-in methods) and through src/payment.mjs, src/shares.mjs, src/hq-sharing.mjs and others. Nothing on trillion-apps, trillion-workshop or trillion-rust main imports it; its importers at the tag are Worker route files (src/account-action-domain.mjs; src/billing-screen.mjs, retired)."
   },
   {
    "path": "src/screen-spec.json",
@@ -9636,9 +9638,9 @@
   },
   {
    "path": "src/show-as-a-page.mjs",
-   "class": "app-screen",
-   "destination": "held: show-as-a-page: it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/**)",
-   "why": "screen or page the app shows"
+   "class": "retired",
+   "destination": "tag old-trillion-before-worker-retire:src/show-as-a-page.mjs",
+   "why": "a file of the retired Worker host: Evidence: it shares records through src/record-sharing.mjs, which sends mail through src/mail-sender.mjs (env.APP_KV). Nothing on trillion-apps, trillion-workshop or trillion-rust main imports it; its importers at the tag are Worker route files (src/account-action-domain.mjs)."
   },
   {
    "path": "src/show-rules-tools.mjs",
@@ -10672,7 +10674,7 @@
   {
    "path": "src/typed-on-signed-in-screen.mjs",
    "class": "app-screen",
-   "destination": "held: typed-on-signed-in-screen: it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/**)",
+   "destination": "held: typed-on-signed-in-screen: src/native-look-authorization.mjs imports src/account-policy-name.mjs (retired), which reaches the retired src/resource-host.mjs and src/payment.mjs (env.APP_KV); trillion-workshop tools/social-posts/native-post-owner.mjs imports it at ./typed-on-signed-in-screen.mjs",
    "why": "screen or page the app shows"
   },
   {
