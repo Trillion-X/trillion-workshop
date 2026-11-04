@@ -1,0 +1,186 @@
+// tools/publish-an-engine-release/do-work/install-a-builder.mjs
+//
+// `tool:install-an-engine-builder` and `tool:read-an-engine-builder` (tool-rows.json), run on the person's computer:
+// make a Linux machine they run into the builder that publishes signed engine releases, over SSH as start-a-place
+// reaches a machine. install runs set-up-the-builder.sh (a builder user, git, Node.js, rust, Caddy serving the feed
+// folder at https://<name>/engine-releases/ and passing push deliveries to the receiver, a firewall), copies this
+// tool's own files there, writes the publish config, makes the signing key once on the builder (it never leaves; its
+// public half is answered), stores the repository token and the push secret as systemd credentials encrypted with
+// the builder's own host key, and starts the push receiver service. status reads the receiver, the feed and the last
+// run back.
+//
+// The builder, repository and branch are input; this file names none. The repository token arrives on descriptor 3
+// and the push secret on descriptor 4; each goes to the builder on the SSH channel's standard input, never argv, a
+// file on this computer, the environment, a log or the answer.
+//
+// usage: install-a-builder.mjs install REQUEST_FILE | status REQUEST_FILE
+import { readFileSync } from 'node:fs';
+import { dirname, isAbsolute, resolve as resolvePath } from 'node:path';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { privateInput } from './publish-an-engine-release.mjs';
+import { readFeed, settings } from './release-feed.mjs';
+
+const SETUP = fileURLToPath(new URL('./set-up-the-builder.sh', import.meta.url));
+const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const B = settings.on_builder;
+const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
+const refuse = (message, exit = 2) => Object.assign(new Error(message), { exit });
+const absolute = (path, what) => {
+  if (typeof path !== 'string' || !isAbsolute(path)) throw refuse(`${what} must be an absolute path.`);
+  return path;
+};
+
+// The files the builder runs, laid out as they are here so the imports resolve unchanged.
+export const SHIPPED = [
+  'tools/publish-an-engine-release/do-work', 'tools/publish-an-engine-release/read-data',
+  'tools/content-identity/read-data', 'tools/content-identity/package.json',
+  ...['LICENSE', 'package.json', 'blake3.js', 'blake2.js', '_blake.js', '_md.js', '_u64.js', 'utils.js'].map(file => `node_modules/@noble/hashes/${file}`),
+];
+
+/** Run one command on the builder as root; `input` is a string, a Buffer or a readable stream. Answers stdout. */
+export function onMachine({ ssh, address }, command, input, spawnImpl = spawn) {
+  const identity = ssh.identity_file ? ['-i', absolute(ssh.identity_file, 'ssh.identity_file'), '-o', 'IdentitiesOnly=yes'] : [];
+  const args = ['-T', ...identity, '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10',
+    '-o', 'StrictHostKeyChecking=accept-new', '-o', `UserKnownHostsFile=${absolute(ssh.known_hosts, 'ssh.known_hosts')}`, `root@${address}`, command];
+  return new Promise((resolve, reject) => {
+    const child = spawnImpl('ssh', args, { stdio: ['pipe', 'pipe', 'pipe'] });
+    let out = '', err = '';
+    child.stdout.on('data', bytes => { out += bytes; });
+    child.stderr.on('data', bytes => { err += bytes; });
+    child.on('error', reject);
+    child.on('close', code => (code === 0 ? resolve(out) : reject(Object.assign(new Error(`On the builder, \`${command.split(' ')[0]}\` exited ${code}: ${err.trim().split('\n').slice(-3).join(' | ')}`), { code }))));
+    if (input?.pipe) input.pipe(child.stdin); else child.stdin.end(input ?? '');
+  });
+}
+
+/** The shipped files as one tar.gz stream, read from this checkout. */
+export function shippedTarball(root = ROOT) {
+  const tar = spawn('tar', ['--owner=0', '--group=0', '--numeric-owner', '--exclude=__pycache__', '-C', root, '-czf', '-', ...SHIPPED], { stdio: ['ignore', 'pipe', 'inherit'] });
+  return tar.stdout;
+}
+
+/** The request checked: the builder's address and public name, how to reach it, and the repository. */
+export function checkRequest(request) {
+  const { builder, ssh, repository } = request ?? {};
+  if (!builder || typeof builder.address !== 'string' || !/^[0-9A-Fa-f.:]+$|^[a-z0-9.-]+$/.test(builder.address)) throw refuse('builder.address must be the machine\'s IP address or DNS name, which SSH reaches as root.');
+  if (typeof builder.host_name !== 'string' || !/^([a-z0-9-]+\.)+[a-z]{2,}$/.test(builder.host_name)) throw refuse('builder.host_name must be the public DNS name pointed at the builder, like releases.example.com: Caddy gets its certificate for it.');
+  if (!ssh || typeof ssh.known_hosts !== 'string') throw refuse('ssh.known_hosts must name the known_hosts file for the builder (made the first time).');
+  if (!repository || typeof repository.url !== 'string' || !/^(https:\/\/|ssh:\/\/|git@)/.test(repository.url)) throw refuse('repository.url must be the URL git fetches the engine repository from, like https://github.com/OWNER/REPOSITORY.git.');
+  if (typeof repository.branch !== 'string' || !/^[A-Za-z0-9._/-]{1,200}$/.test(repository.branch)) throw refuse('repository.branch must be the branch whose pushes are published, like main.');
+  if (request.keep_releases !== undefined && (!Number.isSafeInteger(request.keep_releases) || request.keep_releases < 1 || request.keep_releases > settings.keep_releases)) throw refuse(`keep_releases must be a whole number from 1 to ${settings.keep_releases}.`);
+  return request;
+}
+
+/** The config publish and the receiver read on the builder: paths and names only, never a credential. */
+export function builderConfig(request) {
+  return {
+    repository: request.repository.url, branch: request.repository.branch,
+    base_url: `https://${request.builder.host_name}${settings.feed_path}`,
+    work_folder: B.work_folder, feed_folder: B.feed_folder, key_file: B.key_file, state_folder: B.state_folder,
+    keep_releases: request.keep_releases ?? settings.keep_releases,
+    toolchain: { cargo: `${B.home}/.cargo/bin/cargo`, rustc: `${B.home}/.cargo/bin/rustc` },
+    receiver: { host: '127.0.0.1', port: settings.receiver_port, path: settings.push_path },
+  };
+}
+
+const credential = name => `${B.credentials_folder}/${B.service}-${name}`;
+const toolFile = name => `${B.tool_folder}/tools/publish-an-engine-release/do-work/${name}`;
+const PATH = `${B.home}/.cargo/bin:/usr/local/bin:/usr/bin:/bin`;
+
+/** The receiver's systemd unit: its two credentials opened onto descriptors 3 and 4. */
+export function receiverUnit({ hasToken }) {
+  return `[Unit]
+Description=Publishes a signed engine release for each push it receives
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=${B.user}
+Group=${B.user}
+Environment=PATH=${PATH}
+Environment=HOME=${B.home}
+${hasToken ? `LoadCredentialEncrypted=repository-token:${credential('repository-token')}\n` : ''}LoadCredentialEncrypted=push-secret:${credential('push-secret')}
+ExecStart=/bin/sh -c 'exec node ${toolFile('receive-pushes.mjs')} serve ${B.config_file} 3<${hasToken ? '"$CREDENTIALS_DIRECTORY/repository-token"' : '/dev/null'} 4<"$CREDENTIALS_DIRECTORY/push-secret"'
+Restart=on-failure
+RestartSec=5
+UMask=0022
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=${B.home} ${B.feed_folder}
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+`;
+}
+
+async function feedStatus(hostName, fetchImpl) {
+  try { return (await fetchImpl(`https://${hostName}${settings.feed_path}${settings.feed_file}`, { signal: AbortSignal.timeout(10000) })).status; }
+  catch { return null; }
+}
+
+/** Make the machine the builder and start receiving pushes; answers the public key and where to point the webhook. */
+export async function installBuilder(request, { token = '', secret = '', run = onMachine, tarball = shippedTarball, fetchImpl = fetch } = {}) {
+  checkRequest(request);
+  if (!secret) throw refuse('Descriptor 4 holds no push secret: hand the webhook secret from the person\'s vault on descriptor 4 (the same secret goes in the repository\'s webhook).');
+  const machine = { ssh: request.ssh, address: request.builder.address };
+  const setup = [request.builder.host_name, settings.receiver_port, settings.feed_path, settings.push_path, B.user, B.home, B.feed_folder, B.state_folder, settings.node_major_at_least, settings.node_dist, settings.rustup_url];
+  await run(machine, `sh -s -- ${setup.map(q).join(' ')}`, readFileSync(SETUP));
+  const T = B.tool_folder;
+  await run(machine, `rm -rf ${q(`${T}.new`)} && install -d -m 0755 ${q(`${T}.new`)} && tar -C ${q(`${T}.new`)} -xzf - && chmod -R a+rX,go-w ${q(`${T}.new`)} && rm -rf ${q(`${T}.old`)} && { test ! -e ${q(T)} || mv ${q(T)} ${q(`${T}.old`)}; } && mv ${q(`${T}.new`)} ${q(T)} && rm -rf ${q(`${T}.old`)}`, tarball());
+  await run(machine, `install -d -m 0755 ${q(dirname(B.config_file))} && install -m 0644 /dev/stdin ${q(B.config_file)}`, `${JSON.stringify(builderConfig(request), null, 1)}\n`);
+  const key = JSON.parse((await run(machine, `runuser -u ${q(B.user)} -- env PATH=${q(PATH)} node ${q(toolFile('publish-an-engine-release.mjs'))} make-key ${q(B.key_file)}`)).trim().split('\n').at(-1));
+  await run(machine, `install -d -m 0700 ${q(B.credentials_folder)} && umask 077 && systemd-creds encrypt --name=push-secret - ${q(credential('push-secret'))}`, secret);
+  if (token) await run(machine, `umask 077 && systemd-creds encrypt --name=repository-token - ${q(credential('repository-token'))}`, token);
+  else await run(machine, `rm -f ${q(credential('repository-token'))}`);
+  await run(machine, `install -m 0644 /dev/stdin /etc/systemd/system/${q(`${B.service}.service`)}`, receiverUnit({ hasToken: Boolean(token) }));
+  const active = (await run(machine, `systemctl daemon-reload && systemctl enable ${q(B.service)} >/dev/null 2>&1; systemctl restart ${q(B.service)} && sleep 2 && systemctl is-active ${q(B.service)}`)).trim();
+  const host = request.builder.host_name;
+  return {
+    public_key: key.public_key, key_made: key.made,
+    feed_url: `https://${host}${settings.feed_path}${settings.feed_file}`, receiver_active: active === 'active', feed_status: await feedStatus(host, fetchImpl),
+    webhook: { url: `https://${host}${settings.push_path}`, content_type: 'application/json', events: ['push'] },
+  };
+}
+
+/** The receiver's state, the feed's newest release per target and the last run, read from the builder. */
+export async function builderStatus(request, { run = onMachine, fetchImpl = fetch } = {}) {
+  checkRequest(request);
+  const machine = { ssh: request.ssh, address: request.builder.address };
+  const active = (await run(machine, `systemctl is-active ${q(B.service)} || true`)).trim();
+  const feed = readFeed((await run(machine, `cat ${q(`${B.feed_folder}/${settings.feed_file}`)} 2>/dev/null || true`)) || null);
+  const lastRun = (await run(machine, `cat ${q(`${B.state_folder}/last-run.json`)} 2>/dev/null || true`)).trim();
+  const key = JSON.parse((await run(machine, `runuser -u ${q(B.user)} -- env PATH=${q(PATH)} node ${q(toolFile('publish-an-engine-release.mjs'))} public-key ${q(B.key_file)}`)).trim().split('\n').at(-1));
+  const newest = {};
+  for (const entry of feed.releases) if (!newest[entry.target] || entry.sequence > newest[entry.target].sequence) newest[entry.target] = entry;
+  return {
+    receiver_active: active === 'active', public_key: key.public_key ?? null, releases_held: feed.releases.length,
+    newest: Object.values(newest).map(({ commit, sequence, target, urgent }) => ({ commit, sequence, target, urgent })),
+    last_run: lastRun ? JSON.parse(lastRun) : null, feed_status: await feedStatus(request.builder.host_name, fetchImpl),
+  };
+}
+
+/** A request read from its file, its ssh paths resolved against the file's own folder. */
+export function readRequest(file) {
+  const request = JSON.parse(readFileSync(absolute(file, 'REQUEST_FILE'), 'utf8')), here = dirname(file);
+  for (const key of ['known_hosts', 'identity_file']) if (typeof request.ssh?.[key] === 'string') request.ssh[key] = resolvePath(here, request.ssh[key]);
+  return request;
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const [operation, first, ...rest] = process.argv.slice(2);
+  try {
+    if (!['install', 'status'].includes(operation) || !first || rest.length) throw refuse('usage: install-a-builder.mjs install REQUEST_FILE (repository token on fd 3, push secret on fd 4) | status REQUEST_FILE');
+    const request = readRequest(resolvePath(first));
+    const answer = operation === 'install'
+      ? await installBuilder(request, { token: await privateInput(3), secret: await privateInput(4) })
+      : await builderStatus(request);
+    process.stdout.write(`${JSON.stringify(answer)}\n`);
+  } catch (error) {
+    process.stderr.write(`${error.message}\n`);
+    process.exitCode = error.exit ?? 1;
+  }
+}
