@@ -1,4 +1,4 @@
-// parts/media-composition/read-data/suggestion-stream.mjs
+// tools/media-composition/read-data/suggestion-stream.mjs (moved from Trillion-X/trillion parts/media-composition/read-data/suggestion-stream.mjs)
 //
 // A SUGGESTION ARRIVES AS TYPED LINES THE PERSON CAN WATCH, STOPS WHEN ASKED, AND IS KEPT FOR THE ALGORITHM THAT MADE IT.
 //

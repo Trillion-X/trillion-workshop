@@ -67,7 +67,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 // The platform's limit on one object's store is read once, from the data every store-size reader shares (src/store-size.json).
-import storeSize from '../../../src/store-size.json' with { type: 'json' };
+import storeSize from './store-size.json' with { type: 'json' };
 const TOMB = Symbol('removed');
 const FILTER_BITS_PER_KEY = 10;
 const FILTER_HASHES = 7;
